@@ -18,8 +18,8 @@ Feel free to copy whatever you find useful and please consider contributing so o
 This project has a simple goal: make executing basic batch processing quick and simple.
 
  * Configuration file based, for easy operation of many different tasks,
- * Support command-lim operations with a minimum of coding,
- * Enable DevOps prototyping,
+ * Support command-line operations with a minimum of coding,
+ * Enable integrations prototyping,
  * Provide utilities to assist in the loading and extraction of data,
  * Provide value first, optimize later.
 

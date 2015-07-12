@@ -13,7 +13,7 @@ jar {
     manifest {
 	attributes  'Implementation-Title' : 'Coyote Batch Framework',
 		'Provider' : 'Coyote Codeworks',
-		'Main-Class' : 'coyote.snapi.Loader',
+		'Main-Class' : 'coyote.batch.Loader',
 		'Implementation-Version' : version
 	}
 }
