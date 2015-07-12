@@ -1,7 +1,7 @@
 
 # Coyote Batch
 
-This is a lightweight framework for performing basic ETL tasks.
+This is a lightweight toolkit for performing basic ETL tasks.
 
 The framework is single-threaded for simplicity and ease of debugging. If a more high performance, multi-threaded platform is desired, there are many from which to choose. This is designed for basic file processing in a small footprint package.
 
@@ -25,7 +25,7 @@ This project has a simple goal: make executing basic batch processing quick and 
 
 ## Prerequisites:
 
-  * JDK 1.6 or later installed
+  * JDK 1.7 or later installed
   * Ability to run bash (*nix) or batch (Windows) scripts
   * Network connection to get the dependencies (there are ways around that)
   * Assumes you do not have gradle installed (if you do, you can replace gradlew with gradle)
