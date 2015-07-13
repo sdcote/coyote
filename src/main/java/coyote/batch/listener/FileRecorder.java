@@ -25,6 +25,7 @@ import org.slf4j.LoggerFactory;
 
 import coyote.batch.ConfigTag;
 import coyote.batch.TransformContext;
+import coyote.commons.StringUtil;
 import coyote.commons.UriUtil;
 
 
@@ -58,33 +59,52 @@ public abstract class FileRecorder extends ContextRecorder {
     setTarget( getString( ConfigTag.TARGET ) );
     log.debug( "Using a target of {}", getTarget() );
 
-    try {
-      URI target = new URI( getTarget() );
+    if ( StringUtil.isNotBlank( getTarget() ) ) {
 
-      // Make sure we have a complete path to the target file
-      File dest = new File( UriUtil.getFilePath( target ) );
+      String target = getTarget().trim();
 
-      // if not absolute, use the current working directory
-      if ( !dest.isAbsolute() ) {
-        dest = new File( System.getProperty( "user.dir" ), UriUtil.getFilePath( target ) );
+      // Try to parse the target as a URI, failures result in a null
+      if ( UriUtil.parse( target ) == null ) {
+        // Windows systems often have a drive letter in fully qualified filenames
+        if ( target.charAt( 1 ) == ':' ) {
+          // convert it to a file URI
+          File f = new File( target );
+          URI u = f.toURI();
+          setTarget( u.toString() );
+        }
+      }      
+      
+      
+      try {
+        URI uri = new URI( getTarget() );
+
+        // Make sure we have a complete path to the target file
+        File dest = new File( UriUtil.getFilePath( uri ) );
+
+        // if not absolute, use the current working directory
+        if ( !dest.isAbsolute() ) {
+          dest = new File( System.getProperty( "user.dir" ), UriUtil.getFilePath( uri ) );
+        }
+
+        // make any directories as necessary
+        dest.getParentFile().mkdirs();
+
+        // 
+        targetFile = dest;
+        log.debug( "Using a target file of {}", targetFile.toString() );
+
+        // Create the writer
+        log_writer = new OutputStreamWriter( new FileOutputStream( targetFile.toString(), false ) );
+
+      } catch ( final URISyntaxException e ) {
+        context.setError( "Invalid target URI (" + e.getMessage() + ") - '" + getTarget() + "'" );
+      } catch ( FileNotFoundException e ) {
+        context.setError( "Could not write to target URI (" + e.getMessage() + ") - '" + getTarget() + "'" );
+      } catch ( Exception e ) {
+        context.setError( "Processing exception (" + e.getMessage() + ") during open " );
+        e.printStackTrace();
       }
 
-      // make any directories as necessary
-      dest.getParentFile().mkdirs();
-
-      // 
-      targetFile = dest;
-
-      // Create the writer
-      log_writer = new OutputStreamWriter( new FileOutputStream( targetFile.toString(), false ) );
-
-    } catch ( final URISyntaxException e ) {
-      context.setError( "Invalid target URI (" + e.getMessage() + ") - '" + getTarget() + "'" );
-    } catch ( FileNotFoundException e ) {
-      context.setError( "Could not write to target URI (" + e.getMessage() + ") - '" + getTarget() + "'" );
-    } catch ( Exception e ) {
-      context.setError( "Processing exception (" + e.getMessage() + ") during open " );
-      e.printStackTrace();
     }
 
   }

@@ -92,12 +92,20 @@ public abstract class AbstractFrameWriter extends AbstractConfigurableComponent 
       String target = getString( ConfigTag.TARGET );
       log.debug( "using a target of {}", target );
 
+      // Make sure we have a target
       if ( StringUtil.isNotBlank( target ) ) {
+
+        // Try to parse the target as a URI, failures result in a null
+        final URI uri = UriUtil.parse( target );
 
         File targetFile = null;
 
-        final URI uri = UriUtil.parse( target );
-        if ( uri != null ) {
+        // Check to see if it is STDOUT or STDERR
+        if ( STDOUT.equalsIgnoreCase( target ) ) {
+          printwriter = new PrintWriter( System.out );
+        } else if ( STDERR.equalsIgnoreCase( target ) ) {
+          printwriter = new PrintWriter( System.err );
+        } else if ( uri != null ) {
           if ( UriUtil.isFile( uri ) ) {
             targetFile = UriUtil.getFile( uri );
             if ( targetFile != null ) {
@@ -105,19 +113,10 @@ public abstract class AbstractFrameWriter extends AbstractConfigurableComponent 
             } else {
               log.warn( "The target '{}' does not represent a file", target );
             }
-          } else {
-            if ( STDOUT.equalsIgnoreCase( target ) ) {
-              printwriter = new PrintWriter( System.out );
-            } else if ( STDERR.equalsIgnoreCase( target ) ) {
-              printwriter = new PrintWriter( System.err );
-            } else {
-              targetFile = new File( target );
-              log.debug( "Using a target file of " + targetFile.getAbsolutePath() );
-            }
           }
         } else {
-          log.error( "Could not decode target '" + target + "'" );
-          context.setError( getClass().getName() + " could not determine target" );
+          targetFile = new File( target );
+          log.debug( "Using a target file of " + targetFile.getAbsolutePath() );
         }
 
         if ( targetFile != null ) {
@@ -129,6 +128,9 @@ public abstract class AbstractFrameWriter extends AbstractConfigurableComponent 
             log.error( "Could not create writer: " + e.getMessage() );
             context.setError( e.getMessage() );
           }
+        } else {
+          log.error( "Invalid target '{}'", target );
+          context.setError( getClass().getName() + " could not parse target '" + target + "' into a file path" );
         }
 
       } else {
