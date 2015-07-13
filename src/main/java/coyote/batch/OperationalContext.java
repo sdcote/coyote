@@ -30,8 +30,8 @@ public abstract class OperationalContext {
   public static final String ERROR_STATUS = "Error";
   protected String status = null;
   protected String message = null;
-  protected long startTime = 0;
-  protected long endTime = 0;
+  protected volatile long startTime = 0;
+  protected volatile long endTime = 0;
   protected final Map<String, Object> properties = new HashMap<String, Object>();
   protected OperationalContext parent = null;
 

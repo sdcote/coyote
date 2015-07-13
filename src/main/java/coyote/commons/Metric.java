@@ -278,4 +278,15 @@ public class Metric {
 
     return message.toString();
   }
+
+
+
+
+  /**
+   * @return the total count
+   */
+  public long getTotal() {
+    return total;
+  }
+
 }

@@ -149,20 +149,32 @@ public class ContextLogger extends FileRecorder {
     b.append( " elapsed " );
     b.append( DECIMAL.format( context.getElapsed() ) );
     b.append( " ms" );
-    
+
     if ( context instanceof TransformContext ) {
       b.append( " - " );
       b.append( metric.toString() );
+      b.append( StringUtil.LINE_FEED );
+
+      long elapsed = context.getElapsed();
+      long total = metric.getTotal();
+      long overhead = elapsed - total;
+
+      b.append( "Transform Overhead: " );
+      b.append( DECIMAL.format( overhead ) );
+      b.append( " ms" );
+
+      long rows = metric.getSamplesCount();
+      if ( rows > 0 ) {
+        b.append( " - " );
+        b.append( DECIMAL.format( overhead / rows ) );
+        b.append( " ms/row " );
+      }
+      b.append( StringUtil.LINE_FEED );
+
     }
-    
-    
+
     b.append( StringUtil.LINE_FEED );
     write( b.toString() );
   }
 
-
-
-
-  
-  
 }
