@@ -155,7 +155,7 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
       symbols.put( "PD", StringUtil.zeropad( cal.get( Calendar.DAY_OF_MONTH ), 2 ) );
       symbols.put( "PYYY", StringUtil.zeropad( cal.get( Calendar.YEAR ), 4 ) );
       
-      symbols.put( "wrkdir", workDirectory.getAbsolutePath() );
+      symbols.put( Symbols.WORK_DIRECTORY, workDirectory.getAbsolutePath() );
     }
 
   }
@@ -394,6 +394,7 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
       } // Reader !eof and context is without error
 
     } // transformContext ! err after pre-processing
+    
     if ( transformContext.isInError() ) {
       reportTransformContextError( transformContext );
     } else {

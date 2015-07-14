@@ -166,7 +166,7 @@ public class ContextLogger extends FileRecorder {
       long rows = metric.getSamplesCount();
       if ( rows > 0 ) {
         b.append( " - " );
-        b.append( DECIMAL.format( overhead / rows ) );
+        b.append( DECIMAL.format( (double)overhead / (double)rows ) );
         b.append( " ms/row " );
       }
       b.append( StringUtil.LINE_FEED );

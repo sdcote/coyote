@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
 import coyote.batch.AbstractConfigurableComponent;
 import coyote.batch.ConfigTag;
 import coyote.batch.FrameWriter;
+import coyote.batch.Symbols;
 import coyote.batch.TransformContext;
 import coyote.commons.StringUtil;
 import coyote.commons.UriUtil;
@@ -119,18 +120,18 @@ public abstract class AbstractFrameWriter extends AbstractConfigurableComponent 
           log.debug( "Using a target file of " + targetFile.getAbsolutePath() );
         }
 
-        if ( targetFile != null ) {
-          try {
-            final Writer fwriter = new FileWriter( targetFile );
-            printwriter = new PrintWriter( fwriter );
+        if ( targetFile == null ) {
+          // Always assume a file path (in the work directory if possible)
+          targetFile = new File( context.getSymbols().getString( Symbols.WORK_DIRECTORY ), target );
+        }
 
-          } catch ( final Exception e ) {
-            log.error( "Could not create writer: " + e.getMessage() );
-            context.setError( e.getMessage() );
-          }
-        } else {
-          log.error( "Invalid target '{}'", target );
-          context.setError( getClass().getName() + " could not parse target '" + target + "' into a file path" );
+        try {
+          final Writer fwriter = new FileWriter( targetFile );
+          printwriter = new PrintWriter( fwriter );
+
+        } catch ( final Exception e ) {
+          log.error( "Could not create writer: " + e.getMessage() );
+          context.setError( e.getMessage() );
         }
 
       } else {
