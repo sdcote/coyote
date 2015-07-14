@@ -177,4 +177,15 @@ public class ContextLogger extends FileRecorder {
     write( b.toString() );
   }
 
+
+
+
+  /**
+   * @see coyote.batch.ContextListener#onValidationFailed(coyote.batch.OperationalContext, java.lang.String)
+   */
+  @Override
+  public void onValidationFailed( OperationalContext context, String msg ) {
+    
+  }
+
 }

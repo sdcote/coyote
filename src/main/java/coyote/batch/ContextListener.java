@@ -38,4 +38,18 @@ public interface ContextListener extends ConfigurableComponent {
 
   void onError( OperationalContext context );
 
+
+
+
+  /**
+   * Event indicating validation failed in the given context
+   * 
+   * @param context The context in which the validation failed
+   * @param msg error message indicating why the validation failed.
+   */
+  void onValidationFailed( OperationalContext context, String msg );
+
+
+
+
 }

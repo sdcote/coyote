@@ -330,13 +330,21 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
 
           // If the working frame did not get filtered out...
           if ( context.getWorkingFrame() != null ) {
+            
+            boolean passed = true;
             // pass it through the validation rules - errors are logged
             for ( FrameValidator validator : validators ) {
               try {
-                validator.process( context );
+                if( !validator.process( context )){
+                  passed = false;
+                }
               } catch ( ValidationException e ) {
                 context.setError( e.getMessage() );
               }
+            }
+            
+            if( !passed){
+              log.warn( "validation failed" );
             }
 
             if ( !context.isInError() ) {

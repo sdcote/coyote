@@ -16,6 +16,6 @@ package coyote.batch;
  */
 public interface FrameValidator extends ConfigurableComponent {
 
-  void process( TransactionContext context ) throws ValidationException;
+  boolean process( TransactionContext context ) throws ValidationException;
 
 }

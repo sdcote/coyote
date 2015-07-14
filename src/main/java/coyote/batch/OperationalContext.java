@@ -441,4 +441,20 @@ public abstract class OperationalContext {
     this.parent = context;
   }
 
+
+
+
+  /**
+   * Fire an event indicating validation failed in the given context for the 
+   * given reason.
+   * 
+   * @param context The context in which the validation failed
+   * @param msg error message indicating why the validation failed.
+   */
+  public void fireValidationFailed( OperationalContext context, String msg ) {
+    for ( ContextListener listener : listeners ) {
+      listener.onValidationFailed( context, msg );
+    }
+
+  }
 }

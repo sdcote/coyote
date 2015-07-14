@@ -72,6 +72,15 @@ public abstract class AbstractListener extends AbstractConfigurableComponent imp
 
 
   /**
+   * @see coyote.batch.ContextListener#onValidationFailed(coyote.batch.OperationalContext, java.lang.String)
+   */
+  @Override
+  public void onValidationFailed( OperationalContext context, String msg ) {}
+
+
+
+
+  /**
    * @see coyote.batch.Component#open(coyote.batch.TransformContext)
    */
   @Override
