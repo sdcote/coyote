@@ -5,6 +5,10 @@ This is a lightweight toolkit for performing basic ETL tasks.
 
 The framework is single-threaded for simplicity and ease of debugging. If a more high performance, multi-threaded platform is desired, there are many from which to choose. This is designed for basic file processing in a small footprint package.
 
+## Documentation
+
+There is a [project wiki](https://github.com/sdcote/batch/wiki) with is constantly updated with the latest information about the toolkit, how to use it, examples and best practices. It is the primary source for infromation on the toolkit.
+
 ## Development Status
 
 This library is currently in the prototyping stage and is undergoing constant change and redesign.
