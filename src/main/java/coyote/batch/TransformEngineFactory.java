@@ -22,6 +22,7 @@ import org.slf4j.LoggerFactory;
 import coyote.batch.listener.AbstractListener;
 import coyote.batch.reader.AbstractFrameReader;
 import coyote.batch.task.AbstractTransformTask;
+import coyote.batch.validate.AbstractValidator;
 import coyote.batch.writer.AbstractFrameWriter;
 import coyote.commons.FileUtil;
 import coyote.commons.StringUtil;
@@ -51,6 +52,8 @@ public class TransformEngineFactory {
   private static final String LISTENER_PKG = AbstractListener.class.getPackage().getName();
   /** Constant to assist in determining the full class name of tasks */
   private static final String TASK_PKG = AbstractTransformTask.class.getPackage().getName();
+  /** Constant to assist in determining the full class name of validators */
+  private static final String VALIDATOR_PKG = AbstractValidator.class.getPackage().getName();
 
 
 
@@ -90,7 +93,7 @@ public class TransformEngineFactory {
     if ( config != null && config.size() > 0 ) {
       DataFrame frame = config.get( 0 );
 
-        retval = new DefaultTransformEngine();
+      retval = new DefaultTransformEngine();
 
       for ( DataField field : frame.getFields() ) {
 
@@ -112,9 +115,15 @@ public class TransformEngineFactory {
           } else {
             LOG.error( "Invalid writer configuration section" );
           }
-        } else if ( ConfigTag.DATASTORES.equalsIgnoreCase( field.getName() ) ) {
+        } else if ( ConfigTag.DATABASES.equalsIgnoreCase( field.getName() ) ) {
           if ( field.isFrame() ) {
             configDataStores( (DataFrame)field.getObjectValue(), retval );
+          } else {
+            LOG.error( "Invalid pre-process configuration section" );
+          }
+        } else if ( ConfigTag.VALIDATE.equalsIgnoreCase( field.getName() ) ) {
+          if ( field.isFrame() ) {
+            configValidation( (DataFrame)field.getObjectValue(), retval );
           } else {
             LOG.error( "Invalid pre-process configuration section" );
           }
@@ -174,6 +183,41 @@ public class TransformEngineFactory {
 
 
   /**
+   * Get a 
+   * @param cfg
+   * @param engine
+   */
+  private static void configValidation( DataFrame cfg, TransformEngine engine ) {
+    for ( DataField field : cfg.getFields() ) {
+      String className = field.getName();
+      if ( className != null && StringUtil.countOccurrencesOf( className, "." ) < 1 ) {
+        className = VALIDATOR_PKG + "." + className;
+      }
+
+      // All tasks must have an object(frame) as its value.
+      if ( field.isFrame() ) {
+        DataFrame validatorConfig = (DataFrame)field.getObjectValue();
+        Object object = createComponent( className, validatorConfig );
+        if ( object != null ) {
+          if ( object instanceof FrameValidator ) {
+            engine.addValidator( (FrameValidator)object );
+            LOG.debug( "Created validator task {} cfg={}", object.getClass().getName(), validatorConfig );
+          } else {
+            LOG.error( "Specified validator class '{}' was not a frame validator", field.getName() );
+          }
+        } else {
+          LOG.error( "Could not create an instance of the specified validator task '{}'", className );
+        }
+      } else {
+        LOG.error( "Validator task did not contain a configuration, only scalar {}", field.getStringValue() );
+      }
+    } // for each validator
+  }
+
+
+
+
+  /**
    * This creates data sources in the engine for components to use
    * 
    * @param cfg
@@ -185,16 +229,16 @@ public class TransformEngineFactory {
         if ( StringUtil.isNotBlank( field.getName() ) ) {
           DataFrame dataSourceCfg = (DataFrame)field.getObjectValue();
 
-          DataStore store = new DataStore();          
+          DataStore store = new DataStore();
           try {
             store.setConfiguration( dataSourceCfg );
-            store.setName(  field.getName() );
+            store.setName( field.getName() );
           } catch ( ConfigurationException e ) {
             LOG.error( "Could not configure store - {} : {}", e.getClass().getSimpleName(), e.getMessage() );
           }
-          
+
           // Add it to the engine (actually its transform context)
-          engine.addDataStore(store);
+          engine.addDataStore( store );
 
         } else {
           LOG.error( "Data sources must have a unique name" );
