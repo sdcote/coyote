@@ -19,7 +19,8 @@ This project has a simple goal: make executing basic batch processing quick and 
 
  * Configuration file based, for easy operation of many different tasks,
  * Support command-line operations with a minimum of coding,
- * Enable integrations prototyping,
+ * Do not require complicated frameworks or facilities (e.g. containers)
+ * Enable integrations prototyping, and development operations
  * Provide utilities to assist in the loading and extraction of data,
  * Provide value first, optimize later.
 
@@ -28,4 +29,4 @@ This project has a simple goal: make executing basic batch processing quick and 
   * JDK 1.7 or later installed
   * Ability to run bash (*nix) or batch (Windows) scripts
   * Network connection to get the dependencies (there are ways around that)
-  * Assumes you do not have gradle installed (if you do, you can replace gradlew with gradle)
+  * Assumes you do not have gradle installed (if you do, you can replace `gradlew` with just `gradle`)
