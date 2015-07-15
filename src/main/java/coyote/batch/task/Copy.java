@@ -40,8 +40,8 @@ public class Copy extends AbstractFileTask {
     final String sourcedir = getString( ConfigTag.FROMDIR );
     final String target = getString( ConfigTag.TARGET );
     final String targetdir = getString( ConfigTag.TODIR );
-    if ( contains( ConfigTag.HALT ) ) {
-      setHaltOnError( getBoolean( ConfigTag.HALT ) );
+    if ( contains( ConfigTag.HALT_ON_ERROR ) ) {
+      setHaltOnError( getBoolean( ConfigTag.HALT_ON_ERROR ) );
     }
 
     // do the work

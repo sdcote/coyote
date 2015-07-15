@@ -37,8 +37,8 @@ public class Delete extends AbstractFileTask {
   public void execute( TransformContext transformContext ) throws TaskException {
     final String filename = getString( ConfigTag.FILE );
     final String directory = getString( ConfigTag.DIRECTORY );
-    if ( contains( ConfigTag.HALT ) ) {
-      setHaltOnError( getBoolean( ConfigTag.HALT ) );
+    if ( contains( ConfigTag.HALT_ON_ERROR ) ) {
+      setHaltOnError( getBoolean( ConfigTag.HALT_ON_ERROR ) );
     }
 
     if ( StringUtil.isNotBlank( filename ) ) {
