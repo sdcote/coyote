@@ -1,0 +1,24 @@
+{
+
+	"Context" : {
+		"filename" : "psam_recon_[#$YYYY#][#$MM#][#$DD#]",
+		"workfile": "[#$wrkdir#][#$FS#][#$filename#].csv",
+		"outfile": "[#$wrkdir#][#$FS#][#$filename#].txt"
+	},
+
+	"Reader":{
+		"class" : "CSVReader",
+		"source" : "workfile",
+		"header" : true
+	},
+
+	"Validate" : {
+		"NotEmpty" : { "field" : "model",  "desc" : "Model cannot be empty"  },
+		"NotEmpty" : { "field" : "sys_id",  "desc" : "This field cannot be null or empty"  }
+	},
+  
+	"Listeners":[
+		{ "class" : "ContextLogger", "target" : "outfile" }
+	]
+
+}

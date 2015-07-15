@@ -49,19 +49,19 @@ public class DataBaseTest extends AbstractEngineTest {
     assertNotNull( context );
 
     // Get a connection to DevDB
-    DataBase devstore = context.getDataStore( "DevDB" );
-    assertNotNull( devstore );
+    DataBase devdb = context.getDataStore( "DevDB" );
+    assertNotNull( devdb );
 
     // Get a connection to MyDB
-    DataBase mystore = context.getDataStore( "MyDB" );
-    assertNotNull( mystore );
+    DataBase mydb = context.getDataStore( "MyDB" );
+    assertNotNull( mydb );
 
-    assertTrue( devstore != mystore );
+    assertTrue( devdb != mydb );
     
-    Connection devconn = devstore.getConnection();
+    Connection devconn = devdb.getConnection();
     assertNotNull( devconn );
     
-    Connection myconn = mystore.getConnection();
+    Connection myconn = mydb.getConnection();
     assertNotNull( myconn );
     
     assertTrue( devconn != myconn );
@@ -82,6 +82,8 @@ public class DataBaseTest extends AbstractEngineTest {
     }
     finally {
 
+      // Close the engine which should close the context and the database 
+      // connections it contains
       try {
         engine.close();
       } catch ( IOException e ) {
