@@ -11,6 +11,7 @@
  */
 package coyote.batch.writer;
 
+import coyote.batch.TransformContext;
 import coyote.dataframe.DataFrame;
 
 
@@ -24,5 +25,14 @@ public class NullWriter extends AbstractFrameWriter {
    */
   @Override
   public void write( DataFrame frame ) {}
+
+
+
+
+  /**
+   * @see coyote.batch.writer.AbstractFrameWriter#open(coyote.batch.TransformContext)
+   */
+  @Override
+  public void open( TransformContext context ) {}
 
 }
