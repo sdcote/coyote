@@ -120,4 +120,9 @@ public interface TransformEngine extends RunnableComponent {
 
   public void addDataStore( DataStore store );
 
+
+
+
+  public void addValidator( FrameValidator validator );
+
 }

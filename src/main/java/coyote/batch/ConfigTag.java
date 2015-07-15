@@ -16,8 +16,6 @@ package coyote.batch;
  */
 public class ConfigTag {
 
-  
-  
   public static final String AUTO_CREATE = "autocreate";
   /** Batch size ({@value}) configuration attribute. */
   public static final String BATCH = "batch";
@@ -41,9 +39,7 @@ public class ConfigTag {
   public static final String TYPE = "type";
   /** User name ({@value}) configuration attribute. */
   public static final String USERNAME = "username";
-  
-  
-  
+
   // Transform engine
 
   public static final String CONTEXT = "context";
@@ -55,13 +51,14 @@ public class ConfigTag {
   public static final String WRITER = "writer";
   public static final String MAPPER = "mapper";
   public static final String READER = "reader";
-  public static final String DATASTORES = "datastores";
+  public static final String DATABASES = "datastores";
+  public static final String VALIDATE = "Validate";
 
   // Tasks
 
   public static final String TODIR = "todir";
   public static final String FROMDIR = "fromdir";
-  public static final String HALT = "haltonerror";
+  public static final String HALT_ON_ERROR = "haltonerror";
   public static final String HOST = "hostname";
   public static final String PORT = "port";
   public static final String USER = "username";
@@ -70,9 +67,17 @@ public class ConfigTag {
   public static final String FILE = "filename";
   public static final String DIRECTORY = "directory";
 
+  // Validations
+
+  public static final String FIELD = "field";
+  public static final String MATCH = "match";
+  public static final String AVOID = "avoid";
+  public static final String HALT_ON_FAIL = "halt";
+  public static final String DESCRIPTION = "desc";
+
   /**
-   * The name of the system property ({@value}) that contains the path to the home 
-   * directory.
+   * The name of the system property ({@value}) that contains the path to the 
+   * home directory.
    */
-  public static final String HOMEDIR = "snapi.home";
+  public static final String HOMEDIR = "batch.home";
 }

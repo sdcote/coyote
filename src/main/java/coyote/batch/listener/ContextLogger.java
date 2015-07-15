@@ -186,6 +186,19 @@ public class ContextLogger extends FileRecorder {
   @Override
   public void onValidationFailed( OperationalContext context, String msg ) {
     
+    StringBuffer b = new StringBuffer();
+
+    if ( context instanceof TransactionContext ) {
+      b.append( "Transaction validation failure: " );
+    } else if ( context instanceof TransformContext ) {
+      b.append( "Tranform validation failure: " );
+    } else {
+      b.append( "Operational validation failure: " );
+    }
+    
+    b.append( msg );
+    b.append( StringUtil.LINE_FEED );
+    write( b.toString() );
   }
 
 }
