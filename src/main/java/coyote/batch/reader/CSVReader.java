@@ -50,7 +50,7 @@ public class CSVReader extends AbstractFrameReader implements FrameReader, Confi
   final Logger log = LoggerFactory.getLogger( getClass() );
 
   /** The column names read in from the first line */
-  private String[] header = null;
+  private String[] header = new String[0];
 
 
 
