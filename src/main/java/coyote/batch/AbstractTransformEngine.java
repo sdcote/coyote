@@ -150,11 +150,11 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
       symbols.put( "zzz", StringUtil.zeropad( cal.get( Calendar.MILLISECOND ), 3 ) );
 
       // go back one day and get the "previous day" Month Day and Year 
-      cal.add(Calendar.DATE, -1);
+      cal.add( Calendar.DATE, -1 );
       symbols.put( "PM", StringUtil.zeropad( cal.get( Calendar.MONTH ) + 1, 2 ) );
       symbols.put( "PD", StringUtil.zeropad( cal.get( Calendar.DAY_OF_MONTH ), 2 ) );
       symbols.put( "PYYY", StringUtil.zeropad( cal.get( Calendar.YEAR ), 4 ) );
-      
+
       symbols.put( Symbols.WORK_DIRECTORY, workDirectory.getAbsolutePath() );
     }
 
@@ -268,10 +268,12 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
           return;
         }
 
-        writer.open( transformContext );
-        if ( transformContext.isInError() ) {
-          reportTransformContextError( transformContext );
-          return;
+        if ( writer != null ) {
+          writer.open( transformContext );
+          if ( transformContext.isInError() ) {
+            reportTransformContextError( transformContext );
+            return;
+          }
         }
       }
 
@@ -330,21 +332,21 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
 
           // If the working frame did not get filtered out...
           if ( context.getWorkingFrame() != null ) {
-            
+
             boolean passed = true;
             // pass it through the validation rules - errors are logged
             for ( FrameValidator validator : validators ) {
               try {
-                if( !validator.process( context )){
+                if ( !validator.process( context ) ) {
                   passed = false;
                 }
               } catch ( ValidationException e ) {
                 context.setError( e.getMessage() );
               }
             }
-            
-            if( !passed){
-              log.warn( "validation failed" );
+
+            if ( !passed ) {
+              transformContext.fireValidationFailed( "There were validation errors" );
             }
 
             if ( !context.isInError() ) {
@@ -383,10 +385,10 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
                 try {
                   // Write the target (new) frame
                   writer.write( context.getTargetFrame() );
+                  context.fireWrite( context );
                 } catch ( Exception e ) {
                   e.printStackTrace();
                 }
-                context.fireWrite( context );
               }
 
             } // passed validators
@@ -402,7 +404,7 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
       } // Reader !eof and context is without error
 
     } // transformContext ! err after pre-processing
-    
+
     if ( transformContext.isInError() ) {
       reportTransformContextError( transformContext );
     } else {
@@ -420,7 +422,6 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
         reportTransformContextError( transformContext );
       }
     }
-
 
     getContext().end();
 
@@ -533,7 +534,7 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
         log.warn( "Problems closing listener {} : {} - {}", listener.getClass().getName(), e.getClass().getSimpleName(), e.getMessage() );
       }
     }
-    
+
     // close the connections in the transform contexts
     getContext().close();
 
@@ -746,6 +747,19 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
     }
 
     getContext().addDataStore( store );
+  }
+
+
+
+
+  /**
+   * @see coyote.batch.TransformEngine#addValidator(coyote.batch.FrameValidator)
+   */
+  @Override
+  public void addValidator( FrameValidator validator ) {
+    if ( validator != null ) {
+      validators.add( validator );
+    }
   }
 
 }
