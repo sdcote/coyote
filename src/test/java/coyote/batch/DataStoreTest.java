@@ -23,7 +23,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import coyote.batch.DataStore;
+import coyote.batch.DataBase;
 import coyote.batch.TransformContext;
 import coyote.batch.TransformEngine;
 
@@ -49,11 +49,11 @@ public class DataStoreTest extends AbstractEngineTest {
     assertNotNull( context );
 
     // Get a connection to DevDB
-    DataStore devstore = context.getDataStore( "DevDB" );
+    DataBase devstore = context.getDataStore( "DevDB" );
     assertNotNull( devstore );
 
     // Get a connection to MyDB
-    DataStore mystore = context.getDataStore( "MyDB" );
+    DataBase mystore = context.getDataStore( "MyDB" );
     assertNotNull( mystore );
 
     assertTrue( devstore != mystore );

@@ -229,7 +229,7 @@ public class TransformEngineFactory {
         if ( StringUtil.isNotBlank( field.getName() ) ) {
           DataFrame dataSourceCfg = (DataFrame)field.getObjectValue();
 
-          DataStore store = new DataStore();
+          DataBase store = new DataBase();
           try {
             store.setConfiguration( dataSourceCfg );
             store.setName( field.getName() );

@@ -19,7 +19,7 @@ import coyote.dataframe.DataFrameException;
 /**
  * 
  */
-public class DataStore extends AbstractConfigurableComponent implements ConfigurableComponent {
+public class DataBase extends AbstractConfigurableComponent implements ConfigurableComponent {
   final Logger log = LoggerFactory.getLogger( getClass() );
 
   protected Connection connection;
@@ -27,7 +27,7 @@ public class DataStore extends AbstractConfigurableComponent implements Configur
 
 
 
-  public DataStore() {}
+  public DataBase() {}
 
 
 
@@ -77,16 +77,6 @@ public class DataStore extends AbstractConfigurableComponent implements Configur
 
 
 
-  /**
-   * @param value
-   */
-  private void setDriver( String value ) {
-    configuration.put( ConfigTag.DRIVER, value );
-  }
-
-
-
-
   public String getDriver() {
     return configuration.getAsString( ConfigTag.DRIVER );
   }
@@ -111,16 +101,6 @@ public class DataStore extends AbstractConfigurableComponent implements Configur
    */
   public void setTarget( final String value ) {
     configuration.put( ConfigTag.TARGET, value );
-  }
-
-
-
-
-  /**
-   * @param value
-   */
-  private void setPassword( String value ) {
-    configuration.put( ConfigTag.PASSWORD, value );
   }
 
 
@@ -159,16 +139,6 @@ public class DataStore extends AbstractConfigurableComponent implements Configur
 
   public String getName() {
     return configuration.getAsString( ConfigTag.NAME );
-  }
-
-
-
-
-  /**
-   * @param value
-   */
-  private void setLibrary( String value ) {
-    configuration.put( ConfigTag.LIBRARY, value );
   }
 
 
