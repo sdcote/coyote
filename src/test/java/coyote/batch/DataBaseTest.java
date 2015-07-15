@@ -32,8 +32,8 @@ import coyote.batch.TransformEngine;
  * This tests the ability to simply run a bunch of tasks in order within a 
  * context to perform some generic function.
  */
-public class DataStoreTest extends AbstractEngineTest {
-  private static final Logger LOG = LoggerFactory.getLogger( DataStoreTest.class );
+public class DataBaseTest extends AbstractEngineTest {
+  private static final Logger LOG = LoggerFactory.getLogger( DataBaseTest.class );
 
 
 
@@ -42,7 +42,7 @@ public class DataStoreTest extends AbstractEngineTest {
   public void test() {
 
     // load the configuration from the class path
-    TransformEngine engine = loadEngine( "datastoretest" );
+    TransformEngine engine = loadEngine( "databasetest" );
     assertNotNull( engine );
 
     TransformContext context = engine.getContext();
