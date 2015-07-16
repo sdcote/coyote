@@ -354,6 +354,9 @@ public abstract class OperationalContext {
 
 
   protected void fireStart( OperationalContext context ) {
+    if ( parent != null )
+      parent.fireStart( context );
+
     for ( ContextListener listener : listeners ) {
       listener.onStart( context );
     }
@@ -363,6 +366,9 @@ public abstract class OperationalContext {
 
 
   protected void fireEnd( OperationalContext context ) {
+    if ( parent != null )
+      parent.fireEnd( context );
+
     for ( ContextListener listener : listeners ) {
       listener.onEnd( context );
     }
@@ -372,6 +378,9 @@ public abstract class OperationalContext {
 
 
   public void fireWrite( TransactionContext context ) {
+    if ( parent != null )
+      parent.fireWrite( context );
+
     for ( ContextListener listener : listeners ) {
       listener.onWrite( context );
     }
@@ -381,6 +390,9 @@ public abstract class OperationalContext {
 
 
   public void fireRead( TransactionContext context ) {
+    if ( parent != null )
+      parent.fireRead( context );
+
     for ( ContextListener listener : listeners ) {
       listener.onRead( context );
     }
@@ -389,9 +401,40 @@ public abstract class OperationalContext {
 
 
 
+  /**
+   * Fire an event indicating validation failed in the given context for the 
+   * given reason.
+   * 
+   * @param msg error message indicating why the validation failed.
+   */
+  public void fireValidationFailed( String msg ) {
+    if ( parent != null )
+      parent.fireValidationFailed( msg );
+
+    for ( ContextListener listener : listeners ) {
+      listener.onValidationFailed( this, msg );
+    }
+
+  }
+
+
+
+
   public void setListeners( List<ContextListener> listeners ) {
     if ( listeners != null ) {
       this.listeners = listeners;
+    }
+  }
+
+
+
+
+  public void addListener( ContextListener listener ) {
+    if ( listener != null ) {
+      if ( listeners == null ) {
+        listeners = new ArrayList<ContextListener>();
+      }
+      listeners.add( listener );
     }
   }
 
@@ -438,22 +481,9 @@ public abstract class OperationalContext {
    * @param context the parent context to set
    */
   public void setParent( OperationalContext context ) {
-    this.parent = context;
-  }
-
-
-
-
-  /**
-   * Fire an event indicating validation failed in the given context for the 
-   * given reason.
-   * 
-   * @param msg error message indicating why the validation failed.
-   */
-  public void fireValidationFailed( String msg ) {
-    for ( ContextListener listener : listeners ) {
-      listener.onValidationFailed( this, msg );
+    if ( this != context ) {
+      this.parent = context;
     }
-
   }
+
 }

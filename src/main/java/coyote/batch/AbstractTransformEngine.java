@@ -310,7 +310,7 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
 
         // Create a new Transaction context with the list of listeners to react 
         // to events in the transaction.
-        TransactionContext context = new TransactionContext( transformContext, listeners );
+        TransactionContext context = new TransactionContext( transformContext );
         // Start the clock and fire event listeners for the beginning of the
         // transaction
         context.start();

@@ -11,8 +11,6 @@
  */
 package coyote.batch;
 
-import java.util.List;
-
 import coyote.dataframe.DataFrame;
 
 
@@ -30,14 +28,6 @@ public class TransactionContext extends OperationalContext {
 
 
   public TransactionContext( TransformContext context ) {
-    this.parent = context;
-  }
-
-
-
-
-  public TransactionContext( TransformContext context, List<ContextListener> listeners ) {
-    super( listeners );
     this.parent = context;
   }
 
@@ -127,10 +117,5 @@ public class TransactionContext extends OperationalContext {
   public void setRow( long row ) {
     this.row = row;
   }
-
-
-
-
- 
 
 }
