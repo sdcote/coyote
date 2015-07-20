@@ -13,6 +13,7 @@ csharp/
 # Miscellaneous Documentation #
 ###############################
 /misc-docs/
+/cfg/
 
 
 # Compiled Artifacts #
