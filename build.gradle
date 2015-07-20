@@ -8,22 +8,41 @@ defaultTasks 'clean', 'build', 'publish'
 group = 'coyote'
 version = '0.2'
 
-
+ext {
+	title = 'Coyote Batch Framework'
+	provider = 'Coyote Codeworks'
+	mainClass = 'coyote.batch.Loader'
+}
 jar {
     manifest {
-	attributes  'Implementation-Title' : 'Coyote Batch Framework',
-		'Provider' : 'Coyote Codeworks',
-		'Main-Class' : 'coyote.batch.Loader',
+		attributes  'Implementation-Title' : "$title",
+		'Provider' : "$provider",
+		'Main-Class' : "$mainClass",
 		'Implementation-Version' : version
 	}
 }
-
+task fatJar(type: Jar) {
+	manifest {
+		attributes  'Implementation-Title' : "$title",
+		'Provider' : "$provider",
+		'Main-Class' : "$mainClass",
+		'Implementation-Version' : version
+	}
+	baseName = project.name + '-all'
+	from {
+		configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } 
+	}{
+		exclude "META-INF/*.RSA"
+	}
+	with jar
+}
 
 repositories {
 
 	mavenLocal()
 
 	mavenCentral()
+	
 }
 
 
