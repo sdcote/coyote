@@ -115,9 +115,9 @@ public class TransformEngineFactory {
           } else {
             LOG.error( "Invalid writer configuration section" );
           }
-        } else if ( ConfigTag.DATABASES.equalsIgnoreCase( field.getName() ) ) {
+        } else if ( ConfigTag.DATABASES.equalsIgnoreCase( field.getName() ) || ConfigTag.DATABASE.equalsIgnoreCase( field.getName() ) ) {
           if ( field.isFrame() ) {
-            configDataStores( (DataFrame)field.getObjectValue(), retval );
+            configDatabases( (DataFrame)field.getObjectValue(), retval );
           } else {
             LOG.error( "Invalid pre-process configuration section" );
           }
@@ -223,7 +223,7 @@ public class TransformEngineFactory {
    * @param cfg
    * @param retval
    */
-  private static void configDataStores( DataFrame cfg, TransformEngine engine ) {
+  private static void configDatabases( DataFrame cfg, TransformEngine engine ) {
     for ( DataField field : cfg.getFields() ) {
       if ( field.isFrame() ) {
         if ( StringUtil.isNotBlank( field.getName() ) ) {
@@ -234,18 +234,18 @@ public class TransformEngineFactory {
             store.setConfiguration( dataSourceCfg );
             store.setName( field.getName() );
           } catch ( ConfigurationException e ) {
-            LOG.error( "Could not configure store - {} : {}", e.getClass().getSimpleName(), e.getMessage() );
+            LOG.error( "Could not configure database - {} : {}", e.getClass().getSimpleName(), e.getMessage() );
           }
 
           // Add it to the engine (actually its transform context)
-          engine.addDataStore( store );
+          engine.addDatabase( store );
 
         } else {
-          LOG.error( "Data sources must have a unique name" );
+          LOG.error( "Databases must have a unique name" );
         }
 
       } else {
-        LOG.error( "Pre-process task did not contain a configuration, only scalar {}", field.getStringValue() );
+        LOG.error( "Database did not contain a configuration, only scalar {}", field.getStringValue() );
       }
     } // for each configuration section
   }
