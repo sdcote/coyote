@@ -118,7 +118,7 @@ public interface TransformEngine extends RunnableComponent {
 
 
 
-  public void addDataStore( DataBase store );
+  public void addDataStore( Database store );
 
 
 

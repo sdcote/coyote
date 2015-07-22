@@ -737,10 +737,10 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
 
 
   /**
-   * @see coyote.batch.TransformEngine#addDataStore(coyote.batch.DataBase)
+   * @see coyote.batch.TransformEngine#addDataStore(coyote.batch.Database)
    */
   @Override
-  public void addDataStore( DataBase store ) {
+  public void addDataStore( Database store ) {
 
     if ( getContext() == null ) {
       setContext( new TransformContext( listeners ) );

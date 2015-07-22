@@ -8,6 +8,8 @@ import java.sql.Connection;
 import java.sql.Driver;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,38 +21,55 @@ import coyote.dataframe.DataFrameException;
 /**
  * 
  */
-public class DataBase extends AbstractConfigurableComponent implements ConfigurableComponent {
+public class Database extends AbstractConfigurableComponent implements ConfigurableComponent {
   final Logger log = LoggerFactory.getLogger( getClass() );
 
-  protected Connection connection;
+  List<Connection> connections = new ArrayList<Connection>();
 
 
 
 
-  public DataBase() {}
+  public Database() {}
 
 
 
 
+  /**
+   * Create a new connection using the configuration.
+   * 
+   * <p>This does not share nor pool connections, but creates a new connection 
+   * on each request. THis should be fine for this toolkit as it is expected 
+   * that maybe two connection (one for a reader and one for a writer) might be 
+   * created.</p>
+   * 
+   * <p>Each connection is tracked and closed when this component is closed.</p>
+   * 
+   * @return a new connection
+   */
   public Connection getConnection() {
 
-    if ( connection == null ) {
-      // get the connection to the database
-      try {
-        URL u = new URL( getLibrary() );
-        URLClassLoader ucl = new URLClassLoader( new URL[] { u } );
-        Driver driver = (Driver)Class.forName( getDriver(), true, ucl ).newInstance();
-        DriverManager.registerDriver( new DriverDelegate( driver ) );
+    Connection connection = null;
 
-        connection = DriverManager.getConnection( getTarget(), getUsername(), getPassword() );
+    // get the connection to the database
+    try {
+      URL u = new URL( getLibrary() );
+      URLClassLoader ucl = new URLClassLoader( new URL[] { u } );
+      Driver driver = (Driver)Class.forName( getDriver(), true, ucl ).newInstance();
+      DriverManager.registerDriver( new DriverDelegate( driver ) ); // TODO: this may be redundant...might result in the same driver registered multiple times..acceptable for this toolkit, but not for general use
 
-        if ( connection != null ) {
-          log.debug( "Connected to {}", getTarget() );
-        }
-      } catch ( InstantiationException | IllegalAccessException | ClassNotFoundException | SQLException | MalformedURLException e ) {
-        log.error( "Could not connect to database: " + e.getClass().getSimpleName() + " - " + e.getMessage() );
+      connection = DriverManager.getConnection( getTarget(), getUsername(), getPassword() );
+
+      if ( connection != null ) {
+        log.debug( "Connected to {}", getTarget() );
       }
+    } catch ( InstantiationException | IllegalAccessException | ClassNotFoundException | SQLException | MalformedURLException e ) {
+      log.error( "Could not connect to database: " + e.getClass().getSimpleName() + " - " + e.getMessage() );
     }
+
+    if ( connection != null ) {
+      connections.add( connection );
+    }
+
     return connection;
   }
 
@@ -167,13 +186,15 @@ public class DataBase extends AbstractConfigurableComponent implements Configura
    */
   @Override
   public void close() throws IOException {
-    if ( connection != null ) {
-      try {
-        connection.close();
-      } catch ( SQLException ignore ) {
-        // don't care - right now
-      }
-    }
+    for ( Connection connection : connections ) {
+      if ( connection != null ) {
+        try {
+          connection.close();
+        } catch ( SQLException ignore ) {
+          // don't care - right now
+        } // try
+      } // !null
+    }// for each connection
   }
 
 }

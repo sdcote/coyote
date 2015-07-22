@@ -24,7 +24,7 @@ import coyote.commons.StringUtil;
  */
 public class TransformContext extends OperationalContext {
 
-  Map<String, DataBase> datastores = new HashMap<String, DataBase>();
+  Map<String, Database> databases = new HashMap<String, Database>();
 
 
 
@@ -43,24 +43,24 @@ public class TransformContext extends OperationalContext {
 
 
 
-  public void addDataStore( DataBase store ) {
+  public void addDataStore( Database store ) {
     if ( store != null && StringUtil.isNotBlank( store.getName() ) ) {
-      datastores.put( store.getName(), store );
+      databases.put( store.getName(), store );
     }
   }
 
 
 
 
-  public DataBase getDataStore( String name ) {
-    return datastores.get( name );
+  public Database getDatabase( String name ) {
+    return databases.get( name );
   }
 
 
 
 
   public void close() {
-    for ( Map.Entry<String, DataBase> entry : datastores.entrySet() ) {
+    for ( Map.Entry<String, Database> entry : databases.entrySet() ) {
       //System.out.printf("Closing : %s %n", entry.getKey());
       try {
         entry.getValue().close();
