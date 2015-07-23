@@ -27,10 +27,9 @@ import coyote.commons.StringUtil;
  */
 public class ContextLogger extends FileRecorder {
   DecimalFormat DECIMAL = new DecimalFormat( "#,###,##0.000" );
+  DecimalFormat NUMBER = new DecimalFormat( "#,###,##0" );
 
   Metric metric = new Metric( "Millis/Row", "ms" );
-  long endTime;
-  long startTime;
 
 
 
@@ -40,8 +39,6 @@ public class ContextLogger extends FileRecorder {
    */
   @Override
   public void onRead( TransactionContext context ) {
-    startTime = System.currentTimeMillis();
-    endTime = startTime;
 
     StringBuffer b = new StringBuffer();
     b.append( context.getRow() );
@@ -71,8 +68,6 @@ public class ContextLogger extends FileRecorder {
    */
   @Override
   public void onWrite( TransactionContext context ) {
-    endTime = System.currentTimeMillis();
-    metric.sample( getElapsed() );
 
     StringBuffer b = new StringBuffer();
     b.append( context.getRow() );
@@ -89,9 +84,6 @@ public class ContextLogger extends FileRecorder {
     } else {
       b.append( " - Success" );
     }
-    b.append( " elapsed " );
-    b.append( DECIMAL.format( this.getElapsed() ) );
-    b.append( " ms" );
     b.append( StringUtil.LINE_FEED );
 
     write( b.toString() );
@@ -124,22 +116,15 @@ public class ContextLogger extends FileRecorder {
 
 
   /**
-   * @return the elapsed time in milliseconds from start to end of the transaction
-   */
-  public long getElapsed() {
-    return endTime - startTime;
-  }
-
-
-
-
-  /**
    * @see coyote.batch.listener.AbstractListener#onEnd(coyote.batch.OperationalContext)
    */
   @Override
   public void onEnd( OperationalContext context ) {
     StringBuffer b = new StringBuffer();
+
+    // End of a transaction or end of the batch?
     if ( context instanceof TransactionContext ) {
+      metric.sample( context.getElapsed() );
       b.append( "Transaction end: " );
     } else if ( context instanceof TransformContext ) {
       b.append( "Tranform end: " );
@@ -147,7 +132,7 @@ public class ContextLogger extends FileRecorder {
       b.append( "Operational end: " );
     }
     b.append( " elapsed " );
-    b.append( DECIMAL.format( context.getElapsed() ) );
+    b.append( NUMBER.format( context.getElapsed() ) );
     b.append( " ms" );
 
     if ( context instanceof TransformContext ) {
@@ -160,7 +145,7 @@ public class ContextLogger extends FileRecorder {
       long overhead = elapsed - total;
 
       b.append( "Transform Overhead: " );
-      b.append( DECIMAL.format( overhead ) );
+      b.append( NUMBER.format( overhead ) );
       b.append( " ms" );
 
       long rows = metric.getSamplesCount();
@@ -185,7 +170,7 @@ public class ContextLogger extends FileRecorder {
    */
   @Override
   public void onValidationFailed( OperationalContext context, String msg ) {
-    
+
     StringBuffer b = new StringBuffer();
 
     if ( context instanceof TransactionContext ) {
@@ -195,7 +180,7 @@ public class ContextLogger extends FileRecorder {
     } else {
       b.append( "Operational validation failure: " );
     }
-    
+
     b.append( msg );
     b.append( StringUtil.LINE_FEED );
     write( b.toString() );
