@@ -19,6 +19,7 @@ import java.sql.Connection;
 import java.sql.Driver;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 
@@ -45,6 +46,8 @@ public class JdbcReader extends AbstractFrameReader {
 
   ResultSet result = null;
   private volatile boolean EOF = true;
+  ResultSetMetaData rsmd = null;
+  private int columnCount = 0;
 
 
 
@@ -112,8 +115,15 @@ public class JdbcReader extends AbstractFrameReader {
 
         try {
           Statement statement = connection.createStatement( ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY );
-          result = statement.executeQuery(query);
-          EOF = result.isLast();
+          result = statement.executeQuery( query );
+
+          rsmd = result.getMetaData();
+
+          columnCount = rsmd.getColumnCount();
+
+          if ( !result.isBeforeFirst() ) {
+            EOF = true;
+          }
 
         } catch ( SQLException e ) {
           // TODO Auto-generated catch block
@@ -141,10 +151,24 @@ public class JdbcReader extends AbstractFrameReader {
     if ( result != null ) {
       try {
 
-        result.next();
-        log.info( "Read" );
+        if ( result.next() ) {
+          log.info( "Read" );
+          EOF = result.isLast();
 
-        EOF = result.isLast();
+          for ( int i = 1; i <= columnCount; i++ ) {
+            
+            String columnValue = result.getString( i );
+            
+            log.info( columnValue + " " + rsmd.getColumnName( i ) );
+            
+            // retval.add( rsmd.getColumnName( i ), resolveValue( result.getObject( i ) ) );
+          }
+
+        } else {
+          log.error( "Read past EOF" );
+          EOF = true;
+          return;
+        }
       } catch ( SQLException e ) {
         e.printStackTrace();
         EOF = true;

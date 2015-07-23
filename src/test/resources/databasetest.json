@@ -1,5 +1,5 @@
 {
-	"DataStores": {
+	"Databases": {
 		"DevDB": {
 			"library": "jar:file:lib/h2-1.4.187.jar!/",
 			"driver" : "org.h2.Driver",
