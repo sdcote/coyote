@@ -11,7 +11,9 @@
  */
 package coyote.batch.writer;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -27,6 +29,13 @@ import coyote.dataframe.DataFrameException;
 
 
 /**
+ * 
+ * <pre>"Writer":{
+ *   "class" : "CSVWriter",
+ *   "header" : true,
+ *   "dateformat" : "yyyy/MM/dd",
+ *   "target" : "workfile"
+ * }</pre>
  * 
  */
 public class CSVWriter extends AbstractFrameWriter implements FrameWriter, ConfigurableComponent {
@@ -54,6 +63,9 @@ public class CSVWriter extends AbstractFrameWriter implements FrameWriter, Confi
 
   /** The escape constant to use when you wish to suppress all escaping. */
   public static final char NO_ESCAPE_CHARACTER = '\u0000';
+
+  private static final String DEFAULT_DATE_FORMAT = "yyyy/MM/dd HH:mm:ss";
+  SimpleDateFormat DATEFORMAT = new SimpleDateFormat( DEFAULT_DATE_FORMAT );
 
 
 
@@ -152,6 +164,19 @@ public class CSVWriter extends AbstractFrameWriter implements FrameWriter, Confi
     }
     log.debug( "Header flag is set to {}", writeHeaders );
 
+    // Check to see if a different date format is to be used
+    if ( frame.contains( ConfigTag.DATEFORMAT ) ) {
+      try {
+        DATEFORMAT = new SimpleDateFormat( frame.getAsString( ConfigTag.DATEFORMAT ) );
+      } catch ( final Exception e ) {
+        log.warn( "Date format pattern '{}' is not valid - {} ", frame.getAsString( ConfigTag.DATEFORMAT ), e.getMessage() );
+        DATEFORMAT = new SimpleDateFormat( DEFAULT_DATE_FORMAT );
+      }
+    } else {
+      log.debug( "Using default date format" );
+    }
+    log.debug( "Date format pattern is set to {}", DATEFORMAT.toPattern() );
+
   }
 
 
@@ -233,8 +258,14 @@ public class CSVWriter extends AbstractFrameWriter implements FrameWriter, Confi
 
       if ( field != null ) {
         try {
-          // try to convert it into a string
-          token = field.getStringValue();
+
+          if ( DataField.DATE == field.getType() ) {
+            Date date = (Date)field.getObjectValue();
+            token = DATEFORMAT.format( date );
+          } else {
+            // try to convert it into a string
+            token = field.getStringValue();
+          }
         } catch ( Exception e ) {
           log.error( "Problems writing {} - field {}", name, field.toString() );
           token = "";
@@ -243,7 +274,7 @@ public class CSVWriter extends AbstractFrameWriter implements FrameWriter, Confi
         // not sure why this happens...
         token = "";
       }
-      
+
       // escape any special characters otherwise just use the token as is
       retval.append( tokenContainsSpecialCharacters( token ) ? processToken( token ) : token );
       retval.append( ',' );

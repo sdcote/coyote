@@ -39,6 +39,7 @@ public class ConfigTag {
   public static final String TYPE = "type";
   /** User name ({@value}) configuration attribute. */
   public static final String USERNAME = "username";
+  public static final String DATEFORMAT = "dateformat";
 
   // Transform engine
 
