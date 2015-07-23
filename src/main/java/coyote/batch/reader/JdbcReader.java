@@ -22,6 +22,7 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Date;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -124,7 +125,6 @@ public class JdbcReader extends AbstractFrameReader {
 
           if ( result.isBeforeFirst() ) {
             EOF = false;
-            log.debug( "No results returned for query of '{}'",query );
           }
 
         } catch ( SQLException e ) {
@@ -154,26 +154,22 @@ public class JdbcReader extends AbstractFrameReader {
 
     if ( result != null ) {
       try {
-
         if ( result.next() ) {
           retval = new DataFrame();
-
-          log.info( "Read" );
+          
+          // Set EOF if this is the last record
           EOF = result.isLast();
 
+          // add each of the fields to the dataframe
           for ( int i = 1; i <= columnCount; i++ ) {
-
-            String columnValue = result.getString( i );
-
-            log.info( rsmd.getColumnName( i ) + " - '" + columnValue + "' (" + rsmd.getColumnType( i ) + ")" );
-
+            // log.info( rsmd.getColumnName( i ) + " - '" + result.getString( i ) + "' (" + rsmd.getColumnType( i ) + ")" );
             retval.add( rsmd.getColumnName( i ), resolveValue( result.getObject( i ), rsmd.getColumnType( i ) ) );
-
           }
 
+          // set the frame in the transaction context
           context.setSourceFrame( retval );
+          // set the current row number
           context.setRow( result.getRow() );
-
         } else {
           log.error( "Read past EOF" );
           EOF = true;
@@ -183,11 +179,9 @@ public class JdbcReader extends AbstractFrameReader {
         e.printStackTrace();
         EOF = true;
       }
-
     } else {
       EOF = true;
     }
-
   }
 
 
@@ -219,7 +213,7 @@ public class JdbcReader extends AbstractFrameReader {
    * <tr><td>91</td><td>DATE</td><td>DAT</td></tr>
    * <tr><td>92</td><td>TIME</td><td>DAT</td></tr>
    * <tr><td>93</td><td>TIMESTAMP</td><td>DAT</td></tr>
-   * <tr><td>1111&nbsp;</td><td>OTHER</td><td>UDF</td></tr></table></p>
+   * <tr><td>1111&nbsp;</td><td>OTHER</td><td>STR</td></tr></table></p>
    * 
    * @param value the value to convert
    * @param type the SQL type of the value passed
@@ -227,11 +221,26 @@ public class JdbcReader extends AbstractFrameReader {
    * @return an object which can be safely placed in a DataFrame field.
    */
   private Object resolveValue( Object value, int type ) {
+    Object retval = null;
 
-    if ( value != null )
-      return value.toString();
-    else
-      return null;
+    if ( value != null ) {
+      switch ( type ) {
+        case 91:
+          retval = new Date( ((java.sql.Date)value).getTime());
+          break;
+        case 92:
+          retval = new Date( ((java.sql.Time)value).getTime());
+          break;
+        case 93:
+          retval = new Date( ((java.sql.Timestamp)value).getTime());
+          break;
+        default:
+          retval = value.toString();
+      }
+
+    }
+
+    return retval;
   }
 
 
