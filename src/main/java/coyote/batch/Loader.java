@@ -14,8 +14,6 @@ package coyote.batch;
 import java.io.File;
 import java.io.IOException;
 
-import coyote.batch.TransformEngine;
-import coyote.batch.TransformEngineFactory;
 import coyote.commons.FileUtil;
 import coyote.commons.StringUtil;
 import coyote.commons.SystemPropertyUtil;
@@ -68,7 +66,7 @@ public class Loader {
           engine.setName( FileUtil.getBase( fileName ).toLowerCase() );
         }
 
-        System.out.print( "Running " + engine.getName() + "..." );
+        System.out.println( "Running " + engine.getName() + "..." );
 
         // run the transformation 
         try {
@@ -85,6 +83,8 @@ public class Loader {
           try {
             engine.close();
           } catch ( final IOException ignore ) {}
+
+          System.out.println( engine.getName()+" completed." );
 
         } // try-catch-finally 
 
