@@ -66,7 +66,7 @@ public class Loader {
           engine.setName( FileUtil.getBase( fileName ).toLowerCase() );
         }
 
-        System.out.println( "Running " + engine.getName() + "..." );
+        System.out.println( "Running '" + engine.getName() + "' ..." );
 
         // run the transformation 
         try {
@@ -84,7 +84,7 @@ public class Loader {
             engine.close();
           } catch ( final IOException ignore ) {}
 
-          System.out.println( engine.getName()+" completed." );
+          System.out.println( "Batch '" + engine.getName() + "' completed." );
 
         } // try-catch-finally 
 
