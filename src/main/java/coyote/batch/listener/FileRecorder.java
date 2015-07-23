@@ -105,6 +105,9 @@ public abstract class FileRecorder extends ContextRecorder {
         e.printStackTrace();
       }
 
+    } else {
+      log.error( "No target specified" );
+      context.setError( getClass().getName() + " could not determine 'target' for recording events" );
     }
 
   }
