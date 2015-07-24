@@ -570,4 +570,25 @@ public class UriUtilTest {
     }
   }
 
+  
+ // @Test
+  public void testStuff() {
+    String encodedUri = UriUtil.encodeString( "349685#" );
+    System.out.println(encodedUri);
+    try {
+      URI uri = new URI( "sftp://cotes:349685%23@nlvmjt051.bralyn.net/home/cotes7/SnowStormInstall.jar" );
+      System.out.println(uri.getScheme());
+      System.out.println(uri.getRawUserInfo());
+      System.out.println(uri.getHost());
+      System.out.println(uri.getPort());
+      System.out.println(uri.getPath());
+      System.out.println();
+      
+    } catch ( URISyntaxException e ) {
+      fail( e.getMessage() );
+    }
+    
+  }
+  
+  
 }
