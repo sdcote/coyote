@@ -23,10 +23,6 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import coyote.batch.Database;
-import coyote.batch.TransformContext;
-import coyote.batch.TransformEngine;
-
 
 /**
  * This tests the ability to simply run a bunch of tasks in order within a 
@@ -57,16 +53,14 @@ public class DatabaseTest extends AbstractEngineTest {
     assertNotNull( mydb );
 
     assertTrue( devdb != mydb );
-    
+
     Connection devconn = devdb.getConnection();
     assertNotNull( devconn );
-    
+
     Connection myconn = mydb.getConnection();
     assertNotNull( myconn );
-    
-    assertTrue( devconn != myconn );
 
-    
+    assertTrue( devconn != myconn );
 
     // Run the engine to make sure it is valid even if nothing is defined
     try {

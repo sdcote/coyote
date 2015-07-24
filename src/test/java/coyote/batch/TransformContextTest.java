@@ -16,8 +16,6 @@ import static org.junit.Assert.assertNull;
 
 import org.junit.Test;
 
-import coyote.batch.TransformContext;
-
 
 /**
  * 

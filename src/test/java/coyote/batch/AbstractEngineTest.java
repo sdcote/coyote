@@ -16,8 +16,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
-import coyote.batch.TransformEngine;
-import coyote.batch.TransformEngineFactory;
 import coyote.commons.SystemPropertyUtil;
 
 
@@ -38,7 +36,7 @@ public class AbstractEngineTest {
    */
   protected TransformEngine loadEngine( String name ) {
     TransformEngine engine = null;
-    
+
     // load named system properties
     SystemPropertyUtil.load( name.toLowerCase() );
 

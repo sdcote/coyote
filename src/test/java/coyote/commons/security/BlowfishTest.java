@@ -53,13 +53,13 @@ public class BlowfishTest {
     // Initialize the cipher with our secret key here we just use the UTF16 
     // encoding of our key string
     byte[] key = secret.getBytes( "UTF8" );
-    System.out.println("key:"+new String (CipherUtil.encode( key )));
+    System.out.println( "key:" + new String( CipherUtil.encode( key ) ) );
     cipher.init( secret.getBytes( "UTF8" ) ); // use UTF16 for larger character sets
 
     // Encrypt the text with the UTF16 encoded bytes our our clear text string 
     byte[] cipherdata = cipher.encrypt( cleartext.getBytes( "UTF8" ) );
 
-    System.out.println("Data has been converted into "+cipherdata.length+" bytes of data"+ new String(CipherUtil.encode( cipherdata )));
+    System.out.println( "Data has been converted into " + cipherdata.length + " bytes of data" + new String( CipherUtil.encode( cipherdata ) ) );
 
     // - - - Decrypt the data - - - 
 

@@ -21,8 +21,6 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import coyote.batch.TransformContext;
-import coyote.batch.TransformEngine;
 import coyote.commons.template.SymbolTable;
 
 
@@ -38,7 +36,7 @@ public class TaskTest extends AbstractEngineTest {
 
   @Test
   public void test() {
-    
+
     // load the configuration from the class path
     TransformEngine engine = loadEngine( "tasktest" );
     assertNotNull( engine );
@@ -48,7 +46,6 @@ public class TaskTest extends AbstractEngineTest {
 
     SymbolTable symbols = engine.getSymbolTable();
     assertNotNull( symbols );
-    
 
     try {
       engine.run();
