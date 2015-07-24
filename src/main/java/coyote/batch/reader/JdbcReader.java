@@ -195,7 +195,7 @@ public class JdbcReader extends AbstractFrameReader {
    * <table border="1"><tr><th>Value</th><th>SQL</th><th>Field</th></tr>
    * <tr><td>-7</td><td>BIT</td><td>BOL</td></tr>
    * <tr><td>-6</td><td>TINYINT</td><td>S8</td></tr>
-   * <tr><td>-5</td><td>BIGINT</td><td>DBL</td></tr>
+   * <tr><td>-5</td><td>BIGINT</td><td>LONG</td></tr>
    * <tr><td>-4</td><td>LONGVARBINARY</td><td>STR</td></tr>
    * <tr><td>-3</td><td>VARBINARY</td><td>STR</td></tr>
    * <tr><td>-2</td><td>BINARY</td><td>STR</td></tr>
@@ -203,11 +203,11 @@ public class JdbcReader extends AbstractFrameReader {
    * <tr><td>0</td><td>NULL</td><td>NUL</td></tr>
    * <tr><td>1</td><td>CHAR</td><td>STR</td></tr>
    * <tr><td>2</td><td>NUMERIC</td><td>DBL</td></tr>
-   * <tr><td>3</td><td>DECIMAL</td><td>FLT</td></tr>
+   * <tr><td>3</td><td>DECIMAL</td><td>DBL</td></tr>
    * <tr><td>4</td><td>INTEGER</td><td>S32</td></tr>
    * <tr><td>5</td><td>SMALLINT</td><td>S16</td></tr>
-   * <tr><td>6</td><td>FLOAT</td><td>FLT</td></tr>
-   * <tr><td>7</td><td>REAL</td><td>DBL</td></tr>
+   * <tr><td>6</td><td>FLOAT</td><td>DBL</td></tr>
+   * <tr><td>7</td><td>REAL</td><td>FLT</td></tr>
    * <tr><td>8</td><td>DOUBLE</td><td>DBL</td></tr>
    * <tr><td>12</td><td>VARCHAR</td><td>STR</td></tr>
    * <tr><td>91</td><td>DATE</td><td>DAT</td></tr>
@@ -225,6 +225,25 @@ public class JdbcReader extends AbstractFrameReader {
 
     if ( value != null ) {
       switch ( type ) {
+        case 2:
+        case 3:
+          retval =  ((java.math.BigDecimal)value).doubleValue();
+          break;
+        case 4:
+          retval =  ((Integer)value).intValue();
+          break;
+        case 5:
+          retval =  ((Integer)value).shortValue();
+          break;
+        case 6:
+          retval =  ((Double)value).doubleValue();
+          break;
+        case 7:
+          retval =  ((Float)value).floatValue();
+          break;
+        case 8:
+          retval =  ((Double)value).doubleValue();
+          break;
         case 91:
           retval = new Date( ((java.sql.Date)value).getTime());
           break;
