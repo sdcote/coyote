@@ -241,7 +241,7 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
 
     // If pre-processing completed without error, start opening the rest of the 
     // components
-    if ( !transformContext.isInError() ) {
+    if ( transformContext.isNotInError() ) {
 
       // Open all the listeners first
       for ( ContextListener listener : listeners ) {
@@ -349,7 +349,7 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
               transformContext.fireValidationFailed( "There were validation errors" );
             }
 
-            if ( !context.isInError() ) {
+            if ( context.isNotInError() ) {
 
               // Pass the working frame through the transformers
               for ( FrameTransform transformer : transformers ) {
@@ -362,7 +362,7 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
 
               // Pass it through the mapper - only the required fields should 
               // exist in the target frame after the mapper is done.
-              if ( !context.isInError() ) {
+              if ( context.isNotInError() ) {
 
                 // We need to create a target frame into which the mapper will 
                 // place fields...
@@ -380,8 +380,8 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
               }
 
               // It is possible that a transform has been configured to simply
-              // read and validate data
-              if ( !context.isInError() && writer != null ) {
+              // read and validate data so the writer may be null
+              if ( context.isNotInError() && writer != null ) {
                 try {
                   // Write the target (new) frame
                   writer.write( context.getTargetFrame() );
