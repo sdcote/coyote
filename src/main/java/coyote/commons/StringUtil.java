@@ -329,10 +329,10 @@ public class StringUtil {
 
   /**
    * Return the given text in a string of the given length, aligned in the 
-   * given manner and padded with the given character.
+   * given manner and padded with the space (' ') character.
    * 
    * <p>Note: if the given text is larger than the requested string, a portion 
-   * of the text will be lost. WHich portion depends on the alignment. Right 
+   * of the text will be lost. Which portion depends on the alignment. Right 
    * justified text will result in the beginning (left side) of the text being 
    * lost. Left justified text will result in the end of the text being lost 
    * and centered text will result in both sides of the text being lost.</p>
@@ -340,7 +340,6 @@ public class StringUtil {
    * @param text the text to represent
    * @param length the length of the string to return
    * @param alignment 0 (or less) left justified, 1 = right and 2 (or greater) right justified.
-   * @param padChar the character with wich to pad the string.
    * 
    * @return A string of exactly the given length with the text aligned within as specified,
    */
@@ -356,7 +355,7 @@ public class StringUtil {
    * given manner and padded with the given character.
    * 
    * <p>Note: if the given text is larger than the requested string, a portion 
-   * of the text will be lost. WHich portion depends on the alignment. Right 
+   * of the text will be lost. Which portion depends on the alignment. Right 
    * justified text will result in the beginning (left side) of the text being 
    * lost. Left justified text will result in the end of the text being lost 
    * and centered text will result in both sides of the text being lost.</p>
@@ -364,7 +363,7 @@ public class StringUtil {
    * @param text the text to represent
    * @param length the length of the string to return
    * @param alignment 0 (or less) left justified, 1 = right and 2 (or greater) right justified.
-   * @param padChar the character with wich to pad the string.
+   * @param padChar the character with which to pad the string.
    * 
    * @return A string of exactly the given length with the text aligned within as specified,
    */
