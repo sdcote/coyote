@@ -324,4 +324,103 @@ public class StringUtil {
     return hasText( (CharSequence)str );
   }
 
+
+
+
+  /**
+   * Return the given text in a string of the given length, aligned in the 
+   * given manner and padded with the given character.
+   * 
+   * <p>Note: if the given text is larger than the requested string, a portion 
+   * of the text will be lost. WHich portion depends on the alignment. Right 
+   * justified text will result in the beginning (left side) of the text being 
+   * lost. Left justified text will result in the end of the text being lost 
+   * and centered text will result in both sides of the text being lost.</p>
+   * 
+   * @param text the text to represent
+   * @param length the length of the string to return
+   * @param alignment 0 (or less) left justified, 1 = right and 2 (or greater) right justified.
+   * @param padChar the character with wich to pad the string.
+   * 
+   * @return A string of exactly the given length with the text aligned within as specified,
+   */
+  public static String fixedLength( String text, int length, int alignment ) {
+    return fixedLength( text, length, ' ' );
+  }
+
+
+
+
+  /**
+   * Return the given text in a string of the given length, aligned in the 
+   * given manner and padded with the given character.
+   * 
+   * <p>Note: if the given text is larger than the requested string, a portion 
+   * of the text will be lost. WHich portion depends on the alignment. Right 
+   * justified text will result in the beginning (left side) of the text being 
+   * lost. Left justified text will result in the end of the text being lost 
+   * and centered text will result in both sides of the text being lost.</p>
+   * 
+   * @param text the text to represent
+   * @param length the length of the string to return
+   * @param alignment 0 (or less) left justified, 1 = right and 2 (or greater) right justified.
+   * @param padChar the character with wich to pad the string.
+   * 
+   * @return A string of exactly the given length with the text aligned within as specified,
+   */
+  public static String fixedLength( String text, int length, int alignment, char padChar ) {
+    int textLength = text.length();
+    int padLength = length - textLength;
+
+    StringBuffer b = new StringBuffer();
+
+    if ( alignment < 1 ) {
+      // left justification
+      if ( padLength > 0 ) {
+        b.append( text );
+        for ( int i = 0; i < padLength; i++ ) {
+          b.append( padChar );
+        }
+      } else if ( padLength < 0 ) {
+        b.append( text.substring( 0, length ) );
+      } else {
+        b.append( text );
+      }
+    } else if ( alignment > 1 ) {
+      // right justification
+      if ( padLength > 0 ) {
+        for ( int i = 0; i < padLength; i++ ) {
+          b.append( padChar );
+        }
+        b.append( text );
+      } else if ( padLength < 0 ) {
+        b.append( text.substring( Math.abs( padLength ) ) );
+      } else {
+        b.append( text );
+      }
+    } else {
+      // centered alignment
+      if ( padLength > 0 ) {
+        int lpad = padLength / 2;
+        for ( int i = 0; i < lpad; i++ ) {
+          b.append( padChar );
+        }
+        b.append( text );
+        while ( b.length() < length ) {
+          b.append( padChar );
+        }
+      } else if ( padLength < 0 ) {
+        int lpad = padLength / 2;
+        if ( Math.abs( padLength ) % 2 == 0 )
+          b.append( text.substring( Math.abs( lpad ), length + 1 ) );
+        else
+          b.append( text.substring( Math.abs( lpad ), length ) );
+      } else {
+        b.append( text );
+      }
+    }
+
+    return b.toString();
+  }
+
 }
