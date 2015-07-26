@@ -26,7 +26,7 @@ import coyote.dataframe.DataFrame;
  */
 public class JSONWriter extends AbstractFrameWriter implements FrameWriter, ConfigurableComponent {
 
-  /** The logger for the base class */
+  /** The logger for this class */
   final Logger log = LoggerFactory.getLogger( getClass() );
 
 
@@ -42,7 +42,7 @@ public class JSONWriter extends AbstractFrameWriter implements FrameWriter, Conf
     printwriter.write( StringUtil.LINE_FEED );
     printwriter.flush();
 
-    // Increment to row number
+    // Increment the row number
     rowNumber++;
 
   }

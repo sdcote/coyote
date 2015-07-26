@@ -40,7 +40,7 @@ import coyote.dataframe.DataFrameException;
  */
 public class CSVWriter extends AbstractFrameWriter implements FrameWriter, ConfigurableComponent {
 
-  /** The logger for the base class */
+  /** The logger for this class */
   final Logger log = LoggerFactory.getLogger( getClass() );
 
   /** The character used for escaping quotes. */
@@ -210,7 +210,7 @@ public class CSVWriter extends AbstractFrameWriter implements FrameWriter, Confi
       }
     }
 
-    // Increment to row number
+    // Increment the row number
     rowNumber++;
 
     // write the frame
