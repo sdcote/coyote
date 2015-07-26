@@ -51,7 +51,7 @@ public class FlatFileReader extends AbstractFrameReader implements FrameReader, 
 
   @Override
   public void open( TransformContext context ) {
-    super.context = context;
+    super.open( context );
 
     String source = getString( ConfigTag.SOURCE );
     log.debug( "using a source of {}", source );
