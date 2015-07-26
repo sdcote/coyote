@@ -28,6 +28,7 @@ public class FieldDefinition {
   private short type = 0;
   private int start = 0;
   private int length = 0;
+  private int alignment = 0;
   private String name = null;
   private boolean trimFlag = false;
   private String formatText = null;
@@ -38,6 +39,13 @@ public class FieldDefinition {
 
 
   public FieldDefinition( String name, int start, int length, String type, String format, boolean trim ) {
+    this( name, start, length, type, format, trim, 0 );
+  }
+
+
+
+
+  public FieldDefinition( String name, int start, int length, String type, String format, boolean trim, int align ) {
     if ( StringUtil.isBlank( name ) ) {
       throw new IllegalArgumentException( "Name is required for field definition" );
     } else {
@@ -59,6 +67,15 @@ public class FieldDefinition {
       setTrimming( true );
     } else {
       setTrimming( false );
+    }
+
+    // normalize and set the alignment value
+    if ( align < 1 ) {
+      alignment = 0;
+    } else if ( align > 1 ) {
+      alignment = 2;
+    } else {
+      alignment = align;
     }
 
     if ( StringUtil.isBlank( type ) ) {
@@ -354,5 +371,15 @@ public class FieldDefinition {
    */
   public void setTrimming( boolean flag ) {
     trimFlag = flag;
+  }
+
+
+
+
+  /**
+   * @return 0 for left alignment (default), 1 for center, 2 for right alignment
+   */
+  public int getAlignment() {
+    return alignment;
   }
 }

@@ -38,6 +38,7 @@ public class FlatFileWriter extends AbstractFrameWriter implements FrameWriter, 
   /** The list of fields we are to write in the order they are to be written */
   List<FieldDefinition> fields = new ArrayList<FieldDefinition>();
 
+  private char padChar = ' ';
   private int recordLength = 0;
 
 
@@ -69,7 +70,21 @@ public class FlatFileWriter extends AbstractFrameWriter implements FrameWriter, 
             trim = false;
           }
 
-          fields.add( new FieldDefinition( field.getName(), fielddef.getAsInt( ConfigTag.START ), fielddef.getAsInt( ConfigTag.LENGTH ), fielddef.getAsString( ConfigTag.TYPE ), fielddef.getAsString( ConfigTag.FORMAT ), trim ) );
+          int alignment = 0; // left alignment
+          String align = fielddef.getAsString( ConfigTag.ALIGN );
+          if ( StringUtil.isNotBlank( align ) ) {
+            if ( align.startsWith( "L" ) || align.startsWith( "l" ) ) {
+              alignment = 0;
+            } else if ( align.startsWith( "R" ) || align.startsWith( "r" ) ) {
+              alignment = 2;
+            } else if ( align.startsWith( "C" ) || align.startsWith( "c" ) ) {
+              alignment = 1;
+            } else {
+              log.warn( "Unrecognized {} configuration value of '{}' - defaulting to 'left' alignment", ConfigTag.ALIGN, align );
+            }
+          }
+
+          fields.add( new FieldDefinition( field.getName(), fielddef.getAsInt( ConfigTag.START ), fielddef.getAsInt( ConfigTag.LENGTH ), fielddef.getAsString( ConfigTag.TYPE ), fielddef.getAsString( ConfigTag.FORMAT ), trim, alignment ) );
 
           // see how long the record is to be by keeping track of the longest 
           // start position and then adding the field length
@@ -99,6 +114,23 @@ public class FlatFileWriter extends AbstractFrameWriter implements FrameWriter, 
    */
   @Override
   public void write( final DataFrame frame ) {
+
+    StringBuilder line = new StringBuilder( recordLength );
+    for ( int i = 0; i < recordLength; i++ ) {
+      line.append( padChar );
+    }
+
+    for ( FieldDefinition def : fields ) {
+
+      // get the field from the context with the name in the definition
+
+      // format it according to the format in the definition
+
+      String field = StringUtil.fixedLength( "This is the value of the target frame field", def.getLength(), def.getAlignment(), padChar );
+
+      // now insert
+      line.insert( def.getStart(), field );
+    }
 
     printwriter.write( frame.toString() );
     printwriter.write( StringUtil.LINE_FEED );

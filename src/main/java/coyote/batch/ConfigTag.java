@@ -40,6 +40,7 @@ public class ConfigTag {
   /** User name ({@value}) configuration attribute. */
   public static final String USERNAME = "username";
   public static final String DATEFORMAT = "dateformat";
+  public static final String ALIGN = "align";
 
   // Transform engine
 
