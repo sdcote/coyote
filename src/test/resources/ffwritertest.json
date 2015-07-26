@@ -1,0 +1,18 @@
+{
+	"Reader" : { "class" : "NullReader" },
+
+	"Writer" : {
+		"class" : "FlatFileWriter",
+		"target" : "[#$wrkdir#][#$FS#]flatfile.dat",
+		"fields" : {
+			"Record Type" : { "start" : 0, "length" : 2 },
+			"Filler" : { "start" : 2, "length" : 2 },
+			"PO ID" : { "start" : 4, "length" : 10 },
+			"PO Date" : { "start" : 14, "length" : 8, "format" : "yyyyMMdd" },
+			"PO Comments" : { "start" : 22, "length" : 256 },
+			"PO Description" : { "start" : 278, "length" : 254 },
+			"Additional PO Description" : { "start" : 532, "length" : 92 },
+			"Filler" : { "start" : 1622, "length" : 3, "type" : "String" }
+		}
+	}
+}
