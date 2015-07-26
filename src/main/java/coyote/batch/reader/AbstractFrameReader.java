@@ -24,10 +24,19 @@ import coyote.batch.TransformContext;
  */
 public abstract class AbstractFrameReader extends AbstractConfigurableComponent implements FrameReader, ConfigurableComponent {
 
- 
-
   /** The current row number */
   protected volatile long currentRow = 0;
+
+
+
+
+  /**
+   * @see coyote.batch.Component#open(coyote.batch.TransformContext)
+   */
+  @Override
+  public void open( final TransformContext context ) {
+    super.context = context;
+  }
 
 
 
