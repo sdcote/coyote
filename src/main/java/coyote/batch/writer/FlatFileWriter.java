@@ -11,8 +11,6 @@
  */
 package coyote.batch.writer;
 
-import java.text.Format;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -130,11 +128,10 @@ public class FlatFileWriter extends AbstractFrameWriter implements FrameWriter, 
       if ( field != null ) {
 
         // format it according to the format in the definition
-       String fieldText = null;
-       
-        if( def.hasFormatter() )
-        {
-          fieldText = def.getFormattedValue(field);
+        String fieldText = null;
+
+        if ( def.hasFormatter() ) {
+          fieldText = def.getFormattedValue( field );
         } else {
           fieldText = field.getStringValue();
         }
