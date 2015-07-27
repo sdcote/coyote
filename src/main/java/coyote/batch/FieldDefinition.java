@@ -13,7 +13,6 @@ package coyote.batch;
 
 import java.text.DateFormat;
 import java.text.DecimalFormat;
-import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
@@ -33,7 +32,7 @@ public class FieldDefinition {
   private boolean trimFlag = false;
   private String formatText = null;
   private DateFormat dateFormat = null;
-  private NumberFormat numberFormat = null;
+  private DecimalFormat decimalFormat = null;
 
 
 
@@ -119,7 +118,7 @@ public class FieldDefinition {
       if ( this.type == DataField.DATE ) {
         dateFormat = new SimpleDateFormat( format );
       } else {
-        numberFormat = new DecimalFormat( format );
+        decimalFormat = new DecimalFormat( format );
       }
     }
 
@@ -264,12 +263,12 @@ public class FieldDefinition {
         if ( StringUtil.isBlank( value ) ) {
           return 0F;
         }
-        if ( numberFormat != null ) {
+        if ( decimalFormat != null ) {
           try {
             if ( trimFlag ) {
-              return (Float)numberFormat.parse( value.trim() );
+              return (Float)decimalFormat.parse( value.trim() );
             } else {
-              return (Float)numberFormat.parse( value );
+              return (Float)decimalFormat.parse( value );
             }
           } catch ( ParseException e ) {
             System.err.println( "'" + name + "' Float Parse Exception: " + e.getMessage() );
@@ -297,12 +296,12 @@ public class FieldDefinition {
         if ( StringUtil.isBlank( value ) ) {
           return 0;
         }
-        if ( numberFormat != null ) {
+        if ( decimalFormat != null ) {
           try {
             if ( trimFlag ) {
-              return (Integer)numberFormat.parse( value.trim() );
+              return (Integer)decimalFormat.parse( value.trim() );
             } else {
-              return (Integer)numberFormat.parse( value );
+              return (Integer)decimalFormat.parse( value );
             }
           } catch ( ParseException e ) {
             System.err.println( "'" + name + "' Integer Parse Exception: " + e.getMessage() );
@@ -322,12 +321,12 @@ public class FieldDefinition {
         if ( StringUtil.isBlank( value ) ) {
           return 0L;
         }
-        if ( numberFormat != null ) {
+        if ( decimalFormat != null ) {
           try {
             if ( trimFlag ) {
-              return (Long)numberFormat.parse( value.trim() );
+              return (Long)decimalFormat.parse( value.trim() );
             } else {
-              return (Long)numberFormat.parse( value );
+              return (Long)decimalFormat.parse( value );
             }
           } catch ( ParseException e ) {
             System.err.println( "'" + name + "' Long Parse Exception: " + e.getMessage() );
@@ -382,4 +381,56 @@ public class FieldDefinition {
   public int getAlignment() {
     return alignment;
   }
+
+
+
+
+  /**
+   * @return true if this definition has a format pattern to format the values, false otherwise. 
+   */
+  public boolean hasFormatter() {
+    return StringUtil.isNotBlank( formatText );
+  }
+
+
+
+
+  /**
+   * Return the field as a formatted string if there is an appropriate 
+   * formatter defined for this field definition.
+   * 
+   * @param field The field to format
+   * 
+   * @return the string formatted using the currently set format string or 
+   * simply the default {@code toString()} for the data in the field.
+   */
+  public String getFormattedValue( DataField field ) {
+
+    String retval = null;
+
+    if ( this.hasFormatter() ) {
+
+      // based on the data type, determine which formatter to use
+      if ( field.isNumeric() ) {
+        if ( decimalFormat == null ) {
+          decimalFormat = new DecimalFormat( formatText );
+        }
+        retval = decimalFormat.format( field.getObjectValue() );
+      } else if ( DataField.DATE == field.getType() ) {
+        // Use the date format
+        if ( dateFormat == null ) {
+          dateFormat = new SimpleDateFormat( formatText );
+        }
+        retval = dateFormat.format( field.getObjectValue() );
+
+      } else {
+        retval = field.getStringValue();
+      }
+    } else {
+      retval = field.getStringValue();
+    }
+
+    return retval;
+  }
+
 }

@@ -11,6 +11,8 @@
  */
 package coyote.batch.writer;
 
+import java.text.Format;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -122,17 +124,33 @@ public class FlatFileWriter extends AbstractFrameWriter implements FrameWriter, 
 
     for ( FieldDefinition def : fields ) {
 
-      // get the field from the context with the name in the definition
+      // get the field from the frame with the name in the definition
+      DataField field = frame.getField( def.getName() );
 
-      // format it according to the format in the definition
+      if ( field != null ) {
 
-      String field = StringUtil.fixedLength( "This is the value of the target frame field", def.getLength(), def.getAlignment(), padChar );
+        // format it according to the format in the definition
+       String fieldText = null;
+       
+        if( def.hasFormatter() )
+        {
+          fieldText = def.getFormattedValue(field);
+        } else {
+          fieldText = field.getStringValue();
+        }
 
-      // now insert
-      line.insert( def.getStart(), field );
+        String text = StringUtil.fixedLength( fieldText, def.getLength(), def.getAlignment(), padChar );
+
+        // now insert
+        line.insert( def.getStart(), text );
+      } else {
+        log.warn( "No field named '{}' in frame.", def.getName() );
+      }
+
     }
 
-    printwriter.write( frame.toString() );
+    // write to line to the file
+    printwriter.write( line.toString() );
     printwriter.write( StringUtil.LINE_FEED );
     printwriter.flush();
 
