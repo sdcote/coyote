@@ -220,8 +220,14 @@ public class SymbolTable extends HashMap {
     StringBuffer retval = new StringBuffer();
 
     for ( Iterator it = keySet().iterator(); it.hasNext(); ) {
+      retval.append( "'" );
       String key = (String)it.next();
-      retval.append( "'" + key + "' = " + get( key ).toString() + StringUtil.LINE_FEED );
+      retval.append( key );
+      retval.append( "' = " );
+      Object value = get( key );
+      if ( value != null )
+        retval.append( value.toString() );
+      retval.append( StringUtil.LINE_FEED );
     }
 
     return retval.toString();
