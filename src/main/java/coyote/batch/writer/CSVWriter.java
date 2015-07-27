@@ -256,7 +256,7 @@ public class CSVWriter extends AbstractFrameWriter implements FrameWriter, Confi
       // the named value for that row
       final DataField field = frame.getField( name );
 
-      if ( field != null ) {
+      if ( field != null && !field.isNull() ) {
         try {
 
           if ( DataField.DATE == field.getType() ) {
