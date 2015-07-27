@@ -408,25 +408,29 @@ public class FieldDefinition {
 
     String retval = null;
 
+    // If we have format text to apply to this fields value...
     if ( this.hasFormatter() ) {
 
       // based on the data type, determine which formatter to use
       if ( field.isNumeric() ) {
+        // see if we have a formatter cached
         if ( decimalFormat == null ) {
+          // create one for later use
           decimalFormat = new DecimalFormat( formatText );
         }
+        // format the value using the DecimalFormat
         retval = decimalFormat.format( field.getObjectValue() );
       } else if ( DataField.DATE == field.getType() ) {
-        // Use the date format
+        // Use the date format...same approach as above
         if ( dateFormat == null ) {
           dateFormat = new SimpleDateFormat( formatText );
         }
         retval = dateFormat.format( field.getObjectValue() );
-
-      } else {
-        retval = field.getStringValue();
       }
-    } else {
+    }
+
+    // if no formatting occurred, just return the toString result
+    if ( retval == null ) {
       retval = field.getStringValue();
     }
 
