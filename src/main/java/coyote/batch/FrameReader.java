@@ -11,19 +11,20 @@
  */
 package coyote.batch;
 
+import coyote.dataframe.DataFrame;
+
+
 /**
  * 
  */
 public interface FrameReader extends ConfigurableComponent {
 
   /**
-   * Read a frame into the given transaction context.
+   * Read and return a frame.
    * 
-   * <p>The reader should also set the row number in the context as well.</p>
-   * 
-   * @param context the context into which the source frame should be set.
+   * @param context the context containing data related to the current transaction.
    */
-  public void read( TransactionContext context );
+  public DataFrame read( TransactionContext context );
 
 
 

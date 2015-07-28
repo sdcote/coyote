@@ -102,7 +102,7 @@ public class CSVReader extends AbstractFrameReader implements FrameReader, Confi
    * @see coyote.batch.FrameReader#read(coyote.batch.TransactionContext)
    */
   @Override
-  public void read( TransactionContext context ) {
+  public DataFrame read( TransactionContext context ) {
     DataFrame retval = null;
     try {
 
@@ -116,15 +116,14 @@ public class CSVReader extends AbstractFrameReader implements FrameReader, Confi
           for ( int x = 0; x < data.length; x++ ) {
             retval.add( x < header.length ? header[x] : new String("COL"+x), data[x] );
           }
-          context.setSourceFrame( retval );
-          context.setRow( ++currentRow );
           break;
         }
       }
     } catch ( IOException | ParseException e ) {
       context.setError( e.getMessage() );
-      context.setRow( currentRow );
     }
+    
+    return retval;
   }
 
 

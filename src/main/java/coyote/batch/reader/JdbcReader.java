@@ -149,14 +149,14 @@ public class JdbcReader extends AbstractFrameReader {
    * @see coyote.batch.FrameReader#read(coyote.batch.TransactionContext)
    */
   @Override
-  public void read( TransactionContext context ) {
+  public DataFrame read( TransactionContext context ) {
     DataFrame retval = null;
 
     if ( result != null ) {
       try {
         if ( result.next() ) {
           retval = new DataFrame();
-          
+
           // Set EOF if this is the last record
           EOF = result.isLast();
 
@@ -166,14 +166,10 @@ public class JdbcReader extends AbstractFrameReader {
             retval.add( rsmd.getColumnName( i ), resolveValue( result.getObject( i ), rsmd.getColumnType( i ) ) );
           }
 
-          // set the frame in the transaction context
-          context.setSourceFrame( retval );
-          // set the current row number
-          context.setRow( result.getRow() );
         } else {
           log.error( "Read past EOF" );
           EOF = true;
-          return;
+          return retval;
         }
       } catch ( SQLException e ) {
         e.printStackTrace();
@@ -182,6 +178,7 @@ public class JdbcReader extends AbstractFrameReader {
     } else {
       EOF = true;
     }
+    return retval;
   }
 
 
@@ -227,31 +224,31 @@ public class JdbcReader extends AbstractFrameReader {
       switch ( type ) {
         case 2:
         case 3:
-          retval =  ((java.math.BigDecimal)value).doubleValue();
+          retval = ( (java.math.BigDecimal)value ).doubleValue();
           break;
         case 4:
-          retval =  ((Integer)value).intValue();
+          retval = ( (Integer)value ).intValue();
           break;
         case 5:
-          retval =  ((Integer)value).shortValue();
+          retval = ( (Integer)value ).shortValue();
           break;
         case 6:
-          retval =  ((Double)value).doubleValue();
+          retval = ( (Double)value ).doubleValue();
           break;
         case 7:
-          retval =  ((Float)value).floatValue();
+          retval = ( (Float)value ).floatValue();
           break;
         case 8:
-          retval =  ((Double)value).doubleValue();
+          retval = ( (Double)value ).doubleValue();
           break;
         case 91:
-          retval = new Date( ((java.sql.Date)value).getTime());
+          retval = new Date( ( (java.sql.Date)value ).getTime() );
           break;
         case 92:
-          retval = new Date( ((java.sql.Time)value).getTime());
+          retval = new Date( ( (java.sql.Time)value ).getTime() );
           break;
         case 93:
-          retval = new Date( ((java.sql.Timestamp)value).getTime());
+          retval = new Date( ( (java.sql.Timestamp)value ).getTime() );
           break;
         default:
           retval = value.toString();

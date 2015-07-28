@@ -81,6 +81,8 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
   public static final String DEFAULT_HOME = new String( System.getProperty( "user.dir" ) + System.getProperty( "file.separator" ) + "wrk" );
   private File workDirectory;
 
+  /** The current row number */
+  protected volatile long currentRow = 0;
 
 
 
@@ -316,7 +318,13 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
         context.start();
 
         // Read a frame into the given context (source frame)
-        reader.read( context );
+        DataFrame retval = reader.read( context );
+        
+        // Set the returned dataframe into the transaction context
+        context.setSourceFrame( retval );
+        // increment the row number
+        context.setRow( ++currentRow );
+        // fire the read event in all the listeners
         context.fireRead( context );
 
         // if we read a record in...

@@ -116,8 +116,11 @@ public class FlatFileReader extends AbstractFrameReader implements FrameReader, 
 
 
 
+  /**
+   * @see coyote.batch.FrameReader#read(coyote.batch.TransactionContext)
+   */
   @Override
-  public void read( TransactionContext context ) {
+  public DataFrame read( TransactionContext context ) {
     DataFrame retval = null;
 
     try {
@@ -128,15 +131,14 @@ public class FlatFileReader extends AbstractFrameReader implements FrameReader, 
         String line = lines.nextLine();
         if ( StringUtil.isNotBlank( line ) ) {
           retval = parse( line );
-          context.setSourceFrame( retval );
-          context.setRow( ++currentRow );
           break;
         }
       }
     } catch ( Exception e ) {
       context.setError( e.getMessage() );
-      context.setRow( currentRow );
     }
+    
+    return retval;
   }
 
 

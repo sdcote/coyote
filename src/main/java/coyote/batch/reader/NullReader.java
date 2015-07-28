@@ -13,6 +13,7 @@ package coyote.batch.reader;
 
 import coyote.batch.TransactionContext;
 import coyote.batch.TransformContext;
+import coyote.dataframe.DataFrame;
 
 
 /**
@@ -24,7 +25,9 @@ public class NullReader extends AbstractFrameReader {
    * @see coyote.batch.FrameReader#read(coyote.batch.TransactionContext)
    */
   @Override
-  public void read( TransactionContext context ) {}
+  public DataFrame read( TransactionContext context ) {
+    return null;
+  }
 
 
 
