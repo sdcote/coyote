@@ -44,10 +44,9 @@ public class NotEmpty extends AbstractValidator implements FrameValidator {
         String value = field.getStringValue();
 
         // check the value
-        if(StringUtil.isBlank( value )){
+        if ( StringUtil.isBlank( value ) ) {
           fail( context, fieldName );
-        } else {
-          //log.info( "Pass" );
+          return false;
         }
 
       } else {
@@ -63,9 +62,5 @@ public class NotEmpty extends AbstractValidator implements FrameValidator {
 
     return true;
   }
-
-
-
-
 
 }

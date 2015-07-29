@@ -11,13 +11,11 @@
  */
 package coyote.batch.validate;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import coyote.batch.FrameValidator;
 import coyote.batch.TransactionContext;
-import coyote.batch.TransformContext;
 import coyote.batch.ValidationException;
+import coyote.dataframe.DataField;
+import coyote.dataframe.DataFrame;
 
 
 /**
@@ -34,10 +32,32 @@ public class NotNull extends AbstractValidator implements FrameValidator {
    */
   @Override
   public boolean process( TransactionContext context ) throws ValidationException {
-    
-    
+
+    // get the field from the working frame of the given context
+    DataFrame frame = context.getWorkingFrame();
+
+    if ( frame != null ) {
+      DataField field = frame.getField( fieldName );
+      if ( field != null ) {
+        
+        if( field.isNull() ){
+          fail( context, fieldName );
+          return false;
+        }
+
+
+        //      } else {
+        //        // fail
+        //        fail( context, fieldName );
+        //        return false;
+      }
+    } else {
+      // fail && error
+      context.setError( "There is no working frame" );
+      return false;
+    }
+
     return true;
   }
-
 
 }

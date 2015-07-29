@@ -26,6 +26,10 @@ import coyote.dataframe.marshal.JSONMarshaler;
  * 
  */
 public class AbstractTest {
+  TransformContext transformContext = new TransformContext();
+
+
+
 
   /**
    * Marshal the given JSON text into a dataframe
@@ -39,6 +43,20 @@ public class AbstractTest {
     return cfglist.get( 0 );
   }
 
+
+
+
+  protected TransactionContext createTransactionContext() {
+    return new TransactionContext( transformContext );
+  }
+
+
+  /**
+   * @return the Transform Context for this test
+   */
+  protected TransformContext getTransformContext() {
+    return transformContext;
+  }
 
 
 
@@ -79,5 +97,8 @@ public class AbstractTest {
     // return the configured engine
     return engine;
   }
+
+
+
 
 }

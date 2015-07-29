@@ -98,7 +98,7 @@ public abstract class AbstractValidator extends AbstractConfigurableComponent im
 
 
   /**
-   * 
+   * Fires the validation failed event in the listeners with the description of this validation rule and optionally
    * @param context
    * @param field
    */
