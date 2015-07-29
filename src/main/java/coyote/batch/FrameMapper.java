@@ -16,7 +16,7 @@ package coyote.batch;
  * working frame in a particular transaction.
  * 
  * <p>Mappers allow the marshaling of data with different naming. This is 
- * useful if a filed is named one thing in the source system but needs to be 
+ * useful if a field is named one thing in the source system but needs to be 
  * name something else in the target system.</p>
  */
 public interface FrameMapper extends ConfigurableComponent {
