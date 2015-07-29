@@ -21,7 +21,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import coyote.batch.AbstractEngineTest;
+import coyote.batch.AbstractTest;
 import coyote.batch.TransformContext;
 import coyote.batch.TransformEngine;
 
@@ -29,7 +29,7 @@ import coyote.batch.TransformEngine;
 /**
  * 
  */
-public class CopyTaskTest extends AbstractEngineTest {
+public class CopyTaskTest extends AbstractTest {
   private static final Logger LOG = LoggerFactory.getLogger( CopyTaskTest.class );
 
 

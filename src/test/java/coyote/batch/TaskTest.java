@@ -28,7 +28,7 @@ import coyote.commons.template.SymbolTable;
  * This tests the ability to simply run a bunch of tasks in order within a 
  * context to perform some generic function.
  */
-public class TaskTest extends AbstractEngineTest {
+public class TaskTest extends AbstractTest {
   private static final Logger LOG = LoggerFactory.getLogger( TaskTest.class );
 
 

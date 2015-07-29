@@ -21,6 +21,9 @@ import coyote.dataframe.DataFrame;
 
 /**
  * There must be a value and it must not be an empty string or all whitespace.
+ * 
+ *<pre>"NotEmpty" : { "field" : "model",  "desc" : "Model cannot be empty"  },</pre>
+ *
  */
 public class NotEmpty extends AbstractValidator implements FrameValidator {
 

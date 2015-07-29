@@ -26,7 +26,7 @@ import coyote.commons.template.SymbolTable;
 /**
  * 
  */
-public class ContextTest extends AbstractEngineTest {
+public class ContextTest extends AbstractTest {
   private static final Logger LOG = LoggerFactory.getLogger( ContextTest.class );
 
 

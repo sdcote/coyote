@@ -28,7 +28,7 @@ import org.slf4j.LoggerFactory;
  * This tests the ability to simply run a bunch of tasks in order within a 
  * context to perform some generic function.
  */
-public class DatabaseTest extends AbstractEngineTest {
+public class DatabaseTest extends AbstractTest {
   private static final Logger LOG = LoggerFactory.getLogger( DatabaseTest.class );
 
 
