@@ -15,14 +15,32 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.List;
 
 import coyote.commons.SystemPropertyUtil;
+import coyote.dataframe.DataFrame;
+import coyote.dataframe.marshal.JSONMarshaler;
 
 
 /**
  * 
  */
-public class AbstractEngineTest {
+public class AbstractTest {
+
+  /**
+   * Marshal the given JSON text into a dataframe
+   * 
+   * @param cfgData The JSON text to marshal
+   * 
+   * @return the first configuration frame found in the data.
+   */
+  protected DataFrame parseConfiguration( String cfgData ) {
+    List<DataFrame> cfglist = JSONMarshaler.marshal( cfgData );
+    return cfglist.get( 0 );
+  }
+
+
+
 
   /**
    * Loads a configuration file and set of properties from the classpath
@@ -43,7 +61,7 @@ public class AbstractEngineTest {
     // now read the named configuration file
     StringBuffer b = new StringBuffer();
     try {
-      BufferedReader reader = new BufferedReader( new InputStreamReader( AbstractEngineTest.class.getClassLoader().getResourceAsStream( name + ".json" ) ) );
+      BufferedReader reader = new BufferedReader( new InputStreamReader( AbstractTest.class.getClassLoader().getResourceAsStream( name + ".json" ) ) );
       String line;
       while ( ( line = reader.readLine() ) != null ) {
         b.append( line );
