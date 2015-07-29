@@ -146,6 +146,10 @@ public class FlatFileWriter extends AbstractFrameWriter implements FrameWriter, 
 
     }
 
+    // Inserts cause other characters to move to the right, therefore we will 
+    // need to truncate the string to the requested length
+    line.delete( recordLength, line.length());
+    
     // write to line to the file
     printwriter.write( line.toString() );
     printwriter.write( StringUtil.LINE_FEED );
