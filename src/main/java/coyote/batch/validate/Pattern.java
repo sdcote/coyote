@@ -11,13 +11,14 @@
  */
 package coyote.batch.validate;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import coyote.batch.ConfigTag;
+import coyote.batch.ConfigurationException;
 import coyote.batch.FrameValidator;
 import coyote.batch.TransactionContext;
 import coyote.batch.TransformContext;
 import coyote.batch.ValidationException;
+import coyote.dataframe.DataField;
+import coyote.dataframe.DataFrame;
 
 
 /**
@@ -39,30 +40,157 @@ import coyote.batch.ValidationException;
  */
 public class Pattern extends AbstractValidator implements FrameValidator {
 
-  
+  private String regularExpression = "";
+  private boolean avoid = true;
+  private java.util.regex.Pattern fieldPattern = null;
+  private java.util.regex.Pattern valuePattern = null;
 
-  
+
+
+
+  /**
+   * @return the avoid
+   */
+  public boolean isAvoiding() {
+    return avoid;
+  }
+
+
+
+
+  /**
+   * @param flag the avoid to set
+   */
+  public void setAvoid( boolean flag ) {
+    this.avoid = flag;
+  }
+
+
+
+
+  /**
+   * @return the pattern for field names
+   */
+  public java.util.regex.Pattern getFieldPattern() {
+    return fieldPattern;
+  }
+
+
+
+
+  /**
+   * @return the pattern for values
+   */
+  public java.util.regex.Pattern getValuePattern() {
+    return valuePattern;
+  }
+
+
+
+
+  /**
+   * @param pattern the Regular Expression pattern to set for matching or avoiding
+   */
+  public void setRegEx( String pattern ) {
+    regularExpression = pattern;
+  }
+
+
+
+
+  /**
+   * @see coyote.batch.AbstractConfigurableComponent#setConfiguration(coyote.dataframe.DataFrame)
+   */
+  @Override
+  public void setConfiguration( DataFrame frame ) throws ConfigurationException {
+    // perform base class configuration first
+    super.setConfiguration( frame );
+
+    //
+    if ( frame.contains( ConfigTag.AVOID ) ) {
+      setAvoid( true );
+      setRegEx( frame.getAsString( ConfigTag.AVOID ) );
+    } else if ( frame.contains( ConfigTag.MATCH ) ) {
+      setAvoid( false );
+      setRegEx( frame.getAsString( ConfigTag.MATCH ) );
+    } else {
+      throw new ConfigurationException( "Pattern validator must contain either '" + ConfigTag.MATCH + "' or '" + ConfigTag.AVOID + "' attribute" );
+
+    }
+
+  }
+
+
+
+
   /**
    * @see coyote.batch.validate.AbstractValidator#open(coyote.batch.TransformContext)
    */
   @Override
   public void open( TransformContext context ) {
-    
+    fieldPattern = java.util.regex.Pattern.compile( getFieldName() );
+    valuePattern = java.util.regex.Pattern.compile( getValueRegEx() );
   }
+
+
+
 
   /**
    * @see coyote.batch.FrameValidator#process(coyote.batch.TransactionContext)
    */
   @Override
   public boolean process( TransactionContext context ) throws ValidationException {
-    
-log.info( "Checking..." );    
-    // context.fireValidationFailed( "This is the error message why the validation failed" );
-    // return false;
-    
-    
+
+    boolean b = fieldPattern.matcher( "aaaaab" ).matches();
+    b = valuePattern.matcher( "aaaaab" ).matches();
+
+    //get the working frame of the given context
+    DataFrame frame = context.getWorkingFrame();
+
+    // If we have a frame...
+    if ( frame != null ) {
+
+      String value = null;
+      for ( DataField field : frame.getFields() ) {
+        if ( field.getName() != null && fieldPattern.matcher( field.getName() ).matches() ) {
+
+          // get the string value of the field
+          value = field.getStringValue();
+
+          if ( isAvoiding() ) {
+            // we are avoiding a match so if there is a match, log a failure
+            if ( valuePattern.matcher( value ).matches() ) {
+              fail( context, fieldName );
+            }
+          } else {
+            // we are not avoiding (i.e requiring) a match so log a failure if 
+            // it does not match
+            if ( !valuePattern.matcher( value ).matches() ) {
+              fail( context, fieldName );
+            }
+          }// avoiding?
+
+        }// field matches?
+
+      } // for each field
+
+    } else {
+      // fail && error
+      context.setError( "There is no working frame" );
+      return false;
+    }
+
     return true;
   }
 
+
+
+
+  /**
+   * @return the valueRegEx
+   */
+  public String getValueRegEx() {
+    return regularExpression;
+  }
 
 }
