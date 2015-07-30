@@ -30,9 +30,6 @@ import coyote.dataframe.DataFrame;
  * "Pattern" : { "field" : "src6",  "avoid" : "^6(?:011|5[0-9]{2})[0-9]{12}$", "desc" : "Discover", "halt" : false  },
  * "Pattern" : { "field" : "src7",  "match" : "^(?:2131|1800|35\\d{3})\\d{11}$", "desc" : "JCB", "halt" : false  },
  *    
- * Use named field
- * Support field wildcards
- * Support regex in field names
  * Support template resolution of field names
  * 
  * match pattern: must match to return true; false if no match
@@ -140,10 +137,7 @@ public class Pattern extends AbstractValidator implements FrameValidator {
    */
   @Override
   public boolean process( TransactionContext context ) throws ValidationException {
-
-    boolean b = fieldPattern.matcher( "aaaaab" ).matches();
-    b = valuePattern.matcher( "aaaaab" ).matches();
-
+    boolean retval = true;
     //get the working frame of the given context
     DataFrame frame = context.getWorkingFrame();
 
@@ -161,12 +155,14 @@ public class Pattern extends AbstractValidator implements FrameValidator {
             // we are avoiding a match so if there is a match, log a failure
             if ( valuePattern.matcher( value ).matches() ) {
               fail( context, fieldName );
+              retval = false;
             }
           } else {
             // we are not avoiding (i.e requiring) a match so log a failure if 
             // it does not match
             if ( !valuePattern.matcher( value ).matches() ) {
               fail( context, fieldName );
+              retval = false;
             }
           }// avoiding?
 
@@ -177,10 +173,10 @@ public class Pattern extends AbstractValidator implements FrameValidator {
     } else {
       // fail && error
       context.setError( "There is no working frame" );
-      return false;
+      retval = false;
     }
 
-    return true;
+    return retval;
   }
 
 
