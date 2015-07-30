@@ -145,4 +145,24 @@ public abstract class AbstractValidator extends AbstractConfigurableComponent im
     log.debug( "Halt on fail is set to {}", halt );
   }
 
+
+
+
+  /**
+   * @return the name of the field to which this validator is targeted
+   */
+  public String getFieldName() {
+    return fieldName;
+  }
+
+
+
+
+  /**
+   * @return the description of this validator (Also used in error messages)
+   */
+  public String getDescription() {
+    return description;
+  }
+
 }
