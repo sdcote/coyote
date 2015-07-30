@@ -13,8 +13,8 @@ package coyote.batch.validate;
 
 //import static org.junit.Assert.*;
 import static org.junit.Assert.*;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+
+import java.io.IOException;
 
 import org.junit.Test;
 
@@ -37,53 +37,35 @@ public class NotEmptyTest extends AbstractTest {
     String cfgData = "{ \"field\" : \"model\",  \"desc\" : \"Model cannot be empty\" }";
     DataFrame configuration = parseConfiguration( cfgData );
 
-    // create the component to test
-    FrameValidator validator = new NotEmpty();
-
-    // Configure it
-    try {
-      validator.setConfiguration( configuration );
-    } catch ( ConfigurationException e ) {
-      e.printStackTrace();
-      fail( e.getMessage() );
-    }
-
-    // open (initialize) the component 
-    validator.open( getTransformContext() );
-
     // Create a transaction context
     TransactionContext context = createTransactionContext();
 
     // Populate it with test data
     DataFrame sourceFrame = new DataFrame();
     sourceFrame.put( "model", "PT4500" );
-    
     context.setSourceFrame( sourceFrame );
 
-    try {
+    try (FrameValidator validator = new NotEmpty()) {
+      // Configure the validator
+      validator.setConfiguration( configuration );
+      // open (initialize) the component 
+      validator.open( getTransformContext() );
+
       boolean result = validator.process( context );
-      assertTrue(result);
-    } catch ( ValidationException e ) {
+      assertTrue( result );
+
+      // Create a new test frame and place it in the context for validation
+      sourceFrame = new DataFrame();
+      sourceFrame.put( "model", " " );
+      context.setSourceFrame( sourceFrame );
+
+      result = validator.process( context );
+      assertFalse( result );
+
+    } catch ( ConfigurationException | ValidationException | IOException e ) {
       e.printStackTrace();
       fail( e.getMessage() );
     }
-    
-    
-    context = createTransactionContext();
-    sourceFrame = new DataFrame();
-    sourceFrame.put( "model", " " );
-    context.setSourceFrame( sourceFrame );
-
-    try {
-      boolean result = validator.process( context );
-      assertFalse(result);
-    } catch ( ValidationException e ) {
-      e.printStackTrace();
-      fail( e.getMessage() );
-    }
-    
-    
-    
 
   }
 
