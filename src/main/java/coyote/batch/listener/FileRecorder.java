@@ -24,6 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import coyote.batch.ConfigTag;
+import coyote.batch.Symbols;
 import coyote.batch.TransformContext;
 import coyote.commons.StringUtil;
 import coyote.commons.UriUtil;
@@ -83,7 +84,7 @@ public abstract class FileRecorder extends ContextRecorder {
 
         // if not absolute, use the current working directory
         if ( !dest.isAbsolute() ) {
-          dest = new File( System.getProperty( "user.dir" ), UriUtil.getFilePath( uri ) );
+          dest = new File( context.getSymbols().getString( Symbols.WORK_DIRECTORY ), UriUtil.getFilePath( uri ) );
         }
 
         // make any directories as necessary
