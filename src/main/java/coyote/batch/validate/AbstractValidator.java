@@ -142,7 +142,6 @@ public abstract class AbstractValidator extends AbstractConfigurableComponent im
     } else {
       log.debug( "No halt config" );
     }
-    log.debug( "Halt on fail is set to {}", halt );
   }
 
 
