@@ -23,10 +23,6 @@ import coyote.dataframe.DataFrame;
  */
 public class NotNull extends AbstractValidator implements FrameValidator {
 
-  
-
-  
-
   /**
    * @see coyote.batch.FrameValidator#process(coyote.batch.TransactionContext)
    */
@@ -39,17 +35,15 @@ public class NotNull extends AbstractValidator implements FrameValidator {
     if ( frame != null ) {
       DataField field = frame.getField( fieldName );
       if ( field != null ) {
-        
-        if( field.isNull() ){
+
+        if ( field.isNull() ) {
           fail( context, fieldName );
           return false;
         }
-
-
-        //      } else {
-        //        // fail
-        //        fail( context, fieldName );
-        //        return false;
+      } else {
+        // if the field does not exist, it is effectively null - no value
+        fail( context, fieldName );
+        return false;
       }
     } else {
       // fail && error
