@@ -110,11 +110,14 @@ public class CSVReader extends AbstractFrameReader implements FrameReader, Confi
       // returned or EOF
       while ( !eof() ) {
         String[] data = reader.readNext();
+        
+        // Deal with empty lines which may be in the file
+        reader.consumeEmptyLines();
 
         if ( data != null ) {
           retval = new DataFrame();
           for ( int x = 0; x < data.length; x++ ) {
-            retval.add( x < header.length ? header[x] : new String("COL"+x), data[x] );
+            retval.add( x < header.length ? header[x] : new String( "COL" + x ), data[x] );
           }
           break;
         }
@@ -122,7 +125,9 @@ public class CSVReader extends AbstractFrameReader implements FrameReader, Confi
     } catch ( IOException | ParseException e ) {
       context.setError( e.getMessage() );
     }
-    
+
+    // TODO: consume empty lines: sometimes CSV files have empty lines at the end of the file...we should consume them
+
     return retval;
   }
 
