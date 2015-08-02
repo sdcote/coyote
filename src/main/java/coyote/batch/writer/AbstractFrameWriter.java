@@ -109,21 +109,21 @@ public abstract class AbstractFrameWriter extends AbstractConfigurableComponent 
         } else if ( uri != null ) {
           if ( UriUtil.isFile( uri ) ) {
             targetFile = UriUtil.getFile( uri );
-            if ( targetFile != null ) {
-              log.debug( "Using a target file of " + targetFile.getAbsolutePath() );
-            } else {
+                        
+            if ( targetFile == null ) {
               log.warn( "The target '{}' does not represent a file", target );
             }
           }
         } else {
           targetFile = new File( target );
-          log.debug( "Using a target file of " + targetFile.getAbsolutePath() );
         }
 
-        if ( targetFile == null ) {
-          // Always assume a file path (in the work directory if possible)
-          targetFile = new File( context.getSymbols().getString( Symbols.WORK_DIRECTORY ), target );
+        // if not absolute, use the current working directory
+        if ( !targetFile.isAbsolute() ) {
+          targetFile = new File( context.getSymbols().getString( Symbols.WORK_DIRECTORY ), UriUtil.getFilePath( uri ) );
         }
+        log.debug( "Using a target file of " + targetFile.getAbsolutePath() );
+
 
         try {
           final Writer fwriter = new FileWriter( targetFile );
