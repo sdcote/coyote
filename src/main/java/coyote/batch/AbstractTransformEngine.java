@@ -86,6 +86,7 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
 
 
 
+
   @SuppressWarnings("unchecked")
   public AbstractTransformEngine() {
 
@@ -319,16 +320,17 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
 
         // Read a frame into the given context (source frame)
         DataFrame retval = reader.read( context );
-        
-        // Set the returned dataframe into the transaction context
-        context.setSourceFrame( retval );
-        // increment the row number
-        context.setRow( ++currentRow );
-        // fire the read event in all the listeners
-        context.fireRead( context );
 
-        // if we read a record in...
-        if ( context.getSourceFrame() != null ) {
+        // Sometimes readers read empty lines and the like, skip null dataframes!!!
+        if ( retval != null ) {
+
+          // Set the returned dataframe into the transaction context
+          context.setSourceFrame( retval );
+          // increment the row number
+          context.setRow( ++currentRow );
+          // fire the read event in all the listeners
+          context.fireRead( context );
+
           //log.debug( "row {} - {}", context.getRow(), context.getSourceFrame().toString() );
 
           // ...pass it through the filters...
@@ -407,7 +409,7 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
           // context to record the transaction if so configured
           context.end();
 
-        } // skip null frames
+        } // if something was read in
 
       } // Reader !eof and context is without error
 
