@@ -245,7 +245,33 @@ public class CSVReader implements Closeable {
     if ( nextLine == null ) {
       _hasnext = false;
     }
+
     return _hasnext ? nextLine : null;
+  }
+
+
+
+
+  /**
+   * This reads ahead and skips past any CR or LF characters.
+   */
+  public void consumeEmptyLines() {
+    if ( _br.markSupported() ) {
+      int character = 0;
+      do {
+        try {
+          _br.mark( 2 );
+          character = _br.read();
+          if ( character != 10 && character != 13 ) {
+            _br.reset();
+            break;
+          }
+        } catch ( IOException e ) {
+          e.printStackTrace();
+        }
+      }
+      while ( character > 0 );
+    }
   }
 
 
@@ -272,5 +298,5 @@ public class CSVReader implements Closeable {
   public boolean eof() {
     return !_hasnext;
   }
-  
+
 }
