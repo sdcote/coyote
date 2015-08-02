@@ -34,7 +34,6 @@ csharp/
 # Testing Artifacts #
 #####################
 *.log
-*.csv
 logback.xml
 
 
