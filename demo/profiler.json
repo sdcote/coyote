@@ -1,0 +1,13 @@
+{
+
+	"Reader" : {
+		"class" : "CSVReader",
+		"source" : "file://demo/users.csv",
+		"header" : true
+	},
+
+	"Listeners" : [
+		{ "class" : "DataProfiler", "target" : "users-csv.txt" }
+	]
+
+}
