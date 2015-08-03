@@ -344,7 +344,7 @@ public class StringUtil {
    * @return A string of exactly the given length with the text aligned within as specified,
    */
   public static String fixedLength( String text, int length, int alignment ) {
-    return fixedLength( text, length, ' ' );
+    return fixedLength( text, length, alignment, ' ' );
   }
 
 
