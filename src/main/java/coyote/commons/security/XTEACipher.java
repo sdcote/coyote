@@ -358,11 +358,26 @@ public class XTEACipher extends AbstractCipher implements Cipher {
    * <p>The most common method for initializing this cipher is to pick a string 
    * and an encoding and convert the string to bytes using that encoding.</p>
    * 
+   * <p>The key must be 16 bytes in length. If longer, the key will be 
+   * truncated to 16 bytes, if shorter the key will be padded with zeros.</p> 
+   * 
    * @see coyote.commons.security.Cipher#init(byte[])
    */
   @Override
   public void init( byte[] key ) {
-    subKeys = XTEACipher.generateSubKeys( key );
+
+    // create a key of all zeros
+    byte[] fullkey = new byte[16];
+
+    // copy the given key into the full 16 byte key
+    if ( key.length > 16 ) {
+      System.arraycopy( key, 0, fullkey, 0, fullkey.length );
+    } else {
+      System.arraycopy( key, 0, fullkey, 0, key.length );
+    }
+
+    // generate the subkeys from the full 16 byte key
+    subKeys = XTEACipher.generateSubKeys( fullkey );
   }
 
 
