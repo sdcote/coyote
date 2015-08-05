@@ -21,8 +21,22 @@ public class ConfigurationException extends Exception {
 
 
 
-  public ConfigurationException( String string ) {
-    super( string );
+  public ConfigurationException( String msg ) {
+    super( msg );
+  }
+
+
+
+
+  public ConfigurationException( String msg, Exception e ) {
+    super( msg, e );
+  }
+
+
+
+
+  public ConfigurationException( Exception e ) {
+    super( e );
   }
 
 }
