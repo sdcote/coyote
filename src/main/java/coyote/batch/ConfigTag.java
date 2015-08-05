@@ -69,8 +69,6 @@ public class ConfigTag {
   public static final String HALT_ON_ERROR = "haltonerror";
   public static final String HOST = "hostname";
   public static final String PORT = "port";
-  public static final String USER = "username";
-  public static final String PASS = "password";
   public static final String PROTOCOL = "protocol";
   public static final String FILE = "filename";
   public static final String DIRECTORY = "directory";
