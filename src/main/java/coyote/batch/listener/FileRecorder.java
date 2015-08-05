@@ -118,7 +118,7 @@ public abstract class FileRecorder extends ContextRecorder {
 
   protected void write( String text ) {
 
-    if ( !targetFile.exists() ) {
+    if ( targetFile != null && !targetFile.exists() ) {
       try {
         log_writer = new OutputStreamWriter( new FileOutputStream( targetFile.toString(), false ) );
         //final byte[] header = getFormatter().initialize();
