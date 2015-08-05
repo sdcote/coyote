@@ -15,10 +15,11 @@ package coyote.batch;
  * A list of constants shared by all components.
  */
 public class ConfigTag {
-  
+
+  // System Properties
+
   public static final String CIPHER_NAME = "cipher.name";
   public static final String CIPHER_KEY = "cipher.key";
-
 
   public static final String AUTO_CREATE = "autocreate";
   /** Batch size ({@value}) configuration attribute. */

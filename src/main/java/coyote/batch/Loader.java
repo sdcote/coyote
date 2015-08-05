@@ -18,7 +18,6 @@ import coyote.commons.CipherUtil;
 import coyote.commons.FileUtil;
 import coyote.commons.StringUtil;
 import coyote.commons.SystemPropertyUtil;
-import coyote.commons.Version;
 import coyote.commons.security.BlowfishCipher;
 
 
@@ -27,10 +26,7 @@ import coyote.commons.security.BlowfishCipher;
  */
 public class Loader {
 
-  private static final String NAME = "Batch";
   private static final String ENCRYPT = "encrypt";
-
-  private static final Version VERSION = new Version( 0, 2, 0, Version.EXPERIMENTAL );
 
 
 
@@ -47,8 +43,8 @@ public class Loader {
    */
   private static void encrypt( String[] args ) {
     String token = null;
-    String key = System.getProperty( ConfigTag.CIPHER_KEY, CipherUtil.getKey( "CoyoteBatch" ) );
-    String cipherName = System.getProperty( ConfigTag.CIPHER_NAME, BlowfishCipher.CIPHER_NAME );
+    String key = System.getProperty( ConfigTag.CIPHER_KEY, CipherUtil.getKey( Batch.CIPHER_KEY ) );
+    String cipherName = System.getProperty( ConfigTag.CIPHER_NAME, Batch.CIPHER_NAME );
     if ( args.length < 2 ) {
       System.err.println( "Nothing to encrypt" );
       return;
@@ -93,14 +89,14 @@ public class Loader {
   public static void main( final String[] args ) {
 
     if ( ( args == null ) || ( args.length == 0 ) ) {
-      System.out.println( NAME + " v" + VERSION );
+      System.out.println( Batch.NAME + " v" + Batch.VERSION );
       System.exit( 0 );
     }
 
     // Load properties to set system properties telling the library to use a
     // proxy and what authentication to use along with any other properties 
     // which might be expected by any components.
-    SystemPropertyUtil.load( NAME.toLowerCase() );
+    SystemPropertyUtil.load( Batch.NAME.toLowerCase() );
 
     if ( StringUtil.isNotBlank( args[0] ) ) {
 
@@ -132,13 +128,10 @@ public class Loader {
 
           // run the transformation 
           try {
-
             engine.run();
-
           } catch ( final Exception e ) {
-
-            System.out.println( e.getMessage() );
-
+            System.out.println( "Encountered a '" + e.getClass().getSimpleName() + "' exception running the engine: " + e.getMessage() );
+            e.printStackTrace();
           }
           finally {
 
@@ -147,7 +140,6 @@ public class Loader {
             } catch ( final IOException ignore ) {}
 
             System.out.println( "Batch '" + engine.getName() + "' completed." );
-
           } // try-catch-finally 
 
         } else {
