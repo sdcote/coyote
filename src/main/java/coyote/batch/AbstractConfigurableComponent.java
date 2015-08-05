@@ -14,7 +14,9 @@ package coyote.batch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import coyote.commons.CipherUtil;
 import coyote.commons.StringUtil;
+import coyote.commons.security.BlowfishCipher;
 import coyote.commons.template.Template;
 import coyote.dataframe.DataField;
 import coyote.dataframe.DataFrame;
@@ -152,6 +154,40 @@ public abstract class AbstractConfigurableComponent implements ConfigurableCompo
 
     log.debug( "Resolved a value of '{}' to '{}'", value, retval );
 
+    return retval;
+  }
+
+
+
+
+  /**
+   * Get the configuration value with the given key and decipher it.
+   * 
+   * <p>The name of the encryption algorithm is assumed to be Blowfish unless 
+   * otherwise specified in the {@code cipher.name} system property.</p>
+   * 
+   * <p>Similarly, the decryption key is assumed to be the toolkit default 
+   * unless otherwise specified in the {@code cipher.key} system property.</p>
+   * 
+   * @param key the name of the configuration parameter to decipher return
+   * 
+   * @return the decrypted value of the named configuration attribute or null 
+   *         if it does not exist in the configuration or the context.
+   */
+  public String getEncryptedString( String key ) {
+    String retval = null;
+
+    // retrieve what we will assume is cipher text, base64 encoded bytes
+    String cipherText = getString( key );
+    if ( StringUtil.isNotBlank( cipherText ) ) {
+      // Retrieve decryption parameters from system properties or use the defaults
+      String cipherName = System.getProperty( "cipher.name", BlowfishCipher.CIPHER_NAME );
+      String cipherKey = System.getProperty( "cipher.key", CipherUtil.getKey( "CoyoteBatch" ) );
+      // decryption of the retrieve value using the specified cipher and key
+      retval = CipherUtil.decipher( cipherText, cipherName, cipherKey );
+    }
+
+    // return either null or the results of our decryption
     return retval;
   }
 
