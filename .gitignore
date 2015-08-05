@@ -35,6 +35,7 @@ csharp/
 #####################
 *.log
 logback.xml
+/wrk/
 
 
 # Package Files #
