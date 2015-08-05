@@ -23,6 +23,7 @@ import org.junit.Test;
 import coyote.commons.security.BlowfishCipher;
 import coyote.commons.security.Cipher;
 import coyote.commons.security.NullCipher;
+import coyote.commons.security.XTEACipher;
 
 
 /**
@@ -196,6 +197,10 @@ public class CipherUtilTest {
     cipher = CipherUtil.getCipher( BlowfishCipher.CIPHER_NAME );
     assertNotNull( cipher );
     assertTrue( cipher instanceof BlowfishCipher );
+
+    cipher = CipherUtil.getCipher( XTEACipher.CIPHER_NAME );
+    assertNotNull( cipher );
+    assertTrue( cipher instanceof XTEACipher );
 
     cipher = CipherUtil.getCipher( "biff" );
     assertNull( cipher );

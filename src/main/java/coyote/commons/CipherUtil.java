@@ -19,6 +19,7 @@ import java.util.Random;
 import coyote.commons.security.BlowfishCipher;
 import coyote.commons.security.Cipher;
 import coyote.commons.security.NullCipher;
+import coyote.commons.security.XTEACipher;
 
 
 /**
@@ -43,6 +44,7 @@ public class CipherUtil {
   private static final Map<String, Cipher> cipherMap = new HashMap<String, Cipher>();
   static {
     register( new BlowfishCipher() );
+    register( new XTEACipher() );
     register( new NullCipher() );
   }
 

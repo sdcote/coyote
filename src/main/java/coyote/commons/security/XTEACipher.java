@@ -19,7 +19,7 @@ public class XTEACipher extends AbstractCipher implements Cipher {
   private static final int D_SUM = 0xC6EF3720;
   private static final byte[] EMPTY_BYTES = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
   private static final String UTF16 = "UTF-16";
-  private static final String CIPHER_NAME = "XTEA";
+  public static final String CIPHER_NAME = "XTEA";
 
   private int[] subKeys = null;
 
