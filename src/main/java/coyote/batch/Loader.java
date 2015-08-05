@@ -14,10 +14,12 @@ package coyote.batch;
 import java.io.File;
 import java.io.IOException;
 
+import coyote.commons.CipherUtil;
 import coyote.commons.FileUtil;
 import coyote.commons.StringUtil;
 import coyote.commons.SystemPropertyUtil;
 import coyote.commons.Version;
+import coyote.commons.security.BlowfishCipher;
 
 
 /**
@@ -26,8 +28,61 @@ import coyote.commons.Version;
 public class Loader {
 
   private static final String NAME = "Batch";
+  private static final String ENCRYPT = "encrypt";
 
   private static final Version VERSION = new Version( 0, 2, 0, Version.EXPERIMENTAL );
+
+
+
+
+  /**
+   * Performs encryption operation from the command line arguments.
+   * 
+   * <p>The loader provides a way for the operator to generate encrypted values 
+   * which can be placed in configuration files. This allows user names and 
+   * passwords to be hidden from those with access to the files but who do not 
+   * have access to the encryption keys.</p>
+   * 
+   * @param args the entire command line arguments to parse for encryption details
+   */
+  private static void encrypt( String[] args ) {
+    String token = null;
+    String key = System.getProperty( ConfigTag.CIPHER_KEY, CipherUtil.getKey( "CoyoteBatch" ) );
+    String cipherName = System.getProperty( ConfigTag.CIPHER_NAME, BlowfishCipher.CIPHER_NAME );
+    if ( args.length < 2 ) {
+      System.err.println( "Nothing to process" );
+      return;
+    } else {
+      token = args[1];
+      if ( args.length > 2 ) {
+        String rawkey = args[2];
+        // make sure is it base64 encoded or make it so
+        try {
+          CipherUtil.decode( rawkey );
+          key = rawkey;
+        } catch ( Exception e ) {
+          System.out.println( "User-specified key did not appear to be Base64 encoded, encoding it." );
+          key = CipherUtil.getKey( rawkey );
+        }
+
+        if ( args.length > 3 ) {
+          cipherName = args[3];
+        }
+
+      }
+    }
+    System.out.println( "Encrypting '" + token + "'" );
+    System.out.println( "with a key of '" + key + "'" );
+    System.out.println( "using a '" + cipherName + "' cipher" );
+
+    if ( CipherUtil.getCipher( cipherName ) != null ) {
+      String ciphertext = CipherUtil.encipher( token, cipherName, key );
+      System.out.println( ciphertext );
+    } else {
+      System.err.println( "Cipher '" + cipherName + "' is not supported" );
+    }
+
+  }
 
 
 
@@ -48,52 +103,59 @@ public class Loader {
     SystemPropertyUtil.load( NAME.toLowerCase() );
 
     if ( StringUtil.isNotBlank( args[0] ) ) {
-      final String fileName = args[0];
 
-      // Get the reference to the file which contains our transformation engine 
-      // configuration
-      final File cfgFile = new File( fileName );
-
-      if ( cfgFile.exists() && cfgFile.canRead() ) {
-
-        // have the Engine Factory create a transformation engine based on the
-        // configuration in the file
-        final TransformEngine engine = TransformEngineFactory.getInstance( cfgFile );
-
-        // Make sure the context contains a name so it can find artifacts 
-        // related to this transformation 
-        if ( StringUtil.isBlank( engine.getName() ) ) {
-          engine.setName( FileUtil.getBase( fileName ).toLowerCase() );
-        }
-
-        System.out.println( "Running '" + engine.getName() + "' ..." );
-
-        // run the transformation 
-        try {
-
-          engine.run();
-
-        } catch ( final Exception e ) {
-
-          System.out.println( e.getMessage() );
-
-        }
-        finally {
-
-          try {
-            engine.close();
-          } catch ( final IOException ignore ) {}
-
-          System.out.println( "Batch '" + engine.getName() + "' completed." );
-
-        } // try-catch-finally 
-
+      // if the first argument is "encrypt" perform an encryption operation 
+      // using the rest of the command line arguments
+      if ( ENCRYPT.equalsIgnoreCase( args[0] ) ) {
+        encrypt( args );
       } else {
 
-        System.err.println( "Cannot read " + cfgFile.getAbsolutePath() );
+        final String fileName = args[0];
 
-      } // can read file
+        // Get the reference to the file which contains our transformation engine 
+        // configuration
+        final File cfgFile = new File( fileName );
 
+        if ( cfgFile.exists() && cfgFile.canRead() ) {
+
+          // have the Engine Factory create a transformation engine based on the
+          // configuration in the file
+          final TransformEngine engine = TransformEngineFactory.getInstance( cfgFile );
+
+          // Make sure the context contains a name so it can find artifacts 
+          // related to this transformation 
+          if ( StringUtil.isBlank( engine.getName() ) ) {
+            engine.setName( FileUtil.getBase( fileName ).toLowerCase() );
+          }
+
+          System.out.println( "Running '" + engine.getName() + "' ..." );
+
+          // run the transformation 
+          try {
+
+            engine.run();
+
+          } catch ( final Exception e ) {
+
+            System.out.println( e.getMessage() );
+
+          }
+          finally {
+
+            try {
+              engine.close();
+            } catch ( final IOException ignore ) {}
+
+            System.out.println( "Batch '" + engine.getName() + "' completed." );
+
+          } // try-catch-finally 
+
+        } else {
+
+          System.err.println( "Cannot read " + cfgFile.getAbsolutePath() );
+
+        } // can read file
+      } // encrypt or load
     } // args
 
   } // main
