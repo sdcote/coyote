@@ -50,7 +50,7 @@ public class Loader {
     String key = System.getProperty( ConfigTag.CIPHER_KEY, CipherUtil.getKey( "CoyoteBatch" ) );
     String cipherName = System.getProperty( ConfigTag.CIPHER_NAME, BlowfishCipher.CIPHER_NAME );
     if ( args.length < 2 ) {
-      System.err.println( "Nothing to process" );
+      System.err.println( "Nothing to encrypt" );
       return;
     } else {
       token = args[1];
