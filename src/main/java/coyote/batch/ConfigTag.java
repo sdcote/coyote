@@ -48,6 +48,7 @@ public class ConfigTag {
   public static final String ENCRYPTED_USERNAME = "encrypted_username";
   public static final String DATEFORMAT = "dateformat";
   public static final String ALIGN = "align";
+  public static final String RECURSE = "recurse";
 
   // Transform engine
 
