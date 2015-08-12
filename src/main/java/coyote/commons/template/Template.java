@@ -41,7 +41,7 @@ import coyote.commons.StringParser;
  * <code>toString</code> method is called and the returning value placed in the
  * position where the token was found. This is analogous to a variable lookup.
  * If the token is not found in the table or the symbols object returns a null
- * string, then the string &quot;null&quot; is returned.</p>
+ * string, then an empty string is returned.</p>
  *
  * <p>Tokens that are not preceded with a &quot;$&quot; are treated as class
  * tokens when encountered, the parser attempts to create a new instance of
