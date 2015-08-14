@@ -34,6 +34,7 @@ public abstract class OperationalContext {
   protected volatile long endTime = 0;
   protected final Map<String, Object> properties = new HashMap<String, Object>();
   protected OperationalContext parent = null;
+  private long row = 0;
 
   /** Flag indicating the context is in errorFlag */
   protected volatile boolean errorFlag = false;
@@ -484,6 +485,26 @@ public abstract class OperationalContext {
     if ( this != context ) {
       this.parent = context;
     }
+  }
+
+
+
+
+  /**
+   * @return the row
+   */
+  public long getRow() {
+    return row;
+  }
+
+
+
+
+  /**
+   * @param row the row to set
+   */
+  public void setRow( long row ) {
+    this.row = row;
   }
 
 }

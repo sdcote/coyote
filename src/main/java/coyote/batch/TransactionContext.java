@@ -19,7 +19,6 @@ import coyote.dataframe.DataFrame;
  * extraction, transformation and loading of single row of data. 
  */
 public class TransactionContext extends OperationalContext {
-  private long row = 0;
   private DataFrame sourceFrame = null;
   private DataFrame targetFrame = null;
   private DataFrame workingFrame = null;
@@ -101,21 +100,6 @@ public class TransactionContext extends OperationalContext {
 
 
 
-  /**
-   * @return the row
-   */
-  public long getRow() {
-    return row;
-  }
 
-
-
-
-  /**
-   * @param row the row to set
-   */
-  public void setRow( long row ) {
-    this.row = row;
-  }
 
 }

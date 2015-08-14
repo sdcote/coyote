@@ -105,6 +105,31 @@ public abstract class AbstractConfigurableComponent implements ConfigurableCompo
 
 
   /**
+   * Perform a case insensitive search for a configuration value with the given 
+   * name.
+   * 
+   * @param key than name of the configuration parameter to find
+   * 
+   * @return the string value of the configuration parameter or null if it is
+   *         not found.
+   */
+  public String findString( String key ) {
+    String retval = null;
+    // Normally we would just call getAsString(key) on the config, but that is 
+    // case sensitive so we will check each frame ourselves
+    for ( DataField field : getConfiguration().getFields() ) {
+      if ( ( field.getName() != null ) && field.getName().equalsIgnoreCase( key ) ) {
+        retval = field.getStringValue();
+        break;
+      }
+    }
+    return retval;
+  }
+
+
+
+
+  /**
    * Return the configuration value with the given (case insensitive) key.
    * 
    * <p>Check the configuration first and return that value, but if there is no 
@@ -125,14 +150,8 @@ public abstract class AbstractConfigurableComponent implements ConfigurableCompo
   public String getString( String key ) {
     String value = null;
 
-    // Normally we would just call getAsString(key) on the config, but that is 
-    // case sensitive so we will check each frame ourselves
-    for ( DataField field : getConfiguration().getFields() ) {
-      if ( ( field.getName() != null ) && field.getName().equalsIgnoreCase( key ) ) {
-        value = field.getStringValue();
-        break;
-      }
-    }
+    // Perform a case insensitive search for the value with the given key
+    value = this.findString( key );
 
     // See if there is a match in the context for reference resolution
     if ( value != null ) {

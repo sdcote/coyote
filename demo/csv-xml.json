@@ -1,0 +1,18 @@
+{
+	"Reader" : {
+		"class" : "CSVReader",
+		"source" : "file://demo/users.csv",
+		"header" : true
+	},
+
+	"Writer" : {
+		"class" : "XMLWriter",
+		"target" : "[#$wrkdir#][#$FS#]users.xml",
+		"header" : "",
+		"rootElement" : "DataSet",
+		"rootAttributes" : "version=\"1.0\" exporter=\"CoyoteBatch\"",
+		"rowElement" : "DataRow",
+		"rowAttributes" : "seq=[#$currentRow#]",
+		"fieldFormat" : "<Column name=\"{0}\" value=\"{4}\"/>"
+	}
+}

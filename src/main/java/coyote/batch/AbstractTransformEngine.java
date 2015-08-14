@@ -326,8 +326,11 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
 
           // Set the returned dataframe into the transaction context
           context.setSourceFrame( retval );
-          // increment the row number
+          // increment the row number in the contexts
           context.setRow( ++currentRow );
+          transformContext.setRow( currentRow );
+          symbols.put( "currentRow", currentRow );
+
           // fire the read event in all the listeners
           context.fireRead( context );
 

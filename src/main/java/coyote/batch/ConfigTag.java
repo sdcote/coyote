@@ -29,6 +29,7 @@ public class ConfigTag {
   public static final String FIELDS = "fields";
   public static final String FORMAT = "format";
   public static final String HEADER = "header";
+  public static final String FOOTER = "footer";
   public static final String LENGTH = "length";
   public static final String LIBRARY = "library";
   public static final String LIMIT = "limit";
@@ -49,6 +50,12 @@ public class ConfigTag {
   public static final String DATEFORMAT = "dateformat";
   public static final String ALIGN = "align";
   public static final String RECURSE = "recurse";
+
+  public static final String ROOT_ELEMENT = "rootElement";
+  public static final String ROOT_ATTRIBUTE = "rootAttributes";
+  public static final String ROW_ELEMENT = "rowElement";
+  public static final String ROW_ATTRIBUTE = "rowAttributes";
+  public static final String FIELD_FORMAT = "fieldFormat";
 
   // Transform engine
 
