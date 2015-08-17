@@ -11,9 +11,11 @@ There is a [project wiki](https://github.com/sdcote/batch/wiki) with is constant
 
 ## Development Status
 
-This library is currently in the prototyping stage and is undergoing constant change and redesign.
+This library is currently past prototyping in initial development and well into testing. Documentation is being generated and the code is in use by integration teams uncovering issues for resolution and new use cases for toolkit expansion.
 
-No broken builds are checked-in, so what is in this repository should build and provide value. **Do Not Trust This Code Without First Checking It Yourself.**  
+No broken builds are checked-in, so what is in this repository should build and provide value. This project is indirectly supporting integration efforts and is being tested using real world scenarios. As new use cases are discovered the toolkit is updated to support them. 
+
+This code is not currently in production, but supporting development and implementation activities. **Do Not Trust This Code Without First Checking It Yourself.** 
 
 Feel free to copy whatever you find useful and please consider contributing so others may benefit as you may have. 
 
