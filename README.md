@@ -28,6 +28,7 @@ This project has a simple goal: make executing basic batch processing quick and 
  * Do not require complicated frameworks or facilities (e.g. containers)
  * Enable integrations prototyping, and development operations
  * Provide utilities to assist in the loading and extraction of data,
+ * Simple Configuration; if we need a GUI to configure the tools, we are not simple,
  * Provide value first, optimize later.
 
 ## Prerequisites:
