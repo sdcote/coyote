@@ -76,6 +76,28 @@ public class StringUtil {
 
 
   /**
+   * Convert the given string into ISO 8859-1 encoding.
+   * 
+   * <p>This is the defacto standard for string encoding on the Internet</p>
+   * 
+   * @param text the text to encode
+   * 
+   * @return the bytes representing the encoded text or null if the text is null
+   */
+  public static byte[] getBytes( String text ) {
+    byte[] retval = null;
+    if ( text != null ) {
+      try {
+        retval = text.getBytes( StringUtil.ISO8859_1 );
+      } catch ( final Exception ex ) {}
+    }
+    return retval;
+  }
+
+
+
+
+  /**
    * Count the occurrences of the substring in string s.
    * 
    * @param str string to search in. Return 0 if this is null.
