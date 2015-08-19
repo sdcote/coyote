@@ -44,8 +44,8 @@ public class CSVWriter implements Closeable {
   /** The escape constant to use when you wish to suppress all escaping. */
   public static final char NO_ESCAPE_CHARACTER = '\u0000';
 
-  /** Default line terminator uses platform encoding. */
-  public static final String LINE_DELIMITER = "\n";
+  /** Default line terminator uses RFC4180 defined terminator. */
+  public static final String LINE_DELIMITER = "\r\n";
 
 
 
