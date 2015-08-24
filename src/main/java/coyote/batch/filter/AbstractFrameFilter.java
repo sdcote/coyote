@@ -9,9 +9,15 @@
  *   Stephan D. Cote 
  *      - Initial concept and initial implementation
  */
-package coyote.batch;
+package coyote.batch.filter;
 
 import java.io.IOException;
+
+import coyote.batch.AbstractConfigurableComponent;
+import coyote.batch.Component;
+import coyote.batch.ConfigurableComponent;
+import coyote.batch.FrameFilter;
+import coyote.batch.TransformContext;
 
 
 /**
