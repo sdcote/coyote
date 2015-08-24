@@ -21,7 +21,8 @@ import coyote.dataframe.DataField;
 
 
 /**
- * 
+ * This is used by components needing to read and write fixed length field 
+ * values in a text file.
  */
 public class FieldDefinition {
   private short type = 0;
