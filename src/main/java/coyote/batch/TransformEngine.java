@@ -125,4 +125,9 @@ public interface TransformEngine extends RunnableComponent {
 
   public void addValidator( FrameValidator validator );
 
+
+
+
+  public void addTransformer( FrameTransform transformer );
+
 }

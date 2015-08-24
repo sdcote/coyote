@@ -69,7 +69,8 @@ public class ConfigTag {
   public static final String MAPPER = "mapper";
   public static final String READER = "reader";
   public static final String DATABASES = "databases";
-  public static final String VALIDATE = "Validate";
+  public static final String VALIDATE = "validate";
+  public static final String TRANSFORM = "transform";
 
   // Tasks
 

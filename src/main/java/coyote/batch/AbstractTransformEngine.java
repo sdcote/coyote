@@ -775,4 +775,17 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
     }
   }
 
+
+
+
+  /**
+   * @see coyote.batch.TransformEngine#addTransformer(coyote.batch.FrameTransform)
+   */
+  @Override
+  public void addTransformer( FrameTransform transformer ) {
+    if ( transformer != null ) {
+      transformers.add( transformer );
+    }
+  }
+
 }

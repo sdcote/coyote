@@ -22,6 +22,7 @@ import org.slf4j.LoggerFactory;
 import coyote.batch.listener.AbstractListener;
 import coyote.batch.reader.AbstractFrameReader;
 import coyote.batch.task.AbstractTransformTask;
+import coyote.batch.transform.AbstractFrameTransform;
 import coyote.batch.validate.AbstractValidator;
 import coyote.batch.writer.AbstractFrameWriter;
 import coyote.commons.FileUtil;
@@ -54,6 +55,8 @@ public class TransformEngineFactory {
   private static final String TASK_PKG = AbstractTransformTask.class.getPackage().getName();
   /** Constant to assist in determining the full class name of validators */
   private static final String VALIDATOR_PKG = AbstractValidator.class.getPackage().getName();
+  /** Constant to assist in determining the full class name of frame transformers */
+  private static final String TRANSFORM_PKG = AbstractFrameTransform.class.getPackage().getName();
 
 
 
@@ -124,6 +127,12 @@ public class TransformEngineFactory {
         } else if ( ConfigTag.VALIDATE.equalsIgnoreCase( field.getName() ) ) {
           if ( field.isFrame() ) {
             configValidation( (DataFrame)field.getObjectValue(), retval );
+          } else {
+            LOG.error( "Invalid pre-process configuration section" );
+          }
+        } else if ( ConfigTag.TRANSFORM.equalsIgnoreCase( field.getName() ) ) {
+          if ( field.isFrame() ) {
+            configTransformer( (DataFrame)field.getObjectValue(), retval );
           } else {
             LOG.error( "Invalid pre-process configuration section" );
           }
@@ -212,6 +221,36 @@ public class TransformEngineFactory {
         LOG.error( "Validator task did not contain a configuration, only scalar {}", field.getStringValue() );
       }
     } // for each validator
+  }
+
+
+
+
+  private static void configTransformer( DataFrame cfg, TransformEngine engine ) {
+    for ( DataField field : cfg.getFields() ) {
+      String className = field.getName();
+      if ( className != null && StringUtil.countOccurrencesOf( className, "." ) < 1 ) {
+        className = TRANSFORM_PKG + "." + className;
+      }
+
+      // All tasks must have an object(frame) as its value.
+      if ( field.isFrame() ) {
+        DataFrame transformerConfig = (DataFrame)field.getObjectValue();
+        Object object = createComponent( className, transformerConfig );
+        if ( object != null ) {
+          if ( object instanceof FrameTransform ) {
+            engine.addTransformer( (FrameTransform)object );
+            LOG.debug( "Created frame transformer {} cfg={}", object.getClass().getName(), transformerConfig );
+          } else {
+            LOG.error( "Specified transformer class '{}' was not a frame transformer", field.getName() );
+          }
+        } else {
+          LOG.error( "Could not create an instance of the specified frame transformer '{}'", className );
+        }
+      } else {
+        LOG.error( "Transformer task did not contain a configuration, only scalar {}", field.getStringValue() );
+      }
+    } // for each transformer
   }
 
 
