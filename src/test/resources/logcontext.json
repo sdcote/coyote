@@ -1,6 +1,6 @@
 {
 	"Class": "coyote.batch.Job",
-
+	
 	"Context": {
 		"MyString": "nylon",
 		"WorkDir": "[#$wrkdir#][#$FS#]",

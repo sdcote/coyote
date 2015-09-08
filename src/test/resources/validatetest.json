@@ -1,4 +1,5 @@
 {
+	"Class": "coyote.batch.Job",
 
 	"Context" : {
 		"filename" : "psam_recon_[#$YYYY#][#$MM#][#$DD#]",

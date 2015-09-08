@@ -1,4 +1,6 @@
 {
+	"Class": "coyote.batch.Job",
+
 	"Databases": {
 		"DevDB": {
 			"library": "jar:file:lib/h2-1.4.187.jar!/",
@@ -17,4 +19,5 @@
 			"autocreate": true
 		}
 	}
+
 }
