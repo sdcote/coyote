@@ -567,7 +567,7 @@ public class TransformEngineFactory {
           }
           retval = object;
         } catch ( ClassNotFoundException | NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e ) {
-          LOG.error( "Could not instantiate {} reason: {} - ", className, e.getClass().getName(), e.getMessage() );
+          LOG.error( "Could not instantiate {} reason: {} - {}", className, e.getClass().getName(), e.getMessage() );
         }
       } else {
         LOG.error( "Configuration frame did not contain a class name" );
