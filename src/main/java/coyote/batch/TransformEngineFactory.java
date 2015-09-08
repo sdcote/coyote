@@ -81,9 +81,6 @@ public class TransformEngineFactory {
    * Create a Transformation engine configured to the specification provided in 
    * the given configuration string.
    * 
-   * <p>This will determine what component to load in the engine and uses
-   * {@code ConfigurableComponent} to configure each component.</p>
-   * 
    * @param cfg The JSON string specifying the configuration
    * 
    * @return an engine ready to run the transformation
@@ -95,6 +92,32 @@ public class TransformEngineFactory {
 
     if ( config != null && config.size() > 0 ) {
       DataFrame frame = config.get( 0 );
+
+      retval = getInstance( frame );
+
+    }
+
+    return retval;
+  }
+
+
+
+
+  /**
+   * Create a Transformation engine configured to the specification provided in 
+   * the given configuration frame.
+   * 
+   * <p>This will determine what component to load in the engine and uses
+   * {@code ConfigurableComponent} to configure each component.</p>
+   * 
+   * @param frame The DataFrame containing the configuration
+   * 
+   * @return an engine ready to run the transformation
+   */
+  public static TransformEngine getInstance( DataFrame frame ) {
+    TransformEngine retval = null;
+
+    if ( frame != null ) {
 
       retval = new DefaultTransformEngine();
 
