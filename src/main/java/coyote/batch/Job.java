@@ -63,7 +63,7 @@ public class Job extends AbstractLoader implements Loader {
           engine.close();
         } catch ( final IOException ignore ) {}
 
-        System.out.println( "Batch '" + engine.getName() + "' completed." );
+        System.out.println( "Job '" + engine.getName() + "' completed." );
       } // try-catch-finally
 
       System.out.println( "...Done." );
