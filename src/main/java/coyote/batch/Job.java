@@ -51,6 +51,9 @@ public class Job extends AbstractLoader implements Loader {
       System.out.println( "Running..." );
 
       // run the transformation
+      // Note that depending on the configuration, this could be placed in the 
+      // scheduler and run intermittently as a scheduled job or multiple 
+      // transform engines could be run in the thread pool of the super-class.
       try {
         engine.run();
       } catch ( final Exception e ) {
