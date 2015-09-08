@@ -16,8 +16,8 @@ import java.text.DecimalFormat;
 import coyote.batch.OperationalContext;
 import coyote.batch.TransactionContext;
 import coyote.batch.TransformContext;
-import coyote.commons.Metric;
 import coyote.commons.StringUtil;
+import coyote.i13n.Metric;
 
 
 /**
