@@ -1,6 +1,7 @@
 package coyote.batch;
 
 import java.io.IOException;
+import java.util.List;
 
 import coyote.commons.GUID;
 import coyote.commons.StringUtil;
@@ -24,18 +25,27 @@ public class Job extends AbstractLoader implements Loader {
   public void configure( Config cfg ) throws ConfigurationException {
     super.configure( cfg );
 
-    // have the Engine Factory create a transformation engine based on the
-    // configuration 
-    engine = TransformEngineFactory.getInstance( cfg );
+    List<Config> jobs = cfg.getSections( "Job" );
 
-    // Make sure the context contains a name so it can find artifacts
-    // related to this transformation
-    if ( StringUtil.isBlank( engine.getName() ) ) {
-      System.out.println( "Un-named configuration..." );
-      engine.setName( GUID.randomGUID().toString() );
+    if ( jobs.size() > 0 ) {
+
+      Config job = jobs.get( 0 );
+
+      // have the Engine Factory create a transformation engine based on the
+      // configuration 
+      engine = TransformEngineFactory.getInstance( job );
+
+      // Make sure the context contains a name so it can find artifacts
+      // related to this transformation
+      if ( StringUtil.isBlank( engine.getName() ) ) {
+        System.out.println( "Un-named configuration..." );
+        engine.setName( GUID.randomGUID().toString() );
+      }
+
+      System.out.println( "Configured '" + engine.getName() + "' ..." );
+    } else {
+      System.out.println( "No job section found to run" );
     }
-
-    System.out.println( "Configured '" + engine.getName() + "' ..." );
   }
 
 
