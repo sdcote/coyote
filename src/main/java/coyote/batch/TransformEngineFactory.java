@@ -202,7 +202,7 @@ public class TransformEngineFactory {
             retval.setName( field.getStringValue() );
           }
         } else {
-          LOG.warn( "Unrecognized section: '{}' - ignored", field.getName() );
+          LOG.debug( "Unrecognized section: '{}' - ignored", field.getName() );
         }
 
       }
