@@ -113,6 +113,12 @@ public abstract class AbstractFrameWriter extends AbstractConfigurableComponent 
             if ( targetFile == null ) {
               log.warn( "The target '{}' does not represent a file", target );
             }
+          } else {
+            // if all we have is a filename, there is not scheme to check...
+            // check that there is a scheme, if not then assume a filename!
+            if( uri.getScheme() == null){
+              targetFile = new File( target );
+            }
           }
         } else {
           targetFile = new File( target );
