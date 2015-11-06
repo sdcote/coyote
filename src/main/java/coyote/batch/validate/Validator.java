@@ -9,7 +9,7 @@
  *   Stephan D. Cote 
  *      - Initial concept and initial implementation
  */
-package coyote.batch;
+package coyote.batch.validate;
 
 /**
  * 

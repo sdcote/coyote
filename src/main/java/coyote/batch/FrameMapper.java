@@ -11,6 +11,8 @@
  */
 package coyote.batch;
 
+import coyote.batch.mapper.MappingException;
+
 /**
  * This component is responsible for building the target frame out of the 
  * working frame in a particular transaction.

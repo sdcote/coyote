@@ -23,7 +23,6 @@ import coyote.batch.ConfigurationException;
 import coyote.batch.FrameValidator;
 import coyote.batch.TransactionContext;
 import coyote.batch.TransformContext;
-import coyote.batch.ValidationException;
 import coyote.commons.StringUtil;
 import coyote.dataframe.DataFrame;
 import coyote.dataframe.DataFrameException;

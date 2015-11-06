@@ -24,7 +24,6 @@ import coyote.batch.AbstractTest;
 import coyote.batch.ConfigurationException;
 import coyote.batch.FrameValidator;
 import coyote.batch.TransactionContext;
-import coyote.batch.ValidationException;
 import coyote.dataframe.DataFrame;
 
 

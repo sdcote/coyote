@@ -13,7 +13,6 @@ package coyote.batch.validate;
 
 import coyote.batch.FrameValidator;
 import coyote.batch.TransactionContext;
-import coyote.batch.ValidationException;
 import coyote.dataframe.DataField;
 import coyote.dataframe.DataFrame;
 

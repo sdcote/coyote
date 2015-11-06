@@ -9,11 +9,15 @@
  *   Stephan D. Cote 
  *      - Initial concept and initial implementation
  */
-package coyote.batch;
+package coyote.batch.mapper;
 
 import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.Map;
+
+import coyote.batch.AbstractConfigurableComponent;
+import coyote.batch.Component;
+import coyote.batch.TransformContext;
 
 
 /**

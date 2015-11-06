@@ -9,11 +9,16 @@
  *   Stephan D. Cote 
  *      - Initial concept and initial implementation
  */
-package coyote.batch;
+package coyote.batch.mapper;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import coyote.batch.AbstractConfigurableComponent;
+import coyote.batch.ConfigTag;
+import coyote.batch.ConfigurationException;
+import coyote.batch.FrameMapper;
+import coyote.batch.TransactionContext;
 import coyote.commons.StringUtil;
 import coyote.dataframe.DataField;
 import coyote.dataframe.DataFrame;
