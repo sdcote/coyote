@@ -20,6 +20,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import coyote.batch.listener.AbstractListener;
+import coyote.batch.mapper.AbstractFrameMapper;
+import coyote.batch.mapper.DefaultFrameMapper;
 import coyote.batch.reader.AbstractFrameReader;
 import coyote.batch.task.AbstractTransformTask;
 import coyote.batch.transform.AbstractFrameTransform;
@@ -57,6 +59,8 @@ public class TransformEngineFactory {
   private static final String VALIDATOR_PKG = AbstractValidator.class.getPackage().getName();
   /** Constant to assist in determining the full class name of frame transformers */
   private static final String TRANSFORM_PKG = AbstractFrameTransform.class.getPackage().getName();
+  /** Constant to assist in determining the full class name of frame mappers */
+  private static final String MAPPER_PKG = AbstractFrameMapper.class.getPackage().getName();
 
 
 
@@ -437,10 +441,17 @@ public class TransformEngineFactory {
 
 
   private static void configMapper( DataFrame cfg, TransformEngine engine ) {
+    String className = cfg.getAsString( ConfigTag.CLASS );
 
     // If there is no class tag, use the default mapper class
-    if ( !cfg.contains( ConfigTag.CLASS ) ) {
+    if ( className == null ) {
       cfg.put( ConfigTag.CLASS, DefaultFrameMapper.class.getCanonicalName() );
+    } else {
+      // make sure the class name is fully qualified
+      if ( StringUtil.countOccurrencesOf( className, "." ) < 1 ) {
+        className = MAPPER_PKG + "." + className;
+        cfg.put( ConfigTag.CLASS, className );
+      }
     }
 
     Object object = createComponent( cfg );
