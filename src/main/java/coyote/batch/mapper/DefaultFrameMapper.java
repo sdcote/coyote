@@ -86,8 +86,8 @@ public class DefaultFrameMapper extends AbstractFrameMapper implements FrameMapp
           // re-name the file to that of the target frame
           targetField.setName( fieldMap.get( workingName ) );
         } else {
-          log.debug( "The field '{}' is not in the working frame => {}", workingName, context.getWorkingFrame().toString() );
-          // create a new null frame with the desired name
+          // This is normal, the value could just be missing for this record 
+          // only. create a new null frame with the desired name
           targetField = new DataField( workingName, null );
         }
         // place the mapped field in the target data frame for writing 
