@@ -21,11 +21,11 @@ import coyote.batch.TransformContext;
 
 
 /**
- * 
+ * Represents the base call for all the mappers.
  */
 public abstract class AbstractFrameMapper extends AbstractConfigurableComponent implements Component {
 
-
+  /** An insertion ordered map of target fields to be written to the target frame */
   Map<String, String> fieldMap = new LinkedHashMap<String, String>();
 
 
