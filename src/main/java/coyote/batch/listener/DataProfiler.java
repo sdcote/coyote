@@ -26,6 +26,30 @@ import coyote.dataframe.DataFrame;
 /**
  * This listener keeps track of the data read in to and out of the engine and 
  * reports on the characteristics of the data observed.
+ * 
+ * Field metrics as the header, each field as a row metrics to support:
+ * count
+ * nulls
+ * smallest length
+ * longest length
+ * avg length
+ * length SDEV
+ * numeric (true/false)
+ * numeric count
+ * numeric smallest
+ * numeric largest
+ * numeric avg
+ * numeric SDEV
+ * date (true/false)
+ * date count
+ * date smallest
+ * date largest
+ * date avg
+ * date SDEV
+ * date formats (list of formats YYYY-MM-DD, etc)
+ * normalization count (how many different values)
+ * normalization rating (ratio of value count to instance count)
+ * 
  */
 public class DataProfiler extends FileRecorder implements ContextListener {
   private List<FieldMetric> inputFields = new ArrayList<FieldMetric>();
@@ -79,7 +103,7 @@ public class DataProfiler extends FileRecorder implements ContextListener {
         if ( metric.getType() == null ) {
           metric.setType( field.getTypeName() );
         } else if ( !field.getTypeName().equals( metric.getType() ) ) {
-          System.err.println( "TYPE SWITCH FROM '" + metric.getType() + "' TO '" + field.getTypeName() + "'" );
+          // System.err.println( "TYPE SWITCH FROM '" + metric.getType() + "' TO '" + field.getTypeName() + "'" );
         }
 
         // Set length values
@@ -147,7 +171,7 @@ public class DataProfiler extends FileRecorder implements ContextListener {
    */
   @Override
   public void onWrite( TransactionContext transactionContext ) {
-    // TODO: analyse each field of the data written out (target frame)
+    // TODO: analyze each field of the data written out (target frame)
   }
 
 
@@ -158,6 +182,9 @@ public class DataProfiler extends FileRecorder implements ContextListener {
    */
   private void writeInputSummary() {
     StringBuffer b = new StringBuffer( "Input Data Profile:" );
+    b.append( StringUtil.LINE_FEED );
+    b.append( "Row Count: " );
+    b.append( context.getRow() );
     b.append( StringUtil.LINE_FEED );
     b.append( "Field count: " );
     b.append( inputFields.size() );
