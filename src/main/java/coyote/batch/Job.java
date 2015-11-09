@@ -1,8 +1,13 @@
 package coyote.batch;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import coyote.commons.FileUtil;
 import coyote.commons.GUID;
 import coyote.commons.StringUtil;
 import coyote.loader.AbstractLoader;
@@ -11,9 +16,47 @@ import coyote.loader.cfg.Config;
 import coyote.loader.cfg.ConfigurationException;
 
 
+/**
+ * This class represents the batch job to execute
+ */
 public class Job extends AbstractLoader implements Loader {
 
+  /** The logger for this class */
+  final Logger log = LoggerFactory.getLogger( getClass() );
+
+  /**
+   * If there is no specified directory in the HOMDIR system property, just use the current working directory
+   */
+  public static final String DEFAULT_HOME = new String( System.getProperty( "user.dir" ) );
+
   TransformEngine engine = null;
+
+
+
+
+  /**
+   * The {@code batch.home} system property determines where the home directory 
+   * is; make sure it exists.
+   */
+  public Job() {
+
+    //Make sure we have a home directory we can use
+    if ( System.getProperty( ConfigTag.HOMEDIR ) == null ) {
+      System.setProperty( ConfigTag.HOMEDIR, DEFAULT_HOME );
+    } else {
+      // Normalize the "." that sometimes is set in the HOMEDIR property
+      if ( System.getProperty( ConfigTag.HOMEDIR ).trim().equals( "." ) ) {
+        System.setProperty( ConfigTag.HOMEDIR, DEFAULT_HOME );
+      } else if ( System.getProperty( ConfigTag.HOMEDIR ).trim().length() == 0 ) {
+        // catch empty home property and just use the home directory
+        System.setProperty( ConfigTag.HOMEDIR, DEFAULT_HOME );
+      }
+    }
+
+    // Remove all the relations and extra slashes from the home path
+    System.setProperty( ConfigTag.HOMEDIR, FileUtil.normalizePath( System.getProperty( ConfigTag.HOMEDIR ) ) );
+
+  }
 
 
 
@@ -40,6 +83,23 @@ public class Job extends AbstractLoader implements Loader {
       if ( StringUtil.isBlank( engine.getName() ) ) {
         System.out.println( "Un-named configuration..." );
         engine.setName( GUID.randomGUID().toString() );
+      }
+
+      File workDirectory;
+
+      // This is where we create the work directory for the transformation engines
+      try {
+        workDirectory = new File( System.getProperty( ConfigTag.HOMEDIR ) );
+        workDirectory.mkdirs();
+
+        // if we could not create the work directory or we have assess issues...
+        if ( !workDirectory.exists() || !workDirectory.isDirectory() || !workDirectory.canWrite() ) {
+          log.warn( "Unable to write to " + workDirectory.getAbsolutePath() + " - using home directory instead" );
+          workDirectory = FileUtil.initHomeWorkDirectory( ".batch" );
+          log.warn( "Cannot access '{}' directory, creating a working directory in the users home: {}", System.getProperty( ConfigTag.HOMEDIR ), workDirectory.getAbsolutePath() );
+        }
+      } catch ( final Exception e ) {
+        log.error( e.getMessage() );
       }
 
       System.out.println( "Configured '" + engine.getName() + "' ..." );

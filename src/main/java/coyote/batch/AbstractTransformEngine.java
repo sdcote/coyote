@@ -26,7 +26,6 @@ import org.slf4j.LoggerFactory;
 import coyote.batch.mapper.DefaultFrameMapper;
 import coyote.batch.mapper.MappingException;
 import coyote.batch.validate.ValidationException;
-import coyote.commons.FileUtil;
 import coyote.commons.StringUtil;
 import coyote.commons.template.SymbolTable;
 import coyote.dataframe.DataFrame;
@@ -78,10 +77,7 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
   private static final DateFormat _DATE_FORMAT = new SimpleDateFormat( "yyyy/MM/dd" );
   private static final DateFormat _TIME_FORMAT = new SimpleDateFormat( "HH:mm:ss" );
 
-  /**
-   * If there is no specified directory in the HOMDIR system property, just use the current working directory
-   */
-  public static final String DEFAULT_HOME = new String( System.getProperty( "user.dir" ) + System.getProperty( "file.separator" ) + "wrk" );
+  /** The directory this engine uses for file operations */
   private File workDirectory;
 
   /** The current row number */
@@ -93,77 +89,15 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
   @SuppressWarnings("unchecked")
   public AbstractTransformEngine() {
 
-    // Make sure we have a home directory we can use
-    if ( System.getProperty( ConfigTag.HOMEDIR ) == null ) {
-      System.setProperty( ConfigTag.HOMEDIR, DEFAULT_HOME );
-    } else {
-      // Normalize the "." that sometimes is set in the HOMEDIR property
-      if ( System.getProperty( ConfigTag.HOMEDIR ).trim().equals( "." ) ) {
-        System.setProperty( ConfigTag.HOMEDIR, DEFAULT_HOME );
-      } else if ( System.getProperty( ConfigTag.HOMEDIR ).trim().length() == 0 ) {
-        // catch empty home property and just use the home directory
-        System.setProperty( ConfigTag.HOMEDIR, DEFAULT_HOME );
-      }
-    }
-
-    // Remove all the relations and extra slashes from the home path
-    System.setProperty( ConfigTag.HOMEDIR, FileUtil.normalizePath( System.getProperty( ConfigTag.HOMEDIR ) ) );
-
-    // This is where we create the work directory for the transformation engines
-    try {
-      workDirectory = new File( System.getProperty( ConfigTag.HOMEDIR ) );
-      workDirectory.mkdirs();
-
-      // if we could not create the work directory or we have assess issues...
-      if ( !workDirectory.exists() || !workDirectory.isDirectory() || !workDirectory.canWrite() ) {
-        if ( workDirectory == null ) {
-          log.warn( "Unable to use " + workDirectory.getAbsolutePath() + " - as a home directory" );
-        } else {
-          log.warn( "Unable to write to " + workDirectory.getAbsolutePath() + " - using home directory instead" );
-        }
-        workDirectory = FileUtil.initHomeWorkDirectory( ".snapi" );
-        log.warn( "Cannot access '{}' directory, creating a working directory in the users home: {}", System.getProperty( ConfigTag.HOMEDIR ), workDirectory.getAbsolutePath() );
-      }
-    } catch ( final Exception e ) {
-      log.error( e.getMessage() );
-    }
-
     // Fill the symbol table with system properties
     symbols.readSystemProperties();
 
-    // Place date and time values in the symbol table
-    Calendar cal = Calendar.getInstance();
+    // the working directory is current working directory
+    workDirectory = new File( System.getProperty( "user.dir" ) );
 
-    Date date = new Date();
-    if ( date != null ) {
-      cal.setTime( date );
-      symbols.put( "Date", formatDate( date ) );
-      symbols.put( "Time", formatTime( date ) );
-      symbols.put( "DateTime", formatDateTime( date ) );
-      symbols.put( "Month", String.valueOf( cal.get( Calendar.MONTH ) + 1 ) );
-      symbols.put( "Day", String.valueOf( cal.get( Calendar.DAY_OF_MONTH ) ) );
-      symbols.put( "Year", String.valueOf( cal.get( Calendar.YEAR ) ) );
-      symbols.put( "Hour", String.valueOf( cal.get( Calendar.HOUR ) ) );
-      symbols.put( "Minute", String.valueOf( cal.get( Calendar.MINUTE ) ) );
-      symbols.put( "Second", String.valueOf( cal.get( Calendar.SECOND ) ) );
-      symbols.put( "Millisecond", String.valueOf( cal.get( Calendar.MILLISECOND ) ) );
-      symbols.put( "MM", StringUtil.zeropad( cal.get( Calendar.MONTH ) + 1, 2 ) );
-      symbols.put( "DD", StringUtil.zeropad( cal.get( Calendar.DAY_OF_MONTH ), 2 ) );
-      symbols.put( "YYYY", StringUtil.zeropad( cal.get( Calendar.YEAR ), 4 ) );
-      symbols.put( "hh", StringUtil.zeropad( cal.get( Calendar.HOUR ), 2 ) );
-      symbols.put( "mm", StringUtil.zeropad( cal.get( Calendar.MINUTE ), 2 ) );
-      symbols.put( "ss", StringUtil.zeropad( cal.get( Calendar.SECOND ), 2 ) );
-      symbols.put( "zzz", StringUtil.zeropad( cal.get( Calendar.MILLISECOND ), 3 ) );
-
-      // go back one day and get the "previous day" Month Day and Year 
-      cal.add( Calendar.DATE, -1 );
-      symbols.put( "PM", StringUtil.zeropad( cal.get( Calendar.MONTH ) + 1, 2 ) );
-      symbols.put( "PD", StringUtil.zeropad( cal.get( Calendar.DAY_OF_MONTH ), 2 ) );
-      symbols.put( "PYYY", StringUtil.zeropad( cal.get( Calendar.YEAR ), 4 ) );
-
+    if ( workDirectory != null ) {
       symbols.put( Symbols.WORK_DIRECTORY, workDirectory.getAbsolutePath() );
     }
-
   }
 
 
@@ -171,20 +105,6 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
 
   /**
    * Return the working directory for this engine.
-   * 
-   * <p>When the transformation engine is constructed, it attempts to generate 
-   * a working directory for any file operations tasks and other components may 
-   * need. This is in the current working directory unless the system 
-   * properties contain an override to a specific directory with the {@code 
-   * snapi.home} key.</p>
-   * 
-   * <p>If there are problems with write access, the engine will create a 
-   * directory in the users home directory with the name of {@code .snapi}.</p>
-   * 
-   * <p>It is considered best practice to create a sub-directory under the 
-   * working directory with the name of the component running and use that for 
-   * any long term storage so as to keep file separated from different running 
-   * components, but this is not enforced.</p>
    * 
    * @return the workDirectory
    */
@@ -196,10 +116,27 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
 
 
   /**
+   * Set the working directory for this engine.
+   * 
+   * @param dir the working directory to set
+   */
+  protected void setWorkDirectory( File dir ) {
+    if ( dir != null ) {
+      this.workDirectory = dir;
+      symbols.put( Symbols.WORK_DIRECTORY, workDirectory.getAbsolutePath() );
+    }
+  }
+
+
+
+
+  /**
    * @see java.lang.Runnable#run()
    */
   @Override
   public void run() {
+
+    setRunDate();
 
     if ( reader == null && writer != null )
       throw new IllegalStateException( "No reader configured, nothing to write" );
@@ -218,6 +155,9 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
       // Create a transformation context for components to share data
       setContext( new TransformContext( listeners ) );
     }
+
+    // Open / initialize the context
+    getContext().open();
 
     // Set the symbol table for the context
     getContext().setSymbols( symbols );
@@ -447,6 +387,44 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
       e.printStackTrace();
     }
 
+  }
+
+
+
+
+  @SuppressWarnings("unchecked")
+  protected void setRunDate() {
+    // Place date and time values in the symbol table
+    Calendar cal = Calendar.getInstance();
+
+    Date date = new Date();
+    if ( date != null ) {
+      cal.setTime( date );
+      symbols.put( "Date", formatDate( date ) );
+      symbols.put( "Time", formatTime( date ) );
+      symbols.put( "DateTime", formatDateTime( date ) );
+      symbols.put( "Month", String.valueOf( cal.get( Calendar.MONTH ) + 1 ) );
+      symbols.put( "Day", String.valueOf( cal.get( Calendar.DAY_OF_MONTH ) ) );
+      symbols.put( "Year", String.valueOf( cal.get( Calendar.YEAR ) ) );
+      symbols.put( "Hour", String.valueOf( cal.get( Calendar.HOUR ) ) );
+      symbols.put( "Minute", String.valueOf( cal.get( Calendar.MINUTE ) ) );
+      symbols.put( "Second", String.valueOf( cal.get( Calendar.SECOND ) ) );
+      symbols.put( "Millisecond", String.valueOf( cal.get( Calendar.MILLISECOND ) ) );
+      symbols.put( "MM", StringUtil.zeropad( cal.get( Calendar.MONTH ) + 1, 2 ) );
+      symbols.put( "DD", StringUtil.zeropad( cal.get( Calendar.DAY_OF_MONTH ), 2 ) );
+      symbols.put( "YYYY", StringUtil.zeropad( cal.get( Calendar.YEAR ), 4 ) );
+      symbols.put( "hh", StringUtil.zeropad( cal.get( Calendar.HOUR ), 2 ) );
+      symbols.put( "mm", StringUtil.zeropad( cal.get( Calendar.MINUTE ), 2 ) );
+      symbols.put( "ss", StringUtil.zeropad( cal.get( Calendar.SECOND ), 2 ) );
+      symbols.put( "zzz", StringUtil.zeropad( cal.get( Calendar.MILLISECOND ), 3 ) );
+
+      // go back one day and get the "previous day" Month Day and Year 
+      cal.add( Calendar.DATE, -1 );
+      symbols.put( "PM", StringUtil.zeropad( cal.get( Calendar.MONTH ) + 1, 2 ) );
+      symbols.put( "PD", StringUtil.zeropad( cal.get( Calendar.DAY_OF_MONTH ), 2 ) );
+      symbols.put( "PYYY", StringUtil.zeropad( cal.get( Calendar.YEAR ), 4 ) );
+
+    }
   }
 
 
