@@ -791,4 +791,27 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
     }
   }
 
+
+
+
+  /**
+   * Called by the Loader when the runtime terminates to signal long-running 
+   * processes to terminate and to force any clean-up.
+   * 
+   * <p>This is part of the Loader life cycle and not a part of the Batch life 
+   * cycle. It will always be called when the JRE terminates even after normal 
+   * termination of the transform engine. You shouldn't need to call this.</p>
+   * 
+   * <p>This is a good place to set a shutdown flag in the main loop so that 
+   * the job can terminate cleanly when the user presses [ctrl-c] or the 
+   * process is signaled to terminate via the operating system such as SIG HUP 
+   * or the host is shutting down.</p> 
+   * 
+   * @see coyote.batch.TransformEngine#shutdown()
+   */
+  @Override
+  public void shutdown() {
+
+  }
+
 }

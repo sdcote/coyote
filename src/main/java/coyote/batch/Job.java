@@ -81,7 +81,7 @@ public class Job extends AbstractLoader implements Loader {
 
       System.out.println( "...Done." );
     } else {
-      System.out.println( "No engine to run" );
+      System.err.println( "No engine to run" );
     }
   }
 
@@ -89,11 +89,21 @@ public class Job extends AbstractLoader implements Loader {
 
 
   /**
+   * Shut everything down when the JRE terminates.
+   * 
+   * <p>There is a shutdown hook registered with the JRE when this Job is 
+   * loaded. The shutdown hook will call this method when the JRE is 
+   * terminating so that the Job can terminate any long-running processes.</p>
+   * 
+   * <p>Note: this is different from {@code close()} but {@code shutdown()} 
+   * will normally result in {@code close()} being invoked at some point.</p>
+   * 
    * @see coyote.loader.thread.ThreadJob#shutdown()
    */
   @Override
   public void shutdown() {
-    System.out.println( "Shutting down..." );
+    //System.out.println( "Runtime termination, batch job shutting down..." );
+    engine.shutdown();
   }
 
 }

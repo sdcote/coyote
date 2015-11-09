@@ -130,4 +130,22 @@ public interface TransformEngine extends RunnableComponent {
 
   public void addTransformer( FrameTransform transformer );
 
+
+
+
+  /**
+   * Called when the JVM terminates.
+   * 
+   * <p>This is desigened to be called by the Runtime.shutdownHook to terminate 
+   * any long-running processes and after the engine terminates normally. This 
+   * is not part of the transform engine run loop, but part of the Loader life 
+   * cycle management loop.</p>
+   * 
+   * <p>This should allways be called when the runtime terminates. The only 
+   * time this might nt be called is when the process terminates abnormally. In 
+   * which case it is possible that everything in the runtime will be 
+   * terminated abruptly as well.</p>
+   */
+  public void shutdown();
+
 }
