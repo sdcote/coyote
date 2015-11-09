@@ -71,6 +71,7 @@ public class ConfigTag {
   public static final String DATABASES = "databases";
   public static final String VALIDATE = "validate";
   public static final String TRANSFORM = "transform";
+  public static final String PERSISTENT_CONTEXT = "persistentcontext";
 
   // Tasks
 

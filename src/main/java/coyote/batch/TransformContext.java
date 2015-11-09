@@ -59,6 +59,19 @@ public class TransformContext extends OperationalContext {
 
 
 
+  /**
+   * Open (initialize) the context
+   */
+  public void open() {
+
+  }
+
+
+
+
+  /**
+   * Close (terminate) the context.
+   */
   public void close() {
     for ( Map.Entry<String, Database> entry : databases.entrySet() ) {
       //System.out.printf("Closing : %s %n", entry.getKey());

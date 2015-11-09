@@ -22,9 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import coyote.batch.AbstractTest;
-import coyote.batch.TransformContext;
 import coyote.batch.TransformEngine;
-import coyote.commons.template.SymbolTable;
 
 
 /**

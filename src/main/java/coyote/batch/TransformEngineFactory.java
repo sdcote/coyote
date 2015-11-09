@@ -181,6 +181,12 @@ public class TransformEngineFactory {
           } else {
             LOG.error( "Invalid context configuration section" );
           }
+        } else if ( ConfigTag.PERSISTENT_CONTEXT.equalsIgnoreCase( field.getName() ) ) {
+          if ( field.isFrame() ) {
+            configPersistentContext( (DataFrame)field.getObjectValue(), retval );
+          } else {
+            LOG.error( "Invalid context configuration section" );
+          }
         } else if ( ConfigTag.LISTENER.equalsIgnoreCase( field.getName() ) ) {
           if ( field.isFrame() ) {
             DataFrame cfgFrame = (DataFrame)field.getObjectValue();
@@ -399,6 +405,56 @@ public class TransformEngineFactory {
     if ( context == null ) {
       context = new TransformContext();
       engine.setContext( context );
+    }
+
+    for ( DataField field : cfg.getFields() ) {
+      if ( !field.isFrame() ) {
+        if ( StringUtil.isNotBlank( field.getName() ) && !field.isNull() ) {
+          String value = Template.resolve( field.getStringValue(), engine.getSymbolTable() );
+          engine.getSymbolTable().put( field.getName(), value );
+          context.set( field.getName(), value );
+        } //name-value check
+      }// if frame
+    } // for
+
+  }
+
+
+
+
+  /**
+   * This section of the configuration should be simply name-value pairs.
+   * 
+   * <p>This section describes a context which is persisted between runs. When 
+   * the context is opened, its data is read in from a file. When the context 
+   * is closed, it is written to a file.</p>
+   * 
+   * <p>The values are treated as templates and parsed into their final values
+   * based on the contents of the symbol table and the systems properties 
+   * contained therein.</p>
+   * 
+   * <p>The name value pairs are placed in the symbol table as well as the 
+   * context so that results of processing can be used in subsequent 
+   * templates.</p>
+   * 
+   * @param cfg the configuration frame
+   * @param engine the transform engine
+   */
+  private static void configPersistentContext( DataFrame cfg, TransformEngine engine ) {
+    TransformContext context = engine.getContext();
+
+    if ( context == null ) {
+      if ( engine.getName() != null ) {
+        context = new PersistentContext( engine.getName() );
+      } else {
+        LOG.warn( "Unnamed engine configuration, could not create persistent context" );
+        configContext( cfg, engine );
+        return;
+      }
+      engine.setContext( context );
+    } else {
+      // TODO: support converting a regular context into a persistent one
+      LOG.warn( "Could not create persistent context, Context already exists" );
     }
 
     for ( DataField field : cfg.getFields() ) {
