@@ -38,8 +38,7 @@ public class Job extends AbstractLoader implements Loader {
 
 
   /**
-   * The {@code batch.home} system property determines where the home directory 
-   * is; make sure it exists.
+   * 
    */
   public Job() {
 
@@ -69,7 +68,7 @@ public class Job extends AbstractLoader implements Loader {
       engine = TransformEngineFactory.getInstance( job );
       
       
-      // Make sure the context contains a name
+      // Make sure the engine has a name
       if ( StringUtil.isBlank( engine.getName() ) ) {
         engine.setName( GUID.randomGUID().toString() );
       }

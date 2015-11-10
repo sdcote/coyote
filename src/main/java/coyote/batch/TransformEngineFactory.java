@@ -404,18 +404,9 @@ public class TransformEngineFactory {
 
     if ( context == null ) {
       context = new TransformContext();
-      engine.setContext( context );
+      initContext( context, cfg, engine );
+      LOG.debug( "Loaded context {}", context.getClass().getName() );
     }
-
-    for ( DataField field : cfg.getFields() ) {
-      if ( !field.isFrame() ) {
-        if ( StringUtil.isNotBlank( field.getName() ) && !field.isNull() ) {
-          String value = Template.resolve( field.getStringValue(), engine.getSymbolTable() );
-          engine.getSymbolTable().put( field.getName(), value );
-          context.set( field.getName(), value );
-        } //name-value check
-      }// if frame
-    } // for
 
   }
 
@@ -445,18 +436,33 @@ public class TransformEngineFactory {
 
     if ( context == null ) {
       if ( engine.getName() != null ) {
-        context = new PersistentContext( engine.getName() );
+        context = new PersistentContext();
+        initContext( context, cfg, engine );
       } else {
         LOG.warn( "Unnamed engine configuration, could not create persistent context" );
         configContext( cfg, engine );
         return;
       }
-      engine.setContext( context );
+      LOG.debug( "Created persistent context {}", context.getClass().getName() );
     } else {
       // TODO: support converting a regular context into a persistent one
       LOG.warn( "Could not create persistent context, Context already exists" );
     }
 
+  }
+
+
+
+
+  private static void initContext( TransformContext context, DataFrame cfg, TransformEngine engine ) {
+
+    // set the context in the engine
+    engine.setContext( context );
+
+    // set the engine in the context
+    context.setEngine( engine );
+
+    // fill the context with configuration data
     for ( DataField field : cfg.getFields() ) {
       if ( !field.isFrame() ) {
         if ( StringUtil.isNotBlank( field.getName() ) && !field.isNull() ) {

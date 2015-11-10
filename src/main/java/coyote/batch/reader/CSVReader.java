@@ -73,11 +73,13 @@ public class CSVReader extends AbstractFrameReader implements FrameReader, Confi
     super.setConfiguration( frame );
 
     // Check if we are to load all the data into memory and read from there
-    try {
-      preload = frame.getAsBoolean( ConfigTag.PRELOAD );
-    } catch ( DataFrameException e ) {
-      log.info( "Preload not valid " + e.getMessage() );
-      preload = false;
+    if ( frame.contains( ConfigTag.PRELOAD ) ) {
+      try {
+        preload = frame.getAsBoolean( ConfigTag.PRELOAD );
+      } catch ( DataFrameException e ) {
+        log.info( "Preload not valid " + e.getMessage() );
+        preload = false;
+      }
     }
     log.debug( "Preload is set to {}", preload );
 
@@ -110,7 +112,7 @@ public class CSVReader extends AbstractFrameReader implements FrameReader, Confi
       // returned or EOF
       while ( !eof() ) {
         String[] data = reader.readNext();
-        
+
         // Deal with empty lines which may be in the file
         reader.consumeEmptyLines();
 

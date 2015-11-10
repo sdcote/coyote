@@ -74,8 +74,8 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
   protected static final SymbolTable symbols = new SymbolTable();
 
   // Consistent date and time representation
-  private static final DateFormat _DATETIME_FORMAT = new SimpleDateFormat( "yyyy/MM/dd HH:mm:ss" );
-  private static final DateFormat _DATE_FORMAT = new SimpleDateFormat( "yyyy/MM/dd" );
+  private static final DateFormat _DATETIME_FORMAT = new SimpleDateFormat( "yyyy-MM-dd HH:mm:ss" );
+  private static final DateFormat _DATE_FORMAT = new SimpleDateFormat( "yyyy-MM-dd" );
   private static final DateFormat _TIME_FORMAT = new SimpleDateFormat( "HH:mm:ss" );
 
   /** The directory this engine uses for file operations */
@@ -101,8 +101,9 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
   /**
    * Return the working directory for this engine.
    * 
-   * @return the workDirectory
+   * @see coyote.batch.TransformEngine#getJobDirectory()
    */
+  @Override
   public File getJobDirectory() {
     return jobDirectory;
   }
@@ -129,8 +130,11 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
 
 
   /**
-   * @return the common working directory
+   * Return the common working directory.
+   * 
+   * @see coyote.batch.TransformEngine#getWorkDirectory()
    */
+  @Override
   public File getWorkDirectory() {
     return workDirectory;
   }
@@ -181,6 +185,7 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
     } else {
       // Create a transformation context for components to share data
       setContext( new TransformContext( listeners ) );
+      getContext().setEngine( this );
     }
 
     // Open / initialize the context
@@ -407,12 +412,6 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
     }
 
     getContext().end();
-
-    try {
-      close();
-    } catch ( IOException e ) {
-      e.printStackTrace();
-    }
 
   }
 

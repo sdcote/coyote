@@ -24,7 +24,9 @@ import coyote.commons.StringUtil;
  */
 public class TransformContext extends OperationalContext {
 
-  Map<String, Database> databases = new HashMap<String, Database>();
+  protected Map<String, Database> databases = new HashMap<String, Database>();
+
+  protected TransformEngine engine = null;
 
 
 
@@ -81,6 +83,26 @@ public class TransformContext extends OperationalContext {
         //System.out.printf("Problems closing : %s - %s %n", entry.getKey(), ignore.getMessage());
       }
     }
+  }
+
+
+
+
+  /**
+   * @param engine the engine to which this context is associated.
+   */
+  public void setEngine( TransformEngine engine ) {
+    this.engine = engine;
+  }
+
+
+
+
+  /**
+   * @return the engine to which this context is associated.
+   */
+  protected TransformEngine getEngine() {
+    return engine;
   }
 
 }
