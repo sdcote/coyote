@@ -17,7 +17,10 @@ import coyote.loader.cfg.ConfigurationException;
 
 
 /**
- * This class represents the batch job to execute
+ * This class represents the batch job to execute.
+ * 
+ * <p>The working directory is determined based on the setting of the batch.home system property which causes all relative file operations to resolve to the batch.home/wrk/<job.name>/ directory
+ * <p>If the batch.home property is not set, then the Job attempts to locate the file used to configure it and uses that directory as the working directory.
  */
 public class Job extends AbstractLoader implements Loader {
 
@@ -40,22 +43,6 @@ public class Job extends AbstractLoader implements Loader {
    */
   public Job() {
 
-    //Make sure we have a home directory we can use
-    if ( System.getProperty( ConfigTag.HOMEDIR ) == null ) {
-      System.setProperty( ConfigTag.HOMEDIR, DEFAULT_HOME );
-    } else {
-      // Normalize the "." that sometimes is set in the HOMEDIR property
-      if ( System.getProperty( ConfigTag.HOMEDIR ).trim().equals( "." ) ) {
-        System.setProperty( ConfigTag.HOMEDIR, DEFAULT_HOME );
-      } else if ( System.getProperty( ConfigTag.HOMEDIR ).trim().length() == 0 ) {
-        // catch empty home property and just use the home directory
-        System.setProperty( ConfigTag.HOMEDIR, DEFAULT_HOME );
-      }
-    }
-
-    // Remove all the relations and extra slashes from the home path
-    System.setProperty( ConfigTag.HOMEDIR, FileUtil.normalizePath( System.getProperty( ConfigTag.HOMEDIR ) ) );
-
   }
 
 
@@ -68,6 +55,9 @@ public class Job extends AbstractLoader implements Loader {
   public void configure( Config cfg ) throws ConfigurationException {
     super.configure( cfg );
 
+    // calculate and normalize the appropriate value for "batch.home"
+    determineHomeDirectory();
+
     List<Config> jobs = cfg.getSections( "Job" );
 
     if ( jobs.size() > 0 ) {
@@ -77,35 +67,72 @@ public class Job extends AbstractLoader implements Loader {
       // have the Engine Factory create a transformation engine based on the
       // configuration 
       engine = TransformEngineFactory.getInstance( job );
-
-      // Make sure the context contains a name so it can find artifacts
-      // related to this transformation
+      
+      
+      // Make sure the context contains a name
       if ( StringUtil.isBlank( engine.getName() ) ) {
-        System.out.println( "Un-named configuration..." );
         engine.setName( GUID.randomGUID().toString() );
       }
-
-      File workDirectory;
-
-      // This is where we create the work directory for the transformation engines
-      try {
-        workDirectory = new File( System.getProperty( ConfigTag.HOMEDIR ) );
-        workDirectory.mkdirs();
-
-        // if we could not create the work directory or we have assess issues...
-        if ( !workDirectory.exists() || !workDirectory.isDirectory() || !workDirectory.canWrite() ) {
-          log.warn( "Unable to write to " + workDirectory.getAbsolutePath() + " - using home directory instead" );
-          workDirectory = FileUtil.initHomeWorkDirectory( ".batch" );
-          log.warn( "Cannot access '{}' directory, creating a working directory in the users home: {}", System.getProperty( ConfigTag.HOMEDIR ), workDirectory.getAbsolutePath() );
-        }
-      } catch ( final Exception e ) {
-        log.error( e.getMessage() );
-      }
-
+      
       System.out.println( "Configured '" + engine.getName() + "' ..." );
     } else {
       System.out.println( "No job section found to run" );
     }
+  }
+
+
+
+
+  /**
+   * Determine the value of the "batch.home" system property.
+   * 
+   * <p>If the batch home property is already set, it is preserved, if not 
+   * normalized. If there is no value, this attempts to determine the location 
+   * of the configuration file used to configure this job and if found, uses 
+   * that directory as the home directory of all transformation operations. The
+   * reasoning is that all artifacts should be kept together. Also, it is 
+   * probable that the batch job will be called from a central location while 
+   * each batch job will live is its own project directory.</p>
+   * 
+   * <p>The most common use case is for the batch job to be called from a 
+   * scheduler (e.g. cron) with an absolute path to a configuration file. 
+   * Another very probable use case is the batch job being called from a 
+   * project directory with one configuration file per directory.</p>
+   * 
+   * <p>It is possible that multiple files with different configurations will 
+   * exist in one directory
+   */
+  private void determineHomeDirectory() {
+    // If our home directory is not specified as a system property...
+    if ( System.getProperty( ConfigTag.HOMEDIR ) == null ) {
+
+      // use the first argument to the bootstrap loader to determine the 
+      // location of our configuration file
+      File cfgFile = new File( super.getCommandLineArguments()[0] );
+
+      // If that file exists, then use that files parent directory as our work
+      // directory
+      if ( cfgFile.exists() ) {
+        System.setProperty( ConfigTag.HOMEDIR, cfgFile.getParentFile().getAbsolutePath() );
+      } else {
+        // we could not determine the path to the configuration file, use the 
+        // current working directory
+        System.setProperty( ConfigTag.HOMEDIR, DEFAULT_HOME );
+      }
+    } else {
+      // Normalize the "." that sometimes is set in the HOMEDIR property
+      if ( System.getProperty( ConfigTag.HOMEDIR ).trim().equals( "." ) ) {
+        System.setProperty( ConfigTag.HOMEDIR, DEFAULT_HOME );
+      } else if ( System.getProperty( ConfigTag.HOMEDIR ).trim().length() == 0 ) {
+        // catch empty home property and just use the home directory
+        System.setProperty( ConfigTag.HOMEDIR, DEFAULT_HOME );
+      }
+    }
+
+    // Remove all the relations and extra slashes from the home path
+    System.setProperty( ConfigTag.HOMEDIR, FileUtil.normalizePath( System.getProperty( ConfigTag.HOMEDIR ) ) );
+    log.debug( "Home directory set to {}", System.getProperty( ConfigTag.HOMEDIR ) );
+
   }
 
 

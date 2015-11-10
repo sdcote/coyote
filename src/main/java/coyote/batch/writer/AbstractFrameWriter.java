@@ -126,7 +126,7 @@ public abstract class AbstractFrameWriter extends AbstractConfigurableComponent 
 
         // if not absolute, use the current working directory
         if ( !targetFile.isAbsolute() ) {
-          targetFile = new File( context.getSymbols().getString( Symbols.WORK_DIRECTORY ), UriUtil.getFilePath( uri ) );
+          targetFile = new File( context.getSymbols().getString( Symbols.JOB_DIRECTORY ), UriUtil.getFilePath( uri ) );
         }
         log.debug( "Using a target file of " + targetFile.getAbsolutePath() );
 

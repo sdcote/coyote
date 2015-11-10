@@ -15,6 +15,7 @@ package coyote.batch;
  * 
  */
 public class Symbols {
+  public static final String JOB_DIRECTORY = "jobdir";
   public static final String WORK_DIRECTORY = "wrkdir";
 
 }

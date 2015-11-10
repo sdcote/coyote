@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory;
 import coyote.batch.mapper.DefaultFrameMapper;
 import coyote.batch.mapper.MappingException;
 import coyote.batch.validate.ValidationException;
+import coyote.commons.FileUtil;
 import coyote.commons.StringUtil;
 import coyote.commons.template.SymbolTable;
 import coyote.dataframe.DataFrame;
@@ -78,7 +79,8 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
   private static final DateFormat _TIME_FORMAT = new SimpleDateFormat( "HH:mm:ss" );
 
   /** The directory this engine uses for file operations */
-  private File workDirectory;
+  private File jobDirectory = null;
+  private File workDirectory = null;
 
   /** The current row number */
   protected volatile long currentRow = 0;
@@ -86,18 +88,11 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
 
 
 
-  @SuppressWarnings("unchecked")
   public AbstractTransformEngine() {
 
     // Fill the symbol table with system properties
     symbols.readSystemProperties();
 
-    // the working directory is current working directory
-    workDirectory = new File( System.getProperty( "user.dir" ) );
-
-    if ( workDirectory != null ) {
-      symbols.put( Symbols.WORK_DIRECTORY, workDirectory.getAbsolutePath() );
-    }
   }
 
 
@@ -108,8 +103,8 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
    * 
    * @return the workDirectory
    */
-  public File getWorkDirectory() {
-    return workDirectory;
+  public File getJobDirectory() {
+    return jobDirectory;
   }
 
 
@@ -120,10 +115,39 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
    * 
    * @param dir the working directory to set
    */
-  protected void setWorkDirectory( File dir ) {
+  @SuppressWarnings("unchecked")
+  protected void setJobDirectory( File dir ) {
+    jobDirectory = dir;
     if ( dir != null ) {
-      this.workDirectory = dir;
+      symbols.put( Symbols.JOB_DIRECTORY, jobDirectory.getAbsolutePath() );
+    } else {
+      symbols.put( Symbols.JOB_DIRECTORY, null );
+    }
+  }
+
+
+
+
+  /**
+   * @return the common working directory
+   */
+  public File getWorkDirectory() {
+    return workDirectory;
+  }
+
+
+
+
+  /**
+   * @param dir the common working directory to set
+   */
+  @SuppressWarnings("unchecked")
+  public void setWorkDirectory( File dir ) {
+    workDirectory = dir;
+    if ( dir != null ) {
       symbols.put( Symbols.WORK_DIRECTORY, workDirectory.getAbsolutePath() );
+    } else {
+      symbols.put( Symbols.WORK_DIRECTORY, null );
     }
   }
 
@@ -135,6 +159,9 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
    */
   @Override
   public void run() {
+
+    // figure out our job directory
+    determineJobDirectory();
 
     setRunDate();
 
@@ -387,6 +414,50 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
       e.printStackTrace();
     }
 
+  }
+
+
+
+
+  /**
+   * Determines the proper value for this engines working directory.
+   * 
+   * If there is no working directory set, use batch home
+   *  and create a working directory within it.
+   */
+  private void determineJobDirectory() {
+    File jobDir;
+
+    // Make sure we have a home directory
+    if ( StringUtil.isBlank( System.getProperty( ConfigTag.HOMEDIR ) ) ) {
+      System.setProperty( ConfigTag.HOMEDIR, System.getProperty( "user.dir" ) );
+    }
+
+    // if 
+    if ( StringUtil.isBlank( System.getProperty( ConfigTag.WORKDIR ) ) ) {
+      System.setProperty( ConfigTag.WORKDIR, System.getProperty( ConfigTag.HOMEDIR ) );
+    }
+
+    // Use our name to setup a job directory
+    String name = getName();
+    if ( StringUtil.isNotBlank( name ) ) {
+      // replace the illegal filename characters by only allowing simple names
+      String dirname = name.trim().replaceAll( "[^a-zA-Z0-9.-]", "_" );
+      jobDir = new File( System.getProperty( ConfigTag.WORKDIR ) + FileUtil.FILE_SEPARATOR + dirname );
+
+      try {
+        jobDir.mkdirs();
+        setJobDirectory( jobDir );
+        setWorkDirectory( jobDir.getParentFile() );
+      } catch ( final Exception e ) {
+        log.error( e.getMessage() );
+      }
+    } else {
+      // unnamed jobs just use the current directory
+      jobDir = new File( System.getProperty( "user.dir" ) );
+      setJobDirectory( jobDir );
+      setWorkDirectory( jobDir );
+    }
   }
 
 

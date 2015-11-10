@@ -84,7 +84,7 @@ public abstract class FileRecorder extends ContextRecorder {
 
         // if not absolute, use the current working directory
         if ( !dest.isAbsolute() ) {
-          dest = new File( context.getSymbols().getString( Symbols.WORK_DIRECTORY ), UriUtil.getFilePath( uri ) );
+          dest = new File( context.getSymbols().getString( Symbols.JOB_DIRECTORY ), UriUtil.getFilePath( uri ) );
         }
 
         // make any directories as necessary
