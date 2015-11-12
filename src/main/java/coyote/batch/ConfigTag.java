@@ -50,6 +50,7 @@ public class ConfigTag {
   public static final String DATEFORMAT = "dateformat";
   public static final String ALIGN = "align";
   public static final String RECURSE = "recurse";
+  public static final String DOMAIN = "domain";
 
   public static final String ROOT_ELEMENT = "rootElement";
   public static final String ROOT_ATTRIBUTE = "rootAttributes";
