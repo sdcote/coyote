@@ -27,6 +27,7 @@ import coyote.batch.mapper.DefaultFrameMapper;
 import coyote.batch.mapper.MappingException;
 import coyote.batch.validate.ValidationException;
 import coyote.commons.FileUtil;
+import coyote.commons.GUID;
 import coyote.commons.StringUtil;
 import coyote.commons.template.SymbolTable;
 import coyote.dataframe.DataFrame;
@@ -112,9 +113,9 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
 
 
   /**
-   * Set the working directory for this engine.
+   * Set the private directory for this engine.
    * 
-   * @param dir the working directory to set
+   * @param dir the private directory to set
    */
   @SuppressWarnings("unchecked")
   protected void setJobDirectory( File dir ) {
@@ -168,6 +169,11 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
     determineJobDirectory();
 
     setRunDate();
+
+    // Make sure the engine has a name
+    if ( StringUtil.isBlank( getName() ) ) {
+      setName( GUID.randomGUID().toString() );
+    }
 
     if ( reader == null && writer != null )
       throw new IllegalStateException( "No reader configured, nothing to write" );
@@ -342,7 +348,14 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
               // Pass the working frame through the transformers
               for ( FrameTransform transformer : transformers ) {
                 try {
-                  transformer.process( context.getWorkingFrame() );
+                  // Have the transformer process the frame
+                  DataFrame resultFrame = transformer.process( context.getWorkingFrame() );
+                  
+                  // if the transformer generated any results...
+                  if ( resultFrame != null ) {
+                    // place it in the context
+                    context.setWorkingFrame(resultFrame);
+                  }
                 } catch ( TransformException e ) {
                   context.setError( e.getMessage() );
                 }
