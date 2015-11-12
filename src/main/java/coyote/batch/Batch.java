@@ -11,8 +11,9 @@
  */
 package coyote.batch;
 
+import coyote.commons.CipherUtil;
 import coyote.commons.Version;
-import coyote.commons.security.BlowfishCipher;
+import coyote.loader.Loader;
 
 
 /**
@@ -22,7 +23,47 @@ public class Batch {
 
   public static final Version VERSION = new Version( 0, 2, 0, Version.EXPERIMENTAL );
   public static final String NAME = "Batch";
-  public static final String CIPHER_KEY = "CoyoteBatch";
-  public static final String CIPHER_NAME = BlowfishCipher.CIPHER_NAME;
+
+
+
+
+  /**
+   * Common utility to encrypt data.
+   * 
+   * <p>Note that this uses the libraries from the Loader package and is 
+   * intended to use the default key and encryption algorithm therein.</p>
+   * 
+   * @param cleartext the text to encrypt
+   * 
+   * @return encrypted text
+   */
+  public static String encrypt( String cleartext ) {
+    String retval = null;
+    String key = System.getProperty( ConfigTag.CIPHER_KEY, CipherUtil.getKey( Loader.CIPHER_KEY ) );
+    String cipherName = System.getProperty( ConfigTag.CIPHER_NAME, Loader.CIPHER_NAME );
+    retval = CipherUtil.encipher( cleartext, cipherName, key );
+    return retval;
+  }
+
+
+
+
+  /**
+   * Common utility to decrypt data
+   * 
+   * <p>Note that this uses the libraries from the Loader package and is 
+   * intended to use the default key and encryption algorithm therein.</p>
+   * 
+   * @param ciphertext encrypted text
+   * 
+   * @return decrypted text
+   */
+  public static String decrypt( String ciphertext ) {
+    String retval = null;
+    String key = System.getProperty( ConfigTag.CIPHER_KEY, CipherUtil.getKey( Loader.CIPHER_KEY ) );
+    String cipherName = System.getProperty( ConfigTag.CIPHER_NAME, Loader.CIPHER_NAME );
+    retval = CipherUtil.decipher( ciphertext, cipherName, key );
+    return retval;
+  }
 
 }
