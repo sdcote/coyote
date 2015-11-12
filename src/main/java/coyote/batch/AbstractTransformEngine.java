@@ -81,6 +81,8 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
 
   /** The directory this engine uses for file operations */
   private File jobDirectory = null;
+  
+  /** The shared directory where multiple engines may read and write data. */
   private File workDirectory = null;
 
   /** The current row number */
