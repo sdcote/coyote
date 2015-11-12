@@ -8,7 +8,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import coyote.commons.FileUtil;
-import coyote.commons.GUID;
 import coyote.commons.StringUtil;
 import coyote.loader.AbstractLoader;
 import coyote.loader.Loader;
@@ -66,14 +65,12 @@ public class Job extends AbstractLoader implements Loader {
       // have the Engine Factory create a transformation engine based on the
       // configuration 
       engine = TransformEngineFactory.getInstance( job );
-      
-      
-      // Make sure the engine has a name
+
       if ( StringUtil.isBlank( engine.getName() ) ) {
-        engine.setName( GUID.randomGUID().toString() );
+        System.out.println( "Configured unnamed engine ..." );
+      } else {
+        System.out.println( "Configured '" + engine.getName() + "' ..." );
       }
-      
-      System.out.println( "Configured '" + engine.getName() + "' ..." );
     } else {
       System.out.println( "No job section found to run" );
     }
