@@ -81,7 +81,7 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
 
   /** The directory this engine uses for file operations */
   private File jobDirectory = null;
-  
+
   /** The shared directory where multiple engines may read and write data. */
   private File workDirectory = null;
 
@@ -352,11 +352,11 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
                 try {
                   // Have the transformer process the frame
                   DataFrame resultFrame = transformer.process( context.getWorkingFrame() );
-                  
+
                   // if the transformer generated any results...
                   if ( resultFrame != null ) {
                     // place it in the context
-                    context.setWorkingFrame(resultFrame);
+                    context.setWorkingFrame( resultFrame );
                   }
                 } catch ( TransformException e ) {
                   context.setError( e.getMessage() );
@@ -485,29 +485,36 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
     Date date = new Date();
     if ( date != null ) {
       cal.setTime( date );
-      symbols.put( "Date", formatDate( date ) );
-      symbols.put( "Time", formatTime( date ) );
-      symbols.put( "DateTime", formatDateTime( date ) );
-      symbols.put( "Month", String.valueOf( cal.get( Calendar.MONTH ) + 1 ) );
-      symbols.put( "Day", String.valueOf( cal.get( Calendar.DAY_OF_MONTH ) ) );
-      symbols.put( "Year", String.valueOf( cal.get( Calendar.YEAR ) ) );
-      symbols.put( "Hour", String.valueOf( cal.get( Calendar.HOUR ) ) );
-      symbols.put( "Minute", String.valueOf( cal.get( Calendar.MINUTE ) ) );
-      symbols.put( "Second", String.valueOf( cal.get( Calendar.SECOND ) ) );
-      symbols.put( "Millisecond", String.valueOf( cal.get( Calendar.MILLISECOND ) ) );
-      symbols.put( "MM", StringUtil.zeropad( cal.get( Calendar.MONTH ) + 1, 2 ) );
-      symbols.put( "DD", StringUtil.zeropad( cal.get( Calendar.DAY_OF_MONTH ), 2 ) );
-      symbols.put( "YYYY", StringUtil.zeropad( cal.get( Calendar.YEAR ), 4 ) );
-      symbols.put( "hh", StringUtil.zeropad( cal.get( Calendar.HOUR ), 2 ) );
-      symbols.put( "mm", StringUtil.zeropad( cal.get( Calendar.MINUTE ), 2 ) );
-      symbols.put( "ss", StringUtil.zeropad( cal.get( Calendar.SECOND ), 2 ) );
-      symbols.put( "zzz", StringUtil.zeropad( cal.get( Calendar.MILLISECOND ), 3 ) );
+      symbols.put( Symbols.DATE, formatDate( date ) );
+      symbols.put( Symbols.TIME, formatTime( date ) );
+      symbols.put( Symbols.DATETIME, formatDateTime( date ) );
+      symbols.put( Symbols.MONTH, String.valueOf( cal.get( Calendar.MONTH ) + 1 ) );
+      symbols.put( Symbols.DAY, String.valueOf( cal.get( Calendar.DAY_OF_MONTH ) ) );
+      symbols.put( Symbols.YEAR, String.valueOf( cal.get( Calendar.YEAR ) ) );
+      symbols.put( Symbols.HOUR, String.valueOf( cal.get( Calendar.HOUR ) ) );
+      symbols.put( Symbols.MINUTE, String.valueOf( cal.get( Calendar.MINUTE ) ) );
+      symbols.put( Symbols.SECOND, String.valueOf( cal.get( Calendar.SECOND ) ) );
+      symbols.put( Symbols.MILLISECOND, String.valueOf( cal.get( Calendar.MILLISECOND ) ) );
+      symbols.put( Symbols.MONTH_MM, StringUtil.zeropad( cal.get( Calendar.MONTH ) + 1, 2 ) );
+      symbols.put( Symbols.DAY_DD, StringUtil.zeropad( cal.get( Calendar.DAY_OF_MONTH ), 2 ) );
+      symbols.put( Symbols.YEAR_YYYY, StringUtil.zeropad( cal.get( Calendar.YEAR ), 4 ) );
+      symbols.put( Symbols.HOUR_HH, StringUtil.zeropad( cal.get( Calendar.HOUR ), 2 ) );
+      symbols.put( Symbols.MINUTE_MM, StringUtil.zeropad( cal.get( Calendar.MINUTE ), 2 ) );
+      symbols.put( Symbols.SECOND_SS, StringUtil.zeropad( cal.get( Calendar.SECOND ), 2 ) );
+      symbols.put( Symbols.MILLISECOND_ZZZ, StringUtil.zeropad( cal.get( Calendar.MILLISECOND ), 3 ) );
 
       // go back one day and get the "previous day" Month Day and Year 
       cal.add( Calendar.DATE, -1 );
-      symbols.put( "PM", StringUtil.zeropad( cal.get( Calendar.MONTH ) + 1, 2 ) );
-      symbols.put( "PD", StringUtil.zeropad( cal.get( Calendar.DAY_OF_MONTH ), 2 ) );
-      symbols.put( "PYYY", StringUtil.zeropad( cal.get( Calendar.YEAR ), 4 ) );
+      symbols.put( Symbols.PREV_MONTH_PM, StringUtil.zeropad( cal.get( Calendar.MONTH ) + 1, 2 ) );
+      symbols.put( Symbols.PREV_DAY_PD, StringUtil.zeropad( cal.get( Calendar.DAY_OF_MONTH ), 2 ) );
+      symbols.put( Symbols.PREV_YEAR_PYYY, StringUtil.zeropad( cal.get( Calendar.YEAR ), 4 ) );
+
+      // reset the date
+      cal.setTime( date );
+      // go back a month
+      cal.add( Calendar.MONTH, -1 );
+      symbols.put( Symbols.PREV_MONTH_LM, StringUtil.zeropad( cal.get( Calendar.MONTH ) + 1, 2 ) );
+      symbols.put( Symbols.PREV_YEAR_LMYY, StringUtil.zeropad( cal.get( Calendar.YEAR ), 4 ) );
 
     }
   }
