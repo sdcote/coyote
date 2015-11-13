@@ -25,6 +25,10 @@ import coyote.dataframe.DataField;
  * values in a text file.
  */
 public class FieldDefinition {
+
+  /** The logger for this class */
+  //final Logger log = LoggerFactory.getLogger( getClass() );
+
   private short type = 0;
   private int start = 0;
   private int length = 0;
@@ -420,13 +424,19 @@ public class FieldDefinition {
           decimalFormat = new DecimalFormat( formatText );
         }
         // format the value using the DecimalFormat
-        retval = decimalFormat.format( field.getObjectValue() );
+        if ( field.isNotNull() ) {
+          retval = decimalFormat.format( field.getObjectValue() );
+          //log.trace( "Formatting {}({}) with '{}' -- Result: '{}'", field, field.getStringValue(), formatText, retval );
+        }
       } else if ( DataField.DATE == field.getType() ) {
         // Use the date format...same approach as above
         if ( dateFormat == null ) {
           dateFormat = new SimpleDateFormat( formatText );
         }
-        retval = dateFormat.format( field.getObjectValue() );
+        if ( field.isNotNull() ) {
+          retval = dateFormat.format( field.getObjectValue() );
+          //log.trace( "Formatting {}({}) with '{}' -- Result: '{}'", field, field.getStringValue(), formatText, retval );
+        }
       }
     }
 
