@@ -1,6 +1,9 @@
 /**
- * Components in this package are responsible for transforming individual 
- * fields in a data frame.
+ * Components in this package are responsible for transforming a data frame. 
+ * 
+ * <p>Frame Transformers transform the working frame of a transaction context. 
+ * This could be in the manner of adding static field values, adding calculated 
+ * values or modifying the existing values of the working frame.</p>
  * 
  * <p>Some transforms are designed to convert specific fields into specific 
  * types. Others will format the data (e.g. converting strings to lower case) 

@@ -260,6 +260,7 @@ public class TransformEngineFactory {
 
 
   private static void configTransformer( DataFrame cfg, TransformEngine engine ) {
+    
     for ( DataField field : cfg.getFields() ) {
       String className = field.getName();
       if ( className != null && StringUtil.countOccurrencesOf( className, "." ) < 1 ) {

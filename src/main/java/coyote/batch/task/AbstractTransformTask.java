@@ -74,7 +74,7 @@ public abstract class AbstractTransformTask extends AbstractConfigurableComponen
 
 
   /**
-   * resolve the argument.
+   * Resolve the argument.
    * 
    * <p>This will try to retrieve the value from the transform context using 
    * the given value as it may be a reference to a context property.</p>
@@ -82,7 +82,7 @@ public abstract class AbstractTransformTask extends AbstractConfigurableComponen
    * <p>If no value was found in the look-up, then the value is treated as a 
    * literal and will be returned as the argument.</p>
    * 
-   * <p> regardless of whether or not the vlaue was retrieved from the 
+   * <p>Regardless of whether or not the value was retrieved from the 
    * transform context as a reference value, the value is resolved as a 
    * template using the symbol table in the transform context. This allows for 
    * more dynamic values during the operation of the entire transformation 
