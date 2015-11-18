@@ -22,7 +22,7 @@ import coyote.dataframe.DataFrame;
 
 
 /**
- * There must be a value and it must not be an empty string or all whitespace.
+ * The value of this field must not match any other instances of this field.
  * 
  *<pre>"Distinct" : { "field" : "model",  "desc" : "Optional description value"  },</pre>
  *
@@ -56,7 +56,7 @@ public class Distinct extends AbstractValidator implements FrameValidator {
             int count = (Integer)values.get( key );
             count++;
             values.put( key, count );
-            fail( context, fieldName, "value of '" + key + "' has occured " + count + " times" );
+            fail( context, fieldName, fieldName+": value of '" + key + "' has occured " + count + " times" );
             return false;
           } else {
             values.put( key, 1 );
