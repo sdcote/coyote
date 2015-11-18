@@ -141,7 +141,7 @@ public class FlatFileWriter extends AbstractFrameWriter implements FrameWriter, 
         // now insert
         line.insert( def.getStart(), text );
       } else {
-        log.warn( "No field named '{}' in frame.", def.getName() );
+        log.trace( "No field named '{}' in frame.", def.getName() );
       }
 
     }
