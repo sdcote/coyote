@@ -12,7 +12,11 @@
 package coyote.batch.listener;
 
 import coyote.batch.ConfigTag;
+import coyote.batch.ConfigurationException;
 import coyote.batch.ContextListener;
+import coyote.dataframe.DataFrame;
+import coyote.dataframe.DataFrameException;
+import coyote.loader.log.Log;
 
 
 /**
@@ -20,6 +24,8 @@ import coyote.batch.ContextListener;
  */
 public abstract class ContextRecorder extends AbstractListener implements ContextListener {
 
+  protected boolean onRead = false;
+  protected boolean onWrite = false;
 
 
 
@@ -41,5 +47,39 @@ public abstract class ContextRecorder extends AbstractListener implements Contex
    */
   public void setTarget( final String value ) {
     configuration.put( ConfigTag.TARGET, value );
+  }
+
+
+
+
+  /**
+   * @see coyote.batch.AbstractConfigurableComponent#setConfiguration(coyote.dataframe.DataFrame)
+   */
+  @Override
+  public void setConfiguration( DataFrame frame ) throws ConfigurationException {
+    super.setConfiguration( frame );
+    
+    if ( frame.contains( ConfigTag.READ ) ) {
+      try {
+        onRead = frame.getAsBoolean( ConfigTag.READ );
+      } catch ( DataFrameException e ) {
+        Log.info( "Read flag not valid " + e.getMessage() );
+        onRead = false;
+      }
+    } else {
+      Log.debug( "No read flag" );
+    }
+
+    if ( frame.contains( ConfigTag.WRITE ) ) {
+      try {
+        onWrite = frame.getAsBoolean( ConfigTag.WRITE );
+      } catch ( DataFrameException e ) {
+        Log.info( "Write flag not valid " + e.getMessage() );
+        onWrite = false;
+      }
+    } else {
+      Log.debug( "No write flag" );
+    }
+
   }
 }

@@ -32,7 +32,10 @@ import coyote.dataframe.DataFrameException;
  * Validators work on the working frame and check to see if the working data 
  * meets the requirements of the batch job.
  * 
- * 
+ * <p>Configuration example:
+ * <pre>"Validate" : {
+ *   "Distinct" : { "field" : "asset_tag",  "desc" : "Asset tag must be unique"  }
+ * },</pre></p>
  */
 public abstract class AbstractValidator extends AbstractConfigurableComponent implements FrameValidator, ConfigurableComponent {
   /** The logger for this class */

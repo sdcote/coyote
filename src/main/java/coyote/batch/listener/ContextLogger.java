@@ -39,25 +39,26 @@ public class ContextLogger extends FileRecorder {
    */
   @Override
   public void onRead( TransactionContext context ) {
+    if ( onRead ) {
+      StringBuffer b = new StringBuffer();
+      b.append( context.getRow() );
+      b.append( ": " );
+      b.append( "Read: " );
+      if ( context.getSourceFrame() != null ) {
+        b.append( context.getSourceFrame().toString() );
+      } else {
+        b.append( "NULL SOURCE FRAME" );
+      }
+      if ( context.isInError() ) {
+        b.append( " - Error: " );
+        b.append( context.getMessage() );
+      } else {
+        b.append( " - Success" );
+      }
+      b.append( StringUtil.LINE_FEED );
 
-    StringBuffer b = new StringBuffer();
-    b.append( context.getRow() );
-    b.append( ", " );
-    b.append( "Read, " );
-    if ( context.getSourceFrame() != null ) {
-      b.append( context.getSourceFrame().toString() );
-    } else {
-      b.append( "NULL SOURCE FRAME" );
+      write( b.toString() );
     }
-    if ( context.isInError() ) {
-      b.append( " - Error: " );
-      b.append( context.getMessage() );
-    } else {
-      b.append( " - Success" );
-    }
-    b.append( StringUtil.LINE_FEED );
-
-    write( b.toString() );
   }
 
 
@@ -68,25 +69,26 @@ public class ContextLogger extends FileRecorder {
    */
   @Override
   public void onWrite( TransactionContext context ) {
+    if ( onWrite ) {
+      StringBuffer b = new StringBuffer();
+      b.append( context.getRow() );
+      b.append( ": " );
+      b.append( "Write: " );
+      if ( context.getTargetFrame() != null ) {
+        b.append( context.getTargetFrame().toString() );
+      } else {
+        b.append( "NULL TARGET FRAME" );
+      }
+      if ( context.isInError() ) {
+        b.append( " - Error: " );
+        b.append( context.getMessage() );
+      } else {
+        b.append( " - Success" );
+      }
+      b.append( StringUtil.LINE_FEED );
 
-    StringBuffer b = new StringBuffer();
-    b.append( context.getRow() );
-    b.append( ", " );
-    b.append( "Write, " );
-    if ( context.getTargetFrame() != null ) {
-      b.append( context.getTargetFrame().toString() );
-    } else {
-      b.append( "NULL TARGET FRAME" );
+      write( b.toString() );
     }
-    if ( context.isInError() ) {
-      b.append( " - Error: " );
-      b.append( context.getMessage() );
-    } else {
-      b.append( " - Success" );
-    }
-    b.append( StringUtil.LINE_FEED );
-
-    write( b.toString() );
   }
 
 
@@ -173,10 +175,9 @@ public class ContextLogger extends FileRecorder {
 
     StringBuffer b = new StringBuffer();
 
-    if ( context instanceof TransactionContext ) {
-      b.append( "Transaction validation failure: " );
-    } else if ( context instanceof TransformContext ) {
-      b.append( "Tranform validation failure: " );
+    if ( context instanceof TransactionContext || context instanceof TransformContext ) {
+      b.append( context.getRow() );
+      b.append( ": " );
     } else {
       b.append( "Operational validation failure: " );
     }

@@ -20,14 +20,14 @@ import java.io.Writer;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import coyote.batch.Batch;
 import coyote.batch.ConfigTag;
 import coyote.batch.Symbols;
 import coyote.batch.TransformContext;
 import coyote.commons.StringUtil;
 import coyote.commons.UriUtil;
+import coyote.loader.log.Log;
+import coyote.loader.log.LogMsg;
 
 
 /**
@@ -36,9 +36,6 @@ import coyote.commons.UriUtil;
  * <p>Note: this is not logging, but a way to write strings to a file.</p>
  */
 public abstract class FileRecorder extends ContextRecorder {
-
-  /** The logger for this class */
-  final Logger log = LoggerFactory.getLogger( getClass() );
 
   protected Writer log_writer;
 
@@ -54,11 +51,11 @@ public abstract class FileRecorder extends ContextRecorder {
   public void open( TransformContext context ) {
     super.open( context );
 
-    log.info( "Opening FileRecorder" );
+    Log.info( "Opening FileRecorder" );
 
     // get our configuration data
     setTarget( getString( ConfigTag.TARGET ) );
-    log.debug( "Using a target of {}", getTarget() );
+    Log.debug( LogMsg.createMsg( Batch.MSG, "Batch.listener.using_target", getTarget() ) );
 
     if ( StringUtil.isNotBlank( getTarget() ) ) {
 
@@ -73,9 +70,8 @@ public abstract class FileRecorder extends ContextRecorder {
           URI u = f.toURI();
           setTarget( u.toString() );
         }
-      }      
-      
-      
+      }
+
       try {
         URI uri = new URI( getTarget() );
 
@@ -92,7 +88,7 @@ public abstract class FileRecorder extends ContextRecorder {
 
         // 
         targetFile = dest;
-        log.debug( "Using a target file of {}", targetFile.toString() );
+        Log.debug( LogMsg.createMsg( Batch.MSG, "Batch.listener.using_target", targetFile.toString() ) );
 
         // Create the writer
         log_writer = new OutputStreamWriter( new FileOutputStream( targetFile.toString(), false ) );
@@ -107,7 +103,7 @@ public abstract class FileRecorder extends ContextRecorder {
       }
 
     } else {
-      log.error( "No target specified" );
+      Log.error( "No target specified" );
       context.setError( getClass().getName() + " could not determine 'target' for recording events" );
     }
 
