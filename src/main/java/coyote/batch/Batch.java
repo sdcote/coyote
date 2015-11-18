@@ -14,6 +14,7 @@ package coyote.batch;
 import coyote.commons.CipherUtil;
 import coyote.commons.Version;
 import coyote.loader.Loader;
+import coyote.loader.log.LogMsg.BundleBaseName;
 
 
 /**
@@ -24,6 +25,10 @@ public class Batch {
   public static final Version VERSION = new Version( 0, 2, 0, Version.EXPERIMENTAL );
   public static final String NAME = "Batch";
 
+  public static final BundleBaseName MSG;
+  static {
+    MSG = new BundleBaseName( "BatchMsg" );
+  }
 
 
 
