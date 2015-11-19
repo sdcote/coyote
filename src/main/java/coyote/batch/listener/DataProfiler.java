@@ -284,9 +284,9 @@ public class DataProfiler extends FileRecorder implements ContextListener {
       b.append( StringUtil.fixedLength( "", 37, 0 ) );
       b.append( totalBytes );
       b.append( StringUtil.LINE_FEED );
-      b.append( StringUtil.LINE_FEED );
-      write( b.toString() );
     }
+    b.append( StringUtil.LINE_FEED );
+    write( b.toString() );
   }
 
 
@@ -387,9 +387,10 @@ public class DataProfiler extends FileRecorder implements ContextListener {
       b.append( StringUtil.fixedLength( "", 37, 0 ) );
       b.append( totalBytes );
       b.append( StringUtil.LINE_FEED );
-      b.append( StringUtil.LINE_FEED );
-      write( b.toString() );
     }
+    
+    b.append( StringUtil.LINE_FEED );
+    write( b.toString() );
   }
 
 
