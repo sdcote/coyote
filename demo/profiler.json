@@ -1,13 +1,16 @@
 {
+	"Class" : "coyote.batch.Job",
+	"Job" : {
 
-	"Reader" : {
-		"class" : "CSVReader",
-		"source" : "file://demo/users.csv",
-		"header" : true
-	},
+		"Reader" : {
+			"class" : "CSVReader",
+			"source" : "file://demo/users.csv",
+			"header" : true
+		},
 
-	"Listeners" : [
-		{ "class" : "DataProfiler", "target" : "users-csv.txt" }
-	]
+		"Listeners" : [
+			{ "class" : "DataProfiler", "target" : "users-csv.txt" }
+		]
 
+	}
 }
