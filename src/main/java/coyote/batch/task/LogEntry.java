@@ -19,7 +19,7 @@ import coyote.commons.StringUtil;
 /**
  * A task which generates a log entry
  */
-public class Log extends AbstractTransformTask {
+public class LogEntry extends AbstractTransformTask {
 
   public static final String LEVEL = "level";
   public static final String MESSAGE = "msg";
