@@ -11,18 +11,10 @@
  */
 package coyote.batch;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-
 /**
  * 
  */
 public class DefaultTransformEngine extends AbstractTransformEngine implements TransformEngine {
-  final Logger log = LoggerFactory.getLogger( getClass() );
-
-
-
 
   public DefaultTransformEngine() {}
 

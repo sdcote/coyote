@@ -4,15 +4,15 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import coyote.commons.FileUtil;
 import coyote.commons.StringUtil;
 import coyote.loader.AbstractLoader;
 import coyote.loader.Loader;
 import coyote.loader.cfg.Config;
 import coyote.loader.cfg.ConfigurationException;
+import coyote.loader.log.Log;
+import coyote.loader.log.LogMsg;
+import coyote.loader.log.LogMsg.BundleBaseName;
 
 
 /**
@@ -23,8 +23,13 @@ import coyote.loader.cfg.ConfigurationException;
  */
 public class Job extends AbstractLoader implements Loader {
 
-  /** The logger for this class */
-  final Logger log = LoggerFactory.getLogger( getClass() );
+  private static final String DEBUG_ARG = "-d";
+  private static final String INFO_ARG = "-v";
+
+  protected static final BundleBaseName BATCH_MSG;
+  static {
+    BATCH_MSG = new BundleBaseName( "BatchMsg" );
+  }
 
   /**
    * If there is no specified directory in the HOMDIR system property, just use the current working directory
@@ -53,6 +58,9 @@ public class Job extends AbstractLoader implements Loader {
   public void configure( Config cfg ) throws ConfigurationException {
     super.configure( cfg );
 
+    // Check the command line arguments for additional cfg info
+    parseArgs();
+
     // calculate and normalize the appropriate value for "app.home"
     determineHomeDirectory();
 
@@ -69,12 +77,28 @@ public class Job extends AbstractLoader implements Loader {
       engine = TransformEngineFactory.getInstance( job );
 
       if ( StringUtil.isBlank( engine.getName() ) ) {
-        System.out.println( "Configured unnamed engine ..." );
+        Log.info( LogMsg.createMsg( BATCH_MSG, "Job.unnamed_engine_configured" ) );
       } else {
-        System.out.println( "Configured '" + engine.getName() + "' ..." );
+        Log.info( LogMsg.createMsg( BATCH_MSG, "Job.engine_configured", engine.getName() ) );
       }
     } else {
-      System.out.println( "No job section found to run" );
+      Log.info( LogMsg.createMsg( BATCH_MSG, "Job.no_job_section" ) );
+    }
+  }
+
+
+
+
+  /**
+   * This just looks for verbose and debug logging flags on the command line.
+   */
+  private void parseArgs() {
+    for ( int x = 0; x < commandLineArguments.length; x++ ) {
+      if ( DEBUG_ARG.equalsIgnoreCase( commandLineArguments[x] ) ) {
+        Log.startLogging( Log.DEBUG );
+      } else if ( INFO_ARG.equalsIgnoreCase( commandLineArguments[x] ) ) {
+        Log.startLogging( Log.INFO );
+      }
     }
   }
 
@@ -102,7 +126,7 @@ public class Job extends AbstractLoader implements Loader {
    */
   private void determineHomeDirectory() {
     // If our home directory is not specified as a system property...
-    if ( System.getProperty( Loader.APP_HOME ) == null ) {
+    if ( System.getProperty( Job.APP_HOME ) == null ) {
 
       // use the first argument to the bootstrap loader to determine the 
       // location of our configuration file
@@ -111,45 +135,45 @@ public class Job extends AbstractLoader implements Loader {
       // If that file exists, then use that files parent directory as our work
       // directory
       if ( cfgFile.exists() ) {
-        System.setProperty( Loader.APP_HOME, cfgFile.getParentFile().getAbsolutePath() );
+        System.setProperty( Job.APP_HOME, cfgFile.getParentFile().getAbsolutePath() );
       } else {
         // we could not determine the path to the configuration file, use the 
         // current working directory
-        System.setProperty( Loader.APP_HOME, DEFAULT_HOME );
+        System.setProperty( Job.APP_HOME, DEFAULT_HOME );
       }
     } else {
 
       // Normalize the "." that sometimes is set in the app.home property
-      if ( System.getProperty( Loader.APP_HOME ).trim().equals( "." ) ) {
-        System.setProperty( Loader.APP_HOME, DEFAULT_HOME );
-      } else if ( System.getProperty( Loader.APP_HOME ).trim().length() == 0 ) {
+      if ( System.getProperty( Job.APP_HOME ).trim().equals( "." ) ) {
+        System.setProperty( Job.APP_HOME, DEFAULT_HOME );
+      } else if ( System.getProperty( Job.APP_HOME ).trim().length() == 0 ) {
         // catch empty home property and just use the home directory
-        System.setProperty( Loader.APP_HOME, DEFAULT_HOME );
+        System.setProperty( Job.APP_HOME, DEFAULT_HOME );
       }
     }
 
     // Remove all the relations and extra slashes from the home path
-    System.setProperty( Loader.APP_HOME, FileUtil.normalizePath( System.getProperty( Loader.APP_HOME ) ) );
-    log.debug( "Home directory set to {}", System.getProperty( Loader.APP_HOME ) );
-
+    System.setProperty( Job.APP_HOME, FileUtil.normalizePath( System.getProperty( Job.APP_HOME ) ) );
+    Log.debug( LogMsg.createMsg( BATCH_MSG, "Job.home_dir_set", System.getProperty( Job.APP_HOME ) ) );
   }
 
 
 
 
   private void determineWorkDirectory() {
-    if ( System.getProperty( Loader.APP_HOME ) == null ) {
-      System.setProperty( Loader.APP_HOME, DEFAULT_HOME );
+    if ( System.getProperty( Job.APP_HOME ) == null ) {
+      System.setProperty( Job.APP_HOME, DEFAULT_HOME );
     }
 
-    File wrkDir = new File( System.getProperty( Loader.APP_HOME ) + FileUtil.FILE_SEPARATOR + "wrk" );
+    File wrkDir = new File( System.getProperty( Job.APP_HOME ) + FileUtil.FILE_SEPARATOR + "wrk" );
 
     try {
       wrkDir.mkdirs();
       System.setProperty( ConfigTag.WORKDIR, wrkDir.getAbsolutePath() );
-      log.debug( "Work directory set to {}", System.getProperty( ConfigTag.WORKDIR ) );
+      Log.debug( LogMsg.createMsg( BATCH_MSG, "Job.work_dir_set", System.getProperty( ConfigTag.WORKDIR ) ) );
+
     } catch ( final Exception e ) {
-      log.error( e.getMessage() );
+      Log.error( e.getMessage() );
     }
   }
 
@@ -163,7 +187,7 @@ public class Job extends AbstractLoader implements Loader {
   public void start() {
 
     if ( engine != null ) {
-      System.out.println( "Running..." );
+      Log.debug( LogMsg.createMsg( BATCH_MSG, "Job.running" ) );
 
       // run the transformation
       // Note that depending on the configuration, this could be placed in the 
@@ -172,8 +196,8 @@ public class Job extends AbstractLoader implements Loader {
       try {
         engine.run();
       } catch ( final Exception e ) {
-        System.out.println( "Encountered a '" + e.getClass().getSimpleName() + "' exception running the engine: " + e.getMessage() );
-        e.printStackTrace();
+        Log.fatal( LogMsg.createMsg( BATCH_MSG, "Job.exception_running_engine", e.getClass().getSimpleName(), e.getMessage() ) );
+        Log.fatal( e );
       }
       finally {
 
@@ -181,12 +205,11 @@ public class Job extends AbstractLoader implements Loader {
           engine.close();
         } catch ( final IOException ignore ) {}
 
-        System.out.println( "Job '" + engine.getName() + "' completed." );
+        Log.debug( LogMsg.createMsg( BATCH_MSG, "Job.completed" ) );
       } // try-catch-finally
 
-      System.out.println( "...Done." );
     } else {
-      System.err.println( "No engine to run" );
+      Log.fatal( LogMsg.createMsg( BATCH_MSG, "Job.no_engine" ) );
     }
   }
 
