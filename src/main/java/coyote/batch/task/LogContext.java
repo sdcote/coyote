@@ -13,6 +13,7 @@ package coyote.batch.task;
 
 import coyote.batch.TaskException;
 import coyote.batch.TransformContext;
+import coyote.loader.log.Log;
 
 
 /**
@@ -25,7 +26,7 @@ public class LogContext extends AbstractFileTask {
    */
   @Override
   public void execute( TransformContext transformContext ) throws TaskException {
-    coyote.loader.log.Log.info( transformContext.dump() );
+    Log.info( transformContext.dump() );
   }
 
 }

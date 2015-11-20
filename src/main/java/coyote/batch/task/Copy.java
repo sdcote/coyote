@@ -19,6 +19,7 @@ import coyote.batch.TaskException;
 import coyote.batch.TransformContext;
 import coyote.commons.FileUtil;
 import coyote.commons.StringUtil;
+import coyote.loader.log.Log;
 import coyote.loader.log.LogMsg;
 
 
@@ -46,7 +47,7 @@ public class Copy extends AbstractFileTask {
       if ( StringUtil.isNotBlank( target ) ) {
         // this is a file to file copy
         final String tgt = resolveArgument( target );
-        coyote.loader.log.Log.info(  LogMsg.createMsg( Batch.MSG, "Task.Copying file named {} to file named {}", src, tgt ));
+        Log.info(  LogMsg.createMsg( Batch.MSG, "Task.Copying file named {} to file named {}", src, tgt ));
 
         try {
           FileUtil.copyFile( src, tgt );
@@ -60,7 +61,7 @@ public class Copy extends AbstractFileTask {
       } else if ( StringUtil.isNotBlank( targetdir ) ) {
         // this is a file to directory copy
         final String tgt = resolveArgument( targetdir );
-        coyote.loader.log.Log.info( LogMsg.createMsg( Batch.MSG, "Task.Copying file named {} to directory named {}", src, tgt ));
+        Log.info( LogMsg.createMsg( Batch.MSG, "Task.Copying file named {} to directory named {}", src, tgt ));
 
         try {
           FileUtil.copyFileToDir( src, tgt );
@@ -71,7 +72,7 @@ public class Copy extends AbstractFileTask {
           }
         }
       } else {
-        coyote.loader.log.Log.info( "Cannot copy without a target" );
+        Log.info( "Cannot copy without a target" );
         if ( haltOnError ) {
           transformContext.setError( "Copy operation failed: no target argument" );
           return;
@@ -84,7 +85,7 @@ public class Copy extends AbstractFileTask {
       if ( StringUtil.isNotBlank( targetdir ) ) {
         // this is a directory to directory copy
         final String tgt = resolveArgument( targetdir );
-        coyote.loader.log.Log.info( LogMsg.createMsg( Batch.MSG, "Task.Copying directory named {} to directory named {}", src, tgt ));
+        Log.info( LogMsg.createMsg( Batch.MSG, "Task.Copying directory named {} to directory named {}", src, tgt ));
         try {
           FileUtil.copyDirectory( src, tgt );
         } catch ( final IOException e ) {
@@ -95,7 +96,7 @@ public class Copy extends AbstractFileTask {
         }
 
       } else {
-        coyote.loader.log.Log.info( "Cannot copy a directory without a target directory" );
+        Log.info( "Cannot copy a directory without a target directory" );
         if ( haltOnError ) {
           transformContext.setError( "Copy operation failed: no target directory argument" );
           return;
@@ -103,7 +104,7 @@ public class Copy extends AbstractFileTask {
       }
 
     } else {
-      coyote.loader.log.Log.info( "Cannot copy without a source" );
+      Log.info( "Cannot copy without a source" );
       if ( haltOnError ) {
         transformContext.setError( "Copy operation failed: no source argument" );
         return;

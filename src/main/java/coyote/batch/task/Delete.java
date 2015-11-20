@@ -17,6 +17,7 @@ import coyote.batch.TaskException;
 import coyote.batch.TransformContext;
 import coyote.commons.FileUtil;
 import coyote.commons.StringUtil;
+import coyote.loader.log.Log;
 import coyote.loader.log.LogMsg;
 
 
@@ -63,7 +64,7 @@ public class Delete extends AbstractFileTask {
       }
 
     } else {
-      coyote.loader.log.Log.warn( LogMsg.createMsg( Batch.MSG, "Task.Move has no {} or {} argument - nothing to do.", ConfigTag.FILE, ConfigTag.DIRECTORY ));
+      Log.warn( LogMsg.createMsg( Batch.MSG, "Task.Move has no {} or {} argument - nothing to do.", ConfigTag.FILE, ConfigTag.DIRECTORY ));
     }
 
   }

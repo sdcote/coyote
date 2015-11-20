@@ -14,6 +14,7 @@ package coyote.batch.task;
 import coyote.batch.TaskException;
 import coyote.batch.TransformContext;
 import coyote.commons.StringUtil;
+import coyote.loader.log.Log;
 
 
 /**
@@ -38,20 +39,20 @@ public class LogEntry extends AbstractTransformTask {
       String level = resolveArgument( LEVEL );
       if ( StringUtil.isNotBlank( level ) ) {
         if ( "info".equalsIgnoreCase( level ) ) {
-          coyote.loader.log.Log.info( message );
+          Log.info( message );
         } else if ( "debug".equalsIgnoreCase( level ) ) {
-          coyote.loader.log.Log.debug( message );
+          Log.debug( message );
         } else if ( "warn".equalsIgnoreCase( level ) ) {
-          coyote.loader.log.Log.warn( message );
+          Log.warn( message );
         } else if ( "error".equalsIgnoreCase( level ) ) {
-          coyote.loader.log.Log.error( message );
+          Log.error( message );
         } else if ( "trace".equalsIgnoreCase( level ) ) {
-          coyote.loader.log.Log.trace( message );
+          Log.trace( message );
         } else {
-          coyote.loader.log.Log.info( message );
+          Log.info( message );
         }
       } else {
-        coyote.loader.log.Log.info( message );
+        Log.info( message );
       }
     }
 
