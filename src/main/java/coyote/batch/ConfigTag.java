@@ -98,17 +98,11 @@ public class ConfigTag {
 
   /**
    * The name of the system property ({@value}) that contains the path to the 
-   * home directory.
-   */
-  public static final String HOMEDIR = "batch.home";
-  
-  /**
-   * The name of the system property ({@value}) that contains the path to the 
    * common working directory where all the jobs data can be written. Note, 
    * that engine normally create their own directory within the working 
    * directory for data related to that individual job. Data to be shared 
    * between jobs are written to the set work directory.   
    */
   public static final String WORKDIR = "batch.work";
-  
+
 }

@@ -53,8 +53,10 @@ public class Job extends AbstractLoader implements Loader {
   public void configure( Config cfg ) throws ConfigurationException {
     super.configure( cfg );
 
-    // calculate and normalize the appropriate value for "batch.home"
+    // calculate and normalize the appropriate value for "app.home"
     determineHomeDirectory();
+
+    determineWorkDirectory();
 
     List<Config> jobs = cfg.getSections( "Job" );
 
@@ -80,9 +82,9 @@ public class Job extends AbstractLoader implements Loader {
 
 
   /**
-   * Determine the value of the "batch.home" system property.
+   * Determine the value of the "app.home" system property.
    * 
-   * <p>If the batch home property is already set, it is preserved, if not 
+   * <p>If the app home property is already set, it is preserved, if not 
    * normalized. If there is no value, this attempts to determine the location 
    * of the configuration file used to configure this job and if found, uses 
    * that directory as the home directory of all transformation operations. The
@@ -100,7 +102,7 @@ public class Job extends AbstractLoader implements Loader {
    */
   private void determineHomeDirectory() {
     // If our home directory is not specified as a system property...
-    if ( System.getProperty( ConfigTag.HOMEDIR ) == null ) {
+    if ( System.getProperty( Loader.APP_HOME ) == null ) {
 
       // use the first argument to the bootstrap loader to determine the 
       // location of our configuration file
@@ -109,26 +111,46 @@ public class Job extends AbstractLoader implements Loader {
       // If that file exists, then use that files parent directory as our work
       // directory
       if ( cfgFile.exists() ) {
-        System.setProperty( ConfigTag.HOMEDIR, cfgFile.getParentFile().getAbsolutePath() );
+        System.setProperty( Loader.APP_HOME, cfgFile.getParentFile().getAbsolutePath() );
       } else {
         // we could not determine the path to the configuration file, use the 
         // current working directory
-        System.setProperty( ConfigTag.HOMEDIR, DEFAULT_HOME );
+        System.setProperty( Loader.APP_HOME, DEFAULT_HOME );
       }
     } else {
-      // Normalize the "." that sometimes is set in the HOMEDIR property
-      if ( System.getProperty( ConfigTag.HOMEDIR ).trim().equals( "." ) ) {
-        System.setProperty( ConfigTag.HOMEDIR, DEFAULT_HOME );
-      } else if ( System.getProperty( ConfigTag.HOMEDIR ).trim().length() == 0 ) {
+
+      // Normalize the "." that sometimes is set in the app.home property
+      if ( System.getProperty( Loader.APP_HOME ).trim().equals( "." ) ) {
+        System.setProperty( Loader.APP_HOME, DEFAULT_HOME );
+      } else if ( System.getProperty( Loader.APP_HOME ).trim().length() == 0 ) {
         // catch empty home property and just use the home directory
-        System.setProperty( ConfigTag.HOMEDIR, DEFAULT_HOME );
+        System.setProperty( Loader.APP_HOME, DEFAULT_HOME );
       }
     }
 
     // Remove all the relations and extra slashes from the home path
-    System.setProperty( ConfigTag.HOMEDIR, FileUtil.normalizePath( System.getProperty( ConfigTag.HOMEDIR ) ) );
-    log.debug( "Home directory set to {}", System.getProperty( ConfigTag.HOMEDIR ) );
+    System.setProperty( Loader.APP_HOME, FileUtil.normalizePath( System.getProperty( Loader.APP_HOME ) ) );
+    log.debug( "Home directory set to {}", System.getProperty( Loader.APP_HOME ) );
 
+  }
+
+
+
+
+  private void determineWorkDirectory() {
+    if ( System.getProperty( Loader.APP_HOME ) == null ) {
+      System.setProperty( Loader.APP_HOME, DEFAULT_HOME );
+    }
+
+    File wrkDir = new File( System.getProperty( Loader.APP_HOME ) + FileUtil.FILE_SEPARATOR + "wrk" );
+
+    try {
+      wrkDir.mkdirs();
+      System.setProperty( ConfigTag.WORKDIR, wrkDir.getAbsolutePath() );
+      log.debug( "Work directory set to {}", System.getProperty( ConfigTag.WORKDIR ) );
+    } catch ( final Exception e ) {
+      log.error( e.getMessage() );
+    }
   }
 
 

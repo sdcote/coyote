@@ -26,30 +26,6 @@ import coyote.dataframe.DataFrame;
 /**
  * This listener keeps track of the data read in to and out of the engine and 
  * reports on the characteristics of the data observed.
- * 
- * Field metrics as the header, each field as a row metrics to support:
- * count
- * nulls
- * smallest length
- * longest length
- * avg length
- * length SDEV
- * numeric (true/false)
- * numeric count
- * numeric smallest
- * numeric largest
- * numeric avg
- * numeric SDEV
- * date (true/false)
- * date count
- * date smallest
- * date largest
- * date avg
- * date SDEV
- * date formats (list of formats YYYY-MM-DD, etc)
- * normalization count (how many different values)
- * normalization rating (ratio of value count to instance count)
- * 
  */
 public class DataProfiler extends FileRecorder implements ContextListener {
   private List<FieldMetrics> inputFields = new ArrayList<FieldMetrics>();
@@ -238,7 +214,7 @@ public class DataProfiler extends FileRecorder implements ContextListener {
       b.append( StringUtil.fixedLength( "Avg", 9, 0 ) );
       b.append( StringUtil.fixedLength( "Minimum", 9, 0 ) );
       b.append( StringUtil.fixedLength( "Maximum", 9, 0 ) );
-      b.append( StringUtil.fixedLength( "Sdev", 9, 0 ) );
+      b.append( StringUtil.fixedLength( "SDev", 9, 0 ) );
       b.append( StringUtil.LINE_FEED );
       write( b.toString() );
 
@@ -341,7 +317,7 @@ public class DataProfiler extends FileRecorder implements ContextListener {
       b.append( StringUtil.fixedLength( "Avg", 9, 0 ) );
       b.append( StringUtil.fixedLength( "Minimum", 9, 0 ) );
       b.append( StringUtil.fixedLength( "Maximum", 9, 0 ) );
-      b.append( StringUtil.fixedLength( "Sdev", 9, 0 ) );
+      b.append( StringUtil.fixedLength( "SDev", 9, 0 ) );
       b.append( StringUtil.LINE_FEED );
       write( b.toString() );
 

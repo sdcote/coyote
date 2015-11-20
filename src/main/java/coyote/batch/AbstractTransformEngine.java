@@ -31,6 +31,7 @@ import coyote.commons.GUID;
 import coyote.commons.StringUtil;
 import coyote.commons.template.SymbolTable;
 import coyote.dataframe.DataFrame;
+import coyote.loader.Loader;
 
 
 /**
@@ -443,13 +444,8 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
     File jobDir;
 
     // Make sure we have a home directory
-    if ( StringUtil.isBlank( System.getProperty( ConfigTag.HOMEDIR ) ) ) {
-      System.setProperty( ConfigTag.HOMEDIR, System.getProperty( "user.dir" ) );
-    }
-
-    // if 
-    if ( StringUtil.isBlank( System.getProperty( ConfigTag.WORKDIR ) ) ) {
-      System.setProperty( ConfigTag.WORKDIR, System.getProperty( ConfigTag.HOMEDIR ) );
+    if ( StringUtil.isBlank( System.getProperty( Loader.APP_HOME ) ) ) {
+      System.setProperty( Loader.APP_HOME, System.getProperty( "user.dir" ) );
     }
 
     // Use our name to setup a job directory
@@ -463,6 +459,7 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
         jobDir.mkdirs();
         setJobDirectory( jobDir );
         setWorkDirectory( jobDir.getParentFile() );
+        log.debug( "Job directory determined to be " + jobDir.getAbsolutePath() );
       } catch ( final Exception e ) {
         log.error( e.getMessage() );
       }

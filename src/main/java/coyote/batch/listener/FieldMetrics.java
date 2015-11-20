@@ -16,7 +16,9 @@ import coyote.i13n.Metric;
 
 
 /**
- * This class examines the sampled data fields and tracks several metrics. 
+ * This class examines the sampled data fields and tracks several metrics.
+ * 
+ * TODO track data based on types...numerics : MinMaxAvgSDev
  */
 public class FieldMetrics {
   private static final String STRING_LENGTH = "String Length";
@@ -50,7 +52,7 @@ public class FieldMetrics {
 
 
   /**
-   * @return
+   * @return the name of the type of the sampled field
    */
   public String getType() {
     return fieldType;
