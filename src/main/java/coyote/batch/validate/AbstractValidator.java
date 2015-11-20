@@ -13,10 +13,8 @@ package coyote.batch.validate;
 
 import java.io.IOException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import coyote.batch.AbstractConfigurableComponent;
+import coyote.batch.Batch;
 import coyote.batch.ConfigTag;
 import coyote.batch.ConfigurableComponent;
 import coyote.batch.ConfigurationException;
@@ -26,6 +24,8 @@ import coyote.batch.TransformContext;
 import coyote.commons.StringUtil;
 import coyote.dataframe.DataFrame;
 import coyote.dataframe.DataFrameException;
+import coyote.loader.log.Log;
+import coyote.loader.log.LogMsg;
 
 
 /**
@@ -38,8 +38,6 @@ import coyote.dataframe.DataFrameException;
  * },</pre></p>
  */
 public abstract class AbstractValidator extends AbstractConfigurableComponent implements FrameValidator, ConfigurableComponent {
-  /** The logger for this class */
-  final Logger log = LoggerFactory.getLogger( getClass() );
 
   protected boolean halt = false;
 
@@ -138,11 +136,11 @@ public abstract class AbstractValidator extends AbstractConfigurableComponent im
       try {
         halt = frame.getAsBoolean( ConfigTag.HALT_ON_FAIL );
       } catch ( DataFrameException e ) {
-        log.info( "Header flag not valid " + e.getMessage() );
+        Log.info( LogMsg.createMsg( Batch.MSG, "Task.Header flag not valid " + e.getMessage() ));
         halt = false;
       }
     } else {
-      log.debug( "No halt config" );
+      Log.debug( LogMsg.createMsg( Batch.MSG, "Task.No halt config" ));
     }
   }
 

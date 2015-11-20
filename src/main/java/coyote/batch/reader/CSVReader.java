@@ -17,9 +17,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.text.ParseException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import coyote.batch.Batch;
 import coyote.batch.ConfigTag;
 import coyote.batch.ConfigurableComponent;
 import coyote.batch.ConfigurationException;
@@ -30,6 +28,8 @@ import coyote.commons.StringUtil;
 import coyote.commons.UriUtil;
 import coyote.dataframe.DataFrame;
 import coyote.dataframe.DataFrameException;
+import coyote.loader.log.Log;
+import coyote.loader.log.LogMsg;
 
 
 /**
@@ -45,9 +45,6 @@ public class CSVReader extends AbstractFrameReader implements FrameReader, Confi
 
   /** Flag indicating that the first line of data should be considered column names. */
   private boolean hasHeader = false;
-
-  /** The logger for this class */
-  final Logger log = LoggerFactory.getLogger( getClass() );
 
   /** The column names read in from the first line */
   private String[] header = new String[0];
@@ -77,24 +74,24 @@ public class CSVReader extends AbstractFrameReader implements FrameReader, Confi
       try {
         preload = frame.getAsBoolean( ConfigTag.PRELOAD );
       } catch ( DataFrameException e ) {
-        log.info( "Preload not valid " + e.getMessage() );
+        Log.info( "Preload not valid " + e.getMessage() );
         preload = false;
       }
     }
-    log.debug( "Preload is set to {}", preload );
+    Log.debug( LogMsg.createMsg( Batch.MSG, "Reader.Preload is set to {}", preload ) );
 
     // Check if we are to treat the first line as the header names
     if ( frame.contains( ConfigTag.HEADER ) ) {
       try {
         hasHeader = frame.getAsBoolean( ConfigTag.HEADER );
       } catch ( DataFrameException e ) {
-        log.info( "Header flag not valid " + e.getMessage() );
+        Log.info( "Header flag not valid " + e.getMessage() );
         hasHeader = false;
       }
     } else {
-      log.debug( "No header config" );
+      Log.debug( "No header config" );
     }
-    log.debug( "Header flag is set to {}", hasHeader );
+    Log.debug( LogMsg.createMsg( Batch.MSG, "Reader.Header flag is set to {}", hasHeader ) );
   }
 
 
@@ -168,7 +165,7 @@ public class CSVReader extends AbstractFrameReader implements FrameReader, Confi
     // check for a source in our configuration, if not there use the transform 
     // context as it may have been set by a previous operation
     String source = super.getString( ConfigTag.SOURCE );
-    log.debug( "using a source of {}", source );
+    Log.debug( LogMsg.createMsg( Batch.MSG, "Reader.using a source of {}", source ) );
     if ( StringUtil.isNotBlank( source ) ) {
 
       File sourceFile = null;
@@ -176,13 +173,13 @@ public class CSVReader extends AbstractFrameReader implements FrameReader, Confi
       if ( uri != null ) {
         sourceFile = UriUtil.getFile( uri );
         if ( sourceFile != null ) {
-          log.debug( "Using a source file of " + sourceFile.getAbsolutePath() );
+          Log.debug( "Using a source file of " + sourceFile.getAbsolutePath() );
         } else {
-          log.warn( "The source '{}' does not represent a file", source );
+          Log.warn( LogMsg.createMsg( Batch.MSG, "Reader.The source '{}' does not represent a file", source ) );
         }
       } else {
         sourceFile = new File( source );
-        log.debug( "Using a source file of " + sourceFile.getAbsolutePath() );
+        Log.debug( "Using a source file of " + sourceFile.getAbsolutePath() );
       }
 
       if ( sourceFile.exists() && sourceFile.canRead() ) {
@@ -192,15 +189,15 @@ public class CSVReader extends AbstractFrameReader implements FrameReader, Confi
             header = reader.readNext();
           }
         } catch ( Exception e ) {
-          log.error( "Could not create reader: " + e.getMessage() );
+          Log.error( "Could not create reader: " + e.getMessage() );
           context.setError( e.getMessage() );
         }
       } else {
-        log.error( "Could not read from source: " + sourceFile.getAbsolutePath() );
+        Log.error( "Could not read from source: " + sourceFile.getAbsolutePath() );
         context.setError( getClass().getName() + " could not read from source: " + sourceFile.getAbsolutePath() );
       }
     } else {
-      log.error( "No source specified" );
+      Log.error( "No source specified" );
       context.setError( getClass().getName() + " could not determine source" );
     }
 

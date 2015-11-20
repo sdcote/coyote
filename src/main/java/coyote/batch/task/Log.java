@@ -11,9 +11,6 @@
  */
 package coyote.batch.task;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import coyote.batch.TaskException;
 import coyote.batch.TransformContext;
 import coyote.commons.StringUtil;
@@ -23,7 +20,6 @@ import coyote.commons.StringUtil;
  * A task which generates a log entry
  */
 public class Log extends AbstractTransformTask {
-  final Logger log = LoggerFactory.getLogger( getClass() );
 
   public static final String LEVEL = "level";
   public static final String MESSAGE = "msg";
@@ -42,20 +38,20 @@ public class Log extends AbstractTransformTask {
       String level = resolveArgument( LEVEL );
       if ( StringUtil.isNotBlank( level ) ) {
         if ( "info".equalsIgnoreCase( level ) ) {
-          log.info( message );
+          coyote.loader.log.Log.info( message );
         } else if ( "debug".equalsIgnoreCase( level ) ) {
-          log.debug( message );
+          coyote.loader.log.Log.debug( message );
         } else if ( "warn".equalsIgnoreCase( level ) ) {
-          log.warn( message );
+          coyote.loader.log.Log.warn( message );
         } else if ( "error".equalsIgnoreCase( level ) ) {
-          log.error( message );
+          coyote.loader.log.Log.error( message );
         } else if ( "trace".equalsIgnoreCase( level ) ) {
-          log.trace( message );
+          coyote.loader.log.Log.trace( message );
         } else {
-          log.info( message );
+          coyote.loader.log.Log.info( message );
         }
       } else {
-        log.info( message );
+        coyote.loader.log.Log.info( message );
       }
     }
 

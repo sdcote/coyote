@@ -17,17 +17,15 @@ import static org.junit.Assert.assertNotNull;
 import java.io.IOException;
 
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import coyote.commons.template.SymbolTable;
+import coyote.loader.log.Log;
 
 
 /**
  * 
  */
 public class ContextTest extends AbstractTest {
-  private static final Logger LOG = LoggerFactory.getLogger( ContextTest.class );
 
 
 
@@ -47,9 +45,9 @@ public class ContextTest extends AbstractTest {
 
     String filename = context.getAsString( "filename" );
     assertNotNull( filename );
-    LOG.debug( filename );
+    Log.debug( filename );
 
-    LOG.debug( context.dump() );
+    Log.debug( context.dump() );
 
     try {
       engine.close();

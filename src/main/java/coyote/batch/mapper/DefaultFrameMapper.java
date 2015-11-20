@@ -11,9 +11,7 @@
  */
 package coyote.batch.mapper;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import coyote.batch.Batch;
 import coyote.batch.ConfigTag;
 import coyote.batch.ConfigurationException;
 import coyote.batch.FrameMapper;
@@ -22,6 +20,8 @@ import coyote.commons.StringUtil;
 import coyote.dataframe.DataField;
 import coyote.dataframe.DataFrame;
 import coyote.dataframe.DataFrameException;
+import coyote.loader.log.Log;
+import coyote.loader.log.LogMsg;
 
 
 /**
@@ -29,12 +29,6 @@ import coyote.dataframe.DataFrameException;
  * with one name to the target frame with another.
  */
 public class DefaultFrameMapper extends AbstractFrameMapper implements FrameMapper {
-
-  /** The logger for the class */
-  final Logger log = LoggerFactory.getLogger( getClass() );
-
-
-
 
   /**
    * Expects a configuration in the form of "Fields" : { "SourceField" : "TargetField" }
@@ -62,7 +56,7 @@ public class DefaultFrameMapper extends AbstractFrameMapper implements FrameMapp
         }
       }
     } else {
-      log.warn( "No {} section in Mapper configuration", ConfigTag.FIELDS );
+      Log.warn( LogMsg.createMsg( Batch.MSG, "Mapper.No {} section in Mapper configuration", ConfigTag.FIELDS ) );
     }
 
   }

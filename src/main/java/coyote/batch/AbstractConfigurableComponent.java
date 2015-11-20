@@ -11,9 +11,6 @@
  */
 package coyote.batch;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import coyote.commons.CipherUtil;
 import coyote.commons.StringUtil;
 import coyote.commons.security.BlowfishCipher;
@@ -21,13 +18,14 @@ import coyote.commons.template.Template;
 import coyote.dataframe.DataField;
 import coyote.dataframe.DataFrame;
 import coyote.dataframe.DataFrameException;
+import coyote.loader.log.Log;
+import coyote.loader.log.LogMsg;
 
 
 /**
  * 
  */
 public abstract class AbstractConfigurableComponent implements ConfigurableComponent {
-  private final Logger log = LoggerFactory.getLogger( getClass() );
 
   protected DataFrame configuration = new DataFrame();
   protected TransformContext context = null;
@@ -171,7 +169,7 @@ public abstract class AbstractConfigurableComponent implements ConfigurableCompo
     }
     String retval = Template.resolve( value, context.getSymbols() );
 
-    log.debug( "Resolved a value of '{}' to '{}'", value, retval );
+    Log.debug( LogMsg.createMsg( Batch.MSG, "Component.resolved_value", value, retval ) );
 
     return retval;
   }

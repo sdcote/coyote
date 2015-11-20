@@ -11,18 +11,16 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import coyote.commons.jdbc.DriverDelegate;
 import coyote.dataframe.DataFrameException;
+import coyote.loader.log.Log;
+import coyote.loader.log.LogMsg;
 
 
 /**
  * 
  */
 public class Database extends AbstractConfigurableComponent implements ConfigurableComponent {
-  final Logger log = LoggerFactory.getLogger( getClass() );
 
   List<Connection> connections = new ArrayList<Connection>();
 
@@ -60,10 +58,10 @@ public class Database extends AbstractConfigurableComponent implements Configura
       connection = DriverManager.getConnection( getTarget(), getUsername(), getPassword() );
 
       if ( connection != null ) {
-        log.debug( "Connected to {}", getTarget() );
+        Log.debug( LogMsg.createMsg( Batch.MSG, "EngineFactory.Connected to {}", getTarget() ));
       }
     } catch ( InstantiationException | IllegalAccessException | ClassNotFoundException | SQLException | MalformedURLException e ) {
-      log.error( "Could not connect to database: " + e.getClass().getSimpleName() + " - " + e.getMessage() );
+      Log.error( "Could not connect to database: " + e.getClass().getSimpleName() + " - " + e.getMessage() );
     }
 
     if ( connection != null ) {

@@ -16,9 +16,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import coyote.batch.Batch;
 import coyote.batch.ConfigTag;
 import coyote.batch.ConfigurableComponent;
 import coyote.batch.ConfigurationException;
@@ -26,6 +24,8 @@ import coyote.batch.FrameWriter;
 import coyote.dataframe.DataField;
 import coyote.dataframe.DataFrame;
 import coyote.dataframe.DataFrameException;
+import coyote.loader.log.Log;
+import coyote.loader.log.LogMsg;
 
 
 /**
@@ -39,9 +39,6 @@ import coyote.dataframe.DataFrameException;
  * 
  */
 public class CSVWriter extends AbstractFrameWriter implements FrameWriter, ConfigurableComponent {
-
-  /** The logger for this class */
-  final Logger log = LoggerFactory.getLogger( getClass() );
 
   /** The character used for escaping quotes. */
   public static final char ESCAPE_CHARACTER = '"';
@@ -156,26 +153,26 @@ public class CSVWriter extends AbstractFrameWriter implements FrameWriter, Confi
       try {
         writeHeaders = frame.getAsBoolean( ConfigTag.HEADER );
       } catch ( final DataFrameException e ) {
-        log.info( "Header flag not valid " + e.getMessage() );
+        Log.info( LogMsg.createMsg( Batch.MSG, "Writer.Header flag not valid " + e.getMessage() ) );
         writeHeaders = false;
       }
     } else {
-      log.debug( "No header config" );
+      Log.debug( "No header config" );
     }
-    log.debug( "Header flag is set to {}", writeHeaders );
+    Log.debug( LogMsg.createMsg( Batch.MSG, "Writer.Header flag is set to {}", writeHeaders ) );
 
     // Check to see if a different date format is to be used
     if ( frame.contains( ConfigTag.DATEFORMAT ) ) {
       try {
         DATEFORMAT = new SimpleDateFormat( frame.getAsString( ConfigTag.DATEFORMAT ) );
       } catch ( final Exception e ) {
-        log.warn( "Date format pattern '{}' is not valid - {} ", frame.getAsString( ConfigTag.DATEFORMAT ), e.getMessage() );
+        Log.warn( LogMsg.createMsg( Batch.MSG, "Writer.Date format pattern '{}' is not valid - {} ", frame.getAsString( ConfigTag.DATEFORMAT ), e.getMessage() ) );
         DATEFORMAT = new SimpleDateFormat( DEFAULT_DATE_FORMAT );
       }
     } else {
-      log.debug( "Using default date format" );
+      Log.debug( LogMsg.createMsg( Batch.MSG, "Writer.Using default date format" ) );
     }
-    log.debug( "Date format pattern is set to {}", DATEFORMAT.toPattern() );
+    Log.debug( LogMsg.createMsg( Batch.MSG, "Writer.Date format pattern is set to {}", DATEFORMAT.toPattern() ) );
 
   }
 
@@ -267,7 +264,7 @@ public class CSVWriter extends AbstractFrameWriter implements FrameWriter, Confi
             token = field.getStringValue();
           }
         } catch ( Exception e ) {
-          log.error( "Problems writing {} - field {}", name, field.toString() );
+          Log.error( LogMsg.createMsg( Batch.MSG, "Writer.Problems writing {} - field {}", name, field.toString() ) );
           token = "";
         }
       } else {

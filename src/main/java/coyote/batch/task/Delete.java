@@ -11,24 +11,19 @@
  */
 package coyote.batch.task;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import coyote.batch.Batch;
 import coyote.batch.ConfigTag;
 import coyote.batch.TaskException;
 import coyote.batch.TransformContext;
 import coyote.commons.FileUtil;
 import coyote.commons.StringUtil;
+import coyote.loader.log.LogMsg;
 
 
 /**
  * Delete a file or a directory from the file system.
  */
 public class Delete extends AbstractFileTask {
-  final Logger log = LoggerFactory.getLogger( getClass() );
-
-
-
 
   /**
    * @see coyote.batch.TransformTask#execute(coyote.batch.TransformContext)
@@ -43,7 +38,7 @@ public class Delete extends AbstractFileTask {
 
     if ( StringUtil.isNotBlank( filename ) ) {
       final String file = resolveArgument( filename );
-      log.info( "Deleting file named {}", file );
+      coyote.loader.log.Log.info( LogMsg.createMsg( Batch.MSG, "Task.Deleting file named {}", file ));
 
       try {
         FileUtil.deleteFile( file );
@@ -56,7 +51,7 @@ public class Delete extends AbstractFileTask {
 
     } else if ( StringUtil.isNotBlank( directory ) ) {
       final String dir = resolveArgument( directory );
-      log.info( "Deleting directory named {}", dir );
+      coyote.loader.log.Log.info( LogMsg.createMsg( Batch.MSG, "Task.Deleting directory named {}", dir ));
 
       try {
         FileUtil.clearDir( dir, true, true );
@@ -68,7 +63,7 @@ public class Delete extends AbstractFileTask {
       }
 
     } else {
-      log.warn( "Move has no {} or {} argument - nothing to do.", ConfigTag.FILE, ConfigTag.DIRECTORY );
+      coyote.loader.log.Log.warn( LogMsg.createMsg( Batch.MSG, "Task.Move has no {} or {} argument - nothing to do.", ConfigTag.FILE, ConfigTag.DIRECTORY ));
     }
 
   }

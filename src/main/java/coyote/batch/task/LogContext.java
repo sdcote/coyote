@@ -11,9 +11,6 @@
  */
 package coyote.batch.task;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import coyote.batch.TaskException;
 import coyote.batch.TransformContext;
 
@@ -22,18 +19,13 @@ import coyote.batch.TransformContext;
  * 
  */
 public class LogContext extends AbstractFileTask {
-  final Logger log = LoggerFactory.getLogger( getClass() );
-
-
-
 
   /**
    * @see coyote.batch.TransformTask#execute(coyote.batch.TransformContext)
    */
   @Override
   public void execute( TransformContext transformContext ) throws TaskException {
-    log.info( transformContext.dump() );
-
+    coyote.loader.log.Log.info( transformContext.dump() );
   }
 
 }

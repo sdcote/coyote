@@ -18,10 +18,9 @@ import static org.junit.Assert.fail;
 import java.io.IOException;
 
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import coyote.commons.template.SymbolTable;
+import coyote.loader.log.Log;
 
 
 /**
@@ -29,10 +28,6 @@ import coyote.commons.template.SymbolTable;
  * context to perform some generic function.
  */
 public class TaskTest extends AbstractTest {
-  private static final Logger LOG = LoggerFactory.getLogger( TaskTest.class );
-
-
-
 
   @Test
   public void test() {
@@ -51,14 +46,14 @@ public class TaskTest extends AbstractTest {
       engine.run();
     } catch ( Exception e ) {
       e.printStackTrace();
-      LOG.error( e.getMessage() );
+      Log.error( e.getMessage() );
       fail( e.getMessage() );
     }
     try {
       engine.close();
     } catch ( IOException e ) {
       e.printStackTrace();
-      LOG.error( e.getMessage() );
+      Log.error( e.getMessage() );
     }
 
   }

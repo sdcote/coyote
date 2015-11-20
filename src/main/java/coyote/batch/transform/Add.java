@@ -11,15 +11,15 @@
  */
 package coyote.batch.transform;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import coyote.batch.Batch;
 import coyote.batch.ConfigTag;
 import coyote.batch.FrameTransform;
 import coyote.batch.TransformContext;
 import coyote.batch.TransformException;
 import coyote.commons.StringUtil;
 import coyote.dataframe.DataFrame;
+import coyote.loader.log.Log;
+import coyote.loader.log.LogMsg;
 
 
 /**
@@ -29,7 +29,6 @@ import coyote.dataframe.DataFrame;
  * <tt>"Add" : { "Name" : "cust_item_usage", "Value" : "0001.00" }</tt>
  */
 public class Add extends AbstractFrameTransform implements FrameTransform {
-  private static final Logger LOG = LoggerFactory.getLogger( Add.class );
 
   // The name of the field we are to transform
   private String fieldName = null;
@@ -56,7 +55,7 @@ public class Add extends AbstractFrameTransform implements FrameTransform {
 
     String value = findString( ConfigTag.VALUE );
     if ( value == null ) {
-      LOG.warn( "Add transform will add a null {} field to the working frames.", fieldName );
+      Log.warn( LogMsg.createMsg( Batch.MSG, "Transform.Add transform will add a null {} field to the working frames.", fieldName ) );
     } else {
       fieldValue = value;
     }

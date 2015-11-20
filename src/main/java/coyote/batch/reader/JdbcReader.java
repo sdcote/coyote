@@ -24,9 +24,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Date;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import coyote.batch.Batch;
 import coyote.batch.ConfigTag;
 import coyote.batch.Database;
 import coyote.batch.TransactionContext;
@@ -34,6 +32,8 @@ import coyote.batch.TransformContext;
 import coyote.commons.StringUtil;
 import coyote.commons.jdbc.DriverDelegate;
 import coyote.dataframe.DataFrame;
+import coyote.loader.log.Log;
+import coyote.loader.log.LogMsg;
 
 
 /**
@@ -41,8 +41,6 @@ import coyote.dataframe.DataFrame;
  */
 public class JdbcReader extends AbstractFrameReader {
 
-  /** The logger for this class */
-  final Logger log = LoggerFactory.getLogger( getClass() );
 
   private Connection connection;
 
@@ -64,34 +62,34 @@ public class JdbcReader extends AbstractFrameReader {
 
     // check for a source it might be a 
     String source = getString( ConfigTag.SOURCE );
-    log.debug( "using a source of {}", source );
+    Log.debug(  LogMsg.createMsg( Batch.MSG, "Reader.using a source of {}", source ));
     if ( StringUtil.isNotBlank( source ) ) {
 
       // first see if it is a named database in the context
       Database db = context.getDatabase( source );
 
       if ( db != null ) {
-        log.debug( "We have a shared database definition! {}", db.toString() );
+        Log.debug( LogMsg.createMsg( Batch.MSG, "Reader.We have a shared database definition! {}", db.toString() ));
         connection = db.getConnection();
       } else {
 
         // configure a connection ourselves
 
         String library = getString( ConfigTag.LIBRARY );
-        log.debug( "Using a driver JAR of {}", library );
+        Log.debug(  LogMsg.createMsg( Batch.MSG, "Reader.Using a driver JAR of {}", library ));
 
         String driver = getString( ConfigTag.DRIVER );
-        log.debug( "Using a driver of {}", driver );
+        Log.debug(  LogMsg.createMsg( Batch.MSG, "Reader.Using a driver of {}", driver ));
 
         // get our configuration data
         String target = getString( ConfigTag.TARGET );
-        log.debug( "Using a target of {}", target );
+        Log.debug(  LogMsg.createMsg( Batch.MSG, "Reader.Using a target of {}", target ));
 
         String username = getString( ConfigTag.USERNAME );
-        log.debug( "Using a user of {}", username );
+        Log.debug(  LogMsg.createMsg( Batch.MSG, "Reader.Using a user of {}", username ));
 
         String password = getString( ConfigTag.PASSWORD );
-        log.debug( "Using a password with a length of {}", StringUtil.isBlank( password ) ? 0 : password.length() );
+        Log.debug(  LogMsg.createMsg( Batch.MSG, "Reader.Using a password with a length of {}", StringUtil.isBlank( password ) ? 0 : password.length() ));
 
         // get the connection to the database
         try {
@@ -103,15 +101,15 @@ public class JdbcReader extends AbstractFrameReader {
           connection = DriverManager.getConnection( target, username, password );
 
           if ( connection != null ) {
-            log.debug( "Connected to {}", target );
+            Log.debug(  LogMsg.createMsg( Batch.MSG, "Reader.Connected to {}", target ));
           }
         } catch ( InstantiationException | IllegalAccessException | ClassNotFoundException | SQLException | MalformedURLException e ) {
-          log.error( "Could not connect to database: " + e.getClass().getSimpleName() + " - " + e.getMessage() );
+          Log.error( "Could not connect to database: " + e.getClass().getSimpleName() + " - " + e.getMessage() );
         }
       }
 
       String query = getString( ConfigTag.QUERY );
-      log.debug( "Using a query of '{}'", query );
+      Log.debug(  LogMsg.createMsg( Batch.MSG, "Reader.Using a query of '{}'", query ));
 
       if ( connection != null ) {
 
@@ -129,14 +127,14 @@ public class JdbcReader extends AbstractFrameReader {
 
         } catch ( SQLException e ) {
           String msg = String.format( "Error querying database: '%s' - query = '%s'", e.getMessage().trim(), query );
-          //log.error( msg );
+          //Log.error( msg );
           context.setError( getClass().getName() + " " + msg );
         }
 
       }
 
     } else {
-      log.error( "No source specified" );
+      Log.error( "No source specified" );
       context.setError( getClass().getName() + " could not determine source" );
     }
 
@@ -162,12 +160,12 @@ public class JdbcReader extends AbstractFrameReader {
 
           // add each of the fields to the dataframe
           for ( int i = 1; i <= columnCount; i++ ) {
-            // log.info( rsmd.getColumnName( i ) + " - '" + result.getString( i ) + "' (" + rsmd.getColumnType( i ) + ")" );
+            // Log.info( rsmd.getColumnName( i ) + " - '" + result.getString( i ) + "' (" + rsmd.getColumnType( i ) + ")" );
             retval.add( rsmd.getColumnName( i ), resolveValue( result.getObject( i ), rsmd.getColumnType( i ) ) );
           }
 
         } else {
-          log.error( "Read past EOF" );
+          Log.error( "Read past EOF" );
           EOF = true;
           return retval;
         }

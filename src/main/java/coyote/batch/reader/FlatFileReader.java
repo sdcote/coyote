@@ -16,9 +16,7 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import coyote.batch.Batch;
 import coyote.batch.ConfigTag;
 import coyote.batch.ConfigurableComponent;
 import coyote.batch.FieldDefinition;
@@ -31,15 +29,14 @@ import coyote.commons.StringUtil;
 import coyote.commons.UriUtil;
 import coyote.dataframe.DataField;
 import coyote.dataframe.DataFrame;
+import coyote.loader.log.Log;
+import coyote.loader.log.LogMsg;
 
 
 /**
  * 
  */
 public class FlatFileReader extends AbstractFrameReader implements FrameReader, ConfigurableComponent {
-
-  /** The logger for this class */
-  final Logger log = LoggerFactory.getLogger( getClass() );
 
   /** The list of fields we are to read in the order they are to be read */
   List<FieldDefinition> fields = new ArrayList<FieldDefinition>();
@@ -54,7 +51,7 @@ public class FlatFileReader extends AbstractFrameReader implements FrameReader, 
     super.open( context );
 
     String source = getString( ConfigTag.SOURCE );
-    log.debug( "using a source of {}", source );
+    Log.debug( LogMsg.createMsg( Batch.MSG, "Reader.using a source of {}", source ));
 
     if ( StringUtil.isNotBlank( source ) ) {
       File sourceFile = null;
@@ -62,23 +59,23 @@ public class FlatFileReader extends AbstractFrameReader implements FrameReader, 
       if ( uri != null ) {
         sourceFile = UriUtil.getFile( uri );
         if ( sourceFile != null ) {
-          log.debug( "Using a source file of " + sourceFile.getAbsolutePath() );
+          Log.debug( LogMsg.createMsg( Batch.MSG, "Reader.Using a source file of " + sourceFile.getAbsolutePath() ));
         } else {
-          log.warn( "The source '{}' does not represent a file", source );
+          Log.warn(  LogMsg.createMsg( Batch.MSG, "Reader.The source '{}' does not represent a file", source ));
         }
       } else {
         sourceFile = new File( source );
-        log.debug( "Using a source file of " + sourceFile.getAbsolutePath() );
+        Log.debug(  LogMsg.createMsg( Batch.MSG, "Reader.Using a source file of " + sourceFile.getAbsolutePath() ));
       }
 
       if ( sourceFile.exists() && sourceFile.canRead() ) {
         lines = FileUtil.lineIterator( sourceFile );
       } else {
-        log.error( "Could not read from source: " + sourceFile.getAbsolutePath() );
+        Log.error(  LogMsg.createMsg( Batch.MSG, "Reader.Could not read from source: " + sourceFile.getAbsolutePath() ));
         context.setError( getClass().getName() + " could not read from source: " + sourceFile.getAbsolutePath() );
       }
     } else {
-      log.error( "No source specified" );
+      Log.error(  LogMsg.createMsg( Batch.MSG, "Reader.No source specified" ));
       context.setError( getClass().getName() + " could not determine source" );
     }
 
@@ -105,7 +102,7 @@ public class FlatFileReader extends AbstractFrameReader implements FrameReader, 
         }
       }
 
-      log.debug( "There are {} field definitions.", fields.size() );
+      Log.debug(  LogMsg.createMsg( Batch.MSG, "Reader.There are {} field definitions.", fields.size() ));
     } else {
       context.setError( "There are no fields configured in the reader" );
       return;
@@ -137,7 +134,7 @@ public class FlatFileReader extends AbstractFrameReader implements FrameReader, 
     } catch ( Exception e ) {
       context.setError( e.getMessage() );
     }
-    
+
     return retval;
   }
 

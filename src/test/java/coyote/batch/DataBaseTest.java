@@ -20,8 +20,8 @@ import java.io.IOException;
 import java.sql.Connection;
 
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import coyote.loader.log.Log;
 
 
 /**
@@ -29,7 +29,6 @@ import org.slf4j.LoggerFactory;
  * context to perform some generic function.
  */
 public class DatabaseTest extends AbstractTest {
-  private static final Logger LOG = LoggerFactory.getLogger( DatabaseTest.class );
 
 
 
@@ -70,7 +69,7 @@ public class DatabaseTest extends AbstractTest {
     } catch ( Exception e ) {
 
       e.printStackTrace();
-      LOG.error( e.getMessage() );
+      Log.error( e.getMessage() );
       fail( e.getMessage() );
 
     }
@@ -82,7 +81,7 @@ public class DatabaseTest extends AbstractTest {
         engine.close();
       } catch ( IOException e ) {
         e.printStackTrace();
-        LOG.error( e.getMessage() );
+        Log.error( e.getMessage() );
       }
 
     } //try-catch-finally

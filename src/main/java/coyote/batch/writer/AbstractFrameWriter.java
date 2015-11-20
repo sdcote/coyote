@@ -18,16 +18,16 @@ import java.io.PrintWriter;
 import java.io.Writer;
 import java.net.URI;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import coyote.batch.AbstractConfigurableComponent;
+import coyote.batch.Batch;
 import coyote.batch.ConfigTag;
 import coyote.batch.FrameWriter;
 import coyote.batch.Symbols;
 import coyote.batch.TransformContext;
 import coyote.commons.StringUtil;
 import coyote.commons.UriUtil;
+import coyote.loader.log.Log;
+import coyote.loader.log.LogMsg;
 
 
 /**
@@ -35,8 +35,6 @@ import coyote.commons.UriUtil;
  */
 public abstract class AbstractFrameWriter extends AbstractConfigurableComponent implements FrameWriter {
 
-  /** The logger for the base class */
-  final Logger log = LoggerFactory.getLogger( getClass() );
 
   protected static final String STDOUT = "STDOUT";
   protected static final String STDERR = "STDERR";
@@ -91,7 +89,7 @@ public abstract class AbstractFrameWriter extends AbstractConfigurableComponent 
     if ( printwriter == null ) {
       // check for a target in our configuration
       String target = getString( ConfigTag.TARGET );
-      log.debug( "using a target of {}", target );
+      Log.debug(  LogMsg.createMsg( Batch.MSG, "Writer.using a target of {}", target ));
 
       // Make sure we have a target
       if ( StringUtil.isNotBlank( target ) ) {
@@ -111,7 +109,7 @@ public abstract class AbstractFrameWriter extends AbstractConfigurableComponent 
             targetFile = UriUtil.getFile( uri );
 
             if ( targetFile == null ) {
-              log.warn( "The target '{}' does not represent a file", target );
+              Log.warn(  LogMsg.createMsg( Batch.MSG, "Writer.The target '{}' does not represent a file", target ));
             }
           } else {
             // if all we have is a filename, there is not scheme to check...
@@ -128,19 +126,19 @@ public abstract class AbstractFrameWriter extends AbstractConfigurableComponent 
         if ( !targetFile.isAbsolute() ) {
           targetFile = new File( context.getSymbols().getString( Symbols.JOB_DIRECTORY ), targetFile.getPath() );
         }
-        log.debug( "Using a target file of " + targetFile.getAbsolutePath() );
+        Log.debug( "Using a target file of " + targetFile.getAbsolutePath() );
 
         try {
           final Writer fwriter = new FileWriter( targetFile );
           printwriter = new PrintWriter( fwriter );
 
         } catch ( final Exception e ) {
-          log.error( "Could not create writer: " + e.getMessage() );
+          Log.error( "Could not create writer: " + e.getMessage() );
           context.setError( e.getMessage() );
         }
 
       } else {
-        log.error( "No target specified" );
+        Log.error( "No target specified" );
         context.setError( getClass().getName() + " could not determine target" );
       }
     }

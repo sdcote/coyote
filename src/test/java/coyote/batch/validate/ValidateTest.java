@@ -18,19 +18,17 @@ import static org.junit.Assert.fail;
 import java.io.IOException;
 
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import coyote.batch.AbstractTest;
 import coyote.batch.TransformContext;
 import coyote.batch.TransformEngine;
+import coyote.loader.log.Log;
 
 
 /**
  * 
  */
 public class ValidateTest extends AbstractTest {
-  private static final Logger LOG = LoggerFactory.getLogger( ValidateTest.class );
 
 
 
@@ -51,7 +49,7 @@ public class ValidateTest extends AbstractTest {
       engine.run();
     } catch ( Exception e ) {
       e.printStackTrace();
-      LOG.error( e.getMessage() );
+      Log.error( e.getMessage() );
       fail( e.getMessage() );
     }
 

@@ -11,9 +11,6 @@
  */
 package coyote.batch.writer;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import coyote.batch.ConfigurableComponent;
 import coyote.batch.FrameWriter;
 import coyote.commons.StringUtil;
@@ -25,12 +22,6 @@ import coyote.dataframe.DataFrame;
  * (default) or standard error.
  */
 public class JSONWriter extends AbstractFrameWriter implements FrameWriter, ConfigurableComponent {
-
-  /** The logger for this class */
-  final Logger log = LoggerFactory.getLogger( getClass() );
-
-
-
 
   /**
    * @see coyote.batch.writer.AbstractFrameWriter#write(coyote.dataframe.DataFrame)

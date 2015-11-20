@@ -14,9 +14,7 @@ package coyote.batch.writer;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import coyote.batch.Batch;
 import coyote.batch.ConfigTag;
 import coyote.batch.ConfigurableComponent;
 import coyote.batch.FieldDefinition;
@@ -25,15 +23,14 @@ import coyote.batch.TransformContext;
 import coyote.commons.StringUtil;
 import coyote.dataframe.DataField;
 import coyote.dataframe.DataFrame;
+import coyote.loader.log.Log;
+import coyote.loader.log.LogMsg;
 
 
 /**
  * 
  */
 public class FlatFileWriter extends AbstractFrameWriter implements FrameWriter, ConfigurableComponent {
-
-  /** The logger for this class */
-  final Logger log = LoggerFactory.getLogger( getClass() );
 
   /** The list of fields we are to write in the order they are to be written */
   List<FieldDefinition> fields = new ArrayList<FieldDefinition>();
@@ -80,7 +77,7 @@ public class FlatFileWriter extends AbstractFrameWriter implements FrameWriter, 
             } else if ( align.startsWith( "C" ) || align.startsWith( "c" ) ) {
               alignment = 1;
             } else {
-              log.warn( "Unrecognized {} configuration value of '{}' - defaulting to 'left' alignment", ConfigTag.ALIGN, align );
+              Log.warn( LogMsg.createMsg( Batch.MSG, "Writer.Unrecognized {} configuration value of '{}' - defaulting to 'left' alignment", ConfigTag.ALIGN, align ) );
             }
           }
 
@@ -98,7 +95,7 @@ public class FlatFileWriter extends AbstractFrameWriter implements FrameWriter, 
         }
       }
 
-      log.debug( "There are {} field definitions, record length is {} characters.", fields.size(), recordLength );
+      Log.debug( LogMsg.createMsg( Batch.MSG, "Writer.There are {} field definitions, record length is {} characters.", fields.size(), recordLength ) );
     } else {
       context.setError( "There are no fields configured in the writer" );
       return;
@@ -141,15 +138,15 @@ public class FlatFileWriter extends AbstractFrameWriter implements FrameWriter, 
         // now insert
         line.insert( def.getStart(), text );
       } else {
-        log.trace( "No field named '{}' in frame.", def.getName() );
+        Log.trace( LogMsg.createMsg( Batch.MSG, "Writer.No field named '{}' in frame.", def.getName() ) );
       }
 
     }
 
     // Inserts cause other characters to move to the right, therefore we will 
     // need to truncate the string to the requested length
-    line.delete( recordLength, line.length());
-    
+    line.delete( recordLength, line.length() );
+
     // write to line to the file
     printwriter.write( line.toString() );
     printwriter.write( StringUtil.LINE_FEED );

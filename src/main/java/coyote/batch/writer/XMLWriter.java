@@ -14,9 +14,6 @@ package coyote.batch.writer;
 import java.io.IOException;
 import java.text.MessageFormat;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import coyote.batch.ConfigTag;
 import coyote.batch.ConfigurableComponent;
 import coyote.batch.FrameWriter;
@@ -35,9 +32,6 @@ import coyote.dataframe.DataFrame;
  * <?xml version="1.0" encoding="windows-1252"?>
  */
 public class XMLWriter extends AbstractFrameWriter implements FrameWriter, ConfigurableComponent {
-
-  /** The logger for this class */
-  final Logger log = LoggerFactory.getLogger( getClass() );
 
   private final StringBuilder b = new StringBuilder();
 
