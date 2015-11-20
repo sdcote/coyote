@@ -20,9 +20,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import coyote.batch.mapper.DefaultFrameMapper;
 import coyote.batch.mapper.MappingException;
 import coyote.batch.validate.ValidationException;
@@ -32,15 +29,14 @@ import coyote.commons.StringUtil;
 import coyote.commons.template.SymbolTable;
 import coyote.dataframe.DataFrame;
 import coyote.loader.Loader;
+import coyote.loader.log.Log;
+import coyote.loader.log.LogMsg;
 
 
 /**
  * 
  */
 public abstract class AbstractTransformEngine extends AbstractConfigurableComponent implements TransformEngine, ConfigurableComponent {
-
-  /** The logger for the base class */
-  final Logger log = LoggerFactory.getLogger( getClass() );
 
   /** Tasks to perform prior to the transform. (e.g. Read from FTP site) */
   protected List<TransformTask> preProcesses = new ArrayList<TransformTask>();
@@ -183,7 +179,7 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
 
     // if no mapper, just use the default mapper with default settings
     if ( mapper == null ) {
-      log.debug( "No mapper defined...using default settings" );
+      Log.debug( "No mapper defined...using default settings" );
       mapper = new DefaultFrameMapper();
     }
 
@@ -222,7 +218,7 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
       try {
         task.close();
       } catch ( IOException e ) {
-        log.warn( "Problems closing {} - {}", task.getClass().getSimpleName(), e.getMessage() );
+        Log.warn( LogMsg.createMsg( Batch.MSG, "Engine.problems_closing_preprocess_task", task.getClass().getName(), e.getClass().getSimpleName(), e.getMessage() ) );
       }
     }
 
@@ -459,9 +455,9 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
         jobDir.mkdirs();
         setJobDirectory( jobDir );
         setWorkDirectory( jobDir.getParentFile() );
-        log.debug( "Job directory determined to be " + jobDir.getAbsolutePath() );
+        Log.debug( "Job directory determined to be " + jobDir.getAbsolutePath() );
       } catch ( final Exception e ) {
-        log.error( e.getMessage() );
+        Log.error( e.getMessage() );
       }
     } else {
       // unnamed jobs just use the current directory
@@ -520,7 +516,7 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
 
 
   protected void reportTransformContextError( TransformContext context ) {
-    log.error( context.getStatus() + " - " + context.getMessage() );
+    Log.error( context.getStatus() + " - " + context.getMessage() );
   }
 
 
@@ -566,7 +562,7 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
       try {
         reader.close();
       } catch ( Exception e ) {
-        log.warn( "Problems closing reader: {} - {}", e.getClass().getSimpleName(), e.getMessage() );
+        Log.warn( LogMsg.createMsg( Batch.MSG, "Engine.problems_closing_reader", reader.getClass().getName(), e.getClass().getSimpleName(), e.getMessage() ) );
       }
     }
 
@@ -574,7 +570,7 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
       try {
         writer.close();
       } catch ( Exception e ) {
-        log.warn( "Problems closing writer: {} - {}", e.getClass().getSimpleName(), e.getMessage() );
+        Log.warn( LogMsg.createMsg( Batch.MSG, "Engine.problems_closing_writer", writer.getClass().getName(), e.getClass().getSimpleName(), e.getMessage() ) );
       }
     }
 
@@ -582,7 +578,7 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
       try {
         mapper.close();
       } catch ( Exception e ) {
-        log.warn( "Problems closing mapper: {} - {}", e.getClass().getSimpleName(), e.getMessage() );
+        Log.warn( LogMsg.createMsg( Batch.MSG, "Engine.problems_closing_mapper", mapper.getClass().getName(), e.getClass().getSimpleName(), e.getMessage() ) );
       }
     }
 
@@ -590,7 +586,7 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
       try {
         filter.close();
       } catch ( Exception e ) {
-        log.warn( "Problems closing filter {} : {} - {}", filter.getClass().getName(), e.getClass().getSimpleName(), e.getMessage() );
+        Log.warn( LogMsg.createMsg( Batch.MSG, "Engine.problems_closing_filter", filter.getClass().getName(), e.getClass().getSimpleName(), e.getMessage() ) );
       }
     }
 
@@ -598,7 +594,7 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
       try {
         validator.close();
       } catch ( Exception e ) {
-        log.warn( "Problems closing validator {} : {} - {}", validator.getClass().getName(), e.getClass().getSimpleName(), e.getMessage() );
+        Log.warn( LogMsg.createMsg( Batch.MSG, "Engine.problems_closing_validator", validator.getClass().getName(), e.getClass().getSimpleName(), e.getMessage() ) );
       }
     }
 
@@ -606,7 +602,7 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
       try {
         transformer.close();
       } catch ( Exception e ) {
-        log.warn( "Problems closing transformer {} : {} - {}", transformer.getClass().getName(), e.getClass().getSimpleName(), e.getMessage() );
+        Log.warn( LogMsg.createMsg( Batch.MSG, "Engine.problems_closing_transformer", transformer.getClass().getName(), e.getClass().getSimpleName(), e.getMessage() ) );
       }
     }
 
@@ -614,7 +610,7 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
       try {
         listener.close();
       } catch ( Exception e ) {
-        log.warn( "Problems closing listener {} : {} - {}", listener.getClass().getName(), e.getClass().getSimpleName(), e.getMessage() );
+        Log.warn( LogMsg.createMsg( Batch.MSG, "Engine.problems_closing_listener", listener.getClass().getName(), e.getClass().getSimpleName(), e.getMessage() ) );
       }
     }
 

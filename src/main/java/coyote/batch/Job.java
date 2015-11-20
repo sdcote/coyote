@@ -26,11 +26,7 @@ public class Job extends AbstractLoader implements Loader {
   private static final String DEBUG_ARG = "-d";
   private static final String INFO_ARG = "-v";
 
-  protected static final BundleBaseName BATCH_MSG;
-  static {
-    BATCH_MSG = new BundleBaseName( "BatchMsg" );
-  }
-
+  
   /**
    * If there is no specified directory in the HOMDIR system property, just use the current working directory
    */
@@ -77,12 +73,12 @@ public class Job extends AbstractLoader implements Loader {
       engine = TransformEngineFactory.getInstance( job );
 
       if ( StringUtil.isBlank( engine.getName() ) ) {
-        Log.info( LogMsg.createMsg( BATCH_MSG, "Job.unnamed_engine_configured" ) );
+        Log.info( LogMsg.createMsg( Batch.MSG, "Job.unnamed_engine_configured" ) );
       } else {
-        Log.info( LogMsg.createMsg( BATCH_MSG, "Job.engine_configured", engine.getName() ) );
+        Log.info( LogMsg.createMsg( Batch.MSG, "Job.engine_configured", engine.getName() ) );
       }
     } else {
-      Log.info( LogMsg.createMsg( BATCH_MSG, "Job.no_job_section" ) );
+      Log.info( LogMsg.createMsg( Batch.MSG, "Job.no_job_section" ) );
     }
   }
 
@@ -154,7 +150,7 @@ public class Job extends AbstractLoader implements Loader {
 
     // Remove all the relations and extra slashes from the home path
     System.setProperty( Job.APP_HOME, FileUtil.normalizePath( System.getProperty( Job.APP_HOME ) ) );
-    Log.debug( LogMsg.createMsg( BATCH_MSG, "Job.home_dir_set", System.getProperty( Job.APP_HOME ) ) );
+    Log.debug( LogMsg.createMsg( Batch.MSG, "Job.home_dir_set", System.getProperty( Job.APP_HOME ) ) );
   }
 
 
@@ -170,7 +166,7 @@ public class Job extends AbstractLoader implements Loader {
     try {
       wrkDir.mkdirs();
       System.setProperty( ConfigTag.WORKDIR, wrkDir.getAbsolutePath() );
-      Log.debug( LogMsg.createMsg( BATCH_MSG, "Job.work_dir_set", System.getProperty( ConfigTag.WORKDIR ) ) );
+      Log.debug( LogMsg.createMsg( Batch.MSG, "Job.work_dir_set", System.getProperty( ConfigTag.WORKDIR ) ) );
 
     } catch ( final Exception e ) {
       Log.error( e.getMessage() );
@@ -187,7 +183,7 @@ public class Job extends AbstractLoader implements Loader {
   public void start() {
 
     if ( engine != null ) {
-      Log.debug( LogMsg.createMsg( BATCH_MSG, "Job.running" ) );
+      Log.debug( LogMsg.createMsg( Batch.MSG, "Job.running" ) );
 
       // run the transformation
       // Note that depending on the configuration, this could be placed in the 
@@ -196,7 +192,7 @@ public class Job extends AbstractLoader implements Loader {
       try {
         engine.run();
       } catch ( final Exception e ) {
-        Log.fatal( LogMsg.createMsg( BATCH_MSG, "Job.exception_running_engine", e.getClass().getSimpleName(), e.getMessage() ) );
+        Log.fatal( LogMsg.createMsg( Batch.MSG, "Job.exception_running_engine", e.getClass().getSimpleName(), e.getMessage() ) );
         Log.fatal( e );
       }
       finally {
@@ -205,11 +201,11 @@ public class Job extends AbstractLoader implements Loader {
           engine.close();
         } catch ( final IOException ignore ) {}
 
-        Log.debug( LogMsg.createMsg( BATCH_MSG, "Job.completed" ) );
+        Log.debug( LogMsg.createMsg( Batch.MSG, "Job.completed" ) );
       } // try-catch-finally
 
     } else {
-      Log.fatal( LogMsg.createMsg( BATCH_MSG, "Job.no_engine" ) );
+      Log.fatal( LogMsg.createMsg( Batch.MSG, "Job.no_engine" ) );
     }
   }
 
