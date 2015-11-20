@@ -12,6 +12,7 @@
 package coyote.batch.listener;
 
 import java.text.DecimalFormat;
+import java.text.FieldPosition;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -38,10 +39,23 @@ public class DataProfiler extends FileRecorder implements ContextListener {
   long writeBytes = 0;
   static DecimalFormat MILLIS = new DecimalFormat( "000" );
   private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat( "#,###,##0.00" );
+  private static final DecimalFormat NUMBER_FORMAT = new DecimalFormat( "###,###,###,###,###" );
 
   Date start = null;
   Date end = null;
   long elapsed = -1;
+
+  /** Represents 1 Kilo Byte ( 1024 ). */
+  private final static long ONE_KB = 1024L;
+
+  /** Represents 1 Mega Byte ( 1024^2 ). */
+  private final static long ONE_MB = ONE_KB * 1024L;
+
+  /** Represents 1 Giga Byte ( 1024^3 ). */
+  private final static long ONE_GB = ONE_MB * 1024L;
+
+  /** Represents 1 Tera Byte ( 1024^4 ). */
+  private final static long ONE_TB = ONE_GB * 1024L;
 
 
 
@@ -68,7 +82,7 @@ public class DataProfiler extends FileRecorder implements ContextListener {
       start = new Date( context.getStartTime() );
       end = new Date( context.getEndTime() );
       elapsed = context.getElapsed();
-      writePerformanceSummary( context );
+      writePerformanceSummary();
       writeInputSummary();
       writeOutputSummary();
     }
@@ -77,7 +91,7 @@ public class DataProfiler extends FileRecorder implements ContextListener {
 
 
 
-  private void writePerformanceSummary( OperationalContext context ) {
+  private void writePerformanceSummary() {
     StringBuffer b = new StringBuffer( "Transform Performance:" );
     b.append( StringUtil.LINE_FEED );
 
@@ -85,25 +99,25 @@ public class DataProfiler extends FileRecorder implements ContextListener {
     b.append( start.toString() );
     b.append( StringUtil.LINE_FEED );
     b.append( "Job End: " );
-    b.append( start.toString() );
+    b.append( end.toString() );
     b.append( StringUtil.LINE_FEED );
     b.append( "Elapsed: " );
     b.append( elapsed );
-    b.append( "ms  " );
+    b.append( "ms  -  " );
     b.append( formatElapsed( elapsed ) );
     b.append( StringUtil.LINE_FEED );
     b.append( "Records Read: " );
-    b.append( readCount );
+    b.append( NUMBER_FORMAT.format( readCount ) );
     if ( elapsed > 0 ) {
-      b.append( " " );
+      b.append( " - " );
       b.append( DECIMAL_FORMAT.format( (double)readCount / (double)( elapsed / (double)1000 ) ) );
       b.append( " records per second" );
     }
     b.append( StringUtil.LINE_FEED );
-    b.append( "Records Written:" );
-    b.append( writeCount );
+    b.append( "Records Written: " );
+    b.append( NUMBER_FORMAT.format( writeCount ) );
     if ( elapsed > 0 ) {
-      b.append( " " );
+      b.append( " - " );
       b.append( DECIMAL_FORMAT.format( (double)writeCount / (double)( elapsed / (double)1000 ) ) );
       b.append( " records per second" );
     }
@@ -311,6 +325,8 @@ public class DataProfiler extends FileRecorder implements ContextListener {
       b.append( StringUtil.fixedLength( Long.toString( totalChars ), 12, 0 ) );
       b.append( StringUtil.fixedLength( "", 37, 0 ) );
       b.append( totalBytes );
+      b.append( "  " );
+      b.append( formatSizeBytes( totalBytes ) );
       b.append( StringUtil.LINE_FEED );
     }
     b.append( StringUtil.LINE_FEED );
@@ -414,6 +430,8 @@ public class DataProfiler extends FileRecorder implements ContextListener {
       b.append( StringUtil.fixedLength( Long.toString( totalChars ), 12, 0 ) );
       b.append( StringUtil.fixedLength( "", 37, 0 ) );
       b.append( totalBytes );
+      b.append( "  " );
+      b.append( formatSizeBytes( totalBytes ) );
       b.append( StringUtil.LINE_FEED );
     }
 
@@ -431,7 +449,7 @@ public class DataProfiler extends FileRecorder implements ContextListener {
    * 
    * @return formatted string representing weeks, days, hours minutes and seconds.
    */
-  public static String formatElapsed( long millis ) {
+  private static String formatElapsed( long millis ) {
     if ( millis < 0 || millis == Long.MAX_VALUE ) {
       return "?";
     }
@@ -494,4 +512,43 @@ public class DataProfiler extends FileRecorder implements ContextListener {
 
     return b.toString();
   }
+
+
+
+
+  /**
+   * Formats the size as a most significant number of bytes.
+   * 
+   * @param size in bytes
+   * 
+   * @return the size formatted for display
+   */
+  private static String formatSizeBytes( final double size ) {
+    final StringBuffer buf = new StringBuffer( 16 );
+    String text;
+    double divider;
+
+    if ( size < ONE_KB ) {
+      text = "bytes";
+      divider = 1.0;
+    } else if ( size < ONE_MB ) {
+      text = "KB";
+      divider = ONE_KB;
+    } else if ( size < ONE_GB ) {
+      text = "MB";
+      divider = ONE_MB;
+    } else if ( size < ONE_TB ) {
+      text = "GB";
+      divider = ONE_GB;
+    } else {
+      text = "TB";
+      divider = ONE_TB;
+    }
+
+    final double d = ( (double)size ) / divider;
+    DECIMAL_FORMAT.format( d, buf, new FieldPosition( 0 ) ).append( ' ' ).append( text );
+
+    return buf.toString();
+  }
+
 }
