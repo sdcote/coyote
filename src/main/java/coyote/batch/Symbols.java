@@ -41,4 +41,8 @@ public class Symbols {
   
   public static final String PREV_MONTH_LM = "LM"; // last month
   public static final String PREV_YEAR_LMYY = "LMYY"; // the year last month
+  
+  public static final String RUN_COUNT = "RunCount";
+  public static final String ERROR_COUNT = "FailureCount"; //
+
 }

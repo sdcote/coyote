@@ -20,6 +20,7 @@ import coyote.dataframe.DataField;
 import coyote.dataframe.DataFrame;
 import coyote.dataframe.marshal.JSONMarshaler;
 import coyote.dataframe.marshal.MarshalException;
+import coyote.loader.log.Log;
 
 
 /**
@@ -42,6 +43,7 @@ import coyote.dataframe.marshal.MarshalException;
 public class PersistentContext extends TransformContext {
   private static final String FILENAME = "context.json";
   File contextFile = null;
+  long runcount = 0;
 
 
 
@@ -58,22 +60,51 @@ public class PersistentContext extends TransformContext {
   public void open() {
 
     contextFile = new File( engine.getJobDirectory(), FILENAME );
+    Log.debug( "Reading context from " + contextFile.getAbsolutePath() );
     String contents = FileUtil.fileToString( contextFile );
 
-    DataFrame frame = null;
     if ( StringUtil.isNotBlank( contents ) ) {
       try {
         List<DataFrame> frames = JSONMarshaler.marshal( contents );
         if ( frames.get( 0 ) != null ) {
-          System.out.println( frame );
           for ( DataField field : frames.get( 0 ).getFields() ) {
             set( field.getName(), field.getObjectValue() );
           }
         }
       } catch ( MarshalException e ) {
-        System.err.println( e.getMessage() );
+        Log.warn( "Could not load context: " + e.getClass().getSimpleName() + " - " + e.getMessage() );
       }
     }
+
+    incrementRunCount();
+    Log.debug( "Runcount is " + runcount );
+  }
+
+
+
+
+  /**
+   * 
+   */
+  private void incrementRunCount() {
+    Object value = get( Symbols.RUN_COUNT );
+
+    if ( value != null ) {
+      if ( value instanceof Number ) {
+        runcount = ( (Number)value ).longValue();
+      } else {
+        try {
+          runcount = Long.parseLong( value.toString() );
+        } catch ( NumberFormatException e ) {
+          Log.warn( "Could not parse '" + Symbols.RUN_COUNT + "'  value [" + value.toString() + "] into a number " );
+        }
+      }
+    }
+
+    runcount++;
+
+    set( Symbols.RUN_COUNT, runcount );
+
   }
 
 
@@ -98,6 +129,10 @@ public class PersistentContext extends TransformContext {
       }
     }
 
+    // add the current value of the run counter
+    frame.put( Symbols.RUN_COUNT, runcount );
+
+    // write the context to disk
     FileUtil.stringToFile( JSONMarshaler.toFormattedString( frame ), contextFile.getAbsolutePath() );
 
   }
