@@ -58,7 +58,7 @@ public class Database extends AbstractConfigurableComponent implements Configura
       connection = DriverManager.getConnection( getTarget(), getUsername(), getPassword() );
 
       if ( connection != null ) {
-        Log.debug( LogMsg.createMsg( Batch.MSG, "EngineFactory.Connected to {}", getTarget() ));
+        Log.debug( LogMsg.createMsg( Batch.MSG, "EngineFactory.Connected to {}", getTarget() ) );
       }
     } catch ( InstantiationException | IllegalAccessException | ClassNotFoundException | SQLException | MalformedURLException e ) {
       Log.error( "Could not connect to database: " + e.getClass().getSimpleName() + " - " + e.getMessage() );

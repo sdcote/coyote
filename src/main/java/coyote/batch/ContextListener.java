@@ -49,7 +49,4 @@ public interface ContextListener extends ConfigurableComponent {
    */
   void onValidationFailed( OperationalContext context, String msg );
 
-
-
-
 }

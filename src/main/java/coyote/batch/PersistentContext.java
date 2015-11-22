@@ -16,6 +16,7 @@ import java.util.List;
 
 import coyote.commons.FileUtil;
 import coyote.commons.StringUtil;
+import coyote.commons.template.Template;
 import coyote.dataframe.DataField;
 import coyote.dataframe.DataFrame;
 import coyote.dataframe.marshal.JSONMarshaler;
@@ -44,11 +45,14 @@ public class PersistentContext extends TransformContext {
   private static final String FILENAME = "context.json";
   File contextFile = null;
   long runcount = 0;
+  DataFrame configuration = null;
 
 
 
 
-  public PersistentContext() {}
+  public PersistentContext( DataFrame cfg ) {
+    configuration = cfg;
+  }
 
 
 
@@ -63,6 +67,7 @@ public class PersistentContext extends TransformContext {
     Log.debug( "Reading context from " + contextFile.getAbsolutePath() );
     String contents = FileUtil.fileToString( contextFile );
 
+    // fill the context with data previously persisted to the file (if any)
     if ( StringUtil.isNotBlank( contents ) ) {
       try {
         List<DataFrame> frames = JSONMarshaler.marshal( contents );
@@ -77,34 +82,60 @@ public class PersistentContext extends TransformContext {
     }
 
     incrementRunCount();
-    Log.debug( "Runcount is " + runcount );
+
+    // If we have a configuration...
+    if ( configuration != null ) {
+      // fill the context with configuration data
+      for ( DataField field : configuration.getFields() ) {
+        if ( !field.isFrame() ) {
+          if ( StringUtil.isNotBlank( field.getName() ) && !field.isNull() ) {
+            String token = field.getStringValue();
+            String value = Template.resolve( token, engine.getSymbolTable() );
+            engine.getSymbolTable().put( field.getName(), value );
+            set( field.getName(), value );
+          } //name-value check
+        }// if frame
+      } // for
+    }
   }
 
 
 
 
   /**
-   * 
+   * Increments the run counter by 1
    */
   private void incrementRunCount() {
+
+    // Get the current value
     Object value = get( Symbols.RUN_COUNT );
 
     if ( value != null ) {
+      // if a number...
       if ( value instanceof Number ) {
+        // set it
         runcount = ( (Number)value ).longValue();
       } else {
+        // try parsing it as a string
         try {
           runcount = Long.parseLong( value.toString() );
         } catch ( NumberFormatException e ) {
           Log.warn( "Could not parse '" + Symbols.RUN_COUNT + "'  value [" + value.toString() + "] into a number " );
-        }
-      }
-    }
+        } // try
+      } // numeric check
+    } // !null
 
+    // increment the counter
     runcount++;
 
     set( Symbols.RUN_COUNT, runcount );
 
+    // set the new value in the symbol table
+    if ( this.symbols != null ) {
+      symbols.put( Symbols.RUN_COUNT, runcount );
+    }
+
+    Log.debug( "Runcount is " + runcount );
   }
 
 
@@ -117,22 +148,22 @@ public class PersistentContext extends TransformContext {
   public void close() {
     super.close();
 
-    // now persist ourselves to disk
-
+    // create a data frame to structure our data
     DataFrame frame = new DataFrame();
 
+    // Add each property in the context to the frame
     for ( String key : properties.keySet() ) {
       try {
         frame.add( key, properties.get( key ) );
       } catch ( Exception e ) {
-        System.out.println( e.getMessage() );
+        Log.warn( "Cannot persist property'" + key + "' - " + e.getMessage() );
       }
     }
 
     // add the current value of the run counter
     frame.put( Symbols.RUN_COUNT, runcount );
 
-    // write the context to disk
+    // write the context to disk using JSON 
     FileUtil.stringToFile( JSONMarshaler.toFormattedString( frame ), contextFile.getAbsolutePath() );
 
   }

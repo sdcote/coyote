@@ -177,27 +177,23 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
     if ( reader == null && writer != null )
       throw new IllegalStateException( "No reader configured, nothing to write" );
 
-    // if no mapper, just use the default mapper with default settings
-    if ( mapper == null ) {
-      Log.debug( "No mapper defined...using default settings" );
-      mapper = new DefaultFrameMapper();
+    // Make sure we have a context
+    if ( getContext() == null ) {
+      // Create a transformation context for components to share data
+      setContext( new TransformContext() );
     }
 
-    // Make sure we have a context with our listeners attached
-    if ( getContext() != null ) {
-      // set our list of listeners in the context 
-      getContext().setListeners( listeners );
-    } else {
-      // Create a transformation context for components to share data
-      setContext( new TransformContext( listeners ) );
-      getContext().setEngine( this );
-    }
+    // set our list of listeners in the context 
+    getContext().setListeners( listeners );
+
+    // Set this engin as the context's engine
+    getContext().setEngine( this );
+
+    // Set the symbol table to the one this engin uses
+    getContext().setSymbols( symbols );
 
     // Open / initialize the context
     getContext().open();
-
-    // Set the symbol table for the context
-    getContext().setSymbols( symbols );
 
     // fire the transformation start event
     getContext().start();
@@ -205,11 +201,11 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
     // Execute all the pre-processing tasks
     for ( TransformTask task : preProcesses ) {
       try {
-        task.open( transformContext );
-        task.execute( transformContext );
+        task.open( getContext() );
+        task.execute( getContext() );
       } catch ( TaskException e ) {
-        transformContext.setError( e.getMessage() );
-        transformContext.setStatus( "Pre-Processing Error" );
+        getContext().setError( e.getMessage() );
+        getContext().setStatus( "Pre-Processing Error" );
         break;
       }
     }
@@ -224,13 +220,13 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
 
     // If pre-processing completed without error, start opening the rest of the 
     // components
-    if ( transformContext.isNotInError() ) {
+    if ( getContext().isNotInError() ) {
 
       // Open all the listeners first
       for ( ContextListener listener : listeners ) {
-        listener.open( transformContext );
-        if ( transformContext.isInError() ) {
-          reportTransformContextError( transformContext );
+        listener.open( getContext() );
+        if ( getContext().isInError() ) {
+          reportTransformContextError( getContext() );
           return;
         }
       }
@@ -239,22 +235,28 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
       // to share data. If the reader is null, there is no need to open the 
       // mapper and the writer
       if ( reader != null ) {
-        reader.open( transformContext );
-        if ( transformContext.isInError() ) {
-          reportTransformContextError( transformContext );
+        reader.open( getContext() );
+        if ( getContext().isInError() ) {
+          reportTransformContextError( getContext() );
           return;
         }
 
-        mapper.open( transformContext );
-        if ( transformContext.isInError() ) {
-          reportTransformContextError( transformContext );
+        // if no mapper, just use the default mapper with default settings
+        if ( mapper == null ) {
+          Log.debug( "No mapper defined...using default settings" );
+          mapper = new DefaultFrameMapper();
+        }
+
+        mapper.open( getContext() );
+        if ( getContext().isInError() ) {
+          reportTransformContextError( getContext() );
           return;
         }
 
         if ( writer != null ) {
-          writer.open( transformContext );
-          if ( transformContext.isInError() ) {
-            reportTransformContextError( transformContext );
+          writer.open( getContext() );
+          if ( getContext().isInError() ) {
+            reportTransformContextError( getContext() );
             return;
           }
         }
@@ -262,130 +264,130 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
 
       // Open all the filters
       for ( FrameFilter filter : filters ) {
-        filter.open( transformContext );
-        if ( transformContext.isInError() ) {
-          reportTransformContextError( transformContext );
+        filter.open( getContext() );
+        if ( getContext().isInError() ) {
+          reportTransformContextError( getContext() );
           return;
         }
       }
 
       // Open all the validators
       for ( FrameValidator validator : validators ) {
-        validator.open( transformContext );
-        if ( transformContext.isInError() ) {
-          reportTransformContextError( transformContext );
+        validator.open( getContext() );
+        if ( getContext().isInError() ) {
+          reportTransformContextError( getContext() );
           return;
         }
       }
 
       // Open all the transformers
       for ( FrameTransform transformer : transformers ) {
-        transformer.open( transformContext );
-        if ( transformContext.isInError() ) {
-          reportTransformContextError( transformContext );
+        transformer.open( getContext() );
+        if ( getContext().isInError() ) {
+          reportTransformContextError( getContext() );
           return;
         }
       }
 
       // loop through all data read in by the reader until EOF or an error in 
       // the transform context occurs.
-      while ( transformContext.isNotInError() && reader != null && !reader.eof() ) {
+      while ( getContext().isNotInError() && reader != null && !reader.eof() ) {
 
         // Create a new Transaction context with the list of listeners to react 
         // to events in the transaction.
-        TransactionContext context = new TransactionContext( transformContext );
+        TransactionContext txnContext = new TransactionContext( getContext() );
         // Start the clock and fire event listeners for the beginning of the
         // transaction
-        context.start();
+        txnContext.start();
 
         // Read a frame into the given context (source frame)
-        DataFrame retval = reader.read( context );
+        DataFrame retval = reader.read( txnContext );
 
         // Sometimes readers read empty lines and the like, skip null dataframes!!!
         if ( retval != null ) {
 
           // Set the returned dataframe into the transaction context
-          context.setSourceFrame( retval );
+          txnContext.setSourceFrame( retval );
           // increment the row number in the contexts
-          context.setRow( ++currentRow );
-          transformContext.setRow( currentRow );
-          symbols.put( "currentRow", currentRow );
+          txnContext.setRow( ++currentRow );
+          getContext().setRow( currentRow );
+          getContext().getSymbols().put( "currentRow", currentRow );
 
           // fire the read event in all the listeners
-          context.fireRead( context );
+          txnContext.fireRead( txnContext );
 
           //log.debug( "row {} - {}", context.getRow(), context.getSourceFrame().toString() );
 
           // ...pass it through the filters...
           for ( FrameFilter filter : filters ) {
-            filter.process( context );
-            if ( context.getWorkingFrame() == null )
+            filter.process( txnContext );
+            if ( txnContext.getWorkingFrame() == null )
               break;
           }
 
           // If the working frame did not get filtered out...
-          if ( context.getWorkingFrame() != null ) {
+          if ( txnContext.getWorkingFrame() != null ) {
 
             boolean passed = true;
             // pass it through the validation rules - errors are logged
             for ( FrameValidator validator : validators ) {
               try {
-                if ( !validator.process( context ) ) {
+                if ( !validator.process( txnContext ) ) {
                   passed = false;
                 }
               } catch ( ValidationException e ) {
-                context.setError( e.getMessage() );
+                txnContext.setError( e.getMessage() );
               }
             }
 
             if ( !passed ) {
-              transformContext.fireValidationFailed( "There were validation errors" );
+              getContext().fireValidationFailed( "There were validation errors" );
             }
 
-            if ( context.isNotInError() ) {
+            if ( txnContext.isNotInError() ) {
 
               // Pass the working frame through the transformers
               for ( FrameTransform transformer : transformers ) {
                 try {
                   // Have the transformer process the frame
-                  DataFrame resultFrame = transformer.process( context.getWorkingFrame() );
+                  DataFrame resultFrame = transformer.process( txnContext.getWorkingFrame() );
 
                   // if the transformer generated any results...
                   if ( resultFrame != null ) {
                     // place it in the context
-                    context.setWorkingFrame( resultFrame );
+                    txnContext.setWorkingFrame( resultFrame );
                   }
                 } catch ( TransformException e ) {
-                  context.setError( e.getMessage() );
+                  txnContext.setError( e.getMessage() );
                 }
               }
 
               // Pass it through the mapper - only the required fields should 
               // exist in the target frame after the mapper is done.
-              if ( context.isNotInError() ) {
+              if ( txnContext.isNotInError() ) {
 
                 // We need to create a target frame into which the mapper will 
                 // place fields...
-                if ( context.getTargetFrame() == null ) {
-                  context.setTargetFrame( new DataFrame() );
+                if ( txnContext.getTargetFrame() == null ) {
+                  txnContext.setTargetFrame( new DataFrame() );
                 }
 
                 // Map / Move fields from the working to the target frame
                 try {
-                  mapper.process( context );
+                  mapper.process( txnContext );
                 } catch ( MappingException e ) {
-                  context.setError( e.getMessage() );
-                  context.setStatus( "Mapping Error" );
+                  txnContext.setError( e.getMessage() );
+                  txnContext.setStatus( "Mapping Error" );
                 }
               }
 
               // It is possible that a transform has been configured to simply
               // read and validate data so the writer may be null
-              if ( context.isNotInError() && writer != null ) {
+              if ( txnContext.isNotInError() && writer != null ) {
                 try {
                   // Write the target (new) frame
-                  writer.write( context.getTargetFrame() );
-                  context.fireWrite( context );
+                  writer.write( txnContext.getTargetFrame() );
+                  txnContext.fireWrite( txnContext );
                 } catch ( Exception e ) {
                   e.printStackTrace();
                 }
@@ -397,7 +399,7 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
 
           // Now end the transaction which should fire any listeners in the 
           // context to record the transaction if so configured
-          context.end();
+          txnContext.end();
 
         } // if something was read in
 
@@ -405,21 +407,21 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
 
     } // transformContext ! err after pre-processing
 
-    if ( transformContext.isInError() ) {
-      reportTransformContextError( transformContext );
+    if ( getContext().isInError() ) {
+      reportTransformContextError( getContext() );
     } else {
       // Execute all the post-processing tasks
       for ( TransformTask task : postProcesses ) {
         try {
-          task.open( transformContext );
-          task.execute( transformContext );
+          task.open( getContext() );
+          task.execute( getContext() );
         } catch ( TaskException e ) {
-          transformContext.setError( e.getMessage() );
-          transformContext.setStatus( "Post-Processing Error" );
+          getContext().setError( e.getMessage() );
+          getContext().setStatus( "Post-Processing Error" );
         }
       }
-      if ( transformContext.isInError() ) {
-        reportTransformContextError( transformContext );
+      if ( getContext().isInError() ) {
+        reportTransformContextError( getContext() );
       }
     }
 

@@ -4,12 +4,6 @@
 		"Name" : "Persist",
 
 		"PersistentContext" : {
-			"MyString" : "nylon",
-			"WorkDir" : "[#$wrkdir#][#$FS#]",
-			"filename" : "MyData-[#$YYYY#][#$MM#][#$DD#].csv",
-			"filename": "ARROW_[#$MM#][#$DD#][#$YYYY#].csv",
-			"workfile": "[#$wrkdir#][#$FS#][#$filename#]",
-			"archive": "[#$wrkdir#][#$FS#]arrow[#$FS#]processed[#$FS#][#$filename#]"
 		},
 	
 		"Reader" : {
@@ -20,14 +14,18 @@
 
 		"Writer" : {
 			"class" : "FlatFileWriter",
-			"target" : "file://users.txt",
+			"target" : "file://ts-[#$RunCount|00000000000000#].csv",
 			"fields" : {
 				"Role" : { "start" : 0, "length" : 6 },
 				"FirstName" : { "start" : 7, "length" : 11 },
 				"LastName" : { "start" : 19, "length" : 16 },
 				"MiddleInitial" : { "start" : 36, "length" : 1 }
 			}    
-		}
+		},
+
+		"Listeners" : [
+			{ "class" : "DataProfiler", "target" : "profile.txt" }
+		]
 	}
 
 }

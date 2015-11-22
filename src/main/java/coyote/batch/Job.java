@@ -26,7 +26,6 @@ public class Job extends AbstractLoader implements Loader {
   private static final String DEBUG_ARG = "-d";
   private static final String INFO_ARG = "-v";
 
-  
   /**
    * If there is no specified directory in the HOMDIR system property, just use the current working directory
    */

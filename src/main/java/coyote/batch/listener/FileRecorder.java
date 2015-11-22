@@ -55,7 +55,7 @@ public abstract class FileRecorder extends ContextRecorder {
 
     // get our configuration data
     setTarget( getString( ConfigTag.TARGET ) );
-    Log.debug( LogMsg.createMsg( Batch.MSG, "Batch.listener.using_target", getTarget() ) );
+    Log.debug( LogMsg.createMsg( Batch.MSG, "Listener.using_target", getTarget() ) );
 
     if ( StringUtil.isNotBlank( getTarget() ) ) {
 

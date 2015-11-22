@@ -403,10 +403,27 @@ public class TransformEngineFactory {
 
     if ( context == null ) {
       context = new TransformContext();
-      initContext( context, cfg, engine );
-      Log.debug( LogMsg.createMsg( Batch.MSG, "EngineFactory.Loaded context {}", context.getClass().getName() ) );
+
+      // set the context in the engine
+      engine.setContext( context );
+
+      // set the engine in the context
+      context.setEngine( engine );
+      Log.debug( LogMsg.createMsg( Batch.MSG, "EngineFactory.created_context {0}", context.getClass().getName() ) );
     }
 
+    // fill the context with configuration data
+    for ( DataField field : cfg.getFields() ) {
+      if ( !field.isFrame() ) {
+        if ( StringUtil.isNotBlank( field.getName() ) && !field.isNull() ) {
+          String value = Template.resolve( field.getStringValue(), engine.getSymbolTable() );
+          engine.getSymbolTable().put( field.getName(), value );
+          context.set( field.getName(), value );
+        } //name-value check
+      }// if frame
+    } // for
+
+    Log.debug( LogMsg.createMsg( Batch.MSG, "EngineFactory.Loaded context {0}", context.getClass().getName() ) );
   }
 
 
@@ -435,42 +452,24 @@ public class TransformEngineFactory {
 
     if ( context == null ) {
       if ( engine.getName() != null ) {
-        context = new PersistentContext();
-        initContext( context, cfg, engine );
+        context = new PersistentContext( cfg );
+
+        // set the context in the engine
+        engine.setContext( context );
+
+        // set the engine in the context
+        context.setEngine( engine );
+
+        Log.debug( LogMsg.createMsg( Batch.MSG, "EngineFactory.Created persistent context {}", context.getClass().getName() ) );
       } else {
-        Log.warn( "Unnamed engine configuration, could not create persistent context" );
+        Log.warn( LogMsg.createMsg( Batch.MSG, "EngineFactory.Unnamed engine configuration, could not create persistent context" ) );
         configContext( cfg, engine );
         return;
       }
-      Log.debug( LogMsg.createMsg( Batch.MSG, "EngineFactory.Created persistent context {}", context.getClass().getName() ) );
     } else {
       // TODO: support converting a regular context into a persistent one
-      Log.warn( "Could not create persistent context, Context already exists" );
+      Log.warn( LogMsg.createMsg( Batch.MSG, "EngineFactory.Could not create persistent context, Context already exists" ) );
     }
-
-  }
-
-
-
-
-  private static void initContext( TransformContext context, DataFrame cfg, TransformEngine engine ) {
-
-    // set the context in the engine
-    engine.setContext( context );
-
-    // set the engine in the context
-    context.setEngine( engine );
-
-    // fill the context with configuration data
-    for ( DataField field : cfg.getFields() ) {
-      if ( !field.isFrame() ) {
-        if ( StringUtil.isNotBlank( field.getName() ) && !field.isNull() ) {
-          String value = Template.resolve( field.getStringValue(), engine.getSymbolTable() );
-          engine.getSymbolTable().put( field.getName(), value );
-          context.set( field.getName(), value );
-        } //name-value check
-      }// if frame
-    } // for
 
   }
 

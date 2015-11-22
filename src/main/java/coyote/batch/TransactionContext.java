@@ -97,9 +97,4 @@ public class TransactionContext extends OperationalContext {
     this.workingFrame = workingFrame;
   }
 
-
-
-
-
-
 }
