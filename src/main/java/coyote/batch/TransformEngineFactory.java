@@ -185,6 +185,12 @@ public class TransformEngineFactory {
           } else {
             Log.error( "Invalid context configuration section" );
           }
+        } else if ( ConfigTag.LOGGING.equalsIgnoreCase( field.getName() ) ) {
+          if ( field.isFrame() ) {
+            configLogging( (DataFrame)field.getObjectValue(), retval );
+          } else {
+            Log.error( "Invalid logging configuration section" );
+          }
         } else if ( ConfigTag.LISTENER.equalsIgnoreCase( field.getName() ) ) {
           if ( field.isFrame() ) {
             DataFrame cfgFrame = (DataFrame)field.getObjectValue();
@@ -217,6 +223,45 @@ public class TransformEngineFactory {
     }
 
     return retval;
+  }
+
+
+
+
+  /**
+   * Configure the logging for the job
+   * 
+   * @param cfg the logging configuration section
+   * @param retval the engine being configured.
+   */
+  private static void configLogging( DataFrame cfg, TransformEngine retval ) {
+    // preserve existing categories
+    boolean isDebug = Log.isLogging( Log.DEBUG );
+    boolean isInfo = Log.isLogging( Log.INFO );
+
+    // Remove all loggers
+    Log.removeAllLoggers();
+
+    // Find the loggers
+    DataField loggers = cfg.getField( ConfigTag.LOGGERS );
+    // it needs to be a frame
+    // for each frame, create a logger
+
+    // Find the categories we will be logging
+    DataField categories = cfg.getField( ConfigTag.CATEGORIES );
+
+    // Turn off all categories
+    Log.setMask( 0 );
+
+    // Split each of the categories and enable each one
+    // Log.enable(cat.toUpper());
+
+    // restore the command line overrides
+    if ( isDebug )
+      Log.startLogging( Log.DEBUG );
+    if ( isInfo )
+      Log.startLogging( Log.INFO );
+
   }
 
 

@@ -76,6 +76,10 @@ public class ConfigTag {
   public static final String VALIDATE = "validate";
   public static final String TRANSFORM = "transform";
   public static final String PERSISTENT_CONTEXT = "persistentcontext";
+  public static final String LOGGING = "logging";
+  public static final String LOGGERS = "loggers";
+  public static final String CATEGORIES = "categories";
+  public static final String ENABLED = "enabled";
 
   // Tasks
 

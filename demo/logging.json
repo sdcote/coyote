@@ -1,0 +1,26 @@
+{
+	"Class": "coyote.batch.Job",
+	"Job": {
+		"Name": "Logger",
+
+		"Reader": {
+			"class": "CSVReader",
+			"source": "file://demo/users.csv",
+			"header": true
+		},
+
+		"Logging": {
+			"Categories": "info,warn,error,fatal",
+			"Loggers": [
+				{ "class": "ConsoleLogger", "name": "error", "target": "STDERR", "categories": "error, fatal, warn" },
+				{ "class": "ConsoleLogger", "name": "default",  "target": "STDOUT", "categories": "info" },
+				{ "class": "FileAppender",  "name": "file", "enabled": false, "target": "debug.log", "categories": "debug, trace" }
+			]
+		},
+
+		"Listeners": [
+			{ "class": "DataProfiler", "target": "users-csv.txt" }
+		]
+
+	}
+}
