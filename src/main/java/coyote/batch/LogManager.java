@@ -14,8 +14,11 @@ package coyote.batch;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.net.URI;
 
 import coyote.commons.StringUtil;
+import coyote.commons.UriUtil;
+import coyote.commons.template.Template;
 import coyote.dataframe.DataField;
 import coyote.dataframe.DataFrame;
 import coyote.loader.cfg.Config;
@@ -33,8 +36,6 @@ public class LogManager extends AbstractConfigurableComponent implements Configu
 
   /** Constant to assist in determining the full class name of loggers */
   private static final String LOGGER_PKG = Log.class.getPackage().getName();
-
-  TransformContext context = null;
 
 
 
@@ -55,56 +56,18 @@ public class LogManager extends AbstractConfigurableComponent implements Configu
   @Override
   public void open( TransformContext context ) {
     setContext( context );
-System.out.println("SETTING UP LOGGING WITH "+getConfiguration());
-  }
-
-
-
-
-  @Override
-  public void close() throws IOException {
-    // TODO Auto-generated method stub
-
-  }
-
-
-
-
-  //
-
-  //
-
-  //
-
-  //
-
-  //
-
-  //
-
-  /**
-   * Configure the logging for the job
-   * 
-   * @param cfg the logging configuration section
-   * @param retval the engine being configured.
-   */
-  private static void configLogging( DataFrame cfg, TransformEngine retval ) {
-    // preserve existing categories
-    boolean isDebug = Log.isLogging( Log.DEBUG );
-    boolean isInfo = Log.isLogging( Log.INFO );
 
     // Remove all currently set loggers
     Log.removeAllLoggers();
 
     // Find the loggers
-    for ( DataField field : cfg.getFields() ) {
+    for ( DataField field : getConfiguration().getFields() ) {
 
       if ( ConfigTag.LOGGERS.equalsIgnoreCase( field.getName() ) ) {
 
         if ( field.isFrame() ) {
           DataFrame cfgFrame = (DataFrame)field.getObjectValue();
 
-          // there can be many loggers
           if ( cfgFrame.isArray() ) {
 
             for ( DataField cfgfield : cfgFrame.getFields() ) {
@@ -115,7 +78,6 @@ System.out.println("SETTING UP LOGGING WITH "+getConfiguration());
               }
             }
           } else {
-            // ... or just one
             configLogger( cfgFrame );
           }
         } else {
@@ -126,42 +88,30 @@ System.out.println("SETTING UP LOGGING WITH "+getConfiguration());
 
     }
 
-    // Find the categories we will be logging
-    for ( DataField field : cfg.getFields() ) {
-
-      if ( ConfigTag.CATEGORIES.equalsIgnoreCase( field.getName() ) ) {
-        if ( StringUtil.isNotBlank( field.getStringValue() ) ) {
-
-          // Split each of the categories and enable each one
-          String[] tokens = field.getStringValue().split( "," );
-
-          if ( tokens.length > 0 ) {
-            // Turn off all categories
-            Log.setMask( 0 );
-
-            // start logging all specified categories
-            for ( int x = 0; x < tokens.length; x++ ) {
-              Log.startLogging( tokens[x].trim().toUpperCase() );
-              System.out.println( tokens[x].trim() );
-            }
-          }
-        }
-        break;
-      }
-    }
-
-    // restore the command line overrides
-    if ( isDebug )
-      Log.startLogging( Log.DEBUG );
-    if ( isInfo )
-      Log.startLogging( Log.INFO );
-
   }
 
 
 
 
-  private static void configLogger( DataFrame frame ) {
+  @Override
+  public void close() throws IOException {}
+
+
+
+
+  //
+
+  //
+
+  //
+
+  //
+
+  //
+
+  //
+
+  private void configLogger( DataFrame frame ) {
 
     // Make sure the class is fully qualified 
     String className = frame.getAsString( ConfigTag.CLASS );
@@ -173,11 +123,40 @@ System.out.println("SETTING UP LOGGING WITH "+getConfiguration());
     }
 
     String loggerName = frame.getAsString( ConfigTag.NAME );
+
     if ( StringUtil.isNotBlank( loggerName ) ) {
 
-      // look for a target name and ... bummer
       Config cfg = new Config();
-      cfg.merge( frame );
+
+      // populate the logger config, replacing strings with template values
+      for ( DataField field : frame.getFields() ) {
+        if ( field.getType() == DataField.STRING ) {
+          String cval = getString( field.getStringValue() );
+          if ( StringUtil.isBlank( cval ) ) {
+            cval = Template.resolve( field.getStringValue(), getContext().getSymbols() );
+          }
+
+          // treat targets a little differently
+          if ( ConfigTag.TARGET.equalsIgnoreCase( field.getName() ) ) {
+
+            // the targets for loggers MUST be a URI
+            if ( !( "stdout".equalsIgnoreCase( cval ) || "stderr".equalsIgnoreCase( cval ) ) ) {
+              URI testTarget = UriUtil.parse( cval );
+
+              if ( testTarget != null ) {
+                if ( testTarget.getScheme() == null ) {
+                  cval = "file://" + cval;
+                }
+              }
+            }
+          }
+
+          cfg.add( field.getName(), cval );
+        } else {
+          cfg.add( field );
+        }
+
+      }
 
       Logger logger = createLogger( cfg );
 
@@ -185,11 +164,10 @@ System.out.println("SETTING UP LOGGING WITH "+getConfiguration());
         try {
           Log.addLogger( loggerName, logger );
         } catch ( Exception e ) {
-          // TODO Auto-generated catch block
-          e.printStackTrace();
+          System.out.println( LogMsg.createMsg( Batch.MSG, "LogManager.Could not add configured logger", loggerName, logger.getClass(), e.getMessage() ) );
         }
       } else {
-        System.err.println( LogMsg.createMsg( Batch.MSG, "EngineFactory.Could not create an instance of the specified logger" ) );
+        System.err.println( LogMsg.createMsg( Batch.MSG, "LogManager.Could not create an instance of the specified logger" ) );
       }
     }
   }
@@ -198,6 +176,8 @@ System.out.println("SETTING UP LOGGING WITH "+getConfiguration());
 
 
   private static Logger createLogger( Config cfg ) {
+
+    System.out.println( cfg.toFormattedString() );
     Logger retval = null;
     if ( cfg != null ) {
       if ( cfg.contains( ConfigTag.CLASS ) ) {
@@ -212,7 +192,6 @@ System.out.println("SETTING UP LOGGING WITH "+getConfiguration());
             retval = (Logger)object;
             try {
               retval.setConfig( cfg );
-
             } catch ( Exception e ) {
               Log.error( LogMsg.createMsg( Batch.MSG, "EngineFactory.could_not_configure_logger {} - {} : {}", object.getClass().getName(), e.getClass().getSimpleName(), e.getMessage() ) );
             }
