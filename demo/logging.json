@@ -10,7 +10,6 @@
 		},
 
 		"Logging": {
-			"Categories": "info,warn,error,fatal",
 			"Loggers": [
 				{ "class": "ConsoleAppender", "name": "error", "target": "STDERR", "categories": "error, fatal, warn" },
 				{ "class": "ConsoleAppender", "name": "default",  "target": "STDOUT", "categories": "info" },
