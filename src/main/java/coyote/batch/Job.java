@@ -2,17 +2,18 @@ package coyote.batch;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 import java.util.List;
 
 import coyote.commons.FileUtil;
 import coyote.commons.StringUtil;
+import coyote.commons.UriUtil;
 import coyote.loader.AbstractLoader;
 import coyote.loader.Loader;
 import coyote.loader.cfg.Config;
 import coyote.loader.cfg.ConfigurationException;
 import coyote.loader.log.Log;
 import coyote.loader.log.LogMsg;
-import coyote.loader.log.LogMsg.BundleBaseName;
 
 
 /**
@@ -159,16 +160,16 @@ public class Job extends AbstractLoader implements Loader {
     if ( System.getProperty( Job.APP_HOME ) == null ) {
       System.setProperty( Job.APP_HOME, DEFAULT_HOME );
     }
-
-    File wrkDir = new File( System.getProperty( Job.APP_HOME ) + FileUtil.FILE_SEPARATOR + "wrk" );
-
-    try {
-      wrkDir.mkdirs();
-      System.setProperty( ConfigTag.WORKDIR, wrkDir.getAbsolutePath() );
-      Log.debug( LogMsg.createMsg( Batch.MSG, "Job.work_dir_set", System.getProperty( ConfigTag.WORKDIR ) ) );
-
-    } catch ( final Exception e ) {
-      Log.error( e.getMessage() );
+    
+    // look for the URI which was used by the bootstrap loader to load our configuration
+    URI cfgUri = UriUtil.parse( System.getProperty( coyote.loader.ConfigTag.CONFIG_URI ) );
+    if( UriUtil.isFile( cfgUri )){
+      File cfgFile = UriUtil.getFile( cfgUri );
+      if( cfgFile != null){
+        System.setProperty( ConfigTag.WORKDIR, cfgFile.getParent() );        
+      }
+    } else {
+      System.setProperty( ConfigTag.WORKDIR,DEFAULT_HOME );              
     }
   }
 
