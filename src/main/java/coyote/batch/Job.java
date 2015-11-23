@@ -157,20 +157,59 @@ public class Job extends AbstractLoader implements Loader {
 
 
   private void determineWorkDirectory() {
-    if ( System.getProperty( Job.APP_HOME ) == null ) {
-      System.setProperty( Job.APP_HOME, DEFAULT_HOME );
-    }
-    
-    // look for the URI which was used by the bootstrap loader to load our configuration
-    URI cfgUri = UriUtil.parse( System.getProperty( coyote.loader.ConfigTag.CONFIG_URI ) );
-    if( UriUtil.isFile( cfgUri )){
-      File cfgFile = UriUtil.getFile( cfgUri );
-      if( cfgFile != null){
-        System.setProperty( ConfigTag.WORKDIR, cfgFile.getParent() );        
+
+    File result = null;
+
+    // First check for the app.work system property
+    String path = System.getProperties().getProperty( APP_WORK );
+
+    if ( StringUtil.isNotBlank( path ) ) {
+      String workDir = FileUtil.normalizePath( path );
+      File workingDir = new File( workDir );
+      if ( workingDir.exists() ) {
+        if ( workingDir.isDirectory() ) {
+          if ( workingDir.canWrite() ) {
+            result = workingDir;
+          } else {
+            Log.warn( "The app.work property specified an un-writable (permissions) directory: " + workDir );
+          }
+        } else {
+          Log.warn( "The app.work property does not specify a directory: " + workDir );
+        }
+      } else {
+        // Try making it
+        try {
+          FileUtil.makeDirectory( workingDir );
+          result = workingDir;
+        } catch ( IOException e ) {
+          Log.error( "Could not create working directory specified in app.work property: " + workDir + " - " + e.getMessage() );
+        }
       }
+
     } else {
-      System.setProperty( ConfigTag.WORKDIR,DEFAULT_HOME );              
+      // No app.work defined, so try to locate the configuration file used to 
+      // create this job
+      URI cfgUri = UriUtil.parse( System.getProperty( coyote.loader.ConfigTag.CONFIG_URI ) );
+      if ( cfgUri != null && UriUtil.isFile( cfgUri ) ) {
+        File cfgFile = UriUtil.getFile( cfgUri );
+        if ( cfgFile != null ) {
+          File workingDir = new File( cfgFile.getParent() );
+          if ( workingDir.exists() && workingDir.isDirectory() && workingDir.canWrite() ) {
+            result = workingDir;
+          }
+        }
+      }
     }
+
+    // If we have a result,
+    if ( result != null ) {
+      // set it as our working directory
+      System.setProperty( ConfigTag.WORKDIR, result.getAbsolutePath() );
+    } else {
+      // else just use the current working directory
+      System.setProperty( ConfigTag.WORKDIR, DEFAULT_HOME );
+    }
+
   }
 
 
@@ -201,7 +240,7 @@ public class Job extends AbstractLoader implements Loader {
           engine.close();
         } catch ( final IOException ignore ) {}
 
-        Log.debug( LogMsg.createMsg( Batch.MSG, "Job.completed",engine.getName() ) );
+        Log.debug( LogMsg.createMsg( Batch.MSG, "Job.completed", engine.getName() ) );
       } // try-catch-finally
 
     } else {
