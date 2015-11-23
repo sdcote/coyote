@@ -12,6 +12,8 @@
 package coyote.batch;
 
 import java.io.File;
+import java.text.ParseException;
+import java.util.Date;
 import java.util.List;
 
 import coyote.commons.FileUtil;
@@ -22,6 +24,7 @@ import coyote.dataframe.DataFrame;
 import coyote.dataframe.marshal.JSONMarshaler;
 import coyote.dataframe.marshal.MarshalException;
 import coyote.loader.log.Log;
+import coyote.loader.log.LogMsg;
 
 
 /**
@@ -46,6 +49,7 @@ public class PersistentContext extends TransformContext {
   File contextFile = null;
   long runcount = 0;
   DataFrame configuration = null;
+  Date lastRunDate = null;
 
 
 
@@ -83,6 +87,8 @@ public class PersistentContext extends TransformContext {
 
     incrementRunCount();
 
+    setPreviousRunDate();
+
     // If we have a configuration...
     if ( configuration != null ) {
       // fill the context with configuration data
@@ -97,6 +103,37 @@ public class PersistentContext extends TransformContext {
         }// if frame
       } // for
     }
+  }
+
+
+
+
+  private void setPreviousRunDate() {
+    Object value = get( Symbols.PREVIOUS_RUN_DATETIME );
+
+    if ( value != null ) {
+
+      // clear it from the context to reduce confusion
+      set( Symbols.PREVIOUS_RUN_DATETIME,null);
+
+      try {
+        Date prevrun = Batch.DEFAULT_DATETIME_FORMAT.parse( value.toString() );
+
+        // Set the previous run date
+        set( Symbols.PREVIOUS_RUN_DATE, prevrun );
+
+        // set the new value in the symbol table
+        if ( this.symbols != null ) {
+          symbols.put( Symbols.PREVIOUS_RUN_DATE, Batch.DEFAULT_DATE_FORMAT.format( prevrun ) );
+          symbols.put( Symbols.PREVIOUS_RUN_TIME, Batch.DEFAULT_TIME_FORMAT.format( prevrun ) );
+          symbols.put( Symbols.PREVIOUS_RUN_DATETIME, Batch.DEFAULT_DATETIME_FORMAT.format( prevrun ) );
+        }
+
+      } catch ( ParseException e ) {
+        Log.warn( LogMsg.createMsg( Batch.MSG, "Context.previous_run_date_parsing_error", value, e.getClass().getSimpleName(), e.getMessage() ) );
+      }
+    }
+
   }
 
 
@@ -156,12 +193,24 @@ public class PersistentContext extends TransformContext {
       try {
         frame.add( key, properties.get( key ) );
       } catch ( Exception e ) {
-        Log.warn( "Cannot persist property'" + key + "' - " + e.getMessage() );
+        Log.debug( "Cannot persist property '" + key + "' - " + e.getMessage() );
       }
     }
 
     // add the current value of the run counter
     frame.put( Symbols.RUN_COUNT, runcount );
+
+    // Save the current run date
+    Object rundate = get( Symbols.DATETIME );
+    if ( rundate != null ) {
+      // it should be a date reference
+      if ( rundate instanceof Date ) {
+        // format it in the default format
+        frame.put( Symbols.PREVIOUS_RUN_DATETIME, Batch.DEFAULT_DATETIME_FORMAT.format( (Date)rundate ) );
+      } else {
+        Log.warn( LogMsg.createMsg( Batch.MSG, "Context.run_date_reset", rundate ) );
+      }
+    }
 
     // write the context to disk using JSON 
     FileUtil.stringToFile( JSONMarshaler.toFormattedString( frame ), contextFile.getAbsolutePath() );

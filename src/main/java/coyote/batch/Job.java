@@ -200,7 +200,7 @@ public class Job extends AbstractLoader implements Loader {
           engine.close();
         } catch ( final IOException ignore ) {}
 
-        Log.debug( LogMsg.createMsg( Batch.MSG, "Job.completed" ) );
+        Log.debug( LogMsg.createMsg( Batch.MSG, "Job.completed",engine.getName() ) );
       } // try-catch-finally
 
     } else {

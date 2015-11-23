@@ -13,8 +13,6 @@ package coyote.batch;
 
 import java.io.File;
 import java.io.IOException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -70,11 +68,6 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
 
   /** A symbol table to support basic template functions */
   protected static final SymbolTable symbols = new SymbolTable();
-
-  // Consistent date and time representation
-  private static final DateFormat _DATETIME_FORMAT = new SimpleDateFormat( "yyyy-MM-dd HH:mm:ss" );
-  private static final DateFormat _DATE_FORMAT = new SimpleDateFormat( "yyyy-MM-dd" );
-  private static final DateFormat _TIME_FORMAT = new SimpleDateFormat( "HH:mm:ss" );
 
   /** The directory this engine uses for file operations */
   private File jobDirectory = null;
@@ -167,7 +160,8 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
     // figure out our job directory
     determineJobDirectory();
 
-    setRunDate();
+    // prime the symbol table with the run date/time
+    Date rundate = setRunDate();
 
     // Make sure the engine has a name
     if ( StringUtil.isBlank( getName() ) ) {
@@ -186,14 +180,17 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
     // set our list of listeners in the context 
     getContext().setListeners( listeners );
 
-    // Set this engin as the context's engine
+    // Set this engine as the context's engine
     getContext().setEngine( this );
 
-    // Set the symbol table to the one this engin uses
+    // Set the symbol table to the one this engine uses
     getContext().setSymbols( symbols );
 
     // Open / initialize the context
     getContext().open();
+
+    // Set the run date in the context after it was opened (possibly loaded)
+    getContext().set( Symbols.DATETIME, rundate );
 
     // fire the transformation start event
     getContext().start();
@@ -473,16 +470,18 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
 
 
   @SuppressWarnings("unchecked")
-  protected void setRunDate() {
+  protected Date setRunDate() {
+
     // Place date and time values in the symbol table
     Calendar cal = Calendar.getInstance();
 
-    Date date = new Date();
-    if ( date != null ) {
-      cal.setTime( date );
-      symbols.put( Symbols.DATE, formatDate( date ) );
-      symbols.put( Symbols.TIME, formatTime( date ) );
-      symbols.put( Symbols.DATETIME, formatDateTime( date ) );
+    Date rundate = new Date();
+    if ( rundate != null ) {
+      cal.setTime( rundate );
+
+      symbols.put( Symbols.DATE, formatDate( rundate ) );
+      symbols.put( Symbols.TIME, formatTime( rundate ) );
+      symbols.put( Symbols.DATETIME, formatDateTime( rundate ) );
       symbols.put( Symbols.MONTH, String.valueOf( cal.get( Calendar.MONTH ) + 1 ) );
       symbols.put( Symbols.DAY, String.valueOf( cal.get( Calendar.DAY_OF_MONTH ) ) );
       symbols.put( Symbols.YEAR, String.valueOf( cal.get( Calendar.YEAR ) ) );
@@ -505,13 +504,15 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
       symbols.put( Symbols.PREV_YEAR_PYYY, StringUtil.zeropad( cal.get( Calendar.YEAR ), 4 ) );
 
       // reset the date
-      cal.setTime( date );
+      cal.setTime( rundate );
       // go back a month
       cal.add( Calendar.MONTH, -1 );
       symbols.put( Symbols.PREV_MONTH_LM, StringUtil.zeropad( cal.get( Calendar.MONTH ) + 1, 2 ) );
       symbols.put( Symbols.PREV_YEAR_LMYY, StringUtil.zeropad( cal.get( Calendar.YEAR ), 4 ) );
 
     }
+
+    return rundate;
   }
 
 
@@ -734,7 +735,7 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
     if ( date == null )
       return "null";
     else
-      return _DATETIME_FORMAT.format( date );
+      return Batch.DEFAULT_DATETIME_FORMAT.format( date );
   }
 
 
@@ -751,7 +752,7 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
     if ( date == null )
       return "null";
     else
-      return _DATE_FORMAT.format( date );
+      return Batch.DEFAULT_DATE_FORMAT.format( date );
   }
 
 
@@ -768,7 +769,7 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
     if ( date == null )
       return "null";
     else
-      return _TIME_FORMAT.format( date );
+      return Batch.DEFAULT_TIME_FORMAT.format( date );
   }
 
 

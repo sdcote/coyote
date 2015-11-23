@@ -11,6 +11,9 @@
  */
 package coyote.batch;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+
 import coyote.commons.CipherUtil;
 import coyote.commons.Version;
 import coyote.loader.Loader;
@@ -24,6 +27,9 @@ public class Batch {
 
   public static final Version VERSION = new Version( 0, 2, 0, Version.EXPERIMENTAL );
   public static final String NAME = "Batch";
+  public static final DateFormat DEFAULT_DATETIME_FORMAT = new SimpleDateFormat( "yyyy-MM-dd HH:mm:ss.SSS" );
+  public static final DateFormat DEFAULT_DATE_FORMAT = new SimpleDateFormat( "yyyy-MM-dd" );
+  public static final DateFormat DEFAULT_TIME_FORMAT = new SimpleDateFormat( "HH:mm:ss" );
 
   public static final BundleBaseName MSG;
   static {

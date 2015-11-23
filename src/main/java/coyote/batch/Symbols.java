@@ -44,5 +44,9 @@ public class Symbols {
 
   public static final String RUN_COUNT = "RunCount";
   public static final String ERROR_COUNT = "FailureCount"; //
+  
+  public static final String PREVIOUS_RUN_DATE = "PreviousRunDate";
+  public static final String PREVIOUS_RUN_TIME = "PreviousRunTime";
+  public static final String PREVIOUS_RUN_DATETIME = "PreviousRunDateTime";
 
 }
