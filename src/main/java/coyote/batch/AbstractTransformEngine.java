@@ -78,6 +78,9 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
   /** The current row number */
   protected volatile long currentRow = 0;
 
+  /** The facade to log management functions */
+  protected LogManager logManager = null;
+
 
 
 
@@ -191,6 +194,10 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
 
     // Set the run date in the context after it was opened (possibly loaded)
     getContext().set( Symbols.DATETIME, rundate );
+
+    // Open the log manager with the current transform context
+    if ( logManager != null )
+      logManager.open( getContext() );
 
     // fire the transformation start event
     getContext().start();
@@ -619,6 +626,8 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
 
     // close the connections in the transform contexts
     getContext().close();
+    
+    if( logManager != null) logManager.close();
 
   }
 
@@ -878,6 +887,17 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
   @Override
   public void shutdown() {
 
+  }
+
+
+
+
+  /**
+   * @see coyote.batch.TransformEngine#setLogManager(coyote.batch.LogManager)
+   */
+  @Override
+  public void setLogManager( LogManager logmgr ) {
+    logManager = logmgr;
   }
 
 }
