@@ -14,7 +14,7 @@
 
 		"Writer" : {
 			"class" : "FlatFileWriter",
-			"target" : "file://ts-[#$RunCount|00000000000000#].csv",
+			"target" : "ts-[#$RunCount|00000000000000#].csv",
 			"fields" : {
 				"Role" : { "start" : 0, "length" : 6 },
 				"FirstName" : { "start" : 7, "length" : 11 },
