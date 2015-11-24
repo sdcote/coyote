@@ -246,6 +246,7 @@ public class DataProfiler extends FileRecorder implements ContextListener {
     b.append( inputFields.size() );
     b.append( StringUtil.LINE_FEED );
     write( b.toString() );
+    b.delete( 0, b.length() );
 
     if ( readCount > 0 ) {
 
@@ -328,7 +329,10 @@ public class DataProfiler extends FileRecorder implements ContextListener {
       b.append( "  " );
       b.append( formatSizeBytes( totalBytes ) );
       b.append( StringUtil.LINE_FEED );
+      write( b.toString() );
     }
+
+    b.delete( 0, b.length() );
     b.append( StringUtil.LINE_FEED );
     write( b.toString() );
   }
@@ -352,6 +356,7 @@ public class DataProfiler extends FileRecorder implements ContextListener {
     b.append( outputFields.size() );
     b.append( StringUtil.LINE_FEED );
     write( b.toString() );
+    b.delete( 0, b.length() );
 
     if ( writeCount > 0 ) {
       int nameSize = 5;
