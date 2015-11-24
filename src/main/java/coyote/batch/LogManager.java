@@ -149,6 +149,9 @@ public class LogManager extends AbstractConfigurableComponent implements Configu
                 }
               }
             }
+          } else if ( ConfigTag.CATEGORIES.equalsIgnoreCase( field.getName() ) ) {
+            // Categories should be normalized to upper case
+            cval = cval.toUpperCase();
           }
 
           cfg.add( field.getName(), cval );
