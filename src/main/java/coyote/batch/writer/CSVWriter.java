@@ -153,26 +153,26 @@ public class CSVWriter extends AbstractFrameWriter implements FrameWriter, Confi
       try {
         writeHeaders = frame.getAsBoolean( ConfigTag.HEADER );
       } catch ( final DataFrameException e ) {
-        Log.info( LogMsg.createMsg( Batch.MSG, "Writer.Header flag not valid " + e.getMessage() ) );
+        Log.info( LogMsg.createMsg( Batch.MSG, "Writer.header_flag_is_not_valid " + frame.getAsString( ConfigTag.HEADER ) ) );
         writeHeaders = false;
       }
     } else {
       Log.debug( "No header config" );
     }
-    Log.debug( LogMsg.createMsg( Batch.MSG, "Writer.Header flag is set to {}", writeHeaders ) );
+    Log.debug( LogMsg.createMsg( Batch.MSG, "Writer.header_flag_is_set_as", writeHeaders ) );
 
     // Check to see if a different date format is to be used
     if ( frame.contains( ConfigTag.DATEFORMAT ) ) {
       try {
         DATEFORMAT = new SimpleDateFormat( frame.getAsString( ConfigTag.DATEFORMAT ) );
       } catch ( final Exception e ) {
-        Log.warn( LogMsg.createMsg( Batch.MSG, "Writer.Date format pattern '{}' is not valid - {} ", frame.getAsString( ConfigTag.DATEFORMAT ), e.getMessage() ) );
+        Log.warn( LogMsg.createMsg( Batch.MSG, "Writer.date_format_pattern_is_not_valid", frame.getAsString( ConfigTag.DATEFORMAT ), e.getMessage() ) );
         DATEFORMAT = new SimpleDateFormat( DEFAULT_DATE_FORMAT );
       }
     } else {
-      Log.debug( LogMsg.createMsg( Batch.MSG, "Writer.Using default date format" ) );
+      Log.debug( LogMsg.createMsg( Batch.MSG, "Writer.using_default_date_format",DATEFORMAT.toPattern() ) );
     }
-    Log.debug( LogMsg.createMsg( Batch.MSG, "Writer.Date format pattern is set to {}", DATEFORMAT.toPattern() ) );
+    Log.debug( LogMsg.createMsg( Batch.MSG, "Writer.date_format_pattern_set_as", DATEFORMAT.toPattern() ) );
 
   }
 

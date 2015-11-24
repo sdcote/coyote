@@ -51,11 +51,9 @@ public abstract class FileRecorder extends ContextRecorder {
   public void open( TransformContext context ) {
     super.open( context );
 
-    Log.info( "Opening FileRecorder" );
-
     // get our configuration data
     setTarget( getString( ConfigTag.TARGET ) );
-    Log.debug( LogMsg.createMsg( Batch.MSG, "Listener.using_target", getTarget() ) );
+    Log.debug( LogMsg.createMsg( Batch.MSG, "Batch.listener_validating_target", getTarget() ) );
 
     if ( StringUtil.isNotBlank( getTarget() ) ) {
 
@@ -88,7 +86,7 @@ public abstract class FileRecorder extends ContextRecorder {
 
         // 
         targetFile = dest;
-        Log.debug( LogMsg.createMsg( Batch.MSG, "Batch.listener.using_target", targetFile.toString() ) );
+        Log.debug( LogMsg.createMsg( Batch.MSG, "Batch.listener_using_target", targetFile.toString() ) );
 
         // Create the writer
         log_writer = new OutputStreamWriter( new FileOutputStream( targetFile.toString(), false ) );

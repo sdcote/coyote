@@ -169,7 +169,7 @@ public abstract class AbstractConfigurableComponent implements ConfigurableCompo
     }
     String retval = Template.resolve( value, context.getSymbols() );
 
-    Log.debug( LogMsg.createMsg( Batch.MSG, "Component.resolved_value", value, retval ) );
+    Log.trace( LogMsg.createMsg( Batch.MSG, "Component.resolved_value", value, retval ) );
 
     return retval;
   }

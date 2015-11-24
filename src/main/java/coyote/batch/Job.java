@@ -73,12 +73,12 @@ public class Job extends AbstractLoader implements Loader {
       engine = TransformEngineFactory.getInstance( job );
 
       if ( StringUtil.isBlank( engine.getName() ) ) {
-        Log.info( LogMsg.createMsg( Batch.MSG, "Job.unnamed_engine_configured" ) );
+        Log.debug( LogMsg.createMsg( Batch.MSG, "Job.unnamed_engine_configured" ) );
       } else {
-        Log.info( LogMsg.createMsg( Batch.MSG, "Job.engine_configured", engine.getName() ) );
+        Log.debug( LogMsg.createMsg( Batch.MSG, "Job.engine_configured", engine.getName() ) );
       }
     } else {
-      Log.info( LogMsg.createMsg( Batch.MSG, "Job.no_job_section" ) );
+      Log.fatal( LogMsg.createMsg( Batch.MSG, "Job.no_job_section" ) );
     }
   }
 

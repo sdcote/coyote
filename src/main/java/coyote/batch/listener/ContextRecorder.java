@@ -11,12 +11,14 @@
  */
 package coyote.batch.listener;
 
+import coyote.batch.Batch;
 import coyote.batch.ConfigTag;
 import coyote.batch.ConfigurationException;
 import coyote.batch.ContextListener;
 import coyote.dataframe.DataFrame;
 import coyote.dataframe.DataFrameException;
 import coyote.loader.log.Log;
+import coyote.loader.log.LogMsg;
 
 
 /**
@@ -58,27 +60,29 @@ public abstract class ContextRecorder extends AbstractListener implements Contex
   @Override
   public void setConfiguration( DataFrame frame ) throws ConfigurationException {
     super.setConfiguration( frame );
-    
+
     if ( frame.contains( ConfigTag.READ ) ) {
       try {
         onRead = frame.getAsBoolean( ConfigTag.READ );
+        Log.debug( LogMsg.createMsg( Batch.MSG, "ContextRecorder.read_flag_set_as", onRead ) );
       } catch ( DataFrameException e ) {
-        Log.info( "Read flag not valid " + e.getMessage() );
+        Log.warn( LogMsg.createMsg( Batch.MSG, "ContextRecorder.read_flag_not_valid", e.getMessage() ) );
         onRead = false;
       }
     } else {
-      Log.debug( "No read flag" );
+      Log.debug( LogMsg.createMsg( Batch.MSG, "ContextRecorder.no_read_flag" ) );
     }
 
     if ( frame.contains( ConfigTag.WRITE ) ) {
       try {
         onWrite = frame.getAsBoolean( ConfigTag.WRITE );
+        Log.debug( LogMsg.createMsg( Batch.MSG, "ContextRecorder.write_flag_set_as", onWrite ) );
       } catch ( DataFrameException e ) {
-        Log.info( "Write flag not valid " + e.getMessage() );
+        Log.warn( LogMsg.createMsg( Batch.MSG, "ContextRecorder.write_flag_not_valid", e.getMessage() ) );
         onWrite = false;
       }
     } else {
-      Log.debug( "No write flag" );
+      Log.debug( LogMsg.createMsg( Batch.MSG, "ContextRecorder.no_write_flag" ) );
     }
 
   }

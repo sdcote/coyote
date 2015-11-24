@@ -60,6 +60,8 @@ public class LogManager extends AbstractConfigurableComponent implements Configu
   @Override
   public void open( TransformContext context ) {
     setContext( context );
+    Log.debug( LogMsg.createMsg( Batch.MSG, "LogManager.initializing" ) );
+
 
     // Remove all currently set loggers
     Log.removeAllLoggers();
@@ -193,8 +195,6 @@ public class LogManager extends AbstractConfigurableComponent implements Configu
 
 
   private static Logger createLogger( Config cfg ) {
-
-    System.out.println( cfg.toFormattedString() );
     Logger retval = null;
     if ( cfg != null ) {
       if ( cfg.contains( ConfigTag.CLASS ) ) {

@@ -192,14 +192,14 @@ public class TransformEngineFactory {
 
             // create a new log manager
             LogManager logmgr = new LogManager();
-            
+
             // Configure it with the logging section
             try {
               logmgr.setConfiguration( (DataFrame)field.getObjectValue() );
             } catch ( ConfigurationException e ) {
               Log.error( "Invalid logging configuration", e );
             }
-            
+
             // Set the log manager in the engine
             retval.setLogManager( logmgr );
           } else {
@@ -292,15 +292,15 @@ public class TransformEngineFactory {
         if ( object != null ) {
           if ( object instanceof FrameTransform ) {
             engine.addTransformer( (FrameTransform)object );
-            Log.debug( LogMsg.createMsg( Batch.MSG, "EngineFactory.Created frame transformer {} cfg={}", object.getClass().getName(), transformerConfig ) );
+            Log.debug( LogMsg.createMsg( Batch.MSG, "EngineFactory.created_frame_transformer", object.getClass().getName(), transformerConfig ) );
           } else {
-            Log.error( LogMsg.createMsg( Batch.MSG, "EngineFactory.Specified transformer class '{}' was not a frame transformer", field.getName() ) );
+            Log.error( LogMsg.createMsg( Batch.MSG, "EngineFactory.specified_class_was_not_a_transformer", field.getName() ) );
           }
         } else {
-          Log.error( LogMsg.createMsg( Batch.MSG, "EngineFactory.Could not create an instance of the specified frame transformer '{}'", className ) );
+          Log.error( LogMsg.createMsg( Batch.MSG, "EngineFactory.could_not_create_an_instance_of_specified_transformer", className ) );
         }
       } else {
-        Log.error( LogMsg.createMsg( Batch.MSG, "EngineFactory.Transformer task did not contain a configuration, only scalar {}", field.getStringValue() ) );
+        Log.error( LogMsg.createMsg( Batch.MSG, "EngineFactory.transformer_task_did_not_contain_valid_configuration", field.getStringValue() ) );
       }
     } // for each transformer
   }
@@ -480,15 +480,15 @@ public class TransformEngineFactory {
         // set the engine in the context
         context.setEngine( engine );
 
-        Log.debug( LogMsg.createMsg( Batch.MSG, "EngineFactory.Created persistent context {}", context.getClass().getName() ) );
+        Log.debug( LogMsg.createMsg( Batch.MSG, "EngineFactory.created_persistent_context", context.getClass().getName() ) );
       } else {
-        Log.warn( LogMsg.createMsg( Batch.MSG, "EngineFactory.Unnamed engine configuration, could not create persistent context" ) );
+        Log.warn( LogMsg.createMsg( Batch.MSG, "EngineFactory.unnamed_engine_configuration" ) );
         configContext( cfg, engine );
         return;
       }
     } else {
       // TODO: support converting a regular context into a persistent one
-      Log.warn( LogMsg.createMsg( Batch.MSG, "EngineFactory.Could not create persistent context, Context already exists" ) );
+      Log.warn( LogMsg.createMsg( Batch.MSG, "EngineFactory.could_not_replace_existing_context" ) );
     }
 
   }
@@ -508,12 +508,12 @@ public class TransformEngineFactory {
     if ( object != null ) {
       if ( object instanceof FrameWriter ) {
         engine.setWriter( (FrameWriter)object );
-        Log.debug( LogMsg.createMsg( Batch.MSG, "EngineFactory.Created writer {}", object.getClass().getName() ) );
+        Log.debug( LogMsg.createMsg( Batch.MSG, "EngineFactory.created_writer", object.getClass().getName() ) );
       } else {
-        Log.error( LogMsg.createMsg( Batch.MSG, "EngineFactory.Specified class was not a frame writer" ) );
+        Log.error( LogMsg.createMsg( Batch.MSG, "EngineFactory.specified_class_is_not_a_writer", object.getClass().getName() ) );
       }
     } else {
-      Log.error( LogMsg.createMsg( Batch.MSG, "EngineFactory.Could not create an instance of the specified writer" ) );
+      Log.error( LogMsg.createMsg( Batch.MSG, "EngineFactory.could_not_create_instance_of_specified_writer", className ) );
     }
   }
 
@@ -563,12 +563,12 @@ public class TransformEngineFactory {
     if ( object != null ) {
       if ( object instanceof FrameReader ) {
         engine.setReader( (FrameReader)object );
-        Log.debug( LogMsg.createMsg( Batch.MSG, "EngineFactory.Created reader {}", object.getClass().getName() ) );
+        Log.debug( LogMsg.createMsg( Batch.MSG, "EngineFactory.created_reader", object.getClass().getName() ) );
       } else {
-        Log.error( LogMsg.createMsg( Batch.MSG, "EngineFactory.Specified class was not a frame reader" ) );
+        Log.error( LogMsg.createMsg( Batch.MSG, "EngineFactory.specified_class_is_not_a_reader", object.getClass().getName() ) );
       }
     } else {
-      Log.error( LogMsg.createMsg( Batch.MSG, "EngineFactory.Could not create an instance of the specified reader" ) );
+      Log.error( LogMsg.createMsg( Batch.MSG, "EngineFactory.could_not_create_instance_of_specified_reader", className ) );
     }
 
   }
@@ -593,12 +593,12 @@ public class TransformEngineFactory {
     if ( object != null ) {
       if ( object instanceof ContextListener ) {
         engine.addListener( (ContextListener)object );
-        Log.debug( LogMsg.createMsg( Batch.MSG, "EngineFactory.Created listener {}", object.getClass().getName() ) );
+        Log.debug( LogMsg.createMsg( Batch.MSG, "EngineFactory.created_listener", object.getClass().getName() ) );
       } else {
-        Log.error( LogMsg.createMsg( Batch.MSG, "EngineFactory.Specified class '{}' was not a context listener", cfg.getAsString( ConfigTag.CLASS ) ) );
+        Log.error( LogMsg.createMsg( Batch.MSG, "EngineFactory.specified_class_is_not_a_listener", object.getClass().getName() ) );
       }
     } else {
-      Log.error( LogMsg.createMsg( Batch.MSG, "EngineFactory.Could not create an instance of the specified listener" ) );
+      Log.error( LogMsg.createMsg( Batch.MSG, "EngineFactory.could_not_create_instance_of_specified_listener", className ) );
     }
   }
 

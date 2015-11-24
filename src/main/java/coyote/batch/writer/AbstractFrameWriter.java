@@ -89,7 +89,7 @@ public abstract class AbstractFrameWriter extends AbstractConfigurableComponent 
     if ( printwriter == null ) {
       // check for a target in our configuration
       String target = getString( ConfigTag.TARGET );
-      Log.debug(  LogMsg.createMsg( Batch.MSG, "Writer.using a target of {}", target ));
+      Log.debug(  LogMsg.createMsg( Batch.MSG, "Writer.using_target", target ));
 
       // Make sure we have a target
       if ( StringUtil.isNotBlank( target ) ) {
