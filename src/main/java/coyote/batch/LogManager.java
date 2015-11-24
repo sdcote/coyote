@@ -11,11 +11,13 @@
  */
 package coyote.batch;
 
+import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
 
+import coyote.commons.FileUtil;
 import coyote.commons.StringUtil;
 import coyote.commons.UriUtil;
 import coyote.commons.template.Template;
@@ -31,6 +33,8 @@ import coyote.loader.log.Logger;
  * This class sets up logging only after the engine is run and the context is
  * opened so as to enable use of the context values and templates in logging
  * configuration values.
+ * 
+ * TODO This code has been build incrementally and is in need of refactoring.
  */
 public class LogManager extends AbstractConfigurableComponent implements ConfigurableComponent {
 
@@ -99,18 +103,6 @@ public class LogManager extends AbstractConfigurableComponent implements Configu
 
 
 
-  //
-
-  //
-
-  //
-
-  //
-
-  //
-
-  //
-
   private void configLogger( DataFrame frame ) {
 
     // Make sure the class is fully qualified 
@@ -149,6 +141,28 @@ public class LogManager extends AbstractConfigurableComponent implements Configu
                 }
               }
             }
+
+            // make sure the URI is valid
+            URI testUri = UriUtil.parse( cval );
+            if ( testUri != null ) {
+              if ( UriUtil.isFile( testUri ) ) {
+                File logfile = UriUtil.getFile( testUri );
+
+                // make it absolute to our job directory
+                if ( !logfile.isAbsolute() ) {
+                  if ( getContext() != null && getContext().getSymbols() != null ) {
+                    File jobdir = new File( getContext().getSymbols().getString( Symbols.JOB_DIRECTORY ) );
+                    logfile = new File( jobdir, logfile.getPath() );
+                    testUri = FileUtil.getFileURI( logfile );
+                    cval = testUri.toString();
+                  }
+                }
+              }
+
+            } else {
+              System.out.println( "Bad target URI '" + cval + "'" );
+            }
+
           } else if ( ConfigTag.CATEGORIES.equalsIgnoreCase( field.getName() ) ) {
             // Categories should be normalized to upper case
             cval = cval.toUpperCase();
