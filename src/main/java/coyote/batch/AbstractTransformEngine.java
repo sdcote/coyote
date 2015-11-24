@@ -75,8 +75,8 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
   /** The shared directory where multiple engines may read and write data. */
   private File workDirectory = null;
 
-  /** The current row number */
-  protected volatile long currentRow = 0;
+  /** The current frame number */
+  protected volatile long currentFrame = 0;
 
   /** The facade to log management functions */
   protected LogManager logManager = null;
@@ -313,9 +313,11 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
           // Set the returned dataframe into the transaction context
           txnContext.setSourceFrame( retval );
           // increment the row number in the contexts
-          txnContext.setRow( ++currentRow );
-          getContext().setRow( currentRow );
-          getContext().getSymbols().put( "currentRow", currentRow );
+          txnContext.setRow( ++currentFrame );
+          getContext().setRow( currentFrame );
+          getContext().getSymbols().put( Symbols.CURRENT_FRAME, currentFrame );
+          getContext().getSymbols().put( Symbols.LAST_FRAME, txnContext.isLastFrame() );
+          getContext().setLastFrame( txnContext.isLastFrame() );
 
           // fire the read event in all the listeners
           txnContext.fireRead( txnContext );

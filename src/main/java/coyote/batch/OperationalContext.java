@@ -34,7 +34,8 @@ public abstract class OperationalContext {
   protected volatile long endTime = 0;
   protected final Map<String, Object> properties = new HashMap<String, Object>();
   protected OperationalContext parent = null;
-  private long row = 0;
+  private long currentFrame = 0;
+  private boolean lastFrame = false;
 
   /** Flag indicating the context is in errorFlag */
   protected volatile boolean errorFlag = false;
@@ -114,7 +115,7 @@ public abstract class OperationalContext {
             if ( entry.getValue() != null ) {
               return entry.getValue().toString();
             }
-            // dont break; keep looking in case there is another non-null match
+            // don't break; keep looking in case there is another non-null match
           } // if match
         } // for
       } // else
@@ -491,20 +492,41 @@ public abstract class OperationalContext {
 
 
   /**
-   * @return the row
+   * @return the row (current frame number in the sequence)
    */
   public long getRow() {
-    return row;
+    return currentFrame;
   }
 
 
 
 
   /**
-   * @param row the row to set
+   * This sets the number of the current frame in the sequence.
+   * @param row the row (frame sequence) to set
    */
   public void setRow( long row ) {
-    this.row = row;
+    this.currentFrame = row;
+  }
+
+
+
+
+  /**
+   * @return true if this is the last frame in the stream, false if more frames are coming.
+   */
+  public boolean isLastFrame() {
+    return lastFrame;
+  }
+
+
+
+
+  /**
+   * @param isLast true if this is the last frame in the stream
+   */
+  public void setLastFrame( boolean isLast ) {
+    lastFrame = isLast;
   }
 
 }

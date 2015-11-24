@@ -34,7 +34,7 @@ import coyote.loader.log.LogMsg;
 
 
 /**
- * 
+ * TODO: support TransactionContext.setLastFrame( true )
  */
 public class FlatFileReader extends AbstractFrameReader implements FrameReader, ConfigurableComponent {
 
@@ -134,6 +134,8 @@ public class FlatFileReader extends AbstractFrameReader implements FrameReader, 
     } catch ( Exception e ) {
       context.setError( e.getMessage() );
     }
+
+    // TODO: support TransactionContext.setLastFrame( true )
 
     return retval;
   }

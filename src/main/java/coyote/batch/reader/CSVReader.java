@@ -33,7 +33,7 @@ import coyote.loader.log.LogMsg;
 
 
 /**
- * 
+ * TODO: support TransactionContext.setLastFrame( true )
  */
 public class CSVReader extends AbstractFrameReader implements FrameReader, ConfigurableComponent {
 
@@ -127,6 +127,8 @@ public class CSVReader extends AbstractFrameReader implements FrameReader, Confi
 
     // TODO: consume empty lines: sometimes CSV files have empty lines at the end of the file...we should consume them
 
+    // TODO: support the concept of last frame - TransactionContext.setLastFrame( true );
+    
     return retval;
   }
 

@@ -38,6 +38,8 @@ import coyote.loader.log.LogMsg;
 
 /**
  * This is a frame reader which uses a JDBC result set to create frames.
+ * 
+ * TODO: support TransactionContext.setLastFrame( true )
  */
 public class JdbcReader extends AbstractFrameReader {
 
@@ -176,6 +178,9 @@ public class JdbcReader extends AbstractFrameReader {
     } else {
       EOF = true;
     }
+    
+    // TODO: support TransactionContext.setLastFrame( true )
+
     return retval;
   }
 

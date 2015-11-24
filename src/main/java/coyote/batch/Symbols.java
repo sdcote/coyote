@@ -49,4 +49,7 @@ public class Symbols {
   public static final String PREVIOUS_RUN_TIME = "PreviousRunTime";
   public static final String PREVIOUS_RUN_DATETIME = "PreviousRunDateTime";
 
+  public static final String CURRENT_FRAME = "CurrentFrame";
+  public static final String LAST_FRAME = "LastFrame";
+
 }

@@ -29,7 +29,6 @@ import coyote.loader.log.LogMsg;
 
 
 /**
- * 
  * <pre>"Writer":{
  *   "class" : "CSVWriter",
  *   "header" : true,
@@ -170,7 +169,7 @@ public class CSVWriter extends AbstractFrameWriter implements FrameWriter, Confi
         DATEFORMAT = new SimpleDateFormat( DEFAULT_DATE_FORMAT );
       }
     } else {
-      Log.debug( LogMsg.createMsg( Batch.MSG, "Writer.using_default_date_format",DATEFORMAT.toPattern() ) );
+      Log.debug( LogMsg.createMsg( Batch.MSG, "Writer.using_default_date_format", DATEFORMAT.toPattern() ) );
     }
     Log.debug( LogMsg.createMsg( Batch.MSG, "Writer.date_format_pattern_set_as", DATEFORMAT.toPattern() ) );
 
