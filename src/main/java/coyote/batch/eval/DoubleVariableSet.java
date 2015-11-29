@@ -16,9 +16,10 @@ import coyote.commons.eval.VariableSet;
 
 
 /**
- * Acts as a facade to the contexts providing acess to the underlying context data
+ * Acts as a facade to the contexts providing access to the underlying context 
+ * data and converting values to Double values when possible.
  */
-public class ContextVariableSet<T> implements VariableSet<T> {
+public class DoubleVariableSet<T> implements VariableSet<T> {
 
   /** The operatinal context backing this class */
   OperationalContext context = null;

@@ -468,7 +468,7 @@ public abstract class AbstractEvaluator<T> {
    * 
    * @param expression The expression that is evaluated
    * 
-   * @return A string iterator.
+   * @return A string iterator over each token in the expression.
    */
   protected Iterator<String> tokenize( final String expression ) {
     return tokenizer.tokenize( expression );

@@ -19,8 +19,8 @@ import coyote.commons.eval.DoubleEvaluator;
  * This is a facade to the evaluation functions.
  */
 public class Evaluator {
-  private final ContextVariableSet<Boolean> bvs = new ContextVariableSet<Boolean>();
-  private final ContextVariableSet<Double> dvs = new ContextVariableSet<Double>();
+  private final BooleanVariableSet<Boolean> bvs = new BooleanVariableSet<Boolean>();
+  private final DoubleVariableSet<Double> dvs = new DoubleVariableSet<Double>();
   private final BooleanEvaluator beval = new BooleanEvaluator();
   private final DoubleEvaluator deval = new DoubleEvaluator();
 
