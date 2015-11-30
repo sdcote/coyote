@@ -28,6 +28,8 @@ public class TransformContext extends OperationalContext {
 
   protected TransformEngine engine = null;
 
+  private volatile TransactionContext transactionContext = null;
+
 
 
 
@@ -103,6 +105,28 @@ public class TransformContext extends OperationalContext {
    */
   protected TransformEngine getEngine() {
     return engine;
+  }
+
+
+
+
+  /**
+   * Sets the current transaction in the transformation context.
+   * 
+   * @param context the current transaction context being processed
+   */
+  public void setTransaction( TransactionContext context ) {
+    transactionContext = context;
+  }
+
+
+
+
+  /**
+  * @return the current transaction context
+  */
+  public TransactionContext getTransaction() {
+    return transactionContext;
   }
 
 }

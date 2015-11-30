@@ -43,9 +43,12 @@ public class EvaluatorTest {
 
     // Create simple transformation context
     transformContext = new TransformContext();
+    
+    transformContext.setLastFrame( true );
 
     // create a transaction context within the transformation context  
     context = new TransactionContext( transformContext );
+    context.setLastFrame( true );
 
     // create a new evaluator
     evaluator = new Evaluator();
