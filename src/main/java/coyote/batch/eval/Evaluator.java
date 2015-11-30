@@ -60,13 +60,14 @@ public class Evaluator {
    * @throws EvaluationException if there were problems evaluating the expression
    */
   public boolean evaluateBoolean( final String expression ) throws EvaluationException {
+    // use the boolean evaluator with the boolean variable set
     return beval.evaluate( expression, bvs );
   }
 
 
 
   /**
-   * Evaluate the given expression as a numeric expression.
+   * Evaluate the given expression as a numeric (double) expression.
    * 
    * <p>The returned value is of type double to allow for the widest possible 
    * set of values in the result.</p>
@@ -78,6 +79,7 @@ public class Evaluator {
    * @throws EvaluationException if there were problems evaluating the expression
    */
  public double evaluateDouble( final String expression ) {
+   // use the double evaluator with the double variable set
     return deval.evaluate( expression, dvs );
   }
 
