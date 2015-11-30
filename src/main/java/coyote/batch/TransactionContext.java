@@ -23,6 +23,8 @@ public class TransactionContext extends OperationalContext {
   private DataFrame targetFrame = null;
   private DataFrame workingFrame = null;
 
+  private boolean lastFrame = false;
+
 
 
 
@@ -99,5 +101,22 @@ public class TransactionContext extends OperationalContext {
 
 
 
+
+  /**
+   * @return true if this is the last frame in the stream, false if more frames are coming.
+   */
+  public boolean isLastFrame() {
+    return lastFrame;
+  }
+
+
+
+
+  /**
+   * @param isLast true if this is the last frame in the stream
+   */
+  public void setLastFrame( boolean isLast ) {
+    lastFrame = isLast;
+  }
 
 }

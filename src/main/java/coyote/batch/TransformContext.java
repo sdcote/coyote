@@ -113,6 +113,9 @@ public class TransformContext extends OperationalContext {
   /**
    * Sets the current transaction in the transformation context.
    * 
+   * <p>This allows all components in the transformation engine to access the 
+   * current transaction frames.</p>
+   * 
    * @param context the current transaction context being processed
    */
   public void setTransaction( TransactionContext context ) {

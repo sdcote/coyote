@@ -300,6 +300,7 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
         // Create a new Transaction context with the list of listeners to react 
         // to events in the transaction.
         TransactionContext txnContext = new TransactionContext( getContext() );
+        // place a reference to the transaction in the transform context
         getContext().setTransaction(txnContext);
         
         // Start the clock and fire event listeners for the beginning of the
@@ -319,7 +320,6 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
           getContext().setRow( currentFrame );
           getContext().getSymbols().put( Symbols.CURRENT_FRAME, currentFrame );
           getContext().getSymbols().put( Symbols.LAST_FRAME, txnContext.isLastFrame() );
-          getContext().setLastFrame( txnContext.isLastFrame() );
 
           // fire the read event in all the listeners
           txnContext.fireRead( txnContext );

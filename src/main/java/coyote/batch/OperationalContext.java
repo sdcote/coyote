@@ -35,7 +35,6 @@ public abstract class OperationalContext {
   protected final Map<String, Object> properties = new HashMap<String, Object>();
   protected OperationalContext parent = null;
   private long currentFrame = 0;
-  private boolean lastFrame = false;
 
   /** Flag indicating the context is in errorFlag */
   protected volatile boolean errorFlag = false;
@@ -512,21 +511,6 @@ public abstract class OperationalContext {
 
 
 
-  /**
-   * @return true if this is the last frame in the stream, false if more frames are coming.
-   */
-  public boolean isLastFrame() {
-    return lastFrame;
-  }
-
-
-
-
-  /**
-   * @param isLast true if this is the last frame in the stream
-   */
-  public void setLastFrame( boolean isLast ) {
-    lastFrame = isLast;
-  }
+ 
 
 }
