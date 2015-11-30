@@ -35,6 +35,8 @@ public class ConfigTag {
   public static final String LIMIT = "limit";
   public static final String NAME = "name";
   public static final String VALUE = "value";
+  public static final String CONDITION = "condition";
+  public static final String DEFAULT = "default";
   public static final String PASSWORD = "password";
   public static final String ENCRYPTED_PASSWORD = "encrypted_password";
   public static final String PRELOAD = "preload";
