@@ -11,8 +11,14 @@
  */
 package coyote.batch.eval;
 
+import java.util.Arrays;
+import java.util.Iterator;
+
 import coyote.commons.eval.AbstractEvaluator;
 import coyote.commons.eval.BracketPair;
+import coyote.commons.eval.Constant;
+import coyote.commons.eval.Function;
+import coyote.commons.eval.Operator;
 import coyote.commons.eval.Parameters;
 
 
@@ -21,10 +27,40 @@ import coyote.commons.eval.Parameters;
  */
 public class BooleanEvaluator extends AbstractEvaluator<Boolean> {
 
+  // = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+  // Operators
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  /** The negate unary operator.*/
+  public final static Operator NEGATE = new Operator( "!", 1, Operator.Associativity.RIGHT, 3 );
+
+  /** The logical AND operator.*/
+  private static final Operator AND = new Operator( "&&", 2, Operator.Associativity.LEFT, 2 );
+
+  /** The logical OR operator.*/
+  public final static Operator OR = new Operator( "||", 2, Operator.Associativity.LEFT, 1 );
+
+  /** The standard whole set of predefined operators */
+  private static final Operator[] OPERATORS = new Operator[] { NEGATE, AND, OR };
+  // = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+  // = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+  // Functions
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  /** Performs a case insensitive comparison between two string values*/
+  public static final Function MATCH = new Function( "match", 2 );
+
+  /** The whole set of predefined functions */
+  private static final Function[] FUNCTIONS = new Function[] { MATCH };
+  // = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+
+  // Our default parameters
   private static Parameters DEFAULT_PARAMETERS;
 
 
 
+
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   private static Parameters getParameters() {
     if ( DEFAULT_PARAMETERS == null ) {
@@ -37,7 +73,7 @@ public class BooleanEvaluator extends AbstractEvaluator<Boolean> {
 
 
   /**
-   * 
+   * Default constructor which uses the default evaluation parameters.
    */
   public BooleanEvaluator() {
     this( getParameters() );
@@ -47,7 +83,9 @@ public class BooleanEvaluator extends AbstractEvaluator<Boolean> {
 
 
   /**
-   * @param parameters
+   * Our private constructor which uses the given evaluation parameters
+   * 
+   * @param parameters the evaluation parameters this evaluator should use
    */
   private BooleanEvaluator( Parameters parameters ) {
     super( parameters );
@@ -65,13 +103,12 @@ public class BooleanEvaluator extends AbstractEvaluator<Boolean> {
    * 
    * <p>Each call to this method create a new instance of Parameters.</p>
    *  
-   * @return a Paramaters instance
+   * @return a Parameters instance
    */
   public static Parameters getDefaultParameters() {
     final Parameters result = new Parameters();
-    //    result.addOperators( Arrays.asList( OPERATORS ) );
-    //    result.addFunctions( Arrays.asList( FUNCTIONS ) );
-    //    result.addConstants( Arrays.asList( CONSTANTS ) );
+    result.addOperators( Arrays.asList( OPERATORS ) );
+    result.addFunctions( Arrays.asList( FUNCTIONS ) );
     result.addFunctionBracket( BracketPair.PARENTHESES );
     result.addExpressionBracket( BracketPair.PARENTHESES );
     return result;
@@ -85,8 +122,30 @@ public class BooleanEvaluator extends AbstractEvaluator<Boolean> {
    */
   @Override
   protected Boolean toValue( String literal, Object evaluationContext ) {
-    // TODO Auto-generated method stub
-    return null;
+    return Boolean.valueOf( literal );
+  }
+
+
+
+
+  /**
+   * @see coyote.commons.eval.AbstractEvaluator#evaluate(coyote.commons.eval.Operator, java.util.Iterator, java.lang.Object)
+   */
+  @Override
+  protected Boolean evaluate( Operator operator, Iterator<Boolean> operands, Object evaluationContext ) {
+    if ( operator == NEGATE ) {
+      return !operands.next();
+    } else if ( operator == OR ) {
+      Boolean o1 = operands.next();
+      Boolean o2 = operands.next();
+      return o1 || o2;
+    } else if ( operator == AND ) {
+      Boolean o1 = operands.next();
+      Boolean o2 = operands.next();
+      return o1 && o2;
+    } else {
+      return super.evaluate( operator, operands, evaluationContext );
+    }
   }
 
 }

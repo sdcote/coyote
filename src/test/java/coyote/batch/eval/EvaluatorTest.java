@@ -12,6 +12,7 @@
 package coyote.batch.eval;
 
 //import static org.junit.Assert.*;
+import static org.junit.Assert.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -43,18 +44,20 @@ public class EvaluatorTest {
 
     // Create simple transformation context
     transformContext = new TransformContext();
-    
-    transformContext.setLastFrame( true );
+    transformContext.set( "string", "Nylon" );
 
     // create a transaction context within the transformation context  
     context = new TransactionContext( transformContext );
     context.setLastFrame( true );
 
-    // create a new evaluator
-    evaluator = new Evaluator();
+    // Mimic the transform engine and place a reference to the transaction 
+    // context in the transform context
+    transformContext.setTransaction( context );
 
-    // set the transaction context used to resolve variables
-    evaluator.setContext( transformContext );
+    // create a new evaluator setting the transform context used to resolve 
+    // variables
+    evaluator = new Evaluator(transformContext);
+    
   }
 
 
@@ -89,7 +92,41 @@ public class EvaluatorTest {
    */
   @Test
   public void testEvaluateBoolean() {
-    //fail( "Not yet implemented" ); // TODO
+
+    String expression;
+    try {
+      expression = "true && false";
+      assertFalse( evaluator.evaluateBoolean( expression ) );
+      //System.out.println( expression + " = " + evaluator.evaluateBoolean( expression ) );
+      
+      expression = "true || false";
+      assertTrue( evaluator.evaluateBoolean( expression ) );
+
+      expression = "!true";
+      assertFalse( evaluator.evaluateBoolean( expression ) );
+
+      expression = "isLastFrame";
+      //assertTrue( evaluator.evaluateBoolean( expression ) );
+
+      expression = "not isLastFrame";
+      // assertFalse( evaluator.evaluateBoolean( expression ) );
+
+      expression = "!isLastFrame";
+      // assertFalse( evaluator.evaluateBoolean( expression ) );
+    } catch ( Exception e ) {
+      e.printStackTrace();
+    }
+
+    try {
+      expression = "isLastFrame and equals(WorkingFrame.record_type,\"22\")";
+      // assertFalse( evaluator.evaluateBoolean( expression ) );
+
+      expression = "not isLastFrame and matches(WorkingFrame.userName,\"22\")";
+      // assertFalse( evaluator.evaluateBoolean( expression ) );
+    } catch ( Exception e ) {
+      e.printStackTrace();
+    }
+
   }
 
 
