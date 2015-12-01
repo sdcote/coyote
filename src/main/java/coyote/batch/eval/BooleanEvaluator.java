@@ -14,6 +14,7 @@ package coyote.batch.eval;
 import java.util.Arrays;
 import java.util.Iterator;
 
+import coyote.batch.TransformContext;
 import coyote.commons.eval.AbstractEvaluator;
 import coyote.commons.eval.BracketPair;
 import coyote.commons.eval.Constant;
@@ -26,6 +27,12 @@ import coyote.commons.eval.Parameters;
  * 
  */
 public class BooleanEvaluator extends AbstractEvaluator<Boolean> {
+
+  private static final String LITERAL_TRUE = "true";
+  private static final String LITERAL_FALSE = "false";
+
+  /** The transformation context from which we retrieve data */
+  TransformContext transformContext = null;
 
   // = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
   // Operators
@@ -53,6 +60,15 @@ public class BooleanEvaluator extends AbstractEvaluator<Boolean> {
   private static final Function[] FUNCTIONS = new Function[] { MATCH };
   // = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
+  // = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+  // Constants
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  /** A constant that represents the current state of the isLastFrame() method call in the transaction context */
+  public static final Constant LAST = new Constant( "islast" );
+
+  /** The whole set of predefined constants */
+  private static final Constant[] CONSTANTS = new Constant[] { LAST };
+  // = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
   // Our default parameters
   private static Parameters DEFAULT_PARAMETERS;
@@ -109,6 +125,7 @@ public class BooleanEvaluator extends AbstractEvaluator<Boolean> {
     final Parameters result = new Parameters();
     result.addOperators( Arrays.asList( OPERATORS ) );
     result.addFunctions( Arrays.asList( FUNCTIONS ) );
+    result.addConstants( Arrays.asList( CONSTANTS ) );
     result.addFunctionBracket( BracketPair.PARENTHESES );
     result.addExpressionBracket( BracketPair.PARENTHESES );
     return result;
@@ -122,7 +139,30 @@ public class BooleanEvaluator extends AbstractEvaluator<Boolean> {
    */
   @Override
   protected Boolean toValue( String literal, Object evaluationContext ) {
-    return Boolean.valueOf( literal );
+    if ( LITERAL_TRUE.equalsIgnoreCase( literal ) || LITERAL_FALSE.equalsIgnoreCase( literal ) ) {
+      return Boolean.valueOf( literal );
+    } else {
+      throw new IllegalArgumentException( "'"+literal + "' is not a valid boolean literal" );
+    }
+  }
+
+
+
+
+  /**
+   * @see coyote.commons.eval.AbstractEvaluator#evaluate(coyote.commons.eval.Constant, java.lang.Object)
+   */
+  @Override
+  protected Boolean evaluate( final Constant constant, final Object evaluationContext ) {
+    if ( LAST.equals( constant ) ) {
+      if ( transformContext != null && transformContext.getTransaction() != null ) {
+        return new Boolean( transformContext.getTransaction().isLastFrame() );
+      } else {
+        return new Boolean( false );
+      }
+    } else {
+      return super.evaluate( constant, evaluationContext );
+    }
   }
 
 
@@ -146,6 +186,13 @@ public class BooleanEvaluator extends AbstractEvaluator<Boolean> {
     } else {
       return super.evaluate( operator, operands, evaluationContext );
     }
+  }
+
+
+
+
+  public void setContext( TransformContext context ) {
+    transformContext = context;
   }
 
 }

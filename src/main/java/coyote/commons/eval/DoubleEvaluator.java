@@ -353,6 +353,9 @@ public class DoubleEvaluator extends AbstractEvaluator<Double> {
 
 
 
+  /**
+   * @see coyote.commons.eval.AbstractEvaluator#toValue(java.lang.String, java.lang.Object)
+   */
   @Override
   protected Double toValue( final String literal, final Object evaluationContext ) {
     final ParsePosition p = new ParsePosition( 0 );

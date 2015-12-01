@@ -133,7 +133,7 @@ public class EvalTest {
    * 
    */
   @Test
-  public void variables() {
+  public void testVariables() {
     final String expression = "sin(x)"; // Here is the expression to evaluate
     // Create the evaluator
     final DoubleEvaluator eval = new DoubleEvaluator();

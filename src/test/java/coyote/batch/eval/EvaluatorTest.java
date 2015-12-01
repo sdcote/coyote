@@ -76,11 +76,11 @@ public class EvaluatorTest {
 
 
   /**
-   * Test method for {@link coyote.batch.eval.Evaluator#Evaluator(coyote.batch.OperationalContext)}.
+   * Test method for {@link coyote.batch.eval.Evaluator#Evaluator(coyote.batch.TransformContext)}.
    */
   @Test
   public void testEvaluatorOperationalContext() {
-    Evaluator subject = new Evaluator( context );
+    Evaluator subject = new Evaluator( transformContext );
     assertNotNull( subject );
   }
 
@@ -105,23 +105,21 @@ public class EvaluatorTest {
       expression = "!true";
       assertFalse( evaluator.evaluateBoolean( expression ) );
 
-      expression = "isLastFrame";
-      //assertTrue( evaluator.evaluateBoolean( expression ) );
+      expression = "islast"; // constant supported by the boolean evaluator
+      assertTrue( evaluator.evaluateBoolean( expression ) );
 
-      expression = "not isLastFrame";
-      // assertFalse( evaluator.evaluateBoolean( expression ) );
-
-      expression = "!isLastFrame";
-      // assertFalse( evaluator.evaluateBoolean( expression ) );
+      expression = "! islast";
+      assertFalse( evaluator.evaluateBoolean( expression ) );
     } catch ( Exception e ) {
       e.printStackTrace();
+      fail(e.getMessage());
     }
 
     try {
-      expression = "isLastFrame and equals(WorkingFrame.record_type,\"22\")";
+      expression = "islast and equals(WorkingFrame.record_type,\"22\")";
       // assertFalse( evaluator.evaluateBoolean( expression ) );
 
-      expression = "not isLastFrame and matches(WorkingFrame.userName,\"22\")";
+      expression = "! islast and matches(WorkingFrame.userName,\"22\")";
       // assertFalse( evaluator.evaluateBoolean( expression ) );
     } catch ( Exception e ) {
       e.printStackTrace();
