@@ -39,6 +39,7 @@ public class DataProfiler extends FileRecorder implements ContextListener {
   long writeBytes = 0;
   static DecimalFormat MILLIS = new DecimalFormat( "000" );
   private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat( "#,###,##0.00" );
+  private static final DecimalFormat P_FORMAT = new DecimalFormat( "##0.0" );
   private static final DecimalFormat NUMBER_FORMAT = new DecimalFormat( "###,###,###,###,###" );
 
   Date start = null;
@@ -272,6 +273,8 @@ public class DataProfiler extends FileRecorder implements ContextListener {
       b.append( StringUtil.fixedLength( "Nulls", 9, 0 ) );
       b.append( StringUtil.fixedLength( "Empty", 9, 0 ) );
       b.append( StringUtil.fixedLength( "Blank", 9, 0 ) );
+      b.append( StringUtil.fixedLength( "Unique", 9, 0 ) );
+      b.append( StringUtil.fixedLength( "Coincidence", 12, 0 ) );
       b.append( StringUtil.fixedLength( "Chars", 13, 0 ) );
       b.append( StringUtil.fixedLength( "Avg", 9, 0 ) );
       b.append( StringUtil.fixedLength( "Minimum", 9, 0 ) );
@@ -297,6 +300,10 @@ public class DataProfiler extends FileRecorder implements ContextListener {
         b.append( " " );
         b.append( StringUtil.fixedLength( Long.toString( metric.getBlankCount() ), 8, 0 ) );
         b.append( " " );
+        b.append( StringUtil.fixedLength( Long.toString( metric.getUniqueValues() ), 8, 0 ) );
+        b.append( " " );
+        b.append( StringUtil.fixedLength( P_FORMAT.format( metric.getCoincidence() * 100 ), 5, 2 ) );
+        b.append( "       " );
         b.append( StringUtil.fixedLength( Long.toString( metric.getTotalStringLength() ), 12, 0 ) );
         b.append( " " );
         b.append( StringUtil.fixedLength( Long.toString( metric.getAverageStringLength() ), 8, 0 ) );
@@ -322,7 +329,7 @@ public class DataProfiler extends FileRecorder implements ContextListener {
       }
 
       b.delete( 0, b.length() );
-      b.append( StringUtil.fixedLength( "Totals", nameSize + typeSize + 29, 0 ) );
+      b.append( StringUtil.fixedLength( "Totals", nameSize + typeSize + 50, 0 ) );
       b.append( StringUtil.fixedLength( Long.toString( totalChars ), 12, 0 ) );
       b.append( StringUtil.fixedLength( "", 37, 0 ) );
       b.append( totalBytes );
@@ -381,6 +388,8 @@ public class DataProfiler extends FileRecorder implements ContextListener {
       b.append( StringUtil.fixedLength( "Nulls", 9, 0 ) );
       b.append( StringUtil.fixedLength( "Empty", 9, 0 ) );
       b.append( StringUtil.fixedLength( "Blank", 9, 0 ) );
+      b.append( StringUtil.fixedLength( "Unique", 9, 0 ) );
+      b.append( StringUtil.fixedLength( "Coincidence", 12, 0 ) );
       b.append( StringUtil.fixedLength( "Chars", 13, 0 ) );
       b.append( StringUtil.fixedLength( "Avg", 9, 0 ) );
       b.append( StringUtil.fixedLength( "Minimum", 9, 0 ) );
@@ -406,6 +415,10 @@ public class DataProfiler extends FileRecorder implements ContextListener {
         b.append( " " );
         b.append( StringUtil.fixedLength( Long.toString( metric.getBlankCount() ), 8, 0 ) );
         b.append( " " );
+        b.append( StringUtil.fixedLength( Long.toString( metric.getUniqueValues() ), 8, 0 ) );
+        b.append( " " );
+        b.append( StringUtil.fixedLength( P_FORMAT.format( metric.getCoincidence() * 100 ), 5, 2 ) );
+        b.append( "       " );
         b.append( StringUtil.fixedLength( Long.toString( metric.getTotalStringLength() ), 12, 0 ) );
         b.append( " " );
         b.append( StringUtil.fixedLength( Long.toString( metric.getAverageStringLength() ), 8, 0 ) );
@@ -431,7 +444,7 @@ public class DataProfiler extends FileRecorder implements ContextListener {
       }
 
       b.delete( 0, b.length() );
-      b.append( StringUtil.fixedLength( "Totals", nameSize + typeSize + 29, 0 ) );
+      b.append( StringUtil.fixedLength( "Totals", nameSize + typeSize + 50, 0 ) );
       b.append( StringUtil.fixedLength( Long.toString( totalChars ), 12, 0 ) );
       b.append( StringUtil.fixedLength( "", 37, 0 ) );
       b.append( totalBytes );

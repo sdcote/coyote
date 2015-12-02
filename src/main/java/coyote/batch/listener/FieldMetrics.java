@@ -11,6 +11,9 @@
  */
 package coyote.batch.listener;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import coyote.dataframe.DataField;
 import coyote.i13n.Metric;
 
@@ -30,6 +33,8 @@ public class FieldMetrics {
   long blankCount = 0;
   Metric stringLength = new Metric( STRING_LENGTH, "" );
   Metric byteLength = new Metric( BYTE_LENGTH, "" );
+  private Set<Object> values = new HashSet<Object>();
+  long sampleCount = 0;
 
 
 
@@ -72,6 +77,7 @@ public class FieldMetrics {
 
 
   public void sample( DataField field ) {
+    sampleCount++;
     // Set the type of the field
     if ( getType() == null ) {
       setType( field.getTypeName() );
@@ -82,6 +88,8 @@ public class FieldMetrics {
     // Set metrics based on the value of the field
     String value = field.getStringValue();
     if ( value != null ) {
+      values.add( value );
+
       if ( value.length() == 0 ) {
         emptyCount++;
       } else if ( value.trim().length() == 0 ) {
@@ -216,4 +224,21 @@ public class FieldMetrics {
     return byteLength.getTotal();
   }
 
+
+
+
+  public int getUniqueValues() {
+    return values.size();
+  }
+
+
+
+
+  public float getCoincidence() {
+    if ( sampleCount > 0 ) {
+      return (float)( sampleCount - ( values.size() - 1 ) ) / (float)sampleCount;
+    } else {
+      return 1F;
+    }
+  }
 }
