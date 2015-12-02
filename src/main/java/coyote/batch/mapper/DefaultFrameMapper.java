@@ -11,6 +11,9 @@
  */
 package coyote.batch.mapper;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import coyote.batch.Batch;
 import coyote.batch.ConfigTag;
 import coyote.batch.ConfigurationException;
@@ -29,6 +32,9 @@ import coyote.loader.log.LogMsg;
  * with one name to the target frame with another.
  */
 public class DefaultFrameMapper extends AbstractFrameMapper implements FrameMapper {
+
+ 
+
 
   /**
    * Expects a configuration in the form of "Fields" : { "SourceField" : "TargetField" }
@@ -52,7 +58,7 @@ public class DefaultFrameMapper extends AbstractFrameMapper implements FrameMapp
       // For each name:value pair, setup a soure:target mapping
       for ( DataField field : mapFrame.getFields() ) {
         if ( StringUtil.isNotBlank( field.getName() ) && field.getValue().length > 0 ) {
-          fieldMap.put( field.getName(), field.getObjectValue().toString() );
+          fields.add( new SourceToTarget( field.getName(), field.getObjectValue().toString() ) );
         }
       }
     } else {
@@ -70,20 +76,27 @@ public class DefaultFrameMapper extends AbstractFrameMapper implements FrameMapp
   @Override
   public void process( TransactionContext context ) throws MappingException {
 
-    if ( fieldMap.size() > 0 ) {
-      // for each frame in the map (insertion order)
-      for ( String workingName : fieldMap.keySet() ) {
+    if ( fields.size() > 0 ) {
+      // for each frame in the list (insertion order)
+      for ( SourceToTarget mapping : fields ) {
+
         DataField targetField;
-        if ( context.getWorkingFrame().contains( workingName ) ) {
+
+        if ( context.getWorkingFrame().contains( mapping.getSourceName() ) ) {
+
           // clone the named field from the working frame
-          targetField = (DataField)context.getWorkingFrame().getField( workingName ).clone();
-          // re-name the file to that of the target frame
-          targetField.setName( fieldMap.get( workingName ) );
+          targetField = (DataField)context.getWorkingFrame().getField( mapping.getSourceName() ).clone();
+
+          // re-name the field to that of the target frame
+          targetField.setName( mapping.getTargetName() );
+
         } else {
+          // apparently there is no working field named with the source name. 
           // This is normal, the value could just be missing for this record 
-          // only. create a new null frame with the desired name
-          targetField = new DataField( workingName, null );
+          // only. Create a new null frame with the desired name
+          targetField = new DataField( mapping.getTargetName(), null );
         }
+
         // place the mapped field in the target data frame for writing 
         context.getTargetFrame().getFields().add( targetField );
       }
@@ -94,4 +107,5 @@ public class DefaultFrameMapper extends AbstractFrameMapper implements FrameMapp
 
   }
 
+ 
 }

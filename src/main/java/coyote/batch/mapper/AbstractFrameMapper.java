@@ -12,8 +12,8 @@
 package coyote.batch.mapper;
 
 import java.io.IOException;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 
 import coyote.batch.AbstractConfigurableComponent;
 import coyote.batch.Component;
@@ -24,9 +24,8 @@ import coyote.batch.TransformContext;
  * Represents the base call for all the mappers.
  */
 public abstract class AbstractFrameMapper extends AbstractConfigurableComponent implements Component {
-
-  /** An insertion ordered map of target fields to be written to the target frame */
-  Map<String, String> fieldMap = new LinkedHashMap<String, String>();
+  /** An insertion ordered list of target fields to be written to the target frame */
+  List<SourceToTarget> fields = new ArrayList<SourceToTarget>();
 
 
 
@@ -61,4 +60,46 @@ public abstract class AbstractFrameMapper extends AbstractConfigurableComponent 
   public void close() throws IOException {
 
   }
+
+  //
+
+  //
+
+  /**
+   * 
+   */
+  protected class SourceToTarget {
+    private final String sourceName;
+    private final String targetName;
+
+
+
+
+    public SourceToTarget( String source, String target ) {
+      sourceName = source;
+      targetName = target;
+    }
+
+
+
+
+    /**
+     * @return the target field name
+     */
+    public String getTargetName() {
+      return targetName;
+    }
+
+
+
+
+    /**
+     * @return the source field name
+     */
+    public String getSourceName() {
+      return sourceName;
+    }
+
+  }
+
 }
