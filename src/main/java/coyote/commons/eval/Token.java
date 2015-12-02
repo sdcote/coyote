@@ -218,4 +218,15 @@ public class Token {
     return kind.equals( Kind.OPERATOR );
   }
 
+
+
+
+  /**
+   * @see java.lang.Object#toString()
+   */
+  @Override
+  public String toString() {
+    return content != null ? content.toString() : "NULL";
+  }
+
 }

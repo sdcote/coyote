@@ -13,7 +13,7 @@ package coyote.commons.eval;
 
 /**
  * A method is a special type of function which takes String arguments a 
- * performs busine logic processing to generate a numeric or boolean value. 
+ * performs business logic processing to generate a numeric or boolean value. 
  */
 public class Method extends Function {
 

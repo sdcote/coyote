@@ -12,18 +12,14 @@
 package coyote.batch.eval;
 
 import coyote.batch.TransformContext;
-import coyote.commons.eval.DoubleEvaluator;
-import coyote.commons.eval.StaticVariableSet;
 
 
 /**
  * This is a facade to the evaluation functions.
  */
 public class Evaluator {
-  private final StaticVariableSet<Boolean> bvs = new StaticVariableSet<Boolean>();
-  private final StaticVariableSet<Double> dvs = new StaticVariableSet<Double>();
   private final BooleanEvaluator beval = new BooleanEvaluator();
-  private final DoubleEvaluator deval = new DoubleEvaluator();
+  private final NumericEvaluator neval = new NumericEvaluator();
 
 
 
@@ -61,8 +57,7 @@ public class Evaluator {
    * @throws EvaluationException if there were problems evaluating the expression
    */
   public boolean evaluateBoolean( final String expression ) throws EvaluationException {
-    // use the boolean evaluator with the boolean variable set
-    return beval.evaluate( expression, bvs );
+    return beval.evaluate( expression );
   }
 
 
@@ -80,9 +75,8 @@ public class Evaluator {
    * 
    * @throws EvaluationException if there were problems evaluating the expression
    */
-  public double evaluateDouble( final String expression ) {
-    // use the double evaluator with the double variable set
-    return deval.evaluate( expression, dvs );
+  public double evaluateNumeric( final String expression ) {
+    return neval.evaluate( expression );
   }
 
 

@@ -118,7 +118,6 @@ public class BooleanEvaluator extends AbstractEvaluator<Boolean> {
    */
   private BooleanEvaluator( Parameters parameters ) {
     super( parameters );
-    // TODO Auto-generated constructor stub
   }
 
 
@@ -135,13 +134,13 @@ public class BooleanEvaluator extends AbstractEvaluator<Boolean> {
    * @return a Parameters instance
    */
   public static Parameters getDefaultParameters() {
-    final Parameters result = new Parameters();
-    result.addOperators( Arrays.asList( OPERATORS ) );
-    result.addMethods( Arrays.asList( METHODS ) );
-    result.addConstants( Arrays.asList( CONSTANTS ) );
-    result.addFunctionBracket( BracketPair.PARENTHESES );
-    result.addExpressionBracket( BracketPair.PARENTHESES );
-    return result;
+    final Parameters retval = new Parameters();
+    retval.addOperators( Arrays.asList( OPERATORS ) );
+    retval.addMethods( Arrays.asList( METHODS ) );
+    retval.addConstants( Arrays.asList( CONSTANTS ) );
+    retval.addFunctionBracket( BracketPair.PARENTHESES );
+    retval.addExpressionBracket( BracketPair.PARENTHESES );
+    return retval;
   }
 
 
@@ -170,33 +169,35 @@ public class BooleanEvaluator extends AbstractEvaluator<Boolean> {
    * @see coyote.commons.eval.AbstractEvaluator#evaluate(coyote.commons.eval.Method, java.util.Iterator, java.lang.Object)
    */
   @Override
-  protected Boolean evaluate( Method function, Iterator<String> arguments, Object evaluationContext ) {
+  protected Boolean evaluate( Method method, Iterator<String> arguments, Object evaluationContext ) {
+    System.out.println("EVALUATING METHOD: "+method);
     Boolean result;
-    if ( EQUALS.equals( function ) ) {
-      Object arg2 = arguments.next();
-      Object arg1 = arguments.next();
+    if ( EQUALS.equals( method ) ) {
+      String arg2 = arguments.next();
+      String arg1 = arguments.next();
       // do the thing with the stuff here
       result = Boolean.FALSE;
-    } else if ( REGEX.equals( function ) ) {
-      Object arg2 = arguments.next();
-      Object arg1 = arguments.next();
+    } else if ( REGEX.equals( method ) ) {
+      String arg2 = arguments.next();
+      String arg1 = arguments.next();
       // do the thing with the stuff here
       result = Boolean.FALSE;
-    } else if ( MATCH.equals( function ) ) {
-      Object arg2 = arguments.next();
-      Object arg1 = arguments.next();
+    } else if ( MATCH.equals( method ) ) {
+      String arg2 = arguments.next();
+      String arg1 = arguments.next();
       // do the thing with the stuff here
       result = Boolean.FALSE;
-    } else if ( EMPTY.equals( function ) ) {
-      Object arg1 = arguments.next();
+    } else if ( EMPTY.equals( method ) ) {
+      String arg1 = arguments.next();
       // do the thing with the stuff here
       result = Boolean.FALSE;
-    } else if ( EXISTS.equals( function ) ) {
-      Object arg1 = arguments.next();
+    } else if ( EXISTS.equals( method ) ) {
+      String arg1 = arguments.next();
       // do the thing with the stuff here
+      System.out.println("ARG1:"+arg1);
       result = Boolean.FALSE;
     } else {
-      result = super.evaluate( function, arguments, evaluationContext );
+      result = super.evaluate( method, arguments, evaluationContext );
     }
 
     return result;

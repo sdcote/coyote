@@ -29,13 +29,18 @@ import coyote.loader.log.LogMsg;
  * condition.
  * 
  * <p>The field will be added if it does not exist and if it does exist, the 
- * value if the existing field will be replaced.</p>
+ * value if the existing field will be replaced. Note this is different from 
+ * the {@code Add} transform which simply adds the named field to the working 
+ * record and may result in multiple fields with the same name.</p>
  * 
  * <p>The expressions can use the names of values in the context as variables 
  * in the expressions. Fields in the source, working and target frames are also 
- * accessable through a simple naming convention.</p>
+ * accessible through a simple naming convention.</p>
  * 
- * <p>The configuration is:<pre>"Set" : { "Name": "type", "Condition": "some_expression", "Value": "0001.00", "Default": "0.0" }</pre>
+ * <p>The following is a real life example which sets the {@code terminator} to 
+ * a value of "2" if the context is processing the last record or "1" otherwise
+ * which indicates more records (frames) are to be expected:
+ * <pre>"Set" : { "Name" : "terminator", "Condition": "islast", "Value" : "2", "Default" : "1" }</pre>
  * <ul>
  * <li>Name - the name of the field to set. (Required)</li>
  * <li>Condition - The boolean expression which must evaluate to true foe the 
@@ -47,12 +52,10 @@ import coyote.loader.log.LogMsg;
  * </ul></p>
  * 
  * <p>{@code Condition}, {@code Value} and {@code Default} will be treated as 
- * templates, then evaluated as expressions to provide a high degree of 
- * configurability to the transformation.</p>
+ * templates to provide a high degree of configurability to the transformation.</p>
  * 
  * <p>If only {@code Name} and {@code Value} are configured, then the transform 
  * unconditionally sets the the specified value in the named field.</p>
- * 
  */
 public class Set extends AbstractFrameTransform implements FrameTransform {
 
@@ -129,7 +132,31 @@ public class Set extends AbstractFrameTransform implements FrameTransform {
   @Override
   public DataFrame process( DataFrame frame ) throws TransformException {
 
-    frame.add( fieldName, super.resolveArgument( fieldValue ) );
+    // If there is a conditional expression
+    if ( expression != null ) {
+
+      try {
+        // if the condition evaluates to true
+        if ( evaluator.evaluateBoolean( expression ) ) {
+
+          frame.put( fieldName, super.resolveArgument( fieldValue ) );
+
+        } else {
+          // if there is a default value,
+          if ( defaultValue != null ) {
+            // set it
+            frame.put( fieldName, super.resolveArgument( defaultValue ) );
+          }
+        }
+      } catch ( EvaluationException e ) {
+        Log.warn( LogMsg.createMsg( Batch.MSG, "Transform.Set_boolean_evaluation_error", e.getMessage() ) );
+      }
+
+    } else {
+      // unconditionally set the value
+      frame.put( fieldName, super.resolveArgument( fieldValue ) );
+    }
+
     return frame;
   }
 

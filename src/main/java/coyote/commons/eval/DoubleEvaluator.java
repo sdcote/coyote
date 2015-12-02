@@ -190,7 +190,10 @@ public class DoubleEvaluator extends AbstractEvaluator<Double> {
 
 
 
-  private static Parameters getParameters() {
+  /**
+   * @return the default parameters supported by this evaluator.
+   */
+  protected static Parameters getParameters() {
     if ( DEFAULT_PARAMETERS == null ) {
       DEFAULT_PARAMETERS = getDefaultParameters();
     }

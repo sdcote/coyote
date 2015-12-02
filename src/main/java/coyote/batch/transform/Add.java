@@ -25,8 +25,12 @@ import coyote.loader.log.LogMsg;
 /**
  * This adds a field to the working frame.
  * 
- * <p>The configuration is 
- * <tt>"Add" : { "Name" : "cust_item_usage", "Value" : "0001.00" }</tt>
+ * <p>This is different from {@code Set} in that {@code Add} may result in 
+ * multiple fields of the same name being added to the frame. The {@code Set} 
+ * transform will not duplicate frames with the same name.</p> 
+ * 
+ * <p>A sample configuration is: 
+ * <pre>"Add" : { "Name" : "cust_item_usage", "Value" : "0001.00" }</pre></p>
  */
 public class Add extends AbstractFrameTransform implements FrameTransform {
 

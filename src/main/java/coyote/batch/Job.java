@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.List;
 
+import coyote.commons.ExceptionUtil;
 import coyote.commons.FileUtil;
 import coyote.commons.StringUtil;
 import coyote.commons.UriUtil;
@@ -232,7 +233,7 @@ public class Job extends AbstractLoader implements Loader {
         engine.run();
       } catch ( final Exception e ) {
         Log.fatal( LogMsg.createMsg( Batch.MSG, "Job.exception_running_engine", e.getClass().getSimpleName(), e.getMessage() ) );
-        Log.fatal( e );
+        Log.fatal( ExceptionUtil.toString( e ) );
       }
       finally {
 

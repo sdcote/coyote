@@ -121,16 +121,6 @@ public abstract class AbstractEvaluator<T> {
 
 
 
-  private void doMethod( final Deque<T> values, final Method method, final int argCount, final Object evaluationContext ) {
-    if ( ( method.getMinimumArgumentCount() > argCount ) || ( method.getMaximumArgumentCount() < argCount ) ) {
-      throw new IllegalArgumentException( "Invalid argument count for " + method.getName() + " method" );
-    }
-    values.push( evaluate( method, getArguments( values, argCount ), evaluationContext ) );
-  }
-
-
-
-
   /** 
    * Evaluates a constant.
    * 
@@ -268,17 +258,16 @@ public abstract class AbstractEvaluator<T> {
     // break the expression into individual tokens for processing
     final Iterator<String> tokens = tokenize( expression );
     Token previous = null;
-    
+
     // process each of the tokens
     while ( tokens.hasNext() ) {
-      
+
       // read one token from the input stream
       final String strToken = tokens.next();
-      
+
       // create a token from the string token
       final Token token = toToken( previous, strToken );
-      
-      
+
       if ( token.isOpenBracket() ) {
         // If the token is a left parenthesis, then push it onto the stack.
         operatorStack.push( token );
@@ -327,8 +316,7 @@ public abstract class AbstractEvaluator<T> {
           final int argCount = valueStack.size() - previousValuesSize.pop();
           doFunction( valueStack, operatorStack.pop().getFunction(), argCount, evaluationContext );
         }
-        
-        
+
       } else if ( token.isFunctionArgumentSeparator() ) {
         if ( previous == null ) {
           throw new IllegalArgumentException( "expression can't start with a function argument separator" );
@@ -355,54 +343,60 @@ public abstract class AbstractEvaluator<T> {
           // misplaced or parentheses were mismatched.
           throw new IllegalArgumentException( "Separator or parentheses mismatched" );
         }
-        
-        
+
       } else if ( token.isFunction() ) {
         // If the token is a function token, then push it onto the stack.
         operatorStack.push( token );
         previousValuesSize.push( valueStack.size() );
-        
-        
+
       } else if ( token.isMethod() ) {
         // here is where we break with convention; we need to consume the next 
-        // tokens to determin the String arguments to the methos as opposed to 
+        // tokens to determine the String arguments to the method as opposed to 
         // argument of type <T> which make them suitable for recursive handling
         // on the stack. This section consumes the next tokens to determine the 
         // arguments to and to make the method call the return value of which 
         // will be placed on the stack
 
-        // TODO        
-        Token method = token;
-        
-        
+        // create our list of method arguments        
+        final LinkedList<String> arguments = new LinkedList<String>();
+        boolean called = false;
+
         // read what should be a open bracket
         String strTkn = tokens.next();
         Token tkn = toToken( previous, strTkn );
         if ( tkn.isOpenBracket() ) {
-          
+
           // now read in all the argument tokens
           while ( tokens.hasNext() ) {
             strTkn = tokens.next();
             tkn = toToken( previous, strTkn );
 
-            // TODO start collecting arguments for the method call
+            // start collecting arguments for the method call
 
-            // 
+            // If the token is a closed bracket, the arguments are complete
             if ( tkn.isCloseBracket() ) {
 
-              // TODO call the method and place the value on the valueStack
+              // call the method with the arguments and place the return value 
+              // on the valueStack
+              valueStack.push( evaluate( token.getMethod(), arguments.iterator(), evaluationContext ) );
 
-              // return control to the regular mathematic processing
+              called = true;
+              // return control to the regular mathematics processing
               break;
+            } else {
+              // add the string token to the list of arguments
+              arguments.addFirst( strTkn );
             }
 
           }
-          throw new IllegalArgumentException( "Unmatched method bracket: " + method );
 
+          if ( !called ) {
+            throw new IllegalArgumentException( "No close brackets found for method '" + token + "'" );
+          }
         } else {
-          throw new IllegalArgumentException( "A method must be followed by brackets" );
+          throw new IllegalArgumentException( "A method must be followed by open brackets to enclose arguments" );
         }
-        
+
       } else if ( token.isOperator() ) {
         // If the token is an operator, op1, then:
         while ( !operatorStack.isEmpty() ) {
@@ -607,6 +601,15 @@ public abstract class AbstractEvaluator<T> {
 
 
 
+  /**
+   * Create a token from the given string taking into account the previous 
+   * token processed.
+   * 
+   * @param previous the previous token processed
+   * @param token the string to convert
+   * 
+   * @return a token represented by the given string
+   */
   private Token toToken( final Token previous, final String token ) {
     if ( token.equals( argumentSeparator ) ) {
       return Token.FUNCTION_ARG_SEPARATOR;
