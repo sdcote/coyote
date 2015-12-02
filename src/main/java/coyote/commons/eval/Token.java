@@ -8,7 +8,7 @@ package coyote.commons.eval;
  */
 public class Token {
   private enum Kind {
-    OPEN_BRACKET, CLOSE_BRACKET, FUNCTION_SEPARATOR, FUNCTION, OPERATOR, LITERAL
+    OPEN_BRACKET, CLOSE_BRACKET, FUNCTION_SEPARATOR, FUNCTION, METHOD, OPERATOR, LITERAL
   }
 
   static final Token FUNCTION_ARG_SEPARATOR = new Token( Kind.FUNCTION_SEPARATOR, null );
@@ -25,6 +25,13 @@ public class Token {
 
   static Token buildFunction( final Function function ) {
     return new Token( Kind.FUNCTION, function );
+  }
+
+
+
+
+  static Token buildMethod( final Method method ) {
+    return new Token( Kind.METHOD, method );
   }
 
 
@@ -57,8 +64,12 @@ public class Token {
 
   private Token( final Kind kind, final Object content ) {
     super();
-    if ( ( kind.equals( Kind.OPERATOR ) && !( content instanceof Operator ) ) || ( kind.equals( Kind.FUNCTION ) && !( content instanceof Function ) ) || ( kind.equals( Kind.LITERAL ) && !( content instanceof String ) ) ) {
-      throw new IllegalArgumentException();
+    if ( 
+        ( kind.equals( Kind.OPERATOR ) && !( content instanceof Operator ) ) || 
+        ( kind.equals( Kind.FUNCTION ) && !( content instanceof Function ) ) || 
+        ( kind.equals( Kind.METHOD ) && !( content instanceof Method ) ) || 
+        ( kind.equals( Kind.LITERAL ) && !( content instanceof String ) ) 
+       ) { throw new IllegalArgumentException();
     }
     this.kind = kind;
     this.content = content;
@@ -83,6 +94,13 @@ public class Token {
 
   Function getFunction() {
     return (Function)content;
+  }
+
+
+
+
+  Method getMethod() {
+    return (Method)content;
   }
 
 
@@ -138,6 +156,18 @@ public class Token {
    */
   public boolean isFunction() {
     return kind.equals( Kind.FUNCTION );
+  }
+
+
+
+
+  /**
+   * Tests whether the token is a method.
+   * 
+   * @return true if the token is a method
+   */
+  public boolean isMethod() {
+    return kind.equals( Kind.METHOD );
   }
 
 

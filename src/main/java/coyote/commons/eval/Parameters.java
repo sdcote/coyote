@@ -11,12 +11,13 @@ import java.util.Map;
  * The parameters of an evaluator.
  * 
  * <p>An evaluator may have different parameters as the supported operators, 
- * the supported functions, etc ...</p>
+ * the supported functions, methods, constants, etc ...</p>
  */
 public class Parameters {
-  private String functionSeparator;
+  private String argumentSeparator;
   private final List<Operator> operators;
   private final List<Function> functions;
+  private final List<Method> methods;
   private final List<Constant> constants;
   private final Map<String, String> translations;
   private final List<BracketPair> expressionBrackets;
@@ -26,14 +27,15 @@ public class Parameters {
 
 
   /**
-   * This constructor builds an instance with no operator, no function, no 
-   * constant, no translation and no bracket.
+   * This constructor builds an instance with no operators, no functions, no 
+   * constants, no methods, no translations and no brackets.
    * 
-   * <p>Function argument separator is set to ','.</p>
+   * <p>Function and method argument separator is set to ','.</p>
    */
   public Parameters() {
     operators = new ArrayList<Operator>();
     functions = new ArrayList<Function>();
+    methods = new ArrayList<Method>();
     constants = new ArrayList<Constant>();
     translations = new HashMap<String, String>();
     expressionBrackets = new ArrayList<BracketPair>();
@@ -153,6 +155,18 @@ public class Parameters {
 
 
   /**
+   * Adds methods to the supported ones.
+   * 
+   * @param methods The methods to be added.
+   */
+  public void addMethods( final Collection<Method> methods ) {
+    this.methods.addAll( methods );
+  }
+
+
+
+
+  /**
    * Adds operators to the supported ones.
    * 
    * @param operators The operators to be added.
@@ -187,8 +201,8 @@ public class Parameters {
   /**
    * @return the function argument separator.
    */
-  public String getFunctionArgumentSeparator() {
-    return functionSeparator;
+  public String getArgumentSeparator() {
+    return argumentSeparator;
   }
 
 
@@ -238,7 +252,7 @@ public class Parameters {
    * @param separator The new separator
    */
   public void setFunctionArgumentSeparator( final char separator ) {
-    functionSeparator = new String( new char[] { separator } );
+    argumentSeparator = new String( new char[] { separator } );
   }
 
 
@@ -281,6 +295,16 @@ public class Parameters {
 
   private void setTranslation( final String name, final String translatedName ) {
     translations.put( name, translatedName );
+  }
+
+
+
+
+  /**
+   * @return the supported functions.
+   */
+  public Collection<Method> getMethods() {
+    return methods;
   }
 
 }

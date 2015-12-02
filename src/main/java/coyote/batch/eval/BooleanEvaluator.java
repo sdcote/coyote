@@ -18,7 +18,7 @@ import coyote.batch.TransformContext;
 import coyote.commons.eval.AbstractEvaluator;
 import coyote.commons.eval.BracketPair;
 import coyote.commons.eval.Constant;
-import coyote.commons.eval.Function;
+import coyote.commons.eval.Method;
 import coyote.commons.eval.Operator;
 import coyote.commons.eval.Parameters;
 
@@ -51,13 +51,26 @@ public class BooleanEvaluator extends AbstractEvaluator<Boolean> {
   // = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
   // = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-  // Functions
+  // Methods
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  /** Performs a case sensitive comparison between two string values */
+  public static final Method EQUALS = new Method( "equals", 2 );
+
+  /** Performs a regular expression match on the value of a field */
+  public static final Method REGEX = new Method( "regex", 2 );
+
   /** Performs a case insensitive comparison between two string values*/
-  public static final Function MATCH = new Function( "match", 2 );
+  public static final Method MATCH = new Method( "match", 2 );
+
+  /** Checks if the given field contains a value */
+  public static final Method EMPTY = new Method( "empty", 1 );
+
+  /** Checks if the given field exists in the context */
+  public static final Method EXISTS = new Method( "exists", 1 );
 
   /** The whole set of predefined functions */
-  private static final Function[] FUNCTIONS = new Function[] { MATCH };
+  private static final Method[] METHODS = new Method[] { MATCH, EMPTY, EXISTS };
   // = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
   // = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
@@ -124,7 +137,7 @@ public class BooleanEvaluator extends AbstractEvaluator<Boolean> {
   public static Parameters getDefaultParameters() {
     final Parameters result = new Parameters();
     result.addOperators( Arrays.asList( OPERATORS ) );
-    result.addFunctions( Arrays.asList( FUNCTIONS ) );
+    result.addMethods( Arrays.asList( METHODS ) );
     result.addConstants( Arrays.asList( CONSTANTS ) );
     result.addFunctionBracket( BracketPair.PARENTHESES );
     result.addExpressionBracket( BracketPair.PARENTHESES );
@@ -135,6 +148,8 @@ public class BooleanEvaluator extends AbstractEvaluator<Boolean> {
 
 
   /**
+   * Return the value of a literal.
+   * 
    * @see coyote.commons.eval.AbstractEvaluator#toValue(java.lang.String, java.lang.Object)
    */
   @Override
@@ -142,7 +157,7 @@ public class BooleanEvaluator extends AbstractEvaluator<Boolean> {
     if ( LITERAL_TRUE.equalsIgnoreCase( literal ) || LITERAL_FALSE.equalsIgnoreCase( literal ) ) {
       return Boolean.valueOf( literal );
     } else {
-      throw new IllegalArgumentException( "'"+literal + "' is not a valid boolean literal" );
+      throw new IllegalArgumentException( "'" + literal + "' is not a valid boolean literal" );
     }
   }
 
@@ -150,6 +165,49 @@ public class BooleanEvaluator extends AbstractEvaluator<Boolean> {
 
 
   /**
+   * Return the value of a method and its string arguments.
+   * 
+   * @see coyote.commons.eval.AbstractEvaluator#evaluate(coyote.commons.eval.Method, java.util.Iterator, java.lang.Object)
+   */
+  @Override
+  protected Boolean evaluate( Method function, Iterator<String> arguments, Object evaluationContext ) {
+    Boolean result;
+    if ( EQUALS.equals( function ) ) {
+      Object arg2 = arguments.next();
+      Object arg1 = arguments.next();
+      // do the thing with the stuff here
+      result = Boolean.FALSE;
+    } else if ( REGEX.equals( function ) ) {
+      Object arg2 = arguments.next();
+      Object arg1 = arguments.next();
+      // do the thing with the stuff here
+      result = Boolean.FALSE;
+    } else if ( MATCH.equals( function ) ) {
+      Object arg2 = arguments.next();
+      Object arg1 = arguments.next();
+      // do the thing with the stuff here
+      result = Boolean.FALSE;
+    } else if ( EMPTY.equals( function ) ) {
+      Object arg1 = arguments.next();
+      // do the thing with the stuff here
+      result = Boolean.FALSE;
+    } else if ( EXISTS.equals( function ) ) {
+      Object arg1 = arguments.next();
+      // do the thing with the stuff here
+      result = Boolean.FALSE;
+    } else {
+      result = super.evaluate( function, arguments, evaluationContext );
+    }
+
+    return result;
+
+  }
+
+
+
+
+  /**
+   * Return the value of a constant.
    * @see coyote.commons.eval.AbstractEvaluator#evaluate(coyote.commons.eval.Constant, java.lang.Object)
    */
   @Override

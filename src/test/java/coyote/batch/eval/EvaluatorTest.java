@@ -115,6 +115,23 @@ public class EvaluatorTest {
       fail(e.getMessage());
     }
 
+    
+    // we need to create methods...functions which take strings as aguments...
+    // this will allow us to do more logical things like looking up values
+    try {
+      expression = "exists(\"Source.RecordType\")";
+      
+      //evaluator.evaluateBoolean( expression );
+      // assertFalse( evaluator.evaluateBoolean( expression ) );
+
+      expression = "! islast and matches(WorkingFrame.userName,\"22\")";
+      // assertFalse( evaluator.evaluateBoolean( expression ) );
+    } catch ( Exception e ) {
+      e.printStackTrace();
+      fail(e.getMessage());
+    }
+
+    
     try {
       expression = "islast and equals(WorkingFrame.record_type,\"22\")";
       // assertFalse( evaluator.evaluateBoolean( expression ) );
@@ -123,6 +140,7 @@ public class EvaluatorTest {
       // assertFalse( evaluator.evaluateBoolean( expression ) );
     } catch ( Exception e ) {
       e.printStackTrace();
+      fail(e.getMessage());
     }
 
   }

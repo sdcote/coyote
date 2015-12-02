@@ -26,9 +26,10 @@ import java.util.Map;
 public abstract class AbstractEvaluator<T> {
   private final Tokenizer tokenizer;
   private final Map<String, Function> functions;
+  private final Map<String, Method> methods;
   private final Map<String, List<Operator>> operators;
   private final Map<String, Constant> constants;
-  private final String functionArgumentSeparator;
+  private final String argumentSeparator;
   private final Map<String, BracketPair> functionBrackets;
   private final Map<String, BracketPair> expressionBrackets;
 
@@ -44,6 +45,7 @@ public abstract class AbstractEvaluator<T> {
     //TODO if constants, operators, functions are duplicated => error
     final ArrayList<String> tokenDelimitersBuilder = new ArrayList<String>();
     functions = new HashMap<String, Function>();
+    methods = new HashMap<String, Method>();
     operators = new HashMap<String, List<Operator>>();
     constants = new HashMap<String, Constant>();
     functionBrackets = new HashMap<String, BracketPair>();
@@ -74,23 +76,34 @@ public abstract class AbstractEvaluator<T> {
         }
       }
     }
-    boolean needFunctionSeparator = false;
+
+    boolean needArgumentSeparator = false;
     if ( parameters.getFunctions() != null ) {
       for ( final Function function : parameters.getFunctions() ) {
         this.functions.put( parameters.getTranslation( function.getName() ), function );
         if ( function.getMaximumArgumentCount() > 1 ) {
-          needFunctionSeparator = true;
+          needArgumentSeparator = true;
         }
       }
     }
+
+    if ( parameters.getMethods() != null ) {
+      for ( final Method method : parameters.getMethods() ) {
+        this.methods.put( parameters.getTranslation( method.getName() ), method );
+        if ( method.getMaximumArgumentCount() > 1 ) {
+          needArgumentSeparator = true;
+        }
+      }
+    }
+
     if ( parameters.getConstants() != null ) {
       for ( final Constant constant : parameters.getConstants() ) {
         this.constants.put( parameters.getTranslation( constant.getName() ), constant );
       }
     }
-    functionArgumentSeparator = parameters.getFunctionArgumentSeparator();
-    if ( needFunctionSeparator ) {
-      tokenDelimitersBuilder.add( functionArgumentSeparator );
+    argumentSeparator = parameters.getArgumentSeparator();
+    if ( needArgumentSeparator ) {
+      tokenDelimitersBuilder.add( argumentSeparator );
     }
     tokenizer = new Tokenizer( tokenDelimitersBuilder );
   }
@@ -100,9 +113,19 @@ public abstract class AbstractEvaluator<T> {
 
   private void doFunction( final Deque<T> values, final Function function, final int argCount, final Object evaluationContext ) {
     if ( ( function.getMinimumArgumentCount() > argCount ) || ( function.getMaximumArgumentCount() < argCount ) ) {
-      throw new IllegalArgumentException( "Invalid argument count for " + function.getName() );
+      throw new IllegalArgumentException( "Invalid argument count for " + function.getName() + " function" );
     }
     values.push( evaluate( function, getArguments( values, argCount ), evaluationContext ) );
+  }
+
+
+
+
+  private void doMethod( final Deque<T> values, final Method method, final int argCount, final Object evaluationContext ) {
+    if ( ( method.getMinimumArgumentCount() > argCount ) || ( method.getMaximumArgumentCount() < argCount ) ) {
+      throw new IllegalArgumentException( "Invalid argument count for " + method.getName() + " method" );
+    }
+    values.push( evaluate( method, getArguments( values, argCount ), evaluationContext ) );
   }
 
 
@@ -137,13 +160,46 @@ public abstract class AbstractEvaluator<T> {
    * functions.</p>
    * 
    * @param function The function
-   * @param arguments The function's arguments
+   * @param arguments The functions arguments
    * @param evaluationContext The context of the evaluation
    * 
    * @return The result of the function
    */
   protected T evaluate( final Function function, final Iterator<T> arguments, final Object evaluationContext ) {
     throw new RuntimeException( "evaluate(Function, Iterator) is not implemented for " + function.getName() );
+  }
+
+
+
+
+  /**
+   * Evaluates a method.
+   * 
+   * <p>Methods are just like Functions except for the fact they do not have 
+   * arguments of the same type as the evaluator itself. Method arguments are 
+   * of type {@code String}. This allows the subclass to support business logic 
+   * processing in the calculation of values. For example, a method of 
+   * {@code exists(String)} might be defined for a Boolean Evaluator which 
+   * returns whether or not a named value exists in the evaluation context. 
+   * Another example is a methods which converts named values (such a date) in 
+   * the evaluation context to the appropriate type to be included in the 
+   * expression. Such a conversion can be instructed to convert the date into 
+   * milliseconds, seconds, days or other time units and the arguments need 
+   * more freedom in their interpretation.</p>    
+   * 
+   * <p>Subclasses that support methods must override this method. The default 
+   * implementation throws a RuntimeException meaning that implementor  forget 
+   * to implement this method while creating a subclass that accepts 
+   * methods.</p>
+   * 
+   * @param method The method
+   * @param arguments The methods arguments
+   * @param evaluationContext The context of the evaluation
+   * 
+   * @return The result of the method
+   */
+  protected T evaluate( final Method method, final Iterator<String> arguments, final Object evaluationContext ) {
+    throw new RuntimeException( "evaluate(Method, Iterator) is not implemented for " + method.getName() );
   }
 
 
@@ -205,18 +261,27 @@ public abstract class AbstractEvaluator<T> {
    * @see VariableSet
    */
   public T evaluate( final String expression, final Object evaluationContext ) {
-    final Deque<T> values = new ArrayDeque<T>(); // values stack
-    final Deque<Token> stack = new ArrayDeque<Token>(); // operator stack
+    final Deque<T> valueStack = new ArrayDeque<T>(); // values stack
+    final Deque<Token> operatorStack = new ArrayDeque<Token>(); // operator stack
     final Deque<Integer> previousValuesSize = functions.isEmpty() ? null : new ArrayDeque<Integer>();
+
+    // break the expression into individual tokens for processing
     final Iterator<String> tokens = tokenize( expression );
     Token previous = null;
+    
+    // process each of the tokens
     while ( tokens.hasNext() ) {
+      
       // read one token from the input stream
       final String strToken = tokens.next();
+      
+      // create a token from the string token
       final Token token = toToken( previous, strToken );
+      
+      
       if ( token.isOpenBracket() ) {
         // If the token is a left parenthesis, then push it onto the stack.
-        stack.push( token );
+        operatorStack.push( token );
         if ( ( previous != null ) && previous.isFunction() ) {
           if ( !functionBrackets.containsKey( token.getBrackets().getOpen() ) ) {
             throw new IllegalArgumentException( "Invalid bracket after function: " + strToken );
@@ -238,8 +303,8 @@ public abstract class AbstractEvaluator<T> {
         boolean openBracketFound = false;
         // Until the token at the top of the stack is a left parenthesis,
         // pop operators off the stack onto the output queue
-        while ( !stack.isEmpty() ) {
-          final Token sc = stack.pop();
+        while ( !operatorStack.isEmpty() ) {
+          final Token sc = operatorStack.pop();
           if ( sc.isOpenBracket() ) {
             if ( sc.getBrackets().equals( brackets ) ) {
               openBracketFound = true;
@@ -248,7 +313,7 @@ public abstract class AbstractEvaluator<T> {
               throw new IllegalArgumentException( "Invalid parenthesis match " + sc.getBrackets().getOpen() + brackets.getClose() );
             }
           } else {
-            output( values, sc, evaluationContext );
+            output( valueStack, sc, evaluationContext );
           }
         }
         if ( !openBracketFound ) {
@@ -256,12 +321,14 @@ public abstract class AbstractEvaluator<T> {
           // there are mismatched parentheses.
           throw new IllegalArgumentException( "Parentheses mismatched" );
         }
-        if ( !stack.isEmpty() && stack.peek().isFunction() ) {
+        if ( !operatorStack.isEmpty() && operatorStack.peek().isFunction() ) {
           // If the token at the top of the stack is a function token, pop it
           // onto the output queue.
-          final int argCount = values.size() - previousValuesSize.pop();
-          doFunction( values, stack.pop().getFunction(), argCount, evaluationContext );
+          final int argCount = valueStack.size() - previousValuesSize.pop();
+          doFunction( valueStack, operatorStack.pop().getFunction(), argCount, evaluationContext );
         }
+        
+        
       } else if ( token.isFunctionArgumentSeparator() ) {
         if ( previous == null ) {
           throw new IllegalArgumentException( "expression can't start with a function argument separator" );
@@ -273,14 +340,14 @@ public abstract class AbstractEvaluator<T> {
         }
         // If the token is a function argument separator
         boolean pe = false;
-        while ( !stack.isEmpty() ) {
-          if ( stack.peek().isOpenBracket() ) {
+        while ( !operatorStack.isEmpty() ) {
+          if ( operatorStack.peek().isOpenBracket() ) {
             pe = true;
             break;
           } else {
             // Until the token at the top of the stack is a left parenthesis,
             // pop operators off the stack onto the output queue.
-            output( values, stack.pop(), evaluationContext );
+            output( valueStack, operatorStack.pop(), evaluationContext );
           }
         }
         if ( !pe ) {
@@ -288,14 +355,58 @@ public abstract class AbstractEvaluator<T> {
           // misplaced or parentheses were mismatched.
           throw new IllegalArgumentException( "Separator or parentheses mismatched" );
         }
+        
+        
       } else if ( token.isFunction() ) {
         // If the token is a function token, then push it onto the stack.
-        stack.push( token );
-        previousValuesSize.push( values.size() );
+        operatorStack.push( token );
+        previousValuesSize.push( valueStack.size() );
+        
+        
+      } else if ( token.isMethod() ) {
+        // here is where we break with convention; we need to consume the next 
+        // tokens to determin the String arguments to the methos as opposed to 
+        // argument of type <T> which make them suitable for recursive handling
+        // on the stack. This section consumes the next tokens to determine the 
+        // arguments to and to make the method call the return value of which 
+        // will be placed on the stack
+
+        // TODO        
+        Token method = token;
+        
+        
+        // read what should be a open bracket
+        String strTkn = tokens.next();
+        Token tkn = toToken( previous, strTkn );
+        if ( tkn.isOpenBracket() ) {
+          
+          // now read in all the argument tokens
+          while ( tokens.hasNext() ) {
+            strTkn = tokens.next();
+            tkn = toToken( previous, strTkn );
+
+            // TODO start collecting arguments for the method call
+
+            // 
+            if ( tkn.isCloseBracket() ) {
+
+              // TODO call the method and place the value on the valueStack
+
+              // return control to the regular mathematic processing
+              break;
+            }
+
+          }
+          throw new IllegalArgumentException( "Unmatched method bracket: " + method );
+
+        } else {
+          throw new IllegalArgumentException( "A method must be followed by brackets" );
+        }
+        
       } else if ( token.isOperator() ) {
         // If the token is an operator, op1, then:
-        while ( !stack.isEmpty() ) {
-          final Token sc = stack.peek();
+        while ( !operatorStack.isEmpty() ) {
+          final Token sc = operatorStack.peek();
           // While there is an operator token, o2, at the top of the stack op1 
           // is left-associative and its precedence is less than or equal to 
           // that of op2, or op1 has precedence less than that of op2, Let + 
@@ -305,49 +416,49 @@ public abstract class AbstractEvaluator<T> {
           // If 2 operators have equal priority then associativity decides.
           if ( sc.isOperator() && ( ( token.getAssociativity().equals( Operator.Associativity.LEFT ) && ( token.getPrecedence() <= sc.getPrecedence() ) ) || ( token.getPrecedence() < sc.getPrecedence() ) ) ) {
             // Pop o2 off the stack, onto the output queue;
-            output( values, stack.pop(), evaluationContext );
+            output( valueStack, operatorStack.pop(), evaluationContext );
           } else {
             break;
           }
         }
         // push op1 onto the stack.
-        stack.push( token );
+        operatorStack.push( token );
       } else {
         // If the token is a number (identifier), a constant or a variable, then add its value to the output queue.
         if ( ( previous != null ) && previous.isLiteral() ) {
           throw new IllegalArgumentException( "A literal can't follow another literal" );
         }
-        output( values, token, evaluationContext );
+        output( valueStack, token, evaluationContext );
       }
       previous = token;
     }
     // When there are no more tokens to read:
     // While there are still operator tokens in the stack:
-    while ( !stack.isEmpty() ) {
-      final Token sc = stack.pop();
+    while ( !operatorStack.isEmpty() ) {
+      final Token sc = operatorStack.pop();
       if ( sc.isOpenBracket() || sc.isCloseBracket() ) {
         throw new IllegalArgumentException( "Parentheses mismatched" );
       }
-      output( values, sc, evaluationContext );
+      output( valueStack, sc, evaluationContext );
     }
-    if ( values.size() != 1 ) {
+    if ( valueStack.size() != 1 ) {
       throw new IllegalArgumentException();
     }
-    return values.pop();
+    return valueStack.pop();
   }
 
 
 
 
-  private Iterator<T> getArguments( final Deque<T> values, final int nb ) {
+  private Iterator<T> getArguments( final Deque<T> values, final int operandCount ) {
     // Be aware that arguments are in reverse order on the values stack.
     // Don't forget to reorder them in the original order (the one they appear 
     // in the evaluated formula)
-    if ( values.size() < nb ) {
+    if ( values.size() < operandCount ) {
       throw new IllegalArgumentException();
     }
     final LinkedList<T> result = new LinkedList<T>();
-    for ( int i = 0; i < nb; i++ ) {
+    for ( int i = 0; i < operandCount; i++ ) {
       result.addFirst( values.pop() );
     }
     return result.iterator();
@@ -370,7 +481,7 @@ public abstract class AbstractEvaluator<T> {
    * @return a collection of constants.
    */
   public Collection<Constant> getConstants() {
-    return this.constants.values();
+    return constants.values();
   }
 
 
@@ -382,7 +493,19 @@ public abstract class AbstractEvaluator<T> {
    * @return a collection of functions.
    */
   public Collection<Function> getFunctions() {
-    return this.functions.values();
+    return functions.values();
+  }
+
+
+
+
+  /** 
+   * Gets the methods supported by this evaluator.
+   * 
+   * @return a collection of methods.
+   */
+  public Collection<Method> getMethods() {
+    return methods.values();
   }
 
 
@@ -436,6 +559,13 @@ public abstract class AbstractEvaluator<T> {
 
 
 
+  /**
+   * Output a value to the given value stack.
+   * 
+   * @param values the stack of values to populate
+   * @param token the token to process/evaluate
+   * @param evaluationContext the context in which the token is to be evaluated
+   */
   @SuppressWarnings("unchecked")
   private void output( final Deque<T> values, final Token token, final Object evaluationContext ) {
     if ( token.isLiteral() ) { // If the token is a literal, a constant, or a variable name
@@ -478,10 +608,12 @@ public abstract class AbstractEvaluator<T> {
 
 
   private Token toToken( final Token previous, final String token ) {
-    if ( token.equals( functionArgumentSeparator ) ) {
+    if ( token.equals( argumentSeparator ) ) {
       return Token.FUNCTION_ARG_SEPARATOR;
     } else if ( functions.containsKey( token ) ) {
       return Token.buildFunction( functions.get( token ) );
+    } else if ( methods.containsKey( token ) ) {
+      return Token.buildMethod( methods.get( token ) );
     } else if ( operators.containsKey( token ) ) {
       final List<Operator> list = operators.get( token );
       return ( list.size() == 1 ) ? Token.buildOperator( list.get( 0 ) ) : Token.buildOperator( guessOperator( previous, list ) );
