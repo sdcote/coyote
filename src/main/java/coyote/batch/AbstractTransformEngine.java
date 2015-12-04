@@ -301,8 +301,8 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
         // to events in the transaction.
         TransactionContext txnContext = new TransactionContext( getContext() );
         // place a reference to the transaction in the transform context
-        getContext().setTransaction(txnContext);
-        
+        getContext().setTransaction( txnContext );
+
         // Start the clock and fire event listeners for the beginning of the
         // transaction
         txnContext.start();
@@ -360,13 +360,13 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
                   // Have the transformer process the frame
                   DataFrame resultFrame = transformer.process( txnContext.getWorkingFrame() );
 
-                  // if the transformer generated any results...
-                  if ( resultFrame != null ) {
-                    // place it in the context
-                    txnContext.setWorkingFrame( resultFrame );
-                  }
-                } catch ( TransformException e ) {
+                  // place the results of the transformation in the context
+                  txnContext.setWorkingFrame( resultFrame );
+
+                } catch ( Exception e ) {
+                  // catch any manner of transformation exception
                   txnContext.setError( e.getMessage() );
+                  txnContext.setStatus( "Transformation Error" );
                 }
               }
 
@@ -398,6 +398,7 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
                   txnContext.fireWrite( txnContext );
                 } catch ( Exception e ) {
                   e.printStackTrace();
+                  Log.warn( LogMsg.createMsg( Batch.MSG, "Engine.write_error", e.getClass().getSimpleName(), e.getMessage() ) );
                 }
               }
 
@@ -508,14 +509,29 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
       symbols.put( Symbols.SECOND_SS, StringUtil.zeropad( cal.get( Calendar.SECOND ), 2 ) );
       symbols.put( Symbols.MILLISECOND_ZZZ, StringUtil.zeropad( cal.get( Calendar.MILLISECOND ), 3 ) );
 
+      // go back to midnight
+      cal.set( Calendar.HOUR, 0 );
+      cal.set( Calendar.MINUTE, 0 );
+      cal.set( Calendar.SECOND, 0 );
+      cal.set( Calendar.MILLISECOND, 0 );
+      symbols.put( Symbols.SECONDS_PAST_MIDNIGHT, StringUtil.zeropad( ( rundate.getTime() - cal.getTimeInMillis() ) / 1000, 5 ) );
+
+      // go to tomorrow midnight
+      cal.add( Calendar.DATE, +1 );
+      symbols.put( Symbols.SECONDS_TILL_MIDNIGHT, StringUtil.zeropad( ( cal.getTimeInMillis() - rundate.getTime() ) / 1000, 5 ) );
+
+      // reset to todays date/time      
+      cal.setTime( rundate );
+
       // go back one day and get the "previous day" Month Day and Year 
       cal.add( Calendar.DATE, -1 );
       symbols.put( Symbols.PREV_MONTH_PM, StringUtil.zeropad( cal.get( Calendar.MONTH ) + 1, 2 ) );
       symbols.put( Symbols.PREV_DAY_PD, StringUtil.zeropad( cal.get( Calendar.DAY_OF_MONTH ), 2 ) );
       symbols.put( Symbols.PREV_YEAR_PYYY, StringUtil.zeropad( cal.get( Calendar.YEAR ), 4 ) );
 
-      // reset the date
+      // reset to todays date/time      
       cal.setTime( rundate );
+
       // go back a month
       cal.add( Calendar.MONTH, -1 );
       symbols.put( Symbols.PREV_MONTH_LM, StringUtil.zeropad( cal.get( Calendar.MONTH ) + 1, 2 ) );
@@ -630,8 +646,9 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
 
     // close the connections in the transform contexts
     getContext().close();
-    
-    if( logManager != null) logManager.close();
+
+    if ( logManager != null )
+      logManager.close();
 
   }
 

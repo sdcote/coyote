@@ -15,11 +15,18 @@ import coyote.dataframe.DataFrame;
 public interface FrameTransform extends ConfigurableComponent {
 
   /**
-   * Transform the given frame.
+   * Transform the given frame and return the transforem frame.
+   * 
+   * <p>It is acceptable to perform an in-place transformation and not create a 
+   * new data frame on each call. Just know that the return value of this 
+   * method will unconditionally be set in the transaction context as the new 
+   * working frame and the next operation on the working frame will use this
+   * methods return value.</p>
    * 
    * @param frame The frame to transform
    * 
-   * @return the transformed frame
+   * @return the transformed frame which will be placed in the working frame of 
+   *         the transaction context.
    * 
    * @throws TransformException if any problems occurred during transformation.
    */
