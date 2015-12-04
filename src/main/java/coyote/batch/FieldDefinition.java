@@ -26,9 +26,7 @@ import coyote.dataframe.DataField;
  */
 public class FieldDefinition {
 
-  /** The logger for this class */
-  //final Logger log = LoggerFactory.getLogger( getClass() );
-
+  
   private short type = 0;
   private int start = 0;
   private int length = 0;
