@@ -56,6 +56,7 @@ public class ConfigTag {
   public static final String DOMAIN = "domain";
   public static final String READ = "read";
   public static final String WRITE = "write";
+  public static final String LINEMAP = "linemap";
 
   public static final String ROOT_ELEMENT = "rootElement";
   public static final String ROOT_ATTRIBUTE = "rootAttributes";
