@@ -511,7 +511,7 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
       symbols.put( Symbols.MILLISECOND_ZZZ, StringUtil.zeropad( cal.get( Calendar.MILLISECOND ), 3 ) );
 
       // go back to midnight
-      cal.set( Calendar.HOUR, 0 );
+      cal.set( Calendar.HOUR_OF_DAY, 0 );
       cal.set( Calendar.MINUTE, 0 );
       cal.set( Calendar.SECOND, 0 );
       cal.set( Calendar.MILLISECOND, 0 );
