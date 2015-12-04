@@ -189,6 +189,15 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
     // Set the symbol table to the one this engine uses
     getContext().setSymbols( symbols );
 
+    // Open all the listeners first so the transform context will trigger
+    for ( ContextListener listener : listeners ) {
+      listener.open( getContext() );
+      if ( getContext().isInError() ) {
+        reportTransformContextError( getContext() );
+        return;
+      }
+    }
+
     // Open / initialize the context
     getContext().open();
 
@@ -225,15 +234,6 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
     // If pre-processing completed without error, start opening the rest of the 
     // components
     if ( getContext().isNotInError() ) {
-
-      // Open all the listeners first
-      for ( ContextListener listener : listeners ) {
-        listener.open( getContext() );
-        if ( getContext().isInError() ) {
-          reportTransformContextError( getContext() );
-          return;
-        }
-      }
 
       // If the reader is not null, open the core components using this context 
       // to share data. If the reader is null, there is no need to open the 
@@ -466,7 +466,8 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
         jobDir.mkdirs();
         setJobDirectory( jobDir );
         setWorkDirectory( jobDir.getParentFile() );
-        Log.debug( "Job directory determined to be " + jobDir.getAbsolutePath() );
+        Log.debug( LogMsg.createMsg( Batch.MSG, "Engine.calculated_job_directory", jobDir.getAbsolutePath(), jobDir.getParentFile() ) );
+
       } catch ( final Exception e ) {
         Log.error( e.getMessage() );
       }
