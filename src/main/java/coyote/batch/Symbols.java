@@ -34,6 +34,8 @@ public class Symbols {
   public static final String MINUTE_MM = "mm";
   public static final String SECOND_SS = "ss";
   public static final String MILLISECOND_ZZZ = "zzz";
+  public static final String SECONDS_PAST_MIDNIGHT = "SPM";
+  public static final String SECONDS_TILL_MIDNIGHT = "STM";
 
   public static final String PREV_MONTH_PM = "PM"; // previous days month
   public static final String PREV_DAY_PD = "PD"; // previous day
