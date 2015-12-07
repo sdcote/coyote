@@ -15,9 +15,13 @@ import java.io.IOException;
 
 import coyote.batch.AbstractConfigurableComponent;
 import coyote.batch.Component;
+import coyote.batch.ConfigTag;
 import coyote.batch.ConfigurableComponent;
 import coyote.batch.FrameFilter;
 import coyote.batch.TransformContext;
+import coyote.batch.eval.EvaluationException;
+import coyote.batch.eval.Evaluator;
+import coyote.commons.StringUtil;
 
 
 /**
@@ -25,11 +29,29 @@ import coyote.batch.TransformContext;
  */
 public abstract class AbstractFrameFilter extends AbstractConfigurableComponent implements FrameFilter, ConfigurableComponent {
 
+  protected Evaluator evaluator = new Evaluator();
+  protected String expression = null;
+  
+  
   /**
    * @see coyote.batch.Component#open(coyote.batch.TransformContext)
    */
   @Override
-  public void open( TransformContext context ) {}
+  public void open( TransformContext context ) {
+    evaluator.setContext( context );
+
+    String token = findString( ConfigTag.CONDITION );
+    if ( StringUtil.isNotBlank( token ) ) {
+      expression = token.trim();
+
+      try {
+        evaluator.evaluateBoolean( expression );
+      } catch ( EvaluationException e ) {
+        context.setError( "Invalid boolean exception in Reject filter: " + e.getMessage() );
+      }
+    }
+
+  }
 
 
 

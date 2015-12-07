@@ -17,6 +17,14 @@ package coyote.batch;
  */
 public interface FrameFilter extends ConfigurableComponent {
 
-  void process( TransactionContext context );
+  /**
+   * Process the given transaction context, removing any data as directed by 
+   * this components configuration and logic.
+   * 
+   * @param context the transaction context to process.
+   * 
+   *  @return true to continue processing remaining filters, false to skip any remaining filters (early exit) 
+   */
+  public boolean process( TransactionContext context );
 
 }
