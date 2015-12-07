@@ -23,7 +23,7 @@ public interface FrameFilter extends ConfigurableComponent {
    * 
    * @param context the transaction context to process.
    * 
-   *  @return true to continue processing remaining filters, false to skip any remaining filters (early exit) 
+   * @return true to continue processing remaining filters, false to skip any remaining filters (early exit) 
    */
   public boolean process( TransactionContext context );
 

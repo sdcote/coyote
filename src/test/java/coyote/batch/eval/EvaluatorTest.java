@@ -182,6 +182,9 @@ public class EvaluatorTest {
     assertEquals( evaluator.evaluateNumeric( "tanh(5)" ), evaluator.evaluateNumeric( "sinh(5)/cosh(5)" ), 0.001 );
     assertEquals( -1, evaluator.evaluateNumeric( "min(1,min(3+2,2))+-round(4.1)*0.5" ), 0.001 );
 
+    // (2^3-1)*sin(pi/4)/ln(pi^2) = 2.1619718020347976
+    //System.out.println(evaluator.evaluateNumeric( "(2^3-1)*sin(pi/4)/ln(pi^2)" ));
+    
     double rnd = evaluator.evaluateNumeric( "random()" );
     assertTrue( rnd >= 0 && rnd <= 1.0 );
 

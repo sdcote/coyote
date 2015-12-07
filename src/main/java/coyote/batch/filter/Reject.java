@@ -20,7 +20,8 @@ import coyote.loader.log.LogMsg;
 
 
 /**
- * If the conditions in this frame are met, then this frame is rejected, no other processing is performed.
+ * If the conditions in this frame are met, then this frame is rejected, no 
+ * other processing is performed.
  */
 public class Reject extends AbstractFrameFilter implements FrameFilter {
 
@@ -40,12 +41,17 @@ public class Reject extends AbstractFrameFilter implements FrameFilter {
           // remove the working frame from the context
           context.setWorkingFrame( null );
 
-          // signal that other filters should not run
+          // signal that other filters should not run since the frame has been rejected
           return false;
         }
       } catch ( EvaluationException e ) {
         Log.warn( LogMsg.createMsg( Batch.MSG, "Filter.reject_boolean_evaluation_error", e.getMessage() ) );
       }
+    } else {
+
+      // no expression in a reject filter causes the removal of the working frame 
+      context.setWorkingFrame( null );
+      return false;
     }
 
     return true;

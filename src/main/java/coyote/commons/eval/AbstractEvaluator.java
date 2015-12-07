@@ -383,7 +383,7 @@ public abstract class AbstractEvaluator<T> {
               called = true;
               // return control to the regular mathematics processing
               break;
-            } else {
+            } else if ( !tkn.isFunctionArgumentSeparator() ) {
               // add the string token to the list of arguments
               arguments.addFirst( strTkn );
             }

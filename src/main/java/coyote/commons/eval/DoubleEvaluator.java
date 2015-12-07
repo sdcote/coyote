@@ -44,7 +44,7 @@ import java.util.Locale;
  * </ul></p>
  * 
  * <p>Built-in constants:<ul>
- * <li>e: Base of natural algorithms</li>
+ * <li>e: Base of natural logarithms</li>
  * <li>pi: Ratio of the circumference of a circle to its diameter</li>
  * </ul></p>
  */

@@ -16,6 +16,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
+import coyote.batch.filter.AbstractFrameFilter;
 import coyote.batch.listener.AbstractListener;
 import coyote.batch.mapper.AbstractFrameMapper;
 import coyote.batch.mapper.DefaultFrameMapper;
@@ -59,6 +60,8 @@ public class TransformEngineFactory {
   private static final String TRANSFORM_PKG = AbstractFrameTransform.class.getPackage().getName();
   /** Constant to assist in determining the full class name of frame mappers */
   private static final String MAPPER_PKG = AbstractFrameMapper.class.getPackage().getName();
+  /** Constant to assist in determining the full class name of frame filters */
+  private static final String FILTER_PKG = AbstractFrameFilter.class.getPackage().getName();
 
 
 
@@ -131,6 +134,12 @@ public class TransformEngineFactory {
           } else {
             Log.error( "Invalid reader configuration section" );
           }
+        } else if ( ConfigTag.FILTERS.equalsIgnoreCase( field.getName() ) ) {
+          if ( field.isFrame() ) {
+            configFilters( (DataFrame)field.getObjectValue(), retval );
+          } else {
+            Log.error( "Invalid filters configuration section" );
+          }
         } else if ( ConfigTag.MAPPER.equalsIgnoreCase( field.getName() ) ) {
           if ( field.isFrame() ) {
             configMapper( (DataFrame)field.getObjectValue(), retval );
@@ -147,7 +156,7 @@ public class TransformEngineFactory {
           if ( field.isFrame() ) {
             configDatabases( (DataFrame)field.getObjectValue(), retval );
           } else {
-            Log.error( "Invalid pre-process configuration section" );
+            Log.error( "Invalid database configuration section" );
           }
         } else if ( ConfigTag.VALIDATE.equalsIgnoreCase( field.getName() ) ) {
           if ( field.isFrame() ) {
@@ -339,6 +348,36 @@ public class TransformEngineFactory {
         Log.error( LogMsg.createMsg( Batch.MSG, "EngineFactory.Database did not contain a configuration, only scalar {}", field.getStringValue() ) );
       }
     } // for each configuration section
+  }
+
+
+
+
+  private static void configFilters( DataFrame cfg, TransformEngine engine ) {
+    for ( DataField field : cfg.getFields() ) {
+      String className = field.getName();
+      if ( className != null && StringUtil.countOccurrencesOf( className, "." ) < 1 ) {
+        className = FILTER_PKG + "." + className;
+      }
+
+      // All filters must have an object(frame) as its value.
+      if ( field.isFrame() ) {
+        DataFrame taskConfig = (DataFrame)field.getObjectValue();
+        Object object = createComponent( className, taskConfig );
+        if ( object != null ) {
+          if ( object instanceof FrameFilter ) {
+            int seq = engine.addFilter( (FrameFilter)object );
+            Log.debug( LogMsg.createMsg( Batch.MSG, "EngineFactory.Created filter task {} seq={} cfg={}", object.getClass().getName(), seq, cfg ) );
+          } else {
+            Log.error( LogMsg.createMsg( Batch.MSG, "EngineFactory.Specified filter class was not a frame filter" ) );
+          }
+        } else {
+          Log.error( LogMsg.createMsg( Batch.MSG, "EngineFactory.Could not create an instance of the specified filter '{}'", className ) );
+        }
+      } else {
+        Log.error( LogMsg.createMsg( Batch.MSG, "EngineFactory.filter did not contain a configuration, only scalar {}", field.getStringValue() ) );
+      }
+    } // for each task
   }
 
 

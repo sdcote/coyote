@@ -30,6 +30,10 @@ public class TransformContext extends OperationalContext {
 
   private volatile TransactionContext transactionContext = null;
 
+  private static final String WORKING = "Working.";
+  private static final String SOURCE = "Source.";
+  private static final String TARGET = "Target.";
+
 
 
 
@@ -130,6 +134,48 @@ public class TransformContext extends OperationalContext {
   */
   public TransactionContext getTransaction() {
     return transactionContext;
+  }
+
+
+
+
+  /**
+   * Return the value of something in this transform context to a string value.
+   * 
+   * [field name]
+   * Working.[field name]
+   * Source.[field name]
+   * Target.[field name]
+   * 
+   * @param token
+   * 
+   * @return the string value of the named value in this context or null if not found.
+   */
+  public String resolveToString( String token ) {
+    String retval = null;
+    if ( token.startsWith( WORKING ) ) {
+      String name = token.substring( WORKING.length() );
+      if ( transactionContext.getWorkingFrame() != null ) {
+        retval = transactionContext.getWorkingFrame().getAsString( name );
+      }
+    } else if ( token.startsWith( SOURCE ) ) {
+      String name = token.substring( SOURCE.length() );
+      if ( transactionContext.getSourceFrame() != null ) {
+        retval = transactionContext.getSourceFrame().getAsString( name );
+      }
+    } else if ( token.startsWith( TARGET ) ) {
+      String name = token.substring( TARGET.length() );
+      if ( transactionContext.getTargetFrame() != null ) {
+        retval = transactionContext.getTargetFrame().getAsString( name );
+      }
+    } else {
+      // assume a working frame field
+      if ( transactionContext.getWorkingFrame() != null ) {
+        retval = transactionContext.getWorkingFrame().getAsString( token );
+      }
+    }
+
+    return retval;
   }
 
 }

@@ -14,10 +14,10 @@ package coyote.batch.filter;
 import java.io.IOException;
 
 import coyote.batch.AbstractConfigurableComponent;
-import coyote.batch.Component;
 import coyote.batch.ConfigTag;
 import coyote.batch.ConfigurableComponent;
 import coyote.batch.FrameFilter;
+import coyote.batch.TransactionContext;
 import coyote.batch.TransformContext;
 import coyote.batch.eval.EvaluationException;
 import coyote.batch.eval.Evaluator;
@@ -31,8 +31,25 @@ public abstract class AbstractFrameFilter extends AbstractConfigurableComponent 
 
   protected Evaluator evaluator = new Evaluator();
   protected String expression = null;
-  
-  
+
+
+  public AbstractFrameFilter() {
+  }
+
+
+
+  /**
+   * Constructor with a conditional expression
+   * 
+   * @param condition the conditional expression which must be met for this filter to fire
+   */
+  public AbstractFrameFilter( String condition ) {
+    expression = condition;
+  }
+
+
+
+
   /**
    * @see coyote.batch.Component#open(coyote.batch.TransformContext)
    */
@@ -51,6 +68,8 @@ public abstract class AbstractFrameFilter extends AbstractConfigurableComponent 
       }
     }
 
+    // TODO: support the log flag to have the filter generate a log entry when fired...helps with debugging
+
   }
 
 
@@ -61,5 +80,38 @@ public abstract class AbstractFrameFilter extends AbstractConfigurableComponent 
    */
   @Override
   public void close() throws IOException {}
+
+
+
+
+  /**
+   * @return the conditional expression which must be met for this filter to fire
+   */
+  public String getCondition() {
+    return expression;
+  }
+
+
+
+
+  /**
+   * @param condition the conditional expression which must be met for this filter to fire
+   */
+  public void setCondition( String condition ) {
+    expression = condition;
+  }
+
+
+
+  /**
+   * @see coyote.batch.FrameFilter#process(coyote.batch.TransactionContext)
+   */
+  @Override
+  public boolean process( TransactionContext context ) {
+    // TODO Auto-generated method stub
+    return false;
+  }
+
+
 
 }

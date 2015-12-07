@@ -70,7 +70,7 @@ public class BooleanEvaluator extends AbstractEvaluator<Boolean> {
   public static final Method EXISTS = new Method( "exists", 1 );
 
   /** The whole set of predefined functions */
-  private static final Method[] METHODS = new Method[] { MATCH, EMPTY, EXISTS };
+  private static final Method[] METHODS = new Method[] { MATCH, EMPTY, EXISTS, REGEX, EQUALS };
   // = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
   // = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
@@ -170,32 +170,31 @@ public class BooleanEvaluator extends AbstractEvaluator<Boolean> {
    */
   @Override
   protected Boolean evaluate( Method method, Iterator<String> arguments, Object evaluationContext ) {
-    System.out.println("EVALUATING METHOD: "+method);
+    System.out.println( "EVALUATING METHOD: " + method );
     Boolean result;
     if ( EQUALS.equals( method ) ) {
       String arg2 = arguments.next();
       String arg1 = arguments.next();
       // do the thing with the stuff here
-      result = Boolean.FALSE;
+      result = performEquals( arg1, arg2 );
     } else if ( REGEX.equals( method ) ) {
       String arg2 = arguments.next();
       String arg1 = arguments.next();
       // do the thing with the stuff here
-      result = Boolean.FALSE;
+      result = performRegex( arg1, arg2 );
     } else if ( MATCH.equals( method ) ) {
       String arg2 = arguments.next();
       String arg1 = arguments.next();
       // do the thing with the stuff here
-      result = Boolean.FALSE;
+      result = performMatch( arg1, arg2 );
     } else if ( EMPTY.equals( method ) ) {
       String arg1 = arguments.next();
       // do the thing with the stuff here
-      result = Boolean.FALSE;
+      result = performEmpty( arg1 );
     } else if ( EXISTS.equals( method ) ) {
       String arg1 = arguments.next();
       // do the thing with the stuff here
-      System.out.println("ARG1:"+arg1);
-      result = Boolean.FALSE;
+      result = performExists( arg1 );
     } else {
       result = super.evaluate( method, arguments, evaluationContext );
     }
@@ -209,6 +208,7 @@ public class BooleanEvaluator extends AbstractEvaluator<Boolean> {
 
   /**
    * Return the value of a constant.
+   * 
    * @see coyote.commons.eval.AbstractEvaluator#evaluate(coyote.commons.eval.Constant, java.lang.Object)
    */
   @Override
@@ -252,6 +252,84 @@ public class BooleanEvaluator extends AbstractEvaluator<Boolean> {
 
   public void setContext( TransformContext context ) {
     transformContext = context;
+  }
+
+
+
+
+  /**
+   * Perform a case insensitive match between the two arguments.
+   * @param arg1
+   * @param arg2
+   * 
+   * @return true if a arguments match, false otherwise
+   */
+  private boolean performMatch( String arg1, String arg2 ) {
+    if ( transformContext != null ) {
+      String value = transformContext.resolveToString( arg1 );
+      if ( value == null )
+        value = arg1;
+      String test = transformContext.resolveToString( arg2 );
+      if ( test == null )
+        test = arg2;
+
+      // System.out.println( "matching '" + value + "' to '" + test + "'" );
+      if ( value.equalsIgnoreCase( test ) ) {
+        return true;
+      }
+    } else {
+      return false;
+    }
+    return false;
+  }
+
+
+
+
+  private Boolean performEquals( String arg1, String arg2 ) {
+    if ( transformContext != null ) {
+      String value = transformContext.resolveToString( arg1 );
+      if ( value == null )
+        value = arg1;
+      String test = transformContext.resolveToString( arg2 );
+      if ( test == null )
+        test = arg2;
+
+      // System.out.println( "testing equality of '" + value + "' to '" + test + "'" );
+      if ( value.equals( test ) ) {
+        return true;
+      }
+    } else {
+      return false;
+    }
+    return false;
+  }
+
+
+
+
+  private Boolean performRegex( String arg1, String arg2 ) {
+    Boolean retval = Boolean.FALSE;
+    // TODO Auto-generated method stub
+    return retval;
+  }
+
+
+
+
+  private Boolean performEmpty( String arg1 ) {
+    Boolean retval = Boolean.FALSE;
+    // TODO Auto-generated method stub
+    return retval;
+  }
+
+
+
+
+  private Boolean performExists( String arg1 ) {
+    Boolean retval = Boolean.FALSE;
+    // TODO Auto-generated method stub
+    return retval;
   }
 
 }

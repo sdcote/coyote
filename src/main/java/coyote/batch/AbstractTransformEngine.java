@@ -922,4 +922,20 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
     logManager = logmgr;
   }
 
+
+
+
+  /**
+   * @see coyote.batch.TransformEngine#addFilter(coyote.batch.FrameFilter)
+   */
+  @Override
+  public int addFilter( FrameFilter filter ) {
+    if ( filter != null ) {
+      filters.add( filter );
+      return filters.size() - 1;
+    } else {
+      return 0;
+    }
+  }
+
 }

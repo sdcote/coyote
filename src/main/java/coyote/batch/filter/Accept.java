@@ -25,6 +25,15 @@ import coyote.loader.log.LogMsg;
  */
 public class Accept extends AbstractFrameFilter implements FrameFilter {
 
+ 
+  public Accept() {
+  }
+
+  public Accept( String condition ) {
+    super( condition );
+  }
+
+
   /**
    * @see coyote.batch.FrameFilter#process(coyote.batch.TransactionContext)
    */

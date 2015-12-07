@@ -101,6 +101,8 @@ public interface TransformEngine extends RunnableComponent {
    * <p>Tasks will be executed in the order they were added to the engine.</p>
    * 
    * @param task the task to add
+   * 
+   * @return the sequence in which it will be executed
    */
   public int addPreProcessTask( TransformTask task );
 
@@ -114,6 +116,8 @@ public interface TransformEngine extends RunnableComponent {
    * <p>Tasks will be executed in the order they were added to the engine.</p>
    * 
    * @param task the task to add
+   * 
+   * @return the sequence in which it will be executed
    */
   public int addPostProcessTask( TransformTask task );
 
@@ -199,5 +203,31 @@ public interface TransformEngine extends RunnableComponent {
    * @param logmgr The logging manager to use for this engine. 
    */
   public void setLogManager( LogManager logmgr );
+
+
+
+
+  /**
+   * Adds a frame filter to the engine.
+   * 
+   * <p>Frame Filters (or just "filters") are designed to remove data from the 
+   * stream which is not to be processed. For example, some readers have the 
+   * ability to read many different frame formats and the engine is intended to 
+   * handle only one.</p>
+   * 
+   * <p>This is not to be confused with Validators which generate error events 
+   * when data does not match expectations. Filters prevent data from entering 
+   * the processing stream and if a frame is rejected, it never is validate or
+   * otherwise processed by the transform engine.</p>
+   * 
+   * <p>The engine will apply filters in the order they are added. This allows 
+   * for creating a few {@code accept} filters and one catch-all {@code reject} 
+   * filter to filter-out any unexpected data.</p>
+   * 
+   * @param filter the filter to add
+   * 
+   * @return the sequence in which it will be executed
+   */
+  public int addFilter( FrameFilter filter );
 
 }

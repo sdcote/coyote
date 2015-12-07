@@ -74,6 +74,7 @@ public class ConfigTag {
   public static final String DATABASE = "database";
   public static final String WRITER = "writer";
   public static final String MAPPER = "mapper";
+  public static final String FILTERS = "filters";
   public static final String READER = "reader";
   public static final String DATABASES = "databases";
   public static final String VALIDATE = "validate";
