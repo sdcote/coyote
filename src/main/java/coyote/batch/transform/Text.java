@@ -18,7 +18,7 @@ import coyote.dataframe.DataFrame;
 /**
  * 
  */
-public class String extends AbstractFrameTransform implements FrameTransform {
+public class Text extends AbstractFrameTransform implements FrameTransform {
 
   /**
    * @see coyote.batch.FrameTransform#process(coyote.dataframe.DataFrame)
