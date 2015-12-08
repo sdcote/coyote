@@ -29,9 +29,7 @@ import coyote.loader.log.LogMsg;
  * condition.
  * 
  * <p>The field will be added if it does not exist and if it does exist, the 
- * value if the existing field will be replaced. Note this is different from 
- * the {@code Add} transform which simply adds the named field to the working 
- * record and may result in multiple fields with the same name.</p>
+ * value if the existing field will be replaced.</p>
  * 
  * <p>The expressions can use the names of values in the context as variables 
  * in the expressions. Fields in the source, working and target frames are also 
@@ -40,7 +38,8 @@ import coyote.loader.log.LogMsg;
  * <p>The following is a real life example which sets the {@code terminator} to 
  * a value of "2" if the context is processing the last record or "1" otherwise
  * which indicates more records (frames) are to be expected:
- * <pre>"Set" : { "Name" : "terminator", "Condition": "islast", "Value" : "2", "Default" : "1" }</pre>
+ * <pre> "Set" : { "Name" : "cust_item_usage", "Value" : "0001.00" }
+ * "Set" : { "Name" : "terminator", "Condition": "islast", "Value" : "2", "Default" : "1" }</pre>
  * <ul>
  * <li>Name - the name of the field to set. (Required)</li>
  * <li>Condition - The boolean expression which must evaluate to true foe the 
@@ -85,7 +84,7 @@ public class Set extends AbstractFrameTransform implements FrameTransform {
   public void open( TransformContext context ) {
     super.open( context );
 
-    // get the name of the field to add
+    // get the name of the field to set
     String token = findString( ConfigTag.NAME );
 
     if ( StringUtil.isBlank( token ) ) {
