@@ -63,9 +63,8 @@ public class Set extends AbstractFrameTransform implements FrameTransform {
   private String fieldName = null;
   private String fieldValue = null;
   private String defaultValue = null;
-  private String expression = null;
-  private Evaluator evaluator = new Evaluator();
 
+  // TODO: Support specifying a type...particularly when there is no existing value
 
 
 
@@ -86,8 +85,6 @@ public class Set extends AbstractFrameTransform implements FrameTransform {
   public void open( TransformContext context ) {
     super.open( context );
 
-    evaluator.setContext( context );
-
     // get the name of the field to add
     String token = findString( ConfigTag.NAME );
 
@@ -102,17 +99,6 @@ public class Set extends AbstractFrameTransform implements FrameTransform {
       Log.warn( LogMsg.createMsg( Batch.MSG, "Transform.Set transform will set a null {} field to the working frames.", fieldName ) );
     } else {
       fieldValue = token;
-    }
-
-    token = findString( ConfigTag.CONDITION );
-    if ( StringUtil.isNotBlank( token ) ) {
-      expression = token.trim();
-
-      try {
-        evaluator.evaluateBoolean( expression );
-      } catch ( EvaluationException e ) {
-        context.setError( "Invalid boolean exception in SET transform: " + e.getMessage() );
-      }
     }
 
     token = findString( ConfigTag.DEFAULT );
