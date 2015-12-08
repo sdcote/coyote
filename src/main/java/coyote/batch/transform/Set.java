@@ -17,8 +17,6 @@ import coyote.batch.FrameTransform;
 import coyote.batch.TransformContext;
 import coyote.batch.TransformException;
 import coyote.batch.eval.EvaluationException;
-import coyote.batch.eval.Evaluator;
-import coyote.commons.StringUtil;
 import coyote.dataframe.DataFrame;
 import coyote.loader.log.Log;
 import coyote.loader.log.LogMsg;
@@ -58,14 +56,13 @@ import coyote.loader.log.LogMsg;
  */
 public class Set extends AbstractFrameTransform implements FrameTransform {
 
-  // The name of the field we are to transform
-  private String fieldName = null;
   private String fieldValue = null;
   private String defaultValue = null;
 
+
+
+
   // TODO: Support specifying a type...particularly when there is no existing value
-
-
 
   /**
    * 
@@ -84,16 +81,7 @@ public class Set extends AbstractFrameTransform implements FrameTransform {
   public void open( TransformContext context ) {
     super.open( context );
 
-    // get the name of the field to set
-    String token = findString( ConfigTag.NAME );
-
-    if ( StringUtil.isBlank( token ) ) {
-      context.setError( "Set transform must contain a field name" );
-    } else {
-      fieldName = token.trim();
-    }
-
-    token = findString( ConfigTag.VALUE );
+    String token = findString( ConfigTag.VALUE );
     if ( token == null ) {
       Log.warn( LogMsg.createMsg( Batch.MSG, "Transform.Set transform will set a null {} field to the working frames.", fieldName ) );
     } else {
@@ -106,6 +94,7 @@ public class Set extends AbstractFrameTransform implements FrameTransform {
     } else {
       defaultValue = token;
     }
+
   }
 
 

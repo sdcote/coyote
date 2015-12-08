@@ -40,6 +40,9 @@ import coyote.commons.StringUtil;
  */
 public abstract class AbstractFrameTransform extends AbstractConfigurableComponent implements FrameTransform, ConfigurableComponent {
 
+  // The name of the field we are to transform
+  protected String fieldName = null;
+
   protected Evaluator evaluator = new Evaluator();
   protected String expression = null;
 
@@ -68,13 +71,22 @@ public abstract class AbstractFrameTransform extends AbstractConfigurableCompone
   @Override
   public void open( TransformContext context ) {
     super.setContext( context );
-    
+
     // set the transform context in the evaluator so it can resolve variables
     evaluator.setContext( context );
 
+    // get the name of the field to transform
+    String token = findString( ConfigTag.NAME );
+
+    if ( StringUtil.isBlank( token ) ) {
+      context.setError( "Set transform must contain a field name" );
+    } else {
+      fieldName = token.trim();
+    }
+
     // Look for a conditional statement the transform may use to control if it
     // processes or not
-    String token = findString( ConfigTag.CONDITION );
+    token = findString( ConfigTag.CONDITION );
     if ( StringUtil.isNotBlank( token ) ) {
       expression = token.trim();
 
