@@ -50,12 +50,7 @@ public class Copy extends AbstractFileTask {
       overwrite = getBoolean( ConfigTag.OVERWRITE );
     }
 
-    // If there is a halt on error flag, then set it, otherwise keep the 
-    // default value of true    
-    if ( contains( ConfigTag.HALT_ON_ERROR ) ) {
-      setHaltOnError( getBoolean( ConfigTag.HALT_ON_ERROR ) );
-    }
-
+   
     // do the work
     if ( StringUtil.isNotBlank( source ) ) {
       final String src = resolveArgument( source );

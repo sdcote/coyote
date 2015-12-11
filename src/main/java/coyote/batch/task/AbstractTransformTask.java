@@ -14,6 +14,7 @@ package coyote.batch.task;
 import java.io.IOException;
 
 import coyote.batch.AbstractConfigurableComponent;
+import coyote.batch.ConfigTag;
 import coyote.batch.TransformContext;
 import coyote.batch.TransformTask;
 import coyote.commons.StringUtil;
@@ -69,6 +70,13 @@ public abstract class AbstractTransformTask extends AbstractConfigurableComponen
   @Override
   public void open( TransformContext context ) {
     this.context = context;
+    
+    // If there is a halt on error flag, then set it, otherwise keep the 
+    // default value of true    
+    if ( contains( ConfigTag.HALT_ON_ERROR ) ) {
+      setHaltOnError( getBoolean( ConfigTag.HALT_ON_ERROR ) );
+    }
+
   }
 
 
