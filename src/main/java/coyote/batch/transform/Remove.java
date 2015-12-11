@@ -30,13 +30,13 @@ import coyote.loader.log.LogMsg;
  * 
  * <p>Processing continues after this filter is processed.</p>
  */
-public class Remove extends AbstractFrameTransform implements FrameTransform {
+public class Remove extends AbstractFieldTransform implements FrameTransform {
 
   /**
    * @see coyote.batch.filter.AbstractFrameFilter#open(coyote.batch.TransformContext)
    */
   @Override
-  public void open( TransformContext context ) {
+  public void open( final TransformContext context ) {
     super.open( context );
 
   }
@@ -44,7 +44,16 @@ public class Remove extends AbstractFrameTransform implements FrameTransform {
 
 
 
-  public boolean process( TransactionContext context ) {
+  @Override
+  public DataFrame process( final DataFrame frame ) throws TransformException {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+
+
+
+  public boolean process( final TransactionContext context ) {
     // If there is a conditional expression
     if ( expression != null ) {
 
@@ -62,21 +71,12 @@ public class Remove extends AbstractFrameTransform implements FrameTransform {
           }
 
         }
-      } catch ( EvaluationException e ) {
+      } catch ( final EvaluationException e ) {
         Log.warn( LogMsg.createMsg( Batch.MSG, "Transform.remove_boolean_evaluation_error", e.getMessage() ) );
       }
     }
 
     return true;
-  }
-
-
-
-
-  @Override
-  public DataFrame process( DataFrame frame ) throws TransformException {
-    // TODO Auto-generated method stub
-    return null;
   }
 
 }

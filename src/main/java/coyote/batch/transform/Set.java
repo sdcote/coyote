@@ -54,7 +54,7 @@ import coyote.loader.log.LogMsg;
  * <p>If only {@code Name} and {@code Value} are configured, then the transform 
  * unconditionally sets the the specified value in the named field.</p>
  */
-public class Set extends AbstractFrameTransform implements FrameTransform {
+public class Set extends AbstractFieldTransform implements FrameTransform {
 
   private String fieldValue = null;
   private String defaultValue = null;
@@ -78,7 +78,7 @@ public class Set extends AbstractFrameTransform implements FrameTransform {
    * @see coyote.batch.transform.AbstractFrameTransform#open(coyote.batch.TransformContext)
    */
   @Override
-  public void open( TransformContext context ) {
+  public void open( final TransformContext context ) {
     super.open( context );
 
     String token = findString( ConfigTag.VALUE );
@@ -104,7 +104,7 @@ public class Set extends AbstractFrameTransform implements FrameTransform {
    * @see coyote.batch.FrameTransform#process(coyote.dataframe.DataFrame)
    */
   @Override
-  public DataFrame process( DataFrame frame ) throws TransformException {
+  public DataFrame process( final DataFrame frame ) throws TransformException {
 
     // If there is a conditional expression
     if ( expression != null ) {
@@ -122,7 +122,7 @@ public class Set extends AbstractFrameTransform implements FrameTransform {
             frame.put( fieldName, super.resolveArgument( defaultValue ) );
           }
         }
-      } catch ( EvaluationException e ) {
+      } catch ( final EvaluationException e ) {
         Log.warn( LogMsg.createMsg( Batch.MSG, "Transform.Set_boolean_evaluation_error", e.getMessage() ) );
       }
 

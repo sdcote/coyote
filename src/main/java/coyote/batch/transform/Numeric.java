@@ -19,13 +19,13 @@ import coyote.dataframe.DataFrame;
 /**
  * 
  */
-public class Numeric extends AbstractFrameTransform implements FrameTransform {
+public class Numeric extends AbstractFieldTransform implements FrameTransform {
 
   /**
    * @see coyote.batch.FrameTransform#process(coyote.dataframe.DataFrame)
    */
   @Override
-  public DataFrame process( DataFrame frame ) throws TransformException {
+  public DataFrame process( final DataFrame frame ) throws TransformException {
     // TODO Auto-generated method stub
     return null;
   }

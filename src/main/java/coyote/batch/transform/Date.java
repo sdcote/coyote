@@ -23,13 +23,13 @@ import coyote.dataframe.DataFrame;
  * String to an actual date value
  * Date in one time zone to another time zone
  */
-public class Date extends AbstractFrameTransform implements FrameTransform {
+public class Date extends AbstractFieldTransform implements FrameTransform {
 
   /**
    * @see coyote.batch.FrameTransform#process(coyote.dataframe.DataFrame)
    */
   @Override
-  public DataFrame process( DataFrame frame ) throws TransformException {
+  public DataFrame process( final DataFrame frame ) throws TransformException {
     // TODO Auto-generated method stub
     return null;
   }

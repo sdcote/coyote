@@ -182,14 +182,14 @@ public class CSVReader extends AbstractFrameReader implements FrameReader, Confi
         if ( sourceFile != null ) {
           Log.debug( "Using a source file of " + sourceFile.getAbsolutePath() );
         } else {
-          Log.warn( LogMsg.createMsg( Batch.MSG, "Reader.The source '{}' does not represent a file", source ) );
+          Log.warn( LogMsg.createMsg( Batch.MSG, "Reader.source_is_not_file", source ) );
         }
       } else {
         sourceFile = new File( source );
         Log.debug( "Using a source file of " + sourceFile.getAbsolutePath() );
       }
 
-      if ( sourceFile.exists() && sourceFile.canRead() ) {
+      if ( sourceFile != null && sourceFile.exists() && sourceFile.canRead() ) {
         try {
           reader = new coyote.commons.csv.CSVReader( new FileReader( sourceFile ) );
           if ( hasHeader ) {
@@ -200,8 +200,14 @@ public class CSVReader extends AbstractFrameReader implements FrameReader, Confi
           context.setError( e.getMessage() );
         }
       } else {
-        Log.error( "Could not read from source: " + sourceFile.getAbsolutePath() );
-        context.setError( getClass().getName() + " could not read from source: " + sourceFile.getAbsolutePath() );
+        String msg = null;
+        if(sourceFile == null){
+          msg = LogMsg.createMsg( Batch.MSG, "Reader.no_source_file_on_open", source ).toString();
+        } else {
+          msg = LogMsg.createMsg( Batch.MSG, "Reader.could_not_read_from_source", getClass().getName(),sourceFile.getAbsolutePath() ).toString();          
+        }
+        Log.error( msg);
+        context.setError( msg );
       }
     } else {
       Log.error( "No source specified" );

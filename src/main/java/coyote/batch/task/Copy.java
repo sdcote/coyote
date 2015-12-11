@@ -36,7 +36,7 @@ public class Copy extends AbstractFileTask {
     final String sourcedir = getString( ConfigTag.FROMDIR );
     final String target = getString( ConfigTag.TARGET );
     final String targetdir = getString( ConfigTag.TODIR );
-    String pattern = getString( getString( ConfigTag.PATTERN ) );
+    final String pattern = getString( ConfigTag.PATTERN );
 
     // recurse the source directory, defaults to false
     boolean recurse = getBoolean( ConfigTag.RECURSE );

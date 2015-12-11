@@ -14,13 +14,9 @@ package coyote.batch.transform;
 import java.io.IOException;
 
 import coyote.batch.AbstractConfigurableComponent;
-import coyote.batch.ConfigTag;
 import coyote.batch.ConfigurableComponent;
 import coyote.batch.FrameTransform;
 import coyote.batch.TransformContext;
-import coyote.batch.eval.EvaluationException;
-import coyote.batch.eval.Evaluator;
-import coyote.commons.StringUtil;
 
 
 /**
@@ -40,11 +36,23 @@ import coyote.commons.StringUtil;
  */
 public abstract class AbstractFrameTransform extends AbstractConfigurableComponent implements FrameTransform, ConfigurableComponent {
 
-  // The name of the field we are to transform
-  protected String fieldName = null;
+  /**
+   * @see java.io.Closeable#close()
+   */
+  @Override
+  public void close() throws IOException {}
 
-  protected Evaluator evaluator = new Evaluator();
-  protected String expression = null;
+
+
+
+  /**
+   * @see coyote.batch.Component#open(coyote.batch.TransformContext)
+   */
+  @Override
+  public void open( final TransformContext context ) {
+    super.setContext( context );
+
+  }
 
 
 
@@ -58,54 +66,8 @@ public abstract class AbstractFrameTransform extends AbstractConfigurableCompone
    * 
    * @return the resolved value of the argument. 
    */
-  protected String resolveArgument( String value ) {
+  protected String resolveArgument( final String value ) {
     return context.resolveArgument( value );
   }
-
-
-
-
-  /**
-   * @see coyote.batch.Component#open(coyote.batch.TransformContext)
-   */
-  @Override
-  public void open( TransformContext context ) {
-    super.setContext( context );
-
-    // set the transform context in the evaluator so it can resolve variables
-    evaluator.setContext( context );
-
-    // get the name of the field to transform
-    String token = findString( ConfigTag.NAME );
-
-    if ( StringUtil.isBlank( token ) ) {
-      context.setError( "Set transform must contain a field name" );
-    } else {
-      fieldName = token.trim();
-    }
-
-    // Look for a conditional statement the transform may use to control if it
-    // processes or not
-    token = findString( ConfigTag.CONDITION );
-    if ( StringUtil.isNotBlank( token ) ) {
-      expression = token.trim();
-
-      try {
-        evaluator.evaluateBoolean( expression );
-      } catch ( EvaluationException e ) {
-        context.setError( "Invalid boolean expression in transform: " + e.getMessage() );
-      }
-    }
-
-  }
-
-
-
-
-  /**
-   * @see java.io.Closeable#close()
-   */
-  @Override
-  public void close() throws IOException {}
 
 }

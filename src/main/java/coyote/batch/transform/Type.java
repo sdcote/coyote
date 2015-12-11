@@ -22,13 +22,13 @@ import coyote.dataframe.DataFrame;
  * <p>This is useful when data is read in as a string and we need to to be 
  * numeric, boolean or a date.</p>
  */
-public class Type extends AbstractFrameTransform implements FrameTransform {
+public class Type extends AbstractFieldTransform implements FrameTransform {
 
   /**
    * @see coyote.batch.FrameTransform#process(coyote.dataframe.DataFrame)
    */
   @Override
-  public DataFrame process( DataFrame frame ) throws TransformException {
+  public DataFrame process( final DataFrame frame ) throws TransformException {
     // TODO Auto-generated method stub
     return null;
   }
