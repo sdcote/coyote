@@ -214,8 +214,10 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
     // Execute all the pre-processing tasks
     for ( TransformTask task : preProcesses ) {
       try {
-        task.open( getContext() );
-        task.execute( getContext() );
+        if ( task.isEnabled() ) {
+          task.open( getContext() );
+          task.execute( getContext() );
+        }
       } catch ( TaskException e ) {
         getContext().setError( e.getMessage() );
         getContext().setStatus( "Pre-Processing Error" );
@@ -225,7 +227,9 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
     // Close all the tasks after pre-processing is done regardless of outcome
     for ( TransformTask task : preProcesses ) {
       try {
-        task.close();
+        if ( task.isEnabled() ) {
+          task.close();
+        }
       } catch ( IOException e ) {
         Log.warn( LogMsg.createMsg( Batch.MSG, "Engine.problems_closing_preprocess_task", task.getClass().getName(), e.getClass().getSimpleName(), e.getMessage() ) );
       }
@@ -422,13 +426,27 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
       // Execute all the post-processing tasks
       for ( TransformTask task : postProcesses ) {
         try {
-          task.open( getContext() );
-          task.execute( getContext() );
+          if ( task.isEnabled() ) {
+            task.open( getContext() );
+            task.execute( getContext() );
+          }
         } catch ( TaskException e ) {
           getContext().setError( e.getMessage() );
           getContext().setStatus( "Post-Processing Error" );
         }
       }
+      
+      // Close all the tasks after pre-processing is done regardless of outcome
+      for ( TransformTask task : preProcesses ) {
+        try {
+          if ( task.isEnabled() ) {
+            task.close();
+          }
+        } catch ( IOException e ) {
+          Log.warn( LogMsg.createMsg( Batch.MSG, "Engine.problems_closing_postprocess_task", task.getClass().getName(), e.getClass().getSimpleName(), e.getMessage() ) );
+        }
+      }
+
       if ( getContext().isInError() ) {
         reportTransformContextError( getContext() );
       }
