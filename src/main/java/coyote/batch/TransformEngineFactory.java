@@ -27,7 +27,6 @@ import coyote.batch.validate.AbstractValidator;
 import coyote.batch.writer.AbstractFrameWriter;
 import coyote.commons.FileUtil;
 import coyote.commons.StringUtil;
-import coyote.commons.template.Template;
 import coyote.dataframe.DataField;
 import coyote.dataframe.DataFrame;
 import coyote.dataframe.marshal.JSONMarshaler;
@@ -465,6 +464,9 @@ public class TransformEngineFactory {
     if ( context == null ) {
       context = new TransformContext();
 
+      // Set the configuration so it can be used when the context is opened
+      context.setConfiguration( cfg );
+
       // set the context in the engine
       engine.setContext( context );
 
@@ -472,17 +474,6 @@ public class TransformEngineFactory {
       context.setEngine( engine );
       Log.debug( LogMsg.createMsg( Batch.MSG, "EngineFactory.created_context {0}", context.getClass().getName() ) );
     }
-
-    // fill the context with configuration data
-    for ( DataField field : cfg.getFields() ) {
-      if ( !field.isFrame() ) {
-        if ( StringUtil.isNotBlank( field.getName() ) && !field.isNull() ) {
-          String value = Template.resolve( field.getStringValue(), engine.getSymbolTable() );
-          engine.getSymbolTable().put( field.getName(), value );
-          context.set( field.getName(), value );
-        } //name-value check
-      }// if frame
-    } // for
 
     Log.debug( LogMsg.createMsg( Batch.MSG, "EngineFactory.Loaded context {0}", context.getClass().getName() ) );
   }
@@ -513,7 +504,8 @@ public class TransformEngineFactory {
 
     if ( context == null ) {
       if ( engine.getName() != null ) {
-        context = new PersistentContext( cfg );
+        context = new PersistentContext();
+        context.setConfiguration( cfg );
 
         // set the context in the engine
         engine.setContext( context );

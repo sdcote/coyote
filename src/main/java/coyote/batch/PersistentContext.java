@@ -48,15 +48,12 @@ public class PersistentContext extends TransformContext {
   private static final String FILENAME = "context.json";
   File contextFile = null;
   long runcount = 0;
-  DataFrame configuration = null;
   Date lastRunDate = null;
 
 
 
 
-  public PersistentContext( DataFrame cfg ) {
-    configuration = cfg;
-  }
+  public PersistentContext() {}
 
 
 
@@ -88,21 +85,9 @@ public class PersistentContext extends TransformContext {
     incrementRunCount();
 
     setPreviousRunDate();
-
-    // If we have a configuration...
-    if ( configuration != null ) {
-      // fill the context with configuration data
-      for ( DataField field : configuration.getFields() ) {
-        if ( !field.isFrame() ) {
-          if ( StringUtil.isNotBlank( field.getName() ) && !field.isNull() ) {
-            String token = field.getStringValue();
-            String value = Template.resolve( token, engine.getSymbolTable() );
-            engine.getSymbolTable().put( field.getName(), value );
-            set( field.getName(), value );
-          } //name-value check
-        }// if frame
-      } // for
-    }
+    
+    // now resolve our configuration
+super.open();
   }
 
 
@@ -114,7 +99,7 @@ public class PersistentContext extends TransformContext {
     if ( value != null ) {
 
       // clear it from the context to reduce confusion
-      set( Symbols.PREVIOUS_RUN_DATETIME,null);
+      set( Symbols.PREVIOUS_RUN_DATETIME, null );
 
       try {
         Date prevrun = Batch.DEFAULT_DATETIME_FORMAT.parse( value.toString() );

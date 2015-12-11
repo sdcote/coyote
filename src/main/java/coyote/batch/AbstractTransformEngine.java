@@ -435,7 +435,7 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
           getContext().setStatus( "Post-Processing Error" );
         }
       }
-      
+
       // Close all the tasks after pre-processing is done regardless of outcome
       for ( TransformTask task : preProcesses ) {
         try {

@@ -18,12 +18,16 @@ import java.util.Map;
 
 import coyote.commons.StringUtil;
 import coyote.commons.template.Template;
+import coyote.dataframe.DataField;
+import coyote.dataframe.DataFrame;
 
 
 /**
  * This is an operational context for the transformation job as a whole.
  */
 public class TransformContext extends OperationalContext {
+
+  protected DataFrame configuration = new DataFrame();
 
   protected Map<String, Database> databases = new HashMap<String, Database>();
 
@@ -69,9 +73,28 @@ public class TransformContext extends OperationalContext {
 
 
   /**
-   * Open (initialize) the context
+   * Open (initialize) the context.
+   * 
+   * <p>This is called when the engine begins running and is where we use the 
+   * currently set symbol table to resolves all the variables set in this 
+   * context.</p>
    */
   public void open() {
+
+    // If we have a configuration...
+    if ( configuration != null ) {
+      // fill the context with configuration data
+      for ( DataField field : configuration.getFields() ) {
+        if ( !field.isFrame() ) {
+          if ( StringUtil.isNotBlank( field.getName() ) && !field.isNull() ) {
+            String token = field.getStringValue();
+            String value = Template.resolve( token, engine.getSymbolTable() );
+            engine.getSymbolTable().put( field.getName(), value );
+            set( field.getName(), value );
+          } //name-value check
+        }// if frame
+      } // for
+    }
 
   }
 
@@ -217,6 +240,20 @@ public class TransformContext extends OperationalContext {
       retval = Template.resolve( cval, getSymbols() );
     }
     return retval;
+  }
+
+
+
+
+  public void setConfiguration( DataFrame frame ) {
+    configuration = frame;
+  }
+
+
+
+
+  public DataFrame getConfiguration() {
+    return configuration;
   }
 
 }

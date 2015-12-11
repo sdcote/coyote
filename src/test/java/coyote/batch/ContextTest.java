@@ -43,6 +43,13 @@ public class ContextTest extends AbstractTest {
     SymbolTable symbols = engine.getSymbolTable();
     assertNotNull( symbols );
 
+    // run the engine so the context get opened and initialized
+    try {
+      engine.run();
+    } catch ( Exception ignore ) {
+    }
+    
+    
     String filename = context.getAsString( "filename" );
     assertNotNull( filename );
     Log.debug( filename );
