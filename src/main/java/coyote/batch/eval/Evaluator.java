@@ -24,6 +24,9 @@ public class Evaluator {
 
 
 
+  // TODO: will probably need a StringEvaluator with methods, constants and literals which allows data to be concatenated and to access substring, etc.
+  // private final StringEvaluator seval = new StringEvaluator();
+
   /**
    * Default constructor
    */
@@ -83,12 +86,35 @@ public class Evaluator {
 
 
   /**
+   * Evaluate the given expression as a string expression.
+   * 
+   * <p>This allows the expression to evaluated into a string with many 
+   * methods, constants and support for literals. String expressions have 
+   * complete access to the transform and current transaction context with 
+   * access to each field in the source, working and target frames.</p>
+   *  
+   * @param expression the expression to evaluate
+   * 
+   * @return the result of the expression
+   * 
+   * @throws EvaluationException if there were problems evaluating the expression
+   */
+//  public String evaluateString( final String expression ) {
+//    return seval.evaluate( expression );
+//  }
+
+
+
+
+  /**
    * Set the operational context in the evaluator.
    * 
   * @param context the context to set
   */
   public void setContext( final TransformContext context ) {
     beval.setContext( context );
+    neval.setContext( context );
+    // TODO: seval.setContext( context );
   }
 
 }

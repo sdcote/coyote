@@ -12,10 +12,12 @@
 package coyote.batch.task;
 
 /**
- * 
+ * This contains access to utility functions any file-based operation may find 
+ * useful.
  */
 public abstract class AbstractFileTask extends AbstractTransformTask {
 
+  
  
 
 }

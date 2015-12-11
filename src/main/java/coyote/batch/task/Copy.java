@@ -36,6 +36,22 @@ public class Copy extends AbstractFileTask {
     final String sourcedir = getString( ConfigTag.FROMDIR );
     final String target = getString( ConfigTag.TARGET );
     final String targetdir = getString( ConfigTag.TODIR );
+    String pattern = getString( getString( ConfigTag.PATTERN ) );
+
+    // recurse the source directory, defaults to false
+    boolean recurse = getBoolean( ConfigTag.RECURSE );
+
+    // preserve hierarchy, defaults to false (this is an edge case)
+    boolean preserveHierarchy = getBoolean( ConfigTag.PRESERVE );
+
+    // overwrite existing files
+    boolean overwrite = true;
+    if ( contains( ConfigTag.OVERWRITE ) ) {
+      overwrite = getBoolean( ConfigTag.OVERWRITE );
+    }
+
+    // If there is a halt on error flag, then set it, otherwise keep the 
+    // default value of true    
     if ( contains( ConfigTag.HALT_ON_ERROR ) ) {
       setHaltOnError( getBoolean( ConfigTag.HALT_ON_ERROR ) );
     }
@@ -47,7 +63,7 @@ public class Copy extends AbstractFileTask {
       if ( StringUtil.isNotBlank( target ) ) {
         // this is a file to file copy
         final String tgt = resolveArgument( target );
-        Log.info(  LogMsg.createMsg( Batch.MSG, "Task.Copying file named {} to file named {}", src, tgt ));
+        Log.info( LogMsg.createMsg( Batch.MSG, "Task.Copying file named {} to file named {}", src, tgt ) );
 
         try {
           FileUtil.copyFile( src, tgt );
@@ -61,7 +77,7 @@ public class Copy extends AbstractFileTask {
       } else if ( StringUtil.isNotBlank( targetdir ) ) {
         // this is a file to directory copy
         final String tgt = resolveArgument( targetdir );
-        Log.info( LogMsg.createMsg( Batch.MSG, "Task.Copying file named {} to directory named {}", src, tgt ));
+        Log.info( LogMsg.createMsg( Batch.MSG, "Task.Copying file named {} to directory named {}", src, tgt ) );
 
         try {
           FileUtil.copyFileToDir( src, tgt );
@@ -80,25 +96,38 @@ public class Copy extends AbstractFileTask {
       }
 
     } else if ( StringUtil.isNotBlank( sourcedir ) ) {
+
+      // This appears to be a directory-based copy
+
       final String src = resolveArgument( sourcedir );
 
       if ( StringUtil.isNotBlank( targetdir ) ) {
         // this is a directory to directory copy
         final String tgt = resolveArgument( targetdir );
-        Log.info( LogMsg.createMsg( Batch.MSG, "Task.Copying directory named {} to directory named {}", src, tgt ));
-        try {
-          FileUtil.copyDirectory( src, tgt );
-        } catch ( final IOException e ) {
-          if ( haltOnError ) {
-            transformContext.setError( String.format( "Copy operation '%s' to '%s' failed: %s", src, tgt, e.getMessage() ) );
-            return;
+        Log.info( LogMsg.createMsg( Batch.MSG, "Task.copying_directory", src, tgt, pattern, preserveHierarchy, recurse, overwrite ) );
+
+        // the most common use case is to perform a flat copy, essentially moving all the discovered files from one directory to another
+        if ( preserveHierarchy ) {
+
+          try {
+            // this preserves hierarchy...is this what is desired?
+            FileUtil.copyDirectory( src, tgt );
+          } catch ( final IOException e ) {
+            if ( haltOnError ) {
+              transformContext.setError( String.format( "Copy operation '%s' to '%s' failed: %s", src, tgt, e.getMessage() ) );
+              return;
+            }
           }
+        } else {
+
         }
 
       } else {
-        Log.info( "Cannot copy a directory without a target directory" );
+        String msg = LogMsg.createMsg( Batch.MSG, "Task.copy_target_directory_missing" ).toString();
+        Log.warn( msg );
+
         if ( haltOnError ) {
-          transformContext.setError( "Copy operation failed: no target directory argument" );
+          transformContext.setError( msg );
           return;
         }
       }
