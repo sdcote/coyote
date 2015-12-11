@@ -32,6 +32,7 @@ import coyote.commons.template.Template;
  */
 public abstract class AbstractTransformTask extends AbstractConfigurableComponent implements TransformTask {
   protected boolean haltOnError = true;
+  protected boolean enabled = true;
 
 
 
@@ -120,6 +121,28 @@ public abstract class AbstractTransformTask extends AbstractConfigurableComponen
   public void close() throws IOException {
     // TODO Auto-generated method stub
 
+  }
+
+
+
+
+  /**
+   * @return true if this task is enabled to run, false if the tasks is not to be executed
+   */
+  @Override
+  public boolean isEnabled() {
+    return enabled;
+  }
+
+
+
+
+  /**
+   * @param flag true to enable this task, false to prevent it from being executed.
+   */
+  @Override
+  public void setEnabled( boolean flag ) {
+    this.enabled = flag;
   }
 
 }
