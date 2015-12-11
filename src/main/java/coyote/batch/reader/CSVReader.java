@@ -128,10 +128,10 @@ public class CSVReader extends AbstractFrameReader implements FrameReader, Confi
     // TODO: consume empty lines: sometimes CSV files have empty lines at the end of the file...we should consume them
 
     // Support the concept of last frame    
-    if ( reader.eof() ){
+    if ( reader.eof() ) {
       context.setLastFrame( true );
     }
-      
+
     return retval;
   }
 
@@ -154,7 +154,9 @@ public class CSVReader extends AbstractFrameReader implements FrameReader, Confi
    */
   @Override
   public void close() throws IOException {
-    reader.close();
+    if ( reader != null ) {
+      reader.close();
+    }
   }
 
 
