@@ -216,7 +216,7 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
       try {
         if ( task.isEnabled() ) {
           task.open( getContext() );
-          task.execute( getContext() );
+          task.execute();
         }
       } catch ( TaskException e ) {
         getContext().setError( e.getMessage() );
@@ -428,7 +428,7 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
         try {
           if ( task.isEnabled() ) {
             task.open( getContext() );
-            task.execute( getContext() );
+            task.execute();
           }
         } catch ( TaskException e ) {
           getContext().setError( e.getMessage() );

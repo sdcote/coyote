@@ -70,7 +70,7 @@ public abstract class AbstractTransformTask extends AbstractConfigurableComponen
   @Override
   public void open( TransformContext context ) {
     this.context = context;
-    
+
     // If there is a halt on error flag, then set it, otherwise keep the 
     // default value of true    
     if ( contains( ConfigTag.HALT_ON_ERROR ) ) {

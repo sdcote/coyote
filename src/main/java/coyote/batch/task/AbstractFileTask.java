@@ -17,7 +17,4 @@ package coyote.batch.task;
  */
 public abstract class AbstractFileTask extends AbstractTransformTask {
 
-  
- 
-
 }
