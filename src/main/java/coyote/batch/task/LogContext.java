@@ -22,11 +22,11 @@ import coyote.loader.log.Log;
 public class LogContext extends AbstractFileTask {
 
   /**
-   * @see coyote.batch.TransformTask#execute(coyote.batch.TransformContext)
+   * @see coyote.batch.TransformTask#execute()
    */
   @Override
-  public void execute( TransformContext transformContext ) throws TaskException {
-    Log.info( transformContext.dump() );
+  public void execute() throws TaskException {
+    Log.info( getContext().dump() );
   }
 
 }

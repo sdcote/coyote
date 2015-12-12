@@ -14,6 +14,7 @@ package coyote.batch.task;
 import coyote.batch.TaskException;
 import coyote.batch.TransformContext;
 
+
 /**
  * Move the source file to a target location.
  * 
@@ -23,10 +24,10 @@ import coyote.batch.TransformContext;
 public class Move extends AbstractFileTask {
 
   /**
-   * @see coyote.batch.TransformTask#execute(coyote.batch.TransformContext)
+   * @see coyote.batch.TransformTask#execute()
    */
   @Override
-  public void execute( TransformContext transformContext ) throws TaskException {
+  public void execute() throws TaskException {
     // TODO Auto-generated method stub
 
   }

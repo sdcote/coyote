@@ -29,10 +29,10 @@ public class LogEntry extends AbstractTransformTask {
 
 
   /**
-   * @see coyote.batch.TransformTask#execute(coyote.batch.TransformContext)
+   * @see coyote.batch.TransformTask#execute()
    */
   @Override
-  public void execute( TransformContext transformContext ) throws TaskException {
+  public void execute() throws TaskException {
 
     String message = resolveArgument( MESSAGE );
     if ( StringUtil.isNotBlank( message ) ) {

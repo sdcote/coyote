@@ -163,10 +163,10 @@ public class CombineTextFiles extends AbstractFileTask implements TransformTask 
 
 
   /**
-   * @see coyote.batch.TransformTask#execute(coyote.batch.TransformContext)
+   * @see coyote.batch.TransformTask#execute()
    */
   @Override
-  public void execute( TransformContext context ) throws TaskException {
+  public void execute() throws TaskException {
 
     // get the list of files
     List<File> flist = FileUtil.getFiles( directory, pattern, recurse );

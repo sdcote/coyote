@@ -27,10 +27,10 @@ import coyote.loader.log.LogMsg;
 public class Delete extends AbstractFileTask {
 
   /**
-   * @see coyote.batch.TransformTask#execute(coyote.batch.TransformContext)
+   * @see coyote.batch.TransformTask#execute()
    */
   @Override
-  public void execute( TransformContext transformContext ) throws TaskException {
+  public void execute() throws TaskException {
     final String filename = getString( ConfigTag.FILE );
     final String directory = getString( ConfigTag.DIRECTORY );
     if ( contains( ConfigTag.HALT_ON_ERROR ) ) {
@@ -39,32 +39,32 @@ public class Delete extends AbstractFileTask {
 
     if ( StringUtil.isNotBlank( filename ) ) {
       final String file = resolveArgument( filename );
-      coyote.loader.log.Log.info( LogMsg.createMsg( Batch.MSG, "Task.Deleting file named {}", file ));
+      coyote.loader.log.Log.info( LogMsg.createMsg( Batch.MSG, "Task.Deleting file named {}", file ) );
 
       try {
         FileUtil.deleteFile( file );
       } catch ( final Exception e ) {
         if ( haltOnError ) {
-          transformContext.setError( String.format( "Delete file operation '%s' failed: %s", file, e.getMessage() ) );
+          getContext().setError( String.format( "Delete file operation '%s' failed: %s", file, e.getMessage() ) );
           return;
         }
       }
 
     } else if ( StringUtil.isNotBlank( directory ) ) {
       final String dir = resolveArgument( directory );
-      coyote.loader.log.Log.info( LogMsg.createMsg( Batch.MSG, "Task.Deleting directory named {}", dir ));
+      coyote.loader.log.Log.info( LogMsg.createMsg( Batch.MSG, "Task.Deleting directory named {}", dir ) );
 
       try {
         FileUtil.clearDir( dir, true, true );
       } catch ( final Exception e ) {
         if ( haltOnError ) {
-          transformContext.setError( String.format( "Delete directory operation '%s' failed: %s", dir, e.getMessage() ) );
+          getContext().setError( String.format( "Delete directory operation '%s' failed: %s", dir, e.getMessage() ) );
           return;
         }
       }
 
     } else {
-      Log.warn( LogMsg.createMsg( Batch.MSG, "Task.Move has no {} or {} argument - nothing to do.", ConfigTag.FILE, ConfigTag.DIRECTORY ));
+      Log.warn( LogMsg.createMsg( Batch.MSG, "Task.Move has no {} or {} argument - nothing to do.", ConfigTag.FILE, ConfigTag.DIRECTORY ) );
     }
 
   }
