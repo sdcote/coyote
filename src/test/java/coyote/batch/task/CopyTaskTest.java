@@ -12,18 +12,22 @@
 package coyote.batch.task;
 
 //import static org.junit.Assert.*;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 
+import java.io.File;
 import java.io.IOException;
 
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import coyote.batch.AbstractTest;
+import coyote.batch.ConfigTag;
+import coyote.batch.ConfigurationException;
+import coyote.batch.TaskException;
 import coyote.batch.TransformContext;
-import coyote.batch.TransformEngine;
-import coyote.loader.log.Log;
-
+import coyote.commons.FileUtil;
+import coyote.dataframe.DataFrame;
 
 
 /**
@@ -31,37 +35,61 @@ import coyote.loader.log.Log;
  */
 public class CopyTaskTest extends AbstractTest {
 
+  private static File testDir = null;
+  private static final TransformContext context = new TransformContext();
+
+
+
+
+  /**
+   * @throws java.lang.Exception
+   */
+  @BeforeClass
+  public static void setUpBeforeClass() throws Exception {
+    testDir = new File( FileUtil.getCurrentWorkingDirectory(), "testdir" );
+    FileUtil.makeDirectory( testDir );
+    System.out.println( testDir.getAbsolutePath() );
+
+  }
+
+
+
+
+  /**
+   * @throws java.lang.Exception
+   */
+  @AfterClass
+  public static void tearDownAfterClass() throws Exception {
+    // clean up the work directory
+    //FileUtil.deleteDirectory( workDir );
+  }
+
 
 
 
   @Test
   public void test() {
+    DataFrame cfg = new DataFrame();
+    cfg.put( ConfigTag.FROMDIR, new File( FileUtil.getCurrentWorkingDirectory(), "src" ).getAbsolutePath() );
+    cfg.put( ConfigTag.TODIR, testDir.getAbsolutePath() );
+    cfg.put( ConfigTag.PATTERN, "([^\\s]+(\\.(?i)(java))$)" );
+    cfg.put( ConfigTag.HALT_ON_ERROR, false );
 
-    //TODO we should delete the work directory
+    try (Copy task = new Copy()) {
 
-    // load the configuration from the class path
-    TransformEngine engine = loadEngine( "copytest" );
-    assertNotNull( engine );
+      // configure the task
+      task.setConfiguration( cfg );
 
-    TransformContext context = engine.getContext();
-    assertNotNull( context );
+      // initialize it within an operational context
+      task.open( context );
 
-    try {
-      engine.run();
-    } catch ( Exception e ) {
-      e.printStackTrace();
-      Log.error( e.getMessage() );
+      // execute the task within the context it was opened
+      task.execute();
+    } catch ( ConfigurationException | TaskException | IOException e ) {
       fail( e.getMessage() );
     }
 
-    // TODO: we should check for the existence of the files in the work directory
-
-    try {
-      engine.close();
-    } catch ( IOException e ) {
-      e.printStackTrace();
-    }
-
+    // now check for the existance of java file in the testdir
   }
 
 }
