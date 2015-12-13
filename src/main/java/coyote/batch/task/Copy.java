@@ -11,14 +11,11 @@
  */
 package coyote.batch.task;
 
-import java.io.File;
 import java.io.IOException;
-import java.util.List;
 
 import coyote.batch.Batch;
 import coyote.batch.ConfigTag;
 import coyote.batch.TaskException;
-import coyote.batch.TransformContext;
 import coyote.commons.FileUtil;
 import coyote.commons.StringUtil;
 import coyote.loader.log.Log;
@@ -34,8 +31,13 @@ import coyote.loader.log.LogMsg;
  * pattern = regex pattern used to match files
  * recurse = also search subdirectories of fromdir
  * preserve = preserve the hierarchy of copied files in target directory
- * overwrite = copy over any existing files with the same name
+ * overwrite = copy over any existing files with the same name defaults to false
  * keepDate = whether to preserve the file date
+ * rename = use a generational name for files with the same name preserve=false,overwrite=false defaults to true
+ * 
+ * <p>All the business logic for copy operations s in the FileUtil class in 
+ * Coyote Commons contributed by the Coyote Loader. No file logic is needed in 
+ * this library, just argument checks.</p>
  */
 public class Copy extends AbstractFileTask {
 
@@ -61,10 +63,13 @@ public class Copy extends AbstractFileTask {
     // preserve the date on the copied file
     boolean keepDate = getBoolean( ConfigTag.KEEPDATE );
 
-    // overwrite existing files
-    boolean overwrite = true;
-    if ( contains( ConfigTag.OVERWRITE ) ) {
-      overwrite = getBoolean( ConfigTag.OVERWRITE );
+    // overwrite existing files defaults to true
+    boolean overwrite = getBoolean( ConfigTag.OVERWRITE );
+
+    // rename any files which may be overwritten defaults to true to prevent loss
+    boolean rename = true;
+    if ( contains( ConfigTag.RENAME ) ) {
+      rename = getBoolean( ConfigTag.RENAME );
     }
 
     if ( StringUtil.isNotBlank( source ) ) {
@@ -109,50 +114,18 @@ public class Copy extends AbstractFileTask {
     } else if ( StringUtil.isNotBlank( fromDir ) ) {
       // This appears to be a directory-based copy
 
-      final String src = resolveArgument( fromDir );
-
-      File directory = new File( src );
-
       if ( StringUtil.isNotBlank( toDir ) ) {
         // this is a directory to directory copy
-        final String tgt = resolveArgument( toDir );
-        Log.info( LogMsg.createMsg( Batch.MSG, "Task.copying_directory", src, tgt, pattern, preserveHierarchy, recurse, overwrite ) );
+        Log.info( LogMsg.createMsg( Batch.MSG, "Task.copying_directory", fromDir, toDir, pattern, recurse, preserveHierarchy, keepDate, overwrite, rename ) );
 
-        // get a list of all files in the source directory matching the pattern
-        // recursing into sub directories if requested
-        List<File> flist = FileUtil.getFiles( directory, pattern, recurse );
-
-        if ( recurse ) {
-          // copying from source directory and all sub directories
-          if ( preserveHierarchy ) {
-            // calculate new target directories
-          } else {
-
+        try {
+          FileUtil.copyDirectory( fromDir, toDir, pattern, recurse, preserveHierarchy, keepDate, overwrite, rename );
+        } catch ( final IOException e ) {
+          if ( haltOnError ) {
+            getContext().setError( String.format( "Copy operation '%s' to '%s' failed: %s", fromDir, toDir, e.getMessage() ) );
+            return;
           }
-
-        } else {
-          // copying just from the source directory
-
-          // TODO handle any name collisions
-
         }
-
-        // the most common use case is to perform a flat copy, essentially moving all the discovered files from one directory to another
-        if ( preserveHierarchy ) {
-
-          try {
-            // this preserves hierarchy...is this what is desired?
-            FileUtil.copyDirectory( src, tgt );
-          } catch ( final IOException e ) {
-            if ( haltOnError ) {
-              getContext().setError( String.format( "Copy operation '%s' to '%s' failed: %s", src, tgt, e.getMessage() ) );
-              return;
-            }
-          }
-        } else {
-
-        }
-
       } else {
         String msg = LogMsg.createMsg( Batch.MSG, "Task.copy_target_directory_missing" ).toString();
         Log.warn( msg );
@@ -161,15 +134,14 @@ public class Copy extends AbstractFileTask {
           getContext().setError( msg );
           return;
         }
-      }
-
+      } // target check
     } else {
       Log.info( "Cannot copy without a source" );
       if ( haltOnError ) {
         getContext().setError( "Copy operation failed: no source argument" );
         return;
       }
-    }
+    } // source check
 
   }
 }

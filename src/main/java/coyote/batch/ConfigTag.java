@@ -61,6 +61,7 @@ public class ConfigTag {
   public static final String PRESERVE = "preserve";
   public static final String OVERWRITE = "overwrite";
   public static final String KEEPDATE = "keepdate";
+  public static final String RENAME = "rename";
 
   public static final String ROOT_ELEMENT = "rootElement";
   public static final String ROOT_ATTRIBUTE = "rootAttributes";
