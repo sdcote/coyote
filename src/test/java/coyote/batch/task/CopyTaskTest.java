@@ -165,9 +165,9 @@ public class CopyTaskTest extends AbstractTest {
     // now check for the existance of java file in the testdir
   }
 
-  
-  
-  
+
+
+
   //@Test
   public void testDirectoryPattern() {
     resetTestDirectory();
@@ -192,7 +192,6 @@ public class CopyTaskTest extends AbstractTest {
       assertTrue( loader.exists() );
       assertTrue( loader.isDirectory() );
 
-      
       File watchdog = new File( loader, "WatchDog.java" );
       assertTrue( watchdog.exists() );
       assertTrue( watchdog.isFile() );
@@ -260,8 +259,4 @@ public class CopyTaskTest extends AbstractTest {
     }
   }
 
-  
-  
-  
-  
 }
