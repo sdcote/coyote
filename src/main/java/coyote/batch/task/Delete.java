@@ -48,7 +48,7 @@ public class Delete extends AbstractFileTask {
       if ( !sourceFile.isAbsolute() ) {
         sourceFile = new File( context.getSymbols().getString( Symbols.JOB_DIRECTORY ), sourceFile.getPath() );
       }
-      coyote.loader.log.Log.info( LogMsg.createMsg( Batch.MSG, "Task.deleting_file", file, sourceFile.getAbsolutePath() ) );
+      coyote.loader.log.Log.debug( LogMsg.createMsg( Batch.MSG, "Task.deleting_file", file, sourceFile.getAbsolutePath() ) );
 
       if ( !FileUtil.deleteFile( sourceFile ) ) {
         String msg = LogMsg.createMsg( Batch.MSG, "Task.file_deletion_error", file, sourceFile.getAbsolutePath() ).toString();
@@ -68,7 +68,7 @@ public class Delete extends AbstractFileTask {
       if ( !dirFile.isAbsolute() ) {
         dirFile = new File( context.getSymbols().getString( Symbols.JOB_DIRECTORY ), dirFile.getPath() );
       }
-      coyote.loader.log.Log.info( LogMsg.createMsg( Batch.MSG, "Task.deleting_directory", dir, dirFile.getAbsolutePath() ) );
+      coyote.loader.log.Log.debug( LogMsg.createMsg( Batch.MSG, "Task.deleting_directory", dir, dirFile.getAbsolutePath() ) );
 
       if ( dirFile.exists() ) {
         if ( dirFile.isDirectory() ) {

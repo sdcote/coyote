@@ -79,7 +79,7 @@ public class Copy extends AbstractFileTask {
       if ( StringUtil.isNotBlank( target ) ) {
         // this is a file to file copy
         final String tgt = resolveArgument( target );
-        Log.info( LogMsg.createMsg( Batch.MSG, "Task.Copying file named {} to file named {}", src, tgt ) );
+        Log.debug( LogMsg.createMsg( Batch.MSG, "Task.Copying file named {} to file named {}", src, tgt ) );
 
         try {
           FileUtil.copyFile( src, tgt );
@@ -93,7 +93,7 @@ public class Copy extends AbstractFileTask {
       } else if ( StringUtil.isNotBlank( toDir ) ) {
         // this is a file to directory copy
         final String tgt = resolveArgument( toDir );
-        Log.info( LogMsg.createMsg( Batch.MSG, "Task.Copying file named {} to directory named {}", src, tgt ) );
+        Log.debug( LogMsg.createMsg( Batch.MSG, "Task.Copying file named {} to directory named {}", src, tgt ) );
 
         try {
           FileUtil.copyFileToDir( src, tgt );
@@ -104,7 +104,7 @@ public class Copy extends AbstractFileTask {
           }
         }
       } else {
-        Log.info( "Cannot copy without a target" );
+        Log.debug( "Cannot copy without a target" );
         if ( haltOnError ) {
           getContext().setError( "Copy operation failed: no target argument" );
           return;
@@ -116,7 +116,7 @@ public class Copy extends AbstractFileTask {
 
       if ( StringUtil.isNotBlank( toDir ) ) {
         // this is a directory to directory copy
-        Log.info( LogMsg.createMsg( Batch.MSG, "Task.copying_directory", fromDir, toDir, pattern, recurse, preserveHierarchy, keepDate, overwrite, rename ) );
+        Log.debug( LogMsg.createMsg( Batch.MSG, "Task.copying_directory", fromDir, toDir, pattern, recurse, preserveHierarchy, keepDate, overwrite, rename ) );
 
         try {
           FileUtil.copyDirectory( fromDir, toDir, pattern, recurse, preserveHierarchy, keepDate, overwrite, rename );
@@ -136,7 +136,7 @@ public class Copy extends AbstractFileTask {
         }
       } // target check
     } else {
-      Log.info( "Cannot copy without a source" );
+      Log.error( "Cannot copy without a source" );
       if ( haltOnError ) {
         getContext().setError( "Copy operation failed: no source argument" );
         return;
