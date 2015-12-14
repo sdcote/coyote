@@ -66,7 +66,7 @@ public class Combine extends AbstractFileTask implements TransformTask {
     String sourcedir = getString( ConfigTag.DIRECTORY );
     directory = new File( sourcedir );
     if ( !directory.exists() ) {
-      String msg = LogMsg.createMsg( Batch.MSG, "Task.source directory does not exist " + directory.getAbsolutePath() ).toString();
+      String msg = LogMsg.createMsg( Batch.MSG, "Task.source_directory_does_not_exist", getClass().getName(), directory.getAbsolutePath() ).toString();
       if ( haltOnError() ) {
         context.setError( msg );
         return;
@@ -75,7 +75,7 @@ public class Combine extends AbstractFileTask implements TransformTask {
       }
     }
     if ( !directory.isDirectory() ) {
-      String msg = LogMsg.createMsg( Batch.MSG, "Task.source directory is not a directory " + directory.getAbsolutePath() ).toString();
+      String msg = LogMsg.createMsg( Batch.MSG, "Task.source_is_not_directory", getClass().getName(), directory.getAbsolutePath() ).toString();
       if ( haltOnError() ) {
         context.setError( msg );
         return;
@@ -84,7 +84,7 @@ public class Combine extends AbstractFileTask implements TransformTask {
       }
     }
     if ( !directory.canRead() ) {
-      String msg = LogMsg.createMsg( Batch.MSG, "Task.cannot read source directory " + directory.getAbsolutePath() ).toString();
+      String msg = LogMsg.createMsg( Batch.MSG, "Task.source_directory_not_readable", getClass().getName(), directory.getAbsolutePath() ).toString();
       if ( haltOnError() ) {
         context.setError( msg );
         return;
@@ -136,7 +136,7 @@ public class Combine extends AbstractFileTask implements TransformTask {
           targetFile = new File( target );
         }
 
-        // if not absolute, use the current working directory
+        // if not absolute, use the current job directory
         if ( !targetFile.isAbsolute() ) {
           targetFile = new File( context.getSymbols().getString( Symbols.JOB_DIRECTORY ), targetFile.getPath() );
         }

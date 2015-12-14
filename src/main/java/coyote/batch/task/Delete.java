@@ -11,8 +11,11 @@
  */
 package coyote.batch.task;
 
+import java.io.File;
+
 import coyote.batch.Batch;
 import coyote.batch.ConfigTag;
+import coyote.batch.Symbols;
 import coyote.batch.TaskException;
 import coyote.commons.FileUtil;
 import coyote.commons.StringUtil;
@@ -38,32 +41,61 @@ public class Delete extends AbstractFileTask {
 
     if ( StringUtil.isNotBlank( filename ) ) {
       final String file = resolveArgument( filename );
-      coyote.loader.log.Log.info( LogMsg.createMsg( Batch.MSG, "Task.Deleting file named {}", file ) );
 
-      try {
-        FileUtil.deleteFile( file );
-      } catch ( final Exception e ) {
+      File sourceFile = new File( filename );
+
+      // if not absolute, use the current job directory
+      if ( !sourceFile.isAbsolute() ) {
+        sourceFile = new File( context.getSymbols().getString( Symbols.JOB_DIRECTORY ), sourceFile.getPath() );
+      }
+      coyote.loader.log.Log.info( LogMsg.createMsg( Batch.MSG, "Task.deleting_file", file, sourceFile.getAbsolutePath() ) );
+
+      if ( !FileUtil.deleteFile( sourceFile ) ) {
+        String msg = LogMsg.createMsg( Batch.MSG, "Task.file_deletion_error", file, sourceFile.getAbsolutePath() ).toString();
         if ( haltOnError ) {
-          getContext().setError( String.format( "Delete file operation '%s' failed: %s", file, e.getMessage() ) );
+          getContext().setError( msg );
           return;
+        } else {
+          Log.error( msg );
         }
       }
 
     } else if ( StringUtil.isNotBlank( directory ) ) {
       final String dir = resolveArgument( directory );
-      coyote.loader.log.Log.info( LogMsg.createMsg( Batch.MSG, "Task.Deleting directory named {}", dir ) );
+      File dirFile = new File( dir );
 
-      try {
-        FileUtil.clearDir( dir, true, true );
-      } catch ( final Exception e ) {
-        if ( haltOnError ) {
-          getContext().setError( String.format( "Delete directory operation '%s' failed: %s", dir, e.getMessage() ) );
-          return;
+      // if not absolute, use the current job directory
+      if ( !dirFile.isAbsolute() ) {
+        dirFile = new File( context.getSymbols().getString( Symbols.JOB_DIRECTORY ), dirFile.getPath() );
+      }
+      coyote.loader.log.Log.info( LogMsg.createMsg( Batch.MSG, "Task.deleting_directory", dir, dirFile.getAbsolutePath() ) );
+
+      if ( dirFile.exists() ) {
+        if ( dirFile.isDirectory() ) {
+          try {
+            FileUtil.deleteDirectory( dirFile );
+          } catch ( final Exception e ) {
+            String msg = LogMsg.createMsg( Batch.MSG, "Task.directory_deletion_error", dir, dirFile.getAbsolutePath() ).toString();
+            if ( haltOnError ) {
+              getContext().setError( msg );
+              return;
+            } else {
+              Log.error( msg );              
+            }
+          }
+        } else {
+          String msg = LogMsg.createMsg( Batch.MSG, "Task.directory_specified_file_found", this.getClass().getName(), dir, dirFile.getAbsolutePath() ).toString();
+          if ( haltOnError ) {
+            getContext().setError( msg );
+            return;
+          } else {
+            Log.error( msg );
+          }
         }
       }
 
     } else {
-      Log.warn( LogMsg.createMsg( Batch.MSG, "Task.Move has no {} or {} argument - nothing to do.", ConfigTag.FILE, ConfigTag.DIRECTORY ) );
+      Log.warn( LogMsg.createMsg( Batch.MSG, "Task.delete_config_error", ConfigTag.FILE, ConfigTag.DIRECTORY ) );
     }
 
   }
