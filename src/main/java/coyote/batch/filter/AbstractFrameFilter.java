@@ -108,7 +108,6 @@ public abstract class AbstractFrameFilter extends AbstractConfigurableComponent 
    */
   @Override
   public boolean process( TransactionContext context ) {
-    // TODO Auto-generated method stub
     return false;
   }
 
