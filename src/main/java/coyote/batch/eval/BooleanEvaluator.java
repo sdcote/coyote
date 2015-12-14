@@ -21,6 +21,7 @@ import coyote.commons.eval.Constant;
 import coyote.commons.eval.Method;
 import coyote.commons.eval.Operator;
 import coyote.commons.eval.Parameters;
+import coyote.loader.log.Log;
 
 
 /**
@@ -170,7 +171,6 @@ public class BooleanEvaluator extends AbstractEvaluator<Boolean> {
    */
   @Override
   protected Boolean evaluate( Method method, Iterator<String> arguments, Object evaluationContext ) {
-    System.out.println( "EVALUATING METHOD: " + method );
     Boolean result;
     if ( EQUALS.equals( method ) ) {
       String arg2 = arguments.next();
@@ -273,7 +273,6 @@ public class BooleanEvaluator extends AbstractEvaluator<Boolean> {
       if ( test == null )
         test = arg2;
 
-      // System.out.println( "matching '" + value + "' to '" + test + "'" );
       if ( value.equalsIgnoreCase( test ) ) {
         return true;
       }
@@ -295,7 +294,6 @@ public class BooleanEvaluator extends AbstractEvaluator<Boolean> {
       if ( test == null )
         test = arg2;
 
-      // System.out.println( "testing equality of '" + value + "' to '" + test + "'" );
       if ( value.equals( test ) ) {
         return true;
       }
