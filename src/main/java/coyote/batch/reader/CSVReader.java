@@ -22,6 +22,7 @@ import coyote.batch.ConfigTag;
 import coyote.batch.ConfigurableComponent;
 import coyote.batch.ConfigurationException;
 import coyote.batch.FrameReader;
+import coyote.batch.Symbols;
 import coyote.batch.TransactionContext;
 import coyote.batch.TransformContext;
 import coyote.commons.StringUtil;
@@ -182,13 +183,26 @@ public class CSVReader extends AbstractFrameReader implements FrameReader, Confi
         if ( sourceFile != null ) {
           Log.debug( "Using a source file of " + sourceFile.getAbsolutePath() );
         } else {
-          Log.warn( LogMsg.createMsg( Batch.MSG, "Reader.source_is_not_file", source ) );
+          if ( uri.getScheme() == null ) {
+            // Assume a file if there is no scheme
+            sourceFile = new File( source );
+            Log.debug( "Using a source file of " + sourceFile.getAbsolutePath() );
+          } else {
+            Log.warn( LogMsg.createMsg( Batch.MSG, "Reader.source_is_not_file", source ) );
+          }
         }
       } else {
         sourceFile = new File( source );
         Log.debug( "Using a source file of " + sourceFile.getAbsolutePath() );
       }
 
+      // if not absolute, use the current job directory
+      if ( !sourceFile.isAbsolute() ) {
+        sourceFile = new File( context.getSymbols().getString( Symbols.JOB_DIRECTORY ), sourceFile.getPath() );
+      }
+      Log.debug( "Using a source file of " + sourceFile.getAbsolutePath() );
+
+      // Basic checks
       if ( sourceFile != null && sourceFile.exists() && sourceFile.canRead() ) {
         try {
           reader = new coyote.commons.csv.CSVReader( new FileReader( sourceFile ) );
@@ -201,12 +215,12 @@ public class CSVReader extends AbstractFrameReader implements FrameReader, Confi
         }
       } else {
         String msg = null;
-        if(sourceFile == null){
+        if ( sourceFile == null ) {
           msg = LogMsg.createMsg( Batch.MSG, "Reader.no_source_file_on_open", source ).toString();
         } else {
-          msg = LogMsg.createMsg( Batch.MSG, "Reader.could_not_read_from_source", getClass().getName(),sourceFile.getAbsolutePath() ).toString();          
+          msg = LogMsg.createMsg( Batch.MSG, "Reader.could_not_read_from_source", getClass().getName(), sourceFile.getAbsolutePath() ).toString();
         }
-        Log.error( msg);
+        Log.error( msg );
         context.setError( msg );
       }
     } else {
