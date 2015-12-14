@@ -179,22 +179,22 @@ public class TransformContext extends OperationalContext {
     String retval = null;
     if ( token.startsWith( WORKING ) ) {
       String name = token.substring( WORKING.length() );
-      if ( transactionContext.getWorkingFrame() != null ) {
+      if ( transactionContext != null && transactionContext.getWorkingFrame() != null ) {
         retval = transactionContext.getWorkingFrame().getAsString( name );
       }
     } else if ( token.startsWith( SOURCE ) ) {
       String name = token.substring( SOURCE.length() );
-      if ( transactionContext.getSourceFrame() != null ) {
+      if ( transactionContext != null && transactionContext.getSourceFrame() != null ) {
         retval = transactionContext.getSourceFrame().getAsString( name );
       }
     } else if ( token.startsWith( TARGET ) ) {
       String name = token.substring( TARGET.length() );
-      if ( transactionContext.getTargetFrame() != null ) {
+      if ( transactionContext != null && transactionContext.getTargetFrame() != null ) {
         retval = transactionContext.getTargetFrame().getAsString( name );
       }
     } else {
       // assume a working frame field
-      if ( transactionContext.getWorkingFrame() != null ) {
+      if ( transactionContext != null && transactionContext.getWorkingFrame() != null ) {
         retval = transactionContext.getWorkingFrame().getAsString( token );
       }
     }
