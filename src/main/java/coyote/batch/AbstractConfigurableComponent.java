@@ -150,28 +150,34 @@ public abstract class AbstractConfigurableComponent implements ConfigurableCompo
 
     // Perform a case insensitive search for the value with the given key
     value = this.findString( key );
+    if ( context != null ) {
+      // See if there is a match in the context for reference resolution
+      if ( value != null ) {
+        // perform a case sensitive search for the value in the context
+        String cval = context.getAsString( value, true );
 
-    // See if there is a match in the context for reference resolution
-    if ( value != null ) {
-      // perform a case sensitive search for the value in the context
-      String cval = context.getAsString( value, true );
-
-      // if an exact match was found in the context...
-      if ( cval != null ) {
-        // ...resolve the value as a template
-        return Template.resolve( cval, context.getSymbols() );
+        // if an exact match was found in the context...
+        if ( cval != null ) {
+          // ...resolve the value as a template
+          return Template.resolve( cval, context.getSymbols() );
+        }
       }
+
+      if ( value == null ) {
+        // perform a case insensitive search in the context
+        value = context.getAsString( key, false );
+      }
+      String retval = Template.resolve( value, context.getSymbols() );
+
+      Log.trace( LogMsg.createMsg( Batch.MSG, "Component.resolved_value", value, retval ) );
+
+      return retval;
+    } else {
+      if ( value == null )
+        return "";
+      else
+        return value;
     }
-
-    if ( value == null ) {
-      // perform a case insensitive search in the context
-      value = context.getAsString( key, false );
-    }
-    String retval = Template.resolve( value, context.getSymbols() );
-
-    Log.trace( LogMsg.createMsg( Batch.MSG, "Component.resolved_value", value, retval ) );
-
-    return retval;
   }
 
 
@@ -212,6 +218,15 @@ public abstract class AbstractConfigurableComponent implements ConfigurableCompo
 
 
   /**
+   * Retrieves the named configuration property as a boolean; defaults to FALSE.
+   * 
+   * <p>This performs a case insensitive search in much the same manner as 
+   * {@code #getString(String)} and uses the value to determine the boolean value.</p>
+   * 
+   * <p>A case insensitive value of {@code true}, {@code yes}, {@code 1}, 
+   * {@code t},or {@code y} results in true being returned. All other values 
+   * result in false including the case where the named attribute is missing.</p>
+   *  
    * @param name the name of the property to retrieve
    * 
    * @return the value of the named property as a boolean or false if it was not found.
@@ -219,7 +234,7 @@ public abstract class AbstractConfigurableComponent implements ConfigurableCompo
   public boolean getBoolean( String name ) {
     String value = getString( name );
     if ( StringUtil.isNotBlank( value ) ) {
-      return ( "true".equalsIgnoreCase( value ) || "yes".equalsIgnoreCase( value ) || "1".equalsIgnoreCase( value ) || "y".equalsIgnoreCase( value ) );
+      return ( "true".equalsIgnoreCase( value ) || "yes".equalsIgnoreCase( value ) || "1".equalsIgnoreCase( value ) || "y".equalsIgnoreCase( value ) || "t".equalsIgnoreCase( value ) );
     }
     return false;
   }
