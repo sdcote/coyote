@@ -15,10 +15,13 @@ import java.io.IOException;
 
 import coyote.batch.AbstractConfigurableComponent;
 import coyote.batch.ConfigTag;
+import coyote.batch.ConfigurationException;
+import coyote.batch.TaskException;
 import coyote.batch.TransformContext;
 import coyote.batch.TransformTask;
 import coyote.commons.StringUtil;
 import coyote.commons.template.Template;
+import coyote.dataframe.DataFrame;
 
 
 /**
@@ -39,10 +42,10 @@ public abstract class AbstractTransformTask extends AbstractConfigurableComponen
 
 
   /**
-  * @return true if the task is to generate an error and exit when an error 
-  *         occurs, false the task will just exit without setting the context 
-  *         to an error state and aborting the transform process.
-  */
+   * @return true if the task is to generate an error and exit when an error 
+   *         occurs, false the task will just exit without setting the context 
+   *         to an error state and aborting the transform process.
+   */
   public boolean haltOnError() {
     return haltOnError;
   }
@@ -59,6 +62,23 @@ public abstract class AbstractTransformTask extends AbstractConfigurableComponen
    */
   public void setHaltOnError( boolean flag ) {
     this.haltOnError = flag;
+  }
+
+
+
+
+  /**
+   * @see coyote.batch.AbstractConfigurableComponent#setConfiguration(coyote.dataframe.DataFrame)
+   */
+  @Override
+  public void setConfiguration( DataFrame frame ) throws ConfigurationException {
+    super.setConfiguration( frame );
+
+    // if there is an enabled flag, set it; otherwise default to true
+    if ( contains( ConfigTag.ENABLED ) ) {
+      setEnabled( getBoolean( ConfigTag.ENABLED ) );
+    }
+
   }
 
 
@@ -151,6 +171,18 @@ public abstract class AbstractTransformTask extends AbstractConfigurableComponen
   @Override
   public void setEnabled( boolean flag ) {
     this.enabled = flag;
+  }
+
+
+
+
+  /**
+   * @see coyote.batch.TransformTask#execute()
+   */
+  @Override
+  public void execute() throws TaskException {
+    // TODO Auto-generated method stub
+
   }
 
 }
