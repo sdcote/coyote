@@ -14,7 +14,6 @@ package coyote.batch.task;
 import coyote.batch.Batch;
 import coyote.batch.ConfigTag;
 import coyote.batch.TaskException;
-import coyote.batch.TransformContext;
 import coyote.commons.FileUtil;
 import coyote.commons.StringUtil;
 import coyote.loader.log.Log;
