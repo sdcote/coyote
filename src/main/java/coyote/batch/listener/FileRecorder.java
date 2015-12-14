@@ -51,14 +51,16 @@ public abstract class FileRecorder extends ContextRecorder {
   public void open( TransformContext context ) {
     super.open( context );
 
+    String target = getString( ConfigTag.TARGET );
+
     // get our configuration data
-    setTarget( getString( ConfigTag.TARGET ) );
+    setTarget( target );
     Log.debug( LogMsg.createMsg( Batch.MSG, "Batch.listener_validating_target", getTarget() ) );
 
     if ( StringUtil.isNotBlank( getTarget() ) ) {
 
-      String target = getTarget().trim();
-
+      target = getTarget().trim();
+      
       // Try to parse the target as a URI, failures result in a null
       if ( UriUtil.parse( target ) == null ) {
         // Windows systems often have a drive letter in fully qualified filenames
