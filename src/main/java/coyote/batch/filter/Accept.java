@@ -25,13 +25,16 @@ import coyote.loader.log.LogMsg;
  */
 public class Accept extends AbstractFrameFilter implements FrameFilter {
 
- 
-  public Accept() {
-  }
+  public Accept() {}
+
+
+
 
   public Accept( String condition ) {
     super( condition );
   }
+
+
 
 
   /**
@@ -46,6 +49,9 @@ public class Accept extends AbstractFrameFilter implements FrameFilter {
       try {
         // if the condition evaluates to true
         if ( evaluator.evaluateBoolean( expression ) ) {
+
+          if ( Log.isLogging( Log.DEBUG_EVENTS ) )
+            Log.debug( "Accepted frame " + context.getRow() );
 
           // signal that other filters should not run
           return false;

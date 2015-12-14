@@ -22,6 +22,7 @@ import coyote.loader.log.LogMsg;
 /**
  * If the conditions in this frame are met, then this frame is rejected, no 
  * other processing is performed.
+ * 
  */
 public class Reject extends AbstractFrameFilter implements FrameFilter {
 
@@ -37,6 +38,9 @@ public class Reject extends AbstractFrameFilter implements FrameFilter {
       try {
         // if the condition evaluates to true
         if ( evaluator.evaluateBoolean( expression ) ) {
+
+          if ( Log.isLogging( Log.DEBUG_EVENTS ) )
+            Log.debug( "Rejected frame " + context.getRow() );
 
           // remove the working frame from the context
           context.setWorkingFrame( null );
