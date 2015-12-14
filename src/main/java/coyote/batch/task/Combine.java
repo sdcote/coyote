@@ -42,7 +42,7 @@ import coyote.loader.log.LogMsg;
  * "CombineTextFiles" : { "directory": "\datadir", "pattern": "([^\\s]+(\\.(?i)(csv))$)", "target": "big.csv", "recurse": false }
  *  
  */
-public class CombineTextFiles extends AbstractFileTask implements TransformTask {
+public class Combine extends AbstractFileTask implements TransformTask {
 
   protected static final String STDOUT = "STDOUT";
   protected static final String STDERR = "STDERR";
