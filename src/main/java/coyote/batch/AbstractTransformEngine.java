@@ -332,7 +332,10 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
 
           // ...pass it through the filters...
           for ( FrameFilter filter : filters ) {
-            filter.process( txnContext );
+            if ( !filter.process( txnContext ) ) {
+              // filter signaled to discontinue filter checks (early exit)
+              break;
+            }
             if ( txnContext.getWorkingFrame() == null )
               break;
           }
@@ -436,8 +439,8 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
         }
       }
 
-      // Close all the tasks after pre-processing is done regardless of outcome
-      for ( TransformTask task : preProcesses ) {
+      // Close all the tasks after post-processing is done regardless of outcome
+      for ( TransformTask task : postProcesses ) {
         try {
           if ( task.isEnabled() ) {
             task.close();
