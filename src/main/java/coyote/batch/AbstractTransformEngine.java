@@ -189,6 +189,13 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
     // Set the symbol table to the one this engine uses
     getContext().setSymbols( symbols );
 
+    // Open / initialize the context - This is done before the listeners are 
+    // opened so the listeners can be opened within an initialized context and 
+    // have their configuration arguments resolved. The trade-off is that 
+    // listeners will never have their open event fired on the opening of the 
+    // Transform Context.  
+    getContext().open();
+
     // Open all the listeners first so the transform context will trigger
     for ( ContextListener listener : listeners ) {
       listener.open( getContext() );
@@ -197,9 +204,6 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
         return;
       }
     }
-
-    // Open / initialize the context
-    getContext().open();
 
     // Set the run date in the context after it was opened (possibly loaded)
     getContext().set( Symbols.DATETIME, rundate );
@@ -426,6 +430,11 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
     if ( getContext().isInError() ) {
       reportTransformContextError( getContext() );
     } else {
+
+      // close any internal components like readers and writers which may 
+      // interfere with post-processing tasks from completing properly
+      closeInternalComponents();
+
       // Execute all the post-processing tasks
       for ( TransformTask task : postProcesses ) {
         try {
@@ -671,6 +680,35 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
 
     if ( logManager != null )
       logManager.close();
+
+  }
+
+
+
+
+  /**
+   * Close any internal components like readers and writers which may interfere 
+   * with post-processing tasks from completing properly such as moving or 
+   * deleting files. 
+   */
+  private void closeInternalComponents() {
+    if ( reader != null ) {
+      try {
+        reader.close();
+        reader = null;
+      } catch ( Exception e ) {
+        Log.warn( LogMsg.createMsg( Batch.MSG, "Engine.problems_closing_reader", reader.getClass().getName(), e.getClass().getSimpleName(), e.getMessage() ) );
+      }
+    }
+
+    if ( writer != null ) {
+      try {
+        writer.close();
+        writer = null;
+      } catch ( Exception e ) {
+        Log.warn( LogMsg.createMsg( Batch.MSG, "Engine.problems_closing_writer", writer.getClass().getName(), e.getClass().getSimpleName(), e.getMessage() ) );
+      }
+    }
 
   }
 
