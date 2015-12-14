@@ -256,37 +256,38 @@ public class TransformEngineFactory {
    * @param engine
    */
   private static void configValidation( DataFrame cfg, TransformEngine engine ) {
-    for ( DataField field : cfg.getFields() ) {
-      String className = field.getName();
-      if ( className != null && StringUtil.countOccurrencesOf( className, "." ) < 1 ) {
-        className = VALIDATOR_PKG + "." + className;
-      }
+    if ( cfg != null ) {
+      for ( DataField field : cfg.getFields() ) {
+        String className = field.getName();
+        if ( className != null && StringUtil.countOccurrencesOf( className, "." ) < 1 ) {
+          className = VALIDATOR_PKG + "." + className;
+        }
 
-      // All tasks must have an object(frame) as its value.
-      if ( field.isFrame() ) {
-        DataFrame validatorConfig = (DataFrame)field.getObjectValue();
-        Object object = createComponent( className, validatorConfig );
-        if ( object != null ) {
-          if ( object instanceof FrameValidator ) {
-            engine.addValidator( (FrameValidator)object );
-            Log.debug( LogMsg.createMsg( Batch.MSG, "EngineFactory.Created validator task {} cfg={}", object.getClass().getName(), validatorConfig ) );
+        // All tasks must have an object(frame) as its value.
+        if ( field.isFrame() ) {
+          DataFrame validatorConfig = (DataFrame)field.getObjectValue();
+          Object object = createComponent( className, validatorConfig );
+          if ( object != null ) {
+            if ( object instanceof FrameValidator ) {
+              engine.addValidator( (FrameValidator)object );
+              Log.debug( LogMsg.createMsg( Batch.MSG, "EngineFactory.Created validator task {} cfg={}", object.getClass().getName(), validatorConfig ) );
+            } else {
+              Log.error( LogMsg.createMsg( Batch.MSG, "EngineFactory.Specified validator class '{}' was not a frame validator", field.getName() ) );
+            }
           } else {
-            Log.error( LogMsg.createMsg( Batch.MSG, "EngineFactory.Specified validator class '{}' was not a frame validator", field.getName() ) );
+            Log.error( LogMsg.createMsg( Batch.MSG, "EngineFactory.Could not create an instance of the specified validator task '{}'", className ) );
           }
         } else {
-          Log.error( LogMsg.createMsg( Batch.MSG, "EngineFactory.Could not create an instance of the specified validator task '{}'", className ) );
+          Log.error( LogMsg.createMsg( Batch.MSG, "EngineFactory.Validator task did not contain a configuration, only scalar {}", field.getStringValue() ) );
         }
-      } else {
-        Log.error( LogMsg.createMsg( Batch.MSG, "EngineFactory.Validator task did not contain a configuration, only scalar {}", field.getStringValue() ) );
-      }
-    } // for each validator
+      } // for each validator
+    } // cfg !null
   }
 
 
 
 
   private static void configTransformer( DataFrame cfg, TransformEngine engine ) {
-
     if ( cfg != null ) {
       for ( DataField field : cfg.getFields() ) {
         String className = field.getName();
@@ -312,7 +313,7 @@ public class TransformEngineFactory {
           Log.error( LogMsg.createMsg( Batch.MSG, "EngineFactory.transformer_task_did_not_contain_valid_configuration", field.getStringValue() ) );
         }
       } // for each transformer
-    } // empty config sections sometimes cause null references
+    } // cfg !null
   }
 
 
@@ -325,120 +326,128 @@ public class TransformEngineFactory {
    * @param retval
    */
   private static void configDatabases( DataFrame cfg, TransformEngine engine ) {
-    for ( DataField field : cfg.getFields() ) {
-      if ( field.isFrame() ) {
-        if ( StringUtil.isNotBlank( field.getName() ) ) {
-          DataFrame dataSourceCfg = (DataFrame)field.getObjectValue();
+    if ( cfg != null ) {
+      for ( DataField field : cfg.getFields() ) {
+        if ( field.isFrame() ) {
+          if ( StringUtil.isNotBlank( field.getName() ) ) {
+            DataFrame dataSourceCfg = (DataFrame)field.getObjectValue();
 
-          Database store = new Database();
-          try {
-            store.setConfiguration( dataSourceCfg );
-            store.setName( field.getName() );
-          } catch ( ConfigurationException e ) {
-            Log.error( LogMsg.createMsg( Batch.MSG, "EngineFactory.Could not configure database - {} : {}", e.getClass().getSimpleName(), e.getMessage() ) );
+            Database store = new Database();
+            try {
+              store.setConfiguration( dataSourceCfg );
+              store.setName( field.getName() );
+            } catch ( ConfigurationException e ) {
+              Log.error( LogMsg.createMsg( Batch.MSG, "EngineFactory.Could not configure database - {} : {}", e.getClass().getSimpleName(), e.getMessage() ) );
+            }
+
+            // Add it to the engine (actually its transform context)
+            engine.addDatabase( store );
+
+          } else {
+            Log.error( LogMsg.createMsg( Batch.MSG, "EngineFactory.Databases must have a unique name" ) );
           }
 
-          // Add it to the engine (actually its transform context)
-          engine.addDatabase( store );
-
         } else {
-          Log.error( LogMsg.createMsg( Batch.MSG, "EngineFactory.Databases must have a unique name" ) );
+          Log.error( LogMsg.createMsg( Batch.MSG, "EngineFactory.Database did not contain a configuration, only scalar {}", field.getStringValue() ) );
         }
-
-      } else {
-        Log.error( LogMsg.createMsg( Batch.MSG, "EngineFactory.Database did not contain a configuration, only scalar {}", field.getStringValue() ) );
-      }
-    } // for each configuration section
+      } // for each configuration section
+    } // cfg !null
   }
 
 
 
 
   private static void configFilters( DataFrame cfg, TransformEngine engine ) {
-    for ( DataField field : cfg.getFields() ) {
-      String className = field.getName();
-      if ( className != null && StringUtil.countOccurrencesOf( className, "." ) < 1 ) {
-        className = FILTER_PKG + "." + className;
-      }
+    if ( cfg != null ) {
+      for ( DataField field : cfg.getFields() ) {
+        String className = field.getName();
+        if ( className != null && StringUtil.countOccurrencesOf( className, "." ) < 1 ) {
+          className = FILTER_PKG + "." + className;
+        }
 
-      // All filters must have an object(frame) as its value.
-      if ( field.isFrame() ) {
-        DataFrame taskConfig = (DataFrame)field.getObjectValue();
-        Object object = createComponent( className, taskConfig );
-        if ( object != null ) {
-          if ( object instanceof FrameFilter ) {
-            int seq = engine.addFilter( (FrameFilter)object );
-            Log.debug( LogMsg.createMsg( Batch.MSG, "EngineFactory.Created filter task {} seq={} cfg={}", object.getClass().getName(), seq, cfg ) );
+        // All filters must have an object(frame) as its value.
+        if ( field.isFrame() ) {
+          DataFrame taskConfig = (DataFrame)field.getObjectValue();
+          Object object = createComponent( className, taskConfig );
+          if ( object != null ) {
+            if ( object instanceof FrameFilter ) {
+              int seq = engine.addFilter( (FrameFilter)object );
+              Log.debug( LogMsg.createMsg( Batch.MSG, "EngineFactory.Created filter task {} seq={} cfg={}", object.getClass().getName(), seq, cfg ) );
+            } else {
+              Log.error( LogMsg.createMsg( Batch.MSG, "EngineFactory.Specified filter class was not a frame filter" ) );
+            }
           } else {
-            Log.error( LogMsg.createMsg( Batch.MSG, "EngineFactory.Specified filter class was not a frame filter" ) );
+            Log.error( LogMsg.createMsg( Batch.MSG, "EngineFactory.Could not create an instance of the specified filter '{}'", className ) );
           }
         } else {
-          Log.error( LogMsg.createMsg( Batch.MSG, "EngineFactory.Could not create an instance of the specified filter '{}'", className ) );
+          Log.error( LogMsg.createMsg( Batch.MSG, "EngineFactory.filter did not contain a configuration, only scalar {}", field.getStringValue() ) );
         }
-      } else {
-        Log.error( LogMsg.createMsg( Batch.MSG, "EngineFactory.filter did not contain a configuration, only scalar {}", field.getStringValue() ) );
-      }
-    } // for each task
+      } // for each task
+    } // cfg !null
   }
 
 
 
 
   private static void configPreProcess( DataFrame cfg, TransformEngine engine ) {
-    for ( DataField field : cfg.getFields() ) {
-      String className = field.getName();
-      if ( className != null && StringUtil.countOccurrencesOf( className, "." ) < 1 ) {
-        className = TASK_PKG + "." + className;
-      }
+    if ( cfg != null ) {
+      for ( DataField field : cfg.getFields() ) {
+        String className = field.getName();
+        if ( className != null && StringUtil.countOccurrencesOf( className, "." ) < 1 ) {
+          className = TASK_PKG + "." + className;
+        }
 
-      // All tasks must have an object(frame) as its value.
-      if ( field.isFrame() ) {
-        DataFrame taskConfig = (DataFrame)field.getObjectValue();
-        Object object = createComponent( className, taskConfig );
-        if ( object != null ) {
-          if ( object instanceof TransformTask ) {
-            int seq = engine.addPreProcessTask( (TransformTask)object );
-            Log.debug( LogMsg.createMsg( Batch.MSG, "EngineFactory.created_preprocess_task", object.getClass().getName(), seq, cfg ) );
+        // All tasks must have an object(frame) as its value.
+        if ( field.isFrame() ) {
+          DataFrame taskConfig = (DataFrame)field.getObjectValue();
+          Object object = createComponent( className, taskConfig );
+          if ( object != null ) {
+            if ( object instanceof TransformTask ) {
+              int seq = engine.addPreProcessTask( (TransformTask)object );
+              Log.debug( LogMsg.createMsg( Batch.MSG, "EngineFactory.created_preprocess_task", object.getClass().getName(), seq, cfg ) );
+            } else {
+              Log.error( LogMsg.createMsg( Batch.MSG, "EngineFactory.preprocess_class_not_transform_task", object.getClass().getName() ) );
+            }
           } else {
-            Log.error( LogMsg.createMsg( Batch.MSG, "EngineFactory.preprocess_class_not_transform_task", object.getClass().getName() ) );
+            Log.error( LogMsg.createMsg( Batch.MSG, "EngineFactory.could_not_create_preprocess_task", className ) );
           }
         } else {
-          Log.error( LogMsg.createMsg( Batch.MSG, "EngineFactory.could_not_create_preprocess_task", className ) );
+          Log.error( LogMsg.createMsg( Batch.MSG, "EngineFactory.preprocess_task_config_not_section", field.getStringValue() ) );
         }
-      } else {
-        Log.error( LogMsg.createMsg( Batch.MSG, "EngineFactory.preprocess_task_config_not_section", field.getStringValue() ) );
-      }
-    } // for each task
+      } // for each task
+    } // cfg !null
   }
 
 
 
 
   private static void configPostProcess( DataFrame cfg, TransformEngine engine ) {
-    for ( DataField field : cfg.getFields() ) {
-      String className = field.getName();
-      if ( className != null && StringUtil.countOccurrencesOf( className, "." ) < 1 ) {
-        className = TASK_PKG + "." + className;
-      }
+    if ( cfg != null ) {
+      for ( DataField field : cfg.getFields() ) {
+        String className = field.getName();
+        if ( className != null && StringUtil.countOccurrencesOf( className, "." ) < 1 ) {
+          className = TASK_PKG + "." + className;
+        }
 
-      // All tasks must have an object(frame) as its value.
-      if ( field.isFrame() ) {
-        DataFrame taskConfig = (DataFrame)field.getObjectValue();
-        Object object = createComponent( className, taskConfig );
-        if ( object != null ) {
-          if ( object instanceof TransformTask ) {
-            int seq = engine.addPostProcessTask( (TransformTask)object );
-            Log.debug( LogMsg.createMsg( Batch.MSG, "EngineFactory.Created postprocess task {} seq={} cfg={}", object.getClass().getName(), seq, cfg ) );
+        // All tasks must have an object(frame) as its value.
+        if ( field.isFrame() ) {
+          DataFrame taskConfig = (DataFrame)field.getObjectValue();
+          Object object = createComponent( className, taskConfig );
+          if ( object != null ) {
+            if ( object instanceof TransformTask ) {
+              int seq = engine.addPostProcessTask( (TransformTask)object );
+              Log.debug( LogMsg.createMsg( Batch.MSG, "EngineFactory.Created postprocess task {} seq={} cfg={}", object.getClass().getName(), seq, cfg ) );
+            } else {
+              Log.error( LogMsg.createMsg( Batch.MSG, "EngineFactory.Specified post-process class was not a transform task" ) );
+            }
           } else {
-            Log.error( LogMsg.createMsg( Batch.MSG, "EngineFactory.Specified post-process class was not a transform task" ) );
+            Log.error( LogMsg.createMsg( Batch.MSG, "EngineFactory.Could not create an instance of the specified post-process task '{}'", className ) );
           }
         } else {
-          Log.error( LogMsg.createMsg( Batch.MSG, "EngineFactory.Could not create an instance of the specified post-process task '{}'", className ) );
+          Log.error( LogMsg.createMsg( Batch.MSG, "EngineFactory.Post-process task did not contain a configuration, only scalar {}", field.getStringValue() ) );
         }
-      } else {
-        Log.error( LogMsg.createMsg( Batch.MSG, "EngineFactory.Post-process task did not contain a configuration, only scalar {}", field.getStringValue() ) );
-      }
-    }// for each task 
+      }// for each task 
+    } // cfg !null
   }
 
 
@@ -459,23 +468,25 @@ public class TransformEngineFactory {
    * @param engine the transform engine
    */
   private static void configContext( DataFrame cfg, TransformEngine engine ) {
-    TransformContext context = engine.getContext();
+    if ( cfg != null ) {
+      TransformContext context = engine.getContext();
 
-    if ( context == null ) {
-      context = new TransformContext();
+      if ( context == null ) {
+        context = new TransformContext();
 
-      // Set the configuration so it can be used when the context is opened
-      context.setConfiguration( cfg );
+        // Set the configuration so it can be used when the context is opened
+        context.setConfiguration( cfg );
 
-      // set the context in the engine
-      engine.setContext( context );
+        // set the context in the engine
+        engine.setContext( context );
 
-      // set the engine in the context
-      context.setEngine( engine );
-      Log.debug( LogMsg.createMsg( Batch.MSG, "EngineFactory.created_context {0}", context.getClass().getName() ) );
-    }
+        // set the engine in the context
+        context.setEngine( engine );
+        Log.debug( LogMsg.createMsg( Batch.MSG, "EngineFactory.created_context {0}", context.getClass().getName() ) );
+      }
 
-    Log.debug( LogMsg.createMsg( Batch.MSG, "EngineFactory.Loaded context {0}", context.getClass().getName() ) );
+      Log.debug( LogMsg.createMsg( Batch.MSG, "EngineFactory.Loaded context {0}", context.getClass().getName() ) );
+    } // cfg !null
   }
 
 
@@ -500,54 +511,56 @@ public class TransformEngineFactory {
    * @param engine the transform engine
    */
   private static void configPersistentContext( DataFrame cfg, TransformEngine engine ) {
-    TransformContext context = engine.getContext();
+    if ( cfg != null ) {
+      TransformContext context = engine.getContext();
 
-    if ( context == null ) {
-      if ( engine.getName() != null ) {
-        context = new PersistentContext();
-        context.setConfiguration( cfg );
+      if ( context == null ) {
+        if ( engine.getName() != null ) {
+          context = new PersistentContext();
+          context.setConfiguration( cfg );
 
-        // set the context in the engine
-        engine.setContext( context );
+          // set the context in the engine
+          engine.setContext( context );
 
-        // set the engine in the context
-        context.setEngine( engine );
+          // set the engine in the context
+          context.setEngine( engine );
 
-        Log.debug( LogMsg.createMsg( Batch.MSG, "EngineFactory.created_persistent_context", context.getClass().getName() ) );
+          Log.debug( LogMsg.createMsg( Batch.MSG, "EngineFactory.created_persistent_context", context.getClass().getName() ) );
+        } else {
+          Log.warn( LogMsg.createMsg( Batch.MSG, "EngineFactory.unnamed_engine_configuration" ) );
+          configContext( cfg, engine );
+          return;
+        }
       } else {
-        Log.warn( LogMsg.createMsg( Batch.MSG, "EngineFactory.unnamed_engine_configuration" ) );
-        configContext( cfg, engine );
-        return;
+        // TODO: support converting a regular context into a persistent one
+        Log.warn( LogMsg.createMsg( Batch.MSG, "EngineFactory.could_not_replace_existing_context" ) );
       }
-    } else {
-      // TODO: support converting a regular context into a persistent one
-      Log.warn( LogMsg.createMsg( Batch.MSG, "EngineFactory.could_not_replace_existing_context" ) );
-    }
-
+    } // cfg !null
   }
 
 
 
 
   private static void configWriter( DataFrame cfg, TransformEngine engine ) {
-
-    // Make sure the class is fully qualified 
-    String className = cfg.getAsString( ConfigTag.CLASS );
-    if ( className != null && StringUtil.countOccurrencesOf( className, "." ) < 1 ) {
-      className = WRITER_PKG + "." + className;
-      cfg.put( ConfigTag.CLASS, className );
-    }
-    Object object = createComponent( cfg );
-    if ( object != null ) {
-      if ( object instanceof FrameWriter ) {
-        engine.setWriter( (FrameWriter)object );
-        Log.debug( LogMsg.createMsg( Batch.MSG, "EngineFactory.created_writer", object.getClass().getName() ) );
-      } else {
-        Log.error( LogMsg.createMsg( Batch.MSG, "EngineFactory.specified_class_is_not_a_writer", object.getClass().getName() ) );
+    if ( cfg != null ) {
+      // Make sure the class is fully qualified 
+      String className = cfg.getAsString( ConfigTag.CLASS );
+      if ( className != null && StringUtil.countOccurrencesOf( className, "." ) < 1 ) {
+        className = WRITER_PKG + "." + className;
+        cfg.put( ConfigTag.CLASS, className );
       }
-    } else {
-      Log.error( LogMsg.createMsg( Batch.MSG, "EngineFactory.could_not_create_instance_of_specified_writer", className ) );
-    }
+      Object object = createComponent( cfg );
+      if ( object != null ) {
+        if ( object instanceof FrameWriter ) {
+          engine.setWriter( (FrameWriter)object );
+          Log.debug( LogMsg.createMsg( Batch.MSG, "EngineFactory.created_writer", object.getClass().getName() ) );
+        } else {
+          Log.error( LogMsg.createMsg( Batch.MSG, "EngineFactory.specified_class_is_not_a_writer", object.getClass().getName() ) );
+        }
+      } else {
+        Log.error( LogMsg.createMsg( Batch.MSG, "EngineFactory.could_not_create_instance_of_specified_writer", className ) );
+      }
+    } // cfg !null
   }
 
 
@@ -579,34 +592,34 @@ public class TransformEngineFactory {
       } else {
         Log.error( LogMsg.createMsg( Batch.MSG, "EngineFactory.Could not create an instance of the specified mapper" ) );
       }
-    } // empty config sections sometimes cause null references
-
+    } // cfg !null
   }
 
 
 
 
   private static void configReader( DataFrame cfg, TransformEngine engine ) {
-    // Make sure the class is fully qualified 
-    String className = cfg.getAsString( ConfigTag.CLASS );
-    if ( className != null && StringUtil.countOccurrencesOf( className, "." ) < 1 ) {
-      className = READER_PKG + "." + className;
-      cfg.put( ConfigTag.CLASS, className );
-    } else {
-      Log.error( "NO Reader Class: " + cfg.toString() );
-    }
-    Object object = createComponent( cfg );
-    if ( object != null ) {
-      if ( object instanceof FrameReader ) {
-        engine.setReader( (FrameReader)object );
-        Log.debug( LogMsg.createMsg( Batch.MSG, "EngineFactory.created_reader", object.getClass().getName() ) );
+    if ( cfg != null ) {
+      // Make sure the class is fully qualified 
+      String className = cfg.getAsString( ConfigTag.CLASS );
+      if ( className != null && StringUtil.countOccurrencesOf( className, "." ) < 1 ) {
+        className = READER_PKG + "." + className;
+        cfg.put( ConfigTag.CLASS, className );
       } else {
-        Log.error( LogMsg.createMsg( Batch.MSG, "EngineFactory.specified_class_is_not_a_reader", object.getClass().getName() ) );
+        Log.error( "NO Reader Class: " + cfg.toString() );
       }
-    } else {
-      Log.error( LogMsg.createMsg( Batch.MSG, "EngineFactory.could_not_create_instance_of_specified_reader", className ) );
-    }
-
+      Object object = createComponent( cfg );
+      if ( object != null ) {
+        if ( object instanceof FrameReader ) {
+          engine.setReader( (FrameReader)object );
+          Log.debug( LogMsg.createMsg( Batch.MSG, "EngineFactory.created_reader", object.getClass().getName() ) );
+        } else {
+          Log.error( LogMsg.createMsg( Batch.MSG, "EngineFactory.specified_class_is_not_a_reader", object.getClass().getName() ) );
+        }
+      } else {
+        Log.error( LogMsg.createMsg( Batch.MSG, "EngineFactory.could_not_create_instance_of_specified_reader", className ) );
+      }
+    } // cfg !null
   }
 
 
@@ -617,25 +630,27 @@ public class TransformEngineFactory {
    * @param engine
    */
   private static void configListener( DataFrame cfg, TransformEngine engine ) {
-    // Make sure the class is fully qualified 
-    String className = cfg.getAsString( ConfigTag.CLASS );
-    if ( className != null && StringUtil.countOccurrencesOf( className, "." ) < 1 ) {
-      className = LISTENER_PKG + "." + className;
-      cfg.put( ConfigTag.CLASS, className );
-    } else {
-      Log.error( "NO Listener Class: " + cfg.toString() );
-    }
-    Object object = createComponent( cfg );
-    if ( object != null ) {
-      if ( object instanceof ContextListener ) {
-        engine.addListener( (ContextListener)object );
-        Log.debug( LogMsg.createMsg( Batch.MSG, "EngineFactory.created_listener", object.getClass().getName() ) );
+    if ( cfg != null ) {
+      // Make sure the class is fully qualified 
+      String className = cfg.getAsString( ConfigTag.CLASS );
+      if ( className != null && StringUtil.countOccurrencesOf( className, "." ) < 1 ) {
+        className = LISTENER_PKG + "." + className;
+        cfg.put( ConfigTag.CLASS, className );
       } else {
-        Log.error( LogMsg.createMsg( Batch.MSG, "EngineFactory.specified_class_is_not_a_listener", object.getClass().getName() ) );
+        Log.error( "NO Listener Class: " + cfg.toString() );
       }
-    } else {
-      Log.error( LogMsg.createMsg( Batch.MSG, "EngineFactory.could_not_create_instance_of_specified_listener", className ) );
-    }
+      Object object = createComponent( cfg );
+      if ( object != null ) {
+        if ( object instanceof ContextListener ) {
+          engine.addListener( (ContextListener)object );
+          Log.debug( LogMsg.createMsg( Batch.MSG, "EngineFactory.created_listener", object.getClass().getName() ) );
+        } else {
+          Log.error( LogMsg.createMsg( Batch.MSG, "EngineFactory.specified_class_is_not_a_listener", object.getClass().getName() ) );
+        }
+      } else {
+        Log.error( LogMsg.createMsg( Batch.MSG, "EngineFactory.could_not_create_instance_of_specified_listener", className ) );
+      }
+    } // cfg !null
   }
 
 
