@@ -1,22 +1,20 @@
 package coyote.commons.zip;
 
 //import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
 import java.io.File;
 
-import junit.framework.TestCase;
-
 import org.junit.AfterClass;
-import org.junit.Test;
 
 import coyote.commons.FileUtil;
 
 
-//import static org.junit.Assert.*;
-
 /**
  * Some simple tests.
  */
-public class ZipArchiveTest extends TestCase {
+public class ZipArchiveTest {
   /**
    * @throws java.lang.Exception
    */
@@ -33,7 +31,7 @@ public class ZipArchiveTest extends TestCase {
    */
   public void testExtractTo() throws Exception {
     File tstJar = new File( "test.zip" );
-    
+
     ZipArchive archive = new ZipArchive( tstJar ); // create a new archive
     archive.addFiles( new File( "src" ) ); // add all the source files
     archive.flush(); // now commit to disk
