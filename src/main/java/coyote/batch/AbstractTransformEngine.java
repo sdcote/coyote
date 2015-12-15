@@ -21,6 +21,7 @@ import java.util.List;
 import coyote.batch.mapper.DefaultFrameMapper;
 import coyote.batch.mapper.MappingException;
 import coyote.batch.validate.ValidationException;
+import coyote.commons.ExceptionUtil;
 import coyote.commons.FileUtil;
 import coyote.commons.GUID;
 import coyote.commons.StringUtil;
@@ -54,8 +55,8 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
   /** The mapping of the frame to a new frame; the component which create the desired frame. */
   protected FrameMapper mapper = null;
 
-  /** The component which will record the frame somewhere. */
-  protected FrameWriter writer = null;
+  /** The list of writers which will be given the chance to record the frame somewhere. */
+  protected List<FrameWriter> writers = new ArrayList<FrameWriter>();
 
   /** The list of tasks to perform after the transformation is complete. (e.g. posting a file to a FTP site) */
   protected List<TransformTask> postProcesses = new ArrayList<TransformTask>();
@@ -171,7 +172,7 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
       setName( GUID.randomGUID().toString() );
     }
 
-    if ( reader == null && writer != null )
+    if ( reader == null && writers.size() > 0 )
       throw new IllegalStateException( "No reader configured, nothing to write" );
 
     // Make sure we have a context
@@ -265,7 +266,8 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
           return;
         }
 
-        if ( writer != null ) {
+        // Open all the writers
+        for ( FrameWriter writer : writers ) {
           writer.open( getContext() );
           if ( getContext().isInError() ) {
             reportTransformContextError( getContext() );
@@ -402,14 +404,16 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
 
               // It is possible that a transform has been configured to simply
               // read and validate data so the writer may be null
-              if ( txnContext.isNotInError() && writer != null ) {
-                try {
-                  // Write the target (new) frame
-                  writer.write( txnContext.getTargetFrame() );
-                  txnContext.fireWrite( txnContext );
-                } catch ( Exception e ) {
-                  e.printStackTrace();
-                  Log.warn( LogMsg.createMsg( Batch.MSG, "Engine.write_error", e.getClass().getSimpleName(), e.getMessage() ) );
+              if ( txnContext.isNotInError() && writers.size() > 0 ) {
+                // Pass the frame to all the writers
+                for ( FrameWriter writer : writers ) {
+                  try {
+                    // Write the target (new) frame
+                    writer.write( txnContext.getTargetFrame() );
+                    txnContext.fireWrite( txnContext );
+                  } catch ( Exception e ) {
+                    Log.warn( LogMsg.createMsg( Batch.MSG, "Engine.write_error", e.getClass().getSimpleName(), e.getMessage(), ExceptionUtil.stackTrace( e ) ) );
+                  }
                 }
               }
 
@@ -627,7 +631,7 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
       }
     }
 
-    if ( writer != null ) {
+    for ( FrameWriter writer : writers ) {
       try {
         writer.close();
       } catch ( Exception e ) {
@@ -701,14 +705,14 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
       }
     }
 
-    if ( writer != null ) {
+    for ( FrameWriter writer : writers ) {
       try {
         writer.close();
-        writer = null;
       } catch ( Exception e ) {
         Log.warn( LogMsg.createMsg( Batch.MSG, "Engine.problems_closing_writer", writer.getClass().getName(), e.getClass().getSimpleName(), e.getMessage() ) );
       }
     }
+    writers.clear();
 
   }
 
@@ -727,11 +731,11 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
 
 
   /**
-   * @see coyote.batch.TransformEngine#setWriter(coyote.batch.FrameWriter)
+   * @see coyote.batch.TransformEngine#addWriter(coyote.batch.FrameWriter)
    */
   @Override
-  public void setWriter( FrameWriter writer ) {
-    this.writer = writer;
+  public void addWriter( FrameWriter writer ) {
+    writers.add( writer );
   }
 
 
@@ -776,17 +780,6 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
   @Override
   public FrameReader getReader() {
     return reader;
-  }
-
-
-
-
-  /**
-   * @see coyote.batch.TransformEngine#getWriter()
-   */
-  @Override
-  public FrameWriter getWriter() {
-    return writer;
   }
 
 

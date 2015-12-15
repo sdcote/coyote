@@ -552,7 +552,7 @@ public class TransformEngineFactory {
       Object object = createComponent( cfg );
       if ( object != null ) {
         if ( object instanceof FrameWriter ) {
-          engine.setWriter( (FrameWriter)object );
+          engine.addWriter( (FrameWriter)object );
           Log.debug( LogMsg.createMsg( Batch.MSG, "EngineFactory.created_writer", object.getClass().getName() ) );
         } else {
           Log.error( LogMsg.createMsg( Batch.MSG, "EngineFactory.specified_class_is_not_a_writer", object.getClass().getName() ) );

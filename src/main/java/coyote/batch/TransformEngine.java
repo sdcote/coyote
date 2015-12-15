@@ -45,11 +45,6 @@ public interface TransformEngine extends RunnableComponent {
 
 
 
-  public FrameWriter getWriter();
-
-
-
-
   public void setContext( TransformContext context );
 
 
@@ -65,7 +60,7 @@ public interface TransformEngine extends RunnableComponent {
 
 
 
-  public void setWriter( FrameWriter writer );
+  public void addWriter( FrameWriter writer );
 
 
 
