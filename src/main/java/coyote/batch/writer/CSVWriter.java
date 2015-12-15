@@ -21,6 +21,7 @@ import coyote.batch.ConfigTag;
 import coyote.batch.ConfigurableComponent;
 import coyote.batch.ConfigurationException;
 import coyote.batch.FrameWriter;
+import coyote.batch.eval.EvaluationException;
 import coyote.dataframe.DataField;
 import coyote.dataframe.DataFrame;
 import coyote.dataframe.DataFrameException;
@@ -61,7 +62,12 @@ public class CSVWriter extends AbstractFrameWriter implements FrameWriter, Confi
   public static final char NO_ESCAPE_CHARACTER = '\u0000';
 
   private static final String DEFAULT_DATE_FORMAT = "yyyy/MM/dd HH:mm:ss";
+
   SimpleDateFormat DATEFORMAT = new SimpleDateFormat( DEFAULT_DATE_FORMAT );
+
+  private boolean writeHeaders = true;
+
+  private final List<String> columns = new ArrayList<String>();
 
 
 
@@ -118,10 +124,6 @@ public class CSVWriter extends AbstractFrameWriter implements FrameWriter, Confi
   private static boolean tokenContainsSpecialCharacters( final String token ) {
     return ( token.indexOf( QUOTE_CHARACTER ) != -1 ) || ( token.indexOf( SEPARATOR ) != -1 ) || ( token.indexOf( ESCAPE_CHARACTER ) != -1 ) || ( token.contains( "\n" ) ) || ( token.contains( "\r" ) );
   }
-
-  private boolean writeHeaders = true;
-
-  private final List<String> columns = new ArrayList<String>();
 
 
 
@@ -195,12 +197,41 @@ public class CSVWriter extends AbstractFrameWriter implements FrameWriter, Confi
    */
   @Override
   public void write( final DataFrame frame ) {
+
+    // If there is a conditional expression
+    if ( expression != null ) {
+
+      try {
+        // if the condition evaluates to true...
+        if ( evaluator.evaluateBoolean( expression ) ) {
+          writeFrame( frame );
+        }
+      } catch ( final EvaluationException e ) {
+        Log.warn( LogMsg.createMsg( Batch.MSG, "Writer.boolean_evaluation_error", expression, e.getMessage() ) );
+      }
+    } else {
+      // Unconditionally writing frame
+      writeFrame( frame );
+    }
+
+  }
+
+
+
+
+  /**
+   * This is where we actually write the frame.
+   * 
+   * @param frame the frame to be written
+   */
+  private void writeFrame( final DataFrame frame ) {
     // The first frame sets the columns and column order
     if ( rowNumber == 0 ) {
 
       for ( final DataField field : frame.getFields() ) {
         columns.add( field.getName() );
       }
+
       if ( isUsingHeader() ) {
         writeHeader();
       }
@@ -252,17 +283,17 @@ public class CSVWriter extends AbstractFrameWriter implements FrameWriter, Confi
       // the named value for that row
       final DataField field = frame.getField( name );
 
-      if ( field != null && !field.isNull() ) {
+      if ( ( field != null ) && !field.isNull() ) {
         try {
 
           if ( DataField.DATE == field.getType() ) {
-            Date date = (Date)field.getObjectValue();
+            final Date date = (Date)field.getObjectValue();
             token = DATEFORMAT.format( date );
           } else {
             // try to convert it into a string
             token = field.getStringValue();
           }
-        } catch ( Exception e ) {
+        } catch ( final Exception e ) {
           Log.error( LogMsg.createMsg( Batch.MSG, "Writer.Problems writing {} - field {}", name, field.toString() ) );
           token = "";
         }

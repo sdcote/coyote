@@ -20,6 +20,7 @@ import coyote.batch.ConfigurableComponent;
 import coyote.batch.FieldDefinition;
 import coyote.batch.FrameWriter;
 import coyote.batch.TransformContext;
+import coyote.batch.eval.EvaluationException;
 import coyote.commons.StringUtil;
 import coyote.dataframe.DataField;
 import coyote.dataframe.DataFrame;
@@ -35,7 +36,7 @@ public class FlatFileWriter extends AbstractFrameWriter implements FrameWriter, 
   /** The list of fields we are to write in the order they are to be written */
   List<FieldDefinition> fields = new ArrayList<FieldDefinition>();
 
-  private char padChar = ' ';
+  private final char padChar = ' ';
   private int recordLength = 0;
 
 
@@ -45,30 +46,30 @@ public class FlatFileWriter extends AbstractFrameWriter implements FrameWriter, 
    * @see coyote.batch.writer.AbstractFrameWriter#open(coyote.batch.TransformContext)
    */
   @Override
-  public void open( TransformContext context ) {
+  public void open( final TransformContext context ) {
     super.open( context );
 
     // Now setup our field definitions
-    DataFrame fieldcfg = getFrame( ConfigTag.FIELDS );
+    final DataFrame fieldcfg = getFrame( ConfigTag.FIELDS );
     if ( fieldcfg != null ) {
       boolean trim = false;// flag to trim values
 
       // position of the last record
       int last = 0;
 
-      for ( DataField field : fieldcfg.getFields() ) {
+      for ( final DataField field : fieldcfg.getFields() ) {
         try {
-          DataFrame fielddef = (DataFrame)field.getObjectValue();
+          final DataFrame fielddef = (DataFrame)field.getObjectValue();
 
           // determine if values should be trimmed for this field
           try {
             trim = fielddef.getAsBoolean( ConfigTag.TRIM );
-          } catch ( Exception e ) {
+          } catch ( final Exception e ) {
             trim = false;
           }
 
           int alignment = 0; // left alignment
-          String align = fielddef.getAsString( ConfigTag.ALIGN );
+          final String align = fielddef.getAsString( ConfigTag.ALIGN );
           if ( StringUtil.isNotBlank( align ) ) {
             if ( align.startsWith( "L" ) || align.startsWith( "l" ) ) {
               alignment = 0;
@@ -89,7 +90,7 @@ public class FlatFileWriter extends AbstractFrameWriter implements FrameWriter, 
             last = fielddef.getAsInt( ConfigTag.START );
             recordLength = last + fielddef.getAsInt( ConfigTag.LENGTH );
           }
-        } catch ( Exception e ) {
+        } catch ( final Exception e ) {
           context.setError( "Problems loading field definition '" + field.getName() + "' - " + e.getClass().getSimpleName() + " : " + e.getMessage() );
           return;
         }
@@ -112,15 +113,42 @@ public class FlatFileWriter extends AbstractFrameWriter implements FrameWriter, 
   @Override
   public void write( final DataFrame frame ) {
 
-    StringBuilder line = new StringBuilder( recordLength );
+    // If there is a conditional expression
+    if ( expression != null ) {
+
+      try {
+        // if the condition evaluates to true...
+        if ( evaluator.evaluateBoolean( expression ) ) {
+          writeFrame( frame );
+        }
+      } catch ( final EvaluationException e ) {
+        Log.warn( LogMsg.createMsg( Batch.MSG, "Writer.boolean_evaluation_error", expression, e.getMessage() ) );
+      }
+    } else {
+      // Unconditionally writing frame
+      writeFrame( frame );
+    }
+
+  }
+
+
+
+
+  /**
+   * This is where we actually write the frame.
+   * 
+   * @param frame the frame to be written
+   */
+  private void writeFrame( final DataFrame frame ) {
+    final StringBuilder line = new StringBuilder( recordLength );
     for ( int i = 0; i < recordLength; i++ ) {
       line.append( padChar );
     }
 
-    for ( FieldDefinition def : fields ) {
+    for ( final FieldDefinition def : fields ) {
 
       // get the field from the frame with the name in the definition
-      DataField field = frame.getField( def.getName() );
+      final DataField field = frame.getField( def.getName() );
 
       if ( field != null ) {
 
@@ -133,7 +161,7 @@ public class FlatFileWriter extends AbstractFrameWriter implements FrameWriter, 
           fieldText = field.getStringValue();
         }
 
-        String text = StringUtil.fixedLength( fieldText, def.getLength(), def.getAlignment(), padChar );
+        final String text = StringUtil.fixedLength( fieldText, def.getLength(), def.getAlignment(), padChar );
 
         // now insert
         line.insert( def.getStart(), text );

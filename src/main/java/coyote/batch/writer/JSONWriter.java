@@ -11,10 +11,14 @@
  */
 package coyote.batch.writer;
 
+import coyote.batch.Batch;
 import coyote.batch.ConfigurableComponent;
 import coyote.batch.FrameWriter;
+import coyote.batch.eval.EvaluationException;
 import coyote.commons.StringUtil;
 import coyote.dataframe.DataFrame;
+import coyote.loader.log.Log;
+import coyote.loader.log.LogMsg;
 
 
 /**
@@ -28,6 +32,34 @@ public class JSONWriter extends AbstractFrameWriter implements FrameWriter, Conf
    */
   @Override
   public void write( final DataFrame frame ) {
+
+    // If there is a conditional expression
+    if ( expression != null ) {
+
+      try {
+        // if the condition evaluates to true...
+        if ( evaluator.evaluateBoolean( expression ) ) {
+          writeFrame( frame );
+        }
+      } catch ( final EvaluationException e ) {
+        Log.warn( LogMsg.createMsg( Batch.MSG, "Writer.boolean_evaluation_error", expression, e.getMessage() ) );
+      }
+    } else {
+      // Unconditionally writing frame
+      writeFrame( frame );
+    }
+
+  }
+
+
+
+
+  /**
+   * This is where we actually write the frame.
+   * 
+   * @param frame the frame to be written
+   */
+  private void writeFrame( final DataFrame frame ) {
 
     printwriter.write( frame.toString() );
     printwriter.write( StringUtil.LINE_FEED );

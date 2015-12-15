@@ -24,6 +24,8 @@ import coyote.batch.ConfigTag;
 import coyote.batch.FrameWriter;
 import coyote.batch.Symbols;
 import coyote.batch.TransformContext;
+import coyote.batch.eval.EvaluationException;
+import coyote.batch.eval.Evaluator;
 import coyote.commons.StringUtil;
 import coyote.commons.UriUtil;
 import coyote.loader.log.Log;
@@ -35,11 +37,13 @@ import coyote.loader.log.LogMsg;
  */
 public abstract class AbstractFrameWriter extends AbstractConfigurableComponent implements FrameWriter {
 
-
   protected static final String STDOUT = "STDOUT";
   protected static final String STDERR = "STDERR";
   protected int rowNumber = 0;
   protected PrintWriter printwriter = null;
+
+  protected Evaluator evaluator = new Evaluator();
+  protected String expression = null;
 
 
 
@@ -88,8 +92,8 @@ public abstract class AbstractFrameWriter extends AbstractConfigurableComponent 
     // if we don't already have a printwriter, set one up based on the configuration
     if ( printwriter == null ) {
       // check for a target in our configuration
-      String target = getString( ConfigTag.TARGET );
-      Log.debug(  LogMsg.createMsg( Batch.MSG, "Writer.using_target", target ));
+      final String target = getString( ConfigTag.TARGET );
+      Log.debug( LogMsg.createMsg( Batch.MSG, "Writer.using_target", target ) );
 
       // Make sure we have a target
       if ( StringUtil.isNotBlank( target ) ) {
@@ -109,12 +113,12 @@ public abstract class AbstractFrameWriter extends AbstractConfigurableComponent 
             targetFile = UriUtil.getFile( uri );
 
             if ( targetFile == null ) {
-              Log.warn(  LogMsg.createMsg( Batch.MSG, "Writer.The target '{}' does not represent a file", target ));
+              Log.warn( LogMsg.createMsg( Batch.MSG, "Writer.The target '{}' does not represent a file", target ) );
             }
           } else {
             // if all we have is a filename, there is not scheme to check...
             // check that there is a scheme, if not then assume a filename!
-            if( uri.getScheme() == null){
+            if ( uri.getScheme() == null ) {
               targetFile = new File( target );
             }
           }
@@ -142,6 +146,21 @@ public abstract class AbstractFrameWriter extends AbstractConfigurableComponent 
         context.setError( getClass().getName() + " could not determine target" );
       }
     }
+
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    // Look for a conditional statement the writer may use to control if it is 
+    // to write the record or not
+    expression = findString( ConfigTag.CONDITION );
+    if ( StringUtil.isNotBlank( expression ) ) {
+      expression = expression.trim();
+
+      try {
+        evaluator.evaluateBoolean( expression );
+      } catch ( final EvaluationException e ) {
+        context.setError( "Invalid boolean expression in writer: " + e.getMessage() );
+      }
+    }
+
   }
 
 
