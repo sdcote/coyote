@@ -17,8 +17,6 @@ import static org.junit.Assert.fail;
 
 import java.io.IOException;
 
-import org.junit.Test;
-
 import coyote.batch.AbstractTest;
 import coyote.batch.TransformEngine;
 import coyote.loader.log.Log;
@@ -30,10 +28,7 @@ import coyote.loader.log.Log;
  */
 public class FlatFileTest extends AbstractTest {
 
-
-
-
-  @Test
+  // @Test
   public void test() {
 
     // load the configuration from the class path

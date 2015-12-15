@@ -57,7 +57,6 @@ public class ZipArchiveTest extends TestCase {
    *
    * @throws Exception
    */
-  @Test
   public void testCreateZip() throws Exception {
     File tstJar = new File( "test.zip" );
     ZipArchive archive = new ZipArchive( tstJar );

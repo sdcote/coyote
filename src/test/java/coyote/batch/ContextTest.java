@@ -30,7 +30,7 @@ public class ContextTest extends AbstractTest {
 
 
 
-  @Test
+  //@Test
   public void test() {
 
     // load the configuration from the class path

@@ -31,9 +31,32 @@ import coyote.loader.log.Log;
 public class DatabaseTest extends AbstractTest {
 
 
+//  {
+//    "Class": "coyote.batch.Job",
+//
+//    "Databases": {
+//      "DevDB": {
+//        "library": "jar:file:lib/h2-1.4.187.jar!/",
+//        "driver" : "org.h2.Driver",
+//        "target": "jdbc:h2:mem:devdb;DB_CLOSE_DELAY=-1",
+//        "username": "sa",
+//        "password": "",
+//        "autocreate": true
+//      },
+//      "MyDB": {
+//        "library": "jar:file:lib/h2-1.4.187.jar!/",
+//        "driver" : "org.h2.Driver",
+//        "target": "jdbc:h2:mem:mydb;DB_CLOSE_DELAY=-1",
+//        "username": "sa",
+//        "password": "",
+//        "autocreate": true
+//      }
+//    }
+//
+//  }
 
 
-  @Test
+  //@Test
   public void test() {
 
     // load the configuration from the class path
