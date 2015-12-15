@@ -1,19 +1,30 @@
 package coyote.commons.zip;
 
-/**
- * Tests the ZipArchive class using the Junit unit test framework available
- * from http://www.junit.org
- */
+//import static org.junit.Assert.*;
 import java.io.File;
 
 import junit.framework.TestCase;
+
+import org.junit.AfterClass;
+import org.junit.Test;
+
 import coyote.commons.FileUtil;
 
+
+//import static org.junit.Assert.*;
 
 /**
  * Some simple tests.
  */
 public class ZipArchiveTest extends TestCase {
+  /**
+   * @throws java.lang.Exception
+   */
+  @AfterClass
+  public static void tearDownAfterClass() throws Exception {}
+
+
+
 
   /**
    * Method testExtractTo
@@ -22,17 +33,20 @@ public class ZipArchiveTest extends TestCase {
    */
   public void testExtractTo() throws Exception {
     File tstJar = new File( "test.zip" );
-    ZipArchive archive = new ZipArchive( tstJar );
-    archive.addFiles( new File( "src" ) );
-    // now commit to disk
-    archive.flush();
+    
+    ZipArchive archive = new ZipArchive( tstJar ); // create a new archive
+    archive.addFiles( new File( "src" ) ); // add all the source files
+    archive.flush(); // now commit to disk
 
     File tmpDir = new File( "tmp" );
     tmpDir.mkdirs();
 
     ZipArchive arc = new ZipArchive( new File( "test.zip" ) );
     arc.extractTo( tmpDir );
+
     FileUtil.removeDir( tmpDir );
+    FileUtil.deleteFile( tstJar );
+
   }
 
 
@@ -43,6 +57,7 @@ public class ZipArchiveTest extends TestCase {
    *
    * @throws Exception
    */
+  @Test
   public void testCreateZip() throws Exception {
     File tstJar = new File( "test.zip" );
     ZipArchive archive = new ZipArchive( tstJar );
@@ -67,8 +82,11 @@ public class ZipArchiveTest extends TestCase {
     assertNotNull( newData );
     assertEquals( new String( data ), new String( newData ) );
 
-    // Nifty
+    // Nifty if it would work every time
     tstJar.deleteOnExit();
+
+    FileUtil.deleteFile( tstJar );
+
   }
 
 
@@ -80,7 +98,10 @@ public class ZipArchiveTest extends TestCase {
    * @throws Exception
    */
   public void testAddFilesToExistingArchive() throws Exception {
-    ZipArchive archive = new ZipArchive( new File( "test.zip" ) );
+
+    File tstFile = new File( "test.zip" );
+
+    ZipArchive archive = new ZipArchive( tstFile );
     archive.addFiles( new File( "cfg" ) );
 
     // commit to disk
@@ -93,5 +114,8 @@ public class ZipArchiveTest extends TestCase {
 
     //assertNotNull( archive.getEntry( "bus.xml" ) );
     //assertNotNull( archive.getEntry( "busconnector.xml" ) );
+
+    FileUtil.deleteFile( tstFile );
+
   }
 }
