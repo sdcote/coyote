@@ -224,7 +224,7 @@ public class FieldDefinition {
    * Convert the given string into the data type defined by this object.
    * 
    * <p>If the trimming flag is set, the returned values will be based on the 
-   * trimmed version of the value, e.g. a tring will have its leading and 
+   * trimmed version of the value, e.g. a String will have its leading and 
    * trailing whitespace trimmed before being returned.</p>
    * 
    * @param value the string value to parse
@@ -286,6 +286,34 @@ public class FieldDefinition {
             }
           } catch ( Exception e ) {
             System.err.println( "'" + name + "' Float Parse Exception: " + e.getMessage() );
+            return 0F;
+          }
+        }
+      case DataField.DOUBLE:
+        // if all whitespace, return 0.0
+        if ( StringUtil.isBlank( value ) ) {
+          return 0F;
+        }
+        if ( decimalFormat != null ) {
+          try {
+            if ( trimFlag ) {
+              return (Double)decimalFormat.parse( value.trim() );
+            } else {
+              return (Double)decimalFormat.parse( value );
+            }
+          } catch ( ParseException e ) {
+            System.err.println( "'" + name + "' Double Parse Exception: " + e.getMessage() );
+            return 0D;
+          }
+        } else {
+          try {
+            if ( trimFlag ) {
+              return Double.parseDouble( value.trim() );
+            } else {
+              return Double.parseDouble( value );
+            }
+          } catch ( Exception e ) {
+            System.err.println( "'" + name + "' Double Parse Exception: " + e.getMessage() );
             return 0F;
           }
         }
