@@ -99,18 +99,24 @@ public class FlatFileReader extends AbstractFrameReader implements FrameReader, 
     // Now setup our field definitions
     DataFrame fieldcfg = getFrame( ConfigTag.FIELDS );
     if ( fieldcfg != null ) {
-      boolean trim = false;// flag to trim values 
+
+      // flag to trim values
+      boolean trim = true;
+
       List<FieldDefinition> fields = new ArrayList<FieldDefinition>();
 
       for ( DataField field : fieldcfg.getFields() ) {
         try {
           DataFrame fielddef = (DataFrame)field.getObjectValue();
 
-          // determine if values should be trimmed for this field
-          try {
-            trim = fielddef.getAsBoolean( ConfigTag.TRIM );
-          } catch ( Exception e ) {
-            trim = false;
+          // determine if values should be trimmed = defaults to true
+          trim = true;
+          if ( fielddef.containsIgnoreCase( ConfigTag.TRIM ) ) {
+            try {
+              trim = fielddef.getAsBoolean( ConfigTag.TRIM );
+            } catch ( Exception e ) {
+              trim = true;
+            }
           }
 
           fields.add( new FieldDefinition( field.getName(), fielddef.getAsInt( ConfigTag.START ), fielddef.getAsInt( ConfigTag.LENGTH ), fielddef.getAsString( ConfigTag.TYPE ), fielddef.getAsString( ConfigTag.FORMAT ), trim ) );
