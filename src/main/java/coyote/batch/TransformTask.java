@@ -16,7 +16,7 @@ package coyote.batch;
  */
 public interface TransformTask extends ConfigurableComponent {
 
-  void execute(  ) throws TaskException;
+  public void execute() throws TaskException;
 
 
 

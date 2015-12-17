@@ -378,12 +378,12 @@ public abstract class OperationalContext {
 
 
 
-  public void fireWrite( TransactionContext context ) {
+  public void fireWrite( TransactionContext context, FrameWriter writer ) {
     if ( parent != null )
-      parent.fireWrite( context );
+      parent.fireWrite( context, writer );
 
     for ( ContextListener listener : listeners ) {
-      listener.onWrite( context );
+      listener.onWrite( context, writer );
     }
   }
 
@@ -507,10 +507,5 @@ public abstract class OperationalContext {
   public void setRow( long row ) {
     this.currentFrame = row;
   }
-
-
-
-
- 
 
 }

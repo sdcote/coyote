@@ -13,6 +13,7 @@ package coyote.batch.listener;
 
 import java.text.DecimalFormat;
 
+import coyote.batch.FrameWriter;
 import coyote.batch.OperationalContext;
 import coyote.batch.TransactionContext;
 import coyote.batch.TransformContext;
@@ -65,10 +66,10 @@ public class ContextLogger extends FileRecorder {
 
 
   /**
-   * @see coyote.batch.listener.AbstractListener#onWrite(coyote.batch.TransactionContext)
+   * @see coyote.batch.listener.AbstractListener#onWrite(coyote.batch.TransactionContext, coyote.batch.FrameWriter)
    */
   @Override
-  public void onWrite( TransactionContext context ) {
+  public void onWrite( TransactionContext context, FrameWriter writer ) {
     if ( onWrite ) {
       StringBuffer b = new StringBuffer();
       b.append( context.getRow() );

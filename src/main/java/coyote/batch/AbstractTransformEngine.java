@@ -410,7 +410,7 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
                   try {
                     // Write the target (new) frame
                     writer.write( txnContext.getTargetFrame() );
-                    txnContext.fireWrite( txnContext );
+                    txnContext.fireWrite( txnContext, writer );
                   } catch ( Exception e ) {
                     Log.warn( LogMsg.createMsg( Batch.MSG, "Engine.write_error", e.getClass().getSimpleName(), e.getMessage(), ExceptionUtil.stackTrace( e ) ) );
                   }

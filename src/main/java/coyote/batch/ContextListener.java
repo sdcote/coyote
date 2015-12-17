@@ -26,7 +26,7 @@ public interface ContextListener extends ConfigurableComponent {
 
 
 
-  void onWrite( TransactionContext context );
+  void onWrite( TransactionContext context, FrameWriter writer );
 
 
 

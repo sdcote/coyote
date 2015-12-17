@@ -18,6 +18,7 @@ import java.util.Date;
 import java.util.List;
 
 import coyote.batch.ContextListener;
+import coyote.batch.FrameWriter;
 import coyote.batch.OperationalContext;
 import coyote.batch.TransactionContext;
 import coyote.batch.TransformContext;
@@ -214,10 +215,10 @@ public class DataProfiler extends FileRecorder implements ContextListener {
 
 
   /**
-   * @see coyote.batch.listener.AbstractListener#onWrite(coyote.batch.TransactionContext)
+   * @see coyote.batch.listener.AbstractListener#onWrite(coyote.batch.TransactionContext, coyote.batch.FrameWriter)
    */
   @Override
-  public void onWrite( TransactionContext context ) {
+  public void onWrite( TransactionContext context, FrameWriter writer ) {
     DataFrame frame = context.getTargetFrame();
     if ( frame != null ) {
       writeCount++;

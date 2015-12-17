@@ -16,6 +16,7 @@ import java.io.IOException;
 import coyote.batch.AbstractConfigurableComponent;
 import coyote.batch.ConfigurableComponent;
 import coyote.batch.ContextListener;
+import coyote.batch.FrameWriter;
 import coyote.batch.OperationalContext;
 import coyote.batch.TransactionContext;
 import coyote.batch.TransformContext;
@@ -63,10 +64,10 @@ public abstract class AbstractListener extends AbstractConfigurableComponent imp
 
 
   /**
-   * @see coyote.batch.ContextListener#onWrite(coyote.batch.TransactionContext)
+   * @see coyote.batch.ContextListener#onWrite(coyote.batch.TransactionContext, coyote.batch.FrameWriter)
    */
   @Override
-  public void onWrite( TransactionContext transactionContext ) {}
+  public void onWrite( TransactionContext context, FrameWriter writer ) {}
 
 
 
