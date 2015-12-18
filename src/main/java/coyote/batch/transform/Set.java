@@ -17,6 +17,7 @@ import coyote.batch.FrameTransform;
 import coyote.batch.TransformContext;
 import coyote.batch.TransformException;
 import coyote.batch.eval.EvaluationException;
+import coyote.commons.StringUtil;
 import coyote.dataframe.DataFrame;
 import coyote.loader.log.Log;
 import coyote.loader.log.LogMsg;
@@ -81,25 +82,29 @@ public class Set extends AbstractFieldTransform implements FrameTransform {
   public void open( final TransformContext context ) {
     super.open( context );
 
-    
-    
-    getConfiguration().getFieldIgnoreCase( ConfigTag.VALUE );
-    getConfiguration().getFieldIgnoreCase( ConfigTag.DEFAULT );
-    getConfiguration().getFieldIgnoreCase( ConfigTag.TYPE );
-    
-    
+    // the value may be a string, boolean or numeric - match the type
+    // TODO getConfiguration().getFieldIgnoreCase( ConfigTag.VALUE );
+
+    // the default value may be a string, boolean or numeric - match the type
+    // TODO getConfiguration().getFieldIgnoreCase( ConfigTag.DEFAULT );
+
+    // the type of the data to set in the field...any of the data frame types
+    // TODO getConfiguration().getFieldIgnoreCase( ConfigTag.TYPE );
+
     String token = findString( ConfigTag.VALUE );
     if ( token == null ) {
-      Log.warn( LogMsg.createMsg( Batch.MSG, "Transform.Set transform will set a null {%s} field to the working frames.", fieldName ) );
+      Log.warn( LogMsg.createMsg( Batch.MSG, "Transform.Set_setting_null_to_field", fieldName ) );
     } else {
       fieldValue = token;
     }
 
-    token = findString( ConfigTag.DEFAULT );
-    if ( token == null ) {
-      Log.warn( LogMsg.createMsg( Batch.MSG, "Transform.Set transform will set a null {%s} field to the working frames by default.", fieldName ) );
-    } else {
-      defaultValue = token;
+    if ( StringUtil.isNotBlank( getExpression() ) ) {
+      token = findString( ConfigTag.DEFAULT );
+      if ( token == null ) {
+        Log.warn( LogMsg.createMsg( Batch.MSG, "Transform.Set_setting_null_by_default", fieldName ) );
+      } else {
+        defaultValue = token;
+      }
     }
 
   }
@@ -114,19 +119,19 @@ public class Set extends AbstractFieldTransform implements FrameTransform {
   public DataFrame process( final DataFrame frame ) throws TransformException {
 
     // If there is a conditional expression
-    if ( expression != null ) {
+    if ( getExpression() != null ) {
 
       try {
         // if the condition evaluates to true
-        if ( evaluator.evaluateBoolean( expression ) ) {
+        if ( evaluator.evaluateBoolean( getExpression() ) ) {
 
-          frame.put( fieldName, super.resolveArgument( fieldValue ) );
+          frame.put( getFieldName(), resolveArgument( fieldValue ) );
 
         } else {
           // if there is a default value,
           if ( defaultValue != null ) {
             // set it
-            frame.put( fieldName, super.resolveArgument( defaultValue ) );
+            frame.put( getFieldName(), resolveArgument( defaultValue ) );
           }
         }
       } catch ( final EvaluationException e ) {
@@ -135,7 +140,7 @@ public class Set extends AbstractFieldTransform implements FrameTransform {
 
     } else {
       // unconditionally set the value
-      frame.put( fieldName, super.resolveArgument( fieldValue ) );
+      frame.put( getFieldName(), resolveArgument( fieldValue ) );
     }
 
     return frame;
