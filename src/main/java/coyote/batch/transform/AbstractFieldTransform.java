@@ -67,4 +67,64 @@ public abstract class AbstractFieldTransform extends AbstractFrameTransform impl
 
   }
 
+
+
+
+  /**
+   * @return the name of the field being transformed
+   */
+  protected String getFieldName() {
+    return fieldName;
+  }
+
+
+
+
+  /**
+   * @param fieldName the name of the field being transformed
+   */
+  protected void setFieldName( String fieldName ) {
+    this.fieldName = fieldName;
+  }
+
+
+
+
+  /**
+   * @return the evaluator for this transform
+   */
+  protected Evaluator getEvaluator() {
+    return evaluator;
+  }
+
+
+
+
+  /**
+   * @param evaluator the evaluator for this transform
+   */
+  protected void setEvaluator( Evaluator evaluator ) {
+    this.evaluator = evaluator;
+  }
+
+
+
+
+  /**
+   * @return the boolean expression being used to determine if the transform should occur
+   */
+  protected String getExpression() {
+    return expression;
+  }
+
+
+
+
+  /**
+   * @param expression the boolean expression to use in determining if the transform should occur
+   */
+  protected void setExpression( String expression ) {
+    this.expression = expression;
+  }
+
 }
