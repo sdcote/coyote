@@ -123,7 +123,7 @@ public class Combine extends AbstractFileTask implements TransformTask {
             targetFile = UriUtil.getFile( uri );
 
             if ( targetFile == null ) {
-              Log.warn( LogMsg.createMsg( Batch.MSG, "The target '{}' does not represent a file", target ) );
+              Log.warn( LogMsg.createMsg( Batch.MSG, "The target '{%s}' does not represent a file", target ) );
             }
           } else {
             // if all we have is a filename, there is not scheme to check...

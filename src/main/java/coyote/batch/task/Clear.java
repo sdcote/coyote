@@ -45,7 +45,7 @@ public class Clear extends AbstractFileTask {
 
     if ( StringUtil.isNotBlank( directory ) ) {
       final String dir = resolveArgument( directory );
-      coyote.loader.log.Log.info( LogMsg.createMsg( Batch.MSG, "Task.Clearing directory named {}", dir ) );
+      coyote.loader.log.Log.info( LogMsg.createMsg( Batch.MSG, "Task.Clearing directory named {%s}", dir ) );
 
       try {
         FileUtil.clearDir( dir, true, recurse );
@@ -57,7 +57,7 @@ public class Clear extends AbstractFileTask {
       }
 
     } else {
-      Log.warn( LogMsg.createMsg( Batch.MSG, "Task.Clear has no {} or {} argument - nothing to do.", ConfigTag.FILE, ConfigTag.DIRECTORY ) );
+      Log.warn( LogMsg.createMsg( Batch.MSG, "Task.Clear has no {%s} or {%s} argument - nothing to do.", ConfigTag.FILE, ConfigTag.DIRECTORY ) );
     }
 
   }

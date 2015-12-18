@@ -62,7 +62,7 @@ public class DefaultFrameMapper extends AbstractFrameMapper implements FrameMapp
         }
       }
     } else {
-      Log.warn( LogMsg.createMsg( Batch.MSG, "Mapper.No {} section in Mapper configuration", ConfigTag.FIELDS ) );
+      Log.warn( LogMsg.createMsg( Batch.MSG, "Mapper.No %s section in Mapper configuration", ConfigTag.FIELDS ) );
     }
 
   }

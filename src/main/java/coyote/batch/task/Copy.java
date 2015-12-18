@@ -79,7 +79,7 @@ public class Copy extends AbstractFileTask {
       if ( StringUtil.isNotBlank( target ) ) {
         // this is a file to file copy
         final String tgt = resolveArgument( target );
-        Log.debug( LogMsg.createMsg( Batch.MSG, "Task.Copying file named {} to file named {}", src, tgt ) );
+        Log.debug( LogMsg.createMsg( Batch.MSG, "Task.Copying file named {%s} to file named {%s}", src, tgt ) );
 
         try {
           FileUtil.copyFile( src, tgt );
@@ -93,7 +93,7 @@ public class Copy extends AbstractFileTask {
       } else if ( StringUtil.isNotBlank( toDir ) ) {
         // this is a file to directory copy
         final String tgt = resolveArgument( toDir );
-        Log.debug( LogMsg.createMsg( Batch.MSG, "Task.Copying file named {} to directory named {}", src, tgt ) );
+        Log.debug( LogMsg.createMsg( Batch.MSG, "Task.Copying file named {%s} to directory named {%s}", src, tgt ) );
 
         try {
           FileUtil.copyFileToDir( src, tgt );

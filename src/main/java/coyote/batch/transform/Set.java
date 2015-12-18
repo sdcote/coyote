@@ -68,7 +68,7 @@ public class Set extends AbstractFieldTransform implements FrameTransform {
    * 
    */
   public Set() {
-    // TODO Auto-generated constructor stub
+
   }
 
 
@@ -81,16 +81,23 @@ public class Set extends AbstractFieldTransform implements FrameTransform {
   public void open( final TransformContext context ) {
     super.open( context );
 
+    
+    
+    getConfiguration().getFieldIgnoreCase( ConfigTag.VALUE );
+    getConfiguration().getFieldIgnoreCase( ConfigTag.DEFAULT );
+    getConfiguration().getFieldIgnoreCase( ConfigTag.TYPE );
+    
+    
     String token = findString( ConfigTag.VALUE );
     if ( token == null ) {
-      Log.warn( LogMsg.createMsg( Batch.MSG, "Transform.Set transform will set a null {} field to the working frames.", fieldName ) );
+      Log.warn( LogMsg.createMsg( Batch.MSG, "Transform.Set transform will set a null {%s} field to the working frames.", fieldName ) );
     } else {
       fieldValue = token;
     }
 
     token = findString( ConfigTag.DEFAULT );
     if ( token == null ) {
-      Log.warn( LogMsg.createMsg( Batch.MSG, "Transform.Set transform will set a null {} field to the working frames by default.", fieldName ) );
+      Log.warn( LogMsg.createMsg( Batch.MSG, "Transform.Set transform will set a null {%s} field to the working frames by default.", fieldName ) );
     } else {
       defaultValue = token;
     }

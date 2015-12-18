@@ -78,7 +78,7 @@ public class FlatFileWriter extends AbstractFrameWriter implements FrameWriter, 
             } else if ( align.startsWith( "C" ) || align.startsWith( "c" ) ) {
               alignment = 1;
             } else {
-              Log.warn( LogMsg.createMsg( Batch.MSG, "Writer.Unrecognized {} configuration value of '{}' - defaulting to 'left' alignment", ConfigTag.ALIGN, align ) );
+              Log.warn( LogMsg.createMsg( Batch.MSG, "Writer.Unrecognized {%s} configuration value of '{%s}' - defaulting to 'left' alignment", ConfigTag.ALIGN, align ) );
             }
           }
 
@@ -96,7 +96,7 @@ public class FlatFileWriter extends AbstractFrameWriter implements FrameWriter, 
         }
       }
 
-      Log.debug( LogMsg.createMsg( Batch.MSG, "Writer.There are {} field definitions, record length is {} characters.", fields.size(), recordLength ) );
+      Log.debug( LogMsg.createMsg( Batch.MSG, "Writer.There are {%s} field definitions, record length is {%s} characters.", fields.size(), recordLength ) );
     } else {
       context.setError( "There are no fields configured in the writer" );
       return;
@@ -166,7 +166,7 @@ public class FlatFileWriter extends AbstractFrameWriter implements FrameWriter, 
         // now insert
         line.insert( def.getStart(), text );
       } else {
-        Log.trace( LogMsg.createMsg( Batch.MSG, "Writer.No field named '{}' in frame.", def.getName() ) );
+        Log.trace( LogMsg.createMsg( Batch.MSG, "Writer.No field named '{%s}' in frame.", def.getName() ) );
       }
 
     }

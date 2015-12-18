@@ -79,7 +79,7 @@ public class CSVReader extends AbstractFrameReader implements FrameReader, Confi
         preload = false;
       }
     }
-    Log.debug( LogMsg.createMsg( Batch.MSG, "Reader.Preload is set to {}", preload ) );
+    Log.debug( LogMsg.createMsg( Batch.MSG, "Reader.Preload is set to {%s}", preload ) );
 
     // Check if we are to treat the first line as the header names
     if ( frame.contains( ConfigTag.HEADER ) ) {
@@ -92,7 +92,7 @@ public class CSVReader extends AbstractFrameReader implements FrameReader, Confi
     } else {
       Log.debug( "No header config" );
     }
-    Log.debug( LogMsg.createMsg( Batch.MSG, "Reader.Header flag is set to {}", hasHeader ) );
+    Log.debug( LogMsg.createMsg( Batch.MSG, "Reader.Header flag is set to {%s}", hasHeader ) );
   }
 
 
@@ -173,7 +173,7 @@ public class CSVReader extends AbstractFrameReader implements FrameReader, Confi
     // check for a source in our configuration, if not there use the transform 
     // context as it may have been set by a previous operation
     String source = super.getString( ConfigTag.SOURCE );
-    Log.debug( LogMsg.createMsg( Batch.MSG, "Reader.using a source of {}", source ) );
+    Log.debug( LogMsg.createMsg( Batch.MSG, "Reader.using a source of {%s}", source ) );
     if ( StringUtil.isNotBlank( source ) ) {
 
       File sourceFile = null;

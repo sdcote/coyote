@@ -294,7 +294,7 @@ public class CSVWriter extends AbstractFrameWriter implements FrameWriter, Confi
             token = field.getStringValue();
           }
         } catch ( final Exception e ) {
-          Log.error( LogMsg.createMsg( Batch.MSG, "Writer.Problems writing {} - field {}", name, field.toString() ) );
+          Log.error( LogMsg.createMsg( Batch.MSG, "Writer.Problems writing {%s} - field {%s}", name, field.toString() ) );
           token = "";
         }
       } else {

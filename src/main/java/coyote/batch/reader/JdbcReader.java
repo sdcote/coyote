@@ -43,7 +43,6 @@ import coyote.loader.log.LogMsg;
  */
 public class JdbcReader extends AbstractFrameReader {
 
-
   private Connection connection;
 
   ResultSet result = null;
@@ -64,34 +63,34 @@ public class JdbcReader extends AbstractFrameReader {
 
     // check for a source it might be a 
     String source = getString( ConfigTag.SOURCE );
-    Log.debug(  LogMsg.createMsg( Batch.MSG, "Reader.using a source of {}", source ));
+    Log.debug( LogMsg.createMsg( Batch.MSG, "Reader.using a source of {%s}", source ) );
     if ( StringUtil.isNotBlank( source ) ) {
 
       // first see if it is a named database in the context
       Database db = context.getDatabase( source );
 
       if ( db != null ) {
-        Log.debug( LogMsg.createMsg( Batch.MSG, "Reader.We have a shared database definition! {}", db.toString() ));
+        Log.debug( LogMsg.createMsg( Batch.MSG, "Reader.We have a shared database definition! {%s}", db.toString() ) );
         connection = db.getConnection();
       } else {
 
         // configure a connection ourselves
 
         String library = getString( ConfigTag.LIBRARY );
-        Log.debug(  LogMsg.createMsg( Batch.MSG, "Reader.Using a driver JAR of {}", library ));
+        Log.debug( LogMsg.createMsg( Batch.MSG, "Reader.Using a driver JAR of {%s}", library ) );
 
         String driver = getString( ConfigTag.DRIVER );
-        Log.debug(  LogMsg.createMsg( Batch.MSG, "Reader.Using a driver of {}", driver ));
+        Log.debug( LogMsg.createMsg( Batch.MSG, "Reader.Using a driver of {%s}", driver ) );
 
         // get our configuration data
         String target = getString( ConfigTag.TARGET );
-        Log.debug(  LogMsg.createMsg( Batch.MSG, "Reader.Using a target of {}", target ));
+        Log.debug( LogMsg.createMsg( Batch.MSG, "Reader.Using a target of {%s}", target ) );
 
         String username = getString( ConfigTag.USERNAME );
-        Log.debug(  LogMsg.createMsg( Batch.MSG, "Reader.Using a user of {}", username ));
+        Log.debug( LogMsg.createMsg( Batch.MSG, "Reader.Using a user of {%s}", username ) );
 
         String password = getString( ConfigTag.PASSWORD );
-        Log.debug(  LogMsg.createMsg( Batch.MSG, "Reader.Using a password with a length of {}", StringUtil.isBlank( password ) ? 0 : password.length() ));
+        Log.debug( LogMsg.createMsg( Batch.MSG, "Reader.Using a password with a length of {%s}", StringUtil.isBlank( password ) ? 0 : password.length() ) );
 
         // get the connection to the database
         try {
@@ -103,7 +102,7 @@ public class JdbcReader extends AbstractFrameReader {
           connection = DriverManager.getConnection( target, username, password );
 
           if ( connection != null ) {
-            Log.debug(  LogMsg.createMsg( Batch.MSG, "Reader.Connected to {}", target ));
+            Log.debug( LogMsg.createMsg( Batch.MSG, "Reader.Connected to {%s}", target ) );
           }
         } catch ( InstantiationException | IllegalAccessException | ClassNotFoundException | SQLException | MalformedURLException e ) {
           Log.error( "Could not connect to database: " + e.getClass().getSimpleName() + " - " + e.getMessage() );
@@ -111,7 +110,7 @@ public class JdbcReader extends AbstractFrameReader {
       }
 
       String query = getString( ConfigTag.QUERY );
-      Log.debug(  LogMsg.createMsg( Batch.MSG, "Reader.Using a query of '{}'", query ));
+      Log.debug( LogMsg.createMsg( Batch.MSG, "Reader.Using a query of '{%s}'", query ) );
 
       if ( connection != null ) {
 
@@ -178,7 +177,7 @@ public class JdbcReader extends AbstractFrameReader {
     } else {
       EOF = true;
     }
-    
+
     // TODO: support TransactionContext.setLastFrame( true )
 
     return retval;

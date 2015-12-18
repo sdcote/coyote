@@ -64,7 +64,7 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
   public void close() throws IOException {
 
     if ( frameset.size() > 0 ) {
-      Log.debug( LogMsg.createMsg( Batch.MSG, "Writer.Completing batch size={}", frameset.size() ) );
+      Log.debug( LogMsg.createMsg( Batch.MSG, "Writer.Completing batch size={%s}", frameset.size() ) );
       writeBatch();
     }
 
@@ -72,7 +72,7 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
       try {
         ps.close();
       } catch ( final SQLException e ) {
-        Log.error( LogMsg.createMsg( Batch.MSG, "Writer.Could not close prepared statememt: {}", e.getMessage() ) );
+        Log.error( LogMsg.createMsg( Batch.MSG, "Writer.Could not close prepared statememt: {%s}", e.getMessage() ) );
       }
     }
 
@@ -80,18 +80,18 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
       try {
         commit();
       } catch ( final SQLException e ) {
-        Log.error( LogMsg.createMsg( Batch.MSG, "Writer.Could not commit prior to close: {}", e.getMessage() ) );
+        Log.error( LogMsg.createMsg( Batch.MSG, "Writer.Could not commit prior to close: {%s}", e.getMessage() ) );
       }
 
       // if it looks like we created the connection ourselves (e.g. we have a 
       // configured target) close the connection
       if ( StringUtil.isNotBlank( getTarget() ) ) {
-        Log.debug( LogMsg.createMsg( Batch.MSG, "Writer.Closing connection to {}", getTarget() ) );
+        Log.debug( LogMsg.createMsg( Batch.MSG, "Writer.Closing connection to {%s}", getTarget() ) );
 
         try {
           connection.close();
         } catch ( final SQLException e ) {
-          Log.error( LogMsg.createMsg( Batch.MSG, "Writer.Could not close connection cleanly: {}", e.getMessage() ) );
+          Log.error( LogMsg.createMsg( Batch.MSG, "Writer.Could not close connection cleanly: {%s}", e.getMessage() ) );
         }
       }
     }
@@ -157,7 +157,7 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
         connection = DriverManager.getConnection( getTarget(), getUsername(), getPassword() );
 
         if ( connection != null ) {
-          Log.debug( LogMsg.createMsg( Batch.MSG, "Writer.Connected to {}", getTarget() ) );
+          Log.debug( LogMsg.createMsg( Batch.MSG, "Writer.Connected to {%s}", getTarget() ) );
         }
       } catch ( InstantiationException | IllegalAccessException | ClassNotFoundException | SQLException | MalformedURLException e ) {
         Log.error( "Could not connect to database: " + e.getClass().getSimpleName() + " - " + e.getMessage() );
@@ -225,28 +225,28 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
     if ( connection == null ) {
       // get our configuration data
       setTarget( getString( ConfigTag.TARGET ) );
-      Log.debug( LogMsg.createMsg( Batch.MSG, "Writer.Using a target of {}", getTarget() ) );
+      Log.debug( LogMsg.createMsg( Batch.MSG, "Writer.Using a target of {%s}", getTarget() ) );
 
       setTable( getString( ConfigTag.TABLE ) );
-      Log.debug( LogMsg.createMsg( Batch.MSG, "Writer.Using a table of {}", getTable() ) );
+      Log.debug( LogMsg.createMsg( Batch.MSG, "Writer.Using a table of {%s}", getTable() ) );
 
       setUsername( getString( ConfigTag.USERNAME ) );
-      Log.debug( LogMsg.createMsg( Batch.MSG, "Writer.Using a user of {}", getUsername() ) );
+      Log.debug( LogMsg.createMsg( Batch.MSG, "Writer.Using a user of {%s}", getUsername() ) );
 
       setPassword( getString( ConfigTag.PASSWORD ) );
-      Log.debug( LogMsg.createMsg( Batch.MSG, "Writer.Using a password with a length of {}", StringUtil.isBlank( getPassword() ) ? 0 : getPassword().length() ) );
+      Log.debug( LogMsg.createMsg( Batch.MSG, "Writer.Using a password with a length of {%s}", StringUtil.isBlank( getPassword() ) ? 0 : getPassword().length() ) );
 
       setDriver( getString( ConfigTag.DRIVER ) );
-      Log.debug( LogMsg.createMsg( Batch.MSG, "Writer.Using a driver of {}", getDriver() ) );
+      Log.debug( LogMsg.createMsg( Batch.MSG, "Writer.Using a driver of {%s}", getDriver() ) );
 
       setAutoCreate( getBoolean( ConfigTag.AUTO_CREATE ) );
-      Log.debug( LogMsg.createMsg( Batch.MSG, "Writer.Auto Create tables = {}", isAutoCreate() ) );
+      Log.debug( LogMsg.createMsg( Batch.MSG, "Writer.Auto Create tables = {%s}", isAutoCreate() ) );
 
       setBatchSize( getInteger( ConfigTag.BATCH ) );
-      Log.debug( LogMsg.createMsg( Batch.MSG, "Writer.Using a batch size of {}", getBatchSize() ) );
+      Log.debug( LogMsg.createMsg( Batch.MSG, "Writer.Using a batch size of {%s}", getBatchSize() ) );
 
       setLibrary( getString( ConfigTag.LIBRARY ) );
-      Log.debug( LogMsg.createMsg( Batch.MSG, "Writer.Using a driver JAR of {}", getLibrary() ) );
+      Log.debug( LogMsg.createMsg( Batch.MSG, "Writer.Using a driver JAR of {%s}", getLibrary() ) );
 
     } else {
       Log.debug( "Using the existing connection" );
@@ -317,12 +317,12 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
           context.setError( "Cannot add byte arrays to table" );
           break;
         case DataField.STRING:
-          Log.debug( LogMsg.createMsg( Batch.MSG, "Writer.Saving {} (idx{}) as a String", field.getName(), indx ) );
+          Log.debug( LogMsg.createMsg( Batch.MSG, "Writer.Saving {%s} (idx{%s}) as a String", field.getName(), indx ) );
           pstmt.setString( indx, field.getStringValue() );
           break;
         case DataField.S8:
         case DataField.U8:
-          Log.debug( LogMsg.createMsg( Batch.MSG, "Writer.Saving {} (idx{}) as a S8-byte", field.getName(), indx ) );
+          Log.debug( LogMsg.createMsg( Batch.MSG, "Writer.Saving {%s} (idx{%s}) as a S8-byte", field.getName(), indx ) );
           if ( field.isNull() ) {
             pstmt.setNull( indx, java.sql.Types.TINYINT );
           } else {
@@ -331,7 +331,7 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
           break;
         case DataField.S16:
         case DataField.U16:
-          Log.debug( LogMsg.createMsg( Batch.MSG, "Writer.Saving {} (idx{}) as an S16-Short", field.getName(), indx ) );
+          Log.debug( LogMsg.createMsg( Batch.MSG, "Writer.Saving {%s} (idx{%s}) as an S16-Short", field.getName(), indx ) );
           if ( field.isNull() ) {
             pstmt.setNull( indx, java.sql.Types.SMALLINT );
           } else {
@@ -340,7 +340,7 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
           break;
         case DataField.S32:
         case DataField.U32:
-          Log.debug( LogMsg.createMsg( Batch.MSG, "Writer.Saving {} (idx{}) as a S32-Integer", field.getName(), indx ) );
+          Log.debug( LogMsg.createMsg( Batch.MSG, "Writer.Saving {%s} (idx{%s}) as a S32-Integer", field.getName(), indx ) );
           if ( field.isNull() ) {
             pstmt.setNull( indx, java.sql.Types.INTEGER );
           } else {
@@ -349,7 +349,7 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
           break;
         case DataField.S64:
         case DataField.U64:
-          Log.debug( LogMsg.createMsg( Batch.MSG, "Writer.Saving {} (idx{}) as a S64-Long", field.getName(), indx ) );
+          Log.debug( LogMsg.createMsg( Batch.MSG, "Writer.Saving {%s} (idx{%s}) as a S64-Long", field.getName(), indx ) );
           if ( field.isNull() ) {
             pstmt.setNull( indx, java.sql.Types.BIGINT );
           } else {
@@ -357,7 +357,7 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
           }
           break;
         case DataField.FLOAT:
-          Log.debug( LogMsg.createMsg( Batch.MSG, "Writer.Saving {} (idx{}) as a Float", field.getName(), indx ) );
+          Log.debug( LogMsg.createMsg( Batch.MSG, "Writer.Saving {%s} (idx{%s}) as a Float", field.getName(), indx ) );
           if ( field.isNull() ) {
             pstmt.setNull( indx, java.sql.Types.FLOAT );
           } else {
@@ -365,7 +365,7 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
           }
           break;
         case DataField.DOUBLE:
-          Log.debug( LogMsg.createMsg( Batch.MSG, "Writer.Saving {} (idx{}) as a Double", field.getName(), indx ) );
+          Log.debug( LogMsg.createMsg( Batch.MSG, "Writer.Saving {%s} (idx{%s}) as a Double", field.getName(), indx ) );
           if ( field.isNull() ) {
             pstmt.setNull( indx, java.sql.Types.DOUBLE );
           } else {
@@ -373,7 +373,7 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
           }
           break;
         case DataField.BOOLEANTYPE:
-          Log.debug( LogMsg.createMsg( Batch.MSG, "Writer.Saving {} (idx{}) as a Boolean", field.getName(), indx ) );
+          Log.debug( LogMsg.createMsg( Batch.MSG, "Writer.Saving {%s} (idx{%s}) as a Boolean", field.getName(), indx ) );
           if ( field.isNull() ) {
             pstmt.setNull( indx, java.sql.Types.BOOLEAN );
           } else {
@@ -381,7 +381,7 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
           }
           break;
         case DataField.DATE:
-          Log.debug( LogMsg.createMsg( Batch.MSG, "Writer.Saving {} (idx{}) as a Timestamp", field.getName(), indx ) );
+          Log.debug( LogMsg.createMsg( Batch.MSG, "Writer.Saving {%s} (idx{%s}) as a Timestamp", field.getName(), indx ) );
           if ( field.isNull() ) {
             pstmt.setNull( indx, java.sql.Types.TIMESTAMP );
           } else {
@@ -390,7 +390,7 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
           }
           break;
         case DataField.URI:
-          Log.debug( LogMsg.createMsg( Batch.MSG, "Writer.Saving {} (idx{}) as a String", field.getName(), indx ) );
+          Log.debug( LogMsg.createMsg( Batch.MSG, "Writer.Saving {%s} (idx{%s}) as a String", field.getName(), indx ) );
           pstmt.setString( indx, field.getStringValue() );
           break;
         case DataField.ARRAY:
@@ -490,20 +490,20 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
 
     if ( SQL == null ) {
       SQL = generateSQL();
-      Log.debug( LogMsg.createMsg( Batch.MSG, "Writer.Using SQL ==> {}", SQL ) );
+      Log.debug( LogMsg.createMsg( Batch.MSG, "Writer.Using SQL ==> {%s}", SQL ) );
 
       final Connection connection = getConnection();
       try {
         ps = connection.prepareStatement( SQL );
       } catch ( final SQLException e ) {
-        Log.error( LogMsg.createMsg( Batch.MSG, "Writer.Could not create prepared statement: {}", e.getMessage() ) );
+        Log.error( LogMsg.createMsg( Batch.MSG, "Writer.Could not create prepared statement: {%s}", e.getMessage() ) );
         context.setError( "Could not create prepared statement" );
       }
     }
     if ( context.isNotInError() ) {
       if ( batchsize <= 1 ) {
         final DataFrame frame = frameset.get( 0 );
-        Log.debug( LogMsg.createMsg( Batch.MSG, "Writer.Writing single frame {}", frame ) );
+        Log.debug( LogMsg.createMsg( Batch.MSG, "Writer.Writing single frame {%s}", frame ) );
 
         int indx = 1;
         for ( final String name : frameset.getColumns() ) {
@@ -514,7 +514,7 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
           }
         }
 
-        Log.debug( LogMsg.createMsg( Batch.MSG, "Writer.EXECUTING: {}", ps.toString() ) );
+        Log.debug( LogMsg.createMsg( Batch.MSG, "Writer.EXECUTING: {%s}", ps.toString() ) );
 
         try {
           ps.execute();
@@ -525,10 +525,10 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
 
       } else {
         // Now write a batch
-        Log.debug( LogMsg.createMsg( Batch.MSG, "Writer.Writing batch of {} frames", frameset.size() ) );
+        Log.debug( LogMsg.createMsg( Batch.MSG, "Writer.Writing batch of {%s} frames", frameset.size() ) );
 
         for ( final DataFrame frame : frameset.getRows() ) {
-          Log.debug( LogMsg.createMsg( Batch.MSG, "Writer.Writing {}", frame ) );
+          Log.debug( LogMsg.createMsg( Batch.MSG, "Writer.Writing {%s}", frame ) );
 
           int indx = 1;
           for ( final String name : frameset.getColumns() ) {
@@ -570,11 +570,11 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
    * @param frame the frame to be written
    */
   private void writeFrame( final DataFrame frame ) {
-    Log.debug( LogMsg.createMsg( Batch.MSG, "Writer.Writing {} fields", frame.size() ) );
+    Log.debug( LogMsg.createMsg( Batch.MSG, "Writer.Writing {%s} fields", frame.size() ) );
     frameset.add( frame );
 
     if ( frameset.size() >= batchsize ) {
-      Log.debug( LogMsg.createMsg( Batch.MSG, "Writer.Writing batch, size={} batch={}", frameset.size(), batchsize ) );
+      Log.debug( LogMsg.createMsg( Batch.MSG, "Writer.Writing batch, size={%s} batch={%s}", frameset.size(), batchsize ) );
       writeBatch();
     }
 
