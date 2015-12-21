@@ -1,3 +1,0 @@
-This directory is scanned for JAR and ZIP files and added to the class path.
-
-Place any dependencies in this directory so they can be accessed by the batch jobs.
