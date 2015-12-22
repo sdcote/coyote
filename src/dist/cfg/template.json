@@ -1,0 +1,44 @@
+{
+	"class": "coyote.batch.Job",
+	"notes": "Feel free to use the notes attribute to describe any of the components.",
+	"job": {
+		"Name": "template",
+
+		"Context": {
+		},
+
+		"PreProcess": {
+		},
+
+		"Reader": {
+		},
+
+		"Filter": {
+		},
+
+		"Validate": {
+		},
+
+		"Transform" : {
+		},
+
+		"Mapper" : {
+		},
+
+		"Writer": {
+		},
+
+		"PostProcess": {
+		},
+
+		"Logging": {
+			"Loggers": [
+				{ "class": "ConsoleAppender", "name": "default", "target": "STDOUT", "categories": "info, error, fatal, warn" }
+			]
+		},
+
+		"Listeners": [
+		]
+
+	}
+}
