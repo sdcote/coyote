@@ -7,7 +7,7 @@ apply plugin: 'idea'
 
 defaultTasks 'clean', 'build', 'publish', 'installApp'
 group = 'coyote'
-version = '0.2'
+version = '0.7'
 mainClassName = "coyote.loader.BootStrap"
 
 ext {

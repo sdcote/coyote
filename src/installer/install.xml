@@ -6,7 +6,7 @@ xsi:schemaLocation="http://izpack.org/schema/installation http://izpack.org/sche
 
 	<info>
 		<appname>Coyote Batch</appname>
-		<appversion>1.0</appversion>
+		<appversion>0.7-dev</appversion>
 		<authors>
 			<author name="Steve Cote" email="sdcote@gmail.com"/>
 		</authors>
@@ -34,7 +34,10 @@ xsi:schemaLocation="http://izpack.org/schema/installation http://izpack.org/sche
 	</locale>
 
 	<!--The Variables section.-->
-	<variables></variables>
+	<variables>
+		<variable name="TargetPanel.dir.windows" value="C:/Program Files/Coyote/Batch"/>
+		<variable name="TargetPanel.dir.unix" value="/usr/local/coyote/batch"/>
+	</variables>
 
 	<!--The panels section. We indicate which panels we want to use. The order will be respected.-->
 	<!-- The panels in a classic order -->
@@ -95,6 +98,7 @@ xsi:schemaLocation="http://izpack.org/schema/installation http://izpack.org/sche
 			<description>Installs the Coyote Batch toolkit as a utility application in its own directory with scripts to enable adding custom tasks, transforms and other components. Use this to install the tool kit as an application.</description>
 			<fileset dir="src\dist\bin" targetdir="$INSTALL_PATH/bin" override="true"/>
 			<fileset dir="build\install\Batch\lib" targetdir="$INSTALL_PATH/lib" override="true"/>
+			<fileset dir="build\install\Batch\doc" targetdir="$INSTALL_PATH/doc" override="true"/>
 			<fileset dir="build\install\Batch\cfg" targetdir="$INSTALL_PATH/cfg" override="false"/>
 			<executable targetfile="$INSTALL_PATH/bin/batch" stage="never" failure="warn" keep="true">
 				<os family="unix" />
