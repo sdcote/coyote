@@ -51,7 +51,7 @@
     <str id="installer.next" txt="Next"/>
     <str id="installer.prev" txt="Previous"/>
     <str id="installer.quit" txt="Quit"/>
-    <str id="installer.madewith" txt="Coyote Code Works"/>
+    <str id="installer.madewith" txt="Coyote Codeworks"/>
     <str id="installer.reboot.ask.title" txt="Reboot required"/>
     <str id="installer.reboot.ask.message" txt="Reboot required to apply some changes. Do want to reboot now?"/>
     <str id="installer.reboot.notice.title" txt="Reboot recommended"/>
@@ -85,8 +85,8 @@
 
     <!-- The strings for the 'official' IzPack plugins -->
     <!-- HelloPanel strings -->
-    <str id="HelloPanel.welcome1" txt="Welcome to the installation of "/>
-    <str id="HelloPanel.welcome2" txt="!"/>
+    <str id="HelloPanel.welcome1" txt="This is the installation of "/>
+    <str id="HelloPanel.welcome2" txt="."/>
     <str id="HelloPanel.authors" txt="This software is developed by: "/>
     <str id="HelloPanel.url" txt="The homepage is at: "/>
 

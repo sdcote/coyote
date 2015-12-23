@@ -97,8 +97,10 @@ xsi:schemaLocation="http://izpack.org/schema/installation http://izpack.org/sche
 		<pack name="Utility" required="no" preselected="yes" >
 			<description>Installs the Coyote Batch toolkit as a utility application in its own directory with scripts to enable adding custom tasks, transforms and other components. Use this to install the tool kit as an application.</description>
 			<fileset dir="src\dist\bin" targetdir="$INSTALL_PATH/bin" override="true"/>
+			<fileset dir="src\dist\licenses" targetdir="$INSTALL_PATH/doc/licenses" override="true"/>
 			<fileset dir="build\install\Batch\lib" targetdir="$INSTALL_PATH/lib" override="true"/>
 			<fileset dir="build\install\Batch\doc" targetdir="$INSTALL_PATH/doc" override="true"/>
+			<fileset dir="build\install\Batch\licenses" targetdir="$INSTALL_PATH/licenses" override="true"/>
 			<fileset dir="build\install\Batch\cfg" targetdir="$INSTALL_PATH/cfg" override="false"/>
 			<executable targetfile="$INSTALL_PATH/bin/batch" stage="never" failure="warn" keep="true">
 				<os family="unix" />
