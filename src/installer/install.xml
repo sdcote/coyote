@@ -113,6 +113,7 @@ xsi:schemaLocation="http://izpack.org/schema/installation http://izpack.org/sche
 			<description>A collection of configuration files, demonstrating several components and integration scenarios.</description>
 			<fileset dir="src\dist\demo" targetdir="$INSTALL_PATH/demo" override="true"/>
 			<fileset dir="src\dist\demojars" targetdir="$INSTALL_PATH/lib" includes="h2-*.jar" override="true"/>
+			<fileset dir="src\dist\demojars" targetdir="$INSTALL_PATH/doc/licenses" includes="h2-*.txt" override="true"/>
 		</pack>
 	</packs>
 	

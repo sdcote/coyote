@@ -46,7 +46,7 @@ logback.xml
 *.gz
 *.tgz
 *.iso
-*.jar
+#*.jar # Support demoJARs
 *.war
 *.ear
 !gradle/wrapper/gradle-wrapper.jar
