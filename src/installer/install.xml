@@ -100,7 +100,6 @@ xsi:schemaLocation="http://izpack.org/schema/installation http://izpack.org/sche
 			<fileset dir="src\dist\licenses" targetdir="$INSTALL_PATH/doc/licenses" override="true"/>
 			<fileset dir="build\install\Batch\lib" targetdir="$INSTALL_PATH/lib" override="true"/>
 			<fileset dir="build\install\Batch\doc" targetdir="$INSTALL_PATH/doc" override="true"/>
-			<fileset dir="build\install\Batch\licenses" targetdir="$INSTALL_PATH/licenses" override="true"/>
 			<fileset dir="build\install\Batch\cfg" targetdir="$INSTALL_PATH/cfg" override="false"/>
 			<executable targetfile="$INSTALL_PATH/bin/batch" stage="never" failure="warn" keep="true">
 				<os family="unix" />
@@ -109,6 +108,11 @@ xsi:schemaLocation="http://izpack.org/schema/installation http://izpack.org/sche
 		<pack name="FatJar" required="no" preselected="no" >
 			<description>The single JAR with just the Loader, DataFrame and Coyote Batch classes. Useful for component development and minimal install footprints.</description>
 			<fileset dir="build\libs" targetdir="$INSTALL_PATH" includes="BatchAll*.*" override="false"/>
+		</pack>
+		<pack name="Demo" required="no" preselected="no" >
+			<description>A collection of configuration files, demonstrating several components and integration scenarios.</description>
+			<fileset dir="src\dist\demo" targetdir="$INSTALL_PATH/demo" override="true"/>
+			<fileset dir="src\dist\demojars" targetdir="$INSTALL_PATH/lib" includes="h2-*.jar" override="true"/>
 		</pack>
 	</packs>
 	
