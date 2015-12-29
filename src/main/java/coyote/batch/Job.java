@@ -162,7 +162,7 @@ public class Job extends AbstractLoader implements Loader {
     File result = null;
 
     // First check for the app.work system property
-    String path = System.getProperties().getProperty( APP_WORK );
+    String path = System.getProperties().getProperty( Job.APP_WORK );
 
     if ( StringUtil.isNotBlank( path ) ) {
       String workDir = FileUtil.normalizePath( path );
@@ -190,6 +190,8 @@ public class Job extends AbstractLoader implements Loader {
     } else {
       // No app.work defined, so try to locate the configuration file used to 
       // create this job
+      Log.debug( LogMsg.createMsg( Batch.MSG, "Job.no_work_dir_set", Job.APP_WORK, System.getProperty( coyote.loader.ConfigTag.CONFIG_URI ) ) );
+
       URI cfgUri = UriUtil.parse( System.getProperty( coyote.loader.ConfigTag.CONFIG_URI ) );
       if ( cfgUri != null && UriUtil.isFile( cfgUri ) ) {
         File cfgFile = UriUtil.getFile( cfgUri );
@@ -205,12 +207,15 @@ public class Job extends AbstractLoader implements Loader {
     // If we have a result,
     if ( result != null ) {
       // set it as our working directory
-      System.setProperty( ConfigTag.WORKDIR, result.getAbsolutePath() );
+      System.setProperty( Job.APP_WORK, result.getAbsolutePath() );
     } else {
       // else just use the current working directory
-      System.setProperty( ConfigTag.WORKDIR, DEFAULT_HOME );
+      System.setProperty( Job.APP_WORK, DEFAULT_HOME );
     }
 
+    // Remove all the relations and extra slashes from the home path
+    System.setProperty( Job.APP_WORK, FileUtil.normalizePath( System.getProperty( Job.APP_WORK ) ) );
+    Log.debug( LogMsg.createMsg( Batch.MSG, "Job.work_dir_set", System.getProperty( Job.APP_WORK ) ) );
   }
 
 

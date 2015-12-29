@@ -494,7 +494,7 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
     if ( StringUtil.isNotBlank( name ) ) {
       // replace the illegal filename characters by only allowing simple names
       String dirname = name.trim().replaceAll( "[^a-zA-Z0-9.-]", "_" );
-      jobDir = new File( System.getProperty( ConfigTag.WORKDIR ) + FileUtil.FILE_SEPARATOR + dirname );
+      jobDir = new File( System.getProperty( Job.APP_WORK ) + FileUtil.FILE_SEPARATOR + dirname );
 
       try {
         jobDir.mkdirs();
