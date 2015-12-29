@@ -17,9 +17,9 @@
 			]
 		},
 
-		"Listeners": [
-			{ "class": "DataProfiler", "target": "users-csv.txt" }
-		]
+		"Listeners": {
+			"DataProfiler": { "target": "users-csv.txt" }
+		}
 
 	}
 }

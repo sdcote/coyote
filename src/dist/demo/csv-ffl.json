@@ -1,28 +1,33 @@
 {
+	"Class" : "coyote.batch.Job",
+	"Job" : {
+		"Name" : "Demo",
+		
+		"Reader" : {
+			"class" : "CSVReader",
+			"source" : "[#$app.home#]/demo/users.csv",
+			"header" : true
+		},
 
-	"Reader" : {
-		"class" : "CSVReader",
-		"source" : "file://demo/users.csv",
-		"header" : true
-	},
+		"Writer" : {
+			"class" : "FlatFileWriter",
+			"target" : "file://userfile.txt",
+			"fields" : {
+				"Role" : { "start" : 0, "length" : 6 },
+				"FirstName" : { "start" : 7, "length" : 11 },
+				"LastName" : { "start" : 19, "length" : 16 },
+				"MiddleInitial" : { "start" : 36, "length" : 1 },
+				"Gender" : { "start" : 38, "length" : 1 },
+				"Username" : { "start" : 40, "length" : 8 },
+				"Password" : { "start" : 49, "length" : 15 },
+				"eMail" : { "start" : 65, "length" : 20 },
+				"License" : { "start" : 86, "length" : 36 },
+				"Rating" : { "start" : 123, "length" : 11 },
+				"Joined" : { "start" : 135, "length" : 10 },
+				"Visits" : { "start" : 146, "length" : 3 }
+			}    
+		}
 
-	"Writer" : {
-		"class" : "FlatFileWriter",
-		"target" : "file://userfile.txt",
-		"fields" : {
-			"Role" : { "start" : 0, "length" : 6 },
-			"FirstName" : { "start" : 7, "length" : 11 },
-			"LastName" : { "start" : 19, "length" : 16 },
-			"MiddleInitial" : { "start" : 36, "length" : 1 },
-			"Gender" : { "start" : 38, "length" : 1 },
-			"Username" : { "start" : 40, "length" : 8 },
-			"Password" : { "start" : 49, "length" : 15 },
-			"eMail" : { "start" : 65, "length" : 20 },
-			"License" : { "start" : 86, "length" : 36 },
-			"Rating" : { "start" : 123, "length" : 11 },
-			"Joined" : { "start" : 135, "length" : 10 },
-			"Visits" : { "start" : 146, "length" : 3 }
-		}    
 	}
 
 }

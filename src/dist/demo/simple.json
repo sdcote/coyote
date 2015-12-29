@@ -1,17 +1,17 @@
 {
 	"Class" : "coyote.batch.Job",
 	"Job" : {
-		"Name" : "Users",
+		"Name" : "Demo",
 		
 		"Reader" : {
 			"class" : "CSVReader",
-			"source" : "file://demo/users.csv",
+			"source" : "[#$app.home#]/demo/users.csv",
 			"header" : true
 		},
 
 		"Writer" : {
 			"class" : "FlatFileWriter",
-			"target" : "file://users.txt",
+			"target" : "users.txt",
 			"fields" : {
 				"Role" : { "start" : 0, "length" : 6 },
 				"FirstName" : { "start" : 7, "length" : 11 },

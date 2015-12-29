@@ -1,14 +1,14 @@
 {
 	"Class" : "coyote.batch.Job",
 	"Job" : {
-		"Name" : "Persist",
+		"Name" : "Demo-Persist",
 
 		"PersistentContext" : {
 		},
 	
 		"Reader" : {
 			"class" : "CSVReader",
-			"source" : "file://demo/users.csv",
+			"source" : "[#$app.home#]/demo/users.csv",
 			"header" : true
 		},
 
@@ -23,9 +23,10 @@
 			}    
 		},
 
-		"Listeners" : [
-			{ "class" : "DataProfiler", "target" : "profile.txt" }
-		]
+		"Listeners": {
+			"DataProfiler": { "target": "users-csv.txt" }
+		}
+
 	}
 
 }

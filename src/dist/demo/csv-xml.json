@@ -1,18 +1,25 @@
 {
-	"Reader" : {
-		"class" : "CSVReader",
-		"source" : "file://demo/users.csv",
-		"header" : true
-	},
+	"Class" : "coyote.batch.Job",
+	"Job" : {
+		"Name" : "Demo",
+		
+		"Reader" : {
+			"class" : "CSVReader",
+			"source" : "[#$app.home#]/demo/users.csv",
+			"header" : true
+		},
 
-	"Writer" : {
-		"class" : "XMLWriter",
-		"target" : "[#$wrkdir#][#$FS#]users.xml",
-		"header" : "",
-		"rootElement" : "DataSet",
-		"rootAttributes" : "version=\"1.0\" exporter=\"CoyoteBatch\"",
-		"rowElement" : "DataRow",
-		"rowAttributes" : "seq=[#$currentRow#]",
-		"fieldFormat" : "<Column name=\"{0}\" value=\"{4}\"/>"
+		"Writer" : {
+			"class" : "XMLWriter",
+			"target" : "users.xml",
+			"header" : "",
+			"rootElement" : "DataSet",
+			"rootAttributes" : "version=\"1.0\" exporter=\"CoyoteBatch\"",
+			"rowElement" : "DataRow",
+			"rowAttributes" : "seq=[#$currentRow#]",
+			"fieldFormat" : "<Column name=\"{0}\" value=\"{4}\"/>"
+		}
+
 	}
+
 }
