@@ -16,10 +16,13 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.sql.Connection;
+import java.sql.DatabaseMetaData;
 import java.sql.Driver;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.Date;
 
 import coyote.batch.Batch;
@@ -28,6 +31,8 @@ import coyote.batch.ConfigurableComponent;
 import coyote.batch.FrameWriter;
 import coyote.batch.TransformContext;
 import coyote.batch.eval.EvaluationException;
+import coyote.batch.schema.DatabaseDialect;
+import coyote.batch.schema.Schema;
 import coyote.commons.JdbcUtil;
 import coyote.commons.StringUtil;
 import coyote.commons.jdbc.DriverDelegate;
@@ -46,13 +51,24 @@ import coyote.loader.log.LogMsg;
 public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, ConfigurableComponent {
 
   protected static final SymbolTable symbolTable = new SymbolTable();
-
+  private Schema schema = new Schema();
   protected Connection connection;
+  private String database = null;
 
   protected int batchsize = 0;
   protected final FrameSet frameset = new FrameSet();
   protected String SQL = null;
   protected PreparedStatement ps = null;
+
+  //  private static final String JOB_NAME_SYM = "jobName";
+  private static final String TABLE_NAME_SYM = "tableName";
+  //  private static final String DB_USER_SYM = "dbUser";
+  //  private static final String CLASS_SYM = "fullClassname";
+  //  private static final String CLASS_BASE_SYM = "classname";
+  private static final String DATABASE_SYM = "database";
+  private static final String DATABASE_VERSION_SYM = "databaseVersion";
+  private static final String DATABASE_MAJOR_SYM = "dbMajorVersion";
+  private static final String DATABASE_MINOR_SYM = "dbMinorVersion";
 
 
 
@@ -144,6 +160,7 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
 
 
 
+  @SuppressWarnings("unchecked")
   private Connection getConnection() {
 
     if ( connection == null ) {
@@ -157,10 +174,26 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
         connection = DriverManager.getConnection( getTarget(), getUsername(), getPassword() );
 
         if ( connection != null ) {
-          Log.debug( LogMsg.createMsg( Batch.MSG, "Writer.Connected to {%s}", getTarget() ) );
+          Log.debug( LogMsg.createMsg( Batch.MSG, "Writer.connected_to", getClass().getName(), getTarget() ) );
+          DatabaseMetaData meta = connection.getMetaData();
+
+          // get the product name 
+          String product = meta.getDatabaseProductName();
+          // save it for later
+          database = product.toUpperCase();
+
+          // update the symbols with database information
+          symbolTable.put( DATABASE_SYM, product );
+          symbolTable.put( DATABASE_VERSION_SYM, meta.getDatabaseProductVersion() );
+          symbolTable.put( DATABASE_MAJOR_SYM, meta.getDatabaseMajorVersion() );
+          symbolTable.put( DATABASE_MINOR_SYM, meta.getDatabaseMinorVersion() );
+
+          // log debug information about the database
+          Log.debug( LogMsg.createMsg( Batch.MSG, "Writer.connected_to_product", getClass().getName(), meta.getDatabaseProductName(), meta.getDatabaseProductVersion(), meta.getDatabaseMajorVersion(), meta.getDatabaseMinorVersion() ) );
+
         }
       } catch ( InstantiationException | IllegalAccessException | ClassNotFoundException | SQLException | MalformedURLException e ) {
-        Log.error( "Could not connect to database: " + e.getClass().getSimpleName() + " - " + e.getMessage() );
+        getContext().setError( "Could not connect to database: " + e.getClass().getSimpleName() + " - " + e.getMessage() );
       }
     }
     return connection;
@@ -219,37 +252,37 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
    */
   @Override
   public void open( final TransformContext context ) {
-    super.context = context;
+    super.setContext( context );
 
     // If we don't have a connection, prepare to create one
     if ( connection == null ) {
       // get our configuration data
       setTarget( getString( ConfigTag.TARGET ) );
-      Log.debug( LogMsg.createMsg( Batch.MSG, "Writer.Using a target of {%s}", getTarget() ) );
+      Log.debug( LogMsg.createMsg( Batch.MSG, "Writer.using_target", getClass().getName(), getTarget() ) );
 
       setTable( getString( ConfigTag.TABLE ) );
-      Log.debug( LogMsg.createMsg( Batch.MSG, "Writer.Using a table of {%s}", getTable() ) );
+      Log.debug( LogMsg.createMsg( Batch.MSG, "Writer.using_table", getClass().getName(), getTable() ) );
 
       setUsername( getString( ConfigTag.USERNAME ) );
-      Log.debug( LogMsg.createMsg( Batch.MSG, "Writer.Using a user of {%s}", getUsername() ) );
+      Log.debug( LogMsg.createMsg( Batch.MSG, "Writer.using_user", getClass().getName(), getUsername() ) );
 
       setPassword( getString( ConfigTag.PASSWORD ) );
-      Log.debug( LogMsg.createMsg( Batch.MSG, "Writer.Using a password with a length of {%s}", StringUtil.isBlank( getPassword() ) ? 0 : getPassword().length() ) );
+      Log.debug( LogMsg.createMsg( Batch.MSG, "Writer.using_password", getClass().getName(), StringUtil.isBlank( getPassword() ) ? 0 : getPassword().length() ) );
 
       setDriver( getString( ConfigTag.DRIVER ) );
-      Log.debug( LogMsg.createMsg( Batch.MSG, "Writer.Using a driver of {%s}", getDriver() ) );
+      Log.debug( LogMsg.createMsg( Batch.MSG, "Writer.using_driver", getClass().getName(), getDriver() ) );
 
       setAutoCreate( getBoolean( ConfigTag.AUTO_CREATE ) );
-      Log.debug( LogMsg.createMsg( Batch.MSG, "Writer.Auto Create tables = {%s}", isAutoCreate() ) );
+      Log.debug( LogMsg.createMsg( Batch.MSG, "Writer.autocreate_tables", getClass().getName(), isAutoCreate() ) );
 
       setBatchSize( getInteger( ConfigTag.BATCH ) );
-      Log.debug( LogMsg.createMsg( Batch.MSG, "Writer.Using a batch size of {%s}", getBatchSize() ) );
+      Log.debug( LogMsg.createMsg( Batch.MSG, "Writer.using_batch_size", getClass().getName(), getBatchSize() ) );
 
       setLibrary( getString( ConfigTag.LIBRARY ) );
-      Log.debug( LogMsg.createMsg( Batch.MSG, "Writer.Using a driver JAR of {%s}", getLibrary() ) );
+      Log.debug( LogMsg.createMsg( Batch.MSG, "Writer.using_driver", getClass().getName(), getLibrary() ) );
 
     } else {
-      Log.debug( "Using the existing connection" );
+      Log.debug( LogMsg.createMsg( Batch.MSG, "Writer.using_existing_connection", getClass().getName() ) );
     }
 
     // validate and cache our batch size
@@ -304,7 +337,7 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
     try {
       switch ( type ) {
         case DataField.FRAMETYPE:
-          context.setError( "Cannot add complex objects to table" );
+          getContext().setError( "Cannot add complex objects to table" );
           break;
         case DataField.UDEF:
           if ( field.isNull() ) {
@@ -314,7 +347,7 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
           }
           break;
         case DataField.BYTEARRAY:
-          context.setError( "Cannot add byte arrays to table" );
+          getContext().setError( "Cannot add byte arrays to table" );
           break;
         case DataField.STRING:
           Log.debug( LogMsg.createMsg( Batch.MSG, "Writer.Saving {%s} (idx{%s}) as a String", field.getName(), indx ) );
@@ -394,7 +427,7 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
           pstmt.setString( indx, field.getStringValue() );
           break;
         case DataField.ARRAY:
-          context.setError( "Cannot add arrays to table field" );
+          getContext().setError( "Cannot add arrays to table field" );
           break;
         default:
           pstmt.setNull( indx, java.sql.Types.VARCHAR );
@@ -465,6 +498,9 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
   @Override
   public void write( final DataFrame frame ) {
 
+    // have the schema collect data on the frame to compile metadata on frames
+    schema.sample( frame );
+
     // If there is a conditional expression
     if ( expression != null ) {
 
@@ -489,38 +525,43 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
   private void writeBatch() {
 
     if ( SQL == null ) {
-      SQL = generateSQL();
-      Log.debug( LogMsg.createMsg( Batch.MSG, "Writer.Using SQL ==> {%s}", SQL ) );
+      // Since this is the fist time we have tried to write to the table, make
+      // sure the table exists
+      if ( checkTable() ) {
 
-      final Connection connection = getConnection();
-      try {
-        ps = connection.prepareStatement( SQL );
-      } catch ( final SQLException e ) {
-        Log.error( LogMsg.createMsg( Batch.MSG, "Writer.Could not create prepared statement: {%s}", e.getMessage() ) );
-        context.setError( "Could not create prepared statement" );
+        SQL = generateSQL();
+        Log.debug( LogMsg.createMsg( Batch.MSG, "Writer.using_sql", getClass().getName(), SQL ) );
+
+        final Connection connection = getConnection();
+        try {
+          ps = connection.prepareStatement( SQL );
+        } catch ( final SQLException e ) {
+
+          getContext().setError( LogMsg.createMsg( Batch.MSG, "Writer.preparedstatement_exception", getClass().getName(), e.getMessage() ).toString() );
+        }
       }
     }
-    if ( context.isNotInError() ) {
+
+    if ( getContext().isNotInError() ) {
       if ( batchsize <= 1 ) {
         final DataFrame frame = frameset.get( 0 );
-        Log.debug( LogMsg.createMsg( Batch.MSG, "Writer.Writing single frame {%s}", frame ) );
+        Log.debug( LogMsg.createMsg( Batch.MSG, "Writer.Writing single frame {%s}", getClass().getName(), frame ) );
 
         int indx = 1;
         for ( final String name : frameset.getColumns() ) {
           final DataField field = frame.getField( name );
           setData( ps, indx++, field );
-          if ( context.isInError() ) {
+          if ( getContext().isInError() ) {
             break;
           }
         }
 
-        Log.debug( LogMsg.createMsg( Batch.MSG, "Writer.EXECUTING: {%s}", ps.toString() ) );
+        Log.debug( LogMsg.createMsg( Batch.MSG, "Writer.executing_sql", getClass().getName(), ps.toString() ) );
 
         try {
           ps.execute();
         } catch ( final SQLException e ) {
-          context.setError( "Could not insert single row: " + e.getMessage() );
-          e.printStackTrace();
+          getContext().setError( "Could not insert single row: " + e.getMessage() );
         }
 
       } else {
@@ -536,7 +577,7 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
             if ( ( field != null ) && !field.isNull() ) {
               setData( ps, indx++, field );
             }
-            if ( context.isInError() ) {
+            if ( getContext().isInError() ) {
               break;
             }
           }
@@ -545,15 +586,15 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
           try {
             ps.addBatch();
           } catch ( final SQLException e ) {
-            context.setError( "Could not add the record to the batch: " + e.getMessage() );
+            getContext().setError( "Could not add the record to the batch: " + e.getMessage() );
           }
 
         }
-        if ( context.isNotInError() ) {
+        if ( getContext().isNotInError() ) {
           try {
             ps.executeBatch();
           } catch ( final SQLException e ) {
-            context.setError( "Could not insert batch: " + e.getMessage() );
+            getContext().setError( "Could not insert batch: " + e.getMessage() );
           }
         }
       }
@@ -565,16 +606,121 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
 
 
   /**
+   * This checks the database for the table to exist.
+   * 
+   * <p>If the table does not exist and autocreate is set to true, this method 
+   * will attempt to create the table based on the schema generated for the 
+   * records observed so far.</p>
+   * 
+   * @return true if the table exists and is ready to insert data, false otherwise
+   */
+  private boolean checkTable() {
+
+    // check to see if the table exists
+    if ( !tableExists( getTable() ) ) {
+
+      if ( isAutoCreate() ) {
+        Connection conn = getConnection();
+
+        if ( conn == null ) {
+          Log.error( "Cannot get connection" );
+          context.setError( "Could not connect to the database" );
+          return false;
+        }
+
+        symbolTable.put( TABLE_NAME_SYM, getTable() );
+        String command = DatabaseDialect.getCreate( database, schema, symbolTable );
+
+        Log.debug( LogMsg.createMsg( Batch.MSG, "Writer.creating_table",getClass().getName(), getTable(), command ) );
+
+        Statement stmt = null;
+        try {
+          stmt = conn.createStatement();
+          stmt.executeUpdate( command );
+
+        } catch ( Exception e ) {
+          Log.warn( LogMsg.createMsg( Batch.MSG, "Problems creating {} table: {}", getTable(), e.getMessage() ) );
+        }
+        finally {
+          try {
+            stmt.close();
+          } catch ( Exception e ) {
+            Log.warn( LogMsg.createMsg( Batch.MSG, "Problems closing create {} statement: {}", getTable(), e.getMessage() ) );
+          }
+        }
+
+        //TODO getContext().setError( LogMsg.createMsg( Batch.MSG, "Writer.table_creation_exception", getClass().getName(), e.getMessage() ).toString() );
+        // return false;
+      }
+    }
+
+    return true;
+  }
+
+
+
+
+  /**
+   * Determine if a particular table exists in the database.
+   * 
+   * @param tablename The name of the table for which to query
+   * 
+   * @return true the named table exists, false the table does not exist.
+   */
+  private boolean tableExists( String tablename ) {
+    boolean retval = false;
+    if ( StringUtil.isNotBlank( tablename ) ) {
+      Connection conn = getConnection();
+      if ( conn == null ) {
+        Log.error( "Cannot get connection" );
+        context.setError( "Could not connect to the database" );
+        return false;
+      }
+
+      ResultSet rs = null;
+      try {
+        DatabaseMetaData meta = conn.getMetaData();
+
+        // get all the tables so we can perform a case insensitive search
+        rs = meta.getTables( null, null, "%", null );
+        while ( rs.next() ) {
+          if ( tablename.equalsIgnoreCase( rs.getString( "TABLE_NAME" ) ) ) {
+            retval = true;
+          }
+        }
+        return retval;
+
+      } catch ( SQLException e ) {
+        e.printStackTrace();
+        context.setError( "Problems confirming table: " + e.getMessage() );
+      }
+      finally {
+        if ( rs != null ) {
+          try {
+            rs.close();
+          } catch ( SQLException ignore ) {
+            //ignore.printStackTrace();
+          }
+        }
+      }
+    }
+    return retval;
+  }
+
+
+
+
+  /**
    * This is where we actually write the frame.
    * 
    * @param frame the frame to be written
    */
   private void writeFrame( final DataFrame frame ) {
-    Log.debug( LogMsg.createMsg( Batch.MSG, "Writer.Writing {%s} fields", frame.size() ) );
+    Log.debug( LogMsg.createMsg( Batch.MSG, "Writer.writing_fields", getClass().getName(), frame.size() ) );
     frameset.add( frame );
 
     if ( frameset.size() >= batchsize ) {
-      Log.debug( LogMsg.createMsg( Batch.MSG, "Writer.Writing batch, size={%s} batch={%s}", frameset.size(), batchsize ) );
+      Log.debug( LogMsg.createMsg( Batch.MSG, "Writer.writing_batch", getClass().getName(), frameset.size(), batchsize ) );
       writeBatch();
     }
 

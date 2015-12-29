@@ -9,7 +9,7 @@
  *   Stephan D. Cote 
  *      - Initial concept and initial implementation
  */
-package coyote.batch.listener;
+package coyote.batch.schema;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -39,7 +39,7 @@ public class FieldMetrics {
 
 
 
-  FieldMetrics( String name ) {
+  public FieldMetrics( String name ) {
     fieldName = name;
   }
 
@@ -82,6 +82,7 @@ public class FieldMetrics {
     if ( getType() == null ) {
       setType( field.getTypeName() );
     } else if ( !field.getTypeName().equals( getType() ) ) {
+      // TODO count the different types observed for this field not including UDEF as might be observed when a NUL value is sampled.
       // System.err.println( "TYPE SWITCH FROM '" + metric.getType() + "' TO '" + field.getTypeName() + "'" );
     }
 
@@ -110,7 +111,7 @@ public class FieldMetrics {
   /**
    * @return the number of times the value was null
    */
-  protected long getNullCount() {
+  public long getNullCount() {
     return nullCount;
   }
 
@@ -120,7 +121,7 @@ public class FieldMetrics {
   /**
    * @return the number of times the value was empty
    */
-  protected long getEmptyCount() {
+  public long getEmptyCount() {
     return emptyCount;
   }
 
@@ -130,7 +131,7 @@ public class FieldMetrics {
   /**
    * @return the number of times the value was all whitespace
    */
-  protected long getBlankCount() {
+  public long getBlankCount() {
     return blankCount;
   }
 
@@ -241,4 +242,8 @@ public class FieldMetrics {
       return 1F;
     }
   }
+
+
+
+
 }
