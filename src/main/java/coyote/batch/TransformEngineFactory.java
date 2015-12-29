@@ -626,30 +626,42 @@ public class TransformEngineFactory {
 
 
   /**
-   * @param cfg
-   * @param engine
+   * Configure the all the listeners.
+   * 
+   * <p>This method expects listeners to be formatted in a manner similar to 
+   * the following:<pre>"Listeners": {
+   *   "DataProfiler": { "target": "dataprofile.txt" }
+   * }</pre>
+   * 
+   * @param cfg The entire data frame containing the listener configurations
+   * @param engine The engine to which the configured listeners will be added.
    */
   private static void configListener( DataFrame cfg, TransformEngine engine ) {
     if ( cfg != null ) {
-      // Make sure the class is fully qualified 
-      String className = cfg.getAsString( ConfigTag.CLASS );
-      if ( className != null && StringUtil.countOccurrencesOf( className, "." ) < 1 ) {
-        className = LISTENER_PKG + "." + className;
-        cfg.put( ConfigTag.CLASS, className );
-      } else {
-        Log.error( "NO Listener Class: " + cfg.toString() );
-      }
-      Object object = createComponent( cfg );
-      if ( object != null ) {
-        if ( object instanceof ContextListener ) {
-          engine.addListener( (ContextListener)object );
-          Log.debug( LogMsg.createMsg( Batch.MSG, "EngineFactory.created_listener", object.getClass().getName() ) );
-        } else {
-          Log.error( LogMsg.createMsg( Batch.MSG, "EngineFactory.specified_class_is_not_a_listener", object.getClass().getName() ) );
+      for ( DataField field : cfg.getFields() ) {
+        String className = field.getName();
+        if ( className != null && StringUtil.countOccurrencesOf( className, "." ) < 1 ) {
+          className = LISTENER_PKG + "." + className;
         }
-      } else {
-        Log.error( LogMsg.createMsg( Batch.MSG, "EngineFactory.could_not_create_instance_of_specified_listener", className ) );
-      }
+
+        // All listeners must have an object(frame) as its value.
+        if ( field.isFrame() ) {
+          DataFrame listenerConfig = (DataFrame)field.getObjectValue();
+          Object object = createComponent( className, listenerConfig );
+          if ( object != null ) {
+            if ( object instanceof ContextListener ) {
+              engine.addListener( (ContextListener)object );
+              Log.debug( LogMsg.createMsg( Batch.MSG, "EngineFactory.created_listener", object.getClass().getName() ) );
+            } else {
+              Log.error( LogMsg.createMsg( Batch.MSG, "EngineFactory.specified_class_is_not_a_listener", object.getClass().getName() ) );
+            }
+          } else {
+            Log.error( LogMsg.createMsg( Batch.MSG, "EngineFactory.could_not_create_instance_of_specified_listener", className ) );
+          }
+        } else {
+          Log.error( LogMsg.createMsg( Batch.MSG, "EngineFactory.Listener did not contain a configuration, only scalar {}", field.getStringValue() ) );
+        }
+      }// for each listener 
     } // cfg !null
   }
 
