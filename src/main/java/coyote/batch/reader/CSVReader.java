@@ -79,7 +79,7 @@ public class CSVReader extends AbstractFrameReader implements FrameReader, Confi
         preload = false;
       }
     }
-    Log.debug( LogMsg.createMsg( Batch.MSG, "Reader.Preload is set to {%s}", preload ) );
+    Log.debug( LogMsg.createMsg( Batch.MSG, "Reader.preload_is", preload ) );
 
     // Check if we are to treat the first line as the header names
     if ( frame.contains( ConfigTag.HEADER ) ) {
@@ -92,7 +92,7 @@ public class CSVReader extends AbstractFrameReader implements FrameReader, Confi
     } else {
       Log.debug( "No header config" );
     }
-    Log.debug( LogMsg.createMsg( Batch.MSG, "Reader.Header flag is set to {%s}", hasHeader ) );
+    Log.debug( LogMsg.createMsg( Batch.MSG, "Reader.header_flag_is", hasHeader ) );
   }
 
 
@@ -173,55 +173,54 @@ public class CSVReader extends AbstractFrameReader implements FrameReader, Confi
     // check for a source in our configuration, if not there use the transform 
     // context as it may have been set by a previous operation
     String source = super.getString( ConfigTag.SOURCE );
-    Log.debug( LogMsg.createMsg( Batch.MSG, "Reader.using a source of {%s}", source ) );
+    Log.debug( LogMsg.createMsg( Batch.MSG, "Reader.configured_source_is", source ) );
     if ( StringUtil.isNotBlank( source ) ) {
 
       File sourceFile = null;
       URI uri = UriUtil.parse( source );
       if ( uri != null ) {
         sourceFile = UriUtil.getFile( uri );
-        if ( sourceFile != null ) {
-          Log.debug( "Using a source file of " + sourceFile.getAbsolutePath() );
-        } else {
+        if ( sourceFile == null ) {
           if ( uri.getScheme() == null ) {
             // Assume a file if there is no scheme
+            Log.debug( "Source URI did not contain a scheme, assuming a filename" );
             sourceFile = new File( source );
-            Log.debug( "Using a source file of " + sourceFile.getAbsolutePath() );
           } else {
             Log.warn( LogMsg.createMsg( Batch.MSG, "Reader.source_is_not_file", source ) );
           }
         }
       } else {
+        Log.debug( "Source could not be parsed into a URI, assuming a filename" );
         sourceFile = new File( source );
-        Log.debug( "Using a source file of " + sourceFile.getAbsolutePath() );
       }
+      Log.debug( "Using a source file of " + sourceFile.getAbsolutePath() );
 
       // if not absolute, use the current job directory
       if ( !sourceFile.isAbsolute() ) {
         sourceFile = new File( context.getSymbols().getString( Symbols.JOB_DIRECTORY ), sourceFile.getPath() );
       }
-      Log.debug( "Using a source file of " + sourceFile.getAbsolutePath() );
+      Log.debug( "Using an absolute source file of " + sourceFile.getAbsolutePath() );
 
       // Basic checks
-      if ( sourceFile != null && sourceFile.exists() && sourceFile.canRead() ) {
-        try {
-          reader = new coyote.commons.csv.CSVReader( new FileReader( sourceFile ) );
-          if ( hasHeader ) {
-            header = reader.readNext();
-          }
-        } catch ( Exception e ) {
-          Log.error( "Could not create reader: " + e.getMessage() );
-          context.setError( e.getMessage() );
-        }
+
+      if ( sourceFile == null ) {
+        context.setError( LogMsg.createMsg( Batch.MSG, "Reader.no_source_file_on_open", source ).toString() );
       } else {
-        String msg = null;
-        if ( sourceFile == null ) {
-          msg = LogMsg.createMsg( Batch.MSG, "Reader.no_source_file_on_open", source ).toString();
+
+        if ( sourceFile.exists() && sourceFile.canRead() ) {
+          try {
+            reader = new coyote.commons.csv.CSVReader( new FileReader( sourceFile ) );
+            if ( hasHeader ) {
+              header = reader.readNext();
+            }
+          } catch ( Exception e ) {
+            Log.error( "Could not create reader: " + e.getMessage() );
+            context.setError( e.getMessage() );
+          }
         } else {
-          msg = LogMsg.createMsg( Batch.MSG, "Reader.could_not_read_from_source", getClass().getName(), sourceFile.getAbsolutePath() ).toString();
+
+          context.setError( LogMsg.createMsg( Batch.MSG, "Reader.could_not_read_from_source", getClass().getName(), sourceFile.getAbsolutePath() ).toString() );
         }
-        Log.error( msg );
-        context.setError( msg );
       }
     } else {
       Log.error( "No source specified" );

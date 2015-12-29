@@ -96,7 +96,7 @@ public class FlatFileWriter extends AbstractFrameWriter implements FrameWriter, 
         }
       }
 
-      Log.debug( LogMsg.createMsg( Batch.MSG, "Writer.There are {%s} field definitions, record length is {%s} characters.", fields.size(), recordLength ) );
+      Log.debug( LogMsg.createMsg( Batch.MSG, "Writer.flat_file_opened", fields.size(), recordLength ) );
     } else {
       context.setError( "There are no fields configured in the writer" );
       return;
