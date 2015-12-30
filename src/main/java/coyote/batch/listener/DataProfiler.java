@@ -105,10 +105,18 @@ public class DataProfiler extends FileRecorder implements ContextListener {
    */
   private void writeOutputSQL() {
     if ( outputSchema.getSampleCount() > 0 ) {
-      StringBuffer b = new StringBuffer( "Output Data SQL" );
+      StringBuffer b = new StringBuffer( "Table Creation for Output" );
       b.append( StringUtil.LINE_FEED );
-      symbols.put( DatabaseDialect.TABLE_NAME_SYM, "[TABLENAME]" );
+      symbols.put( DatabaseDialect.DB_USER_SYM, "DBUser" );
+      symbols.put( DatabaseDialect.TABLE_NAME_SYM, "TableName" );
+      b.append( "H2: " );
       b.append( DatabaseDialect.getCreate( DatabaseDialect.H2, outputSchema, symbols ) );
+      b.append( StringUtil.LINE_FEED );
+      b.append( "Oracle: " );
+      b.append( DatabaseDialect.getCreate( DatabaseDialect.ORACLE, outputSchema, symbols ) );
+      b.append( StringUtil.LINE_FEED );
+      b.append( "MySQL: " );
+      b.append( DatabaseDialect.getCreate( DatabaseDialect.MYSQL, outputSchema, symbols ) );
       b.append( StringUtil.LINE_FEED );
       b.append( StringUtil.LINE_FEED );
       write( b.toString() );
@@ -123,10 +131,18 @@ public class DataProfiler extends FileRecorder implements ContextListener {
    */
   private void writeInputSQL() {
     if ( inputSchema.getSampleCount() > 0 ) {
-      StringBuffer b = new StringBuffer( "Input Data SQL" );
+      StringBuffer b = new StringBuffer( "Table Creation for Input" );
       b.append( StringUtil.LINE_FEED );
-      symbols.put( DatabaseDialect.TABLE_NAME_SYM, "[TABLENAME]" );
+      symbols.put( DatabaseDialect.DB_USER_SYM, "DBUser" );
+      symbols.put( DatabaseDialect.TABLE_NAME_SYM, "TableName" );
+      b.append( "H2: " );
       b.append( DatabaseDialect.getCreate( DatabaseDialect.H2, inputSchema, symbols ) );
+      b.append( StringUtil.LINE_FEED );
+      b.append( "Oracle: " );
+      b.append( DatabaseDialect.getCreate( DatabaseDialect.ORACLE, inputSchema, symbols ) );
+      b.append( StringUtil.LINE_FEED );
+      b.append( "MySQL: " );
+      b.append( DatabaseDialect.getCreate( DatabaseDialect.MYSQL, inputSchema, symbols ) );
       b.append( StringUtil.LINE_FEED );
       b.append( StringUtil.LINE_FEED );
       write( b.toString() );
