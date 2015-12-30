@@ -28,7 +28,7 @@ import coyote.dataframe.DataFrame;
  */
 public class Schema {
 
-  long samples = 0;
+  private long samples = 0;
 
   private List<FieldMetrics> metrics = new ArrayList<FieldMetrics>();
 
@@ -85,4 +85,15 @@ public class Schema {
   public List<FieldMetrics> getMetrics() {
     return metrics;
   }
+
+
+
+
+  /**
+   * @return the samples
+   */
+  public long getSampleCount() {
+    return samples;
+  }
+
 }

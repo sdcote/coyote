@@ -13,18 +13,18 @@ package coyote.batch.listener;
 
 import java.text.DecimalFormat;
 import java.text.FieldPosition;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 import coyote.batch.ContextListener;
 import coyote.batch.FrameWriter;
 import coyote.batch.OperationalContext;
 import coyote.batch.TransactionContext;
 import coyote.batch.TransformContext;
+import coyote.batch.schema.DatabaseDialect;
 import coyote.batch.schema.FieldMetrics;
+import coyote.batch.schema.Schema;
 import coyote.commons.StringUtil;
-import coyote.dataframe.DataField;
+import coyote.commons.template.SymbolTable;
 import coyote.dataframe.DataFrame;
 
 
@@ -33,10 +33,14 @@ import coyote.dataframe.DataFrame;
  * reports on the characteristics of the data observed.
  */
 public class DataProfiler extends FileRecorder implements ContextListener {
-  private List<FieldMetrics> inputFields = new ArrayList<FieldMetrics>();
-  private List<FieldMetrics> outputFields = new ArrayList<FieldMetrics>();
-  long readCount = 0;
-  long writeCount = 0;
+  private Schema inputSchema = new Schema();
+  private Schema outputSchema = new Schema();
+  protected static final SymbolTable symbols = new SymbolTable();
+
+  //private List<FieldMetrics> inputFields = new ArrayList<FieldMetrics>();
+  //private List<FieldMetrics> outputFields = new ArrayList<FieldMetrics>();
+  //long readCount = 0;
+  //long writeCount = 0;
   long readBytes = 0;
   long writeBytes = 0;
   static DecimalFormat MILLIS = new DecimalFormat( "000" );
@@ -87,7 +91,45 @@ public class DataProfiler extends FileRecorder implements ContextListener {
       elapsed = context.getElapsed();
       writePerformanceSummary();
       writeInputSummary();
+      writeInputSQL();
       writeOutputSummary();
+      writeOutputSQL();
+    }
+  }
+
+
+
+
+  /**
+   * 
+   */
+  private void writeOutputSQL() {
+    if ( outputSchema.getSampleCount() > 0 ) {
+      StringBuffer b = new StringBuffer( "Output Data SQL" );
+      b.append( StringUtil.LINE_FEED );
+      symbols.put( DatabaseDialect.TABLE_NAME_SYM, "[TABLENAME]" );
+      b.append( DatabaseDialect.getCreate( DatabaseDialect.H2, outputSchema, symbols ) );
+      b.append( StringUtil.LINE_FEED );
+      b.append( StringUtil.LINE_FEED );
+      write( b.toString() );
+    }
+  }
+
+
+
+
+  /**
+   * 
+   */
+  private void writeInputSQL() {
+    if ( inputSchema.getSampleCount() > 0 ) {
+      StringBuffer b = new StringBuffer( "Input Data SQL" );
+      b.append( StringUtil.LINE_FEED );
+      symbols.put( DatabaseDialect.TABLE_NAME_SYM, "[TABLENAME]" );
+      b.append( DatabaseDialect.getCreate( DatabaseDialect.H2, inputSchema, symbols ) );
+      b.append( StringUtil.LINE_FEED );
+      b.append( StringUtil.LINE_FEED );
+      write( b.toString() );
     }
   }
 
@@ -110,18 +152,18 @@ public class DataProfiler extends FileRecorder implements ContextListener {
     b.append( formatElapsed( elapsed ) );
     b.append( StringUtil.LINE_FEED );
     b.append( "Records Read: " );
-    b.append( NUMBER_FORMAT.format( readCount ) );
+    b.append( NUMBER_FORMAT.format( inputSchema.getSampleCount() ) );
     if ( elapsed > 0 ) {
       b.append( " - " );
-      b.append( DECIMAL_FORMAT.format( (double)readCount / (double)( elapsed / (double)1000 ) ) );
+      b.append( DECIMAL_FORMAT.format( (double)inputSchema.getSampleCount() / (double)( elapsed / (double)1000 ) ) );
       b.append( " records per second" );
     }
     b.append( StringUtil.LINE_FEED );
     b.append( "Records Written: " );
-    b.append( NUMBER_FORMAT.format( writeCount ) );
+    b.append( NUMBER_FORMAT.format( outputSchema.getSampleCount() ) );
     if ( elapsed > 0 ) {
       b.append( " - " );
-      b.append( DECIMAL_FORMAT.format( (double)writeCount / (double)( elapsed / (double)1000 ) ) );
+      b.append( DECIMAL_FORMAT.format( (double)outputSchema.getSampleCount() / (double)( elapsed / (double)1000 ) ) );
       b.append( " records per second" );
     }
     b.append( StringUtil.LINE_FEED );
@@ -140,44 +182,9 @@ public class DataProfiler extends FileRecorder implements ContextListener {
   public void onRead( TransactionContext context ) {
     DataFrame frame = context.getSourceFrame();
     if ( frame != null ) {
-      readCount++;
       readBytes += frame.getBytes().length;
-      for ( DataField field : frame.getFields() ) {
-        getInputFieldMetric( field.getName() ).sample( field );
-      } // for
+      inputSchema.sample( frame );
     } // null
-  }
-
-
-
-
-  /**
-   * Return input (source frame) FieldMetrics associated with the named field. 
-   * 
-   * <p>If one is not found, one will be created and placed in the cache for 
-   * later reference. This method never returns null.</p>
-   * 
-   * @param name The name of the field to be represented by the returned metric
-   * 
-   * @return a FieldMetric associated with the named field. Never returns null.
-   */
-  private FieldMetrics getInputFieldMetric( String name ) {
-    FieldMetrics retval = null;
-    if ( name != null ) {
-      for ( FieldMetrics metric : inputFields ) {
-        if ( name.equals( metric.getName() ) ) {
-          retval = metric;
-          break;
-        }
-      }
-    }
-
-    if ( retval == null ) {
-      retval = new FieldMetrics( name );
-      inputFields.add( retval );
-    }
-
-    return retval;
   }
 
 
@@ -196,7 +203,7 @@ public class DataProfiler extends FileRecorder implements ContextListener {
   private FieldMetrics getOutputFieldMetric( String name ) {
     FieldMetrics retval = null;
     if ( name != null ) {
-      for ( FieldMetrics metric : outputFields ) {
+      for ( FieldMetrics metric : outputSchema.getMetrics() ) {
         if ( name.equals( metric.getName() ) ) {
           retval = metric;
           break;
@@ -206,7 +213,7 @@ public class DataProfiler extends FileRecorder implements ContextListener {
 
     if ( retval == null ) {
       retval = new FieldMetrics( name );
-      outputFields.add( retval );
+      outputSchema.getMetrics().add( retval );
     }
 
     return retval;
@@ -222,11 +229,8 @@ public class DataProfiler extends FileRecorder implements ContextListener {
   public void onWrite( TransactionContext context, FrameWriter writer ) {
     DataFrame frame = context.getTargetFrame();
     if ( frame != null ) {
-      writeCount++;
       writeBytes += frame.getBytes().length;
-      for ( DataField field : frame.getFields() ) {
-        getOutputFieldMetric( field.getName() ).sample( field );
-      } // for
+      outputSchema.sample( frame );
     } // null
   }
 
@@ -240,25 +244,25 @@ public class DataProfiler extends FileRecorder implements ContextListener {
     StringBuffer b = new StringBuffer( "Input Data Profile:" );
     b.append( StringUtil.LINE_FEED );
     b.append( "Read Count: " );
-    b.append( readCount );
+    b.append( inputSchema.getSampleCount() );
     b.append( StringUtil.LINE_FEED );
     b.append( "Byte Count: " );
     b.append( readBytes );
     b.append( StringUtil.LINE_FEED );
     b.append( "Field Count: " );
-    b.append( inputFields.size() );
+    b.append( inputSchema.getMetrics().size() );
     b.append( StringUtil.LINE_FEED );
     write( b.toString() );
     b.delete( 0, b.length() );
 
-    if ( readCount > 0 ) {
+    if ( inputSchema.getSampleCount() > 0 ) {
 
       int nameSize = 5;
       int typeSize = 5;
       long totalChars = 0;
       long totalBytes = 0;
 
-      for ( FieldMetrics metric : inputFields ) {
+      for ( FieldMetrics metric : inputSchema.getMetrics() ) {
         if ( metric.getName().length() > nameSize ) {
           nameSize = metric.getName().length();
         }
@@ -290,7 +294,7 @@ public class DataProfiler extends FileRecorder implements ContextListener {
       b.append( StringUtil.LINE_FEED );
       write( b.toString() );
 
-      for ( FieldMetrics metric : inputFields ) {
+      for ( FieldMetrics metric : inputSchema.getMetrics() ) {
         b.delete( 0, b.length() );
         b.append( StringUtil.fixedLength( metric.getName(), nameSize, StringUtil.LEFT_ALIGNMENT ) );
         b.append( " " );
@@ -356,24 +360,24 @@ public class DataProfiler extends FileRecorder implements ContextListener {
     StringBuffer b = new StringBuffer( "Output Data Profile:" );
     b.append( StringUtil.LINE_FEED );
     b.append( "Write Count: " );
-    b.append( writeCount );
+    b.append( outputSchema.getSampleCount() );
     b.append( StringUtil.LINE_FEED );
     b.append( "Byte Count: " );
     b.append( writeBytes );
     b.append( StringUtil.LINE_FEED );
     b.append( "Field Count: " );
-    b.append( outputFields.size() );
+    b.append( outputSchema.getMetrics().size() );
     b.append( StringUtil.LINE_FEED );
     write( b.toString() );
     b.delete( 0, b.length() );
 
-    if ( writeCount > 0 ) {
+    if ( outputSchema.getSampleCount() > 0 ) {
       int nameSize = 5;
       int typeSize = 5;
       long totalChars = 0;
       long totalBytes = 0;
 
-      for ( FieldMetrics metric : outputFields ) {
+      for ( FieldMetrics metric : outputSchema.getMetrics() ) {
         if ( metric.getName().length() > nameSize ) {
           nameSize = metric.getName().length();
         }
@@ -405,7 +409,7 @@ public class DataProfiler extends FileRecorder implements ContextListener {
       b.append( StringUtil.LINE_FEED );
       write( b.toString() );
 
-      for ( FieldMetrics metric : outputFields ) {
+      for ( FieldMetrics metric : outputSchema.getMetrics() ) {
         b.delete( 0, b.length() );
         b.append( StringUtil.fixedLength( metric.getName(), nameSize, StringUtil.LEFT_ALIGNMENT ) );
         b.append( " " );
