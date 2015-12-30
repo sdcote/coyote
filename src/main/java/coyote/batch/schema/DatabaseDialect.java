@@ -29,6 +29,19 @@ import coyote.loader.log.LogMsg;
  */
 public class DatabaseDialect {
 
+
+  // The symbols we expect to find in the symbol table
+  //  private static final String JOB_NAME_SYM = "jobName";
+  public static final String TABLE_NAME_SYM = "tableName";
+  //  private static final String DB_USER_SYM = "dbUser";
+  //  private static final String CLASS_SYM = "fullClassname";
+  //  private static final String CLASS_BASE_SYM = "classname";
+  public static final String DATABASE_SYM = "database";
+  public static final String DATABASE_VERSION_SYM = "databaseVersion";
+  public static final String DATABASE_MAJOR_SYM = "dbMajorVersion";
+  public static final String DATABASE_MINOR_SYM = "dbMinorVersion";
+
+  
   public static final String CREATE = "create";
   public static final String GRANT = "grant";
   public static final String INSERT = "insert";
@@ -38,9 +51,9 @@ public class DatabaseDialect {
   public static final String TIMESTAMP = "timestamp";
 
   // Database Technologies supported
-  private static final String ORACLE = "Oracle";
-  private static final String MYSQL = "MySQL";
-  private static final String H2 = "H2";
+  public static final String ORACLE = "Oracle";
+  public static final String MYSQL = "MySQL";
+  public static final String H2 = "H2";
 
   private static final String DEFAULT = "default";
 

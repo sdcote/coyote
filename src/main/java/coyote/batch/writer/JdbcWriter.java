@@ -60,15 +60,6 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
   protected String SQL = null;
   protected PreparedStatement ps = null;
 
-  //  private static final String JOB_NAME_SYM = "jobName";
-  private static final String TABLE_NAME_SYM = "tableName";
-  //  private static final String DB_USER_SYM = "dbUser";
-  //  private static final String CLASS_SYM = "fullClassname";
-  //  private static final String CLASS_BASE_SYM = "classname";
-  private static final String DATABASE_SYM = "database";
-  private static final String DATABASE_VERSION_SYM = "databaseVersion";
-  private static final String DATABASE_MAJOR_SYM = "dbMajorVersion";
-  private static final String DATABASE_MINOR_SYM = "dbMinorVersion";
 
 
 
@@ -183,10 +174,10 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
           database = product.toUpperCase();
 
           // update the symbols with database information
-          symbolTable.put( DATABASE_SYM, product );
-          symbolTable.put( DATABASE_VERSION_SYM, meta.getDatabaseProductVersion() );
-          symbolTable.put( DATABASE_MAJOR_SYM, meta.getDatabaseMajorVersion() );
-          symbolTable.put( DATABASE_MINOR_SYM, meta.getDatabaseMinorVersion() );
+          symbolTable.put( DatabaseDialect.DATABASE_SYM, product );
+          symbolTable.put( DatabaseDialect.DATABASE_VERSION_SYM, meta.getDatabaseProductVersion() );
+          symbolTable.put( DatabaseDialect.DATABASE_MAJOR_SYM, meta.getDatabaseMajorVersion() );
+          symbolTable.put( DatabaseDialect.DATABASE_MINOR_SYM, meta.getDatabaseMinorVersion() );
 
           // log debug information about the database
           Log.debug( LogMsg.createMsg( Batch.MSG, "Writer.connected_to_product", getClass().getName(), meta.getDatabaseProductName(), meta.getDatabaseProductVersion(), meta.getDatabaseMajorVersion(), meta.getDatabaseMinorVersion() ) );
@@ -626,7 +617,7 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
           return false;
         }
 
-        symbolTable.put( TABLE_NAME_SYM, getTable() );
+        symbolTable.put( DatabaseDialect.TABLE_NAME_SYM, getTable() );
         String command = DatabaseDialect.getCreate( database, schema, symbolTable );
 
         Log.debug( LogMsg.createMsg( Batch.MSG, "Writer.creating_table", getClass().getName(), getTable(), command ) );
