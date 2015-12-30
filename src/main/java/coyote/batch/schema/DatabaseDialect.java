@@ -51,12 +51,18 @@ public class DatabaseDialect {
     // MySQL
     Map<String, String> map = new HashMap<String, String>();
     TYPES.put( MYSQL, map );
-    map.put( "STRING", "VARCHAR(#)" );
-    map.put( "BOOLEAN", "TINYINT" );
-    map.put( "INTEGER", "INTEGER" );
-    map.put( "NUMERIC", "DOUBLE" );
-    map.put( "FLOAT", "DOUBLE" );
-    map.put( "DECIMAL", "DOUBLE" );
+    map.put( "STR", "VARCHAR(#)" );
+    map.put( "BOL", "TINYINT" );
+    map.put( "S8", "TINYINT" );
+    map.put( "U8", "TINYINT" );
+    map.put( "S16", "INTEGER" );
+    map.put( "U16", "INTEGER" );
+    map.put( "S32", "INTEGER" );
+    map.put( "U32", "INTEGER" );
+    map.put( "S64", "INTEGER" );
+    map.put( "U64", "INTEGER" );
+    map.put( "DBL", "DOUBLE" );
+    map.put( "FLT", "DOUBLE" );
     map.put( DEFAULT, "VARCHAR(#)" );
     map = new HashMap<String, String>();
     SYNTAX.put( MYSQL, map );
@@ -91,12 +97,19 @@ public class DatabaseDialect {
     // H2 Dialect
     map = new HashMap<String, String>();
     TYPES.put( H2, map );
-    map.put( "STRING", "VARCHAR(#)" );
-    map.put( "BOOLEAN", "BOOLEAN" );
-    map.put( "INTEGER", "INTEGER" );
-    map.put( "NUMERIC", "DECIMAL" );
-    map.put( "FLOAT", "DECIMAL" );
-    map.put( "DECIMAL", "DECIMAL" );
+    map.put( "STR", "VARCHAR(#)" );
+    map.put( "BOL", "BOOLEAN" );
+    map.put( "S8", "TINYINT" );
+    map.put( "U8", "TINYINT" );
+    map.put( "S16", "SMALLINT" );
+    map.put( "U16", "SMALLINT" );
+    map.put( "S32", "INTEGER" );
+    map.put( "U32", "INTEGER" );
+    map.put( "S64", "BIGINT" );
+    map.put( "U64", "BIGINT" );
+    map.put( "DBL", "DOUBLE" );
+    map.put( "DAT", "TIMESTAMP" );
+    map.put( "FLT", "REAL" );
     map.put( DEFAULT, "VARCHAR(#)" );
     map = new HashMap<String, String>();
     SYNTAX.put( H2, map );
@@ -210,7 +223,7 @@ public class DatabaseDialect {
           type = typeMap.get( fieldtype.toUpperCase() );
 
         if ( StringUtil.isBlank( type ) ) {
-          Log.warn( LogMsg.createMsg( Batch.MSG, "Could not find {} type for '{}', using default of '{}' for field '{}'", database, fieldtype, typeMap.get( DEFAULT ), fieldname ) );
+          Log.warn( LogMsg.createMsg( Batch.MSG, "Database.could_not_find_type", DatabaseDialect.class.getName(), fieldtype, typeMap.get( DEFAULT ), fieldname ) );
           type = typeMap.get( DEFAULT );
         }
 
