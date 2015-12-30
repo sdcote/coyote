@@ -1,0 +1,29 @@
+{
+	"Class" : "coyote.batch.Job",
+	"Job" : {
+		"Name" : "DBwriter",
+		
+		"Reader" : {
+			"class" : "CSVReader",
+			"source" : "[#$app.home#]/demo/users.csv",
+			"header" : true
+		},
+
+		"Writer":{
+			"class" : "JdbcWriter",
+			"target" : "jdbc:h2:[#$jobdir#]/demodb;MODE=Oracle;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE",
+			"table" : "user",
+			"autocreate" : true,
+			"driver" : "org.h2.Driver",
+			"library" : "jar:file:[#$app.home#]/lib/h2-1.4.187.jar!/",
+			"username" : "sa",
+			"password" : "",
+			"batch" : 100
+  	},
+
+		"Listeners": {
+			"ContextLogger": { "target" : "file://ContextLogger.log" }
+		}
+	}
+
+}
