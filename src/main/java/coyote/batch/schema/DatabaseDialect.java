@@ -29,19 +29,14 @@ import coyote.loader.log.LogMsg;
  */
 public class DatabaseDialect {
 
-
   // The symbols we expect to find in the symbol table
-  //  private static final String JOB_NAME_SYM = "jobName";
   public static final String TABLE_NAME_SYM = "tableName";
-  //  private static final String DB_USER_SYM = "dbUser";
-  //  private static final String CLASS_SYM = "fullClassname";
-  //  private static final String CLASS_BASE_SYM = "classname";
+  public static final String DB_USER_SYM = "dbUser";
   public static final String DATABASE_SYM = "database";
   public static final String DATABASE_VERSION_SYM = "databaseVersion";
   public static final String DATABASE_MAJOR_SYM = "dbMajorVersion";
   public static final String DATABASE_MINOR_SYM = "dbMinorVersion";
 
-  
   public static final String CREATE = "create";
   public static final String GRANT = "grant";
   public static final String INSERT = "insert";
@@ -79,33 +74,38 @@ public class DatabaseDialect {
     map.put( DEFAULT, "VARCHAR(#)" );
     map = new HashMap<String, String>();
     SYNTAX.put( MYSQL, map );
-    map.put( CREATE, "CREATE TABLE [#$dbUser#].[#$tableName#] ( [#$fielddefinitions#], PRIMARY KEY (\"sys_id\"))" );
+    map.put( CREATE, "CREATE TABLE [#$dbUser#].[#$tableName#] ( [#$fielddefinitions#] )" );
     map.put( GRANT, "" );
     map.put( INSERT, "INSERT INTO [#$dbUser#].[#$tableName#] ( [#$fieldnames#] ) VALUES ($fieldvalues)" );
     map.put( UPDATE, "UPDATE [#$dbUser#].[#$tableName#] SET $fieldmap WHERE \"sys_id\" = [#$keyvalue#]" );
     map.put( DELETE, "DELETE FROM [#$dbUser#].[#$tableName#] WHERE \"sys_id\" = [#$keyvalue#]" );
     map.put( TRUNCATE, "TRUNCATE TABLE [#$dbUser#].[#$tableName#]" );
-    map.put( TIMESTAMP, "SELECT \"sys_updated_on\" FROM [#$dbUser#].[#$tableName#] WHERE \"sys_id\" = [#$keyvalue#]" );
 
     // Oracle dialect
     map = new HashMap<String, String>();
     TYPES.put( ORACLE, map );
-    map.put( "STRING", "VARCHAR2(#)" );
-    map.put( "BOOLEAN", "NUMBER(1)" );
-    map.put( "INTEGER", "NUMBER(10)" );
-    map.put( "NUMERIC", "NUMBER(10)" );
-    map.put( "FLOAT", "NUMBER" );
-    map.put( "DECIMAL", "NUMBER" );
+    map.put( "STR", "VARCHAR2(#)" );
+    map.put( "BOL", "NUMBER(1)" );
+    map.put( "S8", "NUMBER(8)" );
+    map.put( "U8", "NUMBER(8)" );
+    map.put( "S16", "NUMBER(10)" );
+    map.put( "U16", "NUMBER(10)" );
+    map.put( "S32", "NUMBER" );
+    map.put( "U32", "NUMBER" );
+    map.put( "S64", "NUMBER" );
+    map.put( "U64", "NUMBER" );
+    map.put( "DBL", "NUMBER" );
+    map.put( "DAT", "TIMESTAMP" );
+    map.put( "FLT", "NUMBER" );
     map.put( DEFAULT, "VARCHAR2(#)" );
     map = new HashMap<String, String>();
-    SYNTAX.put( H2, map );
-    map.put( CREATE, "CREATE TABLE [#$dbUser#].[#$tableName#] ( [#$fielddefinitions#], CONSTRAINT [#$tableName#]_PK PRIMARY KEY (SYS_ID))" );
+    SYNTAX.put( ORACLE, map );
+    map.put( CREATE, "CREATE TABLE [#$dbUser#].[#$tableName#] ( [#$fielddefinitions#] )" );
     map.put( GRANT, "GRANT SELECT,REFERENCES ON [#$dbUser#].[#$tableName#] TO PUBLIC" );
     map.put( INSERT, "INSERT INTO [#$dbUser#].[#$tableName#] ( [#$fieldnames#] VALUES [#$fieldvalues#])" );
     map.put( UPDATE, "UPDATE [#$dbUser#].[#$tableName#] SET [#$fieldmap#] WHERE SYS_ID=[#$keyvalue#]" );
     map.put( DELETE, "DELETE FROM [#$dbUser#].[#$tableName#] WHERE SYS_ID=[#$keyvalue#]" );
     map.put( TRUNCATE, "TRUNCATE TABLE [#$dbUser#].[#$tableName#]" );
-    map.put( TIMESTAMP, "SELECT SYS_UPDATED_ON FROM [#$dbUser#].[#$tableName#] WHERE SYS_ID=[#$keyvalue#]" );
 
     // H2 Dialect
     map = new HashMap<String, String>();
@@ -132,10 +132,6 @@ public class DatabaseDialect {
     map.put( UPDATE, "UPDATE [#$tableName#] SET [#$fieldmap#] WHERE SYS_ID=[#$keyvalue#]" );
     map.put( DELETE, "DELETE FROM [#$tableName#] WHERE SYS_ID=[#$keyvalue#]" );
     map.put( TRUNCATE, "TRUNCATE TABLE [#$tableName#]" );
-    map.put( TIMESTAMP, "SELECT SYS_UPDATED_ON FROM [#$tableName#] WHERE SYS_ID=[#$keyvalue#]" );
-    //map.put( CONFIG_CREATE, "CREATE TABLE [#$tableName#] (JOB_NAME VARCHAR(64) NOT NULL, TABLE_NAME VARCHAR(64) NOT NULL, JOB_TYPE VARCHAR(8), URL VARCHAR(64), PATH VARCHAR(64), ENDPOINT VARCHAR(64), IS_ACTIVE BOOLEAN, USERNAME VARCHAR(64), CREDENTIAL VARCHAR(64), QUERY VARCHAR(64), PARAMETERS VARCHAR(64), PURGE BOOLEAN, BATCH_SIZE INTEGER )" );
-    //map.put( CONFIG_INDEX, "ALTER TABLE [#$tableName#] ADD CONSTRAINT PK_[#$tableName#] PRIMARY KEY (JOB_NAME, TABLE_NAME)" );
-    //map.put( CONFIG_SELECT, "SELECT JOB_NAME, TABLE_NAME, JOB_TYPE, URL, PATH, ENDPOINT, IS_ACTIVE, USERNAME, CREDENTIAL, QUERY, PARAMETERS, PURGE, BATCH_SIZE FROM [#$tableName#] WHERE JOB_NAME = '[#$jobName#]'" );
   }
 
 
@@ -213,9 +209,11 @@ public class DatabaseDialect {
 
       StringBuffer b = new StringBuffer();
 
-      for ( Entry<String, String> entry : typeMap.entrySet() ) {
-        Log.trace( String.format( "DB: \"%s\",\"%s\"", entry.getKey(), entry.getValue() ) );
-        //Log.trace( LogMsg.createMsg( Batch.MSG, "Writer.connected_to",getClass().getName(), getTarget() ) );
+      if ( Log.isLogging( Log.TRACE_EVENTS ) ) {
+        for ( Entry<String, String> entry : typeMap.entrySet() ) {
+          Log.trace( String.format( "DB: \"%s\",\"%s\"", entry.getKey(), entry.getValue() ) );
+          //Log.trace( LogMsg.createMsg( Batch.MSG, "Writer.connected_to",getClass().getName(), getTarget() ) );
+        }
       }
 
       for ( FieldMetrics metrics : schema.getMetrics() ) {
@@ -249,6 +247,9 @@ public class DatabaseDialect {
         b.append( type );
         b.append( ", " );
       }
+
+      // trim off the last delimiter
+      b.delete( b.length() - 2, b.length() );
 
       // if there is a symbol table, place the field definitions in it
       if ( symbols != null ) {
