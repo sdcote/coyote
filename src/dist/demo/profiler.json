@@ -1,6 +1,7 @@
 {
 	"Class" : "coyote.batch.Job",
 	"Job" : {
+		"Name" : "Profiler",
 
 		"Reader" : {
 			"class" : "CSVReader",
