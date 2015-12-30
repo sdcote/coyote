@@ -63,7 +63,6 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
 
 
 
-
   /**
    * @see java.io.Closeable#close()
    */
@@ -71,7 +70,7 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
   public void close() throws IOException {
 
     if ( frameset.size() > 0 ) {
-      Log.debug( LogMsg.createMsg( Batch.MSG, "Writer.completing_batch",getClass().getName(), frameset.size() ) );
+      Log.debug( LogMsg.createMsg( Batch.MSG, "Writer.completing_batch", getClass().getName(), frameset.size() ) );
       writeBatch();
     }
 
@@ -93,7 +92,7 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
       // if it looks like we created the connection ourselves (e.g. we have a 
       // configured target) close the connection
       if ( StringUtil.isNotBlank( getTarget() ) ) {
-        Log.debug( LogMsg.createMsg( Batch.MSG, "Writer.closing_connection",getClass().getName(), getTarget() ) );
+        Log.debug( LogMsg.createMsg( Batch.MSG, "Writer.closing_connection", getClass().getName(), getTarget() ) );
 
         try {
           connection.close();
@@ -618,6 +617,7 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
         }
 
         symbolTable.put( DatabaseDialect.TABLE_NAME_SYM, getTable() );
+        symbolTable.put( DatabaseDialect.DB_USER_SYM, getUsername() );
         String command = DatabaseDialect.getCreate( database, schema, symbolTable );
 
         Log.debug( LogMsg.createMsg( Batch.MSG, "Writer.creating_table", getClass().getName(), getTable(), command ) );
