@@ -37,10 +37,6 @@ public class DataProfiler extends FileRecorder implements ContextListener {
   private Schema outputSchema = new Schema();
   protected static final SymbolTable symbols = new SymbolTable();
 
-  //private List<FieldMetrics> inputFields = new ArrayList<FieldMetrics>();
-  //private List<FieldMetrics> outputFields = new ArrayList<FieldMetrics>();
-  //long readCount = 0;
-  //long writeCount = 0;
   long readBytes = 0;
   long writeBytes = 0;
   static DecimalFormat MILLIS = new DecimalFormat( "000" );
