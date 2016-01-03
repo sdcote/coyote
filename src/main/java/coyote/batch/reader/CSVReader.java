@@ -34,7 +34,7 @@ import coyote.loader.log.LogMsg;
 
 
 /**
- * 
+ * Character Separated Value Reader
  */
 public class CSVReader extends AbstractFrameReader implements FrameReader, ConfigurableComponent {
 
@@ -49,6 +49,8 @@ public class CSVReader extends AbstractFrameReader implements FrameReader, Confi
 
   /** The column names read in from the first line */
   private String[] header = new String[0];
+
+  public char SEPARATOR = ',';
 
 
 
@@ -88,6 +90,20 @@ public class CSVReader extends AbstractFrameReader implements FrameReader, Confi
       } catch ( DataFrameException e ) {
         Log.info( "Header flag not valid " + e.getMessage() );
         hasHeader = false;
+      }
+    } else {
+      Log.debug( "No header config" );
+    }
+    Log.debug( LogMsg.createMsg( Batch.MSG, "Reader.header_flag_is", hasHeader ) );
+
+    // Check if we are to use a different separator than the default ',' (comma)
+    if ( frame.contains( ConfigTag.CHARACTER ) ) {
+      String value = frame.getAsString( ConfigTag.HEADER );
+
+      if ( StringUtil.isNotEmpty( value ) ) {
+        SEPARATOR = value.charAt( 0 );
+      } else {
+        Log.info( "Character value not valid " );
       }
     } else {
       Log.debug( "No header config" );
@@ -209,7 +225,7 @@ public class CSVReader extends AbstractFrameReader implements FrameReader, Confi
 
         if ( sourceFile.exists() && sourceFile.canRead() ) {
           try {
-            reader = new coyote.commons.csv.CSVReader( new FileReader( sourceFile ) );
+            reader = new coyote.commons.csv.CSVReader( new FileReader( sourceFile ), SEPARATOR );
             if ( hasHeader ) {
               header = reader.readNext();
             }

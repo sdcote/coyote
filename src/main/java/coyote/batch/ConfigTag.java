@@ -62,6 +62,7 @@ public class ConfigTag {
   public static final String OVERWRITE = "overwrite";
   public static final String KEEPDATE = "keepdate";
   public static final String RENAME = "rename";
+  public static final String CHARACTER = "character";
 
   public static final String ROOT_ELEMENT = "rootElement";
   public static final String ROOT_ATTRIBUTE = "rootAttributes";
@@ -107,7 +108,5 @@ public class ConfigTag {
   public static final String AVOID = "avoid";
   public static final String HALT_ON_FAIL = "halt";
   public static final String DESCRIPTION = "desc";
-
-  
 
 }
