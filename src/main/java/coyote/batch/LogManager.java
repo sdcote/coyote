@@ -62,34 +62,25 @@ public class LogManager extends AbstractConfigurableComponent implements Configu
     setContext( context );
     Log.debug( LogMsg.createMsg( Batch.MSG, "LogManager.initializing" ) );
 
-
     // Remove all currently set loggers
     Log.removeAllLoggers();
 
     // Find the loggers
     for ( DataField field : getConfiguration().getFields() ) {
 
-      if ( ConfigTag.LOGGERS.equalsIgnoreCase( field.getName() ) ) {
-
-        if ( field.isFrame() ) {
-          DataFrame cfgFrame = (DataFrame)field.getObjectValue();
-
-          if ( cfgFrame.isArray() ) {
-
-            for ( DataField cfgfield : cfgFrame.getFields() ) {
-              if ( cfgfield.isFrame() ) {
-                configLogger( (DataFrame)cfgfield.getObjectValue() );
-              } else {
-                System.err.println( LogMsg.createMsg( Batch.MSG, "EngineFactory.invalid_logger_configuration_section" ) );
-              }
-            }
+      if ( field.isFrame() ) {
+        DataFrame cfgFrame = (DataFrame)field.getObjectValue();
+        if ( StringUtil.isNotBlank( field.getName() ) ) {
+          if ( field.isFrame() ) {
+            configLogger( field.getName(), cfgFrame);
           } else {
-            configLogger( cfgFrame );
+            System.err.println( LogMsg.createMsg( Batch.MSG, "EngineFactory.invalid_logger_configuration_section" ) );
           }
         } else {
-          System.err.println( LogMsg.createMsg( Batch.MSG, "EngineFactory.invalid_logger_configuration_section" ) );
+          System.err.println( LogMsg.createMsg( Batch.MSG, "EngineFactory.no_logger_classname", cfgFrame.toString() ) );
         }
-
+      } else {
+        System.err.println( LogMsg.createMsg( Batch.MSG, "EngineFactory.invalid_logger_configuration_section" ) );
       }
 
     }
@@ -105,10 +96,9 @@ public class LogManager extends AbstractConfigurableComponent implements Configu
 
 
 
-  private void configLogger( DataFrame frame ) {
+  private void configLogger( String className, DataFrame frame ) {
 
     // Make sure the class is fully qualified 
-    String className = frame.getAsString( ConfigTag.CLASS );
     if ( className != null && StringUtil.countOccurrencesOf( className, "." ) < 1 ) {
       className = LOGGER_PKG + "." + className;
       frame.put( ConfigTag.CLASS, className );

@@ -5,16 +5,14 @@
 
 		"Reader": {
 			"class": "CSVReader",
-			"source": "file://demo/users.csv",
+			"source" : "[#$app.home#]/demo/users.csv",
 			"header": true
 		},
 
-		"Logging": {
-			"Loggers": [
-				{ "class": "ConsoleAppender", "name": "error", "target": "STDERR", "categories": "error, fatal, warn" },
-				{ "class": "ConsoleAppender", "name": "default",  "target": "STDOUT", "categories": "info" },
-				{ "class": "FileAppender",  "name": "file", "enabled": false, "target": "debug.log", "categories": "debug, trace" }
-			]
+		"Loggers": {
+			"ConsoleAppender": { "name": "error", "target": "STDERR", "categories": "error, fatal, warn" },
+			"ConsoleAppender": { "name": "default",  "target": "STDOUT", "categories": "info" },
+			"FileAppender": {  "name": "file", "enabled": false, "target": "debug.log", "categories": "debug, trace" }
 		},
 
 		"Listeners": {

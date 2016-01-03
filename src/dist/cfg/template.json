@@ -31,14 +31,12 @@
 		"PostProcess": {
 		},
 
-		"Logging": {
-			"Loggers": [
-				{ "class": "ConsoleAppender", "name": "default", "target": "STDOUT", "categories": "info, error, fatal, warn" }
-			]
+		"Loggers": {
+				"ConsoleAppender": { "name": "default", "target": "STDOUT", "categories": "info, error, fatal, warn" }
 		},
 
-		"Listeners": [
-		]
+		"Listeners": {
+		}
 
 	}
 }

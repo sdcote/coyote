@@ -193,7 +193,7 @@ public class TransformEngineFactory {
           } else {
             Log.error( "Invalid context configuration section" );
           }
-        } else if ( ConfigTag.LOGGING.equalsIgnoreCase( field.getName() ) ) {
+        } else if ( ConfigTag.LOGGERS.equalsIgnoreCase( field.getName() ) ) {
 
           // logging should be a section, not a scalar value
           if ( field.isFrame() ) {
@@ -238,7 +238,7 @@ public class TransformEngineFactory {
             retval.setName( field.getStringValue() );
           }
         } else {
-          Log.debug( LogMsg.createMsg( Batch.MSG, "EngineFactory.Unrecognized section: '{}' - ignored", field.getName() ) );
+          Log.debug( LogMsg.createMsg( Batch.MSG, "EngineFactory.unrecognized_configuration_section", field.getName() ) );
         }
 
       }
