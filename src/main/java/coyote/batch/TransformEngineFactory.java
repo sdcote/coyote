@@ -659,7 +659,7 @@ public class TransformEngineFactory {
             Log.error( LogMsg.createMsg( Batch.MSG, "EngineFactory.could_not_create_instance_of_specified_listener", className ) );
           }
         } else {
-          Log.error( LogMsg.createMsg( Batch.MSG, "EngineFactory.Listener did not contain a configuration, only scalar {}", field.getStringValue() ) );
+          Log.error( LogMsg.createMsg( Batch.MSG, "EngineFactory.listener_configuration_invalid", field.getStringValue() ) );
         }
       }// for each listener 
     } // cfg !null
