@@ -96,8 +96,8 @@ xsi:schemaLocation="http://izpack.org/schema/installation http://izpack.org/sche
 	<packs>
 		<pack name="Utility" required="no" preselected="yes" >
 			<description>Installs the Coyote Batch toolkit as a utility application in its own directory with scripts to enable adding custom tasks, transforms and other components. Use this to install the tool kit as an application.</description>
-			<fileset dir="src\dist\bin" targetdir="$INSTALL_PATH/bin" override="true"/>
-			<fileset dir="src\dist\licenses" targetdir="$INSTALL_PATH/doc/licenses" override="true"/>
+			<fileset dir="build\install\Batch\bin" targetdir="$INSTALL_PATH/bin" override="true"/>
+			<fileset dir="src\resources\licenses" targetdir="$INSTALL_PATH/doc/licenses" override="true"/>
 			<fileset dir="build\install\Batch\lib" targetdir="$INSTALL_PATH/lib" override="true"/>
 			<fileset dir="build\install\Batch\doc" targetdir="$INSTALL_PATH/doc" override="true"/>
 			<fileset dir="build\install\Batch\cfg" targetdir="$INSTALL_PATH/cfg" override="false"/>
@@ -111,9 +111,9 @@ xsi:schemaLocation="http://izpack.org/schema/installation http://izpack.org/sche
 		</pack>
 		<pack name="Demo" required="no" preselected="no" >
 			<description>A collection of configuration files, demonstrating several components and integration scenarios.</description>
-			<fileset dir="src\dist\demo" targetdir="$INSTALL_PATH/demo" override="true"/>
-			<fileset dir="src\dist\demojars" targetdir="$INSTALL_PATH/lib" includes="h2-*.jar" override="true"/>
-			<fileset dir="src\dist\demojars" targetdir="$INSTALL_PATH/doc/licenses" includes="h2-*.txt" override="true"/>
+			<fileset dir="src\resources\demo" targetdir="$INSTALL_PATH/demo" override="true"/>
+			<fileset dir="src\resources\demojars" targetdir="$INSTALL_PATH/lib" includes="h2-*.jar" override="true"/>
+			<fileset dir="src\resources\demojars" targetdir="$INSTALL_PATH/doc/licenses" includes="h2-*.txt" override="true"/>
 		</pack>
 	</packs>
 	
