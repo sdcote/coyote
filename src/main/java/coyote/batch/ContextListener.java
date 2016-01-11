@@ -42,11 +42,31 @@ public interface ContextListener extends ConfigurableComponent {
 
 
   /**
-   * Event indicating validation failed in the given context
+   * Event indicating validation failed in the given context.
    * 
    * @param context The context in which the validation failed
+   * @param validator The frame validator generating the event
    * @param msg error message indicating why the validation failed.
+   * 
+   * @see #onFrameValidationFailed(TransactionContext)
    */
-  void onValidationFailed( OperationalContext context, String msg );
+  void onValidationFailed( OperationalContext context, FrameValidator validator, String msg );
+
+
+
+
+  /**
+   * Event indicating the working frame in the given context has failed one or 
+   * more validations.
+   * 
+   * <p>To track which validations failed, implements the {@link 
+   * #onValidationFailed(OperationalContext, FrameValidator, String)} method to
+   * capture which validations failed.</p>
+   * 
+   * @param context the transaction context containing the failed working frame
+   * 
+   * @see #onValidationFailed(OperationalContext, FrameValidator, String)
+   */
+  void onFrameValidationFailed( TransactionContext context );
 
 }

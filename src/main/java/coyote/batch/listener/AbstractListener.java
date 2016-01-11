@@ -16,6 +16,7 @@ import java.io.IOException;
 import coyote.batch.AbstractConfigurableComponent;
 import coyote.batch.ConfigurableComponent;
 import coyote.batch.ContextListener;
+import coyote.batch.FrameValidator;
 import coyote.batch.FrameWriter;
 import coyote.batch.OperationalContext;
 import coyote.batch.TransactionContext;
@@ -73,10 +74,10 @@ public abstract class AbstractListener extends AbstractConfigurableComponent imp
 
 
   /**
-   * @see coyote.batch.ContextListener#onValidationFailed(coyote.batch.OperationalContext, java.lang.String)
+   * @see coyote.batch.ContextListener#onValidationFailed(coyote.batch.OperationalContext, coyote.batch.FrameValidator, java.lang.String)
    */
   @Override
-  public void onValidationFailed( OperationalContext context, String msg ) {}
+  public void onValidationFailed( OperationalContext context, FrameValidator validator,  String msg ) {}
 
 
 
@@ -97,5 +98,15 @@ public abstract class AbstractListener extends AbstractConfigurableComponent imp
    */
   @Override
   public void close() throws IOException {}
+
+
+
+
+  /**
+   * @see coyote.batch.ContextListener#onFrameValidationFailed(coyote.batch.TransactionContext)
+   */
+  @Override
+  public void onFrameValidationFailed( TransactionContext context ) {
+  }
 
 }

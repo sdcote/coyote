@@ -13,6 +13,7 @@ package coyote.batch.listener;
 
 import java.text.DecimalFormat;
 
+import coyote.batch.FrameValidator;
 import coyote.batch.FrameWriter;
 import coyote.batch.OperationalContext;
 import coyote.batch.TransactionContext;
@@ -169,10 +170,10 @@ public class ContextLogger extends FileRecorder {
 
 
   /**
-   * @see coyote.batch.ContextListener#onValidationFailed(coyote.batch.OperationalContext, java.lang.String)
+   * @see coyote.batch.listener.AbstractListener#onValidationFailed(coyote.batch.OperationalContext, coyote.batch.FrameValidator, java.lang.String)
    */
   @Override
-  public void onValidationFailed( OperationalContext context, String msg ) {
+  public void onValidationFailed( OperationalContext context, FrameValidator validator, String msg ) {
 
     StringBuffer b = new StringBuffer();
 

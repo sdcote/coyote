@@ -405,20 +405,30 @@ public abstract class OperationalContext {
   /**
    * Fire an event indicating validation failed in the given context for the 
    * given reason.
+   * @param validator 
    * 
    * @param msg error message indicating why the validation failed.
    */
-  public void fireValidationFailed( String msg ) {
+  public void fireValidationFailed( FrameValidator validator, String msg ) {
     if ( parent != null )
-      parent.fireValidationFailed( msg );
+      parent.fireValidationFailed( validator, msg );
 
     for ( ContextListener listener : listeners ) {
-      listener.onValidationFailed( this, msg );
+      listener.onValidationFailed( this, validator, msg );
     }
 
   }
 
 
+  public void fireFrameValidationFailed( TransactionContext txnContext ) {
+    if ( parent != null )
+      parent.fireFrameValidationFailed( txnContext);
+
+    for ( ContextListener listener : listeners ) {
+      listener.onFrameValidationFailed( txnContext );
+    }
+
+  }
 
 
   public void setListeners( List<ContextListener> listeners ) {

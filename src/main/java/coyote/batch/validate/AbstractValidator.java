@@ -88,7 +88,7 @@ public abstract class AbstractValidator extends AbstractConfigurableComponent im
    * @param message
    */
   protected void fail( TransactionContext context, String field, String message ) {
-    context.fireValidationFailed( message );
+    context.fireValidationFailed( this, message );
     if ( haltOnFail() ) {
       context.setError( message );
     }
