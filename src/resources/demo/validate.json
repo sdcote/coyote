@@ -1,7 +1,7 @@
 {
 	"Class" : "coyote.batch.Job",
 	"Job" : {
-		"Name" : "Simple",
+		"Name" : "Validate",
 		
 		"Reader" : {
 			"class" : "CSVReader",
@@ -12,7 +12,7 @@
 		"Validate": {
 			"Value": { "field" : "Role", "Values" : "USER, ADMIN, GUEST", "Description": "Must be a valid value" },
 			"NotEmpty": { "field" : "Location", "Description": "Cannot be empty" },
-			"Distinct": { "field" : "asset_tag",  "desc" : "Asset tag must be unique"  }
+			"Distinct": { "field" : "License",  "desc" : "Asset tag must be unique"  }
 
 		},
 
@@ -25,7 +25,12 @@
 				"LastName" : { "start" : 19, "length" : 16 },
 				"MiddleInitial" : { "start" : 36, "length" : 1 }
 			}    
+		},
+
+		"Listeners": {
+			"Validation": { "target": "validation-errors.txt" }
 		}
+
 	}
 
 }
