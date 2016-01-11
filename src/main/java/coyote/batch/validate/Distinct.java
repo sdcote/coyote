@@ -36,6 +36,13 @@ public class Distinct extends AbstractValidator implements FrameValidator {
 
 
 
+  public Distinct() {
+    description = "Field must contain a distinct value";
+  }
+
+
+
+
   /**
    * @see coyote.batch.FrameValidator#process(coyote.batch.TransactionContext)
    */
@@ -56,7 +63,7 @@ public class Distinct extends AbstractValidator implements FrameValidator {
             int count = (Integer)values.get( key );
             count++;
             values.put( key, count );
-            fail( context, fieldName, fieldName+": value of '" + key + "' has occured " + count + " times" );
+            fail( context, fieldName, fieldName + ": value of '" + key + "' has occured " + count + " times" );
             return false;
           } else {
             values.put( key, 1 );

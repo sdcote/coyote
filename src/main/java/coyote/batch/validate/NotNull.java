@@ -22,6 +22,10 @@ import coyote.dataframe.DataFrame;
  */
 public class NotNull extends AbstractValidator implements FrameValidator {
 
+  public NotNull() {
+    description = "Field must contain a value";
+  }
+
   /**
    * @see coyote.batch.FrameValidator#process(coyote.batch.TransactionContext)
    */

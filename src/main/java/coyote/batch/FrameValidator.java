@@ -21,4 +21,14 @@ public interface FrameValidator extends ConfigurableComponent {
 
   boolean process( TransactionContext context ) throws ValidationException;
 
+  /**
+   * @return the name of the file this validator checks
+   */
+  String getFieldName();
+
+  /**
+   * @return the (short) description of this validator
+   */
+  String getDescription();
+
 }

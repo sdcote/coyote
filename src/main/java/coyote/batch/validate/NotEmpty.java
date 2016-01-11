@@ -25,6 +25,10 @@ import coyote.dataframe.DataFrame;
  *
  */
 public class NotEmpty extends AbstractValidator implements FrameValidator {
+  public NotEmpty() {
+    description = "Field must not be empty";
+  }
+
 
   /**
    * @see coyote.batch.FrameValidator#process(coyote.batch.TransactionContext)
