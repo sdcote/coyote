@@ -73,6 +73,11 @@ public class Job extends AbstractLoader implements Loader {
       // configuration 
       engine = TransformEngineFactory.getInstance( job );
 
+      // store the command line arguments in the symbol table of the engine
+      for ( int x = 0; x < commandLineArguments.length; x++ ) {
+        engine.getSymbolTable().put( Symbols.COMMAND_LINE_ARG_PREFIX + x, commandLineArguments[x] );
+      }
+
       if ( StringUtil.isBlank( engine.getName() ) ) {
         Log.debug( LogMsg.createMsg( Batch.MSG, "Job.unnamed_engine_configured" ) );
       } else {

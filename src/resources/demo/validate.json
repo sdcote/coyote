@@ -10,7 +10,7 @@
 		},
 
 		"Validate": {
-			"Value": { "field" : "Role", "Values" : "USER, ADMIN, GUEST" },
+			"Value": { "field" : "Role", "values" : [ "USER", "ADMIN", "GUEST" ] },
 			"NotEmpty": { "field" : "Location", "desc": "All records must contain a location"  },
 			"Distinct": { "field" : "License"  }
 		},

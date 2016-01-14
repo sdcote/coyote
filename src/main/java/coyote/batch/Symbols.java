@@ -53,5 +53,5 @@ public class Symbols {
 
   public static final String CURRENT_FRAME = "CurrentFrame";
   public static final String LAST_FRAME = "LastFrame";
-
+  public static final String COMMAND_LINE_ARG_PREFIX = "cmd.arg.";
 }
