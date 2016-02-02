@@ -557,6 +557,12 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
       symbols.put( Symbols.DATE, formatDate( rundate ) );
       symbols.put( Symbols.TIME, formatTime( rundate ) );
       symbols.put( Symbols.DATETIME, formatDateTime( rundate ) );
+
+      // duplicates the above, but in the case of persistent contexts, make for more readable configuration files when combined with PREVIOUS_RUN_*
+      symbols.put( Symbols.CURRENT_RUN_DATE, formatDate( rundate ) );
+      symbols.put( Symbols.CURRENT_RUN_TIME, formatTime( rundate ) );
+      symbols.put( Symbols.CURRENT_RUN_DATETIME, formatTime( rundate ) );
+
       symbols.put( Symbols.MONTH, String.valueOf( cal.get( Calendar.MONTH ) + 1 ) );
       symbols.put( Symbols.DAY, String.valueOf( cal.get( Calendar.DAY_OF_MONTH ) ) );
       symbols.put( Symbols.YEAR, String.valueOf( cal.get( Calendar.YEAR ) ) );
