@@ -181,6 +181,10 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
       setContext( new TransformContext() );
     }
 
+    // get the command line arguments from the symbol table and post the array
+    // in the context for other components to use
+    getCommandLineArguments();
+
     // set our list of listeners in the context 
     getContext().setListeners( listeners );
 
@@ -472,6 +476,28 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
 
     getContext().end();
 
+  }
+
+
+
+
+  /**
+   * 
+   */
+  private void getCommandLineArguments() {
+    List<String> list = new ArrayList<String>();
+
+    // retrieve a list of command line arguments from the symbol table in order
+    for ( int x = 0; x < 1024; x++ ) {
+      Object obj = getSymbolTable().get( Symbols.COMMAND_LINE_ARG_PREFIX + x );
+      if ( obj != null ) {
+        list.add( obj.toString() );
+      } else {
+        break; // ran out of arguments
+      }
+    }
+
+    getContext().set( ContextKey.COMMAND_LINE_ARGS, list.toArray( new String[list.size()] ) );
   }
 
 
