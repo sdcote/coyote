@@ -13,14 +13,15 @@ package coyote.batch.writer;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import coyote.batch.Batch;
 import coyote.batch.ConfigTag;
 import coyote.batch.ConfigurableComponent;
 import coyote.batch.ConfigurationException;
+import coyote.batch.FieldDefinition;
 import coyote.batch.FrameWriter;
+import coyote.batch.TransformContext;
 import coyote.batch.eval.EvaluationException;
 import coyote.dataframe.DataField;
 import coyote.dataframe.DataFrame;
@@ -30,13 +31,29 @@ import coyote.loader.log.LogMsg;
 
 
 /**
- * <pre>"Writer":{
+ * Writes dataframes to a RFC 4180 formatted file.
+ * 
+ * <p>This is a basic CSV writer which takse dataframes as input and writes 
+ * them to a file suitable for import into other systems. It's easy to 
+ * configure:<pre>
+ * "Writer":{
  *   "class" : "CSVWriter",
- *   "header" : true,
- *   "dateformat" : "yyyy/MM/dd",
- *   "target" : "workfile"
+ *   "target" : "workfile.csv"
  * }</pre>
  * 
+ * <p>The configuration may also contain a fields section which defines the 
+ * order the fields are written and contols any desired formatting:<pre>
+ *  "fields": {
+ *    "fieldname": { "trim": true },
+ *    "category": {},
+ *    "receive_date": { "format": "MMddYYYY" },
+ *    "count": { "format" : "0000.00" }
+ *  }</pre></p>
+ *  
+ *  <p>The writer also supports other configuration properties:<pre>
+ *   "header" : true,
+ *   "dateformat" : "yyyy/MM/dd",</pre></p>
+ *  
  */
 public class CSVWriter extends AbstractFrameWriter implements FrameWriter, ConfigurableComponent {
 
@@ -67,7 +84,51 @@ public class CSVWriter extends AbstractFrameWriter implements FrameWriter, Confi
 
   private boolean writeHeaders = true;
 
-  private final List<String> columns = new ArrayList<String>();
+  //private final List<String> columns = new ArrayList<String>();
+
+  /** The list of fields we are to write in the order they are to be written */
+  private final List<FieldDefinition> fields = new ArrayList<FieldDefinition>();
+
+  public static final char separator = SEPARATOR;
+
+
+
+
+  /**
+   * @see coyote.batch.writer.AbstractFrameWriter#open(coyote.batch.TransformContext)
+   */
+  @Override
+  public void open( final TransformContext context ) {
+    // open the super class first
+    super.open( context );
+
+    // Now setup our field definitions if they exist
+    final DataFrame fieldcfg = getFrame( ConfigTag.FIELDS );
+
+    if ( fieldcfg != null ) {
+      boolean trim = false;// flag to trim values
+
+      for ( final DataField field : fieldcfg.getFields() ) {
+        try {
+          final DataFrame fielddef = (DataFrame)field.getObjectValue();
+
+          // determine if values should be trimmed for this field
+          try {
+            trim = fielddef.getAsBoolean( ConfigTag.TRIM );
+          } catch ( final Exception e ) {
+            trim = false;
+          }
+
+          fields.add( new FieldDefinition( field.getName(), 0, 0, null, fielddef.getAsString( ConfigTag.FORMAT ), trim, 0 ) );
+
+        } catch ( final Exception e ) {
+          context.setError( "Problems loading field definition '" + field.getName() + "' - " + e.getClass().getSimpleName() + " : " + e.getMessage() );
+          return;
+        }
+      }
+    }
+
+  }
 
 
 
@@ -122,7 +183,7 @@ public class CSVWriter extends AbstractFrameWriter implements FrameWriter, Confi
    * @return true if the token contains special characters and needs to be surrounded in quotes, false otherwise
    */
   private static boolean tokenContainsSpecialCharacters( final String token ) {
-    return ( token.indexOf( QUOTE_CHARACTER ) != -1 ) || ( token.indexOf( SEPARATOR ) != -1 ) || ( token.indexOf( ESCAPE_CHARACTER ) != -1 ) || ( token.contains( "\n" ) ) || ( token.contains( "\r" ) );
+    return ( token.indexOf( QUOTE_CHARACTER ) != -1 ) || ( token.indexOf( separator ) != -1 ) || ( token.indexOf( ESCAPE_CHARACTER ) != -1 ) || ( token.contains( "\n" ) ) || ( token.contains( "\r" ) );
   }
 
 
@@ -175,6 +236,7 @@ public class CSVWriter extends AbstractFrameWriter implements FrameWriter, Confi
     }
     Log.debug( LogMsg.createMsg( Batch.MSG, "Writer.date_format_pattern_set_as", DATEFORMAT.toPattern() ) );
 
+    // TODO: support a different separator character including "/t"
   }
 
 
@@ -228,10 +290,20 @@ public class CSVWriter extends AbstractFrameWriter implements FrameWriter, Confi
     // The first frame sets the columns and column order
     if ( rowNumber == 0 ) {
 
-      for ( final DataField field : frame.getFields() ) {
-        columns.add( field.getName() );
-      }
+      // If we have no field definitions, create a set
+      if ( fields.size() < 1 ) {
+        String format = null;
 
+        for ( final DataField field : frame.getFields() ) {
+
+          if ( field.getType() == field.DATE ) {
+            format = DEFAULT_DATE_FORMAT;
+          } else {
+            format = null;
+          }
+          fields.add( new FieldDefinition( field.getName(), 0, 0, field.getTypeName(), format, false, 0 ) );
+        }
+      }
       if ( isUsingHeader() ) {
         writeHeader();
       }
@@ -253,10 +325,10 @@ public class CSVWriter extends AbstractFrameWriter implements FrameWriter, Confi
    */
   private void writeHeader() {
     final StringBuilder retval = new StringBuilder();
-    if ( columns.size() > 0 ) {
-      for ( final String name : columns ) {
-        retval.append( name );
-        retval.append( SEPARATOR );
+    if ( fields.size() > 0 ) {
+      for ( final FieldDefinition def : fields ) {
+        retval.append( def.getName() );
+        retval.append( separator );
       }
       retval.deleteCharAt( retval.length() - 1 );// remove last separator
     }
@@ -279,32 +351,37 @@ public class CSVWriter extends AbstractFrameWriter implements FrameWriter, Confi
     final StringBuilder retval = new StringBuilder();
 
     // for each of the columns in that row
-    for ( final String name : columns ) {
+    for ( final FieldDefinition def : fields ) {
       // the named value for that row
-      final DataField field = frame.getField( name );
+      final DataField field = frame.getField( def.getName() );
 
       if ( ( field != null ) && !field.isNull() ) {
         try {
 
-          if ( DataField.DATE == field.getType() ) {
-            final Date date = (Date)field.getObjectValue();
-            token = DATEFORMAT.format( date );
+          // if there is a formatter for this field, formet the value
+          if ( def.hasFormatter() ) {
+            token = def.getFormattedValue( field );
           } else {
-            // try to convert it into a string
             token = field.getStringValue();
           }
+
+          // if the value is to be trimmed, remove leading and trailing spaces
+          if ( def.isTrimming() ) {
+            token = token.trim();
+          }
+
         } catch ( final Exception e ) {
-          Log.error( LogMsg.createMsg( Batch.MSG, "Writer.Problems writing {%s} - field {%s}", name, field.toString() ) );
+          Log.error( LogMsg.createMsg( Batch.MSG, "Writer.Problems writing {%s} - field {%s}", def.getName(), field.toString() ) );
           token = "";
         }
       } else {
-        // not sure why this happens...
+        // handle null fields with an empty strin value
         token = "";
       }
 
       // escape any special characters otherwise just use the token as is
       retval.append( tokenContainsSpecialCharacters( token ) ? processToken( token ) : token );
-      retval.append( ',' );
+      retval.append( separator );
     }
     if ( retval.length() > 0 ) {
       retval.deleteCharAt( retval.length() - 1 );// remove last comma

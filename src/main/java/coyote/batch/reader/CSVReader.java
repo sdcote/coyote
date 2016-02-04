@@ -109,6 +109,9 @@ public class CSVReader extends AbstractFrameReader implements FrameReader, Confi
       Log.debug( "No header config" );
     }
     Log.debug( LogMsg.createMsg( Batch.MSG, "Reader.header_flag_is", hasHeader ) );
+    
+    // TODO: support a different separator character including "/t"
+
   }
 
 
