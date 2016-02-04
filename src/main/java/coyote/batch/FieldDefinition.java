@@ -40,14 +40,14 @@ public class FieldDefinition {
 
 
   public FieldDefinition( String name, String format, boolean trim ) {
-    this( name, 0, 0, null, format, trim, 0 );
+    this( name, 0, 1, "STR", format, trim, 0 );
   }
 
 
 
 
   public FieldDefinition( String name, String type, String format, boolean trim ) {
-    this( name, 0, 0, type, format, trim, 0 );
+    this( name, 0, 1, type, format, trim, 0 );
   }
 
 
@@ -124,8 +124,10 @@ public class FieldDefinition {
         this.type = DataField.DATE;
       } else if ( type.equalsIgnoreCase( "URI" ) ) {
         this.type = DataField.URI;
+      } else if ( type.equalsIgnoreCase( "UDEF" ) ) {
+        this.type = DataField.UDEF;
       } else {
-        throw new IllegalArgumentException( "unsupported type specification" );
+        throw new IllegalArgumentException( "unsupported type specification: '"+type+"'" );
       }
     }
 
