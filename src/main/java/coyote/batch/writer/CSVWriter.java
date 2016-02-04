@@ -84,51 +84,10 @@ public class CSVWriter extends AbstractFrameWriter implements FrameWriter, Confi
 
   private boolean writeHeaders = true;
 
-  //private final List<String> columns = new ArrayList<String>();
-
   /** The list of fields we are to write in the order they are to be written */
   private final List<FieldDefinition> fields = new ArrayList<FieldDefinition>();
 
   public static final char separator = SEPARATOR;
-
-
-
-
-  /**
-   * @see coyote.batch.writer.AbstractFrameWriter#open(coyote.batch.TransformContext)
-   */
-  @Override
-  public void open( final TransformContext context ) {
-    // open the super class first
-    super.open( context );
-
-    // Now setup our field definitions if they exist
-    final DataFrame fieldcfg = getFrame( ConfigTag.FIELDS );
-
-    if ( fieldcfg != null ) {
-      boolean trim = false;// flag to trim values
-
-      for ( final DataField field : fieldcfg.getFields() ) {
-        try {
-          final DataFrame fielddef = (DataFrame)field.getObjectValue();
-
-          // determine if values should be trimmed for this field
-          try {
-            trim = fielddef.getAsBoolean( ConfigTag.TRIM );
-          } catch ( final Exception e ) {
-            trim = false;
-          }
-
-          fields.add( new FieldDefinition( field.getName(), 0, 0, null, fielddef.getAsString( ConfigTag.FORMAT ), trim, 0 ) );
-
-        } catch ( final Exception e ) {
-          context.setError( "Problems loading field definition '" + field.getName() + "' - " + e.getClass().getSimpleName() + " : " + e.getMessage() );
-          return;
-        }
-      }
-    }
-
-  }
 
 
 
@@ -198,6 +157,45 @@ public class CSVWriter extends AbstractFrameWriter implements FrameWriter, Confi
     } catch ( final DataFrameException e ) {
       return false;
     }
+  }
+
+
+
+
+  /**
+   * @see coyote.batch.writer.AbstractFrameWriter#open(coyote.batch.TransformContext)
+   */
+  @Override
+  public void open( final TransformContext context ) {
+    // open the super class first
+    super.open( context );
+
+    // Now setup our field definitions if they exist
+    final DataFrame fieldcfg = getFrame( ConfigTag.FIELDS );
+
+    if ( fieldcfg != null ) {
+      boolean trim = false;// flag to trim values
+
+      for ( final DataField field : fieldcfg.getFields() ) {
+        try {
+          final DataFrame fielddef = (DataFrame)field.getObjectValue();
+
+          // determine if values should be trimmed for this field
+          try {
+            trim = fielddef.getAsBoolean( ConfigTag.TRIM );
+          } catch ( final Exception e ) {
+            trim = false;
+          }
+
+          fields.add( new FieldDefinition( field.getName(), fielddef.getAsString( ConfigTag.FORMAT ), trim ) );
+
+        } catch ( final Exception e ) {
+          context.setError( "Problems loading field definition '" + field.getName() + "' - " + e.getClass().getSimpleName() + " : " + e.getMessage() );
+          return;
+        }
+      }
+    }
+
   }
 
 
@@ -296,12 +294,12 @@ public class CSVWriter extends AbstractFrameWriter implements FrameWriter, Confi
 
         for ( final DataField field : frame.getFields() ) {
 
-          if ( field.getType() == field.DATE ) {
+          if ( field.getType() == DataField.DATE ) {
             format = DEFAULT_DATE_FORMAT;
           } else {
             format = null;
           }
-          fields.add( new FieldDefinition( field.getName(), 0, 0, field.getTypeName(), format, false, 0 ) );
+          fields.add( new FieldDefinition( field.getName(), field.getTypeName(), format, false ) );
         }
       }
       if ( isUsingHeader() ) {
