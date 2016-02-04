@@ -234,7 +234,7 @@ public class DatabaseDialect {
           type = typeMap.get( fieldtype.toUpperCase() );
 
         if ( StringUtil.isBlank( type ) ) {
-          Log.warn( LogMsg.createMsg( Batch.MSG, "Database.could_not_find_type", DatabaseDialect.class.getName(), fieldtype, typeMap.get( DEFAULT ), fieldname ) );
+          Log.debug( LogMsg.createMsg( Batch.MSG, "Database.could_not_find_type", DatabaseDialect.class.getSimpleName(), fieldtype, type, typeMap.get( DEFAULT ), fieldname ) );
           type = typeMap.get( DEFAULT );
         }
 
