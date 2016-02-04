@@ -33,7 +33,7 @@ import coyote.loader.log.LogMsg;
 /**
  * Writes dataframes to a RFC 4180 formatted file.
  * 
- * <p>This is a basic CSV writer which takse dataframes as input and writes 
+ * <p>This is a basic CSV writer which takes dataframes as input and writes 
  * them to a file suitable for import into other systems. It's easy to 
  * configure:<pre>
  * "Writer":{
@@ -175,19 +175,31 @@ public class CSVWriter extends AbstractFrameWriter implements FrameWriter, Confi
 
     if ( fieldcfg != null ) {
       boolean trim = false;// flag to trim values
+      String format = null;
 
       for ( final DataField field : fieldcfg.getFields() ) {
         try {
           final DataFrame fielddef = (DataFrame)field.getObjectValue();
 
-          // determine if values should be trimmed for this field
-          try {
-            trim = fielddef.getAsBoolean( ConfigTag.TRIM );
-          } catch ( final Exception e ) {
+          // if the field definition is empty "{}" the it will be null
+          if ( fielddef != null ) {
+
+            // determine if values should be trimmed for this field
+            try {
+              trim = fielddef.getAsBoolean( ConfigTag.TRIM );
+            } catch ( final Exception e ) {
+              trim = false;
+            }
+            
+            // extract the format string (if any)
+            format = fielddef.getAsString( ConfigTag.FORMAT );
+          } else {
+            // apparently an empty body 
             trim = false;
+            format = null;
           }
 
-          fields.add( new FieldDefinition( field.getName(), fielddef.getAsString( ConfigTag.FORMAT ), trim ) );
+          fields.add( new FieldDefinition( field.getName(), format, trim ) );
 
         } catch ( final Exception e ) {
           context.setError( "Problems loading field definition '" + field.getName() + "' - " + e.getClass().getSimpleName() + " : " + e.getMessage() );
