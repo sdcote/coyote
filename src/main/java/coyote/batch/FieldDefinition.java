@@ -26,7 +26,6 @@ import coyote.dataframe.DataField;
  */
 public class FieldDefinition {
 
-  
   private short type = 0;
   private int start = 0;
   private int length = 0;
@@ -36,6 +35,20 @@ public class FieldDefinition {
   private String formatText = null;
   private DateFormat dateFormat = null;
   private DecimalFormat decimalFormat = null;
+
+
+
+
+  public FieldDefinition( String name, String format, boolean trim ) {
+    this( name, 0, 0, null, format, trim, 0 );
+  }
+
+
+
+
+  public FieldDefinition( String name, String type, String format, boolean trim ) {
+    this( name, 0, 0, type, format, trim, 0 );
+  }
 
 
 
