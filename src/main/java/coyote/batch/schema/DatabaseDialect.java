@@ -209,10 +209,9 @@ public class DatabaseDialect {
 
       StringBuffer b = new StringBuffer();
 
-      if ( Log.isLogging( Log.TRACE_EVENTS ) ) {
+      if ( Log.isLogging( Log.DEBUG_EVENTS ) ) {
         for ( Entry<String, String> entry : typeMap.entrySet() ) {
-          Log.trace( String.format( "DB: \"%s\",\"%s\"", entry.getKey(), entry.getValue() ) );
-          //Log.trace( LogMsg.createMsg( Batch.MSG, "Writer.connected_to",getClass().getName(), getTarget() ) );
+          Log.debug( String.format( "DB: \"%s\",\"%s\"", entry.getKey(), entry.getValue() ) );
         }
       }
 
