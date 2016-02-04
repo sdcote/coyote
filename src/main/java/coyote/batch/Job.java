@@ -79,9 +79,9 @@ public class Job extends AbstractLoader implements Loader {
       }
 
       if ( StringUtil.isBlank( engine.getName() ) ) {
-        Log.debug( LogMsg.createMsg( Batch.MSG, "Job.unnamed_engine_configured" ) );
+        Log.trace( LogMsg.createMsg( Batch.MSG, "Job.unnamed_engine_configured" ) );
       } else {
-        Log.debug( LogMsg.createMsg( Batch.MSG, "Job.engine_configured", engine.getName() ) );
+        Log.trace( LogMsg.createMsg( Batch.MSG, "Job.engine_configured", engine.getName() ) );
       }
     } else {
       Log.fatal( LogMsg.createMsg( Batch.MSG, "Job.no_job_section" ) );
@@ -233,7 +233,7 @@ public class Job extends AbstractLoader implements Loader {
   public void start() {
 
     if ( engine != null ) {
-      Log.debug( LogMsg.createMsg( Batch.MSG, "Job.running" ) );
+      Log.trace( LogMsg.createMsg( Batch.MSG, "Job.running" ) );
 
       // run the transformation
       // Note that depending on the configuration, this could be placed in the 
@@ -251,7 +251,7 @@ public class Job extends AbstractLoader implements Loader {
           engine.close();
         } catch ( final IOException ignore ) {}
 
-        Log.debug( LogMsg.createMsg( Batch.MSG, "Job.completed", engine.getName() ) );
+        Log.trace( LogMsg.createMsg( Batch.MSG, "Job.completed", engine.getName() ) );
       } // try-catch-finally
 
     } else {
