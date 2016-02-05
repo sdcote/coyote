@@ -319,9 +319,9 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
         getContext().setTransaction( txnContext );
 
         // Create a component to place in the Templates to give them access to
-        // all the data in the contexts
+        // all the data in the contexts and advanced functions
         TemplateAccess access = new TemplateAccess( getContext() );
-        Template.putStatic( "context", access );
+        Template.put( "Context", access );
 
         // Start the clock and fire event listeners for the beginning of the
         // transaction
