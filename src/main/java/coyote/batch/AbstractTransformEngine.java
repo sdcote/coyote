@@ -26,6 +26,7 @@ import coyote.commons.FileUtil;
 import coyote.commons.GUID;
 import coyote.commons.StringUtil;
 import coyote.commons.template.SymbolTable;
+import coyote.commons.template.Template;
 import coyote.dataframe.DataFrame;
 import coyote.loader.Loader;
 import coyote.loader.log.Log;
@@ -316,6 +317,11 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
         TransactionContext txnContext = new TransactionContext( getContext() );
         // place a reference to the transaction in the transform context
         getContext().setTransaction( txnContext );
+
+        // Create a component to place in the Templates to give them access to
+        // all the data in the contexts
+        TemplateAccess access = new TemplateAccess( getContext() );
+        Template.putStatic( "context", access );
 
         // Start the clock and fire event listeners for the beginning of the
         // transaction
