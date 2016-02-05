@@ -579,6 +579,7 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
       symbols.put( Symbols.MONTH_MM, StringUtil.zeropad( cal.get( Calendar.MONTH ) + 1, 2 ) );
       symbols.put( Symbols.DAY_DD, StringUtil.zeropad( cal.get( Calendar.DAY_OF_MONTH ), 2 ) );
       symbols.put( Symbols.YEAR_YYYY, StringUtil.zeropad( cal.get( Calendar.YEAR ), 4 ) );
+      symbols.put( Symbols.HOUR_24, StringUtil.zeropad( cal.get( Calendar.HOUR_OF_DAY ), 2 ) );
       symbols.put( Symbols.HOUR_HH, StringUtil.zeropad( cal.get( Calendar.HOUR ), 2 ) );
       symbols.put( Symbols.MINUTE_MM, StringUtil.zeropad( cal.get( Calendar.MINUTE ), 2 ) );
       symbols.put( Symbols.SECOND_SS, StringUtil.zeropad( cal.get( Calendar.SECOND ), 2 ) );

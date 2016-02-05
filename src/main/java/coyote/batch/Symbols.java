@@ -30,6 +30,7 @@ public class Symbols {
   public static final String MONTH_MM = "MM";
   public static final String DAY_DD = "DD";
   public static final String YEAR_YYYY = "YYYY";
+  public static final String HOUR_24 = "HH";
   public static final String HOUR_HH = "hh";
   public static final String MINUTE_MM = "mm";
   public static final String SECOND_SS = "ss";
@@ -46,7 +47,7 @@ public class Symbols {
 
   public static final String RUN_COUNT = "RunCount";
   public static final String ERROR_COUNT = "FailureCount"; //
-  
+
   public static final String PREVIOUS_RUN_DATE = "PreviousRunDate";
   public static final String PREVIOUS_RUN_TIME = "PreviousRunTime";
   public static final String PREVIOUS_RUN_DATETIME = "PreviousRunDateTime";
