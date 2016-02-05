@@ -46,8 +46,24 @@ public class Remove extends AbstractFieldTransform implements FrameTransform {
 
   @Override
   public DataFrame process( final DataFrame frame ) throws TransformException {
-    // TODO Auto-generated method stub
-    return null;
+    // If there is a conditional expression
+    if ( expression != null ) {
+
+      try {
+        // if the condition evaluates to true
+        if ( evaluator.evaluateBoolean( expression ) ) {
+
+          // remove the named field
+          if ( frame != null ) {
+            frame.remove( fieldName );
+          }
+
+        }
+      } catch ( final EvaluationException e ) {
+        Log.warn( LogMsg.createMsg( Batch.MSG, "Transform.remove_boolean_evaluation_error", e.getMessage() ) );
+      }
+    }
+    return frame;
   }
 
 
