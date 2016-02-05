@@ -127,7 +127,7 @@ public class FieldDefinition {
       } else if ( type.equalsIgnoreCase( "UDEF" ) ) {
         this.type = DataField.UDEF;
       } else {
-        throw new IllegalArgumentException( "unsupported type specification: '"+type+"'" );
+        throw new IllegalArgumentException( "unsupported type specification: '" + type + "'" );
       }
     }
 

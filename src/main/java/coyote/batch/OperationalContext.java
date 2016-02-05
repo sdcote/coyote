@@ -420,15 +420,19 @@ public abstract class OperationalContext {
   }
 
 
+
+
   public void fireFrameValidationFailed( TransactionContext txnContext ) {
     if ( parent != null )
-      parent.fireFrameValidationFailed( txnContext);
+      parent.fireFrameValidationFailed( txnContext );
 
     for ( ContextListener listener : listeners ) {
       listener.onFrameValidationFailed( txnContext );
     }
 
   }
+
+
 
 
   public void setListeners( List<ContextListener> listeners ) {

@@ -33,5 +33,5 @@ public interface TransformTask extends ConfigurableComponent {
    * @param flag true to enable this task, false to prevent it from being executed.
    */
   public void setEnabled( boolean flag );
-  
+
 }

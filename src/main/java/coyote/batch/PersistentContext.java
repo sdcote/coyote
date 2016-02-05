@@ -85,9 +85,9 @@ public class PersistentContext extends TransformContext {
     incrementRunCount();
 
     setPreviousRunDate();
-    
+
     // now resolve our configuration
-super.open();
+    super.open();
   }
 
 

@@ -72,7 +72,7 @@ public class LogManager extends AbstractConfigurableComponent implements Configu
         DataFrame cfgFrame = (DataFrame)field.getObjectValue();
         if ( StringUtil.isNotBlank( field.getName() ) ) {
           if ( field.isFrame() ) {
-            configLogger( field.getName(), cfgFrame);
+            configLogger( field.getName(), cfgFrame );
           } else {
             System.err.println( LogMsg.createMsg( Batch.MSG, "EngineFactory.invalid_logger_configuration_section" ) );
           }
