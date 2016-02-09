@@ -100,6 +100,7 @@ public class ConfigTag {
   public static final String PROTOCOL = "protocol";
   public static final String FILE = "filename";
   public static final String DIRECTORY = "directory";
+  public static final String APPEND = "append";
 
   // Validations
 
