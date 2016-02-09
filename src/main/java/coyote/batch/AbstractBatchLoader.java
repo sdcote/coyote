@@ -25,7 +25,7 @@ import coyote.loader.log.LogMsg;
 
 /**
  * Base class for the Job and Service loaders which handle one or multiple jobs 
- * respectivly.
+ * respectively.
  */
 public abstract class AbstractBatchLoader extends AbstractLoader {
 
