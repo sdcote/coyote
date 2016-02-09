@@ -39,7 +39,7 @@ import coyote.loader.log.LogMsg;
  * 
  * <p>The order of combination is determined by filename including the path.</p>
  * 
- * "CombineTextFiles" : { "directory": "\datadir", "pattern": "([^\\s]+(\\.(?i)(csv))$)", "target": "big.csv", "recurse": false }
+ * "Combine" : { "directory": "\datadir", "pattern": "([^\\s]+(\\.(?i)(csv))$)", "target": "big.csv", "append": true, "recurse": false }
  *  
  */
 public class Combine extends AbstractFileTask implements TransformTask {
@@ -47,6 +47,7 @@ public class Combine extends AbstractFileTask implements TransformTask {
   protected static final String STDOUT = "STDOUT";
   protected static final String STDERR = "STDERR";
   protected PrintWriter printwriter = null;
+  protected boolean append = true;
 
   File directory = null;
   String pattern = null;
@@ -99,6 +100,11 @@ public class Combine extends AbstractFileTask implements TransformTask {
     // get if we should recurse into sub directories when searching for files
     recurse = getBoolean( ConfigTag.RECURSE );
 
+    if ( configuration.containsIgnoreCase( ConfigTag.APPEND ) ) {
+      append = getBoolean( ConfigTag.APPEND );
+    }
+    Log.debug( "Append flag is set to "+append );
+
     // if we don't already have a printwriter, set one up based on the configuration
     if ( printwriter == null ) {
       // check for a target in our configuration
@@ -143,7 +149,7 @@ public class Combine extends AbstractFileTask implements TransformTask {
         Log.debug( "Using a target file of " + targetFile.getAbsolutePath() );
 
         try {
-          final Writer fwriter = new FileWriter( targetFile );
+          final Writer fwriter = new FileWriter( targetFile, append );
           printwriter = new PrintWriter( fwriter );
 
         } catch ( final Exception e ) {
