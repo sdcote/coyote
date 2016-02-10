@@ -28,15 +28,6 @@ import coyote.loader.thread.ScheduledJob;
 /**
  * This is a wrapper around an engine which will be called repeatedly on a 
  * schedule.
- * 
- * 
- * The plan is to support a crontab style of schedule
- * "Schedule": { "Minute": "5,35", "Hour": "6-22", "Date": "*", "Month": "*", "Day": "1-6" }
- * Minute
- * Hour
- * Date = DayOfMonth
- * Month
- * Day = DayOfWeek
  */
 public class ScheduledBatchJob extends ScheduledJob implements ManagedComponent {
 
@@ -57,6 +48,8 @@ public class ScheduledBatchJob extends ScheduledJob implements ManagedComponent 
 
     if ( configuration != null ) {
       Log.debug( config.toFormattedString() );
+
+      // look for the schedule configuration
 
       // have the Engine Factory create a transformation engine based on the
       // configuration 
@@ -84,7 +77,7 @@ public class ScheduledBatchJob extends ScheduledJob implements ManagedComponent 
     }
 
     // Set out interval for 30 minutes - for now
-    super.setExecutionInterval( 30 * 60 * 1000 );
+    setExecutionInterval( 30 * 60 * 1000 );
 
   }
 
@@ -151,17 +144,8 @@ public class ScheduledBatchJob extends ScheduledJob implements ManagedComponent 
       Log.fatal( LogMsg.createMsg( Batch.MSG, "Job.no_engine" ) );
     }
 
-  }
-
-
-
-
-  /**
-   * @see coyote.loader.thread.ThreadJob#terminate()
-   */
-  @Override
-  public void terminate() {
-    setActiveFlag( false );
+    // break out of our doWork loop and go inactive
+    shutdown();
   }
 
 
