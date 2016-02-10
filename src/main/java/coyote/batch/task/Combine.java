@@ -103,13 +103,13 @@ public class Combine extends AbstractFileTask implements TransformTask {
     if ( configuration.containsIgnoreCase( ConfigTag.APPEND ) ) {
       append = getBoolean( ConfigTag.APPEND );
     }
-    Log.debug( "Append flag is set to "+append );
+    Log.debug( "Append flag is set to " + append );
 
     // if we don't already have a printwriter, set one up based on the configuration
     if ( printwriter == null ) {
       // check for a target in our configuration
       String target = getString( ConfigTag.TARGET );
-      Log.debug( LogMsg.createMsg( Batch.MSG, "Writer.using_target", target ) );
+      Log.debug( LogMsg.createMsg( Batch.MSG, "Writer.using_target", this.getClass().getSimpleName(), target ) );
 
       // Make sure we have a target
       if ( StringUtil.isNotBlank( target ) ) {
