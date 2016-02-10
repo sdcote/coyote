@@ -62,9 +62,6 @@ public class LogManager extends AbstractConfigurableComponent implements Configu
     setContext( context );
     Log.debug( LogMsg.createMsg( Batch.MSG, "LogManager.initializing" ) );
 
-    // Remove all currently set loggers
-    Log.removeAllLoggers();
-
     // Find the loggers
     for ( DataField field : getConfiguration().getFields() ) {
 
