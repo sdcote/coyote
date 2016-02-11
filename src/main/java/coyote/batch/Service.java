@@ -68,7 +68,7 @@ public class Service extends AbstractBatchLoader implements Loader {
   private void startManager() {
 
     try {
-      server = new HttpManager(this);
+      server = new HttpManager( this );
 
       // / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / /
       // this is where we would configure the HTTP server
@@ -99,7 +99,7 @@ public class Service extends AbstractBatchLoader implements Loader {
 
     // load components
     super.initComponents();
-    
+
     // Now load "Jobs"
 
     List<Config> sections = configuration.getSections( "Job" );
@@ -146,7 +146,7 @@ public class Service extends AbstractBatchLoader implements Loader {
     // Parse through the configuration and initialize all the components
     initComponents();
 
-    Log.info( LogMsg.createMsg( "Loader.components_initialized" ) );
+    Log.info( LogMsg.createMsg( LOADER_MSG, "Loader.components_initialized" ) );
 
     // By this time all loggers (including the catch-all logger) should be open
     final StringBuffer b = new StringBuffer( CLASS );
@@ -170,7 +170,7 @@ public class Service extends AbstractBatchLoader implements Loader {
     // The watchdog loop has exited, so we are done processing
     terminateComponents();
 
-    Log.info( LogMsg.createMsg( "Loader.terminated" ) );
+    Log.info( LogMsg.createMsg( LOADER_MSG, "Loader.terminated" ) );
 
     // Rename the thread back to what it was called before we were being run
     Thread.currentThread().setName( oldName );
