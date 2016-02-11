@@ -43,9 +43,6 @@ public class Service extends AbstractBatchLoader implements Loader {
   public void configure( Config cfg ) throws ConfigurationException {
     super.configure( cfg );
 
-    // Check the command line arguments for additional cfg info
-    parseArgs();
-
     // calculate and normalize the appropriate value for "app.home"
     determineHomeDirectory();
 
@@ -71,7 +68,7 @@ public class Service extends AbstractBatchLoader implements Loader {
   private void startManager() {
 
     try {
-      server = new HttpManager();
+      server = new HttpManager(this);
 
       // / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / /
       // this is where we would configure the HTTP server
@@ -100,6 +97,9 @@ public class Service extends AbstractBatchLoader implements Loader {
   @Override
   protected void initComponents() {
 
+    // load components
+    super.initComponents();
+    
     // Now load "Jobs"
 
     List<Config> sections = configuration.getSections( "Job" );
