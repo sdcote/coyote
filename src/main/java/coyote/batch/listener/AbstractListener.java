@@ -77,7 +77,7 @@ public abstract class AbstractListener extends AbstractConfigurableComponent imp
    * @see coyote.batch.ContextListener#onValidationFailed(coyote.batch.OperationalContext, coyote.batch.FrameValidator, java.lang.String)
    */
   @Override
-  public void onValidationFailed( OperationalContext context, FrameValidator validator,  String msg ) {}
+  public void onValidationFailed( OperationalContext context, FrameValidator validator, String msg ) {}
 
 
 
@@ -106,7 +106,6 @@ public abstract class AbstractListener extends AbstractConfigurableComponent imp
    * @see coyote.batch.ContextListener#onFrameValidationFailed(coyote.batch.TransactionContext)
    */
   @Override
-  public void onFrameValidationFailed( TransactionContext context ) {
-  }
+  public void onFrameValidationFailed( TransactionContext context ) {}
 
 }

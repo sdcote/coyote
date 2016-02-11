@@ -33,9 +33,6 @@ import coyote.loader.log.LogMsg;
  */
 public class DefaultFrameMapper extends AbstractFrameMapper implements FrameMapper {
 
- 
-
-
   /**
    * Expects a configuration in the form of "Fields" : { "SourceField" : "TargetField" }
    *  
@@ -107,5 +104,4 @@ public class DefaultFrameMapper extends AbstractFrameMapper implements FrameMapp
 
   }
 
- 
 }

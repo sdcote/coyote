@@ -60,7 +60,7 @@ public abstract class FileRecorder extends ContextRecorder {
     if ( StringUtil.isNotBlank( getTarget() ) ) {
 
       target = getTarget().trim();
-      
+
       // Try to parse the target as a URI, failures result in a null
       if ( UriUtil.parse( target ) == null ) {
         // Windows systems often have a drive letter in fully qualified filenames

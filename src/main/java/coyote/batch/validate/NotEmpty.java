@@ -30,6 +30,8 @@ public class NotEmpty extends AbstractValidator implements FrameValidator {
   }
 
 
+
+
   /**
    * @see coyote.batch.FrameValidator#process(coyote.batch.TransactionContext)
    */

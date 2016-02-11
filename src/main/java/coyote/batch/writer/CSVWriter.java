@@ -190,7 +190,7 @@ public class CSVWriter extends AbstractFrameWriter implements FrameWriter, Confi
             } catch ( final Exception e ) {
               trim = false;
             }
-            
+
             // extract the format string (if any)
             format = fielddef.getAsString( ConfigTag.FORMAT );
           } else {

@@ -54,7 +54,7 @@ public class NumericEvaluator extends DoubleEvaluator {
 
   public NumericEvaluator( Parameters parameters ) {
     super( parameters );
-    getExtraParameters() ;
+    getExtraParameters();
   }
 
 

@@ -136,11 +136,11 @@ public abstract class AbstractValidator extends AbstractConfigurableComponent im
       try {
         halt = frame.getAsBoolean( ConfigTag.HALT_ON_FAIL );
       } catch ( DataFrameException e ) {
-        Log.info( LogMsg.createMsg( Batch.MSG, "Task.Header flag not valid " + e.getMessage() ));
+        Log.info( LogMsg.createMsg( Batch.MSG, "Task.Header flag not valid " + e.getMessage() ) );
         halt = false;
       }
     } else {
-      Log.debug( LogMsg.createMsg( Batch.MSG, "Task.No halt config" ));
+      Log.debug( LogMsg.createMsg( Batch.MSG, "Task.No halt config" ) );
     }
   }
 

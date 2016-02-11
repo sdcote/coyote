@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-
 /**
  * A CSV parser which splits a single line into fields using a field delimiter.
  */

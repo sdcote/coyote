@@ -99,12 +99,9 @@ public class Evaluator {
    * 
    * @throws EvaluationException if there were problems evaluating the expression
    */
-//  public String evaluateString( final String expression ) {
-//    return seval.evaluate( expression );
-//  }
-
-
-
+  //  public String evaluateString( final String expression ) {
+  //    return seval.evaluate( expression );
+  //  }
 
   /**
    * Set the operational context in the evaluator.

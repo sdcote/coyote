@@ -16,8 +16,7 @@ import java.util.regex.Pattern;
  * character.
  */
 public class Tokenizer {
-  
-  
+
   /**
    * Iterator over the tokens in an expression
    */

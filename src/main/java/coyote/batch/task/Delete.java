@@ -80,7 +80,7 @@ public class Delete extends AbstractFileTask {
               getContext().setError( msg );
               return;
             } else {
-              Log.error( msg );              
+              Log.error( msg );
             }
           }
         } else {

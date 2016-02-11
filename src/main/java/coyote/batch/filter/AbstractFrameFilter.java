@@ -33,8 +33,10 @@ public abstract class AbstractFrameFilter extends AbstractConfigurableComponent 
   protected String expression = null;
 
 
-  public AbstractFrameFilter() {
-  }
+
+
+  public AbstractFrameFilter() {}
+
 
 
 
@@ -103,6 +105,7 @@ public abstract class AbstractFrameFilter extends AbstractConfigurableComponent 
 
 
 
+
   /**
    * @see coyote.batch.FrameFilter#process(coyote.batch.TransactionContext)
    */
@@ -110,7 +113,5 @@ public abstract class AbstractFrameFilter extends AbstractConfigurableComponent 
   public boolean process( TransactionContext context ) {
     return false;
   }
-
-
 
 }

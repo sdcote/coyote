@@ -26,6 +26,9 @@ public class NotNull extends AbstractValidator implements FrameValidator {
     description = "Field must contain a value";
   }
 
+
+
+
   /**
    * @see coyote.batch.FrameValidator#process(coyote.batch.TransactionContext)
    */
