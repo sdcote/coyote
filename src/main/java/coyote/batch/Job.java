@@ -45,9 +45,6 @@ public class Job extends AbstractBatchLoader implements Loader {
   public void configure( Config cfg ) throws ConfigurationException {
     super.configure( cfg );
 
-    // Check the command line arguments for additional cfg info
-    parseArgs();
-
     // calculate and normalize the appropriate value for "app.home"
     determineHomeDirectory();
 
