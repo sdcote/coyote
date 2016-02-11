@@ -29,29 +29,10 @@ import coyote.loader.log.LogMsg;
  */
 public abstract class AbstractBatchLoader extends AbstractLoader {
 
-  protected static final String DEBUG_ARG = "-d";
-  protected static final String INFO_ARG = "-v";
-
   /**
    * If there is no specified directory in the HOMDIR system property, just use the current working directory
    */
   public static final String DEFAULT_HOME = new String( System.getProperty( "user.dir" ) );
-
-
-
-
-  /**
-   * This just looks for verbose and debug logging flags on the command line.
-   */
-  protected void parseArgs() {
-    for ( int x = 0; x < commandLineArguments.length; x++ ) {
-      if ( DEBUG_ARG.equalsIgnoreCase( commandLineArguments[x] ) ) {
-        Log.startLogging( Log.DEBUG );
-      } else if ( INFO_ARG.equalsIgnoreCase( commandLineArguments[x] ) ) {
-        Log.startLogging( Log.INFO );
-      }
-    }
-  }
 
 
 
