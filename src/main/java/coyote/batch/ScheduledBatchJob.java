@@ -12,10 +12,13 @@
 package coyote.batch;
 
 import java.io.IOException;
+import java.text.ParseException;
 import java.util.List;
 
+import coyote.commons.CronEntry;
 import coyote.commons.ExceptionUtil;
 import coyote.commons.StringUtil;
+import coyote.dataframe.DataField;
 import coyote.dataframe.DataFrame;
 import coyote.loader.Loader;
 import coyote.loader.cfg.Config;
@@ -33,6 +36,7 @@ public class ScheduledBatchJob extends ScheduledJob implements ManagedComponent 
 
   TransformEngine engine = null;
   Config configuration = null;
+  CronEntry cronentry = null;
 
 
 
@@ -45,6 +49,9 @@ public class ScheduledBatchJob extends ScheduledJob implements ManagedComponent 
   @Override
   public void setConfiguration( Config config ) {
     configuration = config;
+
+    // Set out interval to one minute by default
+    setExecutionInterval( 60000 );
 
     if ( configuration != null ) {
       Log.debug( config.toFormattedString() );
@@ -66,19 +73,70 @@ public class ScheduledBatchJob extends ScheduledJob implements ManagedComponent 
     }
 
     // Setup the schedule - 
-    List<Config> cfgs = config.getSections( "Schedule" );
+    List<Config> cfgs = config.getSections( ConfigTag.SCHEDULE );
     if ( cfgs.size() > 0 ) {
       Config scheduleCfg = cfgs.get( 0 );
+      cronentry = new CronEntry();
+
+      // go through each in order, this allows the user to determine how 
+      // attributes are applied by processing them in order they appear and 
+      // overwriting previous attributes.
+      for ( DataField field : scheduleCfg.getFields() ) {
+        if ( ConfigTag.PATTERN.equalsIgnoreCase( field.getName() ) ) {
+          try {
+            cronentry = CronEntry.parse( field.getStringValue() );
+          } catch ( ParseException e ) {
+            Log.error( LogMsg.createMsg( Batch.MSG, "Job.schedule_patterm_parse_error", e.getMessage() ) );
+          }
+        } else if ( ConfigTag.MINUTES.equalsIgnoreCase( field.getName() ) ) {
+          cronentry.setMinutePattern( field.getStringValue() );
+        } else if ( ConfigTag.HOURS.equalsIgnoreCase( field.getName() ) ) {
+          cronentry.setHourPattern( field.getStringValue() );
+        } else if ( ConfigTag.MONTHS.equalsIgnoreCase( field.getName() ) ) {
+          cronentry.setMonthPattern( field.getStringValue() );
+        } else if ( ConfigTag.DAYS.equalsIgnoreCase( field.getName() ) ) {
+          cronentry.setDayPattern( field.getStringValue() );
+        } else if ( ConfigTag.DAYS_OF_WEEK.equalsIgnoreCase( field.getName() ) ) {
+          cronentry.setDayOfWeekPattern( field.getStringValue() );
+        } else if ( ConfigTag.MILLIS.equalsIgnoreCase( field.getName() ) ) {
+          long millis = 0;
+          try {
+            millis = Long.parseLong( field.getStringValue() );
+            setExecutionInterval( millis );
+          } catch ( NumberFormatException e ) {
+            Log.error( LogMsg.createMsg( Batch.MSG, "Job.schedule_interval_parse_error", e.getMessage() ) );
+          }
+        }
+      }
 
       // Repeat according to the schedule
       setRepeatable( true );
 
-      System.out.println( scheduleCfg.toFormattedString() );
+      if ( cronentry != null ) {
+        if ( Log.isLogging( Log.DEBUG_EVENTS ) ) {
+          Log.debug( cronentry.toString() );
+        }
+      } else {
+        Log.error( LogMsg.createMsg( Batch.MSG, "Job.schedule_no_cron_entry", getExecutionInterval() ) );
+      }
+
     }
 
-    // Set out interval for 30 minutes - for now
-    setExecutionInterval( 30 * 60 * 1000 );
+  }
 
+
+
+
+  /**
+   * @see coyote.loader.thread.ScheduledJob#getExecutionInterval()
+   */
+  @Override
+  public long getExecutionInterval() {
+    if ( cronentry != null ) {
+      return cronentry.getNextInterval();
+    } else {
+      return super.getExecutionInterval();
+    }
   }
 
 

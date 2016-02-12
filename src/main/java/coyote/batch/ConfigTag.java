@@ -109,5 +109,15 @@ public class ConfigTag {
   public static final String AVOID = "avoid";
   public static final String HALT_ON_FAIL = "halt";
   public static final String DESCRIPTION = "desc";
+  
+  // Scheduler
+  
+  public static final String SCHEDULE = "Schedule";
+  public static final String MINUTES = "minutes";
+  public static final String HOURS = "houre";
+  public static final String DAYS = "days";
+  public static final String DAYS_OF_WEEK = "weekdays";
+  public static final String MONTHS = "months";
+  public static final String MILLIS = "millis";
 
 }
