@@ -62,8 +62,6 @@ public class XMLWriter extends AbstractFrameWriter implements FrameWriter, Confi
     printwriter.write( StringUtil.LINE_FEED );
     printwriter.flush();
 
-    System.out.println( context.getSymbols().dump() );
-
     // Super class close always comes last
     super.close();
   }
