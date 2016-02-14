@@ -40,7 +40,7 @@ public class HttpManager extends HTTPDRouter {
   public HttpManager( Service service ) throws IOException {
     super( PORT );
     if ( service == null )
-      throw new IllegalArgumentException( "Cannot create HttpManager without a Service reference" );
+      throw new IllegalArgumentException( "Cannot create HttpManager without a service reference" );
 
     // Our connection to the service instance we are managing
     this.service = service;
@@ -54,11 +54,6 @@ public class HttpManager extends HTTPDRouter {
 
   /**
    * Add the routes.
-   * 
-   * <p>Every route is an absolute path. Parameters start with ":". Handler 
-   * class should implement {@link UriResponder} interface. If the handler does 
-   * not implement {@link UriResponder} interface, {@code toString()} is 
-   * called.</p>
    */
   @Override
   public void addMappings() {
@@ -66,13 +61,10 @@ public class HttpManager extends HTTPDRouter {
     super.addMappings();
 
     // Add our routes:handlers
-    addRoute( "/user", DebugHandler.class );
-    addRoute( "/user/:id", DebugHandler.class );
-    addRoute( "/user/help", GeneralHandler.class );
-    addRoute( "/general/:param1/:param2", GeneralHandler.class );
-    addRoute( "/test", String.class );
-    addRoute( "/stream", StreamUrl.class );
+    addRoute( "/test", DebugHandler.class );
     addRoute( "/browse/(.)+", StaticPageHandler.class, new File( "src/test/resources" ).getAbsoluteFile() );
+    addRoute( "/cmd/(.)+", CommandHandler.class, service );
+
   }
 
 }
