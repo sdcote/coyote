@@ -76,8 +76,9 @@ public class Service extends AbstractBatchLoader implements Loader {
 
       server.start( HTTPD.SOCKET_READ_TIMEOUT, false );
     } catch ( IOException ioe ) {
+      Log.append( HTTPD.EVENT, "ERROR: Could not start server on port '" + server.getPort() + "' - " + ioe.getMessage() );
       System.err.println( "Couldn't start server:\n" + ioe );
-      System.exit( -1 );
+      System.exit( 22 );
     }
   }
 
