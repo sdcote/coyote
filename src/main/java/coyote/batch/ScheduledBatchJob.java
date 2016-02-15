@@ -17,6 +17,7 @@ import java.util.List;
 
 import coyote.commons.CronEntry;
 import coyote.commons.ExceptionUtil;
+import coyote.commons.GUID;
 import coyote.commons.StringUtil;
 import coyote.dataframe.DataField;
 import coyote.dataframe.DataFrame;
@@ -50,13 +51,8 @@ public class ScheduledBatchJob extends ScheduledJob implements ManagedComponent 
   public void setConfiguration( Config config ) {
     configuration = config;
 
-    // Set out interval to one minute by default
-    setExecutionInterval( 60000 );
-
     if ( configuration != null ) {
       Log.debug( config.toFormattedString() );
-
-      // look for the schedule configuration
 
       // have the Engine Factory create a transformation engine based on the
       // configuration 
@@ -64,8 +60,10 @@ public class ScheduledBatchJob extends ScheduledJob implements ManagedComponent 
 
       if ( StringUtil.isBlank( engine.getName() ) ) {
         Log.trace( LogMsg.createMsg( Batch.MSG, "Job.unnamed_engine_configured" ) );
+        name = GUID.randomGUID().toString();
       } else {
         Log.trace( LogMsg.createMsg( Batch.MSG, "Job.engine_configured", engine.getName() ) );
+        super.setName( engine.getName() );
       }
     } else {
       Log.fatal( LogMsg.createMsg( Batch.MSG, "Job.no_job_section" ) );
@@ -109,15 +107,22 @@ public class ScheduledBatchJob extends ScheduledJob implements ManagedComponent 
         }
       }
 
-      // Repeat according to the schedule
-      setRepeatable( true );
-
       if ( cronentry != null ) {
+
+        // Repeat according to the schedule
+        setRepeatable( true );
+
         if ( Log.isLogging( Log.DEBUG_EVENTS ) ) {
           Log.debug( cronentry.toString() );
         }
       } else {
         Log.error( LogMsg.createMsg( Batch.MSG, "Job.schedule_no_cron_entry", getExecutionInterval() ) );
+
+        // No schedule, no repeat
+        setRepeatable( false );
+
+        // run one second in the future to give initialization time to settle
+        setExecutionTime( System.currentTimeMillis() + 1000 );
       }
 
     }
@@ -137,6 +142,33 @@ public class ScheduledBatchJob extends ScheduledJob implements ManagedComponent 
     } else {
       return super.getExecutionInterval();
     }
+  }
+
+
+
+
+  /**
+   * @see coyote.loader.thread.ScheduledJob#getExecutionTime()
+   */
+  @Override
+  public long getExecutionTime() {
+
+    if ( cronentry != null ) {
+      return cronentry.getNextTime();
+    } else {
+      return super.getExecutionTime();
+    }
+  }
+
+
+
+
+  /**
+   * @see java.lang.Object#toString()
+   */
+  @Override
+  public String toString() {
+    return super.toString();
   }
 
 
