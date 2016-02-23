@@ -23,8 +23,8 @@ import coyote.dataframe.DataFrame;
  * operations.
  * 
  * <p>Writers (and other components) can use this class to compile data about 
- * Data Frames they have observed, compiling a detaled profile about the set of 
- * frames.</p> 
+ * Data Frames they have observed, compiling a detailed profile about the set 
+ * of frames.</p> 
  */
 public class Schema {
 
