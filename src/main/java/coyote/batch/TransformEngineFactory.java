@@ -12,8 +12,6 @@
 package coyote.batch;
 
 import java.io.File;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
 import coyote.batch.filter.AbstractFrameFilter;
@@ -266,7 +264,7 @@ public class TransformEngineFactory {
         // All tasks must have an object(frame) as its value.
         if ( field.isFrame() ) {
           DataFrame validatorConfig = (DataFrame)field.getObjectValue();
-          Object object = createComponent( className, validatorConfig );
+          Object object = Batch.createComponent( className, validatorConfig );
           if ( object != null ) {
             if ( object instanceof FrameValidator ) {
               engine.addValidator( (FrameValidator)object );
@@ -298,7 +296,7 @@ public class TransformEngineFactory {
         // All tasks must have an object(frame) as its value.
         if ( field.isFrame() ) {
           DataFrame transformerConfig = (DataFrame)field.getObjectValue();
-          Object object = createComponent( className, transformerConfig );
+          Object object = Batch.createComponent( className, transformerConfig );
           if ( object != null ) {
             if ( object instanceof FrameTransform ) {
               engine.addTransformer( (FrameTransform)object );
@@ -368,7 +366,7 @@ public class TransformEngineFactory {
         // All filters must have an object(frame) as its value.
         if ( field.isFrame() ) {
           DataFrame taskConfig = (DataFrame)field.getObjectValue();
-          Object object = createComponent( className, taskConfig );
+          Object object = Batch.createComponent( className, taskConfig );
           if ( object != null ) {
             if ( object instanceof FrameFilter ) {
               int seq = engine.addFilter( (FrameFilter)object );
@@ -400,7 +398,7 @@ public class TransformEngineFactory {
         // All tasks must have an object(frame) as its value.
         if ( field.isFrame() ) {
           DataFrame taskConfig = (DataFrame)field.getObjectValue();
-          Object object = createComponent( className, taskConfig );
+          Object object = Batch.createComponent( className, taskConfig );
           if ( object != null ) {
             if ( object instanceof TransformTask ) {
               int seq = engine.addPreProcessTask( (TransformTask)object );
@@ -432,7 +430,7 @@ public class TransformEngineFactory {
         // All tasks must have an object(frame) as its value.
         if ( field.isFrame() ) {
           DataFrame taskConfig = (DataFrame)field.getObjectValue();
-          Object object = createComponent( className, taskConfig );
+          Object object = Batch.createComponent( className, taskConfig );
           if ( object != null ) {
             if ( object instanceof TransformTask ) {
               int seq = engine.addPostProcessTask( (TransformTask)object );
@@ -549,7 +547,7 @@ public class TransformEngineFactory {
         className = WRITER_PKG + "." + className;
         cfg.put( ConfigTag.CLASS, className );
       }
-      Object object = createComponent( cfg );
+      Object object = Batch.createComponent( cfg );
       if ( object != null ) {
         if ( object instanceof FrameWriter ) {
           engine.addWriter( (FrameWriter)object );
@@ -581,7 +579,7 @@ public class TransformEngineFactory {
         }
       }
 
-      Object object = createComponent( cfg );
+      Object object = Batch.createComponent( cfg );
       if ( object != null ) {
         if ( object instanceof FrameMapper ) {
           engine.setMapper( (FrameMapper)object );
@@ -608,7 +606,7 @@ public class TransformEngineFactory {
       } else {
         Log.error( "NO Reader Class: " + cfg.toString() );
       }
-      Object object = createComponent( cfg );
+      Object object = Batch.createComponent( cfg );
       if ( object != null ) {
         if ( object instanceof FrameReader ) {
           engine.setReader( (FrameReader)object );
@@ -647,7 +645,7 @@ public class TransformEngineFactory {
         // All listeners must have an object(frame) as its value.
         if ( field.isFrame() ) {
           DataFrame listenerConfig = (DataFrame)field.getObjectValue();
-          Object object = createComponent( className, listenerConfig );
+          Object object = Batch.createComponent( className, listenerConfig );
           if ( object != null ) {
             if ( object instanceof ContextListener ) {
               engine.addListener( (ContextListener)object );
@@ -663,95 +661,6 @@ public class TransformEngineFactory {
         }
       }// for each listener 
     } // cfg !null
-  }
-
-
-
-
-  /**
-   * Create an instance of the given named class and configure it with the 
-   * given dataframe if it is a configurable component.
-   * 
-   * @param className Fully qualified name of the class to instantiate
-   * 
-   * @param cfg the configuration to apply to the instance if it is configurable
-   * 
-   * @return a configured component
-   */
-  private static Object createComponent( String className, DataFrame cfg ) {
-    Object retval = null;
-    if ( StringUtil.isNotBlank( className ) ) {
-
-      try {
-        Class<?> clazz = Class.forName( className );
-        Constructor<?> ctor = clazz.getConstructor();
-        Object object = ctor.newInstance();
-
-        if ( cfg != null ) {
-          if ( object instanceof ConfigurableComponent ) {
-            try {
-              ( (ConfigurableComponent)object ).setConfiguration( cfg );
-            } catch ( ConfigurationException e ) {
-              Log.error( LogMsg.createMsg( Batch.MSG, "EngineFactory.configuration_error", object.getClass().getName(), e.getClass().getSimpleName(), e.getMessage() ) );
-            }
-          } else {
-            Log.warn( LogMsg.createMsg( Batch.MSG, "EngineFactory.instance_not_configurable", className ) );
-          }
-        }
-
-        retval = object;
-      } catch ( ClassNotFoundException | NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e ) {
-        Log.error( LogMsg.createMsg( Batch.MSG, "EngineFactory.instantiation_error", className, e.getClass().getName(), e.getMessage() ) );
-      }
-    } else {
-      Log.error( LogMsg.createMsg( Batch.MSG, "EngineFactory.config_frame_did_not_contain_a_class" ) );
-    }
-
-    return retval;
-  }
-
-
-
-
-  /**
-   * Create an instance of a class as specified in the CLASS attribute of 
-   * the given dataframe and configure it with the given dataframe if it is a 
-   * configurable component.
-   * 
-   * @param cfg the configuration to apply to the instance if it is configurable
-   * 
-   * @return a configured component
-   */
-  private static Object createComponent( DataFrame cfg ) {
-    Object retval = null;
-    if ( cfg != null ) {
-      if ( cfg.contains( ConfigTag.CLASS ) ) {
-        String className = cfg.getAsString( ConfigTag.CLASS );
-
-        try {
-          Class<?> clazz = Class.forName( className );
-          Constructor<?> ctor = clazz.getConstructor();
-          Object object = ctor.newInstance();
-
-          if ( object instanceof ConfigurableComponent ) {
-            try {
-              ( (ConfigurableComponent)object ).setConfiguration( cfg );
-            } catch ( ConfigurationException e ) {
-              Log.error( LogMsg.createMsg( Batch.MSG, "EngineFactory.configuration_error", object.getClass().getName(), e.getClass().getSimpleName(), e.getMessage() ) );
-            }
-          } else {
-            Log.warn( LogMsg.createMsg( Batch.MSG, "EngineFactory.instance_not_configurable", className ) );
-          }
-          retval = object;
-        } catch ( ClassNotFoundException | NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e ) {
-          Log.error( LogMsg.createMsg( Batch.MSG, "EngineFactory.instantiation_error", className, e.getClass().getName(), e.getMessage() ) );
-        }
-      } else {
-        Log.error( LogMsg.createMsg( Batch.MSG, "EngineFactory.config_frame_did_not_contain_a_class" ) );
-      }
-    }
-
-    return retval;
   }
 
 }

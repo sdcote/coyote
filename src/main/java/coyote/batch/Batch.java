@@ -11,12 +11,18 @@
  */
 package coyote.batch;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 
 import coyote.commons.CipherUtil;
+import coyote.commons.StringUtil;
 import coyote.commons.Version;
+import coyote.dataframe.DataFrame;
 import coyote.loader.Loader;
+import coyote.loader.log.Log;
+import coyote.loader.log.LogMsg;
 import coyote.loader.log.LogMsg.BundleBaseName;
 
 
@@ -75,6 +81,95 @@ public class Batch {
     String key = System.getProperty( ConfigTag.CIPHER_KEY, CipherUtil.getKey( Loader.CIPHER_KEY ) );
     String cipherName = System.getProperty( ConfigTag.CIPHER_NAME, Loader.CIPHER_NAME );
     retval = CipherUtil.decipher( ciphertext, cipherName, key );
+    return retval;
+  }
+
+
+
+
+  /**
+   * Create an instance of the given named class and configure it with the 
+   * given dataframe if it is a configurable component.
+   * 
+   * @param className Fully qualified name of the class to instantiate
+   * 
+   * @param cfg the configuration to apply to the instance if it is configurable
+   * 
+   * @return a configured component
+   */
+  public static Object createComponent( String className, DataFrame cfg ) {
+    Object retval = null;
+    if ( StringUtil.isNotBlank( className ) ) {
+
+      try {
+        Class<?> clazz = Class.forName( className );
+        Constructor<?> ctor = clazz.getConstructor();
+        Object object = ctor.newInstance();
+
+        if ( cfg != null ) {
+          if ( object instanceof ConfigurableComponent ) {
+            try {
+              ( (ConfigurableComponent)object ).setConfiguration( cfg );
+            } catch ( ConfigurationException e ) {
+              Log.error( LogMsg.createMsg( Batch.MSG, "Batch.configuration_error", object.getClass().getName(), e.getClass().getSimpleName(), e.getMessage() ) );
+            }
+          } else {
+            Log.warn( LogMsg.createMsg( Batch.MSG, "Batch.instance_not_configurable", className ) );
+          }
+        }
+
+        retval = object;
+      } catch ( ClassNotFoundException | NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e ) {
+        Log.error( LogMsg.createMsg( Batch.MSG, "Batch.instantiation_error", className, e.getClass().getName(), e.getMessage() ) );
+      }
+    } else {
+      Log.error( LogMsg.createMsg( Batch.MSG, "Batch.config_frame_did_not_contain_a_class" ) );
+    }
+
+    return retval;
+  }
+
+
+
+
+  /**
+   * Create an instance of a class as specified in the CLASS attribute of 
+   * the given dataframe and configure it with the given dataframe if it is a 
+   * configurable component.
+   * 
+   * @param cfg the configuration to apply to the instance if it is configurable
+   * 
+   * @return a configured component
+   */
+  public static Object createComponent( DataFrame cfg ) {
+    Object retval = null;
+    if ( cfg != null ) {
+      if ( cfg.contains( ConfigTag.CLASS ) ) {
+        String className = cfg.getAsString( ConfigTag.CLASS );
+
+        try {
+          Class<?> clazz = Class.forName( className );
+          Constructor<?> ctor = clazz.getConstructor();
+          Object object = ctor.newInstance();
+
+          if ( object instanceof ConfigurableComponent ) {
+            try {
+              ( (ConfigurableComponent)object ).setConfiguration( cfg );
+            } catch ( ConfigurationException e ) {
+              Log.error( LogMsg.createMsg( Batch.MSG, "Batch.configuration_error", object.getClass().getName(), e.getClass().getSimpleName(), e.getMessage() ) );
+            }
+          } else {
+            Log.warn( LogMsg.createMsg( Batch.MSG, "Batch.instance_not_configurable", className ) );
+          }
+          retval = object;
+        } catch ( ClassNotFoundException | NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e ) {
+          Log.error( LogMsg.createMsg( Batch.MSG, "Batch.instantiation_error", className, e.getClass().getName(), e.getMessage() ) );
+        }
+      } else {
+        Log.error( LogMsg.createMsg( Batch.MSG, "Batch.config_frame_did_not_contain_a_class" ) );
+      }
+    }
+
     return retval;
   }
 
