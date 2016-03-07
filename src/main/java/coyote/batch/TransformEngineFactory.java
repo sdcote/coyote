@@ -214,18 +214,20 @@ public class TransformEngineFactory {
         } else if ( ConfigTag.LISTENER.equalsIgnoreCase( field.getName() ) ) {
           if ( field.isFrame() ) {
             DataFrame cfgFrame = (DataFrame)field.getObjectValue();
-            // there can be many listeners
-            if ( cfgFrame.isArray() ) {
-              for ( DataField cfgfield : cfgFrame.getFields() ) {
-                if ( cfgfield.isFrame() ) {
-                  configListener( (DataFrame)cfgfield.getObjectValue(), retval );
-                } else {
-                  Log.error( "Invalid listener configuration section" );
+            if ( cfgFrame != null ) {
+              // there can be many listeners
+              if ( cfgFrame.isArray() ) {
+                for ( DataField cfgfield : cfgFrame.getFields() ) {
+                  if ( cfgfield.isFrame() ) {
+                    configListener( (DataFrame)cfgfield.getObjectValue(), retval );
+                  } else {
+                    Log.error( "Invalid listener configuration section" );
+                  }
                 }
+              } else {
+                configListener( cfgFrame, retval );
               }
-            } else {
-              configListener( cfgFrame, retval );
-            }
+            } // null / empty check
           } else {
             Log.error( "Invalid listener configuration section" );
           }
