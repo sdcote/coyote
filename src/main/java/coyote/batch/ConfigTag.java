@@ -59,6 +59,7 @@ public class ConfigTag {
   public static final String LINEMAP = "linemap";
   public static final String PATTERN = "pattern";
   public static final String PRESERVE = "preserve";
+  public static final String DELETE = "delete";
   public static final String OVERWRITE = "overwrite";
   public static final String KEEPDATE = "keepdate";
   public static final String RENAME = "rename";
