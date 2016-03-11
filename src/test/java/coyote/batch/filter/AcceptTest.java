@@ -78,7 +78,7 @@ public class AcceptTest {
 
   //@Test
   public void testAcceptConstructor() {
-    Accept filter = new Accept("match( Working.Record Type , PO )");
+    Accept filter = new Accept( "match( Working.Record Type , PO )" );
     filter.open( transformContext );
 
     // this should fire and return false: do not process other filters
@@ -88,6 +88,9 @@ public class AcceptTest {
     assertNotNull( context.getWorkingFrame() );
 
   }
+
+
+
 
   @Test
   public void testAcceptContext() {
