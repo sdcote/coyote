@@ -15,13 +15,13 @@ import java.util.Arrays;
 import java.util.Iterator;
 
 import coyote.batch.TransformContext;
+import coyote.commons.StringUtil;
 import coyote.commons.eval.AbstractEvaluator;
 import coyote.commons.eval.BracketPair;
 import coyote.commons.eval.Constant;
 import coyote.commons.eval.Method;
 import coyote.commons.eval.Operator;
 import coyote.commons.eval.Parameters;
-import coyote.loader.log.Log;
 
 
 /**
@@ -259,6 +259,10 @@ public class BooleanEvaluator extends AbstractEvaluator<Boolean> {
 
   /**
    * Perform a case insensitive match between the two arguments.
+   * 
+   * <p>If the arguments did not return a frame value, assume a quoted string. 
+   * And if the argument is still null, just use the raw argument.
+   * 
    * @param arg1
    * @param arg2
    * 
@@ -267,11 +271,19 @@ public class BooleanEvaluator extends AbstractEvaluator<Boolean> {
   private boolean performMatch( String arg1, String arg2 ) {
     if ( transformContext != null ) {
       String value = transformContext.resolveToString( arg1 );
-      if ( value == null )
-        value = arg1;
+      if ( value == null ) {
+        value = StringUtil.getQuotedValue( arg1 );
+        if ( value == null ) {
+          value = arg1;
+        }
+      }
       String test = transformContext.resolveToString( arg2 );
-      if ( test == null )
-        test = arg2;
+      if ( test == null ) {
+        test = StringUtil.getQuotedValue( arg2 );
+        if ( test == null ) {
+          test = arg2;
+        }
+      }
 
       if ( value.equalsIgnoreCase( test ) ) {
         return true;
@@ -288,11 +300,19 @@ public class BooleanEvaluator extends AbstractEvaluator<Boolean> {
   private Boolean performEquals( String arg1, String arg2 ) {
     if ( transformContext != null ) {
       String value = transformContext.resolveToString( arg1 );
-      if ( value == null )
-        value = arg1;
+      if ( value == null ) {
+        value = StringUtil.getQuotedValue( arg1 );
+        if ( value == null ) {
+          value = arg1;
+        }
+      }
       String test = transformContext.resolveToString( arg2 );
-      if ( test == null )
-        test = arg2;
+      if ( test == null ) {
+        value = StringUtil.getQuotedValue( arg2 );
+        if ( value == null ) {
+          value = arg2;
+        }
+      }
 
       if ( value.equals( test ) ) {
         return true;
