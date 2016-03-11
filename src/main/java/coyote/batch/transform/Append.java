@@ -53,7 +53,6 @@ import coyote.loader.log.LogMsg;
 public class Append extends AbstractFieldTransform implements FrameTransform {
 
   private String fieldValue = null;
-  private String defaultValue = null;
 
 
 
@@ -108,8 +107,16 @@ public class Append extends AbstractFieldTransform implements FrameTransform {
         // if the condition evaluates to true
         if ( evaluator.evaluateBoolean( getExpression() ) ) {
 
-          // TODO: APPEND not SET
-          frame.put( getFieldName(), resolveArgument( fieldValue ) );
+          StringBuffer b = new StringBuffer();
+
+          String value = frame.getAsString( getFieldName() );
+
+          if ( value != null ) {
+            b.append( value );
+          }
+          b.append( resolveArgument( fieldValue ) );
+
+          frame.put( getFieldName(), b.toString() );
 
         }
       } catch ( final EvaluationException e ) {
