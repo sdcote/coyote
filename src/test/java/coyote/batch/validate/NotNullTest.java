@@ -19,10 +19,10 @@ import static org.junit.Assert.fail;
 import org.junit.Test;
 
 import coyote.batch.AbstractTest;
-import coyote.batch.ConfigurationException;
 import coyote.batch.FrameValidator;
 import coyote.batch.TransactionContext;
 import coyote.dataframe.DataFrame;
+import coyote.loader.cfg.ConfigurationException;
 
 
 /**

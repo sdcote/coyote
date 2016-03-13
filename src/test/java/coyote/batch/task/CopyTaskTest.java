@@ -24,11 +24,11 @@ import org.junit.Test;
 
 import coyote.batch.AbstractTest;
 import coyote.batch.ConfigTag;
-import coyote.batch.ConfigurationException;
 import coyote.batch.TaskException;
 import coyote.batch.TransformContext;
 import coyote.commons.FileUtil;
 import coyote.dataframe.DataFrame;
+import coyote.loader.cfg.ConfigurationException;
 import coyote.loader.log.ConsoleAppender;
 import coyote.loader.log.Log;
 

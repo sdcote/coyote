@@ -21,6 +21,7 @@ import coyote.commons.StringUtil;
 import coyote.commons.Version;
 import coyote.dataframe.DataFrame;
 import coyote.loader.Loader;
+import coyote.loader.cfg.ConfigurationException;
 import coyote.loader.log.Log;
 import coyote.loader.log.LogMsg;
 import coyote.loader.log.LogMsg.BundleBaseName;

@@ -12,10 +12,14 @@
 package coyote.batch;
 
 import java.io.IOException;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
 import coyote.batch.http.HttpManager;
+import coyote.batch.http.ManagerFactoryBinder;
 import coyote.commons.network.http.HTTPD;
+import coyote.dataframe.DataFrame;
 import coyote.loader.Loader;
 import coyote.loader.cfg.Config;
 import coyote.loader.cfg.ConfigurationException;
@@ -30,6 +34,9 @@ public class Service extends AbstractBatchLoader implements Loader {
 
   /** Tag used in various class identifying locations. */
   public static final String CLASS = Service.class.getSimpleName();
+
+  // the name of the static binder class which can be used to dynamically load new UI managers
+  public static final String BINDERCLASS = "coyote.batch.http.StaticManagerBinder";
 
   private HTTPD server = null;
 
@@ -50,7 +57,7 @@ public class Service extends AbstractBatchLoader implements Loader {
     determineWorkDirectory();
 
     // Start the management API
-    startManager();
+    startManager( null ); // TODO: get Manager config frame
 
     // store the command line arguments in the configuration
     //      for ( int x = 0; x < commandLineArguments.length; x++ ) {
@@ -65,15 +72,41 @@ public class Service extends AbstractBatchLoader implements Loader {
   /**
    * Start the HTTP server to provide user management of the service.
    */
-  private void startManager() {
+  private void startManager( DataFrame cfg ) {
+
+    // look for the Static Manager Binder in the classpath
+    try {
+      Class<?> clazz = Class.forName( BINDERCLASS );
+      Constructor<?> ctor = clazz.getConstructor();
+      Object object = ctor.newInstance();
+
+      if ( object instanceof ManagerFactoryBinder ) {
+        try {
+          server = ( (ManagerFactoryBinder)object ).createManager( cfg, this );
+        } catch ( ConfigurationException e ) {
+          Log.error( LogMsg.createMsg( Batch.MSG, "Batch.configuration_error", object.getClass().getName(), e.getClass().getSimpleName(), e.getMessage() ) );
+          server = null;
+        }
+      } else {
+        Log.warn( LogMsg.createMsg( Batch.MSG, "Service.binder class does not implement ManagerFactoryBinder", BINDERCLASS ) );
+      }
+    } catch ( ClassNotFoundException | NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e ) {
+      Log.debug( LogMsg.createMsg( Batch.MSG, "Service.no binder class found, using default manager", BINDERCLASS, e.getClass().getName(), e.getMessage() ) );
+    }
+
+    // If we did not find a manager on the classpath, use our own
+    if ( server == null ) {
+      Log.warn( "No static manager binder found on classpath or loaded properly, using internal manager" );
+      try {
+        server = new HttpManager( this );
+      } catch ( IOException e ) {
+        Log.append( HTTPD.EVENT, "ERROR: Could not create server on port '" + server.getPort() + "' - " + e.getMessage() );
+        System.err.println( "Couldn't create server:\n" + e );
+        System.exit( 23 );
+      }
+    }
 
     try {
-      server = new HttpManager( this );
-
-      // / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / /
-      // this is where we would configure the HTTP server
-      // / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / /
-
       server.start( HTTPD.SOCKET_READ_TIMEOUT, false );
     } catch ( IOException ioe ) {
       Log.append( HTTPD.EVENT, "ERROR: Could not start server on port '" + server.getPort() + "' - " + ioe.getMessage() );

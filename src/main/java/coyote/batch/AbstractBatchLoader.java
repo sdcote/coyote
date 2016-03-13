@@ -60,17 +60,22 @@ public abstract class AbstractBatchLoader extends AbstractLoader {
     // If our home directory is not specified as a system property...
     if ( System.getProperty( Job.APP_HOME ) == null ) {
 
-      // use the first argument to the bootstrap loader to determine the 
-      // location of our configuration file
-      File cfgFile = new File( super.getCommandLineArguments()[0] );
+      // see of there are command line arguments to use
+      if ( getCommandLineArguments() != null ) {
+        // use the first argument to the bootstrap loader to determine the 
+        // location of our configuration file
+        File cfgFile = new File( getCommandLineArguments()[0] );
 
-      // If that file exists, then use that files parent directory as our work
-      // directory
-      if ( cfgFile.exists() ) {
-        System.setProperty( Job.APP_HOME, cfgFile.getParentFile().getAbsolutePath() );
+        // If that file exists, then use that files parent directory as our work
+        // directory
+        if ( cfgFile.exists() ) {
+          System.setProperty( Job.APP_HOME, cfgFile.getParentFile().getAbsolutePath() );
+        } else {
+          // we could not determine the path to the configuration file, use the 
+          // current working directory
+          System.setProperty( Job.APP_HOME, DEFAULT_HOME );
+        }
       } else {
-        // we could not determine the path to the configuration file, use the 
-        // current working directory
         System.setProperty( Job.APP_HOME, DEFAULT_HOME );
       }
     } else {

@@ -12,6 +12,7 @@
 package coyote.batch;
 
 import coyote.dataframe.DataFrame;
+import coyote.loader.cfg.ConfigurationException;
 
 
 /**

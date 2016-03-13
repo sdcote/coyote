@@ -20,7 +20,6 @@ import java.text.ParseException;
 import coyote.batch.Batch;
 import coyote.batch.ConfigTag;
 import coyote.batch.ConfigurableComponent;
-import coyote.batch.ConfigurationException;
 import coyote.batch.FrameReader;
 import coyote.batch.Symbols;
 import coyote.batch.TransactionContext;
@@ -29,6 +28,7 @@ import coyote.commons.StringUtil;
 import coyote.commons.UriUtil;
 import coyote.dataframe.DataFrame;
 import coyote.dataframe.DataFrameException;
+import coyote.loader.cfg.ConfigurationException;
 import coyote.loader.log.Log;
 import coyote.loader.log.LogMsg;
 

@@ -17,13 +17,13 @@ import coyote.batch.AbstractConfigurableComponent;
 import coyote.batch.Batch;
 import coyote.batch.ConfigTag;
 import coyote.batch.ConfigurableComponent;
-import coyote.batch.ConfigurationException;
 import coyote.batch.FrameValidator;
 import coyote.batch.TransactionContext;
 import coyote.batch.TransformContext;
 import coyote.commons.StringUtil;
 import coyote.dataframe.DataFrame;
 import coyote.dataframe.DataFrameException;
+import coyote.loader.cfg.ConfigurationException;
 import coyote.loader.log.Log;
 import coyote.loader.log.LogMsg;
 

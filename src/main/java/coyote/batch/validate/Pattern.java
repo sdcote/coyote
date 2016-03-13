@@ -12,12 +12,12 @@
 package coyote.batch.validate;
 
 import coyote.batch.ConfigTag;
-import coyote.batch.ConfigurationException;
 import coyote.batch.FrameValidator;
 import coyote.batch.TransactionContext;
 import coyote.batch.TransformContext;
 import coyote.dataframe.DataField;
 import coyote.dataframe.DataFrame;
+import coyote.loader.cfg.ConfigurationException;
 
 
 /**

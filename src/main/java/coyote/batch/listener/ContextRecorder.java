@@ -13,10 +13,10 @@ package coyote.batch.listener;
 
 import coyote.batch.Batch;
 import coyote.batch.ConfigTag;
-import coyote.batch.ConfigurationException;
 import coyote.batch.ContextListener;
 import coyote.dataframe.DataFrame;
 import coyote.dataframe.DataFrameException;
+import coyote.loader.cfg.ConfigurationException;
 import coyote.loader.log.Log;
 import coyote.loader.log.LogMsg;
 

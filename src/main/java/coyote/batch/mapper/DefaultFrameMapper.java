@@ -11,18 +11,15 @@
  */
 package coyote.batch.mapper;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import coyote.batch.Batch;
 import coyote.batch.ConfigTag;
-import coyote.batch.ConfigurationException;
 import coyote.batch.FrameMapper;
 import coyote.batch.TransactionContext;
 import coyote.commons.StringUtil;
 import coyote.dataframe.DataField;
 import coyote.dataframe.DataFrame;
 import coyote.dataframe.DataFrameException;
+import coyote.loader.cfg.ConfigurationException;
 import coyote.loader.log.Log;
 import coyote.loader.log.LogMsg;
 

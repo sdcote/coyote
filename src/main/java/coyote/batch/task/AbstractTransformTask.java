@@ -15,13 +15,13 @@ import java.io.IOException;
 
 import coyote.batch.AbstractConfigurableComponent;
 import coyote.batch.ConfigTag;
-import coyote.batch.ConfigurationException;
 import coyote.batch.TaskException;
 import coyote.batch.TransformContext;
 import coyote.batch.TransformTask;
 import coyote.commons.StringUtil;
 import coyote.commons.template.Template;
 import coyote.dataframe.DataFrame;
+import coyote.loader.cfg.ConfigurationException;
 
 
 /**

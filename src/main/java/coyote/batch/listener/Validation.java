@@ -14,12 +14,12 @@ package coyote.batch.listener;
 import java.util.ArrayList;
 import java.util.List;
 
-import coyote.batch.ConfigurationException;
 import coyote.batch.FrameValidator;
 import coyote.batch.OperationalContext;
 import coyote.batch.TransactionContext;
 import coyote.commons.StringUtil;
 import coyote.dataframe.DataFrame;
+import coyote.loader.cfg.ConfigurationException;
 
 
 /**
