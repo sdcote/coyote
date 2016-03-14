@@ -29,7 +29,7 @@ public interface HttpManager {
 
 
   /**
-   * @return
+   * @return the IP port on which the server is listening
    */
   public int getPort();
 
