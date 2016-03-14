@@ -102,11 +102,11 @@ public class Service extends AbstractBatchLoader implements Loader {
       Log.debug( LogMsg.createMsg( Batch.MSG, "Service.binder_class_load_error", BINDERCLASS, e.getClass().getName(), e.getMessage() ) );
     }
 
-    // If we did not find a manager on the classpath, use our own
+    // If we did not find a manager on the class path, use our own
     if ( server == null ) {
       Log.debug( LogMsg.createMsg( Batch.MSG, "Service.no_binder_class_found" ) );
       try {
-        server = new DefaultHttpManager( this );
+        server = new DefaultHttpManager( cfg, this );
       } catch ( IOException e ) {
         Log.append( HTTPD.EVENT, "ERROR: Could not create server on port '" + server.getPort() + "' - " + e.getMessage() );
         System.err.println( "Couldn't create server:\n" + e );

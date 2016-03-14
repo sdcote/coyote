@@ -40,8 +40,6 @@ public class CommandHandler extends AbstractBatchNugget implements UriResponder 
   @Override
   public Response get( UriResource uriResource, Map<String, String> urlParams, IHTTPSession session ) {
 
-    Log.append( HTTPD.EVENT, "Woot! We received a request." );
-
     // The first init parameter should be the service in which everything is running
     Service service = uriResource.initParameter( 0, Service.class );
 

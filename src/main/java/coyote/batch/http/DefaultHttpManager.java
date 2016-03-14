@@ -11,12 +11,11 @@
  */
 package coyote.batch.http;
 
-import java.io.File;
 import java.io.IOException;
 
 import coyote.batch.Service;
 import coyote.commons.network.http.nugget.HTTPDRouter;
-import coyote.commons.network.http.nugget.StaticPageHandler;
+import coyote.dataframe.DataFrame;
 
 
 /**
@@ -32,10 +31,12 @@ public class DefaultHttpManager extends HTTPDRouter implements HttpManager {
 
 
   /**
-   * Create the server instance with all the defaults
-   * @param service 
+   * Create the server instance with all the defaults.
+   * 
+   * @param cfg Any configuration data 
+   * @param service the service we are to manage
    */
-  public DefaultHttpManager( Service service ) throws IOException {
+  public DefaultHttpManager( DataFrame cfg, Service service ) throws IOException {
     super( PORT );
     if ( service == null )
       throw new IllegalArgumentException( "Cannot create HttpManager without a service reference" );
@@ -59,8 +60,6 @@ public class DefaultHttpManager extends HTTPDRouter implements HttpManager {
     super.addMappings();
 
     // Add our routes:handlers
-    addRoute( "/test", DebugHandler.class );
-    addRoute( "/browse/(.)+", StaticPageHandler.class, new File( "src/test/resources" ).getAbsoluteFile() );
     addRoute( "/cmd/(.)+", CommandHandler.class, service );
 
   }
