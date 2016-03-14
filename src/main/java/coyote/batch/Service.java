@@ -80,23 +80,30 @@ public class Service extends AbstractBatchLoader implements Loader {
       Constructor<?> ctor = clazz.getConstructor();
       Object object = ctor.newInstance();
 
+      Log.debug( LogMsg.createMsg( Batch.MSG, "Service.found_binding_for_manager", BINDERCLASS ) );
+
       if ( object instanceof ManagerFactoryBinder ) {
         try {
           server = ( (ManagerFactoryBinder)object ).createManager( cfg, this );
+          if ( server != null ) {
+            Log.debug( LogMsg.createMsg( Batch.MSG, "Service.user_specified_manager", server.getClass() ) );
+          } else {
+            Log.error( LogMsg.createMsg( Batch.MSG, "Service.binder_returned_null_manager" ) );
+          }
         } catch ( ConfigurationException e ) {
-          Log.error( LogMsg.createMsg( Batch.MSG, "Batch.configuration_error", object.getClass().getName(), e.getClass().getSimpleName(), e.getMessage() ) );
+          Log.error( LogMsg.createMsg( Batch.MSG, "Service.manager_configuration_error", e.getClass().getSimpleName(), e.getMessage() ) );
           server = null;
         }
       } else {
-        Log.warn( LogMsg.createMsg( Batch.MSG, "Service.binder class does not implement ManagerFactoryBinder", BINDERCLASS ) );
+        Log.warn( LogMsg.createMsg( Batch.MSG, "Service.binder_not_managerfactorybinder" ) );
       }
     } catch ( ClassNotFoundException | NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e ) {
-      Log.debug( LogMsg.createMsg( Batch.MSG, "Service.no binder class found, using default manager", BINDERCLASS, e.getClass().getName(), e.getMessage() ) );
+      Log.debug( LogMsg.createMsg( Batch.MSG, "Service.binder_class_load_error", BINDERCLASS, e.getClass().getName(), e.getMessage() ) );
     }
 
     // If we did not find a manager on the classpath, use our own
     if ( server == null ) {
-      Log.warn( "No static manager binder found on classpath or loaded properly, using internal manager" );
+      Log.debug( LogMsg.createMsg( Batch.MSG, "Service.no_binder_class_found" ) );
       try {
         server = new HttpManager( this );
       } catch ( IOException e ) {
