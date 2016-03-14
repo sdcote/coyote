@@ -11,60 +11,34 @@
  */
 package coyote.batch.http;
 
-import java.io.File;
 import java.io.IOException;
-
-import coyote.batch.Service;
-import coyote.commons.network.http.nugget.GeneralHandler;
-import coyote.commons.network.http.nugget.HTTPDRouter;
-import coyote.commons.network.http.nugget.StaticPageHandler;
-import coyote.commons.network.http.nugget.UriResponder;
 
 
 /**
  * 
  */
-public class HttpManager extends HTTPDRouter {
+public interface HttpManager {
 
-  private static final int PORT = 55290;
-
-  private final Service service;
+  /**
+   * @param socketReadTimeout
+   * @param b
+   */
+  void start( int socketReadTimeout, boolean b ) throws IOException;
 
 
 
 
   /**
-   * Create the server instance with all the defaults
-   * @param service 
+   * @return
    */
-  public HttpManager( Service service ) throws IOException {
-    super( PORT );
-    if ( service == null )
-      throw new IllegalArgumentException( "Cannot create HttpManager without a service reference" );
-
-    // Our connection to the service instance we are managing
-    this.service = service;
-
-    // Add the nuggets handling requests to this service
-    addMappings();
-  }
+  public int getPort();
 
 
 
 
   /**
-   * Add the routes.
+   * 
    */
-  @Override
-  public void addMappings() {
-    // Set the default mappings
-    super.addMappings();
-
-    // Add our routes:handlers
-    addRoute( "/test", DebugHandler.class );
-    addRoute( "/browse/(.)+", StaticPageHandler.class, new File( "src/test/resources" ).getAbsoluteFile() );
-    addRoute( "/cmd/(.)+", CommandHandler.class, service );
-
-  }
+  void stop();
 
 }

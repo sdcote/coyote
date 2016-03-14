@@ -16,6 +16,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
+import coyote.batch.http.DefaultHttpManager;
 import coyote.batch.http.HttpManager;
 import coyote.batch.http.ManagerFactoryBinder;
 import coyote.commons.network.http.HTTPD;
@@ -38,7 +39,7 @@ public class Service extends AbstractBatchLoader implements Loader {
   // the name of the static binder class which can be used to dynamically load new UI managers
   public static final String BINDERCLASS = "coyote.batch.http.StaticManagerBinder";
 
-  private HTTPD server = null;
+  private HttpManager server = null;
 
 
 
@@ -105,7 +106,7 @@ public class Service extends AbstractBatchLoader implements Loader {
     if ( server == null ) {
       Log.debug( LogMsg.createMsg( Batch.MSG, "Service.no_binder_class_found" ) );
       try {
-        server = new HttpManager( this );
+        server = new DefaultHttpManager( this );
       } catch ( IOException e ) {
         Log.append( HTTPD.EVENT, "ERROR: Could not create server on port '" + server.getPort() + "' - " + e.getMessage() );
         System.err.println( "Couldn't create server:\n" + e );
