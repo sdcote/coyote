@@ -390,12 +390,12 @@ public abstract class OperationalContext {
 
 
 
-  public void fireRead( TransactionContext context ) {
+  public void fireRead( TransactionContext context, FrameReader reader ) {
     if ( parent != null )
-      parent.fireRead( context );
+      parent.fireRead( context, reader );
 
     for ( ContextListener listener : listeners ) {
-      listener.onRead( context );
+      listener.onRead( context, reader );
     }
   }
 

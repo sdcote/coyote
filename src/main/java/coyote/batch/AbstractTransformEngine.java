@@ -342,7 +342,7 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
           getContext().getSymbols().put( Symbols.LAST_FRAME, txnContext.isLastFrame() );
 
           // fire the read event in all the listeners
-          txnContext.fireRead( txnContext );
+          txnContext.fireRead( txnContext, reader );
 
           //log.debug( "row {} - {}", context.getRow(), context.getSourceFrame().toString() );
 

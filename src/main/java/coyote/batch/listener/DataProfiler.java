@@ -16,6 +16,7 @@ import java.text.FieldPosition;
 import java.util.Date;
 
 import coyote.batch.ContextListener;
+import coyote.batch.FrameReader;
 import coyote.batch.FrameWriter;
 import coyote.batch.OperationalContext;
 import coyote.batch.TransactionContext;
@@ -188,10 +189,10 @@ public class DataProfiler extends FileRecorder implements ContextListener {
 
 
   /**
-   * @see coyote.batch.listener.AbstractListener#onRead(coyote.batch.TransactionContext)
+   * @see coyote.batch.listener.AbstractListener#onRead(coyote.batch.TransactionContext, coyote.batch.FrameReader)
    */
   @Override
-  public void onRead( TransactionContext context ) {
+  public void onRead( TransactionContext context, FrameReader reader ) {
     DataFrame frame = context.getSourceFrame();
     if ( frame != null ) {
       readBytes += frame.getBytes().length;

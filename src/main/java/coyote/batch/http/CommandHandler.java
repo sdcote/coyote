@@ -60,7 +60,10 @@ public class CommandHandler extends AbstractBatchNugget implements UriResponder 
     String[] pathTokens = NuggetUtil.getPathArray( realUri );
     if( SHUTDOWN.equalsIgnoreCase( pathTokens[0] )){
       Log.append( HTTPD.EVENT, "Received a shutdown command" );
-      System.exit( 0 );
+      
+      // TODO: Create a Scheduled Job which will shutdown the service in a few seconds
+      
+      System.exit( 0 ); // this is a last resort method!!  Maybe a "kill" will do this?
     }
 
     

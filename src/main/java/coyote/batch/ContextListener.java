@@ -26,12 +26,24 @@ public interface ContextListener extends ConfigurableComponent {
 
 
 
+  /**
+   * Called just after a frame has been written by a writer.
+   * 
+   * @param context the transaction context
+   * @param writer the writer which just called to write a frame
+   */
   void onWrite( TransactionContext context, FrameWriter writer );
 
 
 
 
-  void onRead( TransactionContext context );
+  /**
+   * Called just after a frame has been read by a reader.
+   * 
+   * @param context the transaction context
+   * @param reader the reader doing the reading
+   */
+  void onRead( TransactionContext context, FrameReader reader );
 
 
 
