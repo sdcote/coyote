@@ -483,10 +483,10 @@ public class TransformEngineFactory {
 
         // set the engine in the context
         context.setEngine( engine );
-        Log.debug( LogMsg.createMsg( Batch.MSG, "EngineFactory.created_context {0}", context.getClass().getName() ) );
+        Log.debug( LogMsg.createMsg( Batch.MSG, "EngineFactory.created_context", context.getClass().getName() ) );
       }
 
-      Log.debug( LogMsg.createMsg( Batch.MSG, "EngineFactory.Loaded context {0}", context.getClass().getName() ) );
+      Log.debug( LogMsg.createMsg( Batch.MSG, "EngineFactory.loaded_context", context.getClass().getName() ) );
     } // cfg !null
   }
 

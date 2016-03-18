@@ -13,7 +13,6 @@ package coyote.batch.schema;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import coyote.batch.Batch;
 import coyote.commons.StringUtil;
@@ -209,11 +208,11 @@ public class DatabaseDialect {
 
       StringBuffer b = new StringBuffer();
 
-      if ( Log.isLogging( Log.DEBUG_EVENTS ) ) {
-        for ( Entry<String, String> entry : typeMap.entrySet() ) {
-          Log.debug( String.format( "DB: \"%s\",\"%s\"", entry.getKey(), entry.getValue() ) );
-        }
-      }
+      // if ( Log.isLogging( Log.DEBUG_EVENTS ) ) {
+      //   for ( Entry<String, String> entry : typeMap.entrySet() ) {
+      //     Log.debug( String.format( "DB: \"%s\",\"%s\"", entry.getKey(), entry.getValue() ) );
+      //   }
+      // }
 
       for ( FieldMetrics metrics : schema.getMetrics() ) {
 
@@ -221,7 +220,7 @@ public class DatabaseDialect {
         final String fieldtype = metrics.getType();
         final long fieldlen = metrics.getMaximumStringLength();
 
-        Log.debug( String.format( "SN: \"%s\",\"%s\",%d", fieldname, fieldtype, fieldlen ) );
+        // Log.debug( String.format( "SN: \"%s\",\"%s\",%d", fieldname, fieldtype, fieldlen ) );
 
         b.append( fieldname );
         b.append( " " );
