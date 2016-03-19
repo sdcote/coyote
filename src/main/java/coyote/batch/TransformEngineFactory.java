@@ -586,12 +586,12 @@ public class TransformEngineFactory {
       if ( object != null ) {
         if ( object instanceof FrameMapper ) {
           engine.setMapper( (FrameMapper)object );
-          Log.debug( LogMsg.createMsg( Batch.MSG, "EngineFactory.Created mapper {}", object.getClass().getName() ) );
+          Log.debug( LogMsg.createMsg( Batch.MSG, "EngineFactory.created_mapper", object.getClass().getName() ) );
         } else {
-          Log.error( LogMsg.createMsg( Batch.MSG, "EngineFactory.Specified class was not a frame mapper" ) );
+          Log.error( LogMsg.createMsg( Batch.MSG, "EngineFactory.specified_class_not_framemapper",object.getClass().getName() ) );
         }
       } else {
-        Log.error( LogMsg.createMsg( Batch.MSG, "EngineFactory.Could not create an instance of the specified mapper" ) );
+        Log.error( LogMsg.createMsg( Batch.MSG, "EngineFactory.could_not_create_specified_mapper",className ) );
       }
     } // cfg !null
   }

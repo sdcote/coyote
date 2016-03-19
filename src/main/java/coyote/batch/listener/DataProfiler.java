@@ -82,6 +82,7 @@ public class DataProfiler extends FileRecorder implements ContextListener {
   @Override
   public void onEnd( OperationalContext context ) {
 
+    // generate report at the end of the Transform, not each Transaction
     if ( context instanceof TransformContext ) {
       start = new Date( context.getStartTime() );
       end = new Date( context.getEndTime() );
