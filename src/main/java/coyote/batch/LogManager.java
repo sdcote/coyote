@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
+import java.util.UUID;
 
 import coyote.commons.FileUtil;
 import coyote.commons.StringUtil;
@@ -106,6 +107,12 @@ public class LogManager extends AbstractConfigurableComponent implements Configu
 
     String loggerName = frame.getAsString( ConfigTag.NAME );
 
+    // It is necessary to name loggers, but if not configured, generate a name
+    if ( StringUtil.isBlank( loggerName ) ) {
+      loggerName = UUID.randomUUID().toString();
+    }
+
+    // All loggers must have a name
     if ( StringUtil.isNotBlank( loggerName ) ) {
 
       Config cfg = new Config();
