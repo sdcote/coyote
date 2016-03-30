@@ -64,6 +64,17 @@ public class ConfigTag {
   public static final String KEEPDATE = "keepdate";
   public static final String RENAME = "rename";
   public static final String CHARACTER = "character";
+  public static final String PREEMTIVE_AUTH = "preemptive_auth";
+
+  // Networking proxy tags used by several components
+  public static final String PROXY = "proxy";
+  public static final String PROXY_HOST = "proxyHost";
+  public static final String PROXY_PORT = "proxyPort";
+  public static final String PROXY_USERNAME = "proxyUser";
+  public static final String ENCRYPTED_PROXY_USERNAME = "encrypted_proxyUser";
+  public static final String PROXY_PASSWORD = "proxyPassword";
+  public static final String ENCRYPTED_PROXY_PASSWORD = "encrypted_proxyPassword";
+  public static final String PROXY_DOMAIN = "proxyDomain";
 
   public static final String ROOT_ELEMENT = "rootElement";
   public static final String ROOT_ATTRIBUTE = "rootAttributes";
