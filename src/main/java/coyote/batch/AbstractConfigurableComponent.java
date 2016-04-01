@@ -142,43 +142,45 @@ public abstract class AbstractConfigurableComponent implements ConfigurableCompo
    * 
    * @param key the name of the configuration parameter to return
    * 
-   * @return the value with that name in the configuration or null if the 
-   * configuration value with that name could not be found in either the 
-   * configuration of transform context.
+   * @return the value with that name in the configuration or null if the given 
+   *         key is null, or the configuration value with that name could not 
+   *         be found in either the configuration of transform context.
    */
   public String getString( String key ) {
     String value = null;
+    if ( key != null ) {
+      // Perform a case insensitive search for the value with the given key
+      value = this.findString( key );
+      if ( context != null ) {
+        // See if there is a match in the context for reference resolution
+        if ( value != null ) {
+          // perform a case sensitive search for the value in the context
+          String cval = context.getAsString( value, true );
 
-    // Perform a case insensitive search for the value with the given key
-    value = this.findString( key );
-    if ( context != null ) {
-      // See if there is a match in the context for reference resolution
-      if ( value != null ) {
-        // perform a case sensitive search for the value in the context
-        String cval = context.getAsString( value, true );
-
-        // if an exact match was found in the context...
-        if ( cval != null ) {
-          // ...resolve the value as a template
-          return Template.resolve( cval, context.getSymbols() );
+          // if an exact match was found in the context...
+          if ( cval != null ) {
+            // ...resolve the value as a template
+            return Template.resolve( cval, context.getSymbols() );
+          }
         }
+
+        if ( value == null ) {
+          // perform a case insensitive search in the context
+          value = context.getAsString( key, false );
+        }
+        String retval = Template.resolve( value, context.getSymbols() );
+
+        Log.debug( LogMsg.createMsg( Batch.MSG, "Component.resolved_value", value, retval ) );
+
+        return retval;
+      } else {
+        if ( value == null )
+          return "";
       }
-
-      if ( value == null ) {
-        // perform a case insensitive search in the context
-        value = context.getAsString( key, false );
-      }
-      String retval = Template.resolve( value, context.getSymbols() );
-
-      Log.debug( LogMsg.createMsg( Batch.MSG, "Component.resolved_value", value, retval ) );
-
-      return retval;
-    } else {
-      if ( value == null )
-        return "";
-      else
-        return value;
     }
+
+    // if all else fails, return null
+    return value;
   }
 
 
