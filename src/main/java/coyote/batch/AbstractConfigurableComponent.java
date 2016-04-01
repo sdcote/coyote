@@ -111,6 +111,8 @@ public abstract class AbstractConfigurableComponent implements ConfigurableCompo
    * 
    * @return the string value of the configuration parameter or null if it is
    *         not found.
+   * 
+   * @see #getString(String) for a fully resolved search including the context
    */
   public String findString( String key ) {
     String retval = null;
@@ -138,13 +140,23 @@ public abstract class AbstractConfigurableComponent implements ConfigurableCompo
    * <p>The value is treated as a template and will be resolved against the 
    * symbol table currently set in the context.</p>
    * 
-   * <p>This is a case insensitive search for usability</p>
+   * <p>This is a case insensitive search, for usability.</p>
+   * 
+   * <p>NOTE: if you are looking for a value to later use to look up a value in 
+   * the context, what will happen is the context lookup portion of this method 
+   * will probably return the object value in the context and performing a 
+   * {@code toString()} on that object which is probaby not what you want. For 
+   * this use case, use the {@code findString()} method for roughly equivalent 
+   * functionality without the context lookup or template resolution.</p>
    * 
    * @param key the name of the configuration parameter to return
    * 
    * @return the value with that name in the configuration or null if the 
-   * configuration value with that name could not be found in either the 
-   * configuration of transform context.
+   *         configuration value with that name could not be found in either 
+   *         the configuration of transform context.
+   * 
+   * @see #findString(String) to just locate the raw value in the configuration 
+   *      without context or template resolution.
    */
   public String getString( String key ) {
     String value = null;
