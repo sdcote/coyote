@@ -151,9 +151,9 @@ public abstract class AbstractConfigurableComponent implements ConfigurableCompo
    * 
    * @param key the name of the configuration parameter to return
    * 
-   * @return the value with that name in the configuration or null if the 
-   *         configuration value with that name could not be found in either 
-   *         the configuration of transform context.
+   * @return the value with that name in the configuration or null if the given 
+   *         key is null, or the configuration value with that name could not 
+   *         be found in either the configuration of transform context.
    * 
    * @see #findString(String) to just locate the raw value in the configuration 
    *      without context or template resolution.
