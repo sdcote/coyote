@@ -36,7 +36,7 @@ public class Service extends AbstractBatchLoader implements Loader {
   /** Tag used in various class identifying locations. */
   public static final String CLASS = Service.class.getSimpleName();
 
-  // the name of the static binder class which can be used to dynamically load new UI managers
+  /** The name of the static binder class which can be used to dynamically load new UI managers */
   public static final String BINDERCLASS = "coyote.batch.http.StaticManagerBinder";
 
   private HttpManager server = null;
@@ -142,12 +142,8 @@ public class Service extends AbstractBatchLoader implements Loader {
     // load components
     super.initComponents();
 
-    // Now load "Jobs"
-
-    List<Config> sections = configuration.getSections( "Job" );
-
-    // Look for the COMPONENTS section
-    for ( Config section : sections ) {
+    // Now load "Jobs" sections representing individual transform engines
+    for ( Config section : configuration.getSections( "Job" ) ) {
 
       // make sure the configuration has a class
       section.setClassName( ScheduledBatchJob.class.getName() );
