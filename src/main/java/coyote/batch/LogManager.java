@@ -62,26 +62,36 @@ public class LogManager extends AbstractConfigurableComponent implements Configu
   @Override
   public void open( TransformContext context ) {
     setContext( context );
-    Log.debug( LogMsg.createMsg( Batch.MSG, "LogManager.initializing" ) );
 
-    // Find the loggers
-    for ( DataField field : getConfiguration().getFields() ) {
+    if ( getConfiguration() != null && getConfiguration().getFieldCount() > 0 ) {
+      Log.debug( LogMsg.createMsg( Batch.MSG, "LogManager.initializing" ) );
+      // Remove all the loggers since we will be adding our own and possibly 
+      // duplicating loggers resulting in duplicate messages (e.g. the same 
+      // message to the console multiple times) 
+      Log.removeAllLoggers();
 
-      if ( field.isFrame() ) {
-        DataFrame cfgFrame = (DataFrame)field.getObjectValue();
-        if ( StringUtil.isNotBlank( field.getName() ) ) {
-          if ( field.isFrame() ) {
-            configLogger( field.getName(), cfgFrame );
+      // Find the loggers
+      for ( DataField field : getConfiguration().getFields() ) {
+
+        if ( field.isFrame() ) {
+          DataFrame cfgFrame = (DataFrame)field.getObjectValue();
+          if ( StringUtil.isNotBlank( field.getName() ) ) {
+            if ( field.isFrame() ) {
+              configLogger( field.getName(), cfgFrame );
+            } else {
+              System.err.println( LogMsg.createMsg( Batch.MSG, "EngineFactory.invalid_logger_configuration_section" ) );
+            }
           } else {
-            System.err.println( LogMsg.createMsg( Batch.MSG, "EngineFactory.invalid_logger_configuration_section" ) );
+            System.err.println( LogMsg.createMsg( Batch.MSG, "EngineFactory.no_logger_classname", cfgFrame.toString() ) );
           }
         } else {
-          System.err.println( LogMsg.createMsg( Batch.MSG, "EngineFactory.no_logger_classname", cfgFrame.toString() ) );
+          System.err.println( LogMsg.createMsg( Batch.MSG, "EngineFactory.invalid_logger_configuration_section" ) );
         }
-      } else {
-        System.err.println( LogMsg.createMsg( Batch.MSG, "EngineFactory.invalid_logger_configuration_section" ) );
+
       }
 
+    } else {
+      Log.debug( LogMsg.createMsg( Batch.MSG, "LogManager.no_config" ) );
     }
 
   }
