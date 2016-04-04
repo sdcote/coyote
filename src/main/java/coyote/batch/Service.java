@@ -14,7 +14,7 @@ package coyote.batch;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.util.List;
+import java.util.Iterator;
 
 import coyote.batch.http.DefaultHttpManager;
 import coyote.batch.http.HttpManager;
@@ -136,22 +136,38 @@ public class Service extends AbstractBatchLoader implements Loader {
    * 
    * @see coyote.loader.AbstractLoader#initComponents()
    */
+  @SuppressWarnings("unchecked")
   @Override
   protected void initComponents() {
 
-    // load components
+    // load generic/general components
     super.initComponents();
 
     // Now load "Jobs" sections representing individual transform engines
     for ( Config section : configuration.getSections( "Job" ) ) {
 
-      // make sure the configuration has a class
+      // make sure the Job configuration has the appropriate wrapper class
       section.setClassName( ScheduledBatchJob.class.getName() );
 
-      // make sure the configuration has the command line arguments
-      // TODO: cfg.put( "CommandLine", value );
-
+      // create a component from the section
       loadComponent( section );
+    }
+
+    Log.append( Log.getCode( "SCHEDULER" ), "Initialized Scheduler:\r\n" + getScheduler().dump() );
+
+    // make sure the jobs have the command line arguments
+    synchronized( components ) {
+      for ( final Iterator<Object> it = components.keySet().iterator(); it.hasNext(); ) {
+        final Object cmpnt = it.next();
+        if ( cmpnt instanceof ScheduledBatchJob ) {
+          TransformEngine engine = ( (ScheduledBatchJob)cmpnt ).getEngine();
+          if ( engine != null ) {
+            for ( int x = 0; x < commandLineArguments.length; x++ ) {
+              engine.getSymbolTable().put( Symbols.COMMAND_LINE_ARG_PREFIX + x, commandLineArguments[x] );
+            }
+          }
+        }
+      }
     }
 
   }
