@@ -67,7 +67,6 @@ public class ScheduledBatchJob extends ScheduledJob implements ManagedComponent 
       }
     } else {
       Log.fatal( LogMsg.createMsg( Batch.MSG, "Job.no_job_section" ) );
-
     }
 
     // Setup the schedule - 
@@ -111,6 +110,7 @@ public class ScheduledBatchJob extends ScheduledJob implements ManagedComponent 
 
         // Repeat according to the schedule
         setRepeatable( true );
+        setExecutionTime( cronentry.getNextTime() );
 
         if ( Log.isLogging( Log.DEBUG_EVENTS ) ) {
           Log.debug( cronentry.toString() );
@@ -142,33 +142,6 @@ public class ScheduledBatchJob extends ScheduledJob implements ManagedComponent 
     } else {
       return super.getExecutionInterval();
     }
-  }
-
-
-
-
-  /**
-   * @see coyote.loader.thread.ScheduledJob#getExecutionTime()
-   */
-  @Override
-  public long getExecutionTime() {
-
-    if ( cronentry != null ) {
-      return cronentry.getNextTime();
-    } else {
-      return super.getExecutionTime();
-    }
-  }
-
-
-
-
-  /**
-   * @see java.lang.Object#toString()
-   */
-  @Override
-  public String toString() {
-    return super.toString();
   }
 
 
@@ -207,7 +180,12 @@ public class ScheduledBatchJob extends ScheduledJob implements ManagedComponent 
   public void doWork() {
 
     if ( engine != null ) {
-      Log.trace( LogMsg.createMsg( Batch.MSG, "Job.running" ) );
+      Log.trace( LogMsg.createMsg( Batch.MSG, "Job.running", getName(), engine.getName() ) );
+
+      // this sets our execution time to the exact millisecond based on when 
+      // this job ACTUALLY ran. This is to ensure slow running jobs don't cause
+      // execution delays 
+      setExecutionTime( cronentry.getNextTime() );
 
       // run the transformation
       // Note that depending on the configuration, this could be placed in the 
@@ -216,7 +194,7 @@ public class ScheduledBatchJob extends ScheduledJob implements ManagedComponent 
       try {
         engine.run();
       } catch ( final Exception e ) {
-        Log.fatal( LogMsg.createMsg( Batch.MSG, "Job.exception_running_engine", e.getClass().getSimpleName(), e.getMessage() ) );
+        Log.fatal( LogMsg.createMsg( Batch.MSG, "Job.exception_running_engine", e.getClass().getSimpleName(), e.getMessage(), getName(), engine.getName() ) );
         Log.fatal( ExceptionUtil.toString( e ) );
 
         // If we blowup, set the active flag false, so the service will remove 
@@ -227,7 +205,7 @@ public class ScheduledBatchJob extends ScheduledJob implements ManagedComponent 
         try {
           engine.close();
         } catch ( final IOException ignore ) {}
-        Log.trace( LogMsg.createMsg( Batch.MSG, "Job.completed", engine.getName() ) );
+        Log.trace( LogMsg.createMsg( Batch.MSG, "Job.completed", getName(), engine.getName() ) );
       } // try-catch-finally
 
     } else {
