@@ -161,6 +161,7 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
    */
   @Override
   public void run() {
+    Log.trace( "Engine '" + getName() + "' running..." );
 
     // figure out our job directory
     determineJobDirectory();
@@ -217,6 +218,8 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
     // Open the log manager with the current transform context
     if ( logManager != null )
       logManager.open( getContext() );
+
+    Log.trace( "Engine '" + getName() + "' starting transform; rundate:" + rundate );
 
     // fire the transformation start event
     getContext().start();
@@ -307,6 +310,7 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
           return;
         }
       }
+      Log.trace( "Engine '" + getName() + "' entering read loop" );
 
       // loop through all data read in by the reader until EOF or an error in 
       // the transform context occurs.
@@ -443,6 +447,8 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
 
     } // transformContext ! err after pre-processing
 
+    Log.trace( "Engine '" + getName() + "' reads completed" );
+
     if ( getContext().isInError() ) {
       reportTransformContextError( getContext() );
     } else {
@@ -481,6 +487,7 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
     }
 
     getContext().end();
+    Log.trace( "Engine '" + getName() + "' transformation completed" );
 
   }
 
