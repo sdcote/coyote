@@ -340,12 +340,12 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
           getContext().setError( "Cannot add byte arrays to table" );
           break;
         case DataField.STRING:
-          Log.trace( LogMsg.createMsg( Batch.MSG, "Database.saving_field_as", getClass().getName(), field.getName(), indx, "String" ) );
+          Log.debug( LogMsg.createMsg( Batch.MSG, "Database.saving_field_as", getClass().getName(), field.getName(), indx, "String" ) );
           pstmt.setString( indx, field.getStringValue() );
           break;
         case DataField.S8:
         case DataField.U8:
-          Log.trace( LogMsg.createMsg( Batch.MSG, "Database.saving_field_as", getClass().getName(), field.getName(), indx, "S8-byte" ) );
+          Log.debug( LogMsg.createMsg( Batch.MSG, "Database.saving_field_as", getClass().getName(), field.getName(), indx, "S8-byte" ) );
           if ( field.isNull() ) {
             pstmt.setNull( indx, java.sql.Types.TINYINT );
           } else {
@@ -354,7 +354,7 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
           break;
         case DataField.S16:
         case DataField.U16:
-          Log.trace( LogMsg.createMsg( Batch.MSG, "Database.saving_field_as", getClass().getName(), field.getName(), indx, "S16-Short" ) );
+          Log.debug( LogMsg.createMsg( Batch.MSG, "Database.saving_field_as", getClass().getName(), field.getName(), indx, "S16-Short" ) );
           if ( field.isNull() ) {
             pstmt.setNull( indx, java.sql.Types.SMALLINT );
           } else {
@@ -363,7 +363,7 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
           break;
         case DataField.S32:
         case DataField.U32:
-          Log.trace( LogMsg.createMsg( Batch.MSG, "Database.saving_field_as", getClass().getName(), field.getName(), indx, "S32-Integer" ) );
+          Log.debug( LogMsg.createMsg( Batch.MSG, "Database.saving_field_as", getClass().getName(), field.getName(), indx, "S32-Integer" ) );
           if ( field.isNull() ) {
             pstmt.setNull( indx, java.sql.Types.INTEGER );
           } else {
@@ -372,7 +372,7 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
           break;
         case DataField.S64:
         case DataField.U64:
-          Log.trace( LogMsg.createMsg( Batch.MSG, "Database.saving_field_as", getClass().getName(), field.getName(), indx, "S64-Long" ) );
+          Log.debug( LogMsg.createMsg( Batch.MSG, "Database.saving_field_as", getClass().getName(), field.getName(), indx, "S64-Long" ) );
           if ( field.isNull() ) {
             pstmt.setNull( indx, java.sql.Types.BIGINT );
           } else {
@@ -380,7 +380,7 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
           }
           break;
         case DataField.FLOAT:
-          Log.trace( LogMsg.createMsg( Batch.MSG, "Database.saving_field_as", getClass().getName(), field.getName(), indx, "Float" ) );
+          Log.debug( LogMsg.createMsg( Batch.MSG, "Database.saving_field_as", getClass().getName(), field.getName(), indx, "Float" ) );
           if ( field.isNull() ) {
             pstmt.setNull( indx, java.sql.Types.FLOAT );
           } else {
@@ -388,7 +388,7 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
           }
           break;
         case DataField.DOUBLE:
-          Log.trace( LogMsg.createMsg( Batch.MSG, "Database.saving_field_as", getClass().getName(), field.getName(), indx, "Double" ) );
+          Log.debug( LogMsg.createMsg( Batch.MSG, "Database.saving_field_as", getClass().getName(), field.getName(), indx, "Double" ) );
           if ( field.isNull() ) {
             pstmt.setNull( indx, java.sql.Types.DOUBLE );
           } else {
@@ -396,7 +396,7 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
           }
           break;
         case DataField.BOOLEANTYPE:
-          Log.trace( LogMsg.createMsg( Batch.MSG, "Database.saving_field_as", getClass().getName(), field.getName(), indx, "Boolean" ) );
+          Log.debug( LogMsg.createMsg( Batch.MSG, "Database.saving_field_as", getClass().getName(), field.getName(), indx, "Boolean" ) );
           if ( field.isNull() ) {
             pstmt.setNull( indx, java.sql.Types.BOOLEAN );
           } else {
@@ -404,7 +404,7 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
           }
           break;
         case DataField.DATE:
-          Log.trace( LogMsg.createMsg( Batch.MSG, "Database.saving_field_as", getClass().getName(), field.getName(), indx, "Timestamp" ) );
+          Log.debug( LogMsg.createMsg( Batch.MSG, "Database.saving_field_as", getClass().getName(), field.getName(), indx, "Timestamp" ) );
           if ( field.isNull() ) {
             pstmt.setNull( indx, java.sql.Types.TIMESTAMP );
           } else {
@@ -413,7 +413,7 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
           }
           break;
         case DataField.URI:
-          Log.trace( LogMsg.createMsg( Batch.MSG, "Database.saving_field_as", getClass().getName(), field.getName(), indx, "String" ) );
+          Log.debug( LogMsg.createMsg( Batch.MSG, "Database.saving_field_as", getClass().getName(), field.getName(), indx, "String" ) );
           pstmt.setString( indx, field.getStringValue() );
           break;
         case DataField.ARRAY:
@@ -557,7 +557,7 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
       } else {
         // Now write a batch
         for ( final DataFrame frame : frameset.getRows() ) {
-          Log.trace( LogMsg.createMsg( Batch.MSG, "Writer.writing_frame", this.getClass().getName(), frame ) );
+          Log.debug( LogMsg.createMsg( Batch.MSG, "Writer.writing_frame", this.getClass().getName(), frame ) );
 
           int indx = 1;
           for ( final String name : frameset.getColumns() ) {
@@ -705,7 +705,7 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
    * @param frame the frame to be written
    */
   private void writeFrame( final DataFrame frame ) {
-    Log.trace( LogMsg.createMsg( Batch.MSG, "Writer.writing_fields", getClass().getName(), frame.size() ) );
+    Log.debug( LogMsg.createMsg( Batch.MSG, "Writer.writing_fields", getClass().getName(), frame.size() ) );
     frameset.add( frame );
 
     if ( frameset.size() >= batchsize ) {

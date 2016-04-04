@@ -128,7 +128,6 @@ public class Job extends AbstractBatchLoader implements Loader {
    */
   @Override
   public void shutdown() {
-    //System.out.println( "Runtime termination, batch job shutting down..." );
     engine.shutdown();
   }
 

@@ -252,9 +252,10 @@ public class TransformEngineFactory {
 
 
   /**
-   * Get a 
-   * @param cfg
-   * @param engine
+   * Use the given configuration frame to add validators to the engine.
+   *  
+   * @param cfg the dataframe containing the validators
+   * @param engine the engine to configure with the validators
    */
   private static void configValidation( DataFrame cfg, TransformEngine engine ) {
     if ( cfg != null ) {
@@ -588,10 +589,10 @@ public class TransformEngineFactory {
           engine.setMapper( (FrameMapper)object );
           Log.debug( LogMsg.createMsg( Batch.MSG, "EngineFactory.created_mapper", object.getClass().getName() ) );
         } else {
-          Log.error( LogMsg.createMsg( Batch.MSG, "EngineFactory.specified_class_not_framemapper",object.getClass().getName() ) );
+          Log.error( LogMsg.createMsg( Batch.MSG, "EngineFactory.specified_class_not_framemapper", object.getClass().getName() ) );
         }
       } else {
-        Log.error( LogMsg.createMsg( Batch.MSG, "EngineFactory.could_not_create_specified_mapper",className ) );
+        Log.error( LogMsg.createMsg( Batch.MSG, "EngineFactory.could_not_create_specified_mapper", className ) );
       }
     } // cfg !null
   }
