@@ -145,7 +145,7 @@ public abstract class AbstractConfigurableComponent implements ConfigurableCompo
    * <p>NOTE: if you are looking for a value to later use to look up a value in 
    * the context, what will happen is the context lookup portion of this method 
    * will probably return the object value in the context and performing a 
-   * {@code toString()} on that object which is probaby not what you want. For 
+   * {@code toString()} on that object which is probably not what you want. For 
    * this use case, use the {@code findString()} method for roughly equivalent 
    * functionality without the context lookup or template resolution.</p>
    * 
@@ -163,6 +163,7 @@ public abstract class AbstractConfigurableComponent implements ConfigurableCompo
 
     // Perform a case insensitive search for the value with the given key
     value = this.findString( key );
+    
     if ( context != null ) {
       // See if there is a match in the context for reference resolution
       if ( value != null ) {
@@ -182,14 +183,16 @@ public abstract class AbstractConfigurableComponent implements ConfigurableCompo
       }
       String retval = Template.resolve( value, context.getSymbols() );
 
-      Log.debug( LogMsg.createMsg( Batch.MSG, "Component.resolved_value", value, retval ) );
+      // Only log if the value changed
+      if ( Log.isLogging( Log.DEBUG_EVENTS ) ) {
+        if ( retval != null && !retval.equals( value ) ) {
+          Log.debug( LogMsg.createMsg( Batch.MSG, "Component.resolved_value", value, retval ) );
+        }
+      }
 
       return retval;
     } else {
-      if ( value == null )
-        return "";
-      else
-        return value;
+      return value;
     }
   }
 
