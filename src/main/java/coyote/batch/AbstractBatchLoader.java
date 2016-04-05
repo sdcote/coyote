@@ -54,7 +54,7 @@ public abstract class AbstractBatchLoader extends AbstractLoader {
    * project directory with one configuration file per directory.</p>
    * 
    * <p>It is possible that multiple files with different configurations will 
-   * exist in one directory
+   * exist in one directory.</p>
    */
   protected void determineHomeDirectory() {
     // If our home directory is not specified as a system property...
