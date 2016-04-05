@@ -513,31 +513,35 @@ public class TransformEngineFactory {
    * @param engine the transform engine
    */
   private static void configPersistentContext( DataFrame cfg, TransformEngine engine ) {
-    if ( cfg != null ) {
-      TransformContext context = engine.getContext();
+    TransformContext context = engine.getContext();
 
-      if ( context == null ) {
-        if ( engine.getName() != null ) {
-          context = new PersistentContext();
+    if ( context == null ) {
+      if ( engine.getName() != null ) {
+        context = new PersistentContext();
+
+        // null (empty) configurations are allowed
+        if ( cfg != null ) {
           context.setConfiguration( cfg );
-
-          // set the context in the engine
-          engine.setContext( context );
-
-          // set the engine in the context
-          context.setEngine( engine );
-
-          Log.debug( LogMsg.createMsg( Batch.MSG, "EngineFactory.created_persistent_context", context.getClass().getName() ) );
         } else {
-          Log.warn( LogMsg.createMsg( Batch.MSG, "EngineFactory.unnamed_engine_configuration" ) );
-          configContext( cfg, engine );
-          return;
+          context.setConfiguration( new DataFrame() );
         }
+
+        // set the context in the engine
+        engine.setContext( context );
+
+        // set the engine in the context
+        context.setEngine( engine );
+
+        Log.debug( LogMsg.createMsg( Batch.MSG, "EngineFactory.created_persistent_context", context.getClass().getName() ) );
       } else {
-        // TODO: support converting a regular context into a persistent one
-        Log.warn( LogMsg.createMsg( Batch.MSG, "EngineFactory.could_not_replace_existing_context" ) );
+        Log.warn( LogMsg.createMsg( Batch.MSG, "EngineFactory.unnamed_engine_configuration" ) );
+        configContext( cfg, engine );
+        return;
       }
-    } // cfg !null
+    } else {
+      // TODO: support converting a regular context into a persistent one
+      Log.warn( LogMsg.createMsg( Batch.MSG, "EngineFactory.could_not_replace_existing_context" ) );
+    }
   }
 
 
