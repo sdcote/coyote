@@ -270,6 +270,7 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
 
       setLibrary( getString( ConfigTag.LIBRARY ) );
       Log.debug( LogMsg.createMsg( Batch.MSG, "Writer.using_driver", getClass().getName(), getLibrary() ) );
+      //TODO: try to ensure the JAR exists
 
     } else {
       Log.debug( LogMsg.createMsg( Batch.MSG, "Writer.using_existing_connection", getClass().getName() ) );
