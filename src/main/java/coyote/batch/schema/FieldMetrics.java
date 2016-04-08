@@ -28,6 +28,7 @@ public class FieldMetrics {
   private static final String BYTE_LENGTH = "Byte Length";
   private String fieldName = null;
   private String fieldType = null;
+  private long fieldLength = -1L;
   long nullCount = 0;
   long emptyCount = 0;
   long blankCount = 0;
@@ -241,6 +242,48 @@ public class FieldMetrics {
     } else {
       return 1F;
     }
+  }
+
+
+
+
+  /**
+   * @return the maximum (string) length for this field.
+   */
+  public long getMaxLength() {
+    return stringLength.getMaxValue();
+  }
+
+
+
+
+  public void setMaxLength( long len ) {
+
+    stringLength.sample( len );;
+  }
+
+
+
+
+  /**
+   * @return the field Length
+   */
+  public long getLength() {
+    if ( fieldLength >= 0 ) {
+      return fieldLength;
+    } else {
+      return 0;
+    }
+  }
+
+
+
+
+  /**
+   * @param length the length to set
+   */
+  public void setLength( long length ) {
+    fieldLength = length;
   }
 
 }

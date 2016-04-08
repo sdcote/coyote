@@ -26,7 +26,7 @@ import coyote.dataframe.DataFrame;
  * Data Frames they have observed, compiling a detailed profile about the set 
  * of frames.</p> 
  */
-public class Schema {
+public class MetricSchema {
 
   private long samples = 0;
 
@@ -57,7 +57,7 @@ public class Schema {
    * 
    * @return a FieldMetric associated with the named field. Never returns null.
    */
-  private FieldMetrics getMetric( String name ) {
+  public FieldMetrics getMetric( String name ) {
     FieldMetrics retval = null;
     if ( name != null ) {
       for ( FieldMetrics metric : metrics ) {

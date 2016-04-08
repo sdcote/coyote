@@ -23,7 +23,7 @@ import coyote.batch.TransactionContext;
 import coyote.batch.TransformContext;
 import coyote.batch.schema.DatabaseDialect;
 import coyote.batch.schema.FieldMetrics;
-import coyote.batch.schema.Schema;
+import coyote.batch.schema.MetricSchema;
 import coyote.commons.StringUtil;
 import coyote.commons.template.SymbolTable;
 import coyote.dataframe.DataFrame;
@@ -34,8 +34,8 @@ import coyote.dataframe.DataFrame;
  * reports on the characteristics of the data observed.
  */
 public class DataProfiler extends FileRecorder implements ContextListener {
-  private Schema inputSchema = new Schema();
-  private Schema outputSchema = new Schema();
+  private MetricSchema inputSchema = new MetricSchema();
+  private MetricSchema outputSchema = new MetricSchema();
   protected static final SymbolTable symbols = new SymbolTable();
 
   long readBytes = 0;

@@ -201,7 +201,7 @@ public class DatabaseDialect {
    * @see coyote.commons.template.Template
    */
   @SuppressWarnings("unchecked")
-  public static String getCreate( String database, Schema schema, SymbolTable symbols ) {
+  public static String getCreate( String database, MetricSchema schema, SymbolTable symbols ) {
 
     Map<String, String> typeMap = TYPES.get( database );
     if ( typeMap != null ) {
