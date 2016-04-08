@@ -21,6 +21,7 @@ public class ConfigTag {
   public static final String CIPHER_NAME = "cipher.name";
   public static final String CIPHER_KEY = "cipher.key";
 
+  public static final String AUTO_ADJUST = "autoadjust";
   public static final String AUTO_CREATE = "autocreate";
   /** Batch size ({@value}) configuration attribute. */
   public static final String BATCH = "batch";
@@ -122,9 +123,9 @@ public class ConfigTag {
   public static final String AVOID = "avoid";
   public static final String HALT_ON_FAIL = "halt";
   public static final String DESCRIPTION = "desc";
-  
+
   // Scheduler
-  
+
   public static final String SCHEDULE = "Schedule";
   public static final String MINUTES = "minutes";
   public static final String HOURS = "houre";

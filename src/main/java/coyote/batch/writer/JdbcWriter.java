@@ -54,6 +54,7 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
   private Schema schema = new Schema();
   protected Connection connection;
   private String database = null;
+  private volatile boolean autoAdjust = false; // cached value
 
   protected int batchsize = 0;
   protected final FrameSet frameset = new FrameSet();
@@ -237,6 +238,13 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
 
 
 
+  public boolean isAutoAdjust() {
+    return autoAdjust;
+  }
+
+
+
+
   /**
    * @see coyote.batch.writer.AbstractFrameWriter#open(coyote.batch.TransformContext)
    */
@@ -265,6 +273,9 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
       setAutoCreate( getBoolean( ConfigTag.AUTO_CREATE ) );
       Log.debug( LogMsg.createMsg( Batch.MSG, "Writer.autocreate_tables", getClass().getName(), isAutoCreate() ) );
 
+      setAutoAdjust( getBoolean( ConfigTag.AUTO_ADJUST ) );
+      Log.debug( LogMsg.createMsg( Batch.MSG, "Writer.autoadjust_tables", getClass().getName(), isAutoAdjust() ) );
+
       setBatchSize( getInteger( ConfigTag.BATCH ) );
       Log.debug( LogMsg.createMsg( Batch.MSG, "Writer.using_batch_size", getClass().getName(), getBatchSize() ) );
 
@@ -289,10 +300,21 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
 
 
   /**
-   * @param value
+   * @param value true to automatically create the table based on the sizes of data observed so far, false to fail with an error if the table does not exist.
    */
   public void setAutoCreate( final boolean value ) {
     configuration.put( ConfigTag.AUTO_CREATE, value );
+  }
+
+
+
+
+  /**
+   * @param value true to automatically adjust column sizes to accomodate data, false to throw error
+   */
+  public void setAutoAdjust( final boolean value ) {
+    autoAdjust = value;
+    configuration.put( ConfigTag.AUTO_ADJUST, value );
   }
 
 
@@ -341,6 +363,12 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
           getContext().setError( "Cannot add byte arrays to table" );
           break;
         case DataField.STRING:
+
+          if ( isAutoAdjust() ) {
+            // TODO: if auto adjust, check the size of the string and issue an 
+            // "alter table" command to adjust the size of the colum if the 
+            // string is too large to fit
+          }
           Log.debug( LogMsg.createMsg( Batch.MSG, "Database.saving_field_as", getClass().getName(), field.getName(), indx, "String" ) );
           pstmt.setString( indx, field.getStringValue() );
           break;
@@ -516,7 +544,7 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
   private void writeBatch() {
 
     if ( SQL == null ) {
-      // Since this is the fist time we have tried to write to the table, make
+      // Since this is the first time we have tried to write to the table, make
       // sure the table exists
       if ( checkTable() ) {
 
@@ -533,6 +561,7 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
       }
     }
 
+    // if the table check did not generate an error
     if ( getContext().isNotInError() ) {
       if ( batchsize <= 1 ) {
         final DataFrame frame = frameset.get( 0 );
