@@ -23,6 +23,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Types;
 import java.util.Date;
 
 import coyote.batch.Batch;
@@ -31,6 +32,8 @@ import coyote.batch.ConfigurableComponent;
 import coyote.batch.FrameWriter;
 import coyote.batch.TransformContext;
 import coyote.batch.eval.EvaluationException;
+import coyote.batch.schema.ColumnDefinition;
+import coyote.batch.schema.ColumnType;
 import coyote.batch.schema.DatabaseDialect;
 import coyote.batch.schema.MetricSchema;
 import coyote.batch.schema.TableSchema;
@@ -47,7 +50,15 @@ import coyote.loader.log.LogMsg;
 
 
 /**
- * 
+ * <p>There is an inherent loss of fidelity with this class in that not all SQL 
+ * types are replicated faithfully through the writer. For example, the 
+ * differences between VARCHAR, VARCHAR2, STRING are merged into a String type. 
+ * NUMERIC and LONG are simply the Long type. The goal of this writer is to 
+ * support the widest number of types across not only different data bases, but 
+ * data storage technologies and network protocols. The core intermediate 
+ * format (DataFrame) is designed to support data types common to many 
+ * different technologies and therefore dictates what the framework 
+ * supports.</p> 
  */
 public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, ConfigurableComponent {
 
@@ -684,6 +695,15 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
 
 
 
+  /**
+   * <p>Mappings are generally those suggested in the Oracle JDBC mapping guide 
+   * with minor exceptions for DECIMAL and NUMERIC as BigDecimal is not 
+   * supported by Data Frame at this time.</p>
+   * 
+   * @param tablename name of the table being generated
+   * 
+   * @return a table schema for the database table to which this writer is writing.
+   */
   private TableSchema getTableSchema( String tablename ) {
     if ( StringUtil.isNotBlank( tablename ) ) {
       Connection conn = getConnection();
@@ -692,7 +712,7 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
         return null;
       }
 
-      String schemaName = null;
+      String tableSchemaName = null;
 
       ResultSet rs = null;
       try {
@@ -702,7 +722,7 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
         rs = meta.getTables( null, null, "%", null );
         while ( rs.next() ) {
           if ( tablename.equalsIgnoreCase( rs.getString( "TABLE_NAME" ) ) ) {
-            schemaName = rs.getString( "TABLE_NAME" );
+            tableSchemaName = rs.getString( "TABLE_NAME" );
             break;
           }
         }
@@ -720,65 +740,102 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
         }
       }
 
-      if ( StringUtil.isNotEmpty( schemaName ) ) {
-        TableSchema retval = new TableSchema( schemaName );
+      if ( StringUtil.isNotEmpty( tableSchemaName ) ) {
+        TableSchema retval = new TableSchema( tableSchemaName );
 
-        
-        
-        /**
-         * TABLE_CAT String => table catalog (may be null)
-         * TABLE_SCHEM String => table schema (may be null)
-         * TABLE_NAME String => table name
-         * COLUMN_NAME String => column name
-         * DATA_TYPE int => SQL type from java.sql.Types
-         * TYPE_NAME String => Data source dependent type name, for a UDT the type name is fully qualified
-         * COLUMN_SIZE int => column size.
-         * BUFFER_LENGTH is not used.
-         * DECIMAL_DIGITS int => the number of fractional digits. Null is returned for data types where DECIMAL_DIGITS is not applicable.
-         * NUM_PREC_RADIX int => Radix (typically either 10 or 2)
-         * NULLABLE int => is NULL allowed.
-         * columnNoNulls - might not allow NULL values 
-         * columnNullable - definitely allows NULL values
-         * columnNullableUnknown - nullability unknown
-         * REMARKS String => comment describing column (may be null)
-         * COLUMN_DEF String => default value for the column, which should be interpreted as a string when the value is enclosed in single quotes (may be null)
-         * SQL_DATA_TYPE int => unused
-         * SQL_DATETIME_SUB int => unused
-         * CHAR_OCTET_LENGTH int => for char types the maximum number of bytes in the column
-         * ORDINAL_POSITION int => index of column in table (starting at 1)
-         * IS_NULLABLE String => ISO rules are used to determine the nullability for a column.
-         * YES --- if the column can include NULLs
-         * NO --- if the column cannot include NULLs
-         * empty string --- if the nullability for the column is unknown
-         * SCOPE_CATALOG String => catalog of table that is the scope of a reference attribute (null if DATA_TYPE isn't REF)
-         * SCOPE_SCHEMA String => schema of table that is the scope of a reference attribute (null if the DATA_TYPE isn't REF)
-         * SCOPE_TABLE String => table name that this the scope of a reference attribute (null if the DATA_TYPE isn't REF)
-         * SOURCE_DATA_TYPE short => source type of a distinct type or user-generated Ref type, SQL type from java.sql.Types (null if DATA_TYPE isn't DISTINCT or user-generated REF)
-         * IS_AUTOINCREMENT String => Indicates whether this column is auto incremented
-         * YES --- if the column is auto incremented
-         * NO --- if the column is not auto incremented
-         * empty string --- if it cannot be determined whether the column is auto incremented
-         * IS_GENERATEDCOLUMN String => Indicates whether this is a generated column
-         * YES --- if this a generated column
-         * NO --- if this not a generated column
-         * empty string --- if it cannot be determined whether this is a generated column
-         * The COLUMN_SIZE column specifies the column size for the given column. For numeric data, this is the maximum precision. For character data, this is the length in characters. For datetime datatypes, this is the length in characters of the String representation (assuming the maximum allowed precision of the fractional seconds component). For binary data, this is the length in bytes. For the ROWID datatype, this is the length in bytes. Null is returned for data types where the column size is not applicable.
-         * */
         rs = null;
         try {
           DatabaseMetaData meta = conn.getMetaData();
-          rs = meta.getColumns( null, null, schemaName, "%" );
+          rs = meta.getColumns( null, null, tableSchemaName, "%" );
+
+          String name;
+          ColumnType type;
+          int length;
+          boolean readOnly;
+          boolean mandatory;
+          boolean primaryKey;
+          boolean unique;
+          boolean nullable;
+          int pos;
+          String remarks;
 
           while ( rs.next() ) {
-            System.out.print( rs.getString( "COLUMN_NAME" ) );
-            System.out.print( " - " );
-            System.out.print( rs.getString( "TYPE_NAME" ) );
-            System.out.print( "(" );
-            System.out.print( rs.getInt( "DATA_TYPE" ) );
-            System.out.print( ") " );
-            System.out.print( rs.getInt( "COLUMN_SIZE" ) );
-            System.out.println();
+            readOnly = nullable = mandatory = primaryKey = unique = false;
+            length = pos = 0;
+            name = remarks = null;
+
+            // If there is a catalog name and it is not already set, set it
+            if ( rs.getString( "TABLE_CAT" ) != null && retval.getCatalogName() == null ) {
+              retval.setCatalogName( rs.getString( "TABLE_CAT" ) );
+            }
+
+            // If there is a schema name and it is not already set, set it
+            if ( rs.getString( "TABLE_SCHEM" ) != null && retval.getSchemaName() == null ) {
+              retval.setSchemaName( rs.getString( "TABLE_SCHEM" ) );
+            }
+
+            // Retrieve data about the column
+            name = rs.getString( "COLUMN_NAME" );
+            length = rs.getInt( "COLUMN_SIZE" );
+            pos = rs.getInt( "ORDINAL_POSITION" );
+            remarks = rs.getString( "REMARKS" );
+
+            switch ( rs.getInt( "DATA_TYPE" ) ) {
+              case Types.TIME:
+              case Types.TIMESTAMP:
+              case Types.DATE:
+                type = ColumnType.DATE;
+                break;
+              case Types.BOOLEAN:
+                type = ColumnType.BOOLEAN;
+                break;
+              case Types.TINYINT:
+                type = ColumnType.BYTE;
+                break;
+              case Types.SMALLINT:
+                type = ColumnType.SHORT;
+                break;
+              case Types.INTEGER:
+                type = ColumnType.INT;
+                break;
+              case Types.FLOAT:
+              case Types.DOUBLE:
+              case Types.REAL:
+                type = ColumnType.FLOAT;
+                break;
+              case Types.DECIMAL:
+              case Types.NUMERIC:
+                type = ColumnType.DOUBLE;
+                break;
+              case Types.BIGINT:
+                type = ColumnType.LONG;
+              case Types.DISTINCT:
+                unique = true;
+                type = ColumnType.STRING;
+                break;
+              default:
+                type = ColumnType.STRING;
+            }
+
+            switch ( rs.getInt( "NULLABLE" ) ) {
+              case DatabaseMetaData.columnNoNulls:
+                nullable = false;
+                break;
+              case DatabaseMetaData.columnNullable:
+                nullable = true;
+                break;
+              case DatabaseMetaData.columnNullableUnknown:
+                nullable = false;
+                break;
+              default:
+                nullable = false;
+            }
+
+            retval.addColumn( new ColumnDefinition( name, type, length, nullable, readOnly, mandatory, primaryKey, unique, remarks, pos ) );
+
           }
+          
+          System.out.println(retval);
 
         } catch ( SQLException e ) {
           e.printStackTrace();
