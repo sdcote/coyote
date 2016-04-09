@@ -19,6 +19,8 @@ import java.util.List;
  * This models a (database) table schema.
  */
 public class TableSchema {
+  private String catalogName;
+  private String schemaName;
   private final String tableName;
   private final List<ColumnDefinition> columns = new ArrayList<ColumnDefinition>();
 
@@ -33,6 +35,12 @@ public class TableSchema {
 
 
   public void addColumn( ColumnDefinition col ) {
+    for ( int x = 0; x < columns.size(); x++ ) {
+      if ( columns.get( x ).getPosition() > col.getPosition() ) {
+        columns.add( x, col );
+        return;
+      }
+    }
     columns.add( col );
   }
 
@@ -61,10 +69,50 @@ public class TableSchema {
 
 
   /**
-   * @return the name
+   * @return the name of the table
    */
   public String getName() {
     return tableName;
+  }
+
+
+
+
+  /**
+   * @return the name of the catalog in which this table exists
+   */
+  public String getCatalogName() {
+    return catalogName;
+  }
+
+
+
+
+  /**
+   * @param name the catalog name to set
+   */
+  public void setCatalogName( String name ) {
+    this.catalogName = name;
+  }
+
+
+
+
+  /**
+   * @return the name of the schema in which this table exists
+   */
+  public String getSchemaName() {
+    return schemaName;
+  }
+
+
+
+
+  /**
+   * @param name the schema name to set
+   */
+  public void setSchemaName( String name ) {
+    this.schemaName = name;
   }
 
 }
