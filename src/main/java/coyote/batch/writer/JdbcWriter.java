@@ -63,14 +63,31 @@ import coyote.loader.log.LogMsg;
 public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, ConfigurableComponent {
 
   protected static final SymbolTable symbolTable = new SymbolTable();
-  private MetricSchema schema = new MetricSchema();
-  protected Connection connection;
-  private String database = null;
-  private volatile boolean autoAdjust = false; // cached value
 
+  /** The schema of all the frames we have read in so far. */
+  private MetricSchema schema = new MetricSchema();
+
+  /** The database table definition */
+  private TableDefinition tableschema = null;
+
+  /** The JDBC connection used by this writer to interact with the database */
+  protected Connection connection;
+
+  /** The database product name (Oracle, H2, etc.) to which we are connected. */
+  private String database = null;
+
+  /** Cached value of the Auto-Adjust flag to alter tables if necessary. */
+  private volatile boolean autoAdjust = false;
+
+  /** The number of records we should batch before executing an UPDATE */
   protected int batchsize = 0;
+
+  /** The collection of frames to be written; the batch of records to write. */
   protected final FrameSet frameset = new FrameSet();
+
+  /** The SQL INSERT statement we use for writing the batch */
   protected String SQL = null;
+
   protected PreparedStatement ps = null;
 
 
@@ -129,7 +146,7 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
   /**
    * @return the insert SQL appropriate for this frameset
    */
-  private String generateSQL() {
+  private String generateInsertSQL() {
     final StringBuffer c = new StringBuffer( "insert into " );
     final StringBuffer v = new StringBuffer();
 
@@ -353,6 +370,12 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
 
 
   /**
+   * Set the given data file into the given prepared statement at the given 
+   * index in the statement.
+   * 
+   * <p>This ensures the correct data is placed in the prepared statement with 
+   * the appropriate type. This also checks for nulls.</p>
+   * 
    * @param pstmt the prepared statement to which to add data
    * @param indx the index into the value set 
    * @param field the field containing the value to add
@@ -375,14 +398,12 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
           getContext().setError( "Cannot add byte arrays to table" );
           break;
         case DataField.STRING:
-
-          if ( isAutoAdjust() ) {
-            // TODO: if auto adjust, check the size of the string and issue an 
-            // "alter table" command to adjust the size of the colum if the 
-            // string is too large to fit
-          }
           Log.debug( LogMsg.createMsg( Batch.MSG, "Database.saving_field_as", getClass().getName(), field.getName(), indx, "String" ) );
-          pstmt.setString( indx, field.getStringValue() );
+          if ( field.isNull() ) {
+            pstmt.setNull( indx, java.sql.Types.VARCHAR );
+          } else {
+            pstmt.setString( indx, field.getStringValue() );
+          }
           break;
         case DataField.S8:
         case DataField.U8:
@@ -461,6 +482,7 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
           getContext().setError( "Cannot add arrays to table field" );
           break;
         default:
+          // Everything else is set to null
           pstmt.setNull( indx, java.sql.Types.VARCHAR );
           break;
       }
@@ -560,7 +582,7 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
       // sure the table exists
       if ( checkTable() ) {
 
-        SQL = generateSQL();
+        SQL = generateInsertSQL();
         Log.debug( LogMsg.createMsg( Batch.MSG, "Writer.using_sql", getClass().getName(), SQL ) );
 
         final Connection connection = getConnection();
@@ -569,6 +591,18 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
         } catch ( final SQLException e ) {
 
           getContext().setError( LogMsg.createMsg( Batch.MSG, "Writer.preparedstatement_exception", getClass().getName(), e.getMessage() ).toString() );
+        }
+      }
+    }
+
+    if ( isAutoAdjust() ) {
+      for ( final String name : frameset.getColumns() ) {
+
+        if ( schema.getMetric( name ).getMaximumStringLength() > tableschema.findColumn( name ).getLength() ) {
+          // TODO: if auto adjust, check the size of the string and issue an 
+          // "alter table" command to adjust the size of the colum if the 
+          // string is too large to fit
+          System.out.println( "The " + database + " table '" + tableschema.getName() + "' must be altered to fit the '" + name + "' value; table allows a size of " + tableschema.findColumn( name ).getLength() + " but data requires " + schema.getMetric( name ).getMaximumStringLength() );
         }
       }
     }
@@ -686,9 +720,9 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
       }
     }
 
-    if ( isAutoAdjust() ) {
-      TableDefinition schema = getTableSchema( getTable() );
-    }
+    // get the schema for the database table we are using
+    tableschema = getTableSchema( getTable() );
+
     return true;
   }
 
@@ -705,6 +739,7 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
    * @return a table schema for the database table to which this writer is writing.
    */
   private TableDefinition getTableSchema( String tablename ) {
+    TableDefinition retval = null;
     if ( StringUtil.isNotBlank( tablename ) ) {
       Connection conn = getConnection();
       if ( conn == null ) {
@@ -741,7 +776,7 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
       }
 
       if ( StringUtil.isNotEmpty( tableSchemaName ) ) {
-        TableDefinition retval = new TableDefinition( tableSchemaName );
+        retval = new TableDefinition( tableSchemaName );
 
         rs = null;
         try {
@@ -834,8 +869,8 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
             retval.addColumn( new ColumnDefinition( name, type, length, nullable, readOnly, mandatory, primaryKey, unique, remarks, pos ) );
 
           }
-          
-          System.out.println(retval);
+
+          System.out.println( retval );
 
         } catch ( SQLException e ) {
           e.printStackTrace();
@@ -854,7 +889,7 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
       }
 
     }
-    return null;
+    return retval;
   }
 
 

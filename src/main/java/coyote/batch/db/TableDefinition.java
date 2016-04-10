@@ -150,4 +150,47 @@ public class TableDefinition {
     return b.toString();
   }
 
+
+
+
+  /**
+   * Return the named colum definition from the table definition.
+   * 
+   * @param name The name of the column to return
+   * 
+   * @return the named colum or null if not found.
+   * 
+   * @see #findColumn(String)
+   */
+  public ColumnDefinition getColumn( String name ) {
+    for ( ColumnDefinition column : columns ) {
+      if ( column.getName().equals( name ) ) {
+        return column;
+      }
+    }
+    return null;
+  }
+
+
+
+
+  /**
+   * Return the named colum definition from the table definition based on a 
+   * case in-sensitive search.
+   * 
+   * @param name The name of the column to return
+   * 
+   * @return the named colum or null if not found.
+   * 
+   * @see #getColumn(String)
+   */
+  public ColumnDefinition findColumn( String name ) {
+    for ( ColumnDefinition column : columns ) {
+      if ( column.getName().equalsIgnoreCase( name ) ) {
+        return column;
+      }
+    }
+    return null;
+  }
+
 }
