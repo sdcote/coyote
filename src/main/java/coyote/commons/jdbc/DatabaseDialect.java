@@ -9,12 +9,14 @@
  *   Stephan D. Cote 
  *      - Initial concept and initial implementation
  */
-package coyote.batch.schema;
+package coyote.commons.jdbc;
 
 import java.util.HashMap;
 import java.util.Map;
 
 import coyote.batch.Batch;
+import coyote.batch.schema.FieldMetrics;
+import coyote.batch.schema.MetricSchema;
 import coyote.commons.StringUtil;
 import coyote.commons.template.SymbolTable;
 import coyote.commons.template.Template;

@@ -9,7 +9,8 @@
  *   Stephan D. Cote 
  *      - Initial concept and initial implementation
  */
-package coyote.batch.schema;
+package coyote.commons.jdbc;
+
 
 /**
  * This holds details about a column in a table
