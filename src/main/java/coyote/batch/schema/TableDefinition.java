@@ -16,9 +16,9 @@ import java.util.List;
 
 
 /**
- * This models a (database) table schema.
+ * This models a (database) table definition.
  */
-public class TableSchema {
+public class TableDefinition {
   private String catalogName;
   private String schemaName;
   private final String tableName;
@@ -27,7 +27,7 @@ public class TableSchema {
 
 
 
-  public TableSchema( String name ) {
+  public TableDefinition( String name ) {
     tableName = name;
   }
 
@@ -113,6 +113,41 @@ public class TableSchema {
    */
   public void setSchemaName( String name ) {
     this.schemaName = name;
+  }
+
+
+
+
+  /**
+   * @see java.lang.Object#toString()
+   */
+  @Override
+  public String toString() {
+    StringBuffer b = new StringBuffer();
+    if ( catalogName != null ) {
+      b.append( catalogName );
+      b.append( '.' );
+    }
+    if ( schemaName != null ) {
+      b.append( schemaName );
+      b.append( '.' );
+    }
+    b.append( tableName );
+    b.append( "\r\n" );
+    b.append( "================" );
+    b.append( "\r\n" );
+    for ( ColumnDefinition column : columns ) {
+      b.append( column.getName() );
+      b.append( ' ' );
+      b.append( column.getType().getName() );
+      b.append( '(' );
+      b.append( column.getLength() );
+      b.append( ')' );
+      b.append( "\r\n" );
+    }
+    b.append( "================" );
+
+    return b.toString();
   }
 
 }

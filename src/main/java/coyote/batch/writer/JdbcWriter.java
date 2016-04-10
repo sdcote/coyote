@@ -36,7 +36,7 @@ import coyote.batch.schema.ColumnDefinition;
 import coyote.batch.schema.ColumnType;
 import coyote.batch.schema.DatabaseDialect;
 import coyote.batch.schema.MetricSchema;
-import coyote.batch.schema.TableSchema;
+import coyote.batch.schema.TableDefinition;
 import coyote.commons.JdbcUtil;
 import coyote.commons.StringUtil;
 import coyote.commons.jdbc.DriverDelegate;
@@ -687,7 +687,7 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
     }
 
     if ( isAutoAdjust() ) {
-      TableSchema schema = getTableSchema( getTable() );
+      TableDefinition schema = getTableSchema( getTable() );
     }
     return true;
   }
@@ -704,7 +704,7 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
    * 
    * @return a table schema for the database table to which this writer is writing.
    */
-  private TableSchema getTableSchema( String tablename ) {
+  private TableDefinition getTableSchema( String tablename ) {
     if ( StringUtil.isNotBlank( tablename ) ) {
       Connection conn = getConnection();
       if ( conn == null ) {
@@ -741,7 +741,7 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
       }
 
       if ( StringUtil.isNotEmpty( tableSchemaName ) ) {
-        TableSchema retval = new TableSchema( tableSchemaName );
+        TableDefinition retval = new TableDefinition( tableSchemaName );
 
         rs = null;
         try {
