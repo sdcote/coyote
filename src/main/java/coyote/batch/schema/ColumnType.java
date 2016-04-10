@@ -73,6 +73,13 @@ public enum ColumnType {
 
 
 
+  public String getName() {
+    return name;
+  }
+
+
+
+
   public int getLength() {
     return length;
   }
