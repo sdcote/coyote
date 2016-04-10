@@ -15,8 +15,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import coyote.batch.Batch;
-import coyote.batch.schema.FieldMetrics;
-import coyote.batch.schema.MetricSchema;
+import coyote.batch.db.FieldMetrics;
+import coyote.batch.db.MetricSchema;
 import coyote.commons.StringUtil;
 import coyote.commons.template.SymbolTable;
 import coyote.commons.template.Template;

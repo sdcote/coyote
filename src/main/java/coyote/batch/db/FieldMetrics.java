@@ -9,7 +9,7 @@
  *   Stephan D. Cote 
  *      - Initial concept and initial implementation
  */
-package coyote.batch.schema;
+package coyote.batch.db;
 
 import java.util.HashSet;
 import java.util.Set;
