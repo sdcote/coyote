@@ -9,7 +9,8 @@
  *   Stephan D. Cote 
  *      - Initial concept and initial implementation
  */
-package coyote.commons.jdbc;
+package coyote.batch.db;
+
 
 
 /**

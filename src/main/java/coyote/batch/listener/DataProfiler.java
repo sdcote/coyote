@@ -21,10 +21,10 @@ import coyote.batch.FrameWriter;
 import coyote.batch.OperationalContext;
 import coyote.batch.TransactionContext;
 import coyote.batch.TransformContext;
+import coyote.batch.db.DatabaseDialect;
 import coyote.batch.db.FieldMetrics;
 import coyote.batch.db.MetricSchema;
 import coyote.commons.StringUtil;
-import coyote.commons.jdbc.DatabaseDialect;
 import coyote.commons.template.SymbolTable;
 import coyote.dataframe.DataFrame;
 
