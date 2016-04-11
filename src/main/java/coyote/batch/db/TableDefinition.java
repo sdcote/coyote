@@ -27,6 +27,11 @@ public class TableDefinition {
 
 
 
+  /**
+   * Default constructor specifying a tablename.
+   * 
+   * @param name The name of the database table this models
+   */
   public TableDefinition( String name ) {
     tableName = name;
   }
@@ -34,19 +39,35 @@ public class TableDefinition {
 
 
 
+  /**
+   * Add a column definition to the current list.
+   * 
+   * <p>This will sort the columns by their ordinal position if specified. If 
+   * equal to another, the column is placed in the order it was added.</p>
+   * 
+   * @param col The column definition to add
+   */
   public void addColumn( ColumnDefinition col ) {
-    for ( int x = 0; x < columns.size(); x++ ) {
-      if ( columns.get( x ).getPosition() > col.getPosition() ) {
-        columns.add( x, col );
-        return;
+    if ( col != null ) {
+      for ( int x = 0; x < columns.size(); x++ ) {
+        if ( columns.get( x ).getPosition() > col.getPosition() ) {
+          columns.add( x, col );
+          return;
+        }
       }
+      columns.add( col );
     }
-    columns.add( col );
   }
 
 
 
-
+/**
+ * Convenience method to add a column with a specified name, type and length.
+ * 
+ * @param name The name of the column to add
+ * @param type The data type of the column
+ * @param len The maximum length of the data this column will hold 
+ */
   public void addColumn( String name, ColumnType type, int len ) {
     columns.add( new ColumnDefinition( name, type, len ) );
   }
@@ -54,13 +75,21 @@ public class TableDefinition {
 
 
 
+  /**
+   * Convenience method to add a column with a specified name and type.
+   * 
+   * @param name The name of the column to add
+   * @param type The data type of the column
+   */
   public void addColumn( String name, ColumnType type ) {
     columns.add( new ColumnDefinition( name, type ) );
   }
 
 
 
-
+/**
+ * @return the reference to the list of column in this table.
+ */
   public List<ColumnDefinition> getColumns() {
     return columns;
   }
@@ -154,11 +183,11 @@ public class TableDefinition {
 
 
   /**
-   * Return the named colum definition from the table definition.
+   * Return the named column definition from the table definition.
    * 
    * @param name The name of the column to return
    * 
-   * @return the named colum or null if not found.
+   * @return the named column or null if not found.
    * 
    * @see #findColumn(String)
    */
@@ -175,12 +204,12 @@ public class TableDefinition {
 
 
   /**
-   * Return the named colum definition from the table definition based on a 
+   * Return the named column definition from the table definition based on a 
    * case in-sensitive search.
    * 
    * @param name The name of the column to return
    * 
-   * @return the named colum or null if not found.
+   * @return the named column or null if not found.
    * 
    * @see #getColumn(String)
    */
