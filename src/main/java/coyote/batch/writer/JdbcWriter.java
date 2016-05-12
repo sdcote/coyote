@@ -600,9 +600,10 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
 
         if ( schema.getMetric( name ).getMaximumStringLength() > tableschema.findColumn( name ).getLength() ) {
           // TODO: if auto adjust, check the size of the string and issue an 
-          // "alter table" command to adjust the size of the colum if the 
+          // "alter table" command to adjust the size of the column if the 
           // string is too large to fit
           System.out.println( "The " + database + " table '" + tableschema.getName() + "' must be altered to fit the '" + name + "' value; table allows a size of " + tableschema.findColumn( name ).getLength() + " but data requires " + schema.getMetric( name ).getMaximumStringLength() );
+          //DatabaseDialect.alterTable()
         }
       }
     }
