@@ -43,6 +43,7 @@ public class DatabaseDialect {
   public static final String DELETE = "delete";
   public static final String TRUNCATE = "truncate";
   public static final String TIMESTAMP = "timestamp";
+  public static final String ALTER_COLUMN = "column_change";
 
   // Database Technologies supported
   public static final String ORACLE = "Oracle";
@@ -79,6 +80,7 @@ public class DatabaseDialect {
     map.put( UPDATE, "UPDATE [#$dbUser#].[#$tableName#] SET $fieldmap WHERE \"sys_id\" = [#$keyvalue#]" );
     map.put( DELETE, "DELETE FROM [#$dbUser#].[#$tableName#] WHERE \"sys_id\" = [#$keyvalue#]" );
     map.put( TRUNCATE, "TRUNCATE TABLE [#$dbUser#].[#$tableName#]" );
+    map.put( ALTER_COLUMN, "ALTER TABLE [#$dbUser#].[#$tableName#] MODIFY [#$columnName#] [#$columnType#]" );
 
     // Oracle dialect
     map = new HashMap<String, String>();
@@ -105,6 +107,7 @@ public class DatabaseDialect {
     map.put( UPDATE, "UPDATE [#$dbUser#].[#$tableName#] SET [#$fieldmap#] WHERE SYS_ID=[#$keyvalue#]" );
     map.put( DELETE, "DELETE FROM [#$dbUser#].[#$tableName#] WHERE SYS_ID=[#$keyvalue#]" );
     map.put( TRUNCATE, "TRUNCATE TABLE [#$dbUser#].[#$tableName#]" );
+    map.put( ALTER_COLUMN, "ALTER TABLE [#$dbUser#].[#$tableName#] MODIFY [#$columnName#] [#$columnType#]" );
 
     // H2 Dialect
     map = new HashMap<String, String>();
@@ -131,6 +134,8 @@ public class DatabaseDialect {
     map.put( UPDATE, "UPDATE [#$tableName#] SET [#$fieldmap#] WHERE SYS_ID=[#$keyvalue#]" );
     map.put( DELETE, "DELETE FROM [#$tableName#] WHERE SYS_ID=[#$keyvalue#]" );
     map.put( TRUNCATE, "TRUNCATE TABLE [#$tableName#]" );
+    map.put( ALTER_COLUMN, "ALTER TABLE [#$tableName#] ALTER COLUMN [#$columnName#] [#$columnType#]" );
+
   }
 
 
@@ -183,7 +188,7 @@ public class DatabaseDialect {
 
   /**
    * Generate the proper SQL command to create a table which will hold data 
-   * described by the given schema.
+   * described by the given metric schema.
    * 
    * <p>A {@code Template} is used to handle variable substitution. If the 
    * {@code SymbolTable} is null, then the template will not be evaluated and 
