@@ -128,7 +128,7 @@ public class ConfigTag {
 
   public static final String SCHEDULE = "Schedule";
   public static final String MINUTES = "minutes";
-  public static final String HOURS = "houre";
+  public static final String HOURS = "hours";
   public static final String DAYS = "days";
   public static final String DAYS_OF_WEEK = "weekdays";
   public static final String MONTHS = "months";
