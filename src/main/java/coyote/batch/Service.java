@@ -200,7 +200,7 @@ public class Service extends AbstractBatchLoader implements Loader {
     // Parse through the configuration and initialize all the components
     initComponents();
 
-    Log.info( LogMsg.createMsg( LOADER_MSG, "Loader.components_initialized" ) );
+    Log.info( LogMsg.createMsg( MSG, "Loader.components_initialized" ) );
 
     // By this time all loggers (including the catch-all logger) should be open
     final StringBuffer b = new StringBuffer( CLASS );
@@ -224,7 +224,7 @@ public class Service extends AbstractBatchLoader implements Loader {
     // The watchdog loop has exited, so we are done processing
     terminateComponents();
 
-    Log.info( LogMsg.createMsg( LOADER_MSG, "Loader.terminated" ) );
+    Log.info( LogMsg.createMsg( MSG, "Loader.terminated" ) );
 
     // Rename the thread back to what it was called before we were being run
     Thread.currentThread().setName( oldName );
