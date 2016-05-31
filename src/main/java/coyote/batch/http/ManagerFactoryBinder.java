@@ -26,11 +26,11 @@ public interface ManagerFactoryBinder {
    * Create a manager with the given configuration for the given Service job.
    * 
    * @param cfg Optional configuration for the returned HttpManager
-   * @param svc The service the returned managager is to manage.
+   * @param svc The service the returned manager is to manage.
    * 
    * @return A configured HttpManager connected to the given Batch service
    * 
-   * @throws ConfigurationException if the passed connection was invalid
+   * @throws ConfigurationException if the passed configuration was invalid
    */
   public HttpManager createManager( DataFrame cfg, Service svc ) throws ConfigurationException;
 }
