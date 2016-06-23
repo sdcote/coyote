@@ -85,7 +85,7 @@ public class Job extends AbstractBatchLoader implements Loader {
   public void start() {
 
     if ( engine != null ) {
-      Log.trace( LogMsg.createMsg( Batch.MSG, "Job.running" ) );
+      Log.trace( LogMsg.createMsg( Batch.MSG, "Job.running", engine.getName() ) );
 
       // run the transformation
       // Note that depending on the configuration, this could be placed in the 
