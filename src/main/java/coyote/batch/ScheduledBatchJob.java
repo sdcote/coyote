@@ -21,6 +21,7 @@ import coyote.commons.GUID;
 import coyote.commons.StringUtil;
 import coyote.dataframe.DataField;
 import coyote.dataframe.DataFrame;
+import coyote.loader.Context;
 import coyote.loader.Loader;
 import coyote.loader.cfg.Config;
 import coyote.loader.component.ManagedComponent;
@@ -30,7 +31,7 @@ import coyote.loader.thread.ScheduledJob;
 
 
 /**
- * This is a wrapper around an engine which will be called repeatedly on a 
+ * This is a wrapper around a component which will be called repeatedly on a 
  * schedule.
  */
 public class ScheduledBatchJob extends ScheduledJob implements ManagedComponent {
@@ -38,6 +39,7 @@ public class ScheduledBatchJob extends ScheduledJob implements ManagedComponent 
   TransformEngine engine = null;
   Config configuration = null;
   CronEntry cronentry = null;
+  Context context = null;
 
 
 
@@ -317,5 +319,21 @@ public class ScheduledBatchJob extends ScheduledJob implements ManagedComponent 
 
   @Override
   public void shutdown( DataFrame params ) {}
+
+
+
+
+  @Override
+  public Context getContext() {
+    return context;
+  }
+
+
+
+
+  @Override
+  public void setContext( Context context ) {
+    context = context;
+  }
 
 }
