@@ -175,7 +175,7 @@ public class CSVReader implements Closeable {
    * @return a List of String[], with each String[] representing a line of the file.
    * 
    * @throws IOException if the next line could not be read
-   * @throws ArgumentException if the line could not be parsed
+   * @throws ParseException if the line could not be parsed
    */
   public List<String[]> readAll() throws IOException, ParseException {
 
@@ -198,7 +198,7 @@ public class CSVReader implements Closeable {
    * @return a string array with each comma-separated element as a separate entry.
    * 
    * @throws IOException if the next line could not be read
-   * @throws ArgumentException if the read line could not be parsed
+   * @throws ParseException if the read line could not be parsed
    */
   public String[] readNext() throws IOException, ParseException {
 

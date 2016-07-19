@@ -47,7 +47,7 @@ import coyote.loader.log.LogMsg;
  * to true or is omitted. (Required)</li>
  * <li>Default - The value to set in the named field if the {@code Condition} 
  * evaluates to false. (optional, requires {@code Condition}</li>
- * </ul></p>
+ * </ul>
  * 
  * <p>{@code Condition}, {@code Value} and {@code Default} will be treated as 
  * templates to provide a high degree of configurability to the transformation.</p>
@@ -134,7 +134,7 @@ public class Set extends AbstractFieldTransform implements FrameTransform {
             frame.put( getFieldName(), resolveArgument( defaultValue ) );
           }
         }
-      } catch ( final EvaluationException e ) {
+      } catch ( final IllegalArgumentException e ) {
         Log.warn( LogMsg.createMsg( Batch.MSG, "Transform.Set_boolean_evaluation_error", e.getMessage() ) );
       }
 

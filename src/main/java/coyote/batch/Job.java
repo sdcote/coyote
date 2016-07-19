@@ -17,7 +17,7 @@ import coyote.loader.log.LogMsg;
  * 
  * <p>The working directory is determined based on the setting of the 
  * batch.home system property which causes all relative file operations to 
- * resolve to the batch.home/wrk/<job.name>/ directory. If the batch.home 
+ * resolve to the batch.home/wrk/&lt;job.name&gt;/ directory. If the batch.home 
  * property is not set, then the Job attempts to locate the file used to 
  * configure it and uses that directory as the working directory.</p>
  */

@@ -48,7 +48,7 @@ public class Reject extends AbstractFrameFilter implements FrameFilter {
           // signal that other filters should not run since the frame has been rejected
           return false;
         }
-      } catch ( EvaluationException e ) {
+      } catch ( IllegalArgumentException e ) {
         Log.warn( LogMsg.createMsg( Batch.MSG, "Filter.reject_boolean_evaluation_error", e.getMessage() ) );
       }
     } else {

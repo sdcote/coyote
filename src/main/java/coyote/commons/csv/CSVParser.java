@@ -287,7 +287,7 @@ public class CSVParser {
 
 
   /**
-   * precondition: sb.length() > 0
+   * precondition: sb.length() &gt; 0
    *
    * @param cs A sequence of characters to examine
    * 

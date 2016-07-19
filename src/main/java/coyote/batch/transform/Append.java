@@ -42,7 +42,7 @@ import coyote.loader.log.LogMsg;
  * value to be set. (defaults to "true")</li>
  * <li>Value - The value to set in the named field if the condition evaluates 
  * to true or is omitted. (Required)</li>
- * </ul></p>
+ * </ul>
  * 
  * <p>{@code Condition} and {@code Value} will be treated as templates to 
  * provide a high degree of configurability to the transformation.</p>
@@ -119,7 +119,7 @@ public class Append extends AbstractFieldTransform implements FrameTransform {
           frame.put( getFieldName(), b.toString() );
 
         }
-      } catch ( final EvaluationException e ) {
+      } catch ( final IllegalArgumentException e ) {
         Log.warn( LogMsg.createMsg( Batch.MSG, "Transform.Append_boolean_evaluation_error", e.getMessage() ) );
       }
 

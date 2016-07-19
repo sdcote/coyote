@@ -35,7 +35,7 @@ import coyote.loader.log.LogMsg;
  * <p>Configuration example:
  * <pre>"Validate" : {
  *   "Distinct" : { "field" : "asset_tag",  "desc" : "Asset tag must be unique"  }
- * },</pre></p>
+ * },</pre>
  */
 public abstract class AbstractValidator extends AbstractConfigurableComponent implements FrameValidator, ConfigurableComponent {
 

@@ -57,9 +57,9 @@ public class Evaluator {
    * 
    * @return the result of the boolean expression either true of false.
    * 
-   * @throws EvaluationException if there were problems evaluating the expression
+   * @throws IllegalArgumentException if there were problems evaluating the expression
    */
-  public boolean evaluateBoolean( final String expression ) throws EvaluationException {
+  public boolean evaluateBoolean( final String expression ) throws IllegalArgumentException {
     return beval.evaluate( expression );
   }
 
@@ -76,7 +76,7 @@ public class Evaluator {
    * 
    * @return the result of the expression
    * 
-   * @throws EvaluationException if there were problems evaluating the expression
+   * @throws IllegalArgumentException if there were problems evaluating the expression
    */
   public double evaluateNumeric( final String expression ) {
     return neval.evaluate( expression );

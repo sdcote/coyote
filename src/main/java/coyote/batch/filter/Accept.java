@@ -57,7 +57,7 @@ public class Accept extends AbstractFrameFilter implements FrameFilter {
           return false;
 
         }
-      } catch ( EvaluationException e ) {
+      } catch ( IllegalArgumentException e ) {
         Log.warn( LogMsg.createMsg( Batch.MSG, "Filter.accept_boolean_evaluation_error", e.getMessage() ) );
       }
     }

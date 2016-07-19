@@ -60,7 +60,7 @@ public abstract class AbstractFieldTransform extends AbstractFrameTransform impl
 
       try {
         evaluator.evaluateBoolean( expression );
-      } catch ( final EvaluationException e ) {
+      } catch ( final IllegalArgumentException e ) {
         context.setError( "Invalid boolean expression in transform: " + e.getMessage() );
       }
     }

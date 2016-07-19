@@ -121,7 +121,7 @@ public class FlatFileWriter extends AbstractFrameWriter implements FrameWriter, 
         if ( evaluator.evaluateBoolean( expression ) ) {
           writeFrame( frame );
         }
-      } catch ( final EvaluationException e ) {
+      } catch ( final IllegalArgumentException e ) {
         Log.warn( LogMsg.createMsg( Batch.MSG, "Writer.boolean_evaluation_error", expression, e.getMessage() ) );
       }
     } else {

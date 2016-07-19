@@ -59,7 +59,7 @@ public class Remove extends AbstractFieldTransform implements FrameTransform {
           }
 
         }
-      } catch ( final EvaluationException e ) {
+      } catch ( final IllegalArgumentException e ) {
         Log.warn( LogMsg.createMsg( Batch.MSG, "Transform.remove_boolean_evaluation_error", e.getMessage() ) );
       }
     }
@@ -87,7 +87,7 @@ public class Remove extends AbstractFieldTransform implements FrameTransform {
           }
 
         }
-      } catch ( final EvaluationException e ) {
+      } catch ( final IllegalArgumentException e ) {
         Log.warn( LogMsg.createMsg( Batch.MSG, "Transform.remove_boolean_evaluation_error", e.getMessage() ) );
       }
     }

@@ -247,7 +247,7 @@ public class Parameters {
 
 
   /**
-   * Sets the function argument separator. (The default value is ',')</p>
+   * Sets the function argument separator. (The default value is ',')
    * 
    * @param separator The new separator
    */

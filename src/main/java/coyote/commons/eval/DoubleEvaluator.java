@@ -18,7 +18,7 @@ import java.util.Locale;
  * <li>/: Division</li>
  * <li>^: Exponentiation.<br>Warning: Exponentiation is implemented using java.lang.Math.pow which has some limitations (please read oracle documentation about this method to known details).<br>For example (-1)^(1/3) returns NaN.</li>
  * <li>%: Modulo</li>
- * </ul></p>
+ * </ul>
  * 
  * <p>Built-in functions:<ul>
  * <li>abs: absolute value</li>
@@ -41,12 +41,12 @@ import java.util.Locale;
  * <li>tan: tangent</li>
  * <li>tanh: hyperbolic tangent</li>
  * <li>random: pseudo-random number (between 0 and 1)</li>
- * </ul></p>
+ * </ul>
  * 
  * <p>Built-in constants:<ul>
  * <li>e: Base of natural logarithms</li>
  * <li>pi: Ratio of the circumference of a circle to its diameter</li>
- * </ul></p>
+ * </ul>
  */
 public class DoubleEvaluator extends AbstractEvaluator<Double> {
   /**
@@ -71,9 +71,9 @@ public class DoubleEvaluator extends AbstractEvaluator<Double> {
   public static final Constant PI = new Constant( "pi" );
   /** A constant that represents e (2.718281...) */
   public static final Constant E = new Constant( "e" );
-  /** Returns the smallest integer >= argument */
+  /** Returns the smallest integer &gt;= argument */
   public static final Function CEIL = new Function( "ceil", 1 );
-  /** Returns the largest integer <= argument */
+  /** Returns the largest integer &lt;= argument */
   public static final Function FLOOR = new Function( "floor", 1 );
   /** Returns the closest integer of a number */
   public static final Function ROUND = new Function( "round", 1 );
@@ -97,13 +97,13 @@ public class DoubleEvaluator extends AbstractEvaluator<Double> {
   public static final Function COSINEH = new Function( "cosh", 1 );
   /** Returns the hyperbolic tangent of a number.*/
   public static final Function TANGENTH = new Function( "tanh", 1 );
-  /** Returns the minimum of n numbers (n>=1) */
+  /** Returns the minimum of n numbers (n&gt;=1) */
   public static final Function MIN = new Function( "min", 1, Integer.MAX_VALUE );
-  /** Returns the maximum of n numbers (n>=1) */
+  /** Returns the maximum of n numbers (n&gt;=1) */
   public static final Function MAX = new Function( "max", 1, Integer.MAX_VALUE );
-  /** Returns the sum of n numbers (n>=1) */
+  /** Returns the sum of n numbers (n&gt;=1) */
   public static final Function SUM = new Function( "sum", 1, Integer.MAX_VALUE );
-  /** Returns the average of n numbers (n>=1) */
+  /** Returns the average of n numbers (n&gt;=1) */
   public static final Function AVERAGE = new Function( "avg", 1, Integer.MAX_VALUE );
   /** Returns the natural logarithm of a number */
   public static final Function LN = new Function( "ln", 1 );

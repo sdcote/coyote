@@ -156,7 +156,7 @@ public abstract class AbstractFrameWriter extends AbstractConfigurableComponent 
 
       try {
         evaluator.evaluateBoolean( expression );
-      } catch ( final EvaluationException e ) {
+      } catch ( final IllegalArgumentException e ) {
         context.setError( "Invalid boolean expression in writer: " + e.getMessage() );
       }
     }

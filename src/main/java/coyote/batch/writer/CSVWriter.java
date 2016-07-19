@@ -48,11 +48,11 @@ import coyote.loader.log.LogMsg;
  *    "category": {},
  *    "receive_date": { "format": "MMddYYYY" },
  *    "count": { "format" : "0000.00" }
- *  }</pre></p>
+ *  }</pre>
  *  
  *  <p>The writer also supports other configuration properties:<pre>
  *   "header" : true,
- *   "dateformat" : "yyyy/MM/dd",</pre></p>
+ *   "dateformat" : "yyyy/MM/dd",</pre>
  *  
  */
 public class CSVWriter extends AbstractFrameWriter implements FrameWriter, ConfigurableComponent {
@@ -278,7 +278,7 @@ public class CSVWriter extends AbstractFrameWriter implements FrameWriter, Confi
         if ( evaluator.evaluateBoolean( expression ) ) {
           writeFrame( frame );
         }
-      } catch ( final EvaluationException e ) {
+      } catch ( final IllegalArgumentException e ) {
         Log.warn( LogMsg.createMsg( Batch.MSG, "Writer.boolean_evaluation_error", expression, e.getMessage() ) );
       }
     } else {

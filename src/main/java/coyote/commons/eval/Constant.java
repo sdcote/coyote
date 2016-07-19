@@ -8,7 +8,7 @@ package coyote.commons.eval;
  * use mnemonic in your expressions instead of the raw value of the constant.</p>
  * 
  * <p>A constant for pi would be defined by :<pre>
- * Constant<Double> pi = new Constant<Double>("pi");</pre>
+ * Constant&lt;Double&gt; pi = new Constant&lt;Double&gt;("pi");</pre>
  * 
  * <p>With such a constant, you will be able to evaluate the expression 
  * "sin(pi/4)".</p>

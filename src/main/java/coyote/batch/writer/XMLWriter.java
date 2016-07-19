@@ -33,7 +33,7 @@ import coyote.loader.log.LogMsg;
  * (default) or standard error.
  * 
  * HEADER
- * <?xml version="1.0" encoding="windows-1252"?>
+ * &lt;xml version="1.0" encoding="windows-1252"?&gt;
  */
 public class XMLWriter extends AbstractFrameWriter implements FrameWriter, ConfigurableComponent {
 
@@ -290,7 +290,7 @@ public class XMLWriter extends AbstractFrameWriter implements FrameWriter, Confi
         if ( evaluator.evaluateBoolean( expression ) ) {
           writeFrame( frame );
         }
-      } catch ( final EvaluationException e ) {
+      } catch ( final IllegalArgumentException e ) {
         Log.warn( LogMsg.createMsg( Batch.MSG, "Writer.boolean_evaluation_error", expression, e.getMessage() ) );
       }
     } else {

@@ -65,7 +65,7 @@ public abstract class AbstractFrameFilter extends AbstractConfigurableComponent 
 
       try {
         evaluator.evaluateBoolean( expression );
-      } catch ( EvaluationException e ) {
+      } catch ( IllegalArgumentException e ) {
         context.setError( "Invalid boolean exception in Reject filter: " + e.getMessage() );
       }
     }
