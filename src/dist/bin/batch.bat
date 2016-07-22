@@ -4,6 +4,7 @@
 @rem  Coyote Batch startup script for Windows
 @rem
 @rem ##########################################################################
+@rem # set JAVA_HOME=C:\Program Files\Java\jdk1.8.0_92 - Required for task scheduler?
 
 if "%HOME%"=="" goto homeDrivePathPre
 if exist "%HOME%\batch_pre.bat" call "%HOME%\batch_pre.bat"
