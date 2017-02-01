@@ -97,7 +97,7 @@ public class Operator {
    * 
    * @return true if the operator is left associative.
    * 
-   * @see <a href="http://en.wikipedia.org/wiki/Operator_associativity">Operator's associativity in Wikipedia</a>
+   * <a href="http://en.wikipedia.org/wiki/Operator_associativity">Operator's associativity in Wikipedia</a>
    */
   public Associativity getAssociativity() {
     return associativity;
@@ -119,7 +119,7 @@ public class Operator {
   /**
    * @return the operator's precedence.
    * 
-   * @see <a href="http://en.wikipedia.org/wiki/Order_of_operations">Operator's associativity in Wikipedia</a>
+   * <a href="http://en.wikipedia.org/wiki/Order_of_operations">Operator's associativity in Wikipedia</a>
    */
   public int getPrecedence() {
     return precedence;

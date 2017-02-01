@@ -194,7 +194,7 @@ public class EvaluatorTest {
 
 
   /**
-   * Test method for {@link coyote.batch.eval.Evaluator#setContext(coyote.batch.OperationalContext)}.
+   * Test method for {@link coyote.batch.eval.Evaluator#setContext(TransformContext)}.
    */
   @Test
   public void testSetContext() {
