@@ -29,7 +29,11 @@ import coyote.loader.log.LogMsg;
 
 
 /**
- * This runs the Coyote Batch as a background Service
+ * This runs the Coyote Batch as a background Service.
+ * 
+ * One of the functions of this loader is to locate and load a HTTP listener 
+ * from the class path. This allows the deployment of a JAR which contains a 
+ * web application which acts as a UI to the system. 
  */
 public class Service extends AbstractBatchLoader implements Loader {
 
@@ -72,6 +76,13 @@ public class Service extends AbstractBatchLoader implements Loader {
 
   /**
    * Start the HTTP server to provide user management of the service.
+   * 
+   * <p>This searches the class path for a static binding for a HTTP server. If 
+   * it is found, it is loaded and a HttpManager is created from it and is 
+   * started running to provide a UI and possibly even web services support.
+   * 
+   * <p>Part of the creation process is the passing of the configuration frame 
+   * from which the HttpManager can extract its configuration.
    */
   private void startManager( DataFrame cfg ) {
 
