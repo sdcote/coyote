@@ -29,7 +29,7 @@ import coyote.commons.template.SymbolTable;
 public abstract class OperationalContext {
   public static final String ERROR_STATUS = "Error";
   protected String status = null;
-  protected String message = null;
+  protected String errorMessage = null;
   protected volatile long startTime = 0;
   protected volatile long endTime = 0;
   protected final Map<String, Object> properties = new HashMap<String, Object>();
@@ -202,12 +202,12 @@ public abstract class OperationalContext {
   /**
    * Set the context in an error state with the given message.
    * 
-   * @param msg The message to place in the context.
+   * @param errMsg The error message to place in the context.
    */
-  public void setError( String msg ) {
+  public void setError( String errMsg ) {
     errorFlag = true;
     status = ERROR_STATUS;
-    message = msg;
+    errorMessage = errMsg;
   }
 
 
@@ -257,18 +257,23 @@ public abstract class OperationalContext {
   /**
    * @return the message
    */
-  public String getMessage() {
-    return message;
+  public String getErrorMessage() {
+    return errorMessage;
   }
 
 
 
 
   /**
-   * @param message the message to set
+   * Set the error message in the context.
+   * 
+   * <p>This does NOT set the context in an error state. It just allows setting 
+   * a more detailed message after the fact.
+   * 
+   * @param errMsg the message to set
    */
-  public void setMessage( String message ) {
-    this.message = message;
+  public void setErrorMessage( String errMsg ) {
+    this.errorMessage = errMsg;
   }
 
 

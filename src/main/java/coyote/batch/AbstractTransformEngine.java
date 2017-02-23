@@ -629,7 +629,7 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
 
 
   protected void reportTransformContextError( TransformContext context ) {
-    Log.error( context.getStatus() + " - " + context.getMessage() );
+    Log.error( context.getStatus() + " - " + context.getErrorMessage() );
   }
 
 

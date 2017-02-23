@@ -54,7 +54,7 @@ public class ContextLogger extends FileRecorder {
       }
       if ( context.isInError() ) {
         b.append( " - Error: " );
-        b.append( context.getMessage() );
+        b.append( context.getErrorMessage() );
       } else {
         b.append( " - Success" );
       }
@@ -84,7 +84,7 @@ public class ContextLogger extends FileRecorder {
       }
       if ( context.isInError() ) {
         b.append( " - Error: " );
-        b.append( context.getMessage() );
+        b.append( context.getErrorMessage() );
       } else {
         b.append( " - Success" );
       }
@@ -112,7 +112,7 @@ public class ContextLogger extends FileRecorder {
       b.append( "Operational error: " );
     }
 
-    b.append( context.getMessage() );
+    b.append( context.getErrorMessage() );
     b.append( StringUtil.LINE_FEED );
     write( b.toString() );
   }
