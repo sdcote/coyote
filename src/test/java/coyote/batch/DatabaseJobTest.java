@@ -28,7 +28,7 @@ import coyote.loader.log.Log;
  * This tests the ability to simply run a bunch of tasks in order within a 
  * context to perform some generic function.
  */
-public class DatabaseTest extends AbstractTest {
+public class DatabaseJobTest extends AbstractTest {
 
 
 //  {
