@@ -1,0 +1,20 @@
+{
+	"Class": "coyote.batch.Service",
+	"Port": 55290,
+
+	"Components": [
+		{
+			"Class": "coyote.loader.Wedge",
+			"Notes": "This just keeps the the service open."
+		},
+	],
+	
+	"Logging": {
+		"ConsoleAppender": { "target": "STDOUT", "categories": "info" },
+		"SysErrAppender": { "target": "STDERR", "categories": "error, fatal, warn" },
+		"FileAppender": { "target": "error.log", "categories": "error, fatal, warn" },
+		"FileAppender": { "target": "scheduler.log", "categories": "scheduler, thread" },
+		"FileAppender": { "target": "httpd.log", "categories": "httpd" }
+	}
+
+}
