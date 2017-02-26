@@ -61,13 +61,8 @@ public class Service extends AbstractBatchLoader implements Loader {
     // Figure out the working directory
     determineWorkDirectory();
 
-    // Start the management API
-    startManager( null ); // TODO: get Manager config frame
-
-    // store the command line arguments in the configuration
-    //      for ( int x = 0; x < commandLineArguments.length; x++ ) {
-    //        job.getEngine().getSymbolTable().put( Symbols.COMMAND_LINE_ARG_PREFIX + x, commandLineArguments[x] );
-    //      }
+    // Start the management API with any found config section
+    startManager( cfg.getSection( "Manager" ) );
 
   }
 
@@ -83,6 +78,8 @@ public class Service extends AbstractBatchLoader implements Loader {
    * 
    * <p>Part of the creation process is the passing of the configuration frame 
    * from which the HttpManager can extract its configuration.
+   * 
+   * @param cfg The configuration for the manager (may be null)
    */
   private void startManager( DataFrame cfg ) {
 
@@ -164,23 +161,29 @@ public class Service extends AbstractBatchLoader implements Loader {
       loadComponent( section );
     }
 
+    Log.debug( "Loaded " + super.components.size() + " components" );
     Log.append( Log.getCode( "SCHEDULER" ), "Initialized Scheduler:\r\n" + getScheduler().dump() );
 
-    // make sure the jobs have the command line arguments
     synchronized( components ) {
       for ( final Iterator<Object> it = components.keySet().iterator(); it.hasNext(); ) {
         final Object cmpnt = it.next();
         if ( cmpnt instanceof ScheduledBatchJob ) {
+          
           TransformEngine engine = ( (ScheduledBatchJob)cmpnt ).getEngine();
           if ( engine != null ) {
+
+            // make sure the job engine has the command line arguments
             for ( int x = 0; x < commandLineArguments.length; x++ ) {
               engine.getSymbolTable().put( Symbols.COMMAND_LINE_ARG_PREFIX + x, commandLineArguments[x] );
             }
+            
+            // schedule the component for execution
+            getScheduler().schedule( (ScheduledBatchJob)cmpnt );
           }
         }
       }
     }
-
+    Log.append( Log.getCode( "SCHEDULER" ), "Initialized Scheduled Jobs:\r\n" + getScheduler().dump() );
   }
 
 

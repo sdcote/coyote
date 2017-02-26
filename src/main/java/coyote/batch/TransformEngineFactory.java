@@ -234,9 +234,13 @@ public class TransformEngineFactory {
           }
         } else if ( ConfigTag.NAME.equalsIgnoreCase( field.getName() ) ) {
           if ( field.isFrame() ) {
-            Log.error( "Invalid Name value - expecting scalar" );
+            Log.error( "Invalid Name value - expecting simple type (string)" );
           } else {
             retval.setName( field.getStringValue() );
+          }
+        } else if ( ConfigTag.SCHEDULE.equalsIgnoreCase( field.getName() ) ) {
+          if ( !field.isFrame() ) {
+            Log.error( "Invalid Schedule section - expecting complex type" );
           }
         } else {
           Log.debug( LogMsg.createMsg( Batch.MSG, "EngineFactory.unrecognized_configuration_section", field.getName() ) );
@@ -247,6 +251,7 @@ public class TransformEngineFactory {
 
     return retval;
   }
+
 
 
 
@@ -448,7 +453,7 @@ public class TransformEngineFactory {
         } else {
           Log.error( LogMsg.createMsg( Batch.MSG, "EngineFactory.Post-process task did not contain a configuration, only scalar {}", field.getStringValue() ) );
         }
-      }// for each task 
+      } // for each task 
     } // cfg !null
   }
 
@@ -667,7 +672,7 @@ public class TransformEngineFactory {
         } else {
           Log.error( LogMsg.createMsg( Batch.MSG, "EngineFactory.listener_configuration_invalid", field.getStringValue() ) );
         }
-      }// for each listener 
+      } // for each listener 
     } // cfg !null
   }
 
