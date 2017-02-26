@@ -51,3 +51,4 @@ logback.xml
 *.ear
 !gradle/wrapper/gradle-wrapper.jar
 
+CoyoteBatchInstall.jar
