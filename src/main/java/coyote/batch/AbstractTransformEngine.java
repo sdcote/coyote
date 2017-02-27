@@ -248,242 +248,249 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
       }
     }
 
-    // If pre-processing completed without error, start opening the rest of the 
-    // components
-    if ( getContext().isNotInError() ) {
+    try {
+      // If pre-processing completed without error, start opening the rest of the 
+      // tooling
+      if ( getContext().isNotInError() ) {
 
-      // If the reader is not null, open the core components using this context 
-      // to share data. If the reader is null, there is no need to open the 
-      // mapper and the writer
-      if ( reader != null ) {
-        reader.open( getContext() );
-        if ( getContext().isInError() ) {
-          reportTransformContextError( getContext() );
-          return;
+        // If the reader is not null, open the core components using this context 
+        // to share data. If the reader is null, there is no need to open the 
+        // mapper and the writer
+        if ( reader != null ) {
+          reader.open( getContext() );
+          if ( getContext().isInError() ) {
+            reportTransformContextError( getContext() );
+            return;
+          }
+
+          // if no mapper, just use the default mapper with default settings
+          if ( mapper == null ) {
+            Log.debug( "No mapper defined...using default settings" );
+            mapper = new DefaultFrameMapper();
+          }
+
+          mapper.open( getContext() );
+          if ( getContext().isInError() ) {
+            reportTransformContextError( getContext() );
+            return;
+          }
+
+          // Open all the writers
+          for ( FrameWriter writer : writers ) {
+            writer.open( getContext() );
+            if ( getContext().isInError() ) {
+              reportTransformContextError( getContext() );
+              return;
+            }
+          }
         }
 
-        // if no mapper, just use the default mapper with default settings
-        if ( mapper == null ) {
-          Log.debug( "No mapper defined...using default settings" );
-          mapper = new DefaultFrameMapper();
-        }
-
-        mapper.open( getContext() );
-        if ( getContext().isInError() ) {
-          reportTransformContextError( getContext() );
-          return;
-        }
-
-        // Open all the writers
-        for ( FrameWriter writer : writers ) {
-          writer.open( getContext() );
+        // Open all the filters
+        for ( FrameFilter filter : filters ) {
+          filter.open( getContext() );
           if ( getContext().isInError() ) {
             reportTransformContextError( getContext() );
             return;
           }
         }
-      }
 
-      // Open all the filters
-      for ( FrameFilter filter : filters ) {
-        filter.open( getContext() );
-        if ( getContext().isInError() ) {
-          reportTransformContextError( getContext() );
-          return;
-        }
-      }
-
-      // Open all the validators
-      for ( FrameValidator validator : validators ) {
-        validator.open( getContext() );
-        if ( getContext().isInError() ) {
-          reportTransformContextError( getContext() );
-          return;
-        }
-      }
-
-      // Open all the transformers
-      for ( FrameTransform transformer : transformers ) {
-        transformer.open( getContext() );
-        if ( getContext().isInError() ) {
-          reportTransformContextError( getContext() );
-          return;
-        }
-      }
-      Log.trace( "Engine '" + getName() + "' entering read loop" );
-
-      // loop through all data read in by the reader until EOF or an error in 
-      // the transform context occurs.
-      while ( getContext().isNotInError() && reader != null && !reader.eof() ) {
-
-        // Create a new Transaction context with the list of listeners to react 
-        // to events in the transaction.
-        TransactionContext txnContext = new TransactionContext( getContext() );
-        // place a reference to the transaction in the transform context
-        getContext().setTransaction( txnContext );
-
-        // Create a component to place in the Templates to give them access to
-        // all the data in the contexts and advanced functions
-        TemplateAccess access = new TemplateAccess( getContext() );
-        Template.put( "Context", access );
-
-        // Start the clock and fire event listeners for the beginning of the
-        // transaction
-        txnContext.start();
-
-        // Read a frame into the given context (source frame)
-        DataFrame retval = reader.read( txnContext );
-
-        // Sometimes readers read empty lines and the like, skip null dataframes!!!
-        if ( retval != null ) {
-
-          // Set the returned dataframe into the transaction context
-          txnContext.setSourceFrame( retval );
-          // increment the row number in the contexts
-          txnContext.setRow( ++currentFrameNumber );
-          getContext().setRow( currentFrameNumber );
-          getContext().getSymbols().put( Symbols.CURRENT_FRAME, currentFrameNumber );
-          getContext().getSymbols().put( Symbols.LAST_FRAME, txnContext.isLastFrame() );
-
-          // fire the read event in all the listeners
-          txnContext.fireRead( txnContext, reader );
-
-          //log.debug( "row {} - {}", context.getRow(), context.getSourceFrame().toString() );
-
-          // ...pass it through the filters...
-          for ( FrameFilter filter : filters ) {
-            if ( !filter.process( txnContext ) ) {
-              // filter signaled to discontinue filter checks (early exit)
-              break;
-            }
-            if ( txnContext.getWorkingFrame() == null )
-              break;
+        // Open all the validators
+        for ( FrameValidator validator : validators ) {
+          validator.open( getContext() );
+          if ( getContext().isInError() ) {
+            reportTransformContextError( getContext() );
+            return;
           }
+        }
 
-          // If the working frame did not get filtered out...
-          if ( txnContext.getWorkingFrame() != null ) {
+        // Open all the transformers
+        for ( FrameTransform transformer : transformers ) {
+          transformer.open( getContext() );
+          if ( getContext().isInError() ) {
+            reportTransformContextError( getContext() );
+            return;
+          }
+        }
+        Log.trace( "Engine '" + getName() + "' entering read loop" );
 
-            boolean passed = true;
-            // pass it through the validation rules - errors are logged
-            for ( FrameValidator validator : validators ) {
-              try {
-                if ( !validator.process( txnContext ) ) {
-                  passed = false;
-                }
-              } catch ( ValidationException e ) {
-                txnContext.setError( e.getMessage() );
+        // loop through all data read in by the reader until EOF or an error in 
+        // the transform context occurs.
+        while ( getContext().isNotInError() && reader != null && !reader.eof() ) {
+
+          // Create a new Transaction context with the list of listeners to react 
+          // to events in the transaction.
+          TransactionContext txnContext = new TransactionContext( getContext() );
+          // place a reference to the transaction in the transform context
+          getContext().setTransaction( txnContext );
+
+          // Create a component to place in the Templates to give them access to
+          // all the data in the contexts and advanced functions
+          TemplateAccess access = new TemplateAccess( getContext() );
+          Template.put( "Context", access );
+
+          // Start the clock and fire event listeners for the beginning of the
+          // transaction
+          txnContext.start();
+
+          // Read a frame into the given context (source frame)
+          DataFrame retval = reader.read( txnContext );
+
+          // Sometimes readers read empty lines and the like, skip null dataframes!!!
+          if ( retval != null ) {
+
+            // Set the returned dataframe into the transaction context
+            txnContext.setSourceFrame( retval );
+            // increment the row number in the contexts
+            txnContext.setRow( ++currentFrameNumber );
+            getContext().setRow( currentFrameNumber );
+            getContext().getSymbols().put( Symbols.CURRENT_FRAME, currentFrameNumber );
+            getContext().getSymbols().put( Symbols.LAST_FRAME, txnContext.isLastFrame() );
+
+            // fire the read event in all the listeners
+            txnContext.fireRead( txnContext, reader );
+
+            //log.debug( "row {} - {}", context.getRow(), context.getSourceFrame().toString() );
+
+            // ...pass it through the filters...
+            for ( FrameFilter filter : filters ) {
+              if ( !filter.process( txnContext ) ) {
+                // filter signaled to discontinue filter checks (early exit)
+                break;
               }
+              if ( txnContext.getWorkingFrame() == null )
+                break;
             }
 
-            // if there were validation errors
-            if ( !passed ) {
-              // fire the event for any listeners
-              getContext().fireFrameValidationFailed( txnContext );
-            }
+            // If the working frame did not get filtered out...
+            if ( txnContext.getWorkingFrame() != null ) {
 
-            if ( txnContext.isNotInError() ) {
-
-              // Pass the working frame through the transformers
-              for ( FrameTransform transformer : transformers ) {
+              boolean passed = true;
+              // pass it through the validation rules - errors are logged
+              for ( FrameValidator validator : validators ) {
                 try {
-                  // Have the transformer process the frame
-                  DataFrame resultFrame = transformer.process( txnContext.getWorkingFrame() );
-
-                  // place the results of the transformation in the context
-                  txnContext.setWorkingFrame( resultFrame );
-
-                } catch ( Exception e ) {
-                  // catch any manner of transformation exception
+                  if ( !validator.process( txnContext ) ) {
+                    passed = false;
+                  }
+                } catch ( ValidationException e ) {
                   txnContext.setError( e.getMessage() );
-                  txnContext.setStatus( "Transformation Error" );
                 }
               }
 
-              // Pass it through the mapper - only the required fields should 
-              // exist in the target frame after the mapper is done.
+              // if there were validation errors
+              if ( !passed ) {
+                // fire the event for any listeners
+                getContext().fireFrameValidationFailed( txnContext );
+              }
+
               if ( txnContext.isNotInError() ) {
 
-                // We need to create a target frame into which the mapper will 
-                // place fields...
-                if ( txnContext.getTargetFrame() == null ) {
-                  txnContext.setTargetFrame( new DataFrame() );
-                }
-
-                // Map / Move fields from the working to the target frame
-                try {
-                  mapper.process( txnContext );
-                } catch ( MappingException e ) {
-                  txnContext.setError( e.getMessage() );
-                  txnContext.setStatus( "Mapping Error" );
-                }
-              }
-
-              // It is possible that a transform has been configured to simply
-              // read and validate data so the writer may be null
-              if ( txnContext.isNotInError() && writers.size() > 0 ) {
-                // Pass the frame to all the writers
-                for ( FrameWriter writer : writers ) {
+                // Pass the working frame through the transformers
+                for ( FrameTransform transformer : transformers ) {
                   try {
-                    // Write the target (new) frame
-                    writer.write( txnContext.getTargetFrame() );
-                    txnContext.fireWrite( txnContext, writer );
+                    // Have the transformer process the frame
+                    DataFrame resultFrame = transformer.process( txnContext.getWorkingFrame() );
+
+                    // place the results of the transformation in the context
+                    txnContext.setWorkingFrame( resultFrame );
+
                   } catch ( Exception e ) {
-                    Log.warn( LogMsg.createMsg( Batch.MSG, "Engine.write_error", e.getClass().getSimpleName(), e.getMessage(), ExceptionUtil.stackTrace( e ) ) );
+                    // catch any manner of transformation exception
+                    txnContext.setError( e.getMessage() );
+                    txnContext.setStatus( "Transformation Error" );
                   }
                 }
-              }
 
-            } // passed validators
+                // Pass it through the mapper - only the required fields should 
+                // exist in the target frame after the mapper is done.
+                if ( txnContext.isNotInError() ) {
 
-          } // passed filters
+                  // We need to create a target frame into which the mapper will 
+                  // place fields...
+                  if ( txnContext.getTargetFrame() == null ) {
+                    txnContext.setTargetFrame( new DataFrame() );
+                  }
 
-          // Now end the transaction which should fire any listeners in the 
-          // context to record the transaction if so configured
-          txnContext.end();
+                  // Map / Move fields from the working to the target frame
+                  try {
+                    mapper.process( txnContext );
+                  } catch ( MappingException e ) {
+                    txnContext.setError( e.getMessage() );
+                    txnContext.setStatus( "Mapping Error" );
+                  }
+                }
 
-        } // if something was read in
+                // It is possible that a transform has been configured to simply
+                // read and validate data so the writer may be null
+                if ( txnContext.isNotInError() && writers.size() > 0 ) {
+                  // Pass the frame to all the writers
+                  for ( FrameWriter writer : writers ) {
+                    try {
+                      // Write the target (new) frame
+                      writer.write( txnContext.getTargetFrame() );
+                      txnContext.fireWrite( txnContext, writer );
+                    } catch ( Exception e ) {
+                      Log.warn( LogMsg.createMsg( Batch.MSG, "Engine.write_error", e.getClass().getSimpleName(), e.getMessage(), ExceptionUtil.stackTrace( e ) ) );
+                    }
+                  }
+                }
 
-      } // Reader !eof and context is without error
+              } // passed validators
 
-    } // transformContext ! err after pre-processing
+            } // passed filters
 
-    Log.trace( "Engine '" + getName() + "' reads completed - Error=" + getContext().isInError() + " EOF=" + reader == null ? "NoReader" : reader.eof() + " Reads=" + getContext().getRow() );
+            // Now end the transaction which should fire any listeners in the 
+            // context to record the transaction if so configured
+            txnContext.end();
 
-    if ( getContext().isInError() ) {
-      reportTransformContextError( getContext() );
-    } else {
+          } // if something was read in
 
-      // close any internal components like readers and writers which may 
-      // interfere with post-processing tasks from completing properly
-      closeInternalComponents();
+        } // Reader !eof and context is without error
 
-      // Execute all the post-processing tasks
-      for ( TransformTask task : postProcesses ) {
-        try {
-          if ( task.isEnabled() ) {
-            task.open( getContext() );
-            task.execute();
-          }
-        } catch ( TaskException e ) {
-          getContext().setError( e.getMessage() );
-          getContext().setStatus( "Post-Processing Error" );
-        }
-      }
+      } // transformContext ! err after pre-processing
 
-      // Close all the tasks after post-processing is done regardless of outcome
-      for ( TransformTask task : postProcesses ) {
-        try {
-          if ( task.isEnabled() ) {
-            task.close();
-          }
-        } catch ( IOException e ) {
-          Log.warn( LogMsg.createMsg( Batch.MSG, "Engine.problems_closing_postprocess_task", task.getClass().getName(), e.getClass().getSimpleName(), e.getMessage() ) );
-        }
-      }
+      Log.trace( "Engine '" + getName() + "' reads completed - Error=" + getContext().isInError() + " EOF=" + reader == null ? "NoReader" : reader.eof() + " Reads=" + getContext().getRow() );
 
       if ( getContext().isInError() ) {
         reportTransformContextError( getContext() );
+      } else {
+
+        // close any internal components like readers and writers which may 
+        // interfere with post-processing tasks from completing properly
+        closeInternalComponents();
+
+        // Execute all the post-processing tasks
+        for ( TransformTask task : postProcesses ) {
+          try {
+            if ( task.isEnabled() ) {
+              task.open( getContext() );
+              task.execute();
+            }
+          } catch ( TaskException e ) {
+            getContext().setError( e.getMessage() );
+            getContext().setStatus( "Post-Processing Error" );
+          }
+        }
+
+        // Close all the tasks after post-processing is done regardless of outcome
+        for ( TransformTask task : postProcesses ) {
+          try {
+            if ( task.isEnabled() ) {
+              task.close();
+            }
+          } catch ( IOException e ) {
+            Log.warn( LogMsg.createMsg( Batch.MSG, "Engine.problems_closing_postprocess_task", task.getClass().getName(), e.getClass().getSimpleName(), e.getMessage() ) );
+          }
+        }
+
+        if ( getContext().isInError() ) {
+          reportTransformContextError( getContext() );
+        }
       }
+    }
+    finally {
+      // close all the tooling, it will be re-opened when we run the next time (if scheduled)
+      closeTooling();
+      currentFrameNumber=0;
     }
 
     getContext().end();
@@ -667,12 +674,7 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
 
 
 
-  /**
-   * @see java.io.Closeable#close()
-   */
-  @Override
-  public void close() throws IOException {
-
+  private void closeTooling() {
     if ( reader != null ) {
       try {
         reader.close();
@@ -728,6 +730,17 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
         Log.warn( LogMsg.createMsg( Batch.MSG, "Engine.problems_closing_listener", listener.getClass().getName(), e.getClass().getSimpleName(), e.getMessage() ) );
       }
     }
+
+  }
+
+
+
+
+  /**
+   * @see java.io.Closeable#close()
+   */
+  @Override
+  public void close() throws IOException {
 
     // close the connections in the transform contexts
     getContext().close();
