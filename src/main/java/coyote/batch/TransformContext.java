@@ -113,6 +113,9 @@ public class TransformContext extends OperationalContext {
         //System.out.printf("Problems closing : %s - %s %n", entry.getKey(), ignore.getMessage());
       }
     }
+    
+    // reset the row pointer to zero
+    setRow( 0 );
   }
 
 
