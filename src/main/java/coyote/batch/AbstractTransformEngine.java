@@ -489,6 +489,8 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
     getContext().end();
     Log.trace( "Engine '" + getName() + "' transformation completed" );
 
+    // reset the context so it can be reused in the next run (when scheduled)
+    getContext().reset();
   }
 
 

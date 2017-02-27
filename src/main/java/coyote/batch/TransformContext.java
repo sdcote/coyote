@@ -92,7 +92,7 @@ public class TransformContext extends OperationalContext {
             engine.getSymbolTable().put( field.getName(), value );
             set( field.getName(), value );
           } //name-value check
-        }// if frame
+        } // if frame
       } // for
     }
 
@@ -114,12 +114,6 @@ public class TransformContext extends OperationalContext {
       }
     }
 
-    // reset the context so it can be used again in subsequent runs
-    super.currentFrame = 0;
-    super.startTime = 0;
-    super.endTime = 0;
-    super.errorFlag = false;
-    super.errorMessage = null;
   }
 
 
@@ -261,6 +255,20 @@ public class TransformContext extends OperationalContext {
 
   public DataFrame getConfiguration() {
     return configuration;
+  }
+
+
+
+
+  /**
+   * reset the context so it can be used again in subsequent (scheduled) runs
+   */
+  public void reset() {
+    super.currentFrame = 0;
+    super.startTime = 0;
+    super.endTime = 0;
+    super.errorFlag = false;
+    super.errorMessage = null;
   }
 
 }
