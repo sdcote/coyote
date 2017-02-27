@@ -200,7 +200,7 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
     // opened so the listeners can be opened within an initialized context and 
     // have their configuration arguments resolved. The trade-off is that 
     // listeners will never have their open event fired on the opening of the 
-    // Transform Context.  
+    // Transform Context, only Transaction Contexts.  
     getContext().open();
 
     // Open all the listeners first so the transform context will trigger
@@ -447,7 +447,7 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
 
     } // transformContext ! err after pre-processing
 
-    Log.trace( "Engine '" + getName() + "' reads completed" );
+    Log.trace( "Engine '" + getName() + "' reads completed - Error=" + getContext().isInError() + " EOF=" + reader == null ? "NoReader" : reader.eof() + " Reads=" + getContext().getRow() );
 
     if ( getContext().isInError() ) {
       reportTransformContextError( getContext() );
@@ -747,7 +747,6 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
     if ( reader != null ) {
       try {
         reader.close();
-        reader = null;
       } catch ( Exception e ) {
         Log.warn( LogMsg.createMsg( Batch.MSG, "Engine.problems_closing_reader", reader.getClass().getName(), e.getClass().getSimpleName(), e.getMessage() ) );
       }
@@ -760,8 +759,6 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
         Log.warn( LogMsg.createMsg( Batch.MSG, "Engine.problems_closing_writer", writer.getClass().getName(), e.getClass().getSimpleName(), e.getMessage() ) );
       }
     }
-    writers.clear();
-
   }
 
 
