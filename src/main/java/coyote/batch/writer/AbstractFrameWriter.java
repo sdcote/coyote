@@ -54,8 +54,15 @@ public abstract class AbstractFrameWriter extends AbstractConfigurableComponent 
   @Override
   public void close() throws IOException {
     if ( printwriter != null ) {
-      printwriter.flush();
-      printwriter.close();
+      try {
+        printwriter.flush();
+        printwriter.close();
+      } catch ( Exception e ) {
+        Log.debug( "Exceptionclosing writer:" + e.getMessage() );
+      }
+      finally {
+        printwriter = null;
+      }
     }
   }
 
