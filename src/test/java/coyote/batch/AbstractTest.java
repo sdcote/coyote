@@ -61,10 +61,10 @@ public class AbstractTest {
 
 
   /**
-   * Loads a configuration file and set of properties from the classpath
+   * Loads a configuration file and set of properties from the class path
    * 
    * <p>This loads [name].properties as the system properties and [name.json as 
-   * the engine configuration.</p> 
+   * the engine configuration.
    * 
    * @param name the name of the files to use
    * 

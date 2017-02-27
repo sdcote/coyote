@@ -18,13 +18,11 @@ import coyote.commons.network.http.IStatus;
 import coyote.commons.network.http.Response;
 import coyote.commons.network.http.nugget.UriResource;
 
+
 /**
  * 
  */
 public class LogApiHandler extends AbstractBatchNugget {
-  
-  
-  
 
   /**
    * Retrieve contents of a log if a log is identified.
@@ -53,6 +51,8 @@ public class LogApiHandler extends AbstractBatchNugget {
   }
 
 
+
+
   /**
    * Delete an entire log.
    * 
@@ -63,9 +63,6 @@ public class LogApiHandler extends AbstractBatchNugget {
     // TODO Auto-generated method stub
     return super.delete( uriResource, urlParams, session );
   }
-
-
-
 
 
 

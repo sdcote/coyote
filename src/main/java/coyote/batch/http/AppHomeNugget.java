@@ -18,6 +18,7 @@ import coyote.commons.network.http.Response;
 import coyote.commons.network.http.nugget.UriResource;
 import coyote.commons.network.http.nugget.UriResponder;
 
+
 /**
  * This nugget give access to resources in app.home
  */

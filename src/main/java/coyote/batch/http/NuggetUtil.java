@@ -13,6 +13,7 @@ package coyote.batch.http;
 
 import java.util.ArrayList;
 
+
 /**
  * Utilities for web nuggets
  */

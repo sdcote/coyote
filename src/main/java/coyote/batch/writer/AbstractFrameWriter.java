@@ -58,7 +58,7 @@ public abstract class AbstractFrameWriter extends AbstractConfigurableComponent 
         printwriter.flush();
         printwriter.close();
       } catch ( Exception e ) {
-        Log.debug( "Exceptionclosing writer:" + e.getMessage() );
+        Log.debug( "Exception closing writer:" + e.getMessage() );
       }
       finally {
         printwriter = null;
