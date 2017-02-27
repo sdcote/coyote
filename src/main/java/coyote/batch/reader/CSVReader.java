@@ -237,7 +237,6 @@ public class CSVReader extends AbstractFrameReader implements FrameReader, Confi
             context.setError( e.getMessage() );
           }
         } else {
-
           context.setError( LogMsg.createMsg( Batch.MSG, "Reader.could_not_read_from_source", getClass().getName(), sourceFile.getAbsolutePath() ).toString() );
         }
       }
