@@ -11,11 +11,13 @@
  */
 package coyote.batch.http;
 
-import java.util.ArrayList;
 import java.util.Map;
 
+import coyote.commons.network.http.HTTPD;
 import coyote.commons.network.http.IHTTPSession;
+import coyote.commons.network.http.IStatus;
 import coyote.commons.network.http.Response;
+import coyote.commons.network.http.Status;
 import coyote.commons.network.http.nugget.DefaultHandler;
 import coyote.commons.network.http.nugget.UriResource;
 import coyote.commons.network.http.nugget.UriResponder;
@@ -26,17 +28,12 @@ import coyote.commons.network.http.nugget.UriResponder;
  */
 public abstract class AbstractBatchNugget extends DefaultHandler implements UriResponder {
 
-
-
-
-
   /**
    * @see coyote.commons.network.http.nugget.UriResponder#delete(coyote.commons.network.http.nugget.UriResource, java.util.Map, coyote.commons.network.http.IHTTPSession)
    */
   @Override
   public Response delete( UriResource uriResource, Map<String, String> urlParams, IHTTPSession session ) {
-    // TODO Auto-generated method stub
-    return null;
+    return HTTPD.newFixedLengthResponse( getStatus(), getMimeType(), getText() );
   }
 
 
@@ -47,8 +44,7 @@ public abstract class AbstractBatchNugget extends DefaultHandler implements UriR
    */
   @Override
   public Response get( UriResource uriResource, Map<String, String> urlParams, IHTTPSession session ) {
-    // TODO Auto-generated method stub
-    return null;
+    return HTTPD.newFixedLengthResponse( getStatus(), getMimeType(), getText() );
   }
 
 
@@ -59,8 +55,7 @@ public abstract class AbstractBatchNugget extends DefaultHandler implements UriR
    */
   @Override
   public Response other( String method, UriResource uriResource, Map<String, String> urlParams, IHTTPSession session ) {
-    // TODO Auto-generated method stub
-    return null;
+    return HTTPD.newFixedLengthResponse( getStatus(), getMimeType(), getText() );
   }
 
 
@@ -71,8 +66,7 @@ public abstract class AbstractBatchNugget extends DefaultHandler implements UriR
    */
   @Override
   public Response post( UriResource uriResource, Map<String, String> urlParams, IHTTPSession session ) {
-    // TODO Auto-generated method stub
-    return null;
+    return HTTPD.newFixedLengthResponse( getStatus(), getMimeType(), getText() );
   }
 
 
@@ -83,8 +77,41 @@ public abstract class AbstractBatchNugget extends DefaultHandler implements UriR
    */
   @Override
   public Response put( UriResource uriResource, Map<String, String> urlParams, IHTTPSession session ) {
-    // TODO Auto-generated method stub
-    return null;
+    return HTTPD.newFixedLengthResponse( getStatus(), getMimeType(), getText() );
+  }
+
+
+
+
+  /**
+   * @see coyote.commons.network.http.nugget.DefaultHandler#getStatus()
+   */
+  @Override
+  public IStatus getStatus() {
+    return Status.OK;
+  }
+
+
+
+
+  /**
+   * @see coyote.commons.network.http.nugget.DefaultHandler#getText()
+   */
+  @Override
+  public String getText() {
+    return "<html><body><h3>Not Implemented</h3><p>The URI is mapped in the server, but no handler implementation exists.</p></body></html>";
+  }
+
+
+
+
+  /**
+   * @see coyote.commons.network.http.nugget.DefaultStreamHandler#getMimeType()
+   */
+  @Override
+  public String getMimeType() {
+    return "text/html";
+
   }
 
 }
