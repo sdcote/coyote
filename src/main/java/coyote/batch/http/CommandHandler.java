@@ -20,6 +20,7 @@ import coyote.commons.network.http.IHTTPSession;
 import coyote.commons.network.http.IStatus;
 import coyote.commons.network.http.Response;
 import coyote.commons.network.http.Status;
+import coyote.commons.network.http.auth.Auth;
 import coyote.commons.network.http.nugget.HTTPDRouter;
 import coyote.commons.network.http.nugget.UriResource;
 import coyote.commons.network.http.nugget.UriResponder;
@@ -30,11 +31,13 @@ import coyote.loader.log.Log;
  * This is the command handler for the management interface.
  */
 public class CommandHandler extends AbstractBatchNugget implements UriResponder {
-  
+
   private static final String SHUTDOWN = "shutdown";
 
+
+
+
   /**
-   * 
    * @see coyote.commons.network.http.nugget.UriResponder#get(coyote.commons.network.http.nugget.UriResource, java.util.Map, coyote.commons.network.http.IHTTPSession)
    */
   @Override
@@ -44,34 +47,33 @@ public class CommandHandler extends AbstractBatchNugget implements UriResponder 
     Service service = uriResource.initParameter( 0, Service.class );
 
     final String baseUri = uriResource.getUri();
-    Log.append( HTTPD.EVENT, "BASE URI: '"+baseUri+"'" );
-    
+    Log.append( HTTPD.EVENT, "BASE URI: '" + baseUri + "'" );
+
     String realUri = HTTPDRouter.normalizeUri( session.getUri() );
-    Log.append( HTTPD.EVENT, "REAL URI: '"+realUri+"'" );
-    
+    Log.append( HTTPD.EVENT, "REAL URI: '" + realUri + "'" );
+
     for ( int index = 0; index < Math.min( baseUri.length(), realUri.length() ); index++ ) {
       if ( baseUri.charAt( index ) != realUri.charAt( index ) ) {
         realUri = HTTPDRouter.normalizeUri( realUri.substring( index ) );
         break;
       }
     }
-    Log.append( HTTPD.EVENT, "NEXT URI: '"+realUri+"'" );
-    
+    Log.append( HTTPD.EVENT, "NEXT URI: '" + realUri + "'" );
+
     String[] pathTokens = NuggetUtil.getPathArray( realUri );
-    if( SHUTDOWN.equalsIgnoreCase( pathTokens[0] )){
+    if ( SHUTDOWN.equalsIgnoreCase( pathTokens[0] ) ) {
       Log.append( HTTPD.EVENT, "Received a shutdown command" );
-      
+
       // TODO: Create a Scheduled Job which will shutdown the service in a few seconds
-      
+
       System.exit( 0 ); // this is a last resort method!!  Maybe a "kill" will do this?
     }
 
-    
     String text = getText( urlParams, session );
     ByteArrayInputStream inp = new ByteArrayInputStream( text.getBytes() );
     int size = text.getBytes().length;
-    
-    Log.append( HTTPD.EVENT, "Sending a text response of "+size+" bytes" );
+
+    Log.append( HTTPD.EVENT, "Sending a text response of " + size + " bytes" );
 
     return HTTPD.newFixedLengthResponse( getStatus(), getMimeType(), inp, size );
 
@@ -130,6 +132,18 @@ public class CommandHandler extends AbstractBatchNugget implements UriResponder 
   @Override
   public String getMimeType() {
     return "text/html";
+  }
+
+
+
+
+  /**
+   * @see coyote.batch.http.AbstractBatchNugget#post(coyote.commons.network.http.nugget.UriResource, java.util.Map, coyote.commons.network.http.IHTTPSession)
+   */
+  @Override
+  @Auth(groups = "sysop", requireSSL = false)
+  public Response post( UriResource uriResource, Map<String, String> urlParams, IHTTPSession session ) {
+    return super.post( uriResource, urlParams, session );
   }
 
 }
