@@ -13,9 +13,11 @@ package coyote.batch.http;
 
 import java.util.Map;
 
+import coyote.commons.network.http.HTTPD;
 import coyote.commons.network.http.IHTTPSession;
 import coyote.commons.network.http.IStatus;
 import coyote.commons.network.http.Response;
+import coyote.commons.network.http.Status;
 import coyote.commons.network.http.nugget.UriResource;
 
 
@@ -32,8 +34,41 @@ public class LogApiHandler extends AbstractBatchNugget {
    */
   @Override
   public Response get( UriResource uriResource, Map<String, String> urlParams, IHTTPSession session ) {
-    // TODO Auto-generated method stub
-    return super.get( uriResource, urlParams, session );
+    final StringBuilder text = new StringBuilder( "<html><body>" );
+    text.append( "<h1>URL: " );
+    text.append( session.getUri() );
+    text.append( "</h1><br>" );
+
+    if ( urlParams.size() > 0 ) {
+      for ( final Map.Entry<String, String> entry : urlParams.entrySet() ) {
+        final String key = entry.getKey();
+        final String value = entry.getValue();
+        text.append( "<p>URI Param '" );
+        text.append( key );
+        text.append( "' = " );
+        text.append( value );
+        text.append( "</p>" );
+      }
+    } else {
+      text.append( "<p>No parameters parsed from URI</p><br>" );
+    }
+    
+    
+    final Map<String, String> queryParams = session.getParms();
+    if ( queryParams.size() > 0 ) {
+      for ( final Map.Entry<String, String> entry : queryParams.entrySet() ) {
+        final String key = entry.getKey();
+        final String value = entry.getValue();
+        text.append( "<p>Query String Param '" );
+        text.append( key );
+        text.append( "' = " );
+        text.append( value );
+        text.append( "</p>" );
+      }
+    } else {
+      text.append( "<p>No query params in URL</p><br>" );
+    }
+    return HTTPD.newFixedLengthResponse( getStatus(), getMimeType(), text.toString() );
   }
 
 
@@ -46,7 +81,6 @@ public class LogApiHandler extends AbstractBatchNugget {
    */
   @Override
   public Response put( UriResource uriResource, Map<String, String> urlParams, IHTTPSession session ) {
-    // TODO Auto-generated method stub
     return super.put( uriResource, urlParams, session );
   }
 
@@ -60,7 +94,6 @@ public class LogApiHandler extends AbstractBatchNugget {
    */
   @Override
   public Response delete( UriResource uriResource, Map<String, String> urlParams, IHTTPSession session ) {
-    // TODO Auto-generated method stub
     return super.delete( uriResource, urlParams, session );
   }
 
@@ -72,8 +105,7 @@ public class LogApiHandler extends AbstractBatchNugget {
    */
   @Override
   public IStatus getStatus() {
-    // TODO Auto-generated method stub
-    return null;
+    return Status.OK;
   }
 
 
@@ -84,8 +116,7 @@ public class LogApiHandler extends AbstractBatchNugget {
    */
   @Override
   public String getText() {
-    // TODO Auto-generated method stub
-    return null;
+    return "";
   }
 
 
@@ -96,8 +127,7 @@ public class LogApiHandler extends AbstractBatchNugget {
    */
   @Override
   public String getMimeType() {
-    // TODO Auto-generated method stub
-    return null;
+    return "text/html";
   }
 
 }
