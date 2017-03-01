@@ -9,7 +9,7 @@
  *   Stephan D. Cote 
  *      - Initial concept and implementation
  */
-package coyote.batch.http;
+package coyote.batch.http.nugget;
 
 import java.util.Map;
 
@@ -30,7 +30,7 @@ public class LogApiHandler extends AbstractBatchNugget {
    * Retrieve contents of a log if a log is identified.
    * Retrieve a list of logs if no log is identified.
    * 
-   * @see coyote.batch.http.AbstractBatchNugget#get(coyote.commons.network.http.nugget.UriResource, java.util.Map, coyote.commons.network.http.IHTTPSession)
+   * @see coyote.batch.http.nugget.AbstractBatchNugget#get(coyote.commons.network.http.nugget.UriResource, java.util.Map, coyote.commons.network.http.IHTTPSession)
    */
   @Override
   public Response get( UriResource uriResource, Map<String, String> urlParams, IHTTPSession session ) {
@@ -77,7 +77,7 @@ public class LogApiHandler extends AbstractBatchNugget {
   /**
    * Add entries to an identified log.
    * 
-   * @see coyote.batch.http.AbstractBatchNugget#put(coyote.commons.network.http.nugget.UriResource, java.util.Map, coyote.commons.network.http.IHTTPSession)
+   * @see coyote.batch.http.nugget.AbstractBatchNugget#put(coyote.commons.network.http.nugget.UriResource, java.util.Map, coyote.commons.network.http.IHTTPSession)
    */
   @Override
   public Response put( UriResource uriResource, Map<String, String> urlParams, IHTTPSession session ) {
@@ -90,7 +90,7 @@ public class LogApiHandler extends AbstractBatchNugget {
   /**
    * Delete an entire log.
    * 
-   * @see coyote.batch.http.AbstractBatchNugget#delete(coyote.commons.network.http.nugget.UriResource, java.util.Map, coyote.commons.network.http.IHTTPSession)
+   * @see coyote.batch.http.nugget.AbstractBatchNugget#delete(coyote.commons.network.http.nugget.UriResource, java.util.Map, coyote.commons.network.http.IHTTPSession)
    */
   @Override
   public Response delete( UriResource uriResource, Map<String, String> urlParams, IHTTPSession session ) {

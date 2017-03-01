@@ -9,7 +9,7 @@
  *   Stephan D. Cote 
  *      - Initial concept and initial implementation
  */
-package coyote.batch.http;
+package coyote.batch.http.nugget;
 
 import java.io.ByteArrayInputStream;
 import java.util.Map;

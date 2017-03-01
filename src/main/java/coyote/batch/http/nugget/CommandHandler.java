@@ -9,7 +9,7 @@
  *   Stephan D. Cote 
  *      - Initial concept and initial implementation
  */
-package coyote.batch.http;
+package coyote.batch.http.nugget;
 
 import java.io.ByteArrayInputStream;
 import java.util.Map;
@@ -138,7 +138,7 @@ public class CommandHandler extends AbstractBatchNugget implements UriResponder 
 
 
   /**
-   * @see coyote.batch.http.AbstractBatchNugget#post(coyote.commons.network.http.nugget.UriResource, java.util.Map, coyote.commons.network.http.IHTTPSession)
+   * @see coyote.batch.http.nugget.AbstractBatchNugget#post(coyote.commons.network.http.nugget.UriResource, java.util.Map, coyote.commons.network.http.IHTTPSession)
    */
   @Override
   @Auth(groups = "sysop", requireSSL = false)

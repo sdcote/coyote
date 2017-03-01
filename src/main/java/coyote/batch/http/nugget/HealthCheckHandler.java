@@ -9,7 +9,7 @@
  *   Stephan D. Cote 
  *      - Initial concept and implementation
  */
-package coyote.batch.http;
+package coyote.batch.http.nugget;
 
 import java.util.Map;
 
@@ -29,7 +29,7 @@ import coyote.commons.network.http.nugget.UriResponder;
 public class HealthCheckHandler extends AbstractBatchNugget implements UriResponder {
 
   /**
-   * @see coyote.batch.http.AbstractBatchNugget#get(coyote.commons.network.http.nugget.UriResource, java.util.Map, coyote.commons.network.http.IHTTPSession)
+   * @see coyote.batch.http.nugget.AbstractBatchNugget#get(coyote.commons.network.http.nugget.UriResource, java.util.Map, coyote.commons.network.http.IHTTPSession)
    */
   @Override
   public Response get( UriResource uriResource, Map<String, String> urlParams, IHTTPSession session ) {
