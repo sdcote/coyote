@@ -14,7 +14,12 @@ package coyote.batch.http;
 import java.io.IOException;
 
 import coyote.batch.Service;
+import coyote.batch.http.nugget.CommandHandler;
+import coyote.batch.http.nugget.HealthCheckHandler;
+import coyote.batch.http.nugget.LogApiHandler;
+import coyote.batch.http.nugget.ResourceHandler;
 import coyote.commons.network.http.nugget.HTTPDRouter;
+import coyote.commons.network.http.nugget.IndexHandler;
 import coyote.dataframe.DataFrame;
 
 
@@ -59,11 +64,18 @@ public class DefaultHttpManager extends HTTPDRouter implements HttpManager {
     // Set the default mappings
     super.addMappings();
 
-    // REST interfaces
+    // remove default content mappings
+    super.removeRoute( "/" ); 
+    super.removeRoute( "/index.html" );
+    
+    // REST interfaces with a default priority of 100
     addRoute( "/api/cmd/(.)+", CommandHandler.class, service );
     addRoute( "/api/log/:logname/:action", LogApiHandler.class, service );
     addRoute( "/api/health",HealthCheckHandler.class,service);
 
+    // Content handler - higher priority allows it to be a catch-all
+    addRoute( "/", Integer.MAX_VALUE, ResourceHandler.class, "content" );
+    addRoute( "/(.)+", Integer.MAX_VALUE, ResourceHandler.class, "content" );
   }
 
 }
