@@ -116,9 +116,10 @@ public class ResourceHandler extends DefaultHandler {
     if ( StringUtil.isBlank( coreRequest ) || coreRequest.endsWith( "/" ) ) {
       localPath = getDirectoryIndexRequest( localPath );
 
-      
-      // TODO: We need to send a 302, indicating the new URL
-      
+      // We need to send a 301, indicating the new URL
+      String redirectlocation = localPath.replace(parentdirectory.substring( 0, parentdirectory.length()-1 ),""); // YUCK!!!
+      Response redirect = HTTPD.newFixedLengthResponse( Status.REDIRECT, "text/plain", null );
+      redirect.addHeader( "Location", redirectlocation );
       
       // If we did not get a new local path, it means there is no index file in 
       // the directory
