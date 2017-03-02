@@ -2,7 +2,6 @@ package coyote.batch.http.nugget;
 
 import java.io.BufferedInputStream;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -37,6 +36,7 @@ public class ResourceHandler extends DefaultHandler {
 
   private static final String ROOT_URL = "/";
   private static final String DEFAULT_ROOT = "content";
+  private boolean redirectOnIndexedDir = true;
 
   // The class loader object associated with this Class
   ClassLoader cLoader = this.getClass().getClassLoader();
@@ -81,6 +81,8 @@ public class ResourceHandler extends DefaultHandler {
 
     showRequest( uriResource, session );
 
+    //redirectOnIndexedDir = uriResource.initParameter( 0, Boolean.class );
+
     final String baseUri = uriResource.getUri(); // the regex matcher URL
 
     String coreRequest = HTTPDRouter.normalizeUri( session.getUri() );
@@ -111,16 +113,12 @@ public class ResourceHandler extends DefaultHandler {
     // actual local resource for which we are looking:
     String localPath = parentdirectory + coreRequest;
 
-    // A blank request indicates a request for our root directory; see if there 
-    // is an index file in the root
+    // A blank request or one ending with a path delimiter indicates a request 
+    // for our root or some other directory; see if there is an index file in 
+    // the requested directory and send a (301) redirect if so.
     if ( StringUtil.isBlank( coreRequest ) || coreRequest.endsWith( "/" ) ) {
       localPath = getDirectoryIndexRequest( localPath );
 
-      // We need to send a 301, indicating the new URL
-      String redirectlocation = localPath.replace(parentdirectory.substring( 0, parentdirectory.length()-1 ),""); // YUCK!!!
-      Response redirect = HTTPD.newFixedLengthResponse( Status.REDIRECT, "text/plain", null );
-      redirect.addHeader( "Location", redirectlocation );
-      
       // If we did not get a new local path, it means there is no index file in 
       // the directory
       if ( StringUtil.isBlank( localPath ) ) {
@@ -129,27 +127,40 @@ public class ResourceHandler extends DefaultHandler {
         }
         Log.append( HTTPD.EVENT, "404 NOT FOUND - '" + coreRequest + "'" );
         return new Error404UriHandler().get( uriResource, urlParams, session );
+      } else {
+        if ( redirectOnIndexedDir ) {
+          // We need to send a 301, indicating the new (proper) URL to use
+          String redirectlocation = localPath.replace( parentdirectory.substring( 0, parentdirectory.length() - 1 ), "" ); // YUCK!!!
+          Response redirect = HTTPD.newFixedLengthResponse( Status.REDIRECT, "text/plain", null );
+          redirect.addHeader( "Location", redirectlocation );
+          return redirect;
+        } else {
+          // hide the fact that we are serving the index page and just serve 
+          // the index page
+          try {
+            return HTTPD.newChunkedResponse( Status.OK, HTTPD.getMimeTypeForFile( localPath ), cLoader.getResourceAsStream( localPath ) );
+          } catch ( final Exception ioe ) {
+            return HTTPD.newFixedLengthResponse( Status.REQUEST_TIMEOUT, "text/plain", null );
+          }
+        }
       }
-    }
-
-    // See if this resource exists
-    URL rsc = cLoader.getResource( localPath );
-
-    if ( rsc == null ) {
-      // couldn't find the resource
-      Log.append( HTTPD.EVENT, "404 NOT FOUND - '" + coreRequest + "' LOCAL: " + localPath );
-      return new Error404UriHandler().get( uriResource, urlParams, session );
     } else {
-      // Success - Found the resource - 
-      // Hopefully it is not a directory...
-      // <sigh/> not sure how to detect those with a class loader TODO 
-      try {
-        return HTTPD.newChunkedResponse( Status.OK, HTTPD.getMimeTypeForFile( localPath ), cLoader.getResourceAsStream( localPath ) );
-      } catch ( final Exception ioe ) {
-        return HTTPD.newFixedLengthResponse( Status.REQUEST_TIMEOUT, "text/plain", null );
+      // See if the requested resource exists
+      URL rsc = cLoader.getResource( localPath );
+
+      // if we have no URL, the class loader could not find the resource 
+      if ( rsc == null ) {
+        Log.append( HTTPD.EVENT, "404 NOT FOUND - '" + coreRequest + "' LOCAL: " + localPath );
+        return new Error404UriHandler().get( uriResource, urlParams, session );
+      } else {
+        // Success - Found the resource - 
+        try {
+          return HTTPD.newChunkedResponse( Status.OK, HTTPD.getMimeTypeForFile( localPath ), cLoader.getResourceAsStream( localPath ) );
+        } catch ( final Exception ioe ) {
+          return HTTPD.newFixedLengthResponse( Status.REQUEST_TIMEOUT, "text/plain", null );
+        }
       }
     }
-
   }
 
 
@@ -200,23 +211,6 @@ public class ResourceHandler extends DefaultHandler {
 
 
 
-  private static String[] getPathArray( final String uri ) {
-    final String array[] = uri.split( "/" );
-    final ArrayList<String> pathArray = new ArrayList<String>();
-
-    for ( final String s : array ) {
-      if ( s.length() > 0 ) {
-        pathArray.add( s );
-      }
-    }
-
-    return pathArray.toArray( new String[] {} );
-
-  }
-
-
-
-
   /**
    * Use the class loader to find the named resource
    * 
@@ -234,8 +228,7 @@ public class ResourceHandler extends DefaultHandler {
 
   @Override
   public IStatus getStatus() {
-    // TODO Auto-generated method stub
-    return null;
+    return Status.INTERNAL_ERROR; // this should never be called
   }
 
 
@@ -243,8 +236,7 @@ public class ResourceHandler extends DefaultHandler {
 
   @Override
   public String getText() {
-    // TODO Auto-generated method stub
-    return null;
+    return Status.INTERNAL_ERROR.getDescription(); // this should never be called
   }
 
 
@@ -252,8 +244,7 @@ public class ResourceHandler extends DefaultHandler {
 
   @Override
   public String getMimeType() {
-    // TODO Auto-generated method stub
-    return null;
+    return "text/plain"; // this should never be called
   }
 
 }
