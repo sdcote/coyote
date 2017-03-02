@@ -13,16 +13,13 @@ package coyote.batch.http;
 
 import java.io.IOException;
 
-import coyote.batch.ConfigTag;
 import coyote.batch.Service;
 import coyote.batch.http.nugget.CommandHandler;
 import coyote.batch.http.nugget.HealthCheckHandler;
 import coyote.batch.http.nugget.LogApiHandler;
 import coyote.batch.http.nugget.ResourceHandler;
 import coyote.commons.network.http.nugget.HTTPDRouter;
-import coyote.dataframe.DataField;
 import coyote.dataframe.DataFrame;
-import coyote.loader.log.Log;
 
 
 /**
@@ -30,9 +27,7 @@ import coyote.loader.log.Log;
  */
 public class DefaultHttpManager extends HTTPDRouter implements HttpManager {
 
-  private static final int DEFAULT_PORT = 55290;
-  private static int port = DEFAULT_PORT;
-
+  private DataFrame config = null;
   private final Service service;
 
 
@@ -41,42 +36,20 @@ public class DefaultHttpManager extends HTTPDRouter implements HttpManager {
   /**
    * Create the server instance with all the defaults.
    * 
-   * @param cfg Any configuration data 
    * @param service the service we are to manage
    */
-  public DefaultHttpManager( DataFrame cfg, Service service ) throws IOException {
+  public DefaultHttpManager( int port, DataFrame cfg, Service service ) throws IOException {
     super( port );
     if ( service == null )
       throw new IllegalArgumentException( "Cannot create HttpManager without a service reference" );
+
+    config = cfg;
 
     // Our connection to the service instance we are managing
     this.service = service;
 
     // Add the nuggets handling requests to this service
     addMappings();
-  }
-
-
-
-
-  /**
-   * Set the configuration data in this manager
-   * 
-   * @param cfg frame containing 
-   */
-  public void setConfiguration( DataFrame cfg ) {
-    if ( cfg != null ) {
-      for ( DataField field : cfg.getFields() ) {
-        if ( ConfigTag.PORT.equalsIgnoreCase( field.getName() ) ) {
-          try {
-            port = Integer.parseInt( field.getStringValue() );
-          } catch ( NumberFormatException e ) {
-            port = DEFAULT_PORT;
-            Log.error( "Port configuration option was not a valid integer" );
-          }
-        }
-      }
-    }
   }
 
 

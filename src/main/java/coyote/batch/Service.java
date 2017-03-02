@@ -20,6 +20,7 @@ import coyote.batch.http.DefaultHttpManager;
 import coyote.batch.http.HttpManager;
 import coyote.batch.http.ManagerFactoryBinder;
 import coyote.commons.network.http.HTTPD;
+import coyote.dataframe.DataField;
 import coyote.dataframe.DataFrame;
 import coyote.loader.Loader;
 import coyote.loader.cfg.Config;
@@ -42,6 +43,8 @@ public class Service extends AbstractBatchLoader implements Loader {
 
   /** The name of the static binder class which can be used to dynamically load new UI managers */
   public static final String BINDERCLASS = "coyote.batch.http.StaticManagerBinder";
+
+  private static final int DEFAULT_PORT = 55290;
 
   private HttpManager server = null;
 
@@ -114,7 +117,22 @@ public class Service extends AbstractBatchLoader implements Loader {
     if ( server == null ) {
       Log.debug( LogMsg.createMsg( Batch.MSG, "Service.no_binder_class_found" ) );
       try {
-        server = new DefaultHttpManager( cfg, this );
+        int port = DEFAULT_PORT;
+
+        // we need to get the port first as part of the server constructor
+        if ( cfg != null ) {
+          for ( DataField field : cfg.getFields() ) {
+            if ( ConfigTag.PORT.equalsIgnoreCase( field.getName() ) ) {
+              try {
+                port = Integer.parseInt( field.getStringValue() );
+              } catch ( NumberFormatException e ) {
+                port = DEFAULT_PORT;
+                Log.error( "Port configuration option was not a valid integer, using default" );
+              }
+            }
+          }
+        }
+        server = new DefaultHttpManager( port, cfg, this );
       } catch ( IOException e ) {
         Log.append( HTTPD.EVENT, "ERROR: Could not create server on port '" + server.getPort() + "' - " + e.getMessage() );
         System.err.println( "Couldn't create server:\n" + e );
@@ -168,7 +186,7 @@ public class Service extends AbstractBatchLoader implements Loader {
       for ( final Iterator<Object> it = components.keySet().iterator(); it.hasNext(); ) {
         final Object cmpnt = it.next();
         if ( cmpnt instanceof ScheduledBatchJob ) {
-          
+
           TransformEngine engine = ( (ScheduledBatchJob)cmpnt ).getEngine();
           if ( engine != null ) {
 
@@ -176,7 +194,7 @@ public class Service extends AbstractBatchLoader implements Loader {
             for ( int x = 0; x < commandLineArguments.length; x++ ) {
               engine.getSymbolTable().put( Symbols.COMMAND_LINE_ARG_PREFIX + x, commandLineArguments[x] );
             }
-            
+
             // schedule the component for execution
             getScheduler().schedule( (ScheduledBatchJob)cmpnt );
           }
