@@ -116,6 +116,10 @@ public class ResourceHandler extends DefaultHandler {
     if ( StringUtil.isBlank( coreRequest ) || coreRequest.endsWith( "/" ) ) {
       localPath = getDirectoryIndexRequest( localPath );
 
+      
+      // TODO: We need to send a 302, indicating the new URL
+      
+      
       // If we did not get a new local path, it means there is no index file in 
       // the directory
       if ( StringUtil.isBlank( localPath ) ) {
