@@ -111,7 +111,6 @@ public abstract class AbstractBatchNugget extends DefaultHandler implements UriR
   @Override
   public String getMimeType() {
     return "text/html";
-
   }
 
 }

@@ -61,7 +61,8 @@ public class DefaultHttpManager extends HTTPDRouter implements HttpManager {
 
     // REST interfaces
     addRoute( "/api/cmd/(.)+", CommandHandler.class, service );
-    addRoute( "/api/log/:logname/:action+", LogApiHandler.class, service );
+    addRoute( "/api/log/:logname/:action", LogApiHandler.class, service );
+    addRoute( "/api/health",HealthCheckHandler.class,service);
 
   }
 
