@@ -2,7 +2,7 @@
 	"Class": "coyote.batch.Service",
 	
 	"Manager" : {
-		"Port": 55290
+		"Port": 80
 	},
 
 	"Job" : {
