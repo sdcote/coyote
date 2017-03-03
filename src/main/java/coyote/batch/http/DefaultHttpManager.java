@@ -17,8 +17,8 @@ import coyote.batch.Service;
 import coyote.batch.http.nugget.CommandHandler;
 import coyote.batch.http.nugget.HealthCheckHandler;
 import coyote.batch.http.nugget.LogApiHandler;
-import coyote.batch.http.nugget.ResourceHandler;
 import coyote.commons.network.http.nugget.HTTPDRouter;
+import coyote.commons.network.http.nugget.ResourceHandler;
 import coyote.dataframe.DataFrame;
 
 
@@ -27,7 +27,6 @@ import coyote.dataframe.DataFrame;
  */
 public class DefaultHttpManager extends HTTPDRouter implements HttpManager {
 
-  private DataFrame config = null;
   private final Service service;
 
 
@@ -42,8 +41,6 @@ public class DefaultHttpManager extends HTTPDRouter implements HttpManager {
     super( port );
     if ( service == null )
       throw new IllegalArgumentException( "Cannot create HttpManager without a service reference" );
-
-    config = cfg;
 
     // Our connection to the service instance we are managing
     this.service = service;
