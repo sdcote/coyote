@@ -19,12 +19,13 @@ import coyote.commons.network.http.IStatus;
 import coyote.commons.network.http.Response;
 import coyote.commons.network.http.Status;
 import coyote.commons.network.http.nugget.UriResource;
+import coyote.commons.network.http.nugget.UriResponder;
 
 
 /**
  * 
  */
-public class LogApiHandler extends AbstractBatchNugget {
+public class LogApiHandler extends AbstractBatchNugget implements UriResponder {
 
   /**
    * Retrieve contents of a log if a log is identified.
@@ -52,8 +53,7 @@ public class LogApiHandler extends AbstractBatchNugget {
     } else {
       text.append( "<p>No parameters parsed from URI</p><br>" );
     }
-    
-    
+
     final Map<String, String> queryParams = session.getParms();
     if ( queryParams.size() > 0 ) {
       for ( final Map.Entry<String, String> entry : queryParams.entrySet() ) {
