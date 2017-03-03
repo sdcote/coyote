@@ -18,12 +18,11 @@ import coyote.batch.http.nugget.CommandHandler;
 import coyote.batch.http.nugget.HealthCheckHandler;
 import coyote.batch.http.nugget.LogApiHandler;
 import coyote.commons.network.http.nugget.HTTPDRouter;
-import coyote.commons.network.http.nugget.ResourceHandler;
 import coyote.dataframe.DataFrame;
 
 
 /**
- * 
+ * This defines the API for a Batch Service.
  */
 public class DefaultHttpManager extends HTTPDRouter implements HttpManager {
 
@@ -45,33 +44,13 @@ public class DefaultHttpManager extends HTTPDRouter implements HttpManager {
     // Our connection to the service instance we are managing
     this.service = service;
 
-    // Add the nuggets handling requests to this service
-    addMappings();
-  }
-
-
-
-
-  /**
-   * Add the routes.
-   */
-  @Override
-  public void addMappings() {
     // Set the default mappings
-    super.addMappings();
-
-    // remove default content mappings
-    super.removeRoute( "/" );
-    super.removeRoute( "/index.html" );
+    addMappings();
 
     // REST interfaces with a default priority of 100
     addRoute( "/api/cmd/(.)+", CommandHandler.class, service );
     addRoute( "/api/log/:logname/:action", LogApiHandler.class, service );
     addRoute( "/api/health", HealthCheckHandler.class, service );
-
-    // Content handler - higher priority allows it to be a catch-all
-    addRoute( "/", Integer.MAX_VALUE, ResourceHandler.class, "content" );
-    addRoute( "/(.)+", Integer.MAX_VALUE, ResourceHandler.class, "content" );
   }
 
 }
