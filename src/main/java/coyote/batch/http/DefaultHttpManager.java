@@ -18,7 +18,9 @@ import coyote.batch.http.nugget.CommandHandler;
 import coyote.batch.http.nugget.HealthCheckHandler;
 import coyote.batch.http.nugget.LogApiHandler;
 import coyote.commons.network.http.nugget.HTTPDRouter;
+import coyote.dataframe.DataField;
 import coyote.dataframe.DataFrame;
+import coyote.loader.cfg.Config;
 
 
 /**
@@ -45,8 +47,14 @@ public class DefaultHttpManager extends HTTPDRouter implements HttpManager {
     // Our connection to the service instance we are managing
     this.service = service;
 
-    // TODO: Setup Auth provider from configuration
-    setAuthProvider( new DefaultAuthProvider() );
+    // Setup auth provider from configuration - No configuration results in deny-all operation
+    DataFrame authConfig = null;
+    for ( DataField field : cfg.getFields() ) {
+      if ( DefaultAuthProvider.AUTH_SECTION.equalsIgnoreCase( field.getName() ) && field.isFrame() ) {
+        authConfig=(DataFrame)field.getObjectValue();
+      }
+    }
+    setAuthProvider( new DefaultAuthProvider(authConfig) );
 
     // Set the default mappings
     addMappings();

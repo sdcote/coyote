@@ -13,12 +13,26 @@ package coyote.batch.http;
 
 import coyote.commons.network.http.IHTTPSession;
 import coyote.commons.network.http.auth.AuthProvider;
+import coyote.dataframe.DataFrame;
 
 
 /**
  * This is the default authentication and Authorization component for the HTTP service.
  */
 public class DefaultAuthProvider implements AuthProvider {
+  public static final String AUTH_SECTION = "Auth";
+
+  /**
+   * @param cfg
+   */
+  public DefaultAuthProvider( DataFrame cfg ) {
+    if(cfg!= null){
+    System.out.println( cfg.toString() );
+    }
+  }
+
+
+
 
   /**
    * @see coyote.commons.network.http.auth.AuthProvider#isValidConnection(coyote.commons.network.http.IHTTPSession)
