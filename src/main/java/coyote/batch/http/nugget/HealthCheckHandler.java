@@ -33,7 +33,7 @@ public class HealthCheckHandler extends AbstractBatchNugget implements UriRespon
    */
   @Override
   public Response get( UriResource uriResource, Map<String, String> urlParams, IHTTPSession session ) {
-    return HTTPD.newFixedLengthResponse( getStatus(), getMimeType(), "UP" );
+    return Response.createFixedLengthResponse( getStatus(), getMimeType(), "UP" );
   }
 
 }

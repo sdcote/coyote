@@ -13,7 +13,7 @@ package coyote.batch.http.nugget;
 
 import java.util.Map;
 
-import coyote.commons.network.http.HTTPD;
+import coyote.commons.network.MimeType;
 import coyote.commons.network.http.IHTTPSession;
 import coyote.commons.network.http.IStatus;
 import coyote.commons.network.http.Response;
@@ -68,7 +68,7 @@ public class LogApiHandler extends AbstractBatchNugget implements UriResponder {
     } else {
       text.append( "<p>No query params in URL</p><br>" );
     }
-    return HTTPD.newFixedLengthResponse( getStatus(), getMimeType(), text.toString() );
+    return Response.createFixedLengthResponse( getStatus(), getMimeType(), text.toString() );
   }
 
 
@@ -127,7 +127,7 @@ public class LogApiHandler extends AbstractBatchNugget implements UriResponder {
    */
   @Override
   public String getMimeType() {
-    return "text/html";
+    return MimeType.HTML.getType();
   }
 
 }

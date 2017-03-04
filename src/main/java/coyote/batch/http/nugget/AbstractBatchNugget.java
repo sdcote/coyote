@@ -13,7 +13,7 @@ package coyote.batch.http.nugget;
 
 import java.util.Map;
 
-import coyote.commons.network.http.HTTPD;
+import coyote.commons.network.MimeType;
 import coyote.commons.network.http.IHTTPSession;
 import coyote.commons.network.http.IStatus;
 import coyote.commons.network.http.Response;
@@ -33,7 +33,7 @@ public abstract class AbstractBatchNugget extends DefaultHandler implements UriR
    */
   @Override
   public Response delete( UriResource uriResource, Map<String, String> urlParams, IHTTPSession session ) {
-    return HTTPD.newFixedLengthResponse( getStatus(), getMimeType(), getText() );
+    return Response.createFixedLengthResponse( getStatus(), getMimeType(), getText() );
   }
 
 
@@ -44,7 +44,7 @@ public abstract class AbstractBatchNugget extends DefaultHandler implements UriR
    */
   @Override
   public Response get( UriResource uriResource, Map<String, String> urlParams, IHTTPSession session ) {
-    return HTTPD.newFixedLengthResponse( getStatus(), getMimeType(), getText() );
+    return Response.createFixedLengthResponse( getStatus(), getMimeType(), getText() );
   }
 
 
@@ -55,7 +55,7 @@ public abstract class AbstractBatchNugget extends DefaultHandler implements UriR
    */
   @Override
   public Response other( String method, UriResource uriResource, Map<String, String> urlParams, IHTTPSession session ) {
-    return HTTPD.newFixedLengthResponse( getStatus(), getMimeType(), getText() );
+    return Response.createFixedLengthResponse( getStatus(), getMimeType(), getText() );
   }
 
 
@@ -66,7 +66,7 @@ public abstract class AbstractBatchNugget extends DefaultHandler implements UriR
    */
   @Override
   public Response post( UriResource uriResource, Map<String, String> urlParams, IHTTPSession session ) {
-    return HTTPD.newFixedLengthResponse( getStatus(), getMimeType(), getText() );
+    return Response.createFixedLengthResponse( getStatus(), getMimeType(), getText() );
   }
 
 
@@ -77,7 +77,7 @@ public abstract class AbstractBatchNugget extends DefaultHandler implements UriR
    */
   @Override
   public Response put( UriResource uriResource, Map<String, String> urlParams, IHTTPSession session ) {
-    return HTTPD.newFixedLengthResponse( getStatus(), getMimeType(), getText() );
+    return Response.createFixedLengthResponse( getStatus(), getMimeType(), getText() );
   }
 
 
@@ -110,7 +110,7 @@ public abstract class AbstractBatchNugget extends DefaultHandler implements UriR
    */
   @Override
   public String getMimeType() {
-    return "text/html";
+    return MimeType.HTML.getType();
   }
 
 }

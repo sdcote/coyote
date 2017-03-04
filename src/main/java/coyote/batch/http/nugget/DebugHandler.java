@@ -75,7 +75,7 @@ public class DebugHandler extends DefaultHandler {
     String text = getText( urlParams, session );
     ByteArrayInputStream inp = new ByteArrayInputStream( text.getBytes() );
     int size = text.getBytes().length;
-    return HTTPD.newFixedLengthResponse( getStatus(), getMimeType(), inp, size );
+    return Response.createFixedLengthResponse( getStatus(), getMimeType(), inp, size );
   }
 
 }

@@ -22,12 +22,15 @@ import coyote.dataframe.DataFrame;
 public class DefaultAuthProvider implements AuthProvider {
   public static final String AUTH_SECTION = "Auth";
 
+
+
+
   /**
    * @param cfg
    */
   public DefaultAuthProvider( DataFrame cfg ) {
-    if(cfg!= null){
-    System.out.println( cfg.toString() );
+    if ( cfg != null ) {
+      System.out.println( cfg.toString() );
     }
   }
 
@@ -50,6 +53,10 @@ public class DefaultAuthProvider implements AuthProvider {
    */
   @Override
   public boolean isAuthenticated( IHTTPSession session ) {
+
+    // if no authentication header, we can send a request for client to send one, most browsers will then pop-up a form 
+    //session.getResponseHeaders().put( HTTP.HDR_WWW_AUTHENTICATE, HTTP.BASIC+" realm=\"Batch Manager\"" );
+
     return true;
   }
 

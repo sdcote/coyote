@@ -15,6 +15,7 @@ import java.io.ByteArrayInputStream;
 import java.util.Map;
 
 import coyote.batch.Service;
+import coyote.commons.network.MimeType;
 import coyote.commons.network.http.HTTPD;
 import coyote.commons.network.http.IHTTPSession;
 import coyote.commons.network.http.IStatus;
@@ -75,7 +76,7 @@ public class CommandHandler extends AbstractBatchNugget implements UriResponder 
 
     Log.append( HTTPD.EVENT, "Sending a text response of " + size + " bytes" );
 
-    return HTTPD.newFixedLengthResponse( getStatus(), getMimeType(), inp, size );
+    return Response.createFixedLengthResponse( getStatus(), getMimeType(), inp, size );
 
   }
 
@@ -131,7 +132,7 @@ public class CommandHandler extends AbstractBatchNugget implements UriResponder 
    */
   @Override
   public String getMimeType() {
-    return "text/html";
+    return MimeType.HTML.getType();
   }
 
 
