@@ -38,11 +38,15 @@ public class DefaultHttpManager extends HTTPDRouter implements HttpManager {
    */
   public DefaultHttpManager( int port, DataFrame cfg, Service service ) throws IOException {
     super( port );
+
     if ( service == null )
       throw new IllegalArgumentException( "Cannot create HttpManager without a service reference" );
 
     // Our connection to the service instance we are managing
     this.service = service;
+
+    // TODO: Setup Auth provider from configuration
+    setAuthProvider( new DefaultAuthProvider() );
 
     // Set the default mappings
     addMappings();
