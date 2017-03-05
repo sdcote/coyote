@@ -18,6 +18,7 @@ import coyote.commons.network.http.IHTTPSession;
 import coyote.commons.network.http.IStatus;
 import coyote.commons.network.http.Response;
 import coyote.commons.network.http.Status;
+import coyote.commons.network.http.auth.Auth;
 import coyote.commons.network.http.nugget.UriResource;
 import coyote.commons.network.http.nugget.UriResponder;
 
@@ -34,6 +35,7 @@ public class LogApiHandler extends AbstractBatchNugget implements UriResponder {
    * @see coyote.batch.http.nugget.AbstractBatchNugget#get(coyote.commons.network.http.nugget.UriResource, java.util.Map, coyote.commons.network.http.IHTTPSession)
    */
   @Override
+  @Auth(groups = "devop", requireSSL = true)
   public Response get( UriResource uriResource, Map<String, String> urlParams, IHTTPSession session ) {
     final StringBuilder text = new StringBuilder( "<html><body>" );
     text.append( "<h1>URL: " );
