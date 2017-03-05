@@ -58,7 +58,7 @@ public class DefaultHttpManager extends HTTPDRouter implements HttpManager {
     DataFrame authConfig = null;
     for ( DataField field : cfg.getFields() ) {
       if ( DefaultAuthProvider.AUTH_SECTION.equalsIgnoreCase( field.getName() ) && field.isFrame() ) {
-        setAuthProvider( new DefaultAuthProvider(  (DataFrame)field.getObjectValue()));
+        setAuthProvider( new DefaultAuthProvider( new Config( (DataFrame)field.getObjectValue() ) ) );
       }
     }
 
@@ -181,8 +181,8 @@ public class DefaultHttpManager extends HTTPDRouter implements HttpManager {
   /**
    * <pre>
    * "Frequency":{
-   *   "default": { "requests": 10, "interval": 1000, "threshold": 3, "window": 3000, "Breach": "blacklist"},
-   *   "192.168.100/24": { "requests": 10, "interval": 1000, "threshold": 3, "window": 3000, "Breach": "throttle:3000"}
+   *   "default": { "Requests": 10, "Interval": 1000, "Threshold": 3, "Window": 3000, "Breach": "blacklist"},
+   *   "192.168.100/24": { "Requests": 10, "Interval": 1000, "Threshold": 3, "Window": 3000, "Breach": "throttle:3000"}
    *  }</pre>
    *  requests are the number of requests to allow in an interval
    *  interval is the number of milliseconds in the interval

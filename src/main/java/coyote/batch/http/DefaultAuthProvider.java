@@ -27,6 +27,7 @@ import coyote.commons.network.http.IHTTPSession;
 import coyote.commons.network.http.auth.AuthProvider;
 import coyote.dataframe.DataField;
 import coyote.dataframe.DataFrame;
+import coyote.loader.cfg.Config;
 
 
 /**
@@ -47,6 +48,7 @@ public class DefaultAuthProvider implements AuthProvider {
   public final List<User> userList = new ArrayList<User>();
 
   private int digestRounds = 1;
+
   private static final String MD5 = "MD5";
   private static final String UTF8 = "UTF8";
 
@@ -69,7 +71,7 @@ public class DefaultAuthProvider implements AuthProvider {
 
   public DefaultAuthProvider() {
     Random rand = new Random();
-    digestRounds = rand.nextInt( ( 4 - 1 ) + 1 ) + 1;
+    digestRounds = rand.nextInt( ( 5 - 1 ) + 1 ) + 1;
   }
 
 
@@ -78,7 +80,7 @@ public class DefaultAuthProvider implements AuthProvider {
   /**
    * @param cfg
    */
-  public DefaultAuthProvider( DataFrame cfg ) {
+  public DefaultAuthProvider( Config cfg ) {
     if ( cfg != null ) {
       for ( DataField field : cfg.getFields() ) {
         if ( DefaultAuthProvider.USER_SECTION.equalsIgnoreCase( field.getName() ) && field.isFrame() ) {
@@ -142,13 +144,23 @@ public class DefaultAuthProvider implements AuthProvider {
 
 
   /**
+   * @param rounds
+   */
+  void setDigestRounds( int rounds ) {
+    digestRounds = rounds;
+  }
+
+
+
+
+  /**
    * Perform multi-round MD5 digest of given bytes.
    * 
    * @param data the bytes to digest
    * 
    * @return digest of the given data
    */
-  private byte[] digest( byte[] data ) {
+  byte[] digest( byte[] data ) {
     byte[] val = data;
     if ( digestRounds > 0 ) {
       MessageDigest md = null;
@@ -198,14 +210,35 @@ public class DefaultAuthProvider implements AuthProvider {
       String username = tokens[0];
       String password = tokens[1];
       System.out.println( "'" + username + "' - '" + password + "'" );
-      return true;
-    } else {
+      
+      // find the user with the given name
+      User user = this.getUser( username );
+      if ( user != null ) {
+        // we found a user
+        System.out.println( "Found '" + user.getName() + "' - '" + ByteUtil.bytesToHex( user.getPassword() ) + "'" );
 
-      // if no authentication header, we can send a request for client to send one, most browsers will then pop-up a form 
-      session.getResponseHeaders().put( HTTP.HDR_WWW_AUTHENTICATE, HTTP.BASIC + " realm=\"Batch Manager\"" );
-
-      return false;
+        try {
+          // digest the given password
+          byte[] barray = digest( password.getBytes( UTF8 ) );
+          
+          System.out.println( "Check '" + username + "' - '" + ByteUtil.bytesToHex( barray ) + "'" );
+          if ( user.passwordMatches( barray ) ) {
+            // add the user and groups to the session
+            session.setUserName( user.getName() );
+            session.setUserGroups( user.getGroups() );
+            return true;
+          }
+        } catch ( UnsupportedEncodingException e ) {
+          e.printStackTrace();
+        }
+      }
     }
+
+    // TODO: Make this configurable...this can be considered a security risk allowing easier dictionary attacks
+    // if no authentication header or auth failure, we can send a request for client to send one, most browsers will then pop-up a form 
+    session.getResponseHeaders().put( HTTP.HDR_WWW_AUTHENTICATE, HTTP.BASIC + " realm=\"Batch Manager\"" );
+
+    return false;
   }
 
 
@@ -216,6 +249,9 @@ public class DefaultAuthProvider implements AuthProvider {
    */
   @Override
   public boolean isAuthorized( IHTTPSession session, String groups ) {
+    String user = session.getUserName();
+    List<String> usergroups = session.getUserGroups();
+
     return true;
   }
 
@@ -229,7 +265,7 @@ public class DefaultAuthProvider implements AuthProvider {
    * 
    * @return the first user with the given name or null if not found.
    */
-  private User getUser( String name ) {
+  User getUser( String name ) {
     if ( StringUtil.isNotEmpty( name ) ) {
       for ( User user : userList ) {
         if ( name.equals( user.getName() ) ) {
@@ -240,9 +276,19 @@ public class DefaultAuthProvider implements AuthProvider {
     return null;
   }
 
+
+
+
   /**
-   * Class to hold user data
+   * @return the number of digest rounds
    */
+  int getDigestRounds() {
+    return digestRounds;
+  }
+
+  /**
+  * Class to hold user data
+  */
   class User {
     private String name = null;
     private byte[] pass = null;
@@ -251,44 +297,52 @@ public class DefaultAuthProvider implements AuthProvider {
 
 
 
-    public void addGroup( String groupname ) {
+    void addGroup( String groupname ) {
       groups.add( groupname );
     }
 
 
 
 
-    public String getName() {
+    List<String> getGroups() {
+      return groups;
+    }
+
+
+
+
+    String getName() {
       return name;
     }
 
 
 
 
-    public void setName( String name ) {
+    void setName( String name ) {
       this.name = name;
     }
 
 
 
 
-    public byte[] getPassword() {
+    byte[] getPassword() {
       return pass;
     }
 
 
 
 
-    public void setPassword( byte[] pass ) {
+    void setPassword( byte[] pass ) {
       this.pass = pass;
     }
 
 
 
 
-    public boolean passwordMatches( byte[] data ) {
+    boolean passwordMatches( byte[] data ) {
       return Arrays.equals( data, pass );
     }
 
   }
+
 }
