@@ -28,8 +28,22 @@
 			"172.28.147.6/0" : "allow",
 			"192.168/16" : "allow",
 			"10/8" : "deny"
-		}
-	},
+		},
+		"Frequency" : {
+			"default" : { 
+				"requests": 10, 
+				"interval": 1000, 
+				"threshold": 3, 
+				"window": 3000, 
+				"Breach": "blacklist"
+			},
+			"192.168.100/24" : { 
+				"requests": 10, 
+				"interval": 1000, 
+				"threshold": 3, 
+				"window": 3000, 
+				"Breach": "throttle:3000"}
+		},
 
 	"Job" : {
 		"Name" : "Simple",
