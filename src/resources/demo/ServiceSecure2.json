@@ -4,12 +4,30 @@
 	"Manager" : {
 		"Port": 80,
 		"Auth": {
-			"Users":[ 
-				{ "Name":"admin", "EncryptedPassword":"GfqGEXtR5jkyh75cRgqlNzgAdPz/K2mz", "Groups":"sysop,devop"},
-				{ "Name":"sysop", "EncryptedPassword":"aYjBkL5R6G0yh75cRgqlNzgAdPz/K2mz", "Groups":"sysop"},
-				{ "Name":"devop", "EncryptedPassword":"O0+u0KBTbycyh75cRgqlNzgAdPz/K2mz", "Groups":"devop"},
-				{ "Name":"user",  "EncryptedPassword":"6CIY8APrIlUyh75cRgqlNzgAdPz/K2mz"}
+			"Users" : [ 
+				{ "EncryptedName" : "cNcvHrSlDEeVLJTNJTyyUkgkTdMFuOYF", 
+				  "EncryptedPassword" : "GfqGEXtR5jkyh75cRgqlNzgAdPz/K2mz", 
+				  "EncryptedGroups" : "02vnj/GyZwndbwd5zoXpjbievElMHAu1UnVMDb1VaHU="
+				},
+				{ "EncryptedName" : "6UjhJd7E9Q3dbwd5zoXpjUgkTdMFuOYF", 
+				  "EncryptedPassword" : "aYjBkL5R6G0yh75cRgqlNzgAdPz/K2mz", 
+				  "EncryptedGroups" : "6UjhJd7E9Q3dbwd5zoXpjUgkTdMFuOYF"
+				},
+				{ "EncryptedName" : "cyVFWJgrHFwNVTBmspLMs0gkTdMFuOYF", 
+				  "EncryptedPassword" : "O0+u0KBTbycyh75cRgqlNzgAdPz/K2mz", 
+				  "EncryptedGroups" : "cyVFWJgrHFwNVTBmspLMs0gkTdMFuOYF"
+				},
+				{ "EncryptedName" : "OjlIAF1dPhHiNBqMCqVJUg==",  
+				  "EncryptedPassword" : "6CIY8APrIlUyh75cRgqlNzgAdPz/K2mz"
+				}
 			]
+		},
+		"IPACL" : {
+			"default" : "deny",
+			"127.0.0.1" : "allow",
+			"172.28.147.6/0" : "allow",
+			"192.168/16" : "allow",
+			"10/8" : "deny"
 		}
 	},
 

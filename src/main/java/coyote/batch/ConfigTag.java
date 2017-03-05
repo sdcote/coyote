@@ -134,5 +134,11 @@ public class ConfigTag {
   public static final String DAYS_OF_WEEK = "weekdays";
   public static final String MONTHS = "months";
   public static final String MILLIS = "millis";
+  
+  // Manager
+  
+  public static final String IPACL = "IpACL";
+  public static final String FREQUENCY = "Frequency";
+
 
 }

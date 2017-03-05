@@ -84,7 +84,7 @@ public class Service extends AbstractBatchLoader implements Loader {
    * 
    * @param cfg The configuration for the manager (may be null)
    */
-  private void startManager( DataFrame cfg ) {
+  private void startManager( Config cfg ) {
 
     // look for the Static Manager Binder in the classpath
     try {

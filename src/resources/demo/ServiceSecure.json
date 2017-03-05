@@ -5,11 +5,29 @@
 		"Port": 80,
 		"Auth": {
 			"Users":[ 
-				{ "Name":"admin", "Password":"secret", "Groups":"sysop,devop"},
-				{ "Name":"sysop", "Password":"secret", "Groups":"sysop"},
-				{ "Name":"devop", "Password":"secret", "Groups":"devop"},
-				{ "Name":"user", "Password":"secret"}
+				{ "Name" : "admin", 
+				  "Password" : "secret", 
+				  "Groups" : "sysop,devop"
+				},
+				{ "Name" : "sysop", 
+				  "Password" : "secret", 
+				  "Groups" : "sysop"
+				},
+				{ "Name" : "devop", 
+				  "Password" : "secret", 
+				  "Groups" : "devop"
+				},
+				{ "Name" : "user", 
+				  "Password" : "secret"
+				}
 			]
+		},
+		"IPACL" : {
+			"default" : "deny",
+			"127.0.0.1" : "allow",
+			"172.28.147.6/0" : "allow",
+			"192.168/16" : "allow",
+			"10/8" : "deny"
 		}
 	},
 
