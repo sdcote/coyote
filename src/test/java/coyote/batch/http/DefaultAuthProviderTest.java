@@ -12,6 +12,7 @@
 package coyote.batch.http;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -100,7 +101,7 @@ public class DefaultAuthProviderTest {
     try {
       Config cfg = new Config( AUTH_CONFIG );
 
-      AuthProvider provider = new DefaultAuthProvider(cfg );
+      AuthProvider provider = new DefaultAuthProvider( cfg );
       assertNotNull( provider );
 
     } catch ( ConfigurationException e ) {
@@ -185,18 +186,17 @@ public class DefaultAuthProviderTest {
     try {
       Config cfg = new Config( AUTH_CONFIG );
 
-      DefaultAuthProvider provider = new DefaultAuthProvider(cfg);
+      DefaultAuthProvider provider = new DefaultAuthProvider( cfg );
       assertNotNull( provider );
       int rounds = provider.getDigestRounds();
-      System.out.println( "Provider is using "+rounds+" digest Rounds" );
-      
+      //System.out.println( "Provider is using "+rounds+" digest Rounds" );
+
       DefaultAuthProvider.User user = provider.getUser( "user" );
-      assertNotNull(user);
+      assertNotNull( user );
       String name = user.getName();
       byte[] barray = user.getPassword();
       String result = ByteUtil.bytesToHex( barray );
-      System.out.println( "User: "+name+" password: "+result );
-
+      //System.out.println( "User: "+name+" password: "+result );
 
       // create a mock session
       MockSession session = new MockSession();
@@ -206,8 +206,6 @@ public class DefaultAuthProviderTest {
       String password = "secret";
       String basicAuth = TestHttpClient.calculateHeaderData( username, password );
       session.addRequestHeader( HTTP.HDR_AUTHORIZATION.toLowerCase(), basicAuth );
-
-      DefaultAuthProvider.User usr = provider.getUser( username );
 
       // Have the provider validate this session
       assertTrue( provider.isAuthenticated( session ) );
@@ -231,7 +229,42 @@ public class DefaultAuthProviderTest {
    */
   @Test
   public void testIsAuthorized() {
-    //fail( "Not yet implemented" ); // TODO
+    try {
+      Config cfg = new Config( AUTH_CONFIG );
+
+      DefaultAuthProvider provider = new DefaultAuthProvider( cfg );
+      assertNotNull( provider );
+
+      DefaultAuthProvider.User user = provider.getUser( "user" );
+      assertNotNull( user );
+      String name = user.getName();
+      byte[] barray = user.getPassword();
+
+      // create a mock session
+      MockSession session = new MockSession();
+
+      // Generate an Authorization header for a user in our test configuration
+      String username = "user";
+      String password = "secret";
+      String basicAuth = TestHttpClient.calculateHeaderData( username, password );
+      session.addRequestHeader( HTTP.HDR_AUTHORIZATION.toLowerCase(), basicAuth );
+      // Have the provider validate this session
+      assertTrue( provider.isAuthenticated( session ) );
+      // Have the provider check role based access of this session
+      assertFalse( provider.isAuthorized( session, "devop" ) );
+
+      // Generate an Authorization header for the 'admin' user
+      username = "admin";
+      password = "secret";
+      basicAuth = TestHttpClient.calculateHeaderData( username, password );
+      session = new MockSession();
+      session.addRequestHeader( HTTP.HDR_AUTHORIZATION.toLowerCase(), basicAuth );
+      assertTrue( provider.isAuthenticated( session ) );
+      assertTrue( provider.isAuthorized( session, "devop" ) );
+
+    } catch ( ConfigurationException e ) {
+      fail( e.getMessage() );
+    }
   }
 
 }
