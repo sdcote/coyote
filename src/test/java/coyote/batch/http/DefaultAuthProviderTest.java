@@ -248,7 +248,7 @@ public class DefaultAuthProviderTest {
       String password = "secret";
       String basicAuth = TestHttpClient.calculateHeaderData( username, password );
       session.addRequestHeader( HTTP.HDR_AUTHORIZATION.toLowerCase(), basicAuth );
-      // Have the provider validate this session
+      // Have the provider validate and set the username in the session
       assertTrue( provider.isAuthenticated( session ) );
       // Have the provider check role based access of this session
       assertFalse( provider.isAuthorized( session, "devop" ) );
@@ -265,6 +265,7 @@ public class DefaultAuthProviderTest {
     } catch ( ConfigurationException e ) {
       fail( e.getMessage() );
     }
+    
   }
 
 }
