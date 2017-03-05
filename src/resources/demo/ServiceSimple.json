@@ -1,6 +1,6 @@
 {
 	"Class": "coyote.batch.Service",
-	
+
 	"Manager" : {
 		"Port": 80
 	},
