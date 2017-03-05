@@ -13,6 +13,7 @@ package coyote.batch.http.nugget;
 
 import java.util.Map;
 
+import coyote.commons.StringUtil;
 import coyote.commons.network.MimeType;
 import coyote.commons.network.http.IHTTPSession;
 import coyote.commons.network.http.IStatus;
@@ -70,6 +71,17 @@ public class LogApiHandler extends AbstractBatchNugget implements UriResponder {
     } else {
       text.append( "<p>No query params in URL</p><br>" );
     }
+
+    if ( StringUtil.isNotEmpty( session.getUserName() ) ) {
+      text.append( "<p>Username: " );
+      text.append( session.getUserName() );
+      text.append( "<br/>Groups: " );
+      text.append( session.getUserGroups() );
+      text.append( "</p>" );
+    } else {
+      text.append( "<p>No authenticated user associated with session.</p>" );
+    }
+
     return Response.createFixedLengthResponse( getStatus(), getMimeType(), text.toString() );
   }
 

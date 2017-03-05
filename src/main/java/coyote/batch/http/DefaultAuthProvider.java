@@ -36,7 +36,11 @@ import coyote.loader.cfg.Config;
  * <p>Passwords are read and stored in memory as a multi-round MD5 digest. The 
  * number of rounds is chosen pseudo-randomly. This is done to protect 
  * passwords from malicious components, core dumps and follows recommended safe
- * coding practices for password handling. 
+ * coding practices for password handling.
+ * 
+ * <p><b>NOTE:</b> User and Group name matching is case sensitive. It is 
+ * recommended to normalize all user and group names by hand. (e.g. always 
+ * specify names in lower case.)
  */
 public class DefaultAuthProvider implements AuthProvider {
   public static final String AUTH_SECTION = "Auth";
@@ -209,19 +213,15 @@ public class DefaultAuthProvider implements AuthProvider {
       tokens = authPair.split( ":" );
       String username = tokens[0];
       String password = tokens[1];
-      System.out.println( "'" + username + "' - '" + password + "'" );
-      
+
       // find the user with the given name
       User user = this.getUser( username );
       if ( user != null ) {
         // we found a user
-        System.out.println( "Found '" + user.getName() + "' - '" + ByteUtil.bytesToHex( user.getPassword() ) + "'" );
-
         try {
           // digest the given password
           byte[] barray = digest( password.getBytes( UTF8 ) );
-          
-          System.out.println( "Check '" + username + "' - '" + ByteUtil.bytesToHex( barray ) + "'" );
+
           if ( user.passwordMatches( barray ) ) {
             // add the user and groups to the session
             session.setUserName( user.getName() );
@@ -249,10 +249,18 @@ public class DefaultAuthProvider implements AuthProvider {
    */
   @Override
   public boolean isAuthorized( IHTTPSession session, String groups ) {
-    String user = session.getUserName();
-    List<String> usergroups = session.getUserGroups();
+    String username = session.getUserName();
+    User user = getUser( username );
+    if ( user != null ) {
+      String[] tokens = groups.split( "," );
+      for ( String token : tokens ) {
+        if ( user.memberOf( token.trim() ) ) {
+          return true;
+        }
+      }
+    }
 
-    return true;
+    return false;
   }
 
 
@@ -299,6 +307,18 @@ public class DefaultAuthProvider implements AuthProvider {
 
     void addGroup( String groupname ) {
       groups.add( groupname );
+    }
+
+
+
+
+    public boolean memberOf( String group ) {
+      for ( String groupname : groups ) {
+        if ( groupname.equals( group ) ) {
+          return true;
+        }
+      }
+      return false;
     }
 
 
