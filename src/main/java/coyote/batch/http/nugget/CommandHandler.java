@@ -26,6 +26,7 @@ import coyote.commons.network.http.nugget.HTTPDRouter;
 import coyote.commons.network.http.nugget.UriResource;
 import coyote.commons.network.http.nugget.UriResponder;
 import coyote.loader.log.Log;
+import coyote.loader.thread.Scheduler;
 
 
 /**
@@ -42,6 +43,7 @@ public class CommandHandler extends AbstractBatchNugget implements UriResponder 
    * @see coyote.commons.network.http.nugget.UriResponder#get(coyote.commons.network.http.nugget.UriResource, java.util.Map, coyote.commons.network.http.IHTTPSession)
    */
   @Override
+  @Auth(groups = "devop,sysop", requireSSL = true)
   public Response get( UriResource uriResource, Map<String, String> urlParams, IHTTPSession session ) {
 
     // The first init parameter should be the service in which everything is running
@@ -64,10 +66,8 @@ public class CommandHandler extends AbstractBatchNugget implements UriResponder 
     String[] pathTokens = NuggetUtil.getPathArray( realUri );
     if ( SHUTDOWN.equalsIgnoreCase( pathTokens[0] ) ) {
       Log.append( HTTPD.EVENT, "Received a shutdown command" );
-
-      // TODO: Create a Scheduled Job which will shutdown the service in a few seconds
-
-      System.exit( 0 ); // this is a last resort method!!  Maybe a "kill" will do this?
+      // Create a Scheduled Job which will shutdown the service in a few seconds
+      service.getScheduler().schedule( new ShutdownCmd(), System.currentTimeMillis() + 2000 );
     }
 
     String text = getText( urlParams, session );
@@ -135,16 +135,18 @@ public class CommandHandler extends AbstractBatchNugget implements UriResponder 
     return MimeType.HTML.getType();
   }
 
-
-
-
+  
+  
+  
   /**
-   * @see coyote.batch.http.nugget.AbstractBatchNugget#post(coyote.commons.network.http.nugget.UriResource, java.util.Map, coyote.commons.network.http.IHTTPSession)
+   * 
    */
-  @Override
-  @Auth(groups = "sysop", requireSSL = false)
-  public Response post( UriResource uriResource, Map<String, String> urlParams, IHTTPSession session ) {
-    return super.post( uriResource, urlParams, session );
+  private class ShutdownCmd implements Runnable {
+    @Override
+    public void run() {
+      Log.append( Scheduler.SCHED, "Running shutdown command" );
+      System.exit( 1 );
+    }
   }
 
 }
