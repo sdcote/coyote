@@ -12,6 +12,9 @@
 package coyote.batch.http.nugget;
 
 import java.util.ArrayList;
+import java.util.Map;
+
+import coyote.commons.network.http.IHTTPSession;
 
 
 /**
@@ -37,6 +40,36 @@ public class NuggetUtil {
     }
 
     return pathArray.toArray( new String[] {} );
+  }
+
+
+
+
+  /**
+   * Get debug text for a set of params and a session
+   * 
+   * @param urlParams
+   * @param session
+   * 
+   * @return text suitable for inclusion on an HTML page.
+   */
+  public static String getText( Map<String, String> urlParams, IHTTPSession session ) {
+    String text = "<html><body>Debug handler. Method: " + session.getMethod().toString() + "<br>";
+    text += "<h1>Uri parameters:</h1>";
+    for ( Map.Entry<String, String> entry : urlParams.entrySet() ) {
+      String key = entry.getKey();
+      String value = entry.getValue();
+      text += "<div> Param: " + key + "&nbsp;Value: " + value + "</div>";
+    }
+    text += "<h1>Query parameters:</h1>";
+    for ( Map.Entry<String, String> entry : session.getParms().entrySet() ) {
+      String key = entry.getKey();
+      String value = entry.getValue();
+      text += "<div> Query Param: " + key + "&nbsp;Value: " + value + "</div>";
+    }
+    text += "</body></html>";
+
+    return text;
   }
 
 }
