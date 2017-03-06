@@ -12,7 +12,7 @@
 package coyote.batch.http;
 
 import coyote.batch.Service;
-import coyote.dataframe.DataFrame;
+import coyote.loader.cfg.Config;
 import coyote.loader.cfg.ConfigurationException;
 
 
@@ -32,5 +32,5 @@ public interface ManagerFactoryBinder {
    * 
    * @throws ConfigurationException if the passed configuration was invalid
    */
-  public HttpManager createManager( DataFrame cfg, Service svc ) throws ConfigurationException;
+  public HttpManager createManager( Config cfg, Service svc ) throws ConfigurationException;
 }

@@ -57,8 +57,8 @@ public class DefaultHttpManager extends HTTPDRouter implements HttpManager {
     // Setup auth provider from configuration - No configuration results in deny-all operation
     DataFrame authConfig = null;
     for ( DataField field : cfg.getFields() ) {
-      if ( DefaultAuthProvider.AUTH_SECTION.equalsIgnoreCase( field.getName() ) && field.isFrame() ) {
-        setAuthProvider( new DefaultAuthProvider( new Config( (DataFrame)field.getObjectValue() ) ) );
+      if ( BatchAuthProvider.AUTH_SECTION.equalsIgnoreCase( field.getName() ) && field.isFrame() ) {
+        setAuthProvider( new BatchAuthProvider( new Config( (DataFrame)field.getObjectValue() ) ) );
       }
     }
 

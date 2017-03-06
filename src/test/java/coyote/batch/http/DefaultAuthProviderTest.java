@@ -82,11 +82,11 @@ public class DefaultAuthProviderTest {
 
 
   /**
-   * Test method for {@link coyote.batch.http.DefaultAuthProvider#DefaultAuthProvider()}.
+   * Test method for {@link coyote.batch.http.BatchAuthProvider#DefaultAuthProvider()}.
    */
   @Test
   public void testDefaultAuthProvider() {
-    AuthProvider provider = new DefaultAuthProvider();
+    AuthProvider provider = new BatchAuthProvider();
     assertNotNull( provider );
   }
 
@@ -94,14 +94,14 @@ public class DefaultAuthProviderTest {
 
 
   /**
-   * Test method for {@link coyote.batch.http.DefaultAuthProvider#DefaultAuthProvider(coyote.loader.cfg.Config)}.
+   * Test method for {@link coyote.batch.http.BatchAuthProvider#DefaultAuthProvider(coyote.loader.cfg.Config)}.
    */
   @Test
   public void testDefaultAuthProviderConfig() {
     try {
       Config cfg = new Config( AUTH_CONFIG );
 
-      AuthProvider provider = new DefaultAuthProvider( cfg );
+      AuthProvider provider = new BatchAuthProvider( cfg );
       assertNotNull( provider );
 
     } catch ( ConfigurationException e ) {
@@ -113,7 +113,7 @@ public class DefaultAuthProviderTest {
 
 
   /**
-   * Test method for {@link coyote.batch.http.DefaultAuthProvider#isSecureConnection(coyote.commons.network.http.IHTTPSession)}.
+   * Test method for {@link coyote.batch.http.BatchAuthProvider#isSecureConnection(coyote.commons.network.http.IHTTPSession)}.
    */
   @Ignore
   public void testIsSecureConnection() {
@@ -125,7 +125,7 @@ public class DefaultAuthProviderTest {
 
   @Test
   public void digestTest() {
-    DefaultAuthProvider provider = new DefaultAuthProvider();
+    BatchAuthProvider provider = new BatchAuthProvider();
     String password = "secret";
 
     provider.setDigestRounds( 1 );
@@ -179,19 +179,19 @@ public class DefaultAuthProviderTest {
 
 
   /**
-   * Test method for {@link coyote.batch.http.DefaultAuthProvider#isAuthenticated(coyote.commons.network.http.IHTTPSession)}.
+   * Test method for {@link coyote.batch.http.BatchAuthProvider#isAuthenticated(coyote.commons.network.http.IHTTPSession)}.
    */
   @Test
   public void testIsAuthenticated() {
     try {
       Config cfg = new Config( AUTH_CONFIG );
 
-      DefaultAuthProvider provider = new DefaultAuthProvider( cfg );
+      BatchAuthProvider provider = new BatchAuthProvider( cfg );
       assertNotNull( provider );
       int rounds = provider.getDigestRounds();
       //System.out.println( "Provider is using "+rounds+" digest Rounds" );
 
-      DefaultAuthProvider.User user = provider.getUser( "user" );
+      BatchAuthProvider.User user = provider.getUser( "user" );
       assertNotNull( user );
       String name = user.getName();
       byte[] barray = user.getPassword();
@@ -225,17 +225,17 @@ public class DefaultAuthProviderTest {
 
 
   /**
-   * Test method for {@link coyote.batch.http.DefaultAuthProvider#isAuthorized(coyote.commons.network.http.IHTTPSession, java.lang.String)}.
+   * Test method for {@link coyote.batch.http.BatchAuthProvider#isAuthorized(coyote.commons.network.http.IHTTPSession, java.lang.String)}.
    */
   @Test
   public void testIsAuthorized() {
     try {
       Config cfg = new Config( AUTH_CONFIG );
 
-      DefaultAuthProvider provider = new DefaultAuthProvider( cfg );
+      BatchAuthProvider provider = new BatchAuthProvider( cfg );
       assertNotNull( provider );
 
-      DefaultAuthProvider.User user = provider.getUser( "user" );
+      BatchAuthProvider.User user = provider.getUser( "user" );
       assertNotNull( user );
       String name = user.getName();
       byte[] barray = user.getPassword();

@@ -42,7 +42,7 @@ import coyote.loader.cfg.Config;
  * recommended to normalize all user and group names by hand. (e.g. always 
  * specify names in lower case.)
  */
-public class DefaultAuthProvider implements AuthProvider {
+public class BatchAuthProvider implements AuthProvider {
   public static final String AUTH_SECTION = "Auth";
   public static final String USER_SECTION = "Users";
   public static final String NAME = "Name";
@@ -73,7 +73,7 @@ public class DefaultAuthProvider implements AuthProvider {
 
 
 
-  public DefaultAuthProvider() {
+  public BatchAuthProvider() {
     Random rand = new Random();
     digestRounds = rand.nextInt( ( 5 - 1 ) + 1 ) + 1;
   }
@@ -84,10 +84,10 @@ public class DefaultAuthProvider implements AuthProvider {
   /**
    * @param cfg
    */
-  public DefaultAuthProvider( Config cfg ) {
+  public BatchAuthProvider( Config cfg ) {
     if ( cfg != null ) {
       for ( DataField field : cfg.getFields() ) {
-        if ( DefaultAuthProvider.USER_SECTION.equalsIgnoreCase( field.getName() ) && field.isFrame() ) {
+        if ( BatchAuthProvider.USER_SECTION.equalsIgnoreCase( field.getName() ) && field.isFrame() ) {
           configUsers( (DataFrame)field.getObjectValue() );
         }
       }
