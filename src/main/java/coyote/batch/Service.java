@@ -51,6 +51,10 @@ public class Service extends AbstractBatchLoader implements Loader {
 
 
 
+  
+
+
+
   /**
    * @see coyote.loader.AbstractLoader#configure(coyote.loader.cfg.Config)
    */
@@ -292,6 +296,13 @@ public class Service extends AbstractBatchLoader implements Loader {
 
     //System.out.println( "Runtime termination, batch job shutting down..." );
     //engine.shutdown();
+  }
+
+  /**
+   * @return the server
+   */
+  public HttpManager getManager() {
+    return server;
   }
 
 }
