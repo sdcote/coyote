@@ -14,6 +14,7 @@ package coyote.batch.http.nugget;
 import java.util.ArrayList;
 import java.util.Map;
 
+import coyote.commons.StringUtil;
 import coyote.commons.network.http.IHTTPSession;
 
 
@@ -53,23 +54,62 @@ public class NuggetUtil {
    * 
    * @return text suitable for inclusion on an HTML page.
    */
-  public static String getText( Map<String, String> urlParams, IHTTPSession session ) {
-    String text = "<html><body>Debug handler. Method: " + session.getMethod().toString() + "<br>";
-    text += "<h1>Uri parameters:</h1>";
-    for ( Map.Entry<String, String> entry : urlParams.entrySet() ) {
-      String key = entry.getKey();
-      String value = entry.getValue();
-      text += "<div> Param: " + key + "&nbsp;Value: " + value + "</div>";
-    }
-    text += "<h1>Query parameters:</h1>";
-    for ( Map.Entry<String, String> entry : session.getParms().entrySet() ) {
-      String key = entry.getKey();
-      String value = entry.getValue();
-      text += "<div> Query Param: " + key + "&nbsp;Value: " + value + "</div>";
-    }
-    text += "</body></html>";
+  public static String getDebugText( Map<String, String> urlParams, IHTTPSession session ) {
 
-    return text;
+    final StringBuilder text = new StringBuilder( "<html><body>" );
+
+    text.append( "<h2>" );
+    text.append( session.getMethod().toString().toUpperCase() );
+    text.append( ": " );
+    text.append( session.getUri() );
+    text.append( "</h2>\r\n" );
+
+    if ( urlParams.size() > 0 ) {
+      text.append( "<h3>Uri Parameters:</h3>\r\n<ul>" );
+      for ( final Map.Entry<String, String> entry : urlParams.entrySet() ) {
+        final String key = entry.getKey();
+        final String value = entry.getValue();
+        text.append( "<li>URI Param '" );
+        text.append( key );
+        text.append( "' = '" );
+        text.append( value );
+        text.append( "'</li>" );
+      }
+      text.append( "</ul>\r\n" );
+    } else {
+      text.append( "<p>No parameters parsed from URI</p>\r\n" );
+    }
+
+    final Map<String, String> queryParams = session.getParms();
+    if ( queryParams.size() > 0 ) {
+      text.append( "<h3>Query Parameters:</h3>\r\n<ul>" );
+      for ( final Map.Entry<String, String> entry : queryParams.entrySet() ) {
+        final String key = entry.getKey();
+        final String value = entry.getValue();
+        text.append( "<li>Query String Param '" );
+        text.append( key );
+        text.append( "' = " );
+        text.append( value );
+        text.append( "</li>" );
+      }
+      text.append( "</ul>\r\n" );
+    } else {
+      text.append( "<p>No query params in URL</p>\r\n" );
+    }
+
+    if ( StringUtil.isNotEmpty( session.getUserName() ) ) {
+      text.append( "<h3>Authentication Details</h3>\r\n" );
+      text.append( "<p>Username: " );
+      text.append( session.getUserName() );
+      text.append( "<br/>Groups: " );
+      text.append( session.getUserGroups() );
+      text.append( "</p>" );
+    } else {
+      text.append( "<p>No authenticated user associated with session.</p>" );
+    }
+    text.append( "</body></html>" );
+
+    return text.toString();
   }
 
 }

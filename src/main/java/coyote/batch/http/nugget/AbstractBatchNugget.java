@@ -21,12 +21,21 @@ import coyote.commons.network.http.Status;
 import coyote.commons.network.http.nugget.DefaultHandler;
 import coyote.commons.network.http.nugget.UriResource;
 import coyote.commons.network.http.nugget.UriResponder;
+import coyote.dataframe.DataFrame;
+import coyote.dataframe.marshal.JSONMarshaler;
 
 
 /**
  * Base class for all batch nuggets.
  */
 public abstract class AbstractBatchNugget extends DefaultHandler implements UriResponder {
+
+  protected Status status = Status.OK;
+
+  protected DataFrame results = new DataFrame();
+
+
+
 
   /**
    * @see coyote.commons.network.http.nugget.UriResponder#delete(coyote.commons.network.http.nugget.UriResource, java.util.Map, coyote.commons.network.http.IHTTPSession)
@@ -88,7 +97,7 @@ public abstract class AbstractBatchNugget extends DefaultHandler implements UriR
    */
   @Override
   public IStatus getStatus() {
-    return Status.OK;
+    return status;
   }
 
 
@@ -99,7 +108,7 @@ public abstract class AbstractBatchNugget extends DefaultHandler implements UriR
    */
   @Override
   public String getText() {
-    return "<html><body><h3>Not Implemented</h3><p>The URI is mapped in the server, but no handler implementation exists.</p></body></html>";
+    return JSONMarshaler.marshal( results );
   }
 
 
@@ -110,7 +119,7 @@ public abstract class AbstractBatchNugget extends DefaultHandler implements UriR
    */
   @Override
   public String getMimeType() {
-    return MimeType.HTML.getType();
+    return MimeType.JSON.getType();
   }
 
 }

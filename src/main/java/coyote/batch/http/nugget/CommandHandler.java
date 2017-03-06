@@ -15,16 +15,11 @@ import java.util.Map;
 
 import coyote.batch.Service;
 import coyote.commons.StringUtil;
-import coyote.commons.network.MimeType;
 import coyote.commons.network.http.IHTTPSession;
-import coyote.commons.network.http.IStatus;
 import coyote.commons.network.http.Response;
-import coyote.commons.network.http.Status;
 import coyote.commons.network.http.auth.Auth;
 import coyote.commons.network.http.nugget.UriResource;
 import coyote.commons.network.http.nugget.UriResponder;
-import coyote.dataframe.DataFrame;
-import coyote.dataframe.marshal.JSONMarshaler;
 import coyote.loader.log.Log;
 import coyote.loader.thread.Scheduler;
 
@@ -35,10 +30,6 @@ import coyote.loader.thread.Scheduler;
 public class CommandHandler extends AbstractBatchNugget implements UriResponder {
 
   private static final String SHUTDOWN = "shutdown";
-
-  Status status = Status.OK;
-
-  private final DataFrame results = new DataFrame();
 
 
 
@@ -76,49 +67,17 @@ public class CommandHandler extends AbstractBatchNugget implements UriResponder 
     return Response.createFixedLengthResponse( getStatus(), getMimeType(), getText() );
   }
 
+  // 
 
-
-
-  /**
-   * @see coyote.commons.network.http.nugget.DefaultHandler#getStatus()
-   */
-  @Override
-  public IStatus getStatus() {
-    return status;
-  }
-
-
-
-
-  /**
-   * @see coyote.commons.network.http.nugget.DefaultHandler#getText()
-   */
-  @Override
-  public String getText() {
-    return JSONMarshaler.marshal( results );
-  }
-
-
-
-
-  /**
-   * @see coyote.commons.network.http.nugget.DefaultStreamHandler#getMimeType()
-   */
-  @Override
-  public String getMimeType() {
-    return MimeType.JSON.getType();
-  }
+  // The classes below are "runnables" which will be placed in the scheduler to 
+  // execute the commands supported by the API.
 
   //
-  
-  //
-  
-  //
-  
-  //
-  
+
   /**
-   * 
+   * This command simply exits the JVM.
+   *  
+   * <p>Shutdown hooks in the loader will gracefully shut everything down.
    */
   private class ShutdownCmd implements Runnable {
     @Override
