@@ -19,7 +19,6 @@ import coyote.batch.ConfigTag;
 import coyote.batch.ConfigurableComponent;
 import coyote.batch.FrameWriter;
 import coyote.batch.TransformContext;
-import coyote.batch.eval.EvaluationException;
 import coyote.commons.StringUtil;
 import coyote.commons.template.Template;
 import coyote.dataframe.DataField;

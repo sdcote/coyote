@@ -20,7 +20,6 @@ import coyote.batch.ConfigurableComponent;
 import coyote.batch.FieldDefinition;
 import coyote.batch.FrameWriter;
 import coyote.batch.TransformContext;
-import coyote.batch.eval.EvaluationException;
 import coyote.commons.StringUtil;
 import coyote.dataframe.DataField;
 import coyote.dataframe.DataFrame;

@@ -36,7 +36,6 @@ import coyote.batch.db.ColumnType;
 import coyote.batch.db.DatabaseDialect;
 import coyote.batch.db.MetricSchema;
 import coyote.batch.db.TableDefinition;
-import coyote.batch.eval.EvaluationException;
 import coyote.commons.JdbcUtil;
 import coyote.commons.StringUtil;
 import coyote.commons.jdbc.DriverDelegate;

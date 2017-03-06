@@ -14,7 +14,6 @@ package coyote.batch.filter;
 import coyote.batch.Batch;
 import coyote.batch.FrameFilter;
 import coyote.batch.TransactionContext;
-import coyote.batch.eval.EvaluationException;
 import coyote.loader.log.Log;
 import coyote.loader.log.LogMsg;
 

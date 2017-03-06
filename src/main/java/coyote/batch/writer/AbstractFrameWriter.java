@@ -24,7 +24,6 @@ import coyote.batch.ConfigTag;
 import coyote.batch.FrameWriter;
 import coyote.batch.Symbols;
 import coyote.batch.TransformContext;
-import coyote.batch.eval.EvaluationException;
 import coyote.batch.eval.Evaluator;
 import coyote.commons.StringUtil;
 import coyote.commons.UriUtil;

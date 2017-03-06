@@ -14,7 +14,6 @@ package coyote.batch.validate;
 import java.io.IOException;
 
 import coyote.batch.AbstractConfigurableComponent;
-import coyote.batch.Component;
 import coyote.batch.ConfigurableComponent;
 import coyote.batch.FrameValidator;
 import coyote.batch.TransformContext;

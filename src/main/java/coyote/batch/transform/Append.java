@@ -16,7 +16,6 @@ import coyote.batch.ConfigTag;
 import coyote.batch.FrameTransform;
 import coyote.batch.TransformContext;
 import coyote.batch.TransformException;
-import coyote.batch.eval.EvaluationException;
 import coyote.dataframe.DataFrame;
 import coyote.loader.log.Log;
 import coyote.loader.log.LogMsg;

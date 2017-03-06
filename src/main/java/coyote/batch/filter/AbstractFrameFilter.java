@@ -19,7 +19,6 @@ import coyote.batch.ConfigurableComponent;
 import coyote.batch.FrameFilter;
 import coyote.batch.TransactionContext;
 import coyote.batch.TransformContext;
-import coyote.batch.eval.EvaluationException;
 import coyote.batch.eval.Evaluator;
 import coyote.commons.StringUtil;
 

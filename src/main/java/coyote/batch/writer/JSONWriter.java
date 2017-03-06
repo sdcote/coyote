@@ -14,7 +14,6 @@ package coyote.batch.writer;
 import coyote.batch.Batch;
 import coyote.batch.ConfigurableComponent;
 import coyote.batch.FrameWriter;
-import coyote.batch.eval.EvaluationException;
 import coyote.commons.StringUtil;
 import coyote.dataframe.DataFrame;
 import coyote.loader.log.Log;

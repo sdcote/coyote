@@ -21,7 +21,6 @@ import coyote.batch.http.HttpManager;
 import coyote.batch.http.ManagerFactoryBinder;
 import coyote.commons.network.http.HTTPD;
 import coyote.dataframe.DataField;
-import coyote.dataframe.DataFrame;
 import coyote.loader.Loader;
 import coyote.loader.cfg.Config;
 import coyote.loader.cfg.ConfigurationException;

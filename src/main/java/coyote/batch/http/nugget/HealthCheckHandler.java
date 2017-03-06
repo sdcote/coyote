@@ -13,7 +13,6 @@ package coyote.batch.http.nugget;
 
 import java.util.Map;
 
-import coyote.commons.network.http.HTTPD;
 import coyote.commons.network.http.IHTTPSession;
 import coyote.commons.network.http.Response;
 import coyote.commons.network.http.nugget.UriResource;
