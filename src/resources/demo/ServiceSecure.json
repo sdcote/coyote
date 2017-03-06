@@ -20,7 +20,8 @@
 				{ "Name" : "user", 
 				  "Password" : "secret"
 				}
-			]
+			],
+			"AllowUnsecuredConnections" : true
 		},
 		"IPACL" : {
 			"default" : "deny",

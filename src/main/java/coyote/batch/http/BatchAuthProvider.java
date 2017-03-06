@@ -23,11 +23,14 @@ import coyote.batch.Batch;
 import coyote.commons.ByteUtil;
 import coyote.commons.StringUtil;
 import coyote.commons.network.http.HTTP;
+import coyote.commons.network.http.HTTPD;
 import coyote.commons.network.http.IHTTPSession;
 import coyote.commons.network.http.auth.AuthProvider;
 import coyote.dataframe.DataField;
 import coyote.dataframe.DataFrame;
+import coyote.dataframe.DataFrameException;
 import coyote.loader.cfg.Config;
+import coyote.loader.log.Log;
 
 
 /**
@@ -49,7 +52,11 @@ public class BatchAuthProvider implements AuthProvider {
   public static final String PASSWORD = "Password";
   public static final String GROUPS = "Groups";
   public static final String ENCRYPTED = "Encrypted";
+  public static final String ALLOW_NO_SSL = "AllowUnsecuredConnections";
+
   public final List<User> userList = new ArrayList<User>();
+
+  private boolean allowNoSSL = false;
 
   private int digestRounds = 1;
 
@@ -92,6 +99,17 @@ public class BatchAuthProvider implements AuthProvider {
         }
       }
     }
+
+    try {
+      System.out.println( cfg );
+      
+      if ( cfg.getAsBoolean( ALLOW_NO_SSL ) ) {
+        Log.append( HTTPD.EVENT, "WARNING: SSL checks will be ignored in this server instance. Sensitive data will traverse unencrypted connections!" );
+        Log.warn( "WARNING: SSL checks will be ignored in this server instance. Sensitive data will traverse unencrypted connections!" );
+        allowNoSSL = true;
+      }
+    } catch ( DataFrameException e ) {}
+
   }
 
 
@@ -190,6 +208,14 @@ public class BatchAuthProvider implements AuthProvider {
   @Override
   public boolean isSecureConnection( IHTTPSession session ) {
     session.getUri();
+
+    // we can configure the auth provider to ignore the SSL check on many of 
+    // the nuggets when the deployment does not have valid SSL certificates, 
+    // such as in development.
+    if ( allowNoSSL ) {
+      return true;
+    }
+
     return true;
   }
 
