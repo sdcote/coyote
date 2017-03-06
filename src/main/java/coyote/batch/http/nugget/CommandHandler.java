@@ -11,20 +11,20 @@
  */
 package coyote.batch.http.nugget;
 
-import java.io.ByteArrayInputStream;
 import java.util.Map;
 
 import coyote.batch.Service;
+import coyote.commons.StringUtil;
 import coyote.commons.network.MimeType;
-import coyote.commons.network.http.HTTPD;
 import coyote.commons.network.http.IHTTPSession;
 import coyote.commons.network.http.IStatus;
 import coyote.commons.network.http.Response;
 import coyote.commons.network.http.Status;
 import coyote.commons.network.http.auth.Auth;
-import coyote.commons.network.http.nugget.HTTPDRouter;
 import coyote.commons.network.http.nugget.UriResource;
 import coyote.commons.network.http.nugget.UriResponder;
+import coyote.dataframe.DataFrame;
+import coyote.dataframe.marshal.JSONMarshaler;
 import coyote.loader.log.Log;
 import coyote.loader.thread.Scheduler;
 
@@ -35,6 +35,10 @@ import coyote.loader.thread.Scheduler;
 public class CommandHandler extends AbstractBatchNugget implements UriResponder {
 
   private static final String SHUTDOWN = "shutdown";
+
+  Status status = Status.OK;
+
+  private final DataFrame results = new DataFrame();
 
 
 
@@ -49,57 +53,27 @@ public class CommandHandler extends AbstractBatchNugget implements UriResponder 
     // The first init parameter should be the service in which everything is running
     Service service = uriResource.initParameter( 0, Service.class );
 
-    final String baseUri = uriResource.getUri();
-    Log.append( HTTPD.EVENT, "BASE URI: '" + baseUri + "'" );
+    // Get the command from the URL parameters specified when we were registered with the router 
+    String command = urlParams.get( "command" );
 
-    String realUri = HTTPDRouter.normalizeUri( session.getUri() );
-    Log.append( HTTPD.EVENT, "REAL URI: '" + realUri + "'" );
-
-    for ( int index = 0; index < Math.min( baseUri.length(), realUri.length() ); index++ ) {
-      if ( baseUri.charAt( index ) != realUri.charAt( index ) ) {
-        realUri = HTTPDRouter.normalizeUri( realUri.substring( index ) );
-        break;
+    // Process the command
+    if ( StringUtil.isNotBlank( command ) ) {
+      results.put( "command", command );
+      switch ( command ) {
+        case SHUTDOWN:
+          // Create a Scheduled Job which will shutdown the service in a few seconds
+          service.getScheduler().schedule( new ShutdownCmd(), System.currentTimeMillis() + 2000 );
+          results.put( "result", "success" );
+          break;
+        default:
+          results.put( "result", "Unknown command" );
       }
-    }
-    Log.append( HTTPD.EVENT, "NEXT URI: '" + realUri + "'" );
-
-    String[] pathTokens = NuggetUtil.getPathArray( realUri );
-    if ( SHUTDOWN.equalsIgnoreCase( pathTokens[0] ) ) {
-      Log.append( HTTPD.EVENT, "Received a shutdown command" );
-      // Create a Scheduled Job which will shutdown the service in a few seconds
-      service.getScheduler().schedule( new ShutdownCmd(), System.currentTimeMillis() + 2000 );
+    } else {
+      results.put( "result", "No command found" );
     }
 
-    String text = getText( urlParams, session );
-    ByteArrayInputStream inp = new ByteArrayInputStream( text.getBytes() );
-    int size = text.getBytes().length;
-
-    Log.append( HTTPD.EVENT, "Sending a text response of " + size + " bytes" );
-
-    return Response.createFixedLengthResponse( getStatus(), getMimeType(), inp, size );
-
-  }
-
-
-
-
-  public String getText( Map<String, String> urlParams, IHTTPSession session ) {
-    String text = "<html><body>Command handler. Method: " + session.getMethod().toString() + "<br>";
-    text += "<h1>Uri parameters:</h1>";
-    for ( Map.Entry<String, String> entry : urlParams.entrySet() ) {
-      String key = entry.getKey();
-      String value = entry.getValue();
-      text += "<div> Param: " + key + "&nbsp;Value: " + value + "</div>";
-    }
-    text += "<h1>Query parameters:</h1>";
-    for ( Map.Entry<String, String> entry : session.getParms().entrySet() ) {
-      String key = entry.getKey();
-      String value = entry.getValue();
-      text += "<div> Query Param: " + key + "&nbsp;Value: " + value + "</div>";
-    }
-    text += "</body></html>";
-
-    return text;
+    // Send the result
+    return Response.createFixedLengthResponse( getStatus(), getMimeType(), getText() );
   }
 
 
@@ -110,7 +84,7 @@ public class CommandHandler extends AbstractBatchNugget implements UriResponder 
    */
   @Override
   public IStatus getStatus() {
-    return Status.OK;
+    return status;
   }
 
 
@@ -121,7 +95,7 @@ public class CommandHandler extends AbstractBatchNugget implements UriResponder 
    */
   @Override
   public String getText() {
-    return "not implemented";
+    return JSONMarshaler.marshal( results );
   }
 
 
@@ -132,11 +106,16 @@ public class CommandHandler extends AbstractBatchNugget implements UriResponder 
    */
   @Override
   public String getMimeType() {
-    return MimeType.HTML.getType();
+    return MimeType.JSON.getType();
   }
 
+  //
   
+  //
   
+  //
+  
+  //
   
   /**
    * 

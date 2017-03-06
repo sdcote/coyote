@@ -72,7 +72,7 @@ public class DefaultHttpManager extends HTTPDRouter implements HttpManager {
     addMappings();
 
     // REST interfaces with a default priority of 100
-    addRoute( "/api/cmd/(.)+", CommandHandler.class, service );
+    addRoute( "/api/cmd/:command", CommandHandler.class, service );
     addRoute( "/api/log/:logname/:action", LogApiHandler.class, service );
     addRoute( "/api/health", HealthCheckHandler.class, service );
   }
@@ -158,7 +158,7 @@ public class DefaultHttpManager extends HTTPDRouter implements HttpManager {
               if ( StringUtil.isNotBlank( access ) ) {
                 allows = IpAcl.ALLOW_TAG.equalsIgnoreCase( access.trim() );
               }
-              Log.info( "Adding " + ipNet + " to IP Access Control List with allows = " + allows );
+              Log.append( EVENT, "Adding " + ipNet + " to IP Access Control List with allows = " + allows );
               addToACL( ipNet, allows );
             } else {
               Log.error( "Network: " + ipNet + " not added to IP Access Control List" );
