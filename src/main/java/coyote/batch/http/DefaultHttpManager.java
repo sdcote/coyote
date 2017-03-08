@@ -18,6 +18,7 @@ import coyote.batch.Service;
 import coyote.batch.http.nugget.CommandHandler;
 import coyote.batch.http.nugget.HealthCheckHandler;
 import coyote.batch.http.nugget.LogApiHandler;
+import coyote.batch.http.nugget.PingHandler;
 import coyote.commons.StringUtil;
 import coyote.commons.network.IpAcl;
 import coyote.commons.network.IpAddress;
@@ -73,6 +74,7 @@ public class DefaultHttpManager extends HTTPDRouter implements HttpManager {
 
     // REST interfaces with a default priority of 100
     addRoute( "/api/cmd/:command", CommandHandler.class, service );
+    addRoute( "/api/ping/:id", PingHandler.class, service );
     addRoute( "/api/log/:logname/:action", LogApiHandler.class, service );
     addRoute( "/api/health", HealthCheckHandler.class, service );
   }
