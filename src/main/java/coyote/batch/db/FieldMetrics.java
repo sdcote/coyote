@@ -16,6 +16,7 @@ import java.util.Set;
 
 import coyote.dataframe.DataField;
 import coyote.i13n.Metric;
+import coyote.i13n.SimpleMetric;
 
 
 /**
@@ -32,8 +33,8 @@ public class FieldMetrics {
   long nullCount = 0;
   long emptyCount = 0;
   long blankCount = 0;
-  Metric stringLength = new Metric( STRING_LENGTH, "" );
-  Metric byteLength = new Metric( BYTE_LENGTH, "" );
+  SimpleMetric stringLength = new SimpleMetric( STRING_LENGTH, "" );
+  SimpleMetric byteLength = new SimpleMetric( BYTE_LENGTH, "" );
   private Set<Object> values = new HashSet<Object>();
   long sampleCount = 0;
 

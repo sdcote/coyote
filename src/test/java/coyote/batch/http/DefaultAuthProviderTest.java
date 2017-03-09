@@ -82,7 +82,7 @@ public class DefaultAuthProviderTest {
 
 
   /**
-   * Test method for {@link coyote.batch.http.BatchAuthProvider#DefaultAuthProvider()}.
+   *
    */
   @Test
   public void testDefaultAuthProvider() {
@@ -94,7 +94,7 @@ public class DefaultAuthProviderTest {
 
 
   /**
-   * Test method for {@link coyote.batch.http.BatchAuthProvider#DefaultAuthProvider(coyote.loader.cfg.Config)}.
+   *
    */
   @Test
   public void testDefaultAuthProviderConfig() {

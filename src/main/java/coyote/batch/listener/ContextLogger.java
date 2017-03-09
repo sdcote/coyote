@@ -20,7 +20,7 @@ import coyote.batch.OperationalContext;
 import coyote.batch.TransactionContext;
 import coyote.batch.TransformContext;
 import coyote.commons.StringUtil;
-import coyote.i13n.Metric;
+import coyote.i13n.SimpleMetric;
 
 
 /**
@@ -32,7 +32,8 @@ public class ContextLogger extends FileRecorder {
   DecimalFormat DECIMAL = new DecimalFormat( "#,###,##0.000" );
   DecimalFormat NUMBER = new DecimalFormat( "#,###,##0" );
 
-  Metric metric = new Metric( "Millis/Row", "ms" );
+  // TODO: Fix this to use the proper class
+  SimpleMetric metric = new SimpleMetric( "Millis/Row", "ms" );
 
 
 

@@ -101,8 +101,6 @@ public class BatchAuthProvider implements AuthProvider {
     }
 
     try {
-      System.out.println( cfg );
-      
       if ( cfg.getAsBoolean( ALLOW_NO_SSL ) ) {
         Log.append( HTTPD.EVENT, "WARNING: SSL checks will be ignored in this server instance. Sensitive data will traverse unencrypted connections!" );
         Log.warn( "WARNING: SSL checks will be ignored in this server instance. Sensitive data will traverse unencrypted connections!" );
