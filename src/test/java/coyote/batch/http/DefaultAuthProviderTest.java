@@ -262,6 +262,36 @@ public class DefaultAuthProviderTest {
       assertTrue( provider.isAuthenticated( session ) );
       assertTrue( provider.isAuthorized( session, "devop" ) );
 
+      
+      username = "admin";
+      password = "";
+      basicAuth = TestHttpClient.calculateHeaderData( username, password );
+      session = new MockSession();
+      session.addRequestHeader( HTTP.HDR_AUTHORIZATION.toLowerCase(), basicAuth );
+      assertFalse( provider.isAuthenticated( session ) );
+      
+      
+      username = "";
+      password = "secret";
+      basicAuth = TestHttpClient.calculateHeaderData( username, password );
+      session = new MockSession();
+      session.addRequestHeader( HTTP.HDR_AUTHORIZATION.toLowerCase(), basicAuth );
+      assertFalse( provider.isAuthenticated( session ) );
+      
+      username = " ";
+      password = " ";
+      basicAuth = TestHttpClient.calculateHeaderData( username, password );
+      session = new MockSession();
+      session.addRequestHeader( HTTP.HDR_AUTHORIZATION.toLowerCase(), basicAuth );
+      assertFalse( provider.isAuthenticated( session ) );
+      
+      username = "";
+      password = "";
+      basicAuth = TestHttpClient.calculateHeaderData( username, password );
+      session = new MockSession();
+      session.addRequestHeader( HTTP.HDR_AUTHORIZATION.toLowerCase(), basicAuth );
+      assertFalse( provider.isAuthenticated( session ) );
+      
     } catch ( ConfigurationException e ) {
       fail( e.getMessage() );
     }

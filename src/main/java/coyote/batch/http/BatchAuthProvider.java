@@ -252,7 +252,7 @@ public class BatchAuthProvider implements AuthProvider {
             } else {
               username = null;
             }
-            if ( tokens.length > 0 ) {
+            if ( tokens.length > 1 ) {
               password = tokens[1];
             } else {
               password = null;
@@ -262,19 +262,23 @@ public class BatchAuthProvider implements AuthProvider {
             User user = this.getUser( username );
             if ( user != null ) {
               // we found a user
-              try {
-                // digest the given password
-                byte[] barray = digest( password.getBytes( UTF8 ) );
+              if ( StringUtil.isNotBlank( password ) ) {
+                try {
+                  // digest the given password
+                  byte[] barray = digest( password.getBytes( UTF8 ) );
 
-                if ( user.passwordMatches( barray ) ) {
-                  // add the user and groups to the session
-                  session.setUserName( user.getName() );
-                  session.setUserGroups( user.getGroups() );
-                  return true;
+                  if ( user.passwordMatches( barray ) ) {
+                    // add the user and groups to the session
+                    session.setUserName( user.getName() );
+                    session.setUserGroups( user.getGroups() );
+                    return true;
+                  }
+                } catch ( UnsupportedEncodingException e ) {
+                  e.printStackTrace(); // should never happen, tested in static init
                 }
-              } catch ( UnsupportedEncodingException e ) {
-                e.printStackTrace(); // should never happen, tested in static init
-              }
+
+              } // null, empty or blank passwords are not supported/allowed
+
             } // we found a user with that name
 
           } // null tokens???
