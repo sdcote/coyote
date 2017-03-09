@@ -253,7 +253,7 @@ public class BatchAuthProvider implements AuthProvider {
               username = null;
             }
             if ( tokens.length > 0 ) {
-              password = tokens[0];
+              password = tokens[1];
             } else {
               password = null;
             }
