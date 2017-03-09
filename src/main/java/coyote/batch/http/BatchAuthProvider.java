@@ -232,29 +232,57 @@ public class BatchAuthProvider implements AuthProvider {
     String authHeader = session.getRequestHeaders().get( HTTP.HDR_AUTHORIZATION.toLowerCase() );
     if ( StringUtil.isNotBlank( authHeader ) ) {
       String[] tokens = authHeader.split( " " );
-      byte[] data = ByteUtil.fromBase64( tokens[1].trim() );
-      String authPair = new String( data );
-      tokens = authPair.split( ":" );
-      String username = tokens[0];
-      String password = tokens[1];
+      if ( tokens != null && tokens.length > 0 ) {
+        String authType = tokens[0];
+        Log.append( HTTPD.EVENT, "Received Auth Type of '" + authType + "'" );
+        // TODO: Support multiple Auth Types
 
-      // find the user with the given name
-      User user = this.getUser( username );
-      if ( user != null ) {
-        // we found a user
-        try {
-          // digest the given password
-          byte[] barray = digest( password.getBytes( UTF8 ) );
+        // Assume Basic Auth
+        if ( tokens.length > 1 ) {
+          byte[] data = ByteUtil.fromBase64( tokens[1].trim() );
+          String authPair = new String( data );
+          tokens = authPair.split( ":" );
 
-          if ( user.passwordMatches( barray ) ) {
-            // add the user and groups to the session
-            session.setUserName( user.getName() );
-            session.setUserGroups( user.getGroups() );
-            return true;
-          }
-        } catch ( UnsupportedEncodingException e ) {
-          e.printStackTrace();
+          String username;
+          String password;
+
+          if ( tokens != null ) {
+            if ( tokens.length > 0 ) {
+              username = tokens[0];
+            } else {
+              username = null;
+            }
+            if ( tokens.length > 0 ) {
+              password = tokens[0];
+            } else {
+              password = null;
+            }
+
+            // find the user with the given name
+            User user = this.getUser( username );
+            if ( user != null ) {
+              // we found a user
+              try {
+                // digest the given password
+                byte[] barray = digest( password.getBytes( UTF8 ) );
+
+                if ( user.passwordMatches( barray ) ) {
+                  // add the user and groups to the session
+                  session.setUserName( user.getName() );
+                  session.setUserGroups( user.getGroups() );
+                  return true;
+                }
+              } catch ( UnsupportedEncodingException e ) {
+                e.printStackTrace(); // should never happen, tested in static init
+              }
+            } // we found a user with that name
+
+          } // null tokens???
+        } else {
+          Log.append( HTTPD.EVENT, "No authentication data received for '" + authType + "' from " + session.getRemoteIpAddress() + ":" + session.getRemoteIpPort() );
         }
+      } else {
+        // No auth header
       }
     }
 
@@ -263,6 +291,7 @@ public class BatchAuthProvider implements AuthProvider {
     session.getResponseHeaders().put( HTTP.HDR_WWW_AUTHENTICATE, HTTP.BASIC + " realm=\"Batch Manager\"" );
 
     return false;
+
   }
 
 
