@@ -488,12 +488,16 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
       }
     }
     finally {
+      // signal the end of the context
+      getContext().end();
+
       // close all the tooling, it will be re-opened when we run the next time (if scheduled)
       closeTooling();
-      currentFrameNumber=0;
+
+      // reset the frame pointer
+      currentFrameNumber = 0;
     }
 
-    getContext().end();
     Log.trace( "Engine '" + getName() + "' transformation completed" );
 
     // reset the context so it can be reused in the next run (when scheduled)
