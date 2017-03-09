@@ -14,7 +14,7 @@
 
 		"Writer" : {
 			"class" : "FlatFileWriter",
-			"target" : "ts-[#$RunCount|00000000000000#].csv",
+			"target" : "ts-[#$RunCount|00000000000000#].txt",
 			"fields" : {
 				"Role" : { "start" : 0, "length" : 6 },
 				"FirstName" : { "start" : 7, "length" : 11 },
@@ -24,7 +24,7 @@
 		},
 
 		"Listeners": {
-			"DataProfiler": { "target": "users-csv.txt" }
+			"DataProfiler": { "target": "users-csv_profile.txt" }
 		}
 
 	}

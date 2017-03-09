@@ -35,8 +35,6 @@ import coyote.loader.log.LogMsg;
  * data is persisted to disk so when it initializes the next time, it can 
  * increment values to be used in naming files.</p>
  * 
- * <p>
- * 
  * <p>This class is created by the TransformEngineFactory and keys off the name of the context to determine if it is a regular context or a persistent context.
  * 
  * <p>Context are opened and closed like other components so this component has the ability to read itself from a file on opening and persist itself to disk on closing. 
