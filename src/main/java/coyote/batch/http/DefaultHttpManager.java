@@ -55,19 +55,21 @@ public class DefaultHttpManager extends HTTPDRouter implements HttpManager {
     // Our connection to the service instance we are managing
     this.service = service;
 
-    // Setup auth provider from configuration - No configuration results in deny-all operation
-    DataFrame authConfig = null;
-    for ( DataField field : cfg.getFields() ) {
-      if ( BatchAuthProvider.AUTH_SECTION.equalsIgnoreCase( field.getName() ) && field.isFrame() ) {
-        setAuthProvider( new BatchAuthProvider( new Config( (DataFrame)field.getObjectValue() ) ) );
+    if ( cfg != null ) {
+      // Setup auth provider from configuration - No configuration results in deny-all operation
+      DataFrame authConfig = null;
+      for ( DataField field : cfg.getFields() ) {
+        if ( BatchAuthProvider.AUTH_SECTION.equalsIgnoreCase( field.getName() ) && field.isFrame() ) {
+          setAuthProvider( new BatchAuthProvider( new Config( (DataFrame)field.getObjectValue() ) ) );
+        }
       }
+
+      // Configure the IP Access Control List
+      configIpACL( cfg );
+
+      // Configure Denial of Service frequency tables
+      configDosTables( cfg );
     }
-
-    // Configure the IP Access Control List
-    configIpACL( cfg );
-
-    // Configure Denial of Service frequency tables
-    configDosTables( cfg );
 
     // Set the default mappings
     addMappings();
