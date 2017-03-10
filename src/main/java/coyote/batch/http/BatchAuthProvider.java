@@ -98,15 +98,15 @@ public class BatchAuthProvider implements AuthProvider {
           configUsers( (DataFrame)field.getObjectValue() );
         }
       }
-    }
 
-    try {
-      if ( cfg.getAsBoolean( ALLOW_NO_SSL ) ) {
-        Log.append( HTTPD.EVENT, "WARNING: SSL checks will be ignored in this server instance. Sensitive data will traverse unencrypted connections!" );
-        Log.warn( "WARNING: SSL checks will be ignored in this server instance. Sensitive data will traverse unencrypted connections!" );
-        allowNoSSL = true;
-      }
-    } catch ( DataFrameException e ) {}
+      try {
+        if ( cfg.getAsBoolean( ALLOW_NO_SSL ) ) {
+          Log.append( HTTPD.EVENT, "WARNING: SSL checks will be ignored in this server instance. Sensitive data will traverse unencrypted connections!" );
+          Log.warn( "WARNING: SSL checks will be ignored in this server instance. Sensitive data will traverse unencrypted connections!" );
+          allowNoSSL = true;
+        }
+      } catch ( DataFrameException e ) {}
+    }
 
   }
 
