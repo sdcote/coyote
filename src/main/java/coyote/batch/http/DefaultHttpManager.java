@@ -24,6 +24,7 @@ import coyote.commons.network.IpAcl;
 import coyote.commons.network.IpAddress;
 import coyote.commons.network.IpAddressException;
 import coyote.commons.network.IpNetwork;
+import coyote.commons.network.http.auth.GenericAuthProvider;
 import coyote.commons.network.http.nugget.HTTPDRouter;
 import coyote.dataframe.DataField;
 import coyote.dataframe.DataFrame;
@@ -59,8 +60,8 @@ public class DefaultHttpManager extends HTTPDRouter implements HttpManager {
       // Setup auth provider from configuration - No configuration results in deny-all operation
       DataFrame authConfig = null;
       for ( DataField field : cfg.getFields() ) {
-        if ( BatchAuthProvider.AUTH_SECTION.equalsIgnoreCase( field.getName() ) && field.isFrame() ) {
-          setAuthProvider( new BatchAuthProvider( new Config( (DataFrame)field.getObjectValue() ) ) );
+        if ( GenericAuthProvider.AUTH_SECTION.equalsIgnoreCase( field.getName() ) && field.isFrame() ) {
+          setAuthProvider( new GenericAuthProvider( new Config( (DataFrame)field.getObjectValue() ) ) );
         }
       }
 

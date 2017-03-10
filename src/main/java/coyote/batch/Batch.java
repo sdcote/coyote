@@ -46,46 +46,7 @@ public class Batch {
 
 
 
-  /**
-   * Common utility to encrypt data.
-   * 
-   * <p>Note that this uses the libraries from the Loader package and is 
-   * intended to use the default key and encryption algorithm therein.</p>
-   * 
-   * @param cleartext the text to encrypt
-   * 
-   * @return encrypted text
-   */
-  public static String encrypt( String cleartext ) {
-    String retval = null;
-    String key = System.getProperty( ConfigTag.CIPHER_KEY, CipherUtil.getKey( Loader.CIPHER_KEY ) );
-    String cipherName = System.getProperty( ConfigTag.CIPHER_NAME, Loader.CIPHER_NAME );
-    retval = CipherUtil.encipher( cleartext, cipherName, key );
-    return retval;
-  }
-
-
-
-
-  /**
-   * Common utility to decrypt data
-   * 
-   * <p>Note that this uses the libraries from the Loader package and is 
-   * intended to use the default key and encryption algorithm therein.</p>
-   * 
-   * @param ciphertext encrypted text
-   * 
-   * @return decrypted text
-   */
-  public static String decrypt( String ciphertext ) {
-    String retval = null;
-    String key = System.getProperty( ConfigTag.CIPHER_KEY, CipherUtil.getKey( Loader.CIPHER_KEY ) );
-    String cipherName = System.getProperty( ConfigTag.CIPHER_NAME, Loader.CIPHER_NAME );
-    retval = CipherUtil.decipher( ciphertext, cipherName, key );
-    return retval;
-  }
-
-
+ 
 
 
   /**
