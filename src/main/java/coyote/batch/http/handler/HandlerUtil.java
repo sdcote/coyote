@@ -9,7 +9,7 @@
  *   Stephan D. Cote 
  *      - Initial concept and initial implementation
  */
-package coyote.batch.http.nugget;
+package coyote.batch.http.handler;
 
 import java.util.ArrayList;
 import java.util.Map;
@@ -19,9 +19,9 @@ import coyote.commons.network.http.IHTTPSession;
 
 
 /**
- * Utilities for web nuggets
+ * Utilities for web handlers
  */
-public class NuggetUtil {
+public class HandlerUtil {
 
   /**
    * Return each portion of the path as and array of tokens.

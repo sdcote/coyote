@@ -15,12 +15,12 @@ import java.io.IOException;
 
 import coyote.batch.ConfigTag;
 import coyote.batch.Service;
-import coyote.batch.http.nugget.CommandHandler;
-import coyote.batch.http.nugget.HealthCheckHandler;
-import coyote.batch.http.nugget.LogApiHandler;
-import coyote.batch.http.nugget.PingHandler;
+import coyote.batch.http.handler.CommandHandler;
+import coyote.batch.http.handler.HealthCheckHandler;
+import coyote.batch.http.handler.LogApiHandler;
+import coyote.batch.http.handler.PingHandler;
 import coyote.commons.network.http.auth.GenericAuthProvider;
-import coyote.commons.network.http.nugget.HTTPDRouter;
+import coyote.commons.network.http.handler.HTTPDRouter;
 import coyote.dataframe.DataField;
 import coyote.dataframe.DataFrame;
 import coyote.loader.cfg.Config;

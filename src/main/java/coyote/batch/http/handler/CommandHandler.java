@@ -9,7 +9,7 @@
  *   Stephan D. Cote 
  *      - Initial concept and initial implementation
  */
-package coyote.batch.http.nugget;
+package coyote.batch.http.handler;
 
 import java.util.Map;
 
@@ -18,8 +18,8 @@ import coyote.commons.StringUtil;
 import coyote.commons.network.http.IHTTPSession;
 import coyote.commons.network.http.Response;
 import coyote.commons.network.http.auth.Auth;
-import coyote.commons.network.http.nugget.UriResource;
-import coyote.commons.network.http.nugget.UriResponder;
+import coyote.commons.network.http.handler.UriResource;
+import coyote.commons.network.http.handler.UriResponder;
 import coyote.loader.log.Log;
 import coyote.loader.thread.Scheduler;
 
@@ -27,7 +27,7 @@ import coyote.loader.thread.Scheduler;
 /**
  * This is the command handler for the management interface.
  */
-public class CommandHandler extends AbstractBatchNugget implements UriResponder {
+public class CommandHandler extends AbstractBatchHandler implements UriResponder {
 
   private static final String SHUTDOWN = "shutdown";
 
@@ -35,7 +35,7 @@ public class CommandHandler extends AbstractBatchNugget implements UriResponder 
 
 
   /**
-   * @see coyote.commons.network.http.nugget.UriResponder#get(coyote.commons.network.http.nugget.UriResource, java.util.Map, coyote.commons.network.http.IHTTPSession)
+   * @see coyote.commons.network.http.handler.UriResponder#get(coyote.commons.network.http.handler.UriResource, java.util.Map, coyote.commons.network.http.IHTTPSession)
    */
   @Override
   @Auth(groups = "devop,sysop", requireSSL = true)

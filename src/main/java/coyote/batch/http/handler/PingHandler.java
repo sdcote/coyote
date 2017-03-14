@@ -9,9 +9,9 @@
  *   Stephan D. Cote 
  *      - Initial concept and implementation
  */
-package coyote.batch.http.nugget;
+package coyote.batch.http.handler;
 
-import coyote.commons.network.http.nugget.UriResponder;
+import coyote.commons.network.http.handler.UriResponder;
 
 /**
  * Ping gives metrics for the Service
@@ -19,6 +19,6 @@ import coyote.commons.network.http.nugget.UriResponder;
  * <p>Ping/:id returns the metrics for the identified component (e.g. 
  * job) running in the service.
  */
-public class PingHandler extends AbstractBatchNugget  implements UriResponder {
+public class PingHandler extends AbstractBatchHandler  implements UriResponder {
 
 }
