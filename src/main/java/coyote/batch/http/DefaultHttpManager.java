@@ -66,8 +66,8 @@ public class DefaultHttpManager extends HTTPDRouter implements HttpManager {
       super.configDosTables( cfg.getSection( ConfigTag.FREQUENCY ) );
     }
 
-    // Set the default mappings
-    addMappings();
+    // Set the default routes
+    addDefaultRoutes();
 
     // REST interfaces with a default priority of 100
     addRoute( "/api/cmd/:command", CommandHandler.class, service );
