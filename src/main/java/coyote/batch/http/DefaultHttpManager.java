@@ -60,14 +60,14 @@ public class DefaultHttpManager extends HTTPDRouter implements HttpManager {
       }
 
       // Configure the IP Access Control List
-      super.configIpACL( cfg.getSection( ConfigTag.IPACL ) );
+      configIpACL( cfg.getSection( ConfigTag.IPACL ) );
 
       // Configure Denial of Service frequency tables
-      super.configDosTables( cfg.getSection( ConfigTag.FREQUENCY ) );
+      configDosTables( cfg.getSection( ConfigTag.FREQUENCY ) );
     }
 
-    // Set the default mappings
-    addMappings();
+    // Set the default routes
+    addDefaultRoutes();
 
     // REST interfaces with a default priority of 100
     addRoute( "/api/cmd/:command", CommandHandler.class, service );
