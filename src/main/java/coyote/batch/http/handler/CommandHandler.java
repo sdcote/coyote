@@ -27,6 +27,7 @@ import coyote.loader.thread.Scheduler;
 /**
  * This is the command handler for the management interface.
  */
+@Auth(groups = "devop,sysop", requireSSL = true)
 public class CommandHandler extends AbstractBatchHandler implements UriResponder {
 
   private static final String SHUTDOWN = "shutdown";
@@ -38,7 +39,6 @@ public class CommandHandler extends AbstractBatchHandler implements UriResponder
    * @see coyote.commons.network.http.handler.UriResponder#get(coyote.commons.network.http.handler.UriResource, java.util.Map, coyote.commons.network.http.IHTTPSession)
    */
   @Override
-  @Auth(groups = "devop,sysop", requireSSL = true)
   public Response get( UriResource uriResource, Map<String, String> urlParams, IHTTPSession session ) {
 
     // The first init parameter should be the service in which everything is running
