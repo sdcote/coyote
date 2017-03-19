@@ -2,7 +2,7 @@
 	"Class": "coyote.batch.Service",
 	
 	"Manager" : {
-		"Port": 80,
+		"Port": 443,
 		"Auth": {
 			"Users" : [ 
 				{ "EncryptedName" : "cNcvHrSlDEeVLJTNJTyyUkgkTdMFuOYF", 

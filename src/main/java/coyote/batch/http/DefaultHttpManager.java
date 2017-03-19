@@ -19,11 +19,14 @@ import coyote.batch.http.handler.CommandHandler;
 import coyote.batch.http.handler.HealthCheckHandler;
 import coyote.batch.http.handler.LogApiHandler;
 import coyote.batch.http.handler.PingHandler;
+import coyote.commons.network.http.HTTPD;
 import coyote.commons.network.http.auth.GenericAuthProvider;
 import coyote.commons.network.http.handler.HTTPDRouter;
 import coyote.dataframe.DataField;
 import coyote.dataframe.DataFrame;
+import coyote.dataframe.DataFrameException;
 import coyote.loader.cfg.Config;
+import coyote.loader.log.Log;
 
 
 /**
@@ -44,6 +47,23 @@ public class DefaultHttpManager extends HTTPDRouter implements HttpManager {
   public DefaultHttpManager( int port, Config cfg, Service service ) throws IOException {
     super( port );
 
+    boolean secureServer;
+    try {
+      secureServer = cfg.getAsBoolean( "SecureServer" );
+    } catch ( DataFrameException e1 ) {
+      secureServer = false;
+    }
+    
+    if ( port == 443 || secureServer ) {
+      try {
+        makeSecure( HTTPD.makeSSLSocketFactory( "/keystore.jks", "password".toCharArray() ), null );
+      } catch ( IOException e ) {
+        Log.error( "Could not make the server secure: " + e.getMessage() );
+      }
+    }
+
+    
+    
     if ( service == null )
       throw new IllegalArgumentException( "Cannot create HttpManager without a service reference" );
 

@@ -2,7 +2,7 @@
 	"Class": "coyote.batch.Service",
 	
 	"Manager" : {
-		"Port": 80,
+		"Port": 443,
 		"Auth": {
 			"Users":[ 
 				{ "Name" : "admin", 
@@ -20,8 +20,7 @@
 				{ "Name" : "user", 
 				  "Password" : "secret"
 				}
-			],
-			"AllowUnsecuredConnections" : true
+			]
 		},
 		"IPACL" : {
 			"default" : "deny",
