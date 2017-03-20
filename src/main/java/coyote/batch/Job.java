@@ -94,7 +94,7 @@ public class Job extends AbstractBatchLoader implements Loader {
       try {
         engine.run();
       } catch ( final Exception e ) {
-        Log.fatal( LogMsg.createMsg( Batch.MSG, "Job.exception_running_engine", e.getClass().getSimpleName(), e.getMessage() ) );
+        Log.fatal( LogMsg.createMsg( Batch.MSG, "Job.exception_running_engine", e.getClass().getSimpleName(), e.getMessage(), engine.getName(), engine.getClass().getSimpleName() ) );
         Log.fatal( ExceptionUtil.toString( e ) );
       }
       finally {
