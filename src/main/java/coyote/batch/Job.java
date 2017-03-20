@@ -103,7 +103,7 @@ public class Job extends AbstractBatchLoader implements Loader {
           engine.close();
         } catch ( final IOException ignore ) {}
 
-        Log.trace( LogMsg.createMsg( Batch.MSG, "Job.completed", engine.getName() ) );
+        Log.trace( LogMsg.createMsg( Batch.MSG, "Job.completed", engine.getName(), engine.getClass().getSimpleName() ) );
       } // try-catch-finally
 
     } else {
