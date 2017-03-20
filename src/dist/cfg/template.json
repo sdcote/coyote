@@ -1,8 +1,8 @@
 {
-	"class": "coyote.batch.Job",
-	"notes": "Feel free to use the notes attribute to describe any of the components.",
-	"job": {
-		"Name": "template",
+	"Class": "coyote.batch.Job",
+	"Notes": "Feel free to use the notes attribute to describe any of the components.",
+	"Job": {
+		"Name": "Template",
 
 		"Context": {
 		},
@@ -32,7 +32,7 @@
 		},
 
 		"Loggers": {
-			"ConsoleAppender": { "categories": "info, notice, error, fatal, warn" }
+			"ConsoleAppender": { "categories": "trace, debug, info, notice, warn, error, fatal" }
 		},
 
 		"Listeners": {
