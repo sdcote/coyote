@@ -255,7 +255,6 @@ public class TransformEngineFactory {
 
 
 
-
   /**
    * Use the given configuration frame to add validators to the engine.
    *  
@@ -555,7 +554,7 @@ public class TransformEngineFactory {
   private static void configWriter( DataFrame cfg, TransformEngine engine ) {
     if ( cfg != null ) {
       // Make sure the class is fully qualified 
-      String className = cfg.getAsString( ConfigTag.CLASS );
+      String className = findString( ConfigTag.CLASS, cfg );
       if ( className != null && StringUtil.countOccurrencesOf( className, "." ) < 1 ) {
         className = WRITER_PKG + "." + className;
         cfg.put( ConfigTag.CLASS, className );
@@ -579,7 +578,7 @@ public class TransformEngineFactory {
 
   private static void configMapper( DataFrame cfg, TransformEngine engine ) {
     if ( cfg != null ) {
-      String className = cfg.getAsString( ConfigTag.CLASS );
+      String className = findString( ConfigTag.CLASS, cfg );
 
       // If there is no class tag, use the default mapper class
       if ( className == null ) {
@@ -612,12 +611,12 @@ public class TransformEngineFactory {
   private static void configReader( DataFrame cfg, TransformEngine engine ) {
     if ( cfg != null ) {
       // Make sure the class is fully qualified 
-      String className = cfg.getAsString( ConfigTag.CLASS );
+      String className = findString( ConfigTag.CLASS, cfg );
       if ( className != null && StringUtil.countOccurrencesOf( className, "." ) < 1 ) {
         className = READER_PKG + "." + className;
         cfg.put( ConfigTag.CLASS, className );
       } else {
-        Log.error( "NO Reader Class: " + cfg.toString() );
+        Log.error( "NO Reader Class in configuration: " + cfg.toString() );
       }
       Object object = Batch.createComponent( cfg );
       if ( object != null ) {
@@ -674,6 +673,31 @@ public class TransformEngineFactory {
         }
       } // for each listener 
     } // cfg !null
+  }
+
+
+
+
+  /**
+   * Convenience method to perform a case insensitive search for a named field 
+   * in a data frame and return its value as a string.
+   * 
+   * @param name the name of the field to search
+   * @param frame the data frame in which to search
+   * 
+   * @return the string value of the first found field with that name or null 
+   *         if the field is null, the name is null or the field with that 
+   *         name was not found.
+   */
+  private static String findString( String name, DataFrame frame ) {
+    if ( name != null ) {
+      for ( DataField field : frame.getFields() ) {
+        if ( name.equalsIgnoreCase( field.getName() ) ) {
+          return field.getStringValue();
+        }
+      }
+    }
+    return null;
   }
 
 }
