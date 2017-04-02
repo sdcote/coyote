@@ -219,11 +219,7 @@ public abstract class AbstractConfigurableComponent implements ConfigurableCompo
     // retrieve what we will assume is cipher text, base64 encoded bytes
     String cipherText = getString( key );
     if ( StringUtil.isNotBlank( cipherText ) ) {
-      // Retrieve decryption parameters from system properties or use the defaults
-      String cipherName = System.getProperty( "cipher.name", BlowfishCipher.CIPHER_NAME );
-      String cipherKey = System.getProperty( "cipher.key", CipherUtil.getKey( "CoyoteBatch" ) );
-      // decryption of the retrieve value using the specified cipher and key
-      retval = CipherUtil.decipher( cipherText, cipherName, cipherKey );
+      retval = CipherUtil.decryptString( cipherText );
     }
 
     // return either null or the results of our decryption
