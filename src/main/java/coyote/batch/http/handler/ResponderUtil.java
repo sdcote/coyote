@@ -21,7 +21,7 @@ import coyote.commons.network.http.IHTTPSession;
 /**
  * Utilities for web handlers
  */
-public class HandlerUtil {
+public class ResponderUtil {
 
   /**
    * Return each portion of the path as and array of tokens.

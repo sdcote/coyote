@@ -11,7 +11,8 @@
  */
 package coyote.batch.http.handler;
 
-import coyote.commons.network.http.handler.UriResponder;
+import coyote.commons.network.http.responder.Responder;
+
 
 /**
  * Ping gives metrics for the Service
@@ -19,6 +20,6 @@ import coyote.commons.network.http.handler.UriResponder;
  * <p>Ping/:id returns the metrics for the identified component (e.g. 
  * job) running in the service.
  */
-public class PingHandler extends AbstractBatchHandler  implements UriResponder {
+public class PingResponder extends AbstractBatchResponder implements Responder {
 
 }

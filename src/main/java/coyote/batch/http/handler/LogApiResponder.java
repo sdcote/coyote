@@ -18,25 +18,23 @@ import coyote.commons.network.http.IHTTPSession;
 import coyote.commons.network.http.Response;
 import coyote.commons.network.http.Status;
 import coyote.commons.network.http.auth.Auth;
-import coyote.commons.network.http.handler.UriResource;
-import coyote.commons.network.http.handler.UriResponder;
+import coyote.commons.network.http.responder.Responder;
+import coyote.commons.network.http.responder.UriResource;
 
 
 /**
  * 
  */
-public class LogApiHandler extends AbstractBatchHandler implements UriResponder {
+public class LogApiResponder extends AbstractBatchResponder implements Responder {
 
   /**
    * Retrieve contents of a log if a log is identified.
    * Retrieve a list of logs if no log is identified.
-   * 
-   * @see coyote.batch.http.handler.AbstractBatchHandler#get(coyote.commons.network.http.handler.UriResource, java.util.Map, coyote.commons.network.http.IHTTPSession)
    */
   @Override
   @Auth(groups = "devop", requireSSL = true)
   public Response get( UriResource uriResource, Map<String, String> urlParams, IHTTPSession session ) {
-    return Response.createFixedLengthResponse( Status.OK, MimeType.HTML.getType(), HandlerUtil.getDebugText( urlParams, session ) );
+    return Response.createFixedLengthResponse( Status.OK, MimeType.HTML.getType(), ResponderUtil.getDebugText( urlParams, session ) );
   }
 
 }

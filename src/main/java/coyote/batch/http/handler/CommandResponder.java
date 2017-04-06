@@ -18,8 +18,8 @@ import coyote.commons.StringUtil;
 import coyote.commons.network.http.IHTTPSession;
 import coyote.commons.network.http.Response;
 import coyote.commons.network.http.auth.Auth;
-import coyote.commons.network.http.handler.UriResource;
-import coyote.commons.network.http.handler.UriResponder;
+import coyote.commons.network.http.responder.Responder;
+import coyote.commons.network.http.responder.UriResource;
 import coyote.loader.log.Log;
 import coyote.loader.thread.Scheduler;
 
@@ -28,16 +28,13 @@ import coyote.loader.thread.Scheduler;
  * This is the command handler for the management interface.
  */
 @Auth(groups = "devop,sysop", requireSSL = true)
-public class CommandHandler extends AbstractBatchHandler implements UriResponder {
+public class CommandResponder extends AbstractBatchResponder implements Responder {
 
   private static final String SHUTDOWN = "shutdown";
 
 
 
 
-  /**
-   * @see coyote.commons.network.http.handler.UriResponder#get(coyote.commons.network.http.handler.UriResource, java.util.Map, coyote.commons.network.http.IHTTPSession)
-   */
   @Override
   public Response get( UriResource uriResource, Map<String, String> urlParams, IHTTPSession session ) {
 

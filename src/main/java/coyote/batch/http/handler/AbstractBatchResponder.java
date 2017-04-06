@@ -18,9 +18,9 @@ import coyote.commons.network.http.IHTTPSession;
 import coyote.commons.network.http.IStatus;
 import coyote.commons.network.http.Response;
 import coyote.commons.network.http.Status;
-import coyote.commons.network.http.handler.DefaultHandler;
-import coyote.commons.network.http.handler.UriResource;
-import coyote.commons.network.http.handler.UriResponder;
+import coyote.commons.network.http.responder.DefaultResponder;
+import coyote.commons.network.http.responder.Responder;
+import coyote.commons.network.http.responder.UriResource;
 import coyote.dataframe.DataFrame;
 import coyote.dataframe.marshal.JSONMarshaler;
 
@@ -28,7 +28,7 @@ import coyote.dataframe.marshal.JSONMarshaler;
 /**
  * Base class for all batch handlers.
  */
-public abstract class AbstractBatchHandler extends DefaultHandler implements UriResponder {
+public abstract class AbstractBatchResponder extends DefaultResponder implements Responder {
 
   protected Status status = Status.OK;
 
@@ -37,9 +37,6 @@ public abstract class AbstractBatchHandler extends DefaultHandler implements Uri
 
 
 
-  /**
-   * @see coyote.commons.network.http.handler.UriResponder#delete(coyote.commons.network.http.handler.UriResource, java.util.Map, coyote.commons.network.http.IHTTPSession)
-   */
   @Override
   public Response delete( UriResource uriResource, Map<String, String> urlParams, IHTTPSession session ) {
     return Response.createFixedLengthResponse( getStatus(), getMimeType(), getText() );
@@ -48,9 +45,6 @@ public abstract class AbstractBatchHandler extends DefaultHandler implements Uri
 
 
 
-  /**
-   * @see coyote.commons.network.http.handler.UriResponder#get(coyote.commons.network.http.handler.UriResource, java.util.Map, coyote.commons.network.http.IHTTPSession)
-   */
   @Override
   public Response get( UriResource uriResource, Map<String, String> urlParams, IHTTPSession session ) {
     return Response.createFixedLengthResponse( getStatus(), getMimeType(), getText() );
@@ -59,9 +53,6 @@ public abstract class AbstractBatchHandler extends DefaultHandler implements Uri
 
 
 
-  /**
-   * @see coyote.commons.network.http.handler.UriResponder#other(java.lang.String, coyote.commons.network.http.handler.UriResource, java.util.Map, coyote.commons.network.http.IHTTPSession)
-   */
   @Override
   public Response other( String method, UriResource uriResource, Map<String, String> urlParams, IHTTPSession session ) {
     return Response.createFixedLengthResponse( getStatus(), getMimeType(), getText() );
@@ -70,9 +61,6 @@ public abstract class AbstractBatchHandler extends DefaultHandler implements Uri
 
 
 
-  /**
-   * @see coyote.commons.network.http.handler.UriResponder#post(coyote.commons.network.http.handler.UriResource, java.util.Map, coyote.commons.network.http.IHTTPSession)
-   */
   @Override
   public Response post( UriResource uriResource, Map<String, String> urlParams, IHTTPSession session ) {
     return Response.createFixedLengthResponse( getStatus(), getMimeType(), getText() );
@@ -81,9 +69,6 @@ public abstract class AbstractBatchHandler extends DefaultHandler implements Uri
 
 
 
-  /**
-   * @see coyote.commons.network.http.handler.UriResponder#put(coyote.commons.network.http.handler.UriResource, java.util.Map, coyote.commons.network.http.IHTTPSession)
-   */
   @Override
   public Response put( UriResource uriResource, Map<String, String> urlParams, IHTTPSession session ) {
     return Response.createFixedLengthResponse( getStatus(), getMimeType(), getText() );
@@ -92,9 +77,6 @@ public abstract class AbstractBatchHandler extends DefaultHandler implements Uri
 
 
 
-  /**
-   * @see coyote.commons.network.http.handler.DefaultHandler#getStatus()
-   */
   @Override
   public IStatus getStatus() {
     return status;
@@ -103,9 +85,6 @@ public abstract class AbstractBatchHandler extends DefaultHandler implements Uri
 
 
 
-  /**
-   * @see coyote.commons.network.http.handler.DefaultHandler#getText()
-   */
   @Override
   public String getText() {
     return JSONMarshaler.marshal( results );
@@ -114,9 +93,6 @@ public abstract class AbstractBatchHandler extends DefaultHandler implements Uri
 
 
 
-  /**
-   * @see coyote.commons.network.http.handler.DefaultStreamHandler#getMimeType()
-   */
   @Override
   public String getMimeType() {
     return MimeType.JSON.getType();
