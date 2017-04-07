@@ -19,8 +19,8 @@ import coyote.commons.network.http.IStatus;
 import coyote.commons.network.http.Response;
 import coyote.commons.network.http.Status;
 import coyote.commons.network.http.responder.DefaultResponder;
+import coyote.commons.network.http.responder.Resource;
 import coyote.commons.network.http.responder.Responder;
-import coyote.commons.network.http.responder.UriResource;
 import coyote.dataframe.DataFrame;
 import coyote.dataframe.marshal.JSONMarshaler;
 
@@ -38,7 +38,7 @@ public abstract class AbstractBatchResponder extends DefaultResponder implements
 
 
   @Override
-  public Response delete( UriResource uriResource, Map<String, String> urlParams, IHTTPSession session ) {
+  public Response delete( Resource resource, Map<String, String> urlParams, IHTTPSession session ) {
     return Response.createFixedLengthResponse( getStatus(), getMimeType(), getText() );
   }
 
@@ -46,7 +46,7 @@ public abstract class AbstractBatchResponder extends DefaultResponder implements
 
 
   @Override
-  public Response get( UriResource uriResource, Map<String, String> urlParams, IHTTPSession session ) {
+  public Response get( Resource resource, Map<String, String> urlParams, IHTTPSession session ) {
     return Response.createFixedLengthResponse( getStatus(), getMimeType(), getText() );
   }
 
@@ -54,7 +54,7 @@ public abstract class AbstractBatchResponder extends DefaultResponder implements
 
 
   @Override
-  public Response other( String method, UriResource uriResource, Map<String, String> urlParams, IHTTPSession session ) {
+  public Response other( String method, Resource resource, Map<String, String> urlParams, IHTTPSession session ) {
     return Response.createFixedLengthResponse( getStatus(), getMimeType(), getText() );
   }
 
@@ -62,7 +62,7 @@ public abstract class AbstractBatchResponder extends DefaultResponder implements
 
 
   @Override
-  public Response post( UriResource uriResource, Map<String, String> urlParams, IHTTPSession session ) {
+  public Response post( Resource resource, Map<String, String> urlParams, IHTTPSession session ) {
     return Response.createFixedLengthResponse( getStatus(), getMimeType(), getText() );
   }
 
@@ -70,7 +70,7 @@ public abstract class AbstractBatchResponder extends DefaultResponder implements
 
 
   @Override
-  public Response put( UriResource uriResource, Map<String, String> urlParams, IHTTPSession session ) {
+  public Response put( Resource resource, Map<String, String> urlParams, IHTTPSession session ) {
     return Response.createFixedLengthResponse( getStatus(), getMimeType(), getText() );
   }
 

@@ -18,8 +18,8 @@ import coyote.commons.StringUtil;
 import coyote.commons.network.http.IHTTPSession;
 import coyote.commons.network.http.Response;
 import coyote.commons.network.http.auth.Auth;
+import coyote.commons.network.http.responder.Resource;
 import coyote.commons.network.http.responder.Responder;
-import coyote.commons.network.http.responder.UriResource;
 import coyote.loader.log.Log;
 import coyote.loader.thread.Scheduler;
 
@@ -36,10 +36,10 @@ public class CommandResponder extends AbstractBatchResponder implements Responde
 
 
   @Override
-  public Response get( UriResource uriResource, Map<String, String> urlParams, IHTTPSession session ) {
+  public Response get( Resource resource, Map<String, String> urlParams, IHTTPSession session ) {
 
     // The first init parameter should be the service in which everything is running
-    Service service = uriResource.initParameter( 0, Service.class );
+    Service service = resource.initParameter( 0, Service.class );
 
     // Get the command from the URL parameters specified when we were registered with the router 
     String command = urlParams.get( "command" );

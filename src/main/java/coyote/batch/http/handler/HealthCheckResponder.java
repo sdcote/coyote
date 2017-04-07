@@ -15,8 +15,8 @@ import java.util.Map;
 
 import coyote.commons.network.http.IHTTPSession;
 import coyote.commons.network.http.Response;
+import coyote.commons.network.http.responder.Resource;
 import coyote.commons.network.http.responder.Responder;
-import coyote.commons.network.http.responder.UriResource;
 
 
 /**
@@ -28,7 +28,7 @@ import coyote.commons.network.http.responder.UriResource;
 public class HealthCheckResponder extends AbstractBatchResponder implements Responder {
 
   @Override
-  public Response get( UriResource uriResource, Map<String, String> urlParams, IHTTPSession session ) {
+  public Response get( Resource resource, Map<String, String> urlParams, IHTTPSession session ) {
     return Response.createFixedLengthResponse( getStatus(), getMimeType(), "UP" );
   }
 
