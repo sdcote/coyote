@@ -41,7 +41,7 @@ import coyote.loader.log.LogMsg;
  * }</pre>
  * 
  * <p>The configuration may also contain a fields section which defines the 
- * order the fields are written and contols any desired formatting:<pre>
+ * order the fields are written and controls any desired formatting:<pre>
  *  "fields": {
  *    "fieldname": { "trim": true },
  *    "category": {},
@@ -367,7 +367,7 @@ public class CSVWriter extends AbstractFrameWriter implements FrameWriter, Confi
       if ( ( field != null ) && !field.isNull() ) {
         try {
 
-          // if there is a formatter for this field, formet the value
+          // if there is a formatter for this field, format the value
           if ( def.hasFormatter() ) {
             token = def.getFormattedValue( field );
           } else {
