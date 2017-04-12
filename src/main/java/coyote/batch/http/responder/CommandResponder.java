@@ -9,7 +9,7 @@
  *   Stephan D. Cote 
  *      - Initial concept and initial implementation
  */
-package coyote.batch.http.handler;
+package coyote.batch.http.responder;
 
 import java.util.Map;
 
@@ -25,7 +25,7 @@ import coyote.loader.thread.Scheduler;
 
 
 /**
- * This is the command handler for the management interface.
+ * This is the command responder for the management interface.
  */
 @Auth(groups = "devop,sysop", requireSSL = true)
 public class CommandResponder extends AbstractBatchResponder implements Responder {

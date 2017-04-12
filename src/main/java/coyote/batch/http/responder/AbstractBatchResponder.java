@@ -9,7 +9,7 @@
  *   Stephan D. Cote 
  *      - Initial concept and initial implementation
  */
-package coyote.batch.http.handler;
+package coyote.batch.http.responder;
 
 import java.util.Map;
 
@@ -26,7 +26,7 @@ import coyote.dataframe.marshal.JSONMarshaler;
 
 
 /**
- * Base class for all batch handlers.
+ * Base class for all batch responders.
  */
 public abstract class AbstractBatchResponder extends DefaultResponder implements Responder {
 

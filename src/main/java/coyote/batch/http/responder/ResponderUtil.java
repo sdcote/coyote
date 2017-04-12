@@ -9,7 +9,7 @@
  *   Stephan D. Cote 
  *      - Initial concept and initial implementation
  */
-package coyote.batch.http.handler;
+package coyote.batch.http.responder;
 
 import java.util.ArrayList;
 import java.util.Map;

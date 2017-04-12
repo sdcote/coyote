@@ -9,7 +9,7 @@
  *   Stephan D. Cote 
  *      - Initial concept and implementation
  */
-package coyote.batch.http.handler;
+package coyote.batch.http.responder;
 
 import coyote.commons.network.http.responder.Responder;
 

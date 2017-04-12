@@ -15,10 +15,9 @@ import java.io.IOException;
 
 import coyote.batch.ConfigTag;
 import coyote.batch.Service;
-import coyote.batch.http.handler.CommandResponder;
-import coyote.batch.http.handler.HealthCheckResponder;
-import coyote.batch.http.handler.LogApiResponder;
-import coyote.batch.http.handler.PingResponder;
+import coyote.batch.http.responder.CommandResponder;
+import coyote.batch.http.responder.HealthCheckResponder;
+import coyote.batch.http.responder.PingResponder;
 import coyote.commons.network.http.HTTPD;
 import coyote.commons.network.http.auth.GenericAuthProvider;
 import coyote.commons.network.http.responder.HTTPDRouter;
@@ -92,7 +91,6 @@ public class DefaultHttpManager extends HTTPDRouter implements HttpManager {
     // REST interfaces with a default priority of 100
     addRoute( "/api/cmd/:command", CommandResponder.class, service );
     addRoute( "/api/ping/:id", PingResponder.class, service );
-    addRoute( "/api/log/:logname/:action", LogApiResponder.class, service );
     addRoute( "/api/health", HealthCheckResponder.class, service );
   }
 
