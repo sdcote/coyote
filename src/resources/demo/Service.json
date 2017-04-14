@@ -5,7 +5,7 @@
 		{
 			"Class": "coyote.loader.Wedge",
 			"Notes": "This just keeps the the service open."
-		},
+		}
 	],
 	
 	"Logging": {
