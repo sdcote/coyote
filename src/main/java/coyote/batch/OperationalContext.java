@@ -16,6 +16,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import coyote.commons.CipherUtil;
 import coyote.commons.StringUtil;
 import coyote.commons.template.SymbolTable;
 
@@ -28,6 +29,7 @@ import coyote.commons.template.SymbolTable;
  */
 public abstract class OperationalContext {
   public static final String ERROR_STATUS = "Error";
+  private static final String ENCRYPT_PREFIX = "ENC:";
   protected String status = null;
   protected String errorMessage = null;
   protected volatile long startTime = 0;
@@ -132,6 +134,12 @@ public abstract class OperationalContext {
    * <p>This is a convenience method for calling {@code toString()} on the 
    * returned value after having checked for null.</p>
    * 
+   * <p>This support the automatic decryption of encrypted values if the name 
+   * of the retrieved object starts with the encryption prefix. This allows 
+   * the value to remain encrypted in memory and only exposed during the brief 
+   * time it is used. NOTE, the decrypted value will remain in the heap until 
+   * garbage collection so there is still some exposure. 
+   * 
    * @param key the name of the object to return
    * 
    * @return the string representation of the object with that name or null if 
@@ -140,7 +148,12 @@ public abstract class OperationalContext {
   public String getAsString( String key ) {
     Object retval = get( key );
     if ( retval != null ) {
-      return retval.toString();
+      if ( key.startsWith( ENCRYPT_PREFIX ) ) {
+        String retvals = CipherUtil.decryptString( retval.toString() );
+        return retvals;
+      } else {
+        return retval.toString();
+      }
     }
     return null;
   }
