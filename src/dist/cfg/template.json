@@ -31,12 +31,12 @@
 		"PostProcess": {
 		},
 
-		"Loggers": {
-			"ConsoleAppender": { "categories": "trace, debug, info, notice, warn, error, fatal" }
-		},
-
-		"Listeners": {
+		"Listener": {
 		}
 
+	},
+
+	"Logging": {
+		"ConsoleAppender": { "categories": "trace, debug, info, notice, warn, error, fatal" }
 	}
 }
