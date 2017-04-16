@@ -192,26 +192,6 @@ public class TransformEngineFactory {
           } else {
             Log.error( "Invalid context configuration section" );
           }
-        } else if ( ConfigTag.LOGGERS.equalsIgnoreCase( field.getName() ) ) {
-
-          // logging should be a section, not a scalar value
-          if ( field.isFrame() ) {
-
-            // create a new log manager
-            LogManager logmgr = new LogManager();
-
-            // Configure it with the logging section
-            try {
-              logmgr.setConfiguration( (DataFrame)field.getObjectValue() );
-            } catch ( ConfigurationException e ) {
-              Log.error( "Invalid logging configuration", e );
-            }
-
-            // Set the log manager in the engine
-            retval.setLogManager( logmgr );
-          } else {
-            Log.error( "Invalid logging configuration section" );
-          }
         } else if ( ConfigTag.LISTENER.equalsIgnoreCase( field.getName() ) ) {
           if ( field.isFrame() ) {
             DataFrame cfgFrame = (DataFrame)field.getObjectValue();
