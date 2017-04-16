@@ -88,20 +88,19 @@ public class ConfigTag {
   // Transform engine
 
   public static final String CONTEXT = "context";
-  public static final String TASKS = "tasks";
+  public static final String PERSISTENT_CONTEXT = "persistentcontext";
+  public static final String TASKS = "task";
   public static final String PREPROCESS = "preprocess";
   public static final String POSTPROCESS = "postprocess";
-  public static final String LISTENER = "listeners";
+  public static final String LISTENER = "listener";
   public static final String DATABASE = "database";
   public static final String WRITER = "writer";
   public static final String MAPPER = "mapper";
-  public static final String FILTERS = "filters";
+  public static final String FILTERS = "filter";
   public static final String READER = "reader";
-  public static final String DATABASES = "databases";
+  public static final String DATABASES = "database";
   public static final String VALIDATE = "validate";
   public static final String TRANSFORM = "transform";
-  public static final String PERSISTENT_CONTEXT = "persistentcontext";
-  public static final String LOGGERS = "loggers";
   public static final String CATEGORIES = "categories";
   public static final String ENABLED = "enabled";
 
