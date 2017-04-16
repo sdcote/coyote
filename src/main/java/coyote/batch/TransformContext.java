@@ -76,7 +76,7 @@ public class TransformContext extends OperationalContext {
    * Open (initialize) the context.
    * 
    * <p>This is called when the engine begins running and is where we use the 
-   * currently set symbol table to resolves all the variables set in this 
+   * currently set symbol table to resolve all the variables set in this 
    * context.</p>
    */
   public void open() {
