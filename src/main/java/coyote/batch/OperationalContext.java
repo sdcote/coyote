@@ -16,7 +16,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import coyote.commons.CipherUtil;
 import coyote.commons.StringUtil;
 import coyote.commons.template.SymbolTable;
 
@@ -29,7 +28,6 @@ import coyote.commons.template.SymbolTable;
  */
 public abstract class OperationalContext {
   public static final String ERROR_STATUS = "Error";
-  private static final String ENCRYPT_PREFIX = "ENC:";
   protected String status = null;
   protected String errorMessage = null;
   protected volatile long startTime = 0;
@@ -148,12 +146,7 @@ public abstract class OperationalContext {
   public String getAsString( String key ) {
     Object retval = get( key );
     if ( retval != null ) {
-      if ( key.startsWith( ENCRYPT_PREFIX ) ) {
-        String retvals = CipherUtil.decryptString( retval.toString() );
-        return retvals;
-      } else {
-        return retval.toString();
-      }
+      return retval.toString();
     }
     return null;
   }
