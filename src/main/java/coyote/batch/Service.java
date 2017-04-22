@@ -279,18 +279,21 @@ public class Service extends AbstractBatchLoader implements Loader {
    */
   @Override
   public void shutdown() {
-    // call the threadjob shutdown to exit the watchdog routine
-    // this will free up the MAIN thread
+    // call the threadjob shutdown to exit the watchdog routine to free up the 
+    // MAIN thread
     super.shutdown();
 
     // shutdown the scheduler
+    if( scheduler != null){
+      scheduler.shutdown();
+    }
 
+    // Stop the HTTPManager
     if ( server != null ) {
       server.stop();
     }
 
-    //System.out.println( "Runtime termination, batch job shutting down..." );
-    //engine.shutdown();
+    Log.info( LogMsg.createMsg( MSG, "Loader.shutdown" ) );
   }
 
 
