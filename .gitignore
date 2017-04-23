@@ -1,7 +1,7 @@
 # Directory Artifacts #
 #######################
 build/
-/bin/
+bin/
 .gradle/
 
 
@@ -14,6 +14,7 @@ csharp/
 ###############################
 /misc-docs/
 /cfg/
+/archives/
 
 
 # Compiled Artifacts #
@@ -35,8 +36,8 @@ csharp/
 #####################
 *.log
 logback.xml
-/wrk/
-
+wrk/
+log/
 
 # Package Files #
 #################
@@ -51,4 +52,4 @@ logback.xml
 *.ear
 !gradle/wrapper/gradle-wrapper.jar
 
-CoyoteBatchInstall.jar
+CoyoteDXInstall.jar

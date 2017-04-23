@@ -5,7 +5,7 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 xsi:schemaLocation="http://izpack.org/schema/installation http://izpack.org/schema/5.0/izpack-installation-5.0.xsd">
 
 	<info>
-		<appname>Coyote Batch</appname>
+		<appname>Coyote DX</appname>
 		<appversion>0.7-dev</appversion>
 		<authors>
 			<author name="Steve Cote" email="sdcote@gmail.com"/>
@@ -35,8 +35,8 @@ xsi:schemaLocation="http://izpack.org/schema/installation http://izpack.org/sche
 
 	<!--The Variables section.-->
 	<variables>
-		<variable name="TargetPanel.dir.windows" value="C:/Program Files/Coyote/Batch"/>
-		<variable name="TargetPanel.dir.unix" value="/usr/local/coyote/batch"/>
+		<variable name="TargetPanel.dir.windows" value="C:/Program Files/Coyote/DX"/>
+		<variable name="TargetPanel.dir.unix" value="/opt/coyotedx"/>
 	</variables>
 
 	<!--The panels section. We indicate which panels we want to use. The order will be respected.-->
@@ -95,19 +95,19 @@ xsi:schemaLocation="http://izpack.org/schema/installation http://izpack.org/sche
 	<!-- This the the section which defines the packs.-->
 	<packs>
 		<pack name="Utility" required="no" preselected="yes" >
-			<description>Installs the Coyote Batch toolkit as a utility application in its own directory with scripts to enable adding custom tasks, transforms and other components. Use this to install the tool kit as an application.</description>
-			<fileset dir="build\install\Batch\bin" targetdir="$INSTALL_PATH/bin" override="true"/>
+			<description>Installs the Coyote DX toolkit as a utility application in its own directory with scripts to enable adding custom tasks, transforms and other components. Use this to install the tool kit as an application.</description>
+			<fileset dir="build\install\CoyoteDX\bin" targetdir="$INSTALL_PATH/bin" override="true"/>
 			<fileset dir="src\resources\licenses" targetdir="$INSTALL_PATH/doc/licenses" override="true"/>
-			<fileset dir="build\install\Batch\lib" targetdir="$INSTALL_PATH/lib" override="true"/>
-			<fileset dir="build\install\Batch\doc" targetdir="$INSTALL_PATH/doc" override="true"/>
-			<fileset dir="build\install\Batch\cfg" targetdir="$INSTALL_PATH/cfg" override="false"/>
-			<executable targetfile="$INSTALL_PATH/bin/batch" stage="never" failure="warn" keep="true">
+			<fileset dir="build\install\CoyoteDX\lib" targetdir="$INSTALL_PATH/lib" override="true"/>
+			<fileset dir="build\install\CoyoteDX\doc" targetdir="$INSTALL_PATH/doc" override="true"/>
+			<fileset dir="build\install\CoyoteDX\cfg" targetdir="$INSTALL_PATH/cfg" override="false"/>
+			<executable targetfile="$INSTALL_PATH/bin/cdx" stage="never" failure="warn" keep="true">
 				<os family="unix" />
 			</executable>
 		</pack>
 		<pack name="FatJar" required="no" preselected="no" >
-			<description>The single JAR with just the Loader, DataFrame and Coyote Batch classes. Useful for component development and minimal install footprints.</description>
-			<fileset dir="build\libs" targetdir="$INSTALL_PATH" includes="BatchAll*.*" override="false"/>
+			<description>The single JAR with just the Loader, DataFrame and Coyote DX classes. Useful for component development and minimal install footprints.</description>
+			<fileset dir="build\libs" targetdir="$INSTALL_PATH" includes="CoyoteDXAll*.*" override="false"/>
 		</pack>
 		<pack name="Demo" required="no" preselected="no" >
 			<description>A collection of configuration files, demonstrating several components and integration scenarios.</description>

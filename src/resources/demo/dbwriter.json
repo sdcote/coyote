@@ -1,5 +1,5 @@
 {
-	"Class" : "coyote.batch.Job",
+	"Class" : "coyote.dx.Job",
 	"Job" : {
 		"Name" : "DBwriter",
 		

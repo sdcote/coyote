@@ -1,5 +1,5 @@
 
-# Coyote Batch
+# Coyote DX
 
 This is a lightweight toolkit for performing basic ETL tasks.
 
@@ -7,7 +7,7 @@ The framework is single-threaded for simplicity and ease of debugging. If a more
 
 ## Documentation
 
-There is a [project wiki](https://github.com/sdcote/batch/wiki) with is constantly updated with the latest information about the toolkit, how to use it, examples and best practices. It is the primary source for infromation on the toolkit.
+There is a [project wiki](https://github.com/sdcote/coyotedx/wiki) with is constantly updated with the latest information about the toolkit, how to use it, examples and best practices. It is the primary source for infromation on the toolkit.
 
 ## Development Status
 
@@ -21,7 +21,7 @@ Feel free to copy whatever you find useful and please consider contributing so o
 
 ## Project Goals
 
-This project has a simple goal: make executing basic batch processing quick and simple.
+This project has a simple goal: make executing basic ETL processing quick and simple.
 
  * Configuration file based, for easy operation of many different tasks,
  * Support command-line operations with a minimum of coding,

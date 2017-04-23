@@ -1,5 +1,5 @@
 {
-	"Class": "coyote.batch.Service",
+	"Class": "coyote.dx.Service",
 	
 	"Manager" : {
 		"Port": 443,
@@ -54,7 +54,7 @@
 	},
 
 	"Logging": {
-		"FileAppender": { "target": "batch.log", "categories": "info" },
+		"FileAppender": { "target": "cdx.log", "categories": "info" },
 		"FileAppender": { "target": "error.log", "categories": "error, fatal, warn" },
 		"CyclingFileAppender": { "target": "debug.log", "categories": "trace, debug, error, fatal, warn", "generations": 10, "maxsize": "2MB", "enabled": true },
 		"CyclingFileAppender": { "target": "scheduler.log", "categories": "scheduler, thread", "generations": 10, "maxsize": "2MB" },

@@ -5,13 +5,13 @@ apply plugin: 'eclipse'
 apply plugin: 'idea'
 
 
-defaultTasks 'clean', 'build', 'publish', 'installApp'
+defaultTasks 'clean', 'build', 'publish', 'installDist'
 group = 'coyote'
 version = '0.7'
 mainClassName = "coyote.loader.BootStrap"
 
 ext {
-	title = 'Coyote Batch Framework'
+	title = 'Coyote Data eXchange Framework & Toolkit'
 	provider = 'Coyote Codeworks'
 }
 
@@ -40,11 +40,8 @@ task fatJar(type: Jar) {
 }
 
 repositories {
-
 	mavenLocal()
-
 	mavenCentral()
-
 }
 
 
