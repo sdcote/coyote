@@ -1,9 +1,15 @@
 
 # Coyote DX
 
-This is a lightweight toolkit for performing basic ETL tasks.
+This is a lightweight toolkit for performing basic data exchange (integration) tasks.
 
-The framework is single-threaded for simplicity and ease of debugging. If a more high performance, multi-threaded platform is desired, there are many from which to choose. This is designed for basic file processing in a small footprint package.
+The goal has evolved into creating a data exchange tool along the line of a build tool similar to `Maven`, `Gradle` and `Ant`, where a configuration file (`pom.xml`, `build.gradle` and `build.xml` respectively) is written and run (`mvn`, `gradle` and `ant` respectively). The result being data read from one system and written to another.
+
+Using CoyoteDX, it is possible to craft an "exchange" file (e.g. newcontacts.json) and calling Coyote DX to run that exchange (e.g. `cdx newcontacts.json`). No coding necessary; all the components are either contained in Coyote DX or a library dropped into its path.
+
+So far, it has been useful in integrating applictions, connecting field devices to the cloud, performing load, performance, and integration testing, modeling new data exchanges, testing service APIs and connecting hardware prototypes to test systems. This tool is helpful in more cases than integration; is can be used to exchange data between any network connect actor.
+
+New components are being added regularly and its design supports third-party contributions without recompilation. Just add your library to the path and your "exchange" file can reference the new components in that library.
 
 ## Documentation
 
@@ -15,25 +21,15 @@ This library is currently past prototyping in initial development and well into 
 
 No broken builds are checked-in, so what is in this repository should build and provide value. This project is indirectly supporting integration efforts and is being tested using real world scenarios. As new use cases are discovered the toolkit is updated to support them. 
 
-This code is not currently in production, but supporting development and implementation activities. **Do Not Trust This Code Without First Checking It Yourself.** 
-
 Feel free to copy whatever you find useful and please consider contributing so others may benefit as you may have. 
 
 ## Project Goals
 
-This project has a simple goal: make executing basic ETL processing quick and simple.
+This project has a simple goal: make executing data exchange jobs quick and simple.
 
- * Configuration file based, for easy operation of many different tasks,
- * Support command-line operations with a minimum of coding,
+ * Configuration file based, for easy operation of many different tasks (i.e "exchange" file),
+ * Support command-line operations with no coding (just an "exchange" file),
  * Do not require complicated frameworks or facilities (e.g. containers)
  * Enable integrations prototyping, and development operations
- * Provide utilities to assist in the loading and extraction of data,
- * Simple Configuration; if we need a GUI to configure the tools, we are not simple,
- * Provide value first, optimize later.
-
-## Prerequisites:
-
-  * JDK 1.7 or later installed
-  * Ability to run bash (*nix) or batch (Windows) scripts
-  * Network connection to get the dependencies (there are ways around that)
-  * Assumes you do not have gradle installed (if you do, you can replace `gradlew` with just `gradle`)
+ * Provide utilities to assist in the reading, writing and transformation of data,
+ * Simple Configuration; if we need a GUI to configure the tools, we are not simple enough.
