@@ -1,0 +1,70 @@
+{
+	"Class" : "coyote.batch.Job",
+	"Job" : {
+		"Name" : "Snow",
+
+
+		"Context" : {
+			"fileroot": "[#$YYYY#][#$MM#][#$DD#]",
+			"dataprofile": "[#$fileroot#].txt"
+		},
+
+
+		"PreProcess": {},
+
+
+		"Reader" : {
+			"Description" : "Example of how to retrieve a batch of records from ServiceNow via SOAP.",
+			"class" : "WebServiceReader",
+			"resource" : "https://intdpmpg.nwie.net/Utility/ServiceManagement_ServiceNow/alm_hardware.do",
+			"authentication": {
+				"class" : "BasicAuthentication",
+				"encrypted_username" : "LOeoct7aF1WmnPGFdw3mCOTD8jw/6uv5",
+				"encrypted_password" : "zWEv7GFpWeINHJnBfwfPNqkmN9gAhzT3",
+				"preemptive" : true
+			},
+			"Protocol" : {
+				"ExchangeType" : "SOAP",
+				"operation": "getRecords",
+				"prefix": "u",
+				"namespace": "http://www.service-now.com/alm_hardware"
+			},
+			"request" : {
+				"__query" : "install_status!=7^install_status!=8^ci.sys_class_name=u_notebook_pc^ORci.sys_class_name=u_tablet_pc^ORci.sys_class_name=u_thin_client_pc^ORci.sys_class_name=cmdb_ci_desktop_pc^ORci.sys_class_name=u_computer_pc^ORci.sys_class_name=u_cmdb_virtual_pc^ci.u_compensation_codeSTARTSWITH8",
+				"__view" : "asset_billing_view",
+				"__limit" : 100000
+			},
+			"selector": "getRecordsResponse.response.>"
+		},
+	
+
+		"Transform" : {},
+
+
+		"Mapper" : {},
+
+
+		"Writer" : {
+			"class" : "CSVWriter",
+			"header" : false,
+			"target" : "outfile"
+		},
+
+
+		"PostProcess": {},
+
+
+		"Listeners": {
+			"DataProfiler":{ "target": "dataprofile" }
+		},
+
+
+		"Logging": {
+			"FileAppender": { "target": "info.log", "categories": "info" },
+			"FileAppender": { "target": "error.log", "categories": "error, fatal, warn" },
+			"CyclingFileAppender": { "target": "debug.log", "categories": "trace, debug, error, fatal, warn", "generations": 10, "maxsize": "2MB", "enabled": true }
+		}
+
+	}
+
+}

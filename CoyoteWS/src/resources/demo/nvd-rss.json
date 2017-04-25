@@ -1,0 +1,43 @@
+{
+	"class": "coyote.batch.Job",
+	"notes": "Feel free to use the notes attribute to describe any of the components.",
+	"job": {
+		"name": "NVD",
+		"notes": "Read the NIST National Vulnerability RSS seed of new vulnerabilities reported over the past 8 days.",
+
+		"Context": {
+		},
+
+		"PreProcess": {
+		},
+
+		"Reader": {
+		},
+
+		"Filter": {
+		},
+
+		"Validate": {
+		},
+
+		"Transform": {
+		},
+
+		"Mapper": {
+		},
+
+		"Writer": {
+		},
+
+		"PostProcess": {
+		},
+
+		"Listener": {
+		}
+
+	},
+
+	"Logging": {
+		"ConsoleAppender": { "name": "default", "target": "STDOUT", "categories": "trace, debug, info, notice, warn, error, fatal" }
+	}
+}

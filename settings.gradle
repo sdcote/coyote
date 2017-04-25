@@ -1,1 +1,4 @@
-rootProject.name = 'CoyoteDX'
+rootProject.name = 'Coyote'
+include 'CoyoteDX'
+include 'CoyoteSLF4J'
+//include 'daemon'

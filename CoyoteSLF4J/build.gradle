@@ -1,0 +1,38 @@
+defaultTasks 'clean', 'build', 'publish'
+group = 'coyote'
+version = '1.0'
+mainClassName = 'coyote.loader.BootStrap'
+
+ext {
+	title = 'Coyote Logging SLF4J Binding'
+	provider = 'Coyote Systems'
+	junitVersion = '4.11'
+	loaderVersion = '1.1'
+	slf4jVersion = '1.7.7'
+}
+
+jar {
+	manifest {
+		attributes  'Implementation-Title' : "$title",
+		'Provider' : "$provider",
+		'Implementation-Version' : version
+	}
+}
+
+repositories {
+	mavenLocal()
+	mavenCentral()
+}
+
+dependencies {
+	// Loader which contains the logger
+	compile "coyote:Loader:$loaderVersion"
+	
+	// used to make internal logger binding
+	compile "org.slf4j:slf4j-api:$slf4jVersion"
+
+	// UnitTesting
+	testCompile "junit:junit:$junitVersion"	
+}
+
+

@@ -1,0 +1,18 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+<HEAD>
+	<META HTTP-EQUIV="CONTENT-TYPE" CONTENT="text/html; charset=windows-1252">
+	<TITLE>SNMP package</TITLE>
+	<META NAME="AUTHOR" CONTENT="Stephan Cote">
+	<META NAME="CREATED" CONTENT="20010115;14080387">
+	<META NAME="CHANGEDBY" CONTENT="Stephan Cote">
+	<META NAME="CHANGED" CONTENT="20041018;20125826">
+</HEAD>
+<BODY LANG="en-US" DIR="LTR">
+<H1>SNMP</H1>
+<P>The SNMP package defines classes used to communicate with SNMP devices. Classes corresponding to each of the basic SNMP data types are defined, each extending the SnmpObject abstract class. In addition, some utility classes provide additional functionality.</P>
+<P>Each of the SnmpObject subclasses defines methods to create an object, either from a &quot;reasonable&quot; representation (e.g., java.lang.Integer for an SnmpInteger object, or a suitable String such as &quot;1.2.1.1.3.2.1.1.0&quot; for an SnmpObjectIdentifier), or from a byte array presumed to contain a valid ASN.1 Basic Encoding Rules (BER) encoding of a value of the appropriate type. The objects also define methods that permit their values to be set, and generate their BER encodings.</P>
+<P>SnmpSequence subclasses, in particular, contain Vectors of other SnmpObject subclasses. They can be created &quot;manually&quot;, with  objects added as desired, or can be created from a BER encoding of the sequence contents, recursively creating the contained objects.  BER generation also recursively generates the BER for each contained component; thus calling sequence.getBerEncoding() automatically generates the encoding for the entire sequence, including the contained components. SnmpBerCodec contains a number of static utility methods for converting to and from BER encodings, as well as constants used by the various classes.</P>
+<P>Finally, SnmpV1CommunicationsInterface defines methods for sending SNMP Get and Set requests to devices; this class handles all of the communication tasks needed for developing simple SNMP applications.</P>
+</BODY>
+</HTML>

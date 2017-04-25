@@ -1,0 +1,124 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<izpack:installation version="5.0"
+xmlns:izpack="http://izpack.org/schema/installation"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:schemaLocation="http://izpack.org/schema/installation http://izpack.org/schema/5.0/izpack-installation-5.0.xsd">
+
+	<info>
+		<appname>Coyote TinyDX Framework and Toolkit</appname>
+		<appversion>0.1.0-dev</appversion>
+		<authors>
+			<author name="Steve Cote" email="sdcote@gmail.com"/>
+		</authors>
+		<javaversion>1.7</javaversion>
+		<requiresjdk>no</requiresjdk>
+		<run-privileged condition="izpack.windowsinstall.7|izpack.windowsinstall.8"/>
+		<summarylogfilepath>$INSTALL_PATH/Uninstaller/installSummary.htm</summarylogfilepath>
+	</info>
+
+	<!--This is the gui preferences section. -->
+	<guiprefs width="800" height="600" resizable="no">
+        <modifier key="langDisplayType" value="default"/>
+        <modifier key="layoutAnchor" value="CENTER"/>
+        <modifier key="headingPanelCounter" value="progressbar"/>
+        <modifier key="headingPanelCounterPos" value="inNavigationPanel"/>
+        <modifier key="allYGap" value="4"/>
+        <modifier key="paragraphYGap" value="10"/>
+        <modifier key="filler1YGap" value="5"/>
+        <modifier key="filler3XGap" value="10"/>
+	</guiprefs>
+
+	<!--The locale section. -->
+	<locale>
+		<langpack iso3="eng"/>
+	</locale>
+
+	<!--The Variables section.-->
+	<variables>
+		<variable name="TargetPanel.dir.windows" value="C:/Program Files/Coyote/tinydx"/>
+		<variable name="TargetPanel.dir.unix" value="/opt/tinydx"/>
+	</variables>
+
+	<!--The panels section. We indicate which panels we want to use. The order will be respected.-->
+	<!-- The panels in a classic order -->
+	<panels>
+		<panel classname="HelloPanel" id="hellopanel"/>
+		<panel classname="HTMLInfoPanel" id="infopanel" encoding="ISO-8859-1"/>
+		<panel classname="HTMLLicencePanel" id="licensepanel"/>
+		<panel classname="TargetPanel" id="targetpanel"/>
+		<panel classname="PacksPanel" id="packspanel"/>
+		<panel classname="SummaryPanel" id="summarypanel"/>
+		<panel classname="InstallPanel" id="installpanel"/>
+		<panel classname="FinishPanel" id="finishpanel"/>
+	</panels>
+
+	<!--The listeners section for CustomActions-->
+	<listeners></listeners>
+
+	<!--The resources section. The ids must be these ones if you want to use the LicencePanel and/or the InfoPanel.-->
+	<resources>
+		<res id="HTMLLicencePanel.licensepanel" src="./installer/license.html"/>
+        <res id="HTMLInfoPanel.info" src="./installer/install-readme.html"/>
+		<res id="Installer.image.0" src="./installer/info-border.png"/>
+		<res id="Installer.image.hellopanel" src="./installer/info-border.png"/>
+		<res id="Installer.image.infopanel" src="./installer/info-border.png"/>
+		<res id="Installer.image.licensepanel" src="./installer/info-border.png"/>
+		<res id="Installer.image.targetpanel" src="./installer/info-border.png"/>
+		<res id="Installer.image.packspanel" src="./installer/pack-border.png"/>
+		<res id="Installer.image.summarypanel" src="./installer/pack-border.png"/>
+		<res id="Installer.image.installpanel" src="./installer/installing-border.png"/>
+		<res id="Installer.image.finishpanel" src="./installer/finished-border.png"/>
+		<res id="CustomLangPack.xml" src="./installer/eng.xml"/>
+		<res id="CustomLangpack.xml_eng" src="./installer/eng.xml"/>
+	</resources>
+
+	<!--The Natives section. We specify here our dll files and libraries.-->
+	<!-- The native libraries to add -->
+	<natives>
+		<native type="izpack" name="ShellLink.dll"/>
+		<native type="izpack" name="ShellLink_x64.dll"/>
+		<native type="izpack" name="WinSetupAPI.dll"/>
+		<native type="izpack" name="WinSetupAPI_x64.dll"/>
+		<native type="3rdparty" name="COIOSHelper.dll" stage="both">
+			<os family="windows"/>
+		</native>
+		<native type="3rdparty" name="COIOSHelper_x64.dll" stage="both">
+			<os family="windows"/>
+		</native>
+	</natives>
+
+	<!--The Conditions section. We declare conditions used by packs.-->
+	<conditions>
+		
+	</conditions>
+
+	<!-- This the the section which defines the packs.-->
+	<packs>
+		<pack name="Utility" required="yes" preselected="yes" >
+			<description>Installs the TinyDX Framework and Toolkit as a utility application in its own directory with scripts to enable adding custom components. Use this to install the tool kit as an application.</description>
+			<fileset dir="tdx-core\src\dist\bin" targetdir="$INSTALL_PATH/bin" override="true"/>
+			<fileset dir="tdx-core\src\dist\cfg" targetdir="$INSTALL_PATH/cfg" override="true"/>
+			<fileset dir="tdx-core\src\dist\doc" targetdir="$INSTALL_PATH/doc" override="true"/>
+			<fileset dir="tdx-core\build\install\tdx-core\lib" targetdir="$INSTALL_PATH/lib" override="true"/>
+			<executable targetfile="$INSTALL_PATH/bin/tdx" stage="never" failure="warn" keep="true">
+				<os family="unix" />
+			</executable>
+		</pack>
+		<pack name="Daemon" required="no" preselected="no" >
+			<description>Ability to run TinyDX components in the background on *NIX systems.</description>
+			<fileset dir="tdx-daemon\src\dist\bin" targetdir="$INSTALL_PATH/bin" override="true"/>
+			<fileset dir="tdx-daemon\build\install\tdx-daemon\lib" targetdir="$INSTALL_PATH/lib" override="true"/>
+			<fileset dir="tdx-daemon\src\dist\cfg" targetdir="$INSTALL_PATH/cfg" override="true"/>
+			<fileset dir="tdx-daemon\src\dist\doc" targetdir="$INSTALL_PATH/cfg" override="true"/>
+			<executable targetfile="$INSTALL_PATH/bin/tinydx" stage="never" failure="warn" keep="true">
+				<os family="unix" />
+			</executable>
+		</pack>
+		<pack name="Demo" required="no" preselected="no" >
+			<description>A collection of configuration files and classes, demonstrating several features and command line scenarios.</description>
+			<fileset dir="tdx-demo\build\install\tdx-demo\lib" targetdir="$INSTALL_PATH/lib" override="true"/>
+			<fileset dir="tdx-demo\src\dist\cfg" targetdir="$INSTALL_PATH/cfg" override="true"/>
+		</pack>
+	</packs>
+	
+</izpack:installation>

@@ -1,110 +1,75 @@
-apply plugin: 'java'
-apply plugin: 'maven-publish'
-apply plugin: 'application'
-apply plugin: 'eclipse'
-apply plugin: 'idea'
-
-
-defaultTasks 'clean', 'build', 'publish', 'installDist'
-group = 'coyote'
-version = '0.7'
-mainClassName = "coyote.loader.BootStrap"
-
-ext {
-	title = 'Coyote Data eXchange Framework & Toolkit'
-	provider = 'Coyote Codeworks'
+allprojects {
+	defaultTasks 'clean', 'build', 'publish', 'installDist'
+	group = 'coyote'
+	version = '0.1.0'
 }
-
-jar {
-    manifest {
-		attributes  'Implementation-Title' : "$title",
-		'Provider' : "$provider",
-		'Main-Class' : "$mainClassName",
-		'Implementation-Version' : version
-	}
-}
-task fatJar(type: Jar) {
-	manifest {
-		attributes  'Implementation-Title' : "$title",
-		'Provider' : "$provider",
-		'Main-Class' : "$mainClassName",
-		'Implementation-Version' : version
-	}
-	baseName = project.name + 'All'
-	from {
-		configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } 
-	}{
-		exclude "META-INF/*.RSA"
-	}
-	with jar
-}
-
-repositories {
-	mavenLocal()
-	mavenCentral()
-}
-
-
-ext {
-	loaderVersion = '1.1'
-	junitVersion = '4.11'
-	h2Version = '1.3.173'
-}
-dependencies {
-
-	// Loader & Abstract Data Type
-	compile "coyote:Loader:$loaderVersion"
-
-	// UnitTesting
-	testCompile "junit:junit:$junitVersion"
-
-	// Database for testing JDBC
-	testCompile "com.h2database:h2:$h2Version"
-
-}
-
-
-
-// custom tasks for creating source/javadoc jars
-task sourcesJar(type: Jar, dependsOn: classes) {
-	classifier = 'sources'
-	from sourceSets.main.allSource
-}
-
-
-task javadocJar(type: Jar, dependsOn: javadoc) {
-	classifier = 'javadoc'
-	from javadoc.destinationDir
-}
-
-
-// add javadoc/source jar tasks as artifacts
-artifacts {
-	archives sourcesJar, javadocJar
-}
-
-
-publishing {
-	publications {
-		mavenJava(MavenPublication) {
-			from components.java
-
-			artifact sourcesJar {
-				classifier "sources"
-			}
-
-			artifact javadocJar {
-				classifier "javadoc"
-			}
-		}
-	}
-	
-	repositories {
-		mavenLocal()
-	}
-}
-
 
 task wrapper(type: Wrapper) {
-	gradleVersion = '2.14'
+    gradleVersion = '2.14'
+}
+
+
+
+
+subprojects {
+	apply plugin: 'java'
+	apply plugin: 'jacoco'
+	apply plugin: 'maven-publish'
+	apply plugin: 'application'
+	apply plugin: 'eclipse'
+	apply plugin: 'idea'
+
+	repositories {
+		mavenLocal()
+		mavenCentral()
+	}
+
+
+	// custom tasks for creating source/javadoc jars
+	task sourcesJar(type: Jar, dependsOn: classes) {
+		classifier = 'sources'
+		from sourceSets.main.allSource
+	}
+
+
+	task javadocJar(type: Jar, dependsOn: javadoc) {
+		classifier = 'javadoc'
+		from javadoc.destinationDir
+	}
+
+
+	// add javadoc/source jar tasks as artifacts
+	artifacts {
+		archives sourcesJar, javadocJar
+	}
+
+
+	publishing {
+		publications {
+			mavenJava(MavenPublication) {
+				from components.java
+
+				artifact sourcesJar {
+					classifier "sources"
+				}
+
+				artifact javadocJar {
+					classifier "javadoc"
+				}
+			}
+		}
+	
+		repositories {
+			mavenLocal()
+		}
+	}
+
+	jacocoTestReport {
+    	reports {
+        	xml.enabled = false
+	        html.enabled = true
+    	}
+	}
+	check.dependsOn jacocoTestReport
+
 }

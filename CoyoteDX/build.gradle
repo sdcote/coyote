@@ -1,0 +1,43 @@
+defaultTasks 'clean', 'build', 'publish', 'installDist'
+group = 'coyote'
+version = '0.7'
+mainClassName = 'coyote.loader.BootStrap'
+
+ext {
+	title = 'Coyote Data eXchange Framework & Toolkit'
+	provider = 'Coyote Systems'
+	loaderVersion = '1.1'
+	junitVersion = '4.12'
+}
+dependencies {
+	// Loader & Abstract Data Type
+	compile "coyote:Loader:$loaderVersion"
+	testCompile "junit:junit:$junitVersion"
+}
+
+jar {
+    manifest {
+		attributes  'Implementation-Title' : "$title",
+		'Provider' : "$provider",
+		'Main-Class' : "$mainClassName",
+		'Implementation-Version' : version
+	}
+}
+
+task fatJar(type: Jar) {
+	manifest {
+		attributes  'Implementation-Title' : "$title",
+		'Provider' : "$provider",
+		'Main-Class' : "$mainClassName",
+		'Implementation-Version' : version
+	}
+	baseName = project.name + 'All'
+	from {
+		configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } 
+	}{
+		exclude "META-INF/*.RSA"
+	}
+	with jar
+}
+
+
