@@ -1,5 +1,5 @@
 {
-	"Class": "coyote.batch.Service",
+	"Class": "coyote.dx.Service",
 	
 	"Manager" : {
 		"Port": 55290,
@@ -17,7 +17,7 @@
 	
 
 	"Logging": {
-		"CyclingFileAppender": { "target": "tinydx.log", "categories": "info, notice", "generations": 10, "maxsize": "2MB", "enabled": true },
+		"CyclingFileAppender": { "target": "coyotedx.log", "categories": "info, notice", "generations": 10, "maxsize": "2MB", "enabled": true },
 		"CyclingFileAppender": { "target": "error.log", "categories": "notice, warn, error, fatal", "generations": 10, "maxsize": "2MB", "enabled": true },
 		"CyclingFileAppender": { "target": "debug.log", "categories": "trace, debug, error, fatal, warn", "generations": 10, "maxsize": "2MB", "enabled": true },
 		"CyclingFileAppender": { "target": "scheduler.log", "categories": "scheduler, thread", "generations": 10, "maxsize": "2MB", "enabled": false },

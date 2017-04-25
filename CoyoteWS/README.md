@@ -1,18 +1,19 @@
 # Overview
 
-This is a library of tools for the [Coyote Batch toolkit](https://github.com/sdcote/batch) which contributes HTTP reading and writing capabilities to your batch projects.
+This is a library of tools for the [Coyote DX toolkit](https://github.com/sdcote/coyote) which contributes HTTP reading and writing capabilities to your integration projects.
 
 This project enables ReST-ful web service access for reading and writing data through web service APIs. The current use cases include reading files from an external business partner and updating records via ReSTful web service calls, retrieving data from one system via web services and generating fixed length field files for mainframe input and mass loading of CSV files into various systems via web services using both SOAP and ReST.
 
 This library also has the ability to host web services which other systems can send data through. WebServerReaders then push the request through the pipeline to a WebServerWriter which takes the results and places them in the future object created by and blocked on by the reader (request thread). This allows the system to operate as a configurable web service implementation.
 
+## Uses
+The classes are designed to be used both in the Coyote DX Toolkit and as a generic toolkit for SOAP and ReST interactions. One team used CoyoteWS to make calling web services easier and did not use it for integrations processing. Another team used it to send web requests during development and testing of web service endpoints, setting up large batches of test data at an endpoint while it was being re-factored. This saved developers from having to compile and run CI jobs every time a new use case was conceived. They then used the results to create the final integration and system tests. 
+
 # Design
 
-One of the design goals of this library of tools is to provide a generic set of tools which will work with synchronous and asynchronous interactions which may use a variety of transports. It is technically conceivable to use this toolkit to send and receive messages not jut over HTTP, but over any transport protocol. A worker can be developed for messaging transports where the topic or queue is considered a resource and the message is an event or a request.
+One of the design goals of this library of tools is to provide a generic set of tools which will work with synchronous and asynchronous interactions which may use a variety of transports. It is technically conceivable to use this toolkit to send and receive messages not just over HTTP, but over any transport protocol. A worker can be developed for messaging transports where the topic or queue is considered a resource and the message is an event or a request.
 
 It is possible to stand up a secure web server to receive HTTP requests which will result in the request and any data in the body to be passed through the pipeline for processing. The writer can then send a response back. This is performed with a special handler registered with the server at a particular endpoint.
-
-The classes are designed to be used both in the Coyote Batch Toolkit and as a generic toolkit for SOAP and ReST interactions. One team uses BatchWS to make calling web services easier and does not use it for batch processing.
 
 ## Hierarchical Data
 

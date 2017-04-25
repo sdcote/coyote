@@ -1,0 +1,47 @@
+<html>
+<head>
+	<title>Running the Daemon</title>
+</head>
+<body>
+
+<h3>Initialization Script</h3>
+<p>As root, make a symbolic link to the coyotedx script:<br> 
+To create a new symlink (will fail if symlink exists already):<pre>
+sudo ln -s /opt/coyotedx/bin/coyotedx /etc/init.d/coyotedx         
+</pre>
+To create or update the symlink:<pre>
+sudo ln -sf /opt/coyotedx/bin/coyotedx /etc/init.d/coyotedx
+</pre>
+
+<h3>Link Initialization Script to Appropriate Run Levels</h3> 
+execute the following command. This will add appropriate 'S' and 'K' entries in the given run-levels. This will also add appropriate sequence number by considering the dependencies.  
+<pre>sudo update-rc.d coyotedx defaults</pre> 
+
+<h4>Start the Service</h4>  
+<pre>sudo service coyotedx start</pre> 
+
+<p>Check the state of the service: 
+<pre>sudo systemctl status coyotedx.service 
+sudo journalctl -xn</pre> 
+
+<p>After editing the script reload it: 
+<pre>sudo systemctl daemon-reload</pre> 
+
+<p>To check if the service is running, execute this command: 
+<pre>service coyotedx status</pre> 
+
+<p>The update-rc.d script installs or removes services from runlevels. Run the command below to enable the coyotedx Daemon Service: 
+<pre>sudo update-rc.d coyotedx enable</pre> 
+
+<p>Optional: you can have the service respawn if it ever crashes or is forcefully terminated by adding a respawn line for this service at the bottom of the /etc/inittab file: 
+<pre>id:2345:respawn:/bin/sh /path/to/application/startup</pre> 
+
+<p>Run the command below to disable the CoyoteDX Daemon Service: 
+<pre>sudo update-rc.d coyotedx disable</pre> 
+
+<p>Place the Job configuration in the daemon.json configuration and you can run it continually in the background. Just add a CronEntry to its configuration.
+
+<p>The Wedge component can be replaced with your own components or once you have a Job configured. It is there only to keep the daemon running until you add your components. Without any jobs or components, the daemon will exit.
+
+</body>
+</html>
