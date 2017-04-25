@@ -1,4 +1,5 @@
 rootProject.name = 'Coyote'
 include 'CoyoteDX'
+include 'CoyoteWS'
 include 'CoyoteSLF4J'
 //include 'daemon'
