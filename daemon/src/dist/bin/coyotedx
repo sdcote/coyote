@@ -42,6 +42,8 @@ if [ -z "$CIPHER_KEY" ] ; then
 	CIPHER_KEY="TG9hZGVyQ295b3Rl"
 fi
 
+CONSOLE_LOG=$APP_HOME/console.log
+
 # Build the class path dynamically from all the jars in the lib directory
 CLASSPATH=$(find "$APP_HOME"/lib -name "*.jar" -exec printf :{} ';')
 CLASSPATH="$APP_HOME/fix$CLASSPATH"
@@ -56,7 +58,7 @@ case $1 in
 			rm /opt/coyotedx/pid
 			sleep 5
 		fi
-		nohup java -cp "$CLASSPATH" -Dapp.home="$APP_HOME" -Dapp.work="$APP_WORK" coyote.loader.BootStrap "$APP_CFG" 2>> /dev/null >> /dev/null &
+		nohup java -cp "$CLASSPATH" -Dapp.home="$APP_HOME" -Dapp.work="$APP_WORK" coyote.loader.BootStrap "$APP_CFG" 2>> "$CONSOLE_LOG" >> "$CONSOLE_LOG" &
 		# nohup java -cp "$CLASSPATH" -Dapp.home="$APP_HOME" -Dapp.work="$APP_WORK" -Dcipher.name="$CIPHER_NAME" -Dcipher.key="$CIPHER_KEY" coyote.loader.BootStrap "$APP_CFG" 2>> /dev/null >> /dev/null &
 		echo $! > /opt/coyotedx/pid
 		log_success_msg "CoyoteDX started in $!"
@@ -79,9 +81,8 @@ case $1 in
 			kill $PID;
 			log_success_msg "CoyoteDX stopped";
 			rm /opt/coyotedx/pid
-
 			log_success_msg "Starting CoyoteDX .."
-			nohup java -cp "$CLASSPATH" -Dapp.home="$APP_HOME" -Dapp.work="$APP_WORK" coyote.loader.BootStrap "$APP_CFG" 2>> /dev/null >> /dev/null &
+			nohup java -cp "$CLASSPATH" -Dapp.home="$APP_HOME" -Dapp.work="$APP_WORK" coyote.loader.BootStrap "$APP_CFG" 2>> "$CONSOLE_LOG" >> "$CONSOLE_LOG" &
 			# nohup java -cp "$CLASSPATH" -Dapp.home="$APP_HOME" -Dapp.work="$APP_WORK" -Dcipher.name="$CIPHER_NAME" -Dcipher.key="$CIPHER_KEY" coyote.loader.BootStrap "$APP_CFG" 2>> /dev/null >> /dev/null &
 			echo $! > /opt/coyotedx/pid
 			log_success_msg "CoyoteDX started"
