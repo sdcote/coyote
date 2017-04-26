@@ -1,6 +1,7 @@
 
 defaultTasks 'clean', 'build', 'publish', 'installDist'
-mainClassName = "coyote.loader.BootStrap"
+version = '0.1'
+mainClassName = 'coyote.loader.BootStrap'
 jar.archiveName = "CoyoteWS.jar"
 
 jar {
