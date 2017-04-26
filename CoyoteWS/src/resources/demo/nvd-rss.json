@@ -1,5 +1,5 @@
 {
-	"class": "coyote.batch.Job",
+	"class": "coyote.dx.Job",
 	"notes": "Feel free to use the notes attribute to describe any of the components.",
 	"job": {
 		"name": "NVD",
