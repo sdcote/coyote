@@ -1,6 +1,6 @@
-# BatchMB
+# CoyoteMB
 
-This is a collection of tools for the Coyote Batch Toolkit which allow communications across a multicast message bus. This enables Operations Administration and Monitoring (OAM) between instances of Coyote Batch jobs and a centralized manager if desired.
+This is a collection of tools for the Coyote DX Toolkit which allow communications across a multicast message bus. This enables Operations Administration and Monitoring (OAM) between instances of Coyote DX jobs and a centralized manager if desired.
 
 The muilicast protocol is a very simple, lightweight approach to the discovery of and communication with other components in the network. Heartbeats are issued and tracked be each node in the network, and each can determine if problems are reported by another. If a node fails to emit a heartbeat in a particular time window, the other components will notice this and generate events of their own.
 
@@ -24,5 +24,5 @@ Because multicast messages are used, Publish-Subscribe patterns can be easily im
 
 # Operation
 
-If the Batch Jobs sense the existence of an OAM Manager, it is loaded and used by the system. If not, the default OAM Manager is used which is a null, no-op implementation. With mode of operation, many different types of OAM managers can be used, depending on the desired operation.
+If the DX Jobs sense the existence of an OAM Manager, it is loaded and used by the system. If not, the default OAM Manager is used which is a null, no-op implementation. With mode of operation, many different types of OAM managers can be used, depending on the desired operation.
 
