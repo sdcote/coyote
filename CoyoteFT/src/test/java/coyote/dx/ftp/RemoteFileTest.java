@@ -9,7 +9,7 @@
  *   Stephan D. Cote 
  *      - Initial concept and initial implementation
  */
-package coyote.batch.ftp;
+package coyote.dx.ftp;
 
 //import static org.junit.Assert.*;
 import static org.junit.Assert.assertEquals;
@@ -20,6 +20,8 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
+import coyote.dx.ftp.RemoteFile;
+
 
 /**
  * 
@@ -27,7 +29,7 @@ import org.junit.Test;
 public class RemoteFileTest {
 
   /**
-   * Test method for {@link coyote.batch.ftp.RemoteFile#getName()}.
+   * Test method for {@link coyote.dx.ftp.RemoteFile#getName()}.
    */
   @Test
   public void testGetName() {
@@ -46,7 +48,7 @@ public class RemoteFileTest {
 
 
   /**
-   * Test method for {@link coyote.batch.ftp.RemoteFile#getParent()}.
+   * Test method for {@link coyote.dx.ftp.RemoteFile#getParent()}.
    */
   @Test
   public void testGetParent() {
@@ -83,7 +85,7 @@ public class RemoteFileTest {
 
 
   /**
-   * Test method for {@link coyote.batch.ftp.RemoteFile#getAbsolutePath()}.
+   * Test method for {@link coyote.dx.ftp.RemoteFile#getAbsolutePath()}.
    */
   @Test
   public void testGetAbsolutePath() {

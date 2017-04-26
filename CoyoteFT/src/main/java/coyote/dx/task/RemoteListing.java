@@ -9,18 +9,18 @@
  *   Stephan D. Cote 
  *      - Initial concept and initial implementation
  */
-package coyote.batch.task;
+package coyote.dx.task;
 
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 
-import coyote.batch.BatchFT;
-import coyote.batch.ConfigTag;
-import coyote.batch.TaskException;
-import coyote.batch.TransformContext;
-import coyote.batch.ftp.FileTransferException;
-import coyote.batch.ftp.RemoteFile;
+import coyote.dx.CFT;
+import coyote.dx.ConfigTag;
+import coyote.dx.TaskException;
+import coyote.dx.TransformContext;
+import coyote.dx.ftp.FileTransferException;
+import coyote.dx.ftp.RemoteFile;
 import coyote.loader.cfg.ConfigurationException;
 import coyote.loader.log.Log;
 import coyote.loader.log.LogMsg;
@@ -48,7 +48,7 @@ public class RemoteListing extends AbstractFileTransferTask {
 
 
   /**
-   * @see coyote.batch.task.AbstractTransformTask#open(coyote.batch.TransformContext)
+   * @see coyote.dx.task.AbstractTransformTask#open(coyote.dx.TransformContext)
    */
   @Override
   public void open( TransformContext context ) {
@@ -61,12 +61,12 @@ public class RemoteListing extends AbstractFileTransferTask {
 
       site = configureSite( sourceUri );
       if ( site != null ) {
-        Log.debug( LogMsg.createMsg( BatchFT.MSG, "Using Site: {}", site.toString() ) );
+        Log.debug( LogMsg.createMsg( CFT.MSG, "Using Site: {}", site.toString() ) );
       } else {
         throw new ConfigurationException( "Could not determine site from source URI of '" + source + "'" );
       }
       remoteFile = sourceUri.getPath();
-      Log.debug( LogMsg.createMsg( BatchFT.MSG, "Using remote file: {}", remoteFile ) );
+      Log.debug( LogMsg.createMsg( CFT.MSG, "Using remote file: {}", remoteFile ) );
 
     } catch ( URISyntaxException | ConfigurationException e ) {
       String msg = String.format( "ListSite task source initialization failed: %s - %s", e.getClass().getName(), e.getMessage() );
@@ -91,7 +91,7 @@ public class RemoteListing extends AbstractFileTransferTask {
 
 
   /**
-   * @see coyote.batch.TransformTask#execute()
+   * @see coyote.dx.TransformTask#execute()
    */
   @Override
   public void execute() throws TaskException {

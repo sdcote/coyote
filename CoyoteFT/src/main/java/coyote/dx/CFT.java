@@ -9,7 +9,7 @@
  *   Stephan D. Cote 
  *      - Initial concept and initial implementation
  */
-package coyote.batch;
+package coyote.dx;
 
 import coyote.commons.Version;
 import coyote.loader.log.LogMsg.BundleBaseName;
@@ -18,12 +18,12 @@ import coyote.loader.log.LogMsg.BundleBaseName;
 /**
  * 
  */
-public class BatchFT {
+public class CFT {
   public static final Version VERSION = new Version( 0, 0, 1, Version.EXPERIMENTAL );
   public static final String NAME = "BatchFT";
 
   public static final BundleBaseName MSG;
   static {
-    MSG = new BundleBaseName( "BatchFTMsg" );
+    MSG = new BundleBaseName( "CFTMsg" );
   }
 }

@@ -9,18 +9,18 @@
  *   Stephan D. Cote 
  *      - Initial concept and initial implementation
  */
-package coyote.batch.task;
+package coyote.dx.task;
 
 import java.net.URI;
 import java.net.URISyntaxException;
 
-import coyote.batch.BatchFT;
-import coyote.batch.ConfigTag;
-import coyote.batch.TaskException;
-import coyote.batch.TransformContext;
-import coyote.batch.TransformTask;
-import coyote.batch.ftp.FileAttributes;
-import coyote.batch.ftp.FileTransferException;
+import coyote.dx.CFT;
+import coyote.dx.ConfigTag;
+import coyote.dx.TaskException;
+import coyote.dx.TransformContext;
+import coyote.dx.TransformTask;
+import coyote.dx.ftp.FileAttributes;
+import coyote.dx.ftp.FileTransferException;
 import coyote.loader.cfg.ConfigurationException;
 import coyote.loader.log.Log;
 import coyote.loader.log.LogMsg;
@@ -48,7 +48,7 @@ public class Retrieve extends AbstractFileTransferTask implements TransformTask 
 
 
   /**
-   * @see coyote.batch.task.AbstractTransformTask#open(coyote.batch.TransformContext)
+   * @see coyote.dx.task.AbstractTransformTask#open(coyote.dx.TransformContext)
    */
   @Override
   public void open( TransformContext context ) {
@@ -62,12 +62,12 @@ public class Retrieve extends AbstractFileTransferTask implements TransformTask 
 
       site = configureSite( sourceUri );
       if ( site != null ) {
-        Log.debug( LogMsg.createMsg( BatchFT.MSG, "Retrieve.using_site", site.toString() ) );
+        Log.debug( LogMsg.createMsg( CFT.MSG, "Retrieve.using_site", site.toString() ) );
       } else {
         throw new ConfigurationException( "Could not determine site from source URI of '" + source + "'" );
       }
       remoteFile = sourceUri.getPath();
-      Log.debug( LogMsg.createMsg( BatchFT.MSG, "Retrieve.using_remote_file", remoteFile ) );
+      Log.debug( LogMsg.createMsg( CFT.MSG, "Retrieve.using_remote_file", remoteFile ) );
 
       remoteFileAttributes = site.getAttributes( remoteFile );
 
@@ -131,7 +131,7 @@ public class Retrieve extends AbstractFileTransferTask implements TransformTask 
     // Now determine the target which is supposed to be a local file
     try {
       localFile = getLocalFile( getString( ConfigTag.TARGET ) );
-      Log.debug( LogMsg.createMsg( BatchFT.MSG, "Retrieve.using_local_file", localFile ) );
+      Log.debug( LogMsg.createMsg( CFT.MSG, "Retrieve.using_local_file", localFile ) );
     } catch ( Exception e ) {
       String msg = String.format( "Retrieve task target initialization failed: %s - %s", e.getClass().getName(), e.getMessage() );
       Log.error( msg );
@@ -150,7 +150,7 @@ public class Retrieve extends AbstractFileTransferTask implements TransformTask 
 
 
   /**
-   * @see coyote.batch.TransformTask#execute()
+   * @see coyote.dx.TransformTask#execute()
    */
   @Override
   public void execute() throws TaskException {
@@ -170,7 +170,7 @@ public class Retrieve extends AbstractFileTransferTask implements TransformTask 
             return;
           }
         } else {
-          Log.debug( LogMsg.createMsg( BatchFT.MSG, "Retrieve.retrieved_directory", remoteFile, site.getHost(), localFile ) );
+          Log.debug( LogMsg.createMsg( CFT.MSG, "Retrieve.retrieved_directory", remoteFile, site.getHost(), localFile ) );
         }
 
       } else {
@@ -187,7 +187,7 @@ public class Retrieve extends AbstractFileTransferTask implements TransformTask 
             return;
           }
         } else {
-          Log.debug( LogMsg.createMsg( BatchFT.MSG, "Retrieve.retrieved_file", remoteFile, site.getHost(), localFile ) );
+          Log.debug( LogMsg.createMsg( CFT.MSG, "Retrieve.retrieved_file", remoteFile, site.getHost(), localFile ) );
         }
 
       }

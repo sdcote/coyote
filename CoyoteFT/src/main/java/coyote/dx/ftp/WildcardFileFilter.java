@@ -9,7 +9,7 @@
  *   Stephan D. Cote 
  *      - Initial concept and initial implementation
  */
-package coyote.batch.ftp;
+package coyote.dx.ftp;
 
 import java.util.ArrayList;
 import java.util.Stack;
@@ -181,7 +181,7 @@ public class WildcardFileFilter implements FileFilter {
 
 
   /**
-   * @see coyote.batch.ftp.FileFilter#accept(coyote.batch.ftp.RemoteFile)
+   * @see coyote.dx.ftp.FileFilter#accept(coyote.dx.ftp.RemoteFile)
    */
   @Override
   public boolean accept( final RemoteFile file ) {

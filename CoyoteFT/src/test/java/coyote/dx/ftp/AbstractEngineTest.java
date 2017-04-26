@@ -9,15 +9,15 @@
  *   Stephan D. Cote 
  *      - Initial concept and initial implementation
  */
-package coyote.batch.ftp;
+package coyote.dx.ftp;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
-import coyote.batch.TransformEngine;
-import coyote.batch.TransformEngineFactory;
+import coyote.dx.TransformEngine;
+import coyote.dx.TransformEngineFactory;
 import coyote.commons.SystemPropertyUtil;
 
 

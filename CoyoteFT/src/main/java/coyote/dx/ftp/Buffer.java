@@ -1,4 +1,4 @@
-package coyote.batch.ftp;
+package coyote.dx.ftp;
 
 public class Buffer {
   final byte[] tmp = new byte[4];

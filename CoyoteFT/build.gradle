@@ -1,0 +1,24 @@
+defaultTasks 'clean', 'build', 'publish', 'installDist'
+mainClassName = "coyote.loader.BootStrap"
+jar.archiveName = "CoyoteFT.jar"
+
+jar {
+    manifest {
+		attributes  'Implementation-Title' : 'Coyote File Transfer Toolkit',
+		'Provider' : 'Coyote Systems',
+		'Main-Class' : "$mainClassName",
+		'Implementation-Version' : version
+	}
+}
+
+ext {
+	junitVersion = '4.12'
+	jcraftVersion = '0.1.54'
+	commonsNetVersion = '3.3'}
+dependencies {
+	compile project(':CoyoteDX')
+	compile "coyote:CoyoteDX:$version"
+	compile "com.jcraft:jsch:$jcraftVersion"
+	compile "commons-net:commons-net:$commonsNetVersion"
+	testCompile "junit:junit:$junitVersion"	
+}

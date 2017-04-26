@@ -9,17 +9,17 @@
  *   Stephan D. Cote 
  *      - Initial concept and initial implementation
  */
-package coyote.batch.task;
+package coyote.dx.task;
 
 import java.io.File;
 import java.net.URI;
 
-import coyote.batch.Batch;
-import coyote.batch.ConfigTag;
-import coyote.batch.ftp.RemoteSite;
 import coyote.commons.Assert;
 import coyote.commons.CipherUtil;
 import coyote.commons.UriUtil;
+import coyote.dx.ConfigTag;
+import coyote.dx.ftp.RemoteSite;
+import coyote.dx.task.AbstractFileTask;
 import coyote.loader.cfg.ConfigurationException;
 
 

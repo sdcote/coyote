@@ -1,4 +1,4 @@
-package coyote.batch.ftp;
+package coyote.dx.ftp;
 
 //import static org.junit.Assert.*;
 import static org.junit.Assert.assertEquals;
@@ -9,6 +9,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 import org.junit.Test;
+
+import coyote.dx.ftp.RemoteSite;
 
 
 public class RemoteSiteTest {

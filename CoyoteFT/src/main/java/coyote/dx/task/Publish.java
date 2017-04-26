@@ -9,18 +9,18 @@
  *   Stephan D. Cote 
  *      - Initial concept and initial implementation
  */
-package coyote.batch.task;
+package coyote.dx.task;
 
 import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-import coyote.batch.BatchFT;
-import coyote.batch.ConfigTag;
-import coyote.batch.TaskException;
-import coyote.batch.TransformContext;
-import coyote.batch.TransformTask;
-import coyote.batch.ftp.RemoteSite;
+import coyote.dx.CFT;
+import coyote.dx.ConfigTag;
+import coyote.dx.TaskException;
+import coyote.dx.TransformContext;
+import coyote.dx.TransformTask;
+import coyote.dx.ftp.RemoteSite;
 import coyote.commons.Assert;
 import coyote.commons.UriUtil;
 import coyote.loader.cfg.ConfigurationException;
@@ -41,7 +41,7 @@ import coyote.loader.log.LogMsg;
 public class Publish extends AbstractFileTransferTask implements TransformTask {
 
   /**
-   * @see coyote.batch.task.AbstractTransformTask#open(coyote.batch.TransformContext)
+   * @see coyote.dx.task.AbstractTransformTask#open(coyote.dx.TransformContext)
    */
   @Override
   public void open( TransformContext context ) {
@@ -67,7 +67,7 @@ public class Publish extends AbstractFileTransferTask implements TransformTask {
       } else {
         localFile = UriUtil.getFilePath( new URI( source ) );
       }
-      Log.debug( LogMsg.createMsg( BatchFT.MSG, "Publish.using_local_file", localFile ) );
+      Log.debug( LogMsg.createMsg( CFT.MSG, "Publish.using_local_file", localFile ) );
     } catch ( Exception e ) {
       String msg = String.format( "Publish task source initialization failed: %s - %s", e.getClass().getName(), e.getMessage() );
       Log.error( msg );
@@ -90,10 +90,10 @@ public class Publish extends AbstractFileTransferTask implements TransformTask {
 
       // TODO: support the separate setting of username, password, port, protocol and host
 
-      Log.debug( LogMsg.createMsg( BatchFT.MSG, "Publish.using_site", site.toString() ) );
+      Log.debug( LogMsg.createMsg( CFT.MSG, "Publish.using_site", site.toString() ) );
 
       remoteFile = targetUri.getPath();
-      Log.debug( LogMsg.createMsg( BatchFT.MSG, "Publish.using_remote_file", remoteFile ) );
+      Log.debug( LogMsg.createMsg( CFT.MSG, "Publish.using_remote_file", remoteFile ) );
 
     } catch ( URISyntaxException e ) {
       String msg = String.format( "Publish task target initialization failed: %s - %s", e.getClass().getName(), e.getMessage() );
@@ -113,7 +113,7 @@ public class Publish extends AbstractFileTransferTask implements TransformTask {
 
 
   /**
-   * @see coyote.batch.TransformTask#execute()
+   * @see coyote.dx.TransformTask#execute()
    */
   @Override
   public void execute() throws TaskException {
@@ -131,7 +131,7 @@ public class Publish extends AbstractFileTransferTask implements TransformTask {
           return;
         }
       } else {
-        Log.debug( LogMsg.createMsg( BatchFT.MSG, "Publish.publish_success", localFile, site.getHost(), remoteFile ) );
+        Log.debug( LogMsg.createMsg( CFT.MSG, "Publish.publish_success", localFile, site.getHost(), remoteFile ) );
       }
     }
     finally {

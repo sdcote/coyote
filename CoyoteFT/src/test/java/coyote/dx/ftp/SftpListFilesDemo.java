@@ -9,11 +9,14 @@
  *   Stephan D. Cote 
  *      - Initial concept and initial implementation
  */
-package coyote.batch.ftp;
+package coyote.dx.ftp;
 
 import java.util.List;
 
 import coyote.commons.SystemPropertyUtil;
+import coyote.dx.ftp.FileTransferException;
+import coyote.dx.ftp.RemoteFile;
+import coyote.dx.ftp.RemoteSite;
 
 
 /**

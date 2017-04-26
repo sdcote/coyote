@@ -1,4 +1,4 @@
-package coyote.batch.ftp;
+package coyote.dx.ftp;
 
 import java.io.FileOutputStream;
 import java.io.IOException;

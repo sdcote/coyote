@@ -9,7 +9,7 @@
  *   Stephan D. Cote 
  *      - Initial concept and initial implementation
  */
-package coyote.batch.ftp;
+package coyote.dx.ftp;
 
 /**
  * Contract for classes responsible for determining if a Remote File matches a 

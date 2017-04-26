@@ -1,4 +1,4 @@
-package coyote.batch.ftp;
+package coyote.dx.ftp;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -25,11 +25,11 @@ import com.jcraft.jsch.SftpATTRS;
 import com.jcraft.jsch.SftpException;
 import com.jcraft.jsch.UserInfo;
 
-import coyote.batch.BatchFT;
 import coyote.commons.Assert;
 import coyote.commons.CollectionUtil;
 import coyote.commons.FileUtil;
 import coyote.commons.StringUtil;
+import coyote.dx.CFT;
 import coyote.loader.log.Log;
 import coyote.loader.log.LogMsg;
 
@@ -235,7 +235,7 @@ public class SFTPUtil {
     Assert.notNull( directory, "SFTP directory cannot be null" );
 
     ChannelSftp channelSftp = SFTPUtil.getConnection( site.getUsername(), site.getPassword(), site.getPort(), site.getHost() );
-    Log.debug( LogMsg.createMsg( BatchFT.MSG, "Listing remote files in directory={}", directory ) );
+    Log.debug( LogMsg.createMsg( CFT.MSG, "Listing remote files in directory={}", directory ) );
 
     final List<RemoteFile> fileListings = new ArrayList<RemoteFile>();
 
@@ -359,7 +359,7 @@ public class SFTPUtil {
     }
 
     if ( channelSftp != null ) {
-      Log.debug( LogMsg.createMsg( BatchFT.MSG, "SFTP.getting_file_attributes", filename ) );
+      Log.debug( LogMsg.createMsg( CFT.MSG, "SFTP.getting_file_attributes", filename ) );
 
       try {
         SftpATTRS stats = channelSftp.stat( filename );
@@ -377,7 +377,7 @@ public class SFTPUtil {
         return FileAttributes.getAttributes( buf );
 
       } catch ( final SftpException e ) {
-        Log.debug( LogMsg.createMsg( BatchFT.MSG, "SFTP.error_getting_attributes", filename, e.getClass().getSimpleName(), e.getMessage() ) );
+        Log.debug( LogMsg.createMsg( CFT.MSG, "SFTP.error_getting_attributes", filename, e.getClass().getSimpleName(), e.getMessage() ) );
       }
     }
     return null;
@@ -419,21 +419,21 @@ public class SFTPUtil {
 
     boolean retval = false;
 
-    Log.debug( LogMsg.createMsg( BatchFT.MSG, "SFTP.transferring_directory", remoteDir, localDir, pattern, recurse, preserve, delete ) );
+    Log.debug( LogMsg.createMsg( CFT.MSG, "SFTP.transferring_directory", remoteDir, localDir, pattern, recurse, preserve, delete ) );
 
     File directory = new File( localDir );
 
     if ( directory.exists() ) {
       if ( !directory.isDirectory() ) {
-        Log.error( LogMsg.createMsg( BatchFT.MSG, "SFTP.file_reference_is_not_directory", directory.getAbsolutePath() ) );
+        Log.error( LogMsg.createMsg( CFT.MSG, "SFTP.file_reference_is_not_directory", directory.getAbsolutePath() ) );
         return false;
       }
     } else {
       try {
         FileUtil.makeDirectory( directory );
-        Log.debug( LogMsg.createMsg( BatchFT.MSG, "SFTP.created_local_directory", directory.getAbsolutePath() ) );
+        Log.debug( LogMsg.createMsg( CFT.MSG, "SFTP.created_local_directory", directory.getAbsolutePath() ) );
       } catch ( IOException e ) {
-        Log.error( LogMsg.createMsg( BatchFT.MSG, "SFTP.could_not_create_directory", directory ), e );
+        Log.error( LogMsg.createMsg( CFT.MSG, "SFTP.could_not_create_directory", directory ), e );
         return false;
       }
     }
@@ -446,7 +446,7 @@ public class SFTPUtil {
 
     try {
       channelSftp = getConnection( site.getUsername(), site.getPassword(), site.getPort(), site.getHost() );
-      Log.debug( LogMsg.createMsg( BatchFT.MSG, "SFTP.retrieving_from_remote", remoteDir ) );
+      Log.debug( LogMsg.createMsg( CFT.MSG, "SFTP.retrieving_from_remote", remoteDir ) );
 
       // Get a listing of all the files
       final List<RemoteFile> fileListings = listFiles( channelSftp, remoteDir, pattern, recurse );
@@ -475,7 +475,7 @@ public class SFTPUtil {
 
         }
       } else {
-        Log.debug( LogMsg.createMsg( BatchFT.MSG, "SFTP.no_matching_files_found", remoteDir, pattern, recurse ) );
+        Log.debug( LogMsg.createMsg( CFT.MSG, "SFTP.no_matching_files_found", remoteDir, pattern, recurse ) );
       }
       // we made it all the way through
       retval = true;
@@ -489,7 +489,7 @@ public class SFTPUtil {
           try {
             deleteRemoteFile( channelSftp, remoteFile );
           } catch ( FileTransferException e ) {
-            Log.error( LogMsg.createMsg( BatchFT.MSG, "SFTP.could_not_delete_file", remoteFile, e.getMessage() ) );
+            Log.error( LogMsg.createMsg( CFT.MSG, "SFTP.could_not_delete_file", remoteFile, e.getMessage() ) );
           }
         }
 
@@ -519,7 +519,7 @@ public class SFTPUtil {
     try {
       channelSftp.rm( file );
     } catch ( final SftpException sftpException ) {
-      throw new FileTransferException( LogMsg.createMsg( BatchFT.MSG, "SFTP.error_removing_file", file ).toString(), sftpException );
+      throw new FileTransferException( LogMsg.createMsg( CFT.MSG, "SFTP.error_removing_file", file ).toString(), sftpException );
     }
   }
 
@@ -596,8 +596,8 @@ public class SFTPUtil {
     remoteDestinationDirectory = remoteDestinationDirectory.replace( '\\', '/' );
 
     final String remoteDestinationFileName = FileUtil.getName( remoteFile );
-    Log.debug( LogMsg.createMsg( BatchFT.MSG, "SFTP.destination_directory", remoteDestinationDirectory ) );
-    Log.debug( LogMsg.createMsg( BatchFT.MSG, "SFTP.destination_file", remoteDestinationFileName ) );
+    Log.debug( LogMsg.createMsg( CFT.MSG, "SFTP.destination_directory", remoteDestinationDirectory ) );
+    Log.debug( LogMsg.createMsg( CFT.MSG, "SFTP.destination_file", remoteDestinationFileName ) );
 
     OutputStream outputStream = null;
     InputStream inputStream = null;
