@@ -1,6 +1,6 @@
 # Overview
 
-This is a library of tasks for the Coyote Batch toolkit which contributes file transfer capabilities to your batch projects.
+This is a library of tasks for the Coyote DX toolkit which contributes file transfer capabilities to your integrations projects.
 
 * FTP File Transfer Protocol - via Apache Commons-NET Libraries
 * FTPS File Transfer Protocol Secure - via Apache Commons-NET Libraries
