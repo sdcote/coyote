@@ -53,4 +53,4 @@ wrk/
 !gradle/wrapper/gradle-wrapper.jar
 !**/dist/bin
 
-CoyoteDXInstall.jar
+CoyoteInstaller.jar

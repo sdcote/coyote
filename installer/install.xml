@@ -5,7 +5,7 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 xsi:schemaLocation="http://izpack.org/schema/installation http://izpack.org/schema/5.0/izpack-installation-5.0.xsd">
 
 	<info>
-		<appname>Coyote TinyDX Framework and Toolkit</appname>
+		<appname>Coyote DX Framework and Toolkit</appname>
 		<appversion>0.1.0-dev</appversion>
 		<authors>
 			<author name="Steve Cote" email="sdcote@gmail.com"/>
@@ -35,8 +35,8 @@ xsi:schemaLocation="http://izpack.org/schema/installation http://izpack.org/sche
 
 	<!--The Variables section.-->
 	<variables>
-		<variable name="TargetPanel.dir.windows" value="C:/Program Files/Coyote/tinydx"/>
-		<variable name="TargetPanel.dir.unix" value="/opt/tinydx"/>
+		<variable name="TargetPanel.dir.windows" value="C:/Program Files/CoyoteDX"/>
+		<variable name="TargetPanel.dir.unix" value="/opt/coyotedx"/>
 	</variables>
 
 	<!--The panels section. We indicate which panels we want to use. The order will be respected.-->
@@ -94,30 +94,25 @@ xsi:schemaLocation="http://izpack.org/schema/installation http://izpack.org/sche
 
 	<!-- This the the section which defines the packs.-->
 	<packs>
-		<pack name="Utility" required="yes" preselected="yes" >
-			<description>Installs the TinyDX Framework and Toolkit as a utility application in its own directory with scripts to enable adding custom components. Use this to install the tool kit as an application.</description>
-			<fileset dir="tdx-core\src\dist\bin" targetdir="$INSTALL_PATH/bin" override="true"/>
-			<fileset dir="tdx-core\src\dist\cfg" targetdir="$INSTALL_PATH/cfg" override="true"/>
-			<fileset dir="tdx-core\src\dist\doc" targetdir="$INSTALL_PATH/doc" override="true"/>
-			<fileset dir="tdx-core\build\install\tdx-core\lib" targetdir="$INSTALL_PATH/lib" override="true"/>
-			<executable targetfile="$INSTALL_PATH/bin/tdx" stage="never" failure="warn" keep="true">
+		<pack name="CoyoteDX" required="no" preselected="yes" >
+			<description>Installs the CoyoteDX Framework and Toolkit as a utility application in its own directory with scripts to enable adding custom components. Use this to install the tool kit as an application.</description>
+			<fileset dir="CoyoteDX\src\dist\bin" targetdir="$INSTALL_PATH/bin" override="true"/>
+			<fileset dir="CoyoteDX\src\dist\cfg" targetdir="$INSTALL_PATH/cfg" override="true"/>
+			<fileset dir="CoyoteDX\src\dist\doc" targetdir="$INSTALL_PATH/doc" override="true"/>
+			<fileset dir="CoyoteDX\build\install\CoyoteDX\lib" targetdir="$INSTALL_PATH/lib" override="true"/>
+			<executable targetfile="$INSTALL_PATH/bin/cdx" stage="never" failure="warn" keep="true">
 				<os family="unix" />
 			</executable>
 		</pack>
 		<pack name="Daemon" required="no" preselected="no" >
-			<description>Ability to run TinyDX components in the background on *NIX systems.</description>
-			<fileset dir="tdx-daemon\src\dist\bin" targetdir="$INSTALL_PATH/bin" override="true"/>
-			<fileset dir="tdx-daemon\build\install\tdx-daemon\lib" targetdir="$INSTALL_PATH/lib" override="true"/>
-			<fileset dir="tdx-daemon\src\dist\cfg" targetdir="$INSTALL_PATH/cfg" override="true"/>
-			<fileset dir="tdx-daemon\src\dist\doc" targetdir="$INSTALL_PATH/cfg" override="true"/>
-			<executable targetfile="$INSTALL_PATH/bin/tinydx" stage="never" failure="warn" keep="true">
+			<description>Ability to run CoyoteDX components in the background on *NIX systems.</description>
+			<fileset dir="daemon\src\dist\bin" targetdir="$INSTALL_PATH/bin" override="true"/>
+			<fileset dir="daemon\build\install\tdx-daemon\lib" targetdir="$INSTALL_PATH/lib" override="true"/>
+			<fileset dir="daemon\src\dist\cfg" targetdir="$INSTALL_PATH/cfg" override="true"/>
+			<fileset dir="daemon\src\dist\doc" targetdir="$INSTALL_PATH/cfg" override="true"/>
+			<executable targetfile="$INSTALL_PATH/bin/coyotedx" stage="never" failure="warn" keep="true">
 				<os family="unix" />
 			</executable>
-		</pack>
-		<pack name="Demo" required="no" preselected="no" >
-			<description>A collection of configuration files and classes, demonstrating several features and command line scenarios.</description>
-			<fileset dir="tdx-demo\build\install\tdx-demo\lib" targetdir="$INSTALL_PATH/lib" override="true"/>
-			<fileset dir="tdx-demo\src\dist\cfg" targetdir="$INSTALL_PATH/cfg" override="true"/>
 		</pack>
 	</packs>
 	
