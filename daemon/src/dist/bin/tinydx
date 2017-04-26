@@ -1,0 +1,92 @@
+#!/bin/sh
+
+# You are encouraged to make use of encryption in the toolkit and specify the 
+# encryption algorithm and secret key as system properties. If you do, then this 
+# file should be readable only by root (600) to protect encryption secrets.
+
+### BEGIN INIT INFO
+# Provides:          tinydx
+# Required-Start:    $local_fs $remote_fs $network $syslog
+# Required-Stop:     $local_fs $remote_fs $network $syslog
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# X-Interactive:     true
+# Short-Description: Start/stop TinyDX daemon
+### END INIT INFO
+
+# Using the lsb functions to perform common operations.
+. /lib/lsb/init-functions
+
+# If not set by other means, use this as the application home
+if [ -z "$APP_HOME" ] ; then
+	APP_HOME="/opt/tinydx"
+fi
+
+# By default the config directory is just below the home directory
+if [ -z "$APP_WORK" ] ; then
+	APP_WORK="$APP_HOME/wrk"
+fi
+
+# This is the configuration to run; it should load a service.
+if [ -z "$APP_CFG" ] ; then
+	APP_CFG="$APP_HOME/cfg/daemon.json"
+fi
+
+# This is the name of the cipher to use for this instances encryption
+if [ -z "$CIPHER_NAME" ] ; then
+	CIPHER_NAME="BlowFish"
+fi
+
+# This is the cipher key (initialization vector) the encryption uses
+if [ -z "$CIPHER_KEY" ] ; then
+	CIPHER_KEY="TG9hZGVyQ295b3Rl"
+fi
+
+# Build the class path dynamically from all the jars in the lib directory
+CLASSPATH=$(find "$APP_HOME"/lib -name "*.jar" -exec printf :{} ';')
+CLASSPATH="$APP_HOME/fix$CLASSPATH"
+
+case $1 in
+	start)
+		echo "Starting TinyDX Daemon .."
+		if [ -f /opt/tinydx/pid ]; then
+			echo "TinyDX Daemon may be running, attempting restart .."
+			PID=$(cat /opt/tinydx/pid);
+			kill $PID;
+			rm /opt/tinydx/pid
+			sleep 5
+		fi
+		nohup java -cp "$CLASSPATH" -Dapp.home="$APP_HOME" -Dapp.work="$APP_WORK" coyote.loader.BootStrap "$APP_CFG" 2>> /dev/null >> /dev/null &
+		# nohup java -cp "$CLASSPATH" -Dapp.home="$APP_HOME" -Dapp.work="$APP_WORK" -Dcipher.name="$CIPHER_NAME" -Dcipher.key="$CIPHER_KEY" coyote.loader.BootStrap "$APP_CFG" 2>> /dev/null >> /dev/null &
+		echo $! > /opt/tinydx/pid
+		log_success_msg "TinyDX started in $!"
+	;;
+	stop)
+		if [ -f /opt/tinydx/pid ]; then
+			PID=$(cat /opt/tinydx/pid);
+			log_success_msg "Stopping TinyDX .."
+			kill $PID;
+			log_success_msg "TinyDX stopped"
+			rm /opt/tinydx/pid
+		else
+			log_failure_msg "TinyDX is not running"
+		fi
+	;;
+	restart)
+		if [ -f /opt/tinydx/pid ]; then
+			PID=$(cat /opt/tinydx/pid);
+			log_success_msg "Stopping TinyDX ..";
+			kill $PID;
+			log_success_msg "TinyDX stopped";
+			rm /opt/tinydx/pid
+
+			log_success_msg "Starting TinyDX .."
+			nohup java -cp "$CLASSPATH" -Dapp.home="$APP_HOME" -Dapp.work="$APP_WORK" coyote.loader.BootStrap "$APP_CFG" 2>> /dev/null >> /dev/null &
+			# nohup java -cp "$CLASSPATH" -Dapp.home="$APP_HOME" -Dapp.work="$APP_WORK" -Dcipher.name="$CIPHER_NAME" -Dcipher.key="$CIPHER_KEY" coyote.loader.BootStrap "$APP_CFG" 2>> /dev/null >> /dev/null &
+			echo $! > /opt/tinydx/pid
+			log_success_msg "TinyDX started"
+		else
+			log_failure_msg "TinyDX is not running"
+		fi
+	;;
+esac

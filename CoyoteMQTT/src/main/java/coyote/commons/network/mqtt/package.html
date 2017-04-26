@@ -1,0 +1,37 @@
+<body>
+Contains a programming interface enabling applications to communicate with an MQTT server.
+
+<p>
+The MQ Telemetry Transport (MQTT) is a lightweight broker-based publish/subscribe 
+messaging protocol designed to be open, simple, lightweight and easy to implement. 
+These characteristics make it ideal for use in constrained environments, for example, 
+but not limited to:<ul>
+<li>Where the network is expensive, has low bandwidth or is unreliable such as mobile and vsat networks
+<li>When run on an embedded or mobile device with limited processor, memory or battery
+</ul>
+<p>Features of the protocol include:<ul>
+  <li>The publish/subscribe message pattern to provide one-to-many message 
+  distribution and decoupling of applications
+  <li>A messaging transport that is agnostic to the content of the payload
+  <li>The use of TCP/IP to provide network connectivity
+  <li>The use of SSL/TLS to provide network security and trust
+  <li>Three qualities of service for message delivery which are maintained across 
+  network, client and server breaks.<ul>
+    <li>"At most once", where messages are delivered according to the best efforts 
+     of the underlying TCP/IP network. Message loss or duplication can occur. 
+     This level could be used, for example, with ambient sensor data where it 
+     does not matter if an individual reading is lost as the next one will be published soon after.
+    <li>"At least once", where messages are assured to arrive but duplicates may occur.
+    <li>"Exactly once", where message are assured to arrive exactly once. This 
+     level could be used, for example, with billing systems where duplicate or 
+     lost messages could lead to incorrect charges being applied.
+  </ul>
+  The quality of service for message delivery is met even if the network connection 
+  breaks, or the client or the server stop while a message is being delivered
+  <li>A small transport overhead (the fixed-length header is just 2 bytes), and 
+   protocol exchanges minimized to reduce network traffic
+  <li>A mechanism to notify interested parties to an abnormal disconnection of
+   a client using the Last Will and Testament feature
+</ul>
+</p>
+</body>
