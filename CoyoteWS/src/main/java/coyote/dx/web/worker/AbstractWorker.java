@@ -4,6 +4,7 @@
 package coyote.dx.web.worker;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.http.HeaderElement;
@@ -29,6 +30,7 @@ import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpTrace;
 import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.conn.ConnectionKeepAliveStrategy;
+import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
@@ -40,13 +42,15 @@ import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import coyote.commons.StringUtil;
+import coyote.commons.network.MimeType;
+import coyote.dataframe.marshal.JSONMarshaler;
+import coyote.dataframe.marshal.XMLMarshaler;
 import coyote.dx.web.InvocationException;
 import coyote.dx.web.Method;
 import coyote.dx.web.Parameters;
 import coyote.dx.web.Resource;
 import coyote.dx.web.decorator.RequestDecorator;
-import coyote.commons.StringUtil;
-import coyote.commons.network.MimeType;
 import coyote.loader.log.Log;
 
 
@@ -307,7 +311,30 @@ public abstract class AbstractWorker implements ResourceWorker {
    * @see coyote.dx.web.worker.ResourceWorker#marshalRequestBody(org.apache.http.client.methods.HttpEntityEnclosingRequestBase, coyote.dx.web.Parameters)
    */
   @Override
-  public void marshalRequestBody( final HttpEntityEnclosingRequestBase request, final Parameters params ) {}
+  public void marshalRequestBody( final HttpEntityEnclosingRequestBase request, final Parameters params ) {
+    StringBuffer body = new StringBuffer();
+    if ( params.getPayload() != null ) {
+      if ( params.getContentType() != null ) {
+        if ( MimeType.XML.equals( params.getContentType() ) ) {
+          body.append( XMLMarshaler.marshal( params.getPayload() ) );
+        } else {
+          body.append( JSONMarshaler.marshal( params.getPayload() ) );
+        }
+      }
+    }
+
+    if ( params.getBody() != null ) {
+      body.append( params.getBody() );
+    }
+
+    if ( body.length() > 0 ) {
+      try {
+        request.setEntity( new StringEntity( body.toString() ) );
+      } catch ( final UnsupportedEncodingException e ) {
+        Log.error( e.getMessage() );
+      }
+    }
+  }
 
 
 
@@ -435,6 +462,10 @@ public abstract class AbstractWorker implements ResourceWorker {
       request.setHeader( coyote.commons.network.http.HTTP.HDR_ACCEPT, headerValue );
     } else {
       request.setHeader( coyote.commons.network.http.HTTP.HDR_ACCEPT, MimeType.ANY.getType() );
+    }
+
+    if ( params.getContentType() != null ) {
+      request.setHeader( coyote.commons.network.http.HTTP.HDR_CONTENT_TYPE, params.getContentType().getType() );
     }
   }
 

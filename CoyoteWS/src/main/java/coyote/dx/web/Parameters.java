@@ -14,9 +14,9 @@ package coyote.dx.web;
 import java.util.ArrayList;
 import java.util.List;
 
-import coyote.dx.web.worker.Namespace;
 import coyote.commons.network.MimeType;
 import coyote.dataframe.DataFrame;
+import coyote.dx.web.worker.Namespace;
 
 
 /**
@@ -60,6 +60,9 @@ public class Parameters {
 
   /** The list of MIME types to be accepted as a response to the exchange. */
   private final List<MimeType> acceptTypes = new ArrayList<MimeType>();
+
+  /** This is the type of content the request contains. */
+  private MimeType contentType = null;
 
 
 
@@ -321,6 +324,26 @@ public class Parameters {
    */
   public void setBody( String body ) {
     this.body = body;
+  }
+
+
+
+
+  /**
+   * @return the type of content the request contains
+   */
+  public MimeType getContentType() {
+    return contentType;
+  }
+
+
+
+
+  /**
+   * @param type the type of data in the request body
+   */
+  public void setContentType( MimeType type ) {
+    this.contentType = type;
   }
 
 }
