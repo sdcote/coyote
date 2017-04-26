@@ -5,13 +5,13 @@
 # file should be readable only by root (600) to protect encryption secrets.
 
 ### BEGIN INIT INFO
-# Provides:          tinydx
+# Provides:          coyotedx
 # Required-Start:    $local_fs $remote_fs $network $syslog
 # Required-Stop:     $local_fs $remote_fs $network $syslog
 # Default-Start:     2 3 4 5
 # Default-Stop:      0 1 6
 # X-Interactive:     true
-# Short-Description: Start/stop TinyDX daemon
+# Short-Description: Start/stop CoyoteDX daemon
 ### END INIT INFO
 
 # Using the lsb functions to perform common operations.
@@ -19,7 +19,7 @@
 
 # If not set by other means, use this as the application home
 if [ -z "$APP_HOME" ] ; then
-	APP_HOME="/opt/tinydx"
+	APP_HOME="/opt/coyotedx"
 fi
 
 # By default the config directory is just below the home directory
@@ -48,45 +48,45 @@ CLASSPATH="$APP_HOME/fix$CLASSPATH"
 
 case $1 in
 	start)
-		echo "Starting TinyDX Daemon .."
-		if [ -f /opt/tinydx/pid ]; then
-			echo "TinyDX Daemon may be running, attempting restart .."
-			PID=$(cat /opt/tinydx/pid);
+		echo "Starting CoyoteDX Daemon .."
+		if [ -f /opt/coyotedx/pid ]; then
+			echo "CoyoteDX Daemon may be running, attempting restart .."
+			PID=$(cat /opt/coyotedx/pid);
 			kill $PID;
-			rm /opt/tinydx/pid
+			rm /opt/coyotedx/pid
 			sleep 5
 		fi
 		nohup java -cp "$CLASSPATH" -Dapp.home="$APP_HOME" -Dapp.work="$APP_WORK" coyote.loader.BootStrap "$APP_CFG" 2>> /dev/null >> /dev/null &
 		# nohup java -cp "$CLASSPATH" -Dapp.home="$APP_HOME" -Dapp.work="$APP_WORK" -Dcipher.name="$CIPHER_NAME" -Dcipher.key="$CIPHER_KEY" coyote.loader.BootStrap "$APP_CFG" 2>> /dev/null >> /dev/null &
-		echo $! > /opt/tinydx/pid
-		log_success_msg "TinyDX started in $!"
+		echo $! > /opt/coyotedx/pid
+		log_success_msg "CoyoteDX started in $!"
 	;;
 	stop)
-		if [ -f /opt/tinydx/pid ]; then
-			PID=$(cat /opt/tinydx/pid);
-			log_success_msg "Stopping TinyDX .."
+		if [ -f /opt/coyotedx/pid ]; then
+			PID=$(cat /opt/coyotedx/pid);
+			log_success_msg "Stopping CoyoteDX .."
 			kill $PID;
-			log_success_msg "TinyDX stopped"
-			rm /opt/tinydx/pid
+			log_success_msg "CoyoteDX stopped"
+			rm /opt/coyotedx/pid
 		else
-			log_failure_msg "TinyDX is not running"
+			log_failure_msg "CoyoteDX is not running"
 		fi
 	;;
 	restart)
-		if [ -f /opt/tinydx/pid ]; then
-			PID=$(cat /opt/tinydx/pid);
-			log_success_msg "Stopping TinyDX ..";
+		if [ -f /opt/coyotedx/pid ]; then
+			PID=$(cat /opt/coyotedx/pid);
+			log_success_msg "Stopping CoyoteDX ..";
 			kill $PID;
-			log_success_msg "TinyDX stopped";
-			rm /opt/tinydx/pid
+			log_success_msg "CoyoteDX stopped";
+			rm /opt/coyotedx/pid
 
-			log_success_msg "Starting TinyDX .."
+			log_success_msg "Starting CoyoteDX .."
 			nohup java -cp "$CLASSPATH" -Dapp.home="$APP_HOME" -Dapp.work="$APP_WORK" coyote.loader.BootStrap "$APP_CFG" 2>> /dev/null >> /dev/null &
 			# nohup java -cp "$CLASSPATH" -Dapp.home="$APP_HOME" -Dapp.work="$APP_WORK" -Dcipher.name="$CIPHER_NAME" -Dcipher.key="$CIPHER_KEY" coyote.loader.BootStrap "$APP_CFG" 2>> /dev/null >> /dev/null &
-			echo $! > /opt/tinydx/pid
-			log_success_msg "TinyDX started"
+			echo $! > /opt/coyotedx/pid
+			log_success_msg "CoyoteDX started"
 		else
-			log_failure_msg "TinyDX is not running"
+			log_failure_msg "CoyoteDX is not running"
 		fi
 	;;
 esac
