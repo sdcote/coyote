@@ -11,12 +11,12 @@
  */
 package demo.proxy;
 
-import coyote.batch.web.Parameters;
-import coyote.batch.web.Proxy;
-import coyote.batch.web.Resource;
-import coyote.batch.web.Response;
-import coyote.batch.web.auth.Authenticator;
-import coyote.batch.web.auth.BasicAuthentication;
+import coyote.dx.web.Parameters;
+import coyote.dx.web.Proxy;
+import coyote.dx.web.Resource;
+import coyote.dx.web.Response;
+import coyote.dx.web.auth.Authenticator;
+import coyote.dx.web.auth.BasicAuthentication;
 import coyote.dataframe.DataFrame;
 import coyote.loader.log.ConsoleAppender;
 import coyote.loader.log.Log;
