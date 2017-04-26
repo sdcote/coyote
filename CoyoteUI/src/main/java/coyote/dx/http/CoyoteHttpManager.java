@@ -9,12 +9,13 @@
  *   Stephan D. Cote 
  *      - Initial concept and initial implementation
  */
-package coyote.batch.http;
+package coyote.dx.http;
 
-import coyote.batch.Service;
-import coyote.batch.http.responder.CommandResponder;
-import coyote.batch.http.responder.HealthCheckResponder;
-import coyote.batch.http.responder.PingResponder;
+import coyote.dx.Service;
+import coyote.dx.http.HttpManager;
+import coyote.dx.http.responder.CommandResponder;
+import coyote.dx.http.responder.HealthCheckResponder;
+import coyote.dx.http.responder.PingResponder;
 import coyote.commons.network.http.auth.GenericAuthProvider;
 import coyote.commons.network.http.responder.HTTPDRouter;
 import coyote.commons.network.http.responder.ResourceResponder;

@@ -9,10 +9,12 @@
  *   Stephan D. Cote 
  *      - Initial concept and initial implementation
  */
-package coyote.batch.http;
+package coyote.dx.http;
 
-import coyote.batch.ConfigTag;
-import coyote.batch.Service;
+import coyote.dx.ConfigTag;
+import coyote.dx.Service;
+import coyote.dx.http.HttpManager;
+import coyote.dx.http.ManagerFactoryBinder;
 import coyote.dataframe.DataField;
 import coyote.loader.cfg.Config;
 import coyote.loader.cfg.ConfigurationException;
@@ -36,7 +38,7 @@ public class StaticManagerBinder implements ManagerFactoryBinder {
 
 
   /**
-   * @see coyote.batch.http.ManagerFactoryBinder#createManager(coyote.loader.cfg.Config, coyote.batch.Service)
+   * @see coyote.dx.http.ManagerFactoryBinder#createManager(coyote.loader.cfg.Config, coyote.dx.Service)
    */
   @Override
   public HttpManager createManager( Config cfg, Service svc ) throws ConfigurationException {

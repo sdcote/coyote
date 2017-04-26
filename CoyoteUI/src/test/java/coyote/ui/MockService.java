@@ -11,7 +11,7 @@
  */
 package coyote.ui;
 
-import coyote.batch.Service;
+import coyote.dx.Service;
 
 /**
  * 

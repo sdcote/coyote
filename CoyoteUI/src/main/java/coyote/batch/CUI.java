@@ -18,12 +18,12 @@ import coyote.loader.log.LogMsg.BundleBaseName;
 /**
  * 
  */
-public class BatchUI {
+public class CUI {
   public static final Version VERSION = new Version( 0, 0, 1, Version.EXPERIMENTAL );
-  public static final String NAME = "BatchUI";
+  public static final String NAME = "CoyoteUI";
 
   public static final BundleBaseName MSG;
   static {
-    MSG = new BundleBaseName( "BatchUIMsg" );
+    MSG = new BundleBaseName( "CUIMsg" );
   }
 }
