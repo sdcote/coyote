@@ -39,6 +39,9 @@ sudo journalctl -xn</pre>
 <p>Run the command below to disable the CoyoteDX Daemon Service: 
 <pre>sudo update-rc.d coyotedx disable</pre> 
 
+<p>Run the command below to remove all the appropriate 'S' and 'K' entries from the different run levels:
+<pre>sudo update-rc.d coyotedx remove</pre> 
+
 <p>Place the Job configuration in the daemon.json configuration and you can run it continually in the background. Just add a CronEntry to its configuration.
 
 <p>The Wedge component can be replaced with your own components or once you have a Job configured. It is there only to keep the daemon running until you add your components. Without any jobs or components, the daemon will exit.
