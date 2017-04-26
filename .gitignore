@@ -51,5 +51,6 @@ wrk/
 *.war
 *.ear
 !gradle/wrapper/gradle-wrapper.jar
+!**/dist/bin
 
 CoyoteDXInstall.jar
