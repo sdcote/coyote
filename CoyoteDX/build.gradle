@@ -1,6 +1,5 @@
 defaultTasks 'clean', 'build', 'publish', 'installDist'
 group = 'coyote'
-version = '0.7'
 mainClassName = 'coyote.loader.BootStrap'
 
 ext {

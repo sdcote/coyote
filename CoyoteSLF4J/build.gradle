@@ -1,6 +1,4 @@
 defaultTasks 'clean', 'build', 'publish'
-group = 'coyote'
-version = '1.0'
 mainClassName = 'coyote.loader.BootStrap'
 
 ext {
@@ -19,19 +17,9 @@ jar {
 	}
 }
 
-repositories {
-	mavenLocal()
-	mavenCentral()
-}
-
 dependencies {
-	// Loader which contains the logger
 	compile "coyote:Loader:$loaderVersion"
-	
-	// used to make internal logger binding
 	compile "org.slf4j:slf4j-api:$slf4jVersion"
-
-	// UnitTesting
 	testCompile "junit:junit:$junitVersion"	
 }
 

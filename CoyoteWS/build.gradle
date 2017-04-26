@@ -1,14 +1,10 @@
-
 defaultTasks 'clean', 'build', 'publish', 'installDist'
-version = '0.1'
 mainClassName = 'coyote.loader.BootStrap'
-jar.archiveName = "CoyoteWS.jar"
 
 jar {
     manifest {
 		attributes  'Implementation-Title' : 'Coyote Web Service Toolkit',
 		'Provider' : 'Coyote Systems',
-		'Main-Class' : "$mainClassName",
 		'Implementation-Version' : version
 	}
 }
@@ -23,6 +19,9 @@ dependencies {
 
 	compile project(':CoyoteDX')
 	compile "coyote:CoyoteDX:$version"
+
+	compile project(':CoyoteSLF4J')
+	compile "coyote:CoyoteSLF4J:$version"
 
 	// HTML parser
 	compile "org.jsoup:jsoup:$jsoupVersion"
