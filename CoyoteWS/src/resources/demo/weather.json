@@ -8,8 +8,6 @@
 			"cityid":"4509177",
 			"ENC:apikey":"AV+v+KRIESiT67E0MCKOAsxhohnMmyzWUhGivTOfdjHANLJn2AsByad4DYZ/WMH5mKWERpxZSV4IKQsiFGKtn+2rY8dGVQya"		
 		},
-
-		"PreProcess": { },
 		
 		"Reader": {
 			"Class": "WebServiceReader",
@@ -20,25 +18,12 @@
 			}
 		},
 
-		"Filter": { },
-
-		"Validate": { },
-
-		"Transform" : {	},
-
-		"Mapper" : { },
-
 		"Writer" : {
 			"class" : "CSVWriter",
 			"header" : true,
 			"dateformat" : "yyyy/MM/dd",
 			"target" : "cmh_weather.csv"
-		},
-
-
-		"PostProcess": { },
-
-		"Listener": { }
+		}
 
 	},
 

@@ -52,7 +52,6 @@ public class ExportRequest {
     Parameters requestParameters = new Parameters();
     requestParameters.setExchangeType( ExchangeType.BASIC );
     requestParameters.setMethod( Method.POST );
-    requestParameters.setAcceptType( MimeType.ANY );
     requestParameters.setContentType( MimeType.APPLICATION_FORM );
     requestParameters.setBody( body );
 
