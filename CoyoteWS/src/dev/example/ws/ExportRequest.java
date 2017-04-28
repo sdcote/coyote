@@ -45,7 +45,7 @@ public class ExportRequest {
      */
 
     // This particular service takes a JSON request and returns a PDF file
-    String resourceUrl = "http://sdc29-desktop.sf.cloud.cas.org:8080/api/structure-editor/structures/export?uiContext=375&uiSubContext=615&drawingToolId=614";
+    String resourceUrl = "http://sdc29-desktop.sf.cloud.cas.org:8080/api/structure-editor/structures/export?uiContext=375&uiSubContext=615&drawingToolId=610";
     String body = "filename=Structure_04_26_2017_140410.cxf&filetype=cxf&json=%7B%22nodes%22%3A%5B%7B%22id%22%3A%22cdj84%22%2C%22sym%22%3A%22C%22%2C%22pos%22%3A%7B%22x%22%3A9971%2C%22y%22%3A10004.5%7D%2C%22type%22%3A%22ring_or_chain%22%2C%22nodeNumber%22%3A1%7D%5D%2C%22bonds%22%3A%5B%5D%2C%22primaryValidationType%22%3A1%2C%22secondaryValidationTypes%22%3A%5B%5D%2C%22sendingProgram%22%3A%7B%22programName%22%3A%22SciFinder-NV%22%2C%22programVersion%22%3A%221.0%22%7D%7D";
 
     // Describe the parameters of our request
@@ -61,12 +61,10 @@ public class ExportRequest {
       // Make a request of the resource using the set default parameters 
       Response response = resource.request();
 
-      // Wait until the response is complete, it's running in a separate thread
-      while ( !response.isComplete() ) {
-        Thread.yield();
-      }
+      // Wait for the request to complete
+      response.waitForComplete( 2000 );
 
-      // Access the retrieved (PDF) data
+      // Access the retrieved data
       byte[] data = response.getData();
       System.out.println( "Received " + data.length + " bytes of data" );
 

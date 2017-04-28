@@ -45,6 +45,8 @@ public class Response {
 
   /** multi-purpose attribute normally used with 300 series errors containing a link to the redirected location */
   private String link = null;
+  
+  protected Object lock = new Object();
 
 
 
@@ -568,6 +570,29 @@ public class Response {
    */
   public String getBody() {
     return body;
+  }
+
+
+
+
+  /**
+   * Wait for the response to complete for the given number of milliseconds
+   * @param timeout number of milliseconds to wait for the response to be completed.
+   */
+  public void waitForComplete( int timeout ) {
+    if ( !isComplete() ) {
+      final long tout = System.currentTimeMillis() + timeout;
+      while ( tout > System.currentTimeMillis() ) {
+        synchronized( lock ) {
+          try {
+            lock.wait( 10 );
+          } catch ( final Throwable t ) {}
+        }
+        if ( isComplete() ) {
+          break;
+        }
+      }
+    }   
   }
 
 }
