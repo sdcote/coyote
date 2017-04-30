@@ -11,10 +11,10 @@
  */
 package coyote.dx.web;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import coyote.commons.network.http.Body;
 import coyote.commons.network.http.HTTPD;
 import coyote.commons.network.http.IHTTPSession;
 import coyote.commons.network.http.Response;
@@ -58,9 +58,8 @@ public class TestingServer extends HTTPD {
     sb.append( "<h3>Parms (multi values?)</h3><p><blockquote>" ).append( toString( decodedQueryParameters ) ).append( "</blockquote>" );
 
     try {
-      final Map<String, String> files = new HashMap<String, String>();
-      session.parseBody( files );
-      sb.append( "<h3>Files</h3><p><blockquote>" ).append( toString( files ) ).append( "</blockquote>" );
+      final Body body = session.parseBody();
+      sb.append( "<h3>Entities</h3><p><blockquote>" ).append( toString( body ) ).append( "</blockquote>" );
     } catch ( final Exception e ) {
       e.printStackTrace();
     }
@@ -68,6 +67,29 @@ public class TestingServer extends HTTPD {
     sb.append( "</body>" );
     sb.append( "</html>" );
     return Response.createFixedLengthResponse( sb.toString() );
+  }
+
+
+
+
+  private String toString( final Body body ) {
+    if ( body.size() == 0 ) {
+      return "";
+    }
+    return unsortedList( body );
+  }
+
+
+
+
+  private String unsortedList( final Body body ) {
+    final StringBuilder sb = new StringBuilder();
+    sb.append( "<ul>" );
+    for ( final Map.Entry<String, ? extends Object> entry : body.entrySet() ) {
+      listItem( sb, entry );
+    }
+    sb.append( "</ul>" );
+    return sb.toString();
   }
 
 
