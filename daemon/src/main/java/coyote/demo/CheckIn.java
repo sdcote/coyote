@@ -9,7 +9,7 @@
  *   Stephan D. Cote 
  *      - Initial concept and initial implementation
  */
-package daemon;
+package coyote.demo;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -200,6 +200,7 @@ public class CheckIn extends AbstractScheduledComponent {
 
     // Construct a configuration 
     Config cfg = new Config();
+    cfg.add( "Class", CheckIn.class.getName() );
 
     // where we send our checkin data
     cfg.add( ConfigTag.TARGET, "https://coyote.systems/api/checkin" );
@@ -209,7 +210,7 @@ public class CheckIn extends AbstractScheduledComponent {
     schedule.add( ConfigTag.PATTERN, "/5 * * * *" );
     cfg.add( ConfigTag.SCHEDULE, schedule );
 
-    Log.info( "Configuring component with:\n" + cfg.toFormattedString() );
+    Log.info( "Configuring component with:\n" + cfg.toString() );
 
     // now set the configuration in the component
     cmpnt.setConfiguration( cfg ); // configure the monitor
