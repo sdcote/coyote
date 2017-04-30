@@ -7,7 +7,7 @@
  *
  * Contributors:
  *   Stephan D. Cote 
- *      - Initial concept and initial implementation
+ *      - Initial concept and implementation
  */
 /**
  * This is a set of tools depending on the Apache HttpClient libraries which 

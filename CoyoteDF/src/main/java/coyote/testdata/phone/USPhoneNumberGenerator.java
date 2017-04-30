@@ -7,7 +7,7 @@
  *
  * Contributors:
  *   Stephan D. Cote 
- *      - Initial concept and initial implementation
+ *      - Initial concept and implementation
  */
 package coyote.testdata.phone;
 
