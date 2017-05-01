@@ -17,10 +17,12 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.InetAddress;
+import java.net.MalformedURLException;
 import java.net.URL;
 
 import coyote.commons.DateUtil;
 import coyote.commons.ExceptionUtil;
+import coyote.commons.StringUtil;
 import coyote.commons.network.MimeType;
 import coyote.dataframe.DataFrame;
 import coyote.dataframe.marshal.JSONMarshaler;
@@ -42,8 +44,9 @@ import coyote.loader.log.Log;
  * <p>Consider running TinyDX on an embedded device which gets its address via 
  * DHCP. The address may change regularly and this component will publish its 
  * address and port to to a central server so it can be found.
- *  
- * { "Class": "daemon.CheckIn", "Schedule":{ "Pattern": "/5 * * * *" } } 
+ * 
+ * <p>This is how this component can be configure to run every 5 minutes:<pre>
+ * {"Class":"coyote.demo.CheckIn","target":"https://coyote.systems/api/checkin","Schedule":{"Pattern":"/5 * * * *"}}</pre>
  */
 public class CheckIn extends AbstractScheduledComponent {
   private static final String STATUS = "Status";
@@ -68,6 +71,32 @@ public class CheckIn extends AbstractScheduledComponent {
   private static final String NAME = "Name";
   private static final String UPTIME = "Uptime";
 
+  private String target = null;
+
+
+
+
+  /**
+   * @see coyote.loader.component.AbstractScheduledComponent#setConfiguration(coyote.loader.cfg.Config)
+   */
+  @Override
+  public void setConfiguration( Config config ) {
+    super.setConfiguration( config );
+    target = config.getAsString( ConfigTag.TARGET );
+
+    if ( StringUtil.isBlank( target ) ) {
+      Log.fatal( "No target URL configured - cannot run" );
+      super.setEnabled( false );
+    } else {
+      try {
+        new URL( target );
+      } catch ( MalformedURLException e ) {
+        Log.fatal( "Target URL is invalid: " + e.getMessage() );
+        super.setEnabled( false );
+      }
+    }
+  }
+
 
 
 
@@ -79,45 +108,43 @@ public class CheckIn extends AbstractScheduledComponent {
     // execution delays 
     setExecutionTime( cronentry.getNextTime() );
 
-    doPut();
+    // perfom the check-in
+    checkIn();
   }
 
 
 
 
-  private int doPut() {
+  private int checkIn() {
     int responseCode = 0;
-    //String url = "https://coyote.systems/api/checkin";
-    String url = "http://localhost/api/checkin";
     StringBuffer response = new StringBuffer();
 
     //HttpsURLConnection con = null;
     HttpURLConnection con = null;
 
     try {
-      URL obj = new URL( url );
+      URL url = new URL( target );
 
-      Log.info( "Sending 'PUT' request to URL : " + url );
+      Log.debug( "Checking in with " + target );
 
       // con = (HttpsURLConnection)obj.openConnection();
-      con = (HttpURLConnection)obj.openConnection();
+      con = (HttpURLConnection)url.openConnection();
 
       //add request header
       con.setRequestMethod( "PUT" );
       con.setRequestProperty( "User-Agent", "CheckIn" );
       con.setRequestProperty( "Accept-Language", "en-US,en;q=0.5" );
-      con.setDoOutput( true );// Will send data in the body of the POST request
-      con.setDoInput( true ); // will read from the response
+      con.setDoOutput( true );
+      con.setDoInput( true );
 
       String json = createStatus();
 
       if ( json != null ) {
-        Log.info( "Sending:\n" + json );
+        Log.debug( "Sending:\n" + json );
         con.addRequestProperty( "Content-Type", MimeType.JSON.getType() );
         con.setRequestProperty( "Content-Length", Integer.toString( json.length() ) );
         try (OutputStreamWriter writer = new OutputStreamWriter( con.getOutputStream() )) {
           writer.write( json );
-          //writer.write("\r\n" );
           writer.flush();
         } catch ( Exception e ) {
           Log.error( e );
@@ -125,7 +152,7 @@ public class CheckIn extends AbstractScheduledComponent {
       }
 
       responseCode = con.getResponseCode();
-      Log.info( "Response Code : " + responseCode );
+      Log.debug( "Response Code : " + responseCode );
 
       try (BufferedReader in = new BufferedReader( new InputStreamReader( con.getInputStream() ) )) {
         String inputLine;
@@ -134,7 +161,7 @@ public class CheckIn extends AbstractScheduledComponent {
         }
       }
     } catch ( IOException e ) {
-      Log.warn( "Whoops:\n"+ExceptionUtil.stackTrace( e ) );
+      Log.warn( "Whoops:\n" + ExceptionUtil.stackTrace( e ) );
     }
     finally {
       if ( con != null ) {
@@ -142,8 +169,7 @@ public class CheckIn extends AbstractScheduledComponent {
       }
     }
 
-    //print result
-    Log.info( "Response from server:\n" + response.toString() );
+    Log.debug( "Response from server: " + response.toString() );
 
     return responseCode;
   }
