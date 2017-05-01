@@ -12,15 +12,16 @@
 	},
 
 	"Component": [
-		{"class":"coyote.demo.CheckIn","target":"https://coyote.systems/api/checkin","Schedule":{ "Pattern": "/5 * * * *" }}
+		{"class":"coyote.demo.CheckIn","target":"http://coyote.systems/api/checkin","Schedule":{ "Pattern": "/5 * * * *" }}
 	],
 	
 
 	"Logging": {
+		"ConsoleAppender": { "target": "STDOUT", "categories": "trace, debug, info, notice, warn, error, fatal" },
 		"CyclingFileAppender": { "target": "coyotedx.log", "categories": "info, notice", "generations": 10, "maxsize": "2MB", "enabled": true },
-		"CyclingFileAppender": { "target": "error.log", "categories": "notice, warn, error, fatal", "generations": 10, "maxsize": "2MB", "enabled": true },
-		"CyclingFileAppender": { "target": "debug.log", "categories": "trace, debug, error, fatal, warn", "generations": 10, "maxsize": "2MB", "enabled": true },
-		"CyclingFileAppender": { "target": "scheduler.log", "categories": "scheduler, thread", "generations": 10, "maxsize": "2MB", "enabled": false },
+		"CyclingFileAppender": { "target": "error.log", "categories": "warn, error, fatal", "generations": 10, "maxsize": "2MB", "enabled": true },
+		"CyclingFileAppender": { "target": "debug.log", "categories": "trace, debug, info, notice, warn, error, fatal", "generations": 10, "maxsize": "2MB", "enabled": true },
+		"CyclingFileAppender": { "target": "scheduler.log", "categories": "scheduler, thread", "generations": 10, "maxsize": "2MB", "enabled": true },
 		"CyclingFileAppender": { "target": "httpd.log", "categories": "httpd", "generations": 7, "interval": "1d", "cycletime": "00:03", "maxsize": "10MB", "enabled": true }
 	}
 
