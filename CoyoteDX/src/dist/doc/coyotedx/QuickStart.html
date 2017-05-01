@@ -1,8 +1,21 @@
 <html>
-	<head>
-		<title>Quick Start</title>
-	</head>
-	<body>
+<head>
+	<title>Quick Start</title>
+</head>
+<body>
 
-	</body>
+<p>This is a Java toolkit so you need Java. On most linux systems you can call:
+<pre>apt-get install oracle-java8-jdk</pre>
+
+<p>Now that you installed the toolkit, you need to call it.
+
+<p>Consider putting CoyoteDX in you path.
+
+<p>To set a path for all users except root, edit /etc/profile or /etc/enviroment. For root or an individual user edit their .bashrc or .bash_profile in their home directories, respectively. Add the PATH=$PATH:/opt/tinydx/bin.
+
+<p>If you installed the demonstration package, copy one of the configurations from the app.home/cfg/demo directory to app.home/cfg. Otherwise, copy a configuration from the website or other source into the configuration directory. Then run:<pre></pre>
+tdx filename </pre>
+Running from the command line loads the component in your configuration and runs it once. Install the daemon to setup a background process to run one or more jobs at regular intervals.
+
+</body>
 </html>
