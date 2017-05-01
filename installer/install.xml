@@ -99,7 +99,7 @@ xsi:schemaLocation="http://izpack.org/schema/installation http://izpack.org/sche
 			<fileset dir="CoyoteDX\src\dist\bin" targetdir="$INSTALL_PATH/bin" override="true"/>
 			<fileset dir="CoyoteDX\src\dist\cfg" targetdir="$INSTALL_PATH/cfg" override="true"/>
 			<fileset dir="CoyoteDX\src\dist\doc" targetdir="$INSTALL_PATH/doc" override="true"/>
-			<fileset dir="CoyoteDX\build\install\CoyoteDX\lib" targetdir="$INSTALL_PATH/lib" override="true"/>
+			<fileset dir="CoyoteDX\build\install\CoyoteDX\lib" targetdir="$INSTALL_PATH/lib" includes="CoyoteDX*.jar" override="true"/>
 			<executable targetfile="$INSTALL_PATH/bin/cdx" stage="never" failure="warn" keep="true">
 				<os family="unix" />
 			</executable>
@@ -161,6 +161,7 @@ xsi:schemaLocation="http://izpack.org/schema/installation http://izpack.org/sche
 			<description>SLF4J logger binding for the Coyote category logger.</description>
 			<fileset dir="CoyoteSLF4J\build\install\CoyoteSLF4J\lib" targetdir="$INSTALL_PATH/lib" includes="CoyoteSLF4J*.jar" override="true"/>
 			<fileset dir="CoyoteSLF4J\build\install\CoyoteSLF4J\lib" targetdir="$INSTALL_PATH/lib" includes="slf4j*.jar" override="true"/>
+			<fileset dir="CoyoteSLF4J\src\resources\licenses" targetdir="$INSTALL_PATH/doc/licenses" override="true"/>
 		</pack>		
 	</packs>
 	
