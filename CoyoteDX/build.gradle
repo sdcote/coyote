@@ -21,22 +21,11 @@ jar {
 		'Main-Class' : "$mainClassName",
 		'Implementation-Version' : version
 	}
-}
-
-task fatJar(type: Jar) {
-	manifest {
-		attributes  'Implementation-Title' : "$title",
-		'Provider' : "$provider",
-		'Main-Class' : "$mainClassName",
-		'Implementation-Version' : version
-	}
-	baseName = project.name + 'All'
 	from {
 		configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } 
 	}{
 		exclude "META-INF/*.RSA"
 	}
-	with jar
 }
 
 
