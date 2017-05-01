@@ -1,6 +1,6 @@
 # BatchMT
 
-This is a collection of email tools for the Coyote Batch Toolkit which allow interacting with email servers for event-based processing such as:
+This is a collection of message tools for the Coyote DX Toolkit which allow interacting with email servers for event-based processing such as:
 
 * Reading data from email and processing it through the batch process
 * Writing processed data to email and sending it to external actors
@@ -13,3 +13,7 @@ More traditional systems can be written:
 * Automated email gateways, receiving mails and making API calls based on evaluation rules
 
 Much of the heavy lifting is handled by the Java Mail API and these tools represent Readers, Writers, Listeners and such to make email exchanges a simple matter of adding a section to your configuration file.
+
+### SMS Tools
+
+Just like the email abstraction, SMS tasks allow easy text messaging from jobs.
