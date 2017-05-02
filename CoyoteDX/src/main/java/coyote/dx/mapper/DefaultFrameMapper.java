@@ -14,7 +14,6 @@ package coyote.dx.mapper;
 import coyote.commons.StringUtil;
 import coyote.dataframe.DataField;
 import coyote.dataframe.DataFrame;
-import coyote.dataframe.DataFrameException;
 import coyote.dx.CDX;
 import coyote.dx.ConfigTag;
 import coyote.dx.FrameMapper;
@@ -42,8 +41,15 @@ public class DefaultFrameMapper extends AbstractFrameMapper implements FrameMapp
     // Retrieve the "fields" section from the configuration frame
     DataFrame mapFrame = null;
     try {
-      mapFrame = frame.getAsFrame( ConfigTag.FIELDS );
-    } catch ( DataFrameException e ) {
+      if ( frame.containsIgnoreCase( ConfigTag.FIELDS ) ) {
+        DataField field = frame.getFieldIgnoreCase( ConfigTag.FIELDS );
+        if ( field.isFrame() ) {
+          mapFrame = (DataFrame)field.getObjectValue();
+        } else {
+          Log.warn( LogMsg.createMsg( CDX.MSG, "Mapper.invalid_section_in_configuration", ConfigTag.FIELDS ) );
+        }
+      }
+    } catch ( Exception e ) {
       mapFrame = null;
     }
 
@@ -56,7 +62,7 @@ public class DefaultFrameMapper extends AbstractFrameMapper implements FrameMapp
         }
       }
     } else {
-      Log.warn( LogMsg.createMsg( CDX.MSG, "Mapper.No %s section in Mapper configuration", ConfigTag.FIELDS ) );
+      Log.warn( LogMsg.createMsg( CDX.MSG, "Mapper.no_section_in_configuration", ConfigTag.FIELDS ) );
     }
 
   }
