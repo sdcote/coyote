@@ -1,10 +1,14 @@
 package coyote.dx;
 
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.List;
 
 import coyote.commons.ExceptionUtil;
 import coyote.commons.StringUtil;
+import coyote.commons.UriUtil;
+import coyote.loader.ConfigTag;
 import coyote.loader.Loader;
 import coyote.loader.cfg.Config;
 import coyote.loader.cfg.ConfigurationException;
@@ -55,6 +59,24 @@ public class Job extends AbstractBatchLoader implements Loader {
     if ( jobs.size() > 0 ) {
 
       Config job = jobs.get( 0 );
+
+      // If the job has no name... 
+      if ( StringUtil.isBlank( job.getName() ) ) {
+        if ( StringUtil.isNotBlank( cfg.getName() ) ) {
+          //...set it to the name of the parent...
+          job.setName( cfg.getName() );
+        } else {
+          //...or the base of the configuration URI
+          String cfguri = System.getProperty( ConfigTag.CONFIG_URI );
+          if ( StringUtil.isNotBlank( cfguri ) ) {
+            try {
+              job.setName( UriUtil.getBase( new URI( cfguri ) ) );
+            } catch ( URISyntaxException ignore ) {
+              // well, we tried, it will probably get assigned a UUID later
+            }
+          }
+        }
+      }
 
       // have the Engine Factory create a transformation engine based on the
       // configuration 
