@@ -14,6 +14,7 @@ package coyote.dx;
 import java.io.File;
 
 import coyote.commons.template.SymbolTable;
+import coyote.dataframe.DataFrame;
 
 
 /**
@@ -148,6 +149,20 @@ public interface TransformEngine extends RunnableComponent {
    * terminated abruptly as well.</p>
    */
   public void shutdown();
+
+
+
+
+  /** 
+   * Signals the component to stop processing; called when the engine is being 
+   * requested to shutdown by some component.
+   * 
+   * <p>Shut this component down using the given DataFrame as a set of 
+   * parameters
+   * 
+   * @param params Shutdown arguments, can be null.  
+   */
+  public void shutdown( DataFrame params );
 
 
 

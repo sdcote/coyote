@@ -1031,6 +1031,17 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
 
 
   /**
+   * @see coyote.dx.TransformEngine#shutdown(coyote.dataframe.DataFrame)
+   */
+  @Override
+  public void shutdown( DataFrame params ) {
+
+  }
+
+
+
+
+  /**
    * @see coyote.dx.TransformEngine#setLogManager(coyote.dx.LogManager)
    */
   @Override

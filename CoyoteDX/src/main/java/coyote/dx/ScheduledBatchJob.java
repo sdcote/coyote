@@ -31,8 +31,8 @@ import coyote.loader.thread.ScheduledJob;
 
 
 /**
- * This is a wrapper around a component which will be called repeatedly on a 
- * schedule.
+ * This is a wrapper around a (Job) component which will be called repeatedly 
+ * on a schedule.
  */
 public class ScheduledBatchJob extends ScheduledJob implements ManagedComponent {
 
@@ -318,7 +318,11 @@ public class ScheduledBatchJob extends ScheduledJob implements ManagedComponent 
 
 
   @Override
-  public void shutdown( DataFrame params ) {}
+  public void shutdown( DataFrame params ) {
+    if( engine != null){
+      engine.shutdown();
+    }
+  }
 
 
 
