@@ -29,11 +29,15 @@ import coyote.loader.log.LogMsg;
 
 
 /**
- * This runs the Coyote DX as a background Service.
+ * This runs the Coyote DX as a background service.
  * 
- * One of the functions of this loader is to locate and load a HTTP listener 
- * from the class path. This allows the deployment of a JAR which contains a 
- * web application which acts as a UI to the system. 
+ * <p>A DX service is a long running process which runs one or more DX jobs 
+ * according to some schedule. Normally this schedule is intermittent, but a 
+ * DX job my run continually to affect a more real time exchange of data. 
+ * 
+ * <p>One of the functions of this loader is to locate and load a HTTP 
+ * listener from the class path. This allows the deployment of a JAR which 
+ * contains a web application acting as a UI to the system. 
  */
 public class Service extends AbstractBatchLoader implements Loader {
 
@@ -181,6 +185,7 @@ public class Service extends AbstractBatchLoader implements Loader {
     Log.debug( "Loaded " + super.components.size() + " components" );
     Log.append( Log.getCode( "SCHEDULER" ), "Initialized Scheduler:\r\n" + getScheduler().dump() );
 
+    // for all the loaded components find the ones representing Jobs and run them in the scheduler.
     synchronized( components ) {
       for ( final Iterator<Object> it = components.keySet().iterator(); it.hasNext(); ) {
         final Object cmpnt = it.next();
@@ -194,7 +199,7 @@ public class Service extends AbstractBatchLoader implements Loader {
               engine.getSymbolTable().put( Symbols.COMMAND_LINE_ARG_PREFIX + x, commandLineArguments[x] );
             }
 
-            // schedule the component for execution
+            // schedule the component for execution; some may remain running indefinitely
             getScheduler().schedule( (ScheduledBatchJob)cmpnt );
           }
         }
@@ -279,7 +284,7 @@ public class Service extends AbstractBatchLoader implements Loader {
    */
   @Override
   public void shutdown() {
-    // call the threadjob shutdown to exit the watchdog routine to free up the 
+    // call the threadjob.shutdown to exit the watchdog routine freeing up the 
     // MAIN thread
     super.shutdown();
 

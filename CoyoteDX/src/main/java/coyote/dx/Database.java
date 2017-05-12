@@ -18,11 +18,21 @@ import coyote.loader.log.LogMsg;
 
 
 /**
+ * This represents a shared definition of a database.
  * 
+ * <p>Database definitions are stored in the context with a name and allow 
+ * components to reference a database connection by name instead of copying 
+ * the database details in each section. This make maintaining shared database 
+ * definitions simpler as there is only one location for the details to be 
+ * updated.
+ * 
+ * <p>This is not a connection pool. It is a configuration convenience for 
+ * components to obtain a connection from the context which is guaranteed to 
+ * be closed at the end of the transform (if the transform exits normally).
  */
 public class Database extends AbstractConfigurableComponent implements ConfigurableComponent {
 
-  List<Connection> connections = new ArrayList<Connection>();
+  private final List<Connection> connections = new ArrayList<Connection>();
 
 
 
@@ -36,8 +46,8 @@ public class Database extends AbstractConfigurableComponent implements Configura
    * Create a new connection using the configuration.
    * 
    * <p>This does not share nor pool connections, but creates a new connection 
-   * on each request. THis should be fine for this toolkit as it is expected 
-   * that maybe two connection (one for a reader and one for a writer) might be 
+   * on each request. This should be fine for this toolkit as it is expected 
+   * that maybe two connections (one for a reader and one for a writer) might be 
    * created.</p>
    * 
    * <p>Each connection is tracked and closed when this component is closed.</p>
@@ -45,15 +55,19 @@ public class Database extends AbstractConfigurableComponent implements Configura
    * @return a new connection
    */
   public Connection getConnection() {
+    
+    // TODO: Check if the driver has already been registered
 
     Connection connection = null;
 
     // get the connection to the database
     try {
+      // TODO: Library should be optional as the class path may already contain the necessary drivers
       URL u = new URL( getLibrary() );
       URLClassLoader ucl = new URLClassLoader( new URL[] { u } );
       Driver driver = (Driver)Class.forName( getDriver(), true, ucl ).newInstance();
-      DriverManager.registerDriver( new DriverDelegate( driver ) ); // TODO: this may be redundant...might result in the same driver registered multiple times..acceptable for this toolkit, but not for general use
+      // TODO: this may be redundant...might result in the same driver registered multiple times..acceptable for this toolkit, but not for general use
+      DriverManager.registerDriver( new DriverDelegate( driver ) ); 
 
       connection = DriverManager.getConnection( getTarget(), getUsername(), getPassword() );
 
