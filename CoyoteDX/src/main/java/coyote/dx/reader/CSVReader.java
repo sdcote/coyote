@@ -26,8 +26,8 @@ import coyote.dx.ConfigTag;
 import coyote.dx.ConfigurableComponent;
 import coyote.dx.FrameReader;
 import coyote.dx.Symbols;
-import coyote.dx.TransactionContext;
-import coyote.dx.TransformContext;
+import coyote.dx.context.TransactionContext;
+import coyote.dx.context.TransformContext;
 import coyote.loader.cfg.ConfigurationException;
 import coyote.loader.log.Log;
 import coyote.loader.log.LogMsg;
@@ -118,7 +118,7 @@ public class CSVReader extends AbstractFrameReader implements FrameReader, Confi
 
 
   /**
-   * @see coyote.dx.FrameReader#read(coyote.dx.TransactionContext)
+   * @see coyote.dx.FrameReader#read(coyote.dx.context.TransactionContext)
    */
   @Override
   public DataFrame read( TransactionContext context ) {
@@ -183,7 +183,7 @@ public class CSVReader extends AbstractFrameReader implements FrameReader, Confi
 
 
   /**
-   * @see coyote.dx.Component#open(coyote.dx.TransformContext)
+   * @see coyote.dx.Component#open(coyote.dx.context.TransformContext)
    */
   @Override
   public void open( TransformContext context ) {

@@ -15,7 +15,7 @@ import coyote.dataframe.DataFrame;
 import coyote.dataframe.DataFrameException;
 import coyote.dx.CDX;
 import coyote.dx.ConfigTag;
-import coyote.dx.ContextListener;
+import coyote.dx.context.ContextListener;
 import coyote.loader.cfg.ConfigurationException;
 import coyote.loader.log.Log;
 import coyote.loader.log.LogMsg;

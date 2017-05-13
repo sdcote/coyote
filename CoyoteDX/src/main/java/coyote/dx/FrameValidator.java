@@ -11,6 +11,7 @@
  */
 package coyote.dx;
 
+import coyote.dx.context.TransactionContext;
 import coyote.dx.validate.ValidationException;
 
 

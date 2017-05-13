@@ -19,8 +19,8 @@ import java.io.IOException;
 import org.junit.Test;
 
 import coyote.commons.template.SymbolTable;
-import coyote.dx.TransformContext;
 import coyote.dx.TransformEngine;
+import coyote.dx.context.TransformContext;
 import coyote.loader.log.Log;
 
 

@@ -13,6 +13,7 @@ import java.util.List;
 
 import coyote.commons.jdbc.DriverDelegate;
 import coyote.dataframe.DataFrameException;
+import coyote.dx.context.TransformContext;
 import coyote.loader.log.Log;
 import coyote.loader.log.LogMsg;
 
@@ -183,7 +184,7 @@ public class Database extends AbstractConfigurableComponent implements Configura
 
 
   /**
-   * @see coyote.dx.Component#open(coyote.dx.TransformContext)
+   * @see coyote.dx.Component#open(coyote.dx.context.TransformContext)
    */
   @Override
   public void open( TransformContext context ) {

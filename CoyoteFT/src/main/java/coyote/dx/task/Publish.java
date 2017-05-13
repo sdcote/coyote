@@ -18,8 +18,8 @@ import java.net.URISyntaxException;
 import coyote.dx.CFT;
 import coyote.dx.ConfigTag;
 import coyote.dx.TaskException;
-import coyote.dx.TransformContext;
 import coyote.dx.TransformTask;
+import coyote.dx.context.TransformContext;
 import coyote.dx.ftp.RemoteSite;
 import coyote.commons.Assert;
 import coyote.commons.UriUtil;
@@ -41,7 +41,7 @@ import coyote.loader.log.LogMsg;
 public class Publish extends AbstractFileTransferTask implements TransformTask {
 
   /**
-   * @see coyote.dx.task.AbstractTransformTask#open(coyote.dx.TransformContext)
+   * @see coyote.dx.task.AbstractTransformTask#open(coyote.dx.context.TransformContext)
    */
   @Override
   public void open( TransformContext context ) {

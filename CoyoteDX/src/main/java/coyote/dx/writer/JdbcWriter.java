@@ -38,7 +38,7 @@ import coyote.dx.CDX;
 import coyote.dx.ConfigTag;
 import coyote.dx.ConfigurableComponent;
 import coyote.dx.FrameWriter;
-import coyote.dx.TransformContext;
+import coyote.dx.context.TransformContext;
 import coyote.dx.db.ColumnDefinition;
 import coyote.dx.db.ColumnType;
 import coyote.dx.db.DatabaseDialect;
@@ -274,7 +274,7 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
 
 
   /**
-   * @see coyote.dx.writer.AbstractFrameWriter#open(coyote.dx.TransformContext)
+   * @see coyote.dx.writer.AbstractFrameWriter#open(coyote.dx.context.TransformContext)
    */
   @Override
   public void open( final TransformContext context ) {

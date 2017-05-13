@@ -16,7 +16,7 @@ import java.io.IOException;
 import coyote.dx.AbstractConfigurableComponent;
 import coyote.dx.ConfigurableComponent;
 import coyote.dx.FrameTransform;
-import coyote.dx.TransformContext;
+import coyote.dx.context.TransformContext;
 
 
 /**
@@ -46,7 +46,7 @@ public abstract class AbstractFrameTransform extends AbstractConfigurableCompone
 
 
   /**
-   * @see coyote.dx.Component#open(coyote.dx.TransformContext)
+   * @see coyote.dx.Component#open(coyote.dx.context.TransformContext)
    */
   @Override
   public void open( final TransformContext context ) {

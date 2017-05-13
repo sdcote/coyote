@@ -9,7 +9,7 @@
  *   Stephan D. Cote 
  *      - Initial concept and implementation
  */
-package coyote.dx;
+package coyote.dx.context;
 
 import java.io.File;
 import java.text.ParseException;
@@ -22,6 +22,8 @@ import coyote.dataframe.DataField;
 import coyote.dataframe.DataFrame;
 import coyote.dataframe.marshal.JSONMarshaler;
 import coyote.dataframe.marshal.MarshalException;
+import coyote.dx.CDX;
+import coyote.dx.Symbols;
 import coyote.loader.log.Log;
 import coyote.loader.log.LogMsg;
 
@@ -35,11 +37,16 @@ import coyote.loader.log.LogMsg;
  * data is persisted to disk so when it initializes the next time, it can 
  * increment values to be used in naming files.</p>
  * 
- * <p>This class is created by the TransformEngineFactory and keys off the name of the context to determine if it is a regular context or a persistent context.
+ * <p>This class is created by the TransformEngineFactory and keys off the 
+ * name of the context to determine if it is a regular context or a persistent 
+ * context.
  * 
- * <p>Context are opened and closed like other components so this component has the ability to read itself from a file on opening and persist itself to disk on closing. 
+ * <p>Contexts are opened and closed like other components so this component 
+ * has the ability to read itself from a file on opening and persist itself to 
+ * disk on closing. 
  * 
- * <p>Because Persistent contexts are simple text files, they can be edited prior to their respective transforms being run
+ * <p>Because Persistent contexts are simple text files, they can be edited 
+ * prior to their respective transforms being run
  */
 public class PersistentContext extends TransformContext {
   private static final String FILENAME = "context.json";
@@ -56,7 +63,7 @@ public class PersistentContext extends TransformContext {
 
 
   /**
-   * @see coyote.dx.TransformContext#open()
+   * @see coyote.dx.context.TransformContext#open()
    */
   @Override
   public void open() {
@@ -161,7 +168,7 @@ public class PersistentContext extends TransformContext {
 
 
   /**
-   * @see coyote.dx.TransformContext#close()
+   * @see coyote.dx.context.TransformContext#close()
    */
   @Override
   public void close() {

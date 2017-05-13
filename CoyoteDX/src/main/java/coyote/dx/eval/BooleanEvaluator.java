@@ -21,7 +21,7 @@ import coyote.commons.eval.Constant;
 import coyote.commons.eval.Method;
 import coyote.commons.eval.Operator;
 import coyote.commons.eval.Parameters;
-import coyote.dx.TransformContext;
+import coyote.dx.context.TransformContext;
 
 
 /**

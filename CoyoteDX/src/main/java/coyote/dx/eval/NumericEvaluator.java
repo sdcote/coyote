@@ -17,7 +17,7 @@ import java.util.Iterator;
 import coyote.commons.eval.DoubleEvaluator;
 import coyote.commons.eval.Method;
 import coyote.commons.eval.Parameters;
-import coyote.dx.TransformContext;
+import coyote.dx.context.TransformContext;
 
 
 /**

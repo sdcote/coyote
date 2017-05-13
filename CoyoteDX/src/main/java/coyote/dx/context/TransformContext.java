@@ -9,7 +9,7 @@
  *   Stephan D. Cote 
  *      - Initial concept and implementation
  */
-package coyote.dx;
+package coyote.dx.context;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -20,6 +20,8 @@ import coyote.commons.StringUtil;
 import coyote.commons.template.Template;
 import coyote.dataframe.DataField;
 import coyote.dataframe.DataFrame;
+import coyote.dx.Database;
+import coyote.dx.TransformEngine;
 
 
 /**

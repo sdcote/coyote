@@ -25,7 +25,7 @@ import coyote.commons.UriUtil;
 import coyote.dx.CDX;
 import coyote.dx.ConfigTag;
 import coyote.dx.Symbols;
-import coyote.dx.TransformContext;
+import coyote.dx.context.TransformContext;
 import coyote.loader.log.Log;
 import coyote.loader.log.LogMsg;
 
@@ -45,7 +45,7 @@ public abstract class FileRecorder extends ContextRecorder {
 
 
   /**
-   * @see coyote.dx.listener.AbstractListener#open(coyote.dx.TransformContext)
+   * @see coyote.dx.listener.AbstractListener#open(coyote.dx.context.TransformContext)
    */
   @Override
   public void open( TransformContext context ) {

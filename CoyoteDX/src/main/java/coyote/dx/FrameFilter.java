@@ -11,6 +11,8 @@
  */
 package coyote.dx;
 
+import coyote.dx.context.TransactionContext;
+
 /**
  * Filter as in filter out.  If the frame matches the filter, it will be 
  * removed from the transformation stream.

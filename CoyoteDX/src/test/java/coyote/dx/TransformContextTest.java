@@ -16,7 +16,7 @@ import static org.junit.Assert.assertNull;
 
 import org.junit.Test;
 
-import coyote.dx.TransformContext;
+import coyote.dx.context.TransformContext;
 
 
 /**
@@ -25,7 +25,7 @@ import coyote.dx.TransformContext;
 public class TransformContextTest {
 
   /**
-   * Test method for {@link coyote.dx.TransformContext#get(java.lang.String, boolean)}.
+   * Test method for {@link coyote.dx.context.TransformContext#get(java.lang.String, boolean)}.
    */
   @Test
   public void testGetStringBoolean() {

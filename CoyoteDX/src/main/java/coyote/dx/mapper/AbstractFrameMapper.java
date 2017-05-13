@@ -17,7 +17,7 @@ import java.util.List;
 
 import coyote.dx.AbstractConfigurableComponent;
 import coyote.dx.Component;
-import coyote.dx.TransformContext;
+import coyote.dx.context.TransformContext;
 
 
 /**
@@ -42,7 +42,7 @@ public abstract class AbstractFrameMapper extends AbstractConfigurableComponent 
 
 
   /**
-   * @see coyote.dx.Component#open(coyote.dx.TransformContext)
+   * @see coyote.dx.Component#open(coyote.dx.context.TransformContext)
    */
   @Override
   public void open( TransformContext context ) {

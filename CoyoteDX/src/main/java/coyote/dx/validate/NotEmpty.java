@@ -15,7 +15,7 @@ import coyote.commons.StringUtil;
 import coyote.dataframe.DataField;
 import coyote.dataframe.DataFrame;
 import coyote.dx.FrameValidator;
-import coyote.dx.TransactionContext;
+import coyote.dx.context.TransactionContext;
 
 
 /**
@@ -33,7 +33,7 @@ public class NotEmpty extends AbstractValidator implements FrameValidator {
 
 
   /**
-   * @see coyote.dx.FrameValidator#process(coyote.dx.TransactionContext)
+   * @see coyote.dx.FrameValidator#process(coyote.dx.context.TransactionContext)
    */
   @Override
   public boolean process( TransactionContext context ) throws ValidationException {

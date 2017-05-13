@@ -24,7 +24,7 @@ import coyote.dx.CWS;
 import coyote.dx.ConfigTag;
 import coyote.dx.ConfigurableComponent;
 import coyote.dx.FrameWriter;
-import coyote.dx.TransformContext;
+import coyote.dx.context.TransformContext;
 import coyote.dx.eval.Evaluator;
 import coyote.dx.web.InvocationException;
 import coyote.dx.web.Parameters;
@@ -89,7 +89,7 @@ public class WebServiceWriter extends AbstractConfigurableComponent implements F
 
 
   /**
-   * @see coyote.dx.Component#open(coyote.dx.TransformContext)
+   * @see coyote.dx.Component#open(coyote.dx.context.TransformContext)
    */
   @Override
   public void open( TransformContext context ) {

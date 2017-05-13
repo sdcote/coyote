@@ -12,7 +12,7 @@
 package coyote.dx.writer;
 
 import coyote.dataframe.DataFrame;
-import coyote.dx.TransformContext;
+import coyote.dx.context.TransformContext;
 
 
 /**
@@ -30,7 +30,7 @@ public class NullWriter extends AbstractFrameWriter {
 
 
   /**
-   * @see coyote.dx.writer.AbstractFrameWriter#open(coyote.dx.TransformContext)
+   * @see coyote.dx.writer.AbstractFrameWriter#open(coyote.dx.context.TransformContext)
    */
   @Override
   public void open( TransformContext context ) {}

@@ -18,8 +18,8 @@ import coyote.dx.AbstractConfigurableComponent;
 import coyote.dx.ConfigTag;
 import coyote.dx.ConfigurableComponent;
 import coyote.dx.FrameFilter;
-import coyote.dx.TransactionContext;
-import coyote.dx.TransformContext;
+import coyote.dx.context.TransactionContext;
+import coyote.dx.context.TransformContext;
 import coyote.dx.eval.Evaluator;
 
 
@@ -52,7 +52,7 @@ public abstract class AbstractFrameFilter extends AbstractConfigurableComponent 
 
 
   /**
-   * @see coyote.dx.Component#open(coyote.dx.TransformContext)
+   * @see coyote.dx.Component#open(coyote.dx.context.TransformContext)
    */
   @Override
   public void open( TransformContext context ) {
@@ -106,7 +106,7 @@ public abstract class AbstractFrameFilter extends AbstractConfigurableComponent 
 
 
   /**
-   * @see coyote.dx.FrameFilter#process(coyote.dx.TransactionContext)
+   * @see coyote.dx.FrameFilter#process(coyote.dx.context.TransactionContext)
    */
   @Override
   public boolean process( TransactionContext context ) {

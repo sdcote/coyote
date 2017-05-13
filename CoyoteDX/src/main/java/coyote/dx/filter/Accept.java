@@ -13,7 +13,7 @@ package coyote.dx.filter;
 
 import coyote.dx.CDX;
 import coyote.dx.FrameFilter;
-import coyote.dx.TransactionContext;
+import coyote.dx.context.TransactionContext;
 import coyote.loader.log.Log;
 import coyote.loader.log.LogMsg;
 
@@ -37,7 +37,7 @@ public class Accept extends AbstractFrameFilter implements FrameFilter {
 
 
   /**
-   * @see coyote.dx.FrameFilter#process(coyote.dx.TransactionContext)
+   * @see coyote.dx.FrameFilter#process(coyote.dx.context.TransactionContext)
    */
   @Override
   public boolean process( TransactionContext context ) {

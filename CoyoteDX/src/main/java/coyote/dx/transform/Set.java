@@ -16,8 +16,8 @@ import coyote.dataframe.DataFrame;
 import coyote.dx.CDX;
 import coyote.dx.ConfigTag;
 import coyote.dx.FrameTransform;
-import coyote.dx.TransformContext;
 import coyote.dx.TransformException;
+import coyote.dx.context.TransformContext;
 import coyote.loader.log.Log;
 import coyote.loader.log.LogMsg;
 
@@ -75,7 +75,7 @@ public class Set extends AbstractFieldTransform implements FrameTransform {
 
 
   /**
-   * @see coyote.dx.transform.AbstractFrameTransform#open(coyote.dx.TransformContext)
+   * @see coyote.dx.transform.AbstractFrameTransform#open(coyote.dx.context.TransformContext)
    */
   @Override
   public void open( final TransformContext context ) {

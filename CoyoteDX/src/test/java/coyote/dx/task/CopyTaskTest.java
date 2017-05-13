@@ -27,7 +27,7 @@ import coyote.dataframe.DataFrame;
 import coyote.dx.AbstractTest;
 import coyote.dx.ConfigTag;
 import coyote.dx.TaskException;
-import coyote.dx.TransformContext;
+import coyote.dx.context.TransformContext;
 import coyote.dx.task.Copy;
 import coyote.loader.cfg.ConfigurationException;
 import coyote.loader.log.ConsoleAppender;

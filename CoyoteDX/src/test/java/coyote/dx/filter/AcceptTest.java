@@ -21,8 +21,8 @@ import org.junit.Test;
 
 import coyote.dataframe.DataFrame;
 import coyote.dx.FrameFilter;
-import coyote.dx.TransactionContext;
-import coyote.dx.TransformContext;
+import coyote.dx.context.TransactionContext;
+import coyote.dx.context.TransformContext;
 import coyote.dx.filter.Accept;
 
 

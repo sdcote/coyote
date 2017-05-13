@@ -14,9 +14,9 @@ package coyote.dx.transform;
 import coyote.dataframe.DataFrame;
 import coyote.dx.CDX;
 import coyote.dx.FrameTransform;
-import coyote.dx.TransactionContext;
-import coyote.dx.TransformContext;
 import coyote.dx.TransformException;
+import coyote.dx.context.TransactionContext;
+import coyote.dx.context.TransformContext;
 import coyote.loader.log.Log;
 import coyote.loader.log.LogMsg;
 
@@ -32,7 +32,7 @@ import coyote.loader.log.LogMsg;
 public class Remove extends AbstractFieldTransform implements FrameTransform {
 
   /**
-   * @see coyote.dx.filter.AbstractFrameFilter#open(coyote.dx.TransformContext)
+   * @see coyote.dx.filter.AbstractFrameFilter#open(coyote.dx.context.TransformContext)
    */
   @Override
   public void open( final TransformContext context ) {

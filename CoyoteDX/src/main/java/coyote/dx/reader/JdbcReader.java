@@ -30,8 +30,8 @@ import coyote.dataframe.DataFrame;
 import coyote.dx.CDX;
 import coyote.dx.ConfigTag;
 import coyote.dx.Database;
-import coyote.dx.TransactionContext;
-import coyote.dx.TransformContext;
+import coyote.dx.context.TransactionContext;
+import coyote.dx.context.TransformContext;
 import coyote.loader.log.Log;
 import coyote.loader.log.LogMsg;
 
@@ -55,7 +55,7 @@ public class JdbcReader extends AbstractFrameReader {
 
   /**
    * 
-   * @see coyote.dx.Component#open(coyote.dx.TransformContext)
+   * @see coyote.dx.Component#open(coyote.dx.context.TransformContext)
    */
   @Override
   public void open( TransformContext context ) {
@@ -145,7 +145,7 @@ public class JdbcReader extends AbstractFrameReader {
 
 
   /**
-   * @see coyote.dx.FrameReader#read(coyote.dx.TransactionContext)
+   * @see coyote.dx.FrameReader#read(coyote.dx.context.TransactionContext)
    */
   @Override
   public DataFrame read( TransactionContext context ) {

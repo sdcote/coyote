@@ -17,8 +17,8 @@ import java.util.List;
 import coyote.commons.StringUtil;
 import coyote.dataframe.DataFrame;
 import coyote.dx.FrameValidator;
-import coyote.dx.OperationalContext;
-import coyote.dx.TransactionContext;
+import coyote.dx.context.OperationalContext;
+import coyote.dx.context.TransactionContext;
 import coyote.loader.cfg.ConfigurationException;
 
 
@@ -47,7 +47,7 @@ public class Validation extends FileRecorder {
 
 
   /**
-   * @see coyote.dx.listener.AbstractListener#onValidationFailed(coyote.dx.OperationalContext, coyote.dx.FrameValidator, java.lang.String)
+   * @see coyote.dx.listener.AbstractListener#onValidationFailed(coyote.dx.context.OperationalContext, coyote.dx.FrameValidator, java.lang.String)
    */
   @Override
   public void onValidationFailed( OperationalContext context, FrameValidator validator, String errorMessage ) {

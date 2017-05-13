@@ -14,12 +14,12 @@ package coyote.dx.listener;
 import java.util.Date;
 
 import coyote.commons.StringUtil;
-import coyote.dx.ContextListener;
 import coyote.dx.FrameReader;
 import coyote.dx.FrameWriter;
-import coyote.dx.OperationalContext;
-import coyote.dx.TransactionContext;
-import coyote.dx.TransformContext;
+import coyote.dx.context.ContextListener;
+import coyote.dx.context.OperationalContext;
+import coyote.dx.context.TransactionContext;
+import coyote.dx.context.TransformContext;
 import coyote.dx.reader.WebServiceReader;
 import coyote.dx.web.Response;
 import coyote.dx.writer.WebServiceWriter;
@@ -51,7 +51,7 @@ public class WebMetrics extends FileRecorder implements ContextListener {
 
 
   /**
-   * @see coyote.dx.listener.AbstractListener#onRead(coyote.dx.TransactionContext, coyote.dx.FrameReader)
+   * @see coyote.dx.listener.AbstractListener#onRead(coyote.dx.context.TransactionContext, coyote.dx.FrameReader)
    */
   @Override
   public void onRead( TransactionContext context, FrameReader reader ) {
@@ -69,7 +69,7 @@ public class WebMetrics extends FileRecorder implements ContextListener {
 
 
   /**
-   * @see coyote.dx.listener.AbstractListener#onWrite(coyote.dx.TransactionContext, coyote.dx.FrameWriter)
+   * @see coyote.dx.listener.AbstractListener#onWrite(coyote.dx.context.TransactionContext, coyote.dx.FrameWriter)
    */
   @Override
   public void onWrite( TransactionContext context, FrameWriter writer ) {
@@ -87,7 +87,7 @@ public class WebMetrics extends FileRecorder implements ContextListener {
 
 
   /**
-   * @see coyote.dx.listener.AbstractListener#onEnd(coyote.dx.OperationalContext)
+   * @see coyote.dx.listener.AbstractListener#onEnd(coyote.dx.context.OperationalContext)
    */
   @Override
   public void onEnd( OperationalContext context ) {

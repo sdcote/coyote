@@ -9,7 +9,7 @@
  *   Stephan D. Cote 
  *      - Initial concept and implementation
  */
-package coyote.dx;
+package coyote.dx.context;
 
 /**
  * This is a set of static context keys to make finding data in context easier.

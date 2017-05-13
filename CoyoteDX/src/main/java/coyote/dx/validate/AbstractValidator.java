@@ -21,8 +21,8 @@ import coyote.dx.CDX;
 import coyote.dx.ConfigTag;
 import coyote.dx.ConfigurableComponent;
 import coyote.dx.FrameValidator;
-import coyote.dx.TransactionContext;
-import coyote.dx.TransformContext;
+import coyote.dx.context.TransactionContext;
+import coyote.dx.context.TransformContext;
 import coyote.loader.cfg.ConfigurationException;
 import coyote.loader.log.Log;
 import coyote.loader.log.LogMsg;
@@ -71,7 +71,7 @@ public abstract class AbstractValidator extends AbstractConfigurableComponent im
 
 
   /**
-   * @see coyote.dx.FrameValidator#process(coyote.dx.TransactionContext)
+   * @see coyote.dx.FrameValidator#process(coyote.dx.context.TransactionContext)
    */
   @Override
   public boolean process( TransactionContext context ) throws ValidationException {

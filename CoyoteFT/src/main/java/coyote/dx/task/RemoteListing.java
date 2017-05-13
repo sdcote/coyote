@@ -18,7 +18,7 @@ import java.util.List;
 import coyote.dx.CFT;
 import coyote.dx.ConfigTag;
 import coyote.dx.TaskException;
-import coyote.dx.TransformContext;
+import coyote.dx.context.TransformContext;
 import coyote.dx.ftp.FileTransferException;
 import coyote.dx.ftp.RemoteFile;
 import coyote.loader.cfg.ConfigurationException;
@@ -48,7 +48,7 @@ public class RemoteListing extends AbstractFileTransferTask {
 
 
   /**
-   * @see coyote.dx.task.AbstractTransformTask#open(coyote.dx.TransformContext)
+   * @see coyote.dx.task.AbstractTransformTask#open(coyote.dx.context.TransformContext)
    */
   @Override
   public void open( TransformContext context ) {

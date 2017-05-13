@@ -17,7 +17,7 @@ import coyote.commons.network.http.responder.HTTPDRouter;
 import coyote.dataframe.DataFrame;
 import coyote.dx.ConfigurableComponent;
 import coyote.dx.FrameReader;
-import coyote.dx.TransactionContext;
+import coyote.dx.context.TransactionContext;
 
 
 /**

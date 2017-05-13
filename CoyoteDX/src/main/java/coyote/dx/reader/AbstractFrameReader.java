@@ -16,7 +16,7 @@ import java.io.IOException;
 import coyote.dx.AbstractConfigurableComponent;
 import coyote.dx.ConfigurableComponent;
 import coyote.dx.FrameReader;
-import coyote.dx.TransformContext;
+import coyote.dx.context.TransformContext;
 
 
 /**
@@ -25,7 +25,7 @@ import coyote.dx.TransformContext;
 public abstract class AbstractFrameReader extends AbstractConfigurableComponent implements FrameReader, ConfigurableComponent {
 
   /**
-   * @see coyote.dx.Component#open(coyote.dx.TransformContext)
+   * @see coyote.dx.Component#open(coyote.dx.context.TransformContext)
    */
   @Override
   public void open( final TransformContext context ) {

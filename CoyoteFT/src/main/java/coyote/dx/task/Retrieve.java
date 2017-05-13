@@ -17,8 +17,8 @@ import java.net.URISyntaxException;
 import coyote.dx.CFT;
 import coyote.dx.ConfigTag;
 import coyote.dx.TaskException;
-import coyote.dx.TransformContext;
 import coyote.dx.TransformTask;
+import coyote.dx.context.TransformContext;
 import coyote.dx.ftp.FileAttributes;
 import coyote.dx.ftp.FileTransferException;
 import coyote.loader.cfg.ConfigurationException;
@@ -48,7 +48,7 @@ public class Retrieve extends AbstractFileTransferTask implements TransformTask 
 
 
   /**
-   * @see coyote.dx.task.AbstractTransformTask#open(coyote.dx.TransformContext)
+   * @see coyote.dx.task.AbstractTransformTask#open(coyote.dx.context.TransformContext)
    */
   @Override
   public void open( TransformContext context ) {

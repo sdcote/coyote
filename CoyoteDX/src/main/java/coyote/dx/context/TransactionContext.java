@@ -9,7 +9,7 @@
  *   Stephan D. Cote 
  *      - Initial concept and implementation
  */
-package coyote.dx;
+package coyote.dx.context;
 
 import coyote.dataframe.DataFrame;
 
@@ -17,6 +17,9 @@ import coyote.dataframe.DataFrame;
 /**
  * This is a component responsible for holding data involved with the 
  * extraction, transformation and loading of single row of data. 
+ * 
+ * <p>Transform context references the current source, working and target data 
+ * frames on which all component in the transform pipeline operate. 
  */
 public class TransactionContext extends OperationalContext {
   private DataFrame sourceFrame = null;

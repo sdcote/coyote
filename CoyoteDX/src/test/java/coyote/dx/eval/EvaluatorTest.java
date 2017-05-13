@@ -21,8 +21,8 @@ import static org.junit.Assert.fail;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import coyote.dx.TransactionContext;
-import coyote.dx.TransformContext;
+import coyote.dx.context.TransactionContext;
+import coyote.dx.context.TransformContext;
 import coyote.dx.eval.Evaluator;
 
 
@@ -78,7 +78,7 @@ public class EvaluatorTest {
 
 
   /**
-   * Test method for {@link coyote.dx.eval.Evaluator#Evaluator(coyote.dx.TransformContext)}.
+   * Test method for {@link coyote.dx.eval.Evaluator#Evaluator(coyote.dx.context.TransformContext)}.
    */
   @Test
   public void testEvaluatorOperationalContext() {

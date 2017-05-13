@@ -14,7 +14,7 @@ package coyote.dx.transform;
 import coyote.commons.StringUtil;
 import coyote.dx.ConfigTag;
 import coyote.dx.FrameTransform;
-import coyote.dx.TransformContext;
+import coyote.dx.context.TransformContext;
 import coyote.dx.eval.Evaluator;
 
 
@@ -33,7 +33,7 @@ public abstract class AbstractFieldTransform extends AbstractFrameTransform impl
 
 
   /**
-   * @see coyote.dx.Component#open(coyote.dx.TransformContext)
+   * @see coyote.dx.Component#open(coyote.dx.context.TransformContext)
    */
   @Override
   public void open( final TransformContext context ) {

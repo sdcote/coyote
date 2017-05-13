@@ -17,7 +17,7 @@ import coyote.dataframe.DataFrame;
 import coyote.dx.CDX;
 import coyote.dx.ConfigTag;
 import coyote.dx.FrameMapper;
-import coyote.dx.TransactionContext;
+import coyote.dx.context.TransactionContext;
 import coyote.loader.cfg.ConfigurationException;
 import coyote.loader.log.Log;
 import coyote.loader.log.LogMsg;
@@ -71,7 +71,7 @@ public class DefaultFrameMapper extends AbstractFrameMapper implements FrameMapp
 
 
   /**
-   * @see coyote.dx.FrameMapper#process(coyote.dx.TransactionContext)
+   * @see coyote.dx.FrameMapper#process(coyote.dx.context.TransactionContext)
    */
   @Override
   public void process( TransactionContext context ) throws MappingException {

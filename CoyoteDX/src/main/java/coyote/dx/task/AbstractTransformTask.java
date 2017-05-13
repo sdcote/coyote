@@ -19,8 +19,8 @@ import coyote.dataframe.DataFrame;
 import coyote.dx.AbstractConfigurableComponent;
 import coyote.dx.ConfigTag;
 import coyote.dx.TaskException;
-import coyote.dx.TransformContext;
 import coyote.dx.TransformTask;
+import coyote.dx.context.TransformContext;
 import coyote.loader.cfg.ConfigurationException;
 
 
@@ -85,7 +85,7 @@ public abstract class AbstractTransformTask extends AbstractConfigurableComponen
 
 
   /**
-   * @see coyote.dx.Component#open(coyote.dx.TransformContext)
+   * @see coyote.dx.Component#open(coyote.dx.context.TransformContext)
    */
   @Override
   public void open( TransformContext context ) {

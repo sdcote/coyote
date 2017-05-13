@@ -24,6 +24,7 @@ import coyote.commons.UriUtil;
 import coyote.commons.template.Template;
 import coyote.dataframe.DataField;
 import coyote.dataframe.DataFrame;
+import coyote.dx.context.TransformContext;
 import coyote.loader.cfg.Config;
 import coyote.loader.cfg.ConfigurationException;
 import coyote.loader.log.Log;

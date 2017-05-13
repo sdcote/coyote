@@ -12,8 +12,8 @@
 package coyote.dx.reader;
 
 import coyote.dataframe.DataFrame;
-import coyote.dx.TransactionContext;
-import coyote.dx.TransformContext;
+import coyote.dx.context.TransactionContext;
+import coyote.dx.context.TransformContext;
 
 
 /**
@@ -22,7 +22,7 @@ import coyote.dx.TransformContext;
 public class NullReader extends AbstractFrameReader {
 
   /**
-   * @see coyote.dx.FrameReader#read(coyote.dx.TransactionContext)
+   * @see coyote.dx.FrameReader#read(coyote.dx.context.TransactionContext)
    */
   @Override
   public DataFrame read( TransactionContext context ) {
@@ -44,7 +44,7 @@ public class NullReader extends AbstractFrameReader {
 
 
   /**
-   * @see coyote.dx.Component#open(coyote.dx.TransformContext)
+   * @see coyote.dx.Component#open(coyote.dx.context.TransformContext)
    */
   @Override
   public void open( TransformContext context ) {}

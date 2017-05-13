@@ -23,7 +23,7 @@ import org.junit.Test;
 import coyote.dataframe.DataFrame;
 import coyote.dx.AbstractTest;
 import coyote.dx.FrameValidator;
-import coyote.dx.TransactionContext;
+import coyote.dx.context.TransactionContext;
 import coyote.dx.validate.Pattern;
 import coyote.dx.validate.ValidationException;
 import coyote.loader.cfg.ConfigurationException;

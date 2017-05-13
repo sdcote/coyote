@@ -15,8 +15,8 @@ import coyote.dataframe.DataField;
 import coyote.dataframe.DataFrame;
 import coyote.dx.ConfigTag;
 import coyote.dx.FrameValidator;
-import coyote.dx.TransactionContext;
-import coyote.dx.TransformContext;
+import coyote.dx.context.TransactionContext;
+import coyote.dx.context.TransformContext;
 import coyote.loader.cfg.ConfigurationException;
 
 
@@ -124,7 +124,7 @@ public class Pattern extends AbstractValidator implements FrameValidator {
 
 
   /**
-   * @see coyote.dx.validate.AbstractValidator#open(coyote.dx.TransformContext)
+   * @see coyote.dx.validate.AbstractValidator#open(coyote.dx.context.TransformContext)
    */
   @Override
   public void open( TransformContext context ) {
@@ -136,7 +136,7 @@ public class Pattern extends AbstractValidator implements FrameValidator {
 
 
   /**
-   * @see coyote.dx.FrameValidator#process(coyote.dx.TransactionContext)
+   * @see coyote.dx.FrameValidator#process(coyote.dx.context.TransactionContext)
    */
   @Override
   public boolean process( TransactionContext context ) throws ValidationException {

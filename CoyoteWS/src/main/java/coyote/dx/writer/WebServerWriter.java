@@ -17,7 +17,7 @@ import coyote.dataframe.DataFrame;
 import coyote.dx.AbstractConfigurableComponent;
 import coyote.dx.ConfigurableComponent;
 import coyote.dx.FrameWriter;
-import coyote.dx.TransformContext;
+import coyote.dx.context.TransformContext;
 
 
 /**

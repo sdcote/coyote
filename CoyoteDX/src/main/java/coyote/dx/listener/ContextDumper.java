@@ -12,8 +12,8 @@
 package coyote.dx.listener;
 
 import coyote.commons.StringUtil;
-import coyote.dx.OperationalContext;
-import coyote.dx.TransformContext;
+import coyote.dx.context.OperationalContext;
+import coyote.dx.context.TransformContext;
 
 
 /**
@@ -26,7 +26,7 @@ import coyote.dx.TransformContext;
 public class ContextDumper extends FileRecorder {
 
   /**
-   * @see coyote.dx.listener.AbstractListener#onStart(coyote.dx.OperationalContext)
+   * @see coyote.dx.listener.AbstractListener#onStart(coyote.dx.context.OperationalContext)
    */
   @Override
   public void onStart( OperationalContext context ) {
@@ -49,7 +49,7 @@ public class ContextDumper extends FileRecorder {
 
 
   /**
-   * @see coyote.dx.listener.AbstractListener#onEnd(coyote.dx.OperationalContext)
+   * @see coyote.dx.listener.AbstractListener#onEnd(coyote.dx.context.OperationalContext)
    */
   @Override
   public void onEnd( OperationalContext context ) {

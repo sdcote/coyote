@@ -25,6 +25,10 @@ import coyote.commons.StringUtil;
 import coyote.commons.template.SymbolTable;
 import coyote.commons.template.Template;
 import coyote.dataframe.DataFrame;
+import coyote.dx.context.ContextKey;
+import coyote.dx.context.ContextListener;
+import coyote.dx.context.TransactionContext;
+import coyote.dx.context.TransformContext;
 import coyote.dx.mapper.DefaultFrameMapper;
 import coyote.dx.mapper.MappingException;
 import coyote.dx.validate.ValidationException;
@@ -657,7 +661,7 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
 
 
   /**
-   * @see coyote.dx.Component#open(coyote.dx.TransformContext)
+   * @see coyote.dx.Component#open(coyote.dx.context.TransformContext)
    */
   @Override
   public void open( TransformContext context ) {
@@ -817,7 +821,7 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
 
 
   /**
-   * @see coyote.dx.TransformEngine#addListener(coyote.dx.ContextListener)
+   * @see coyote.dx.TransformEngine#addListener(coyote.dx.context.ContextListener)
    */
   @Override
   public void addListener( ContextListener listener ) {

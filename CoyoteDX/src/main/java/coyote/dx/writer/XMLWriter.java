@@ -22,7 +22,7 @@ import coyote.dx.CDX;
 import coyote.dx.ConfigTag;
 import coyote.dx.ConfigurableComponent;
 import coyote.dx.FrameWriter;
-import coyote.dx.TransformContext;
+import coyote.dx.context.TransformContext;
 import coyote.loader.log.Log;
 import coyote.loader.log.LogMsg;
 
@@ -139,7 +139,7 @@ public class XMLWriter extends AbstractFrameWriter implements FrameWriter, Confi
 
 
   /**
-   * @see coyote.dx.writer.AbstractFrameWriter#open(coyote.dx.TransformContext)
+   * @see coyote.dx.writer.AbstractFrameWriter#open(coyote.dx.context.TransformContext)
    */
   @Override
   public void open( final TransformContext context ) {

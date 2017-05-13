@@ -9,7 +9,12 @@
  *   Stephan D. Cote 
  *      - Initial concept and implementation
  */
-package coyote.dx;
+package coyote.dx.context;
+
+import coyote.dx.ConfigurableComponent;
+import coyote.dx.FrameReader;
+import coyote.dx.FrameValidator;
+import coyote.dx.FrameWriter;
 
 /**
  * Listens to the operational context an performs actions on different events.

@@ -9,7 +9,7 @@
  *   Stephan D. Cote 
  *      - Initial concept and implementation
  */
-package coyote.dx;
+package coyote.dx.context;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -18,6 +18,9 @@ import java.util.Map;
 
 import coyote.commons.StringUtil;
 import coyote.commons.template.SymbolTable;
+import coyote.dx.FrameReader;
+import coyote.dx.FrameValidator;
+import coyote.dx.FrameWriter;
 
 
 /**
@@ -42,7 +45,7 @@ public abstract class OperationalContext {
   /** List of listeners which will do something when different events happen. */
   List<ContextListener> listeners = new ArrayList<ContextListener>();
 
-  SymbolTable symbols = null;
+  protected SymbolTable symbols = null;
 
 
 
