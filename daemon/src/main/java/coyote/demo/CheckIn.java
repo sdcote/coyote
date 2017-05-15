@@ -248,4 +248,17 @@ public class CheckIn extends AbstractScheduledComponent {
     cmpnt.doWork();
   }
 
+
+
+
+  /**
+   * @see coyote.loader.thread.ScheduledJob#toString()
+   */
+  @Override
+  public String toString() {
+    return this.getClass().getSimpleName()+" : "+target;
+  }
+
+  
+  
 }

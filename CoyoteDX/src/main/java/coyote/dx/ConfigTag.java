@@ -88,7 +88,6 @@ public class ConfigTag {
   // Transform engine
 
   public static final String CONTEXT = "context";
-  public static final String PERSISTENT_CONTEXT = "persistentcontext";
   public static final String TASKS = "task";
   public static final String PREPROCESS = "preprocess";
   public static final String POSTPROCESS = "postprocess";

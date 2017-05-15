@@ -3,7 +3,7 @@
 	"Job" : {
 		"Name" : "Persist",
 
-		"PersistentContext" : {
+		"FileContext" : {
 		},
 	
 		"Reader" : {

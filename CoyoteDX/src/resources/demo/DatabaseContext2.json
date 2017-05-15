@@ -16,12 +16,20 @@
 			}
 		},
 
+		"Context" : {
+			"class" : "DatabaseContext",
+			"target" : "Oracle",
+			"autocreate" : true,
+			"fields" : {
+				"SomeKey":"SomeValue",
+				"AnotherKey":"AnotherValue"
+			}
+		},
 		"DatabaseContext" : {
 			"target" : "Oracle",
 			"autocreate" : true,
 			
-			"SomeKey":"SomeValue",
-			"AnotherKey":"AnotherValue"			
+					
 		},
 	
 		"Reader" : {

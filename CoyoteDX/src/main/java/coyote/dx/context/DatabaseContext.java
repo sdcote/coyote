@@ -38,6 +38,38 @@ public class DatabaseContext extends TransformContext {
     super.open();
   }
 
+
+
+
+  /**
+   * Create the tables necessary to store named values for a named job.
+   * 
+   * <p>The table is simple:<ul>
+   * <li>name - name of the transform job/context
+   * <li>key - name of the attribute
+   * <li>value - value of the attribute
+   * <li>type - data type matching data frame field types (e.g. 3=String)
+   * </ul>
+   * It may be advantagous to create an index on name:key for large systems
+   * and those context performing live updates on the table via the context.
+   */
+  private void createTables() {
+
+  }
+
+
+
+
+  /**
+   * Make sure the tables exist.
+   */
+  private void verifyTables() {
+
+  }
+
+
+
+
   /**
    * @see coyote.dx.context.TransformContext#close()
    */

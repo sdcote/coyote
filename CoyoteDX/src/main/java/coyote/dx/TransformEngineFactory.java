@@ -12,6 +12,8 @@
 package coyote.dx;
 
 import java.io.File;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
 import coyote.commons.FileUtil;
@@ -20,7 +22,7 @@ import coyote.dataframe.DataField;
 import coyote.dataframe.DataFrame;
 import coyote.dataframe.marshal.JSONMarshaler;
 import coyote.dx.context.ContextListener;
-import coyote.dx.context.PersistentContext;
+import coyote.dx.context.OperationalContext;
 import coyote.dx.context.TransformContext;
 import coyote.dx.filter.AbstractFrameFilter;
 import coyote.dx.listener.AbstractListener;
@@ -186,12 +188,6 @@ public class TransformEngineFactory {
         } else if ( ConfigTag.CONTEXT.equalsIgnoreCase( field.getName() ) ) {
           if ( field.isFrame() ) {
             configContext( (DataFrame)field.getObjectValue(), retval );
-          } else {
-            Log.error( "Invalid context configuration section" );
-          }
-        } else if ( ConfigTag.PERSISTENT_CONTEXT.equalsIgnoreCase( field.getName() ) ) {
-          if ( field.isFrame() ) {
-            configPersistentContext( (DataFrame)field.getObjectValue(), retval );
           } else {
             Log.error( "Invalid context configuration section" );
           }
@@ -453,82 +449,63 @@ public class TransformEngineFactory {
    * context so that results of processing can be used in subsequent 
    * templates.</p>
    * 
+   * <p>If the configuration contais a "class" attribute, then a custom 
+   * context will be loaded from that class name and passed the 
+   * configuration section to configure it further. In such cases, custom 
+   * context classes use the "fields" attribute to populate the context, by 
+   * convention. If no class attribute is given, each of the attributes are 
+   * loaded into the default context as described above.
+   * 
    * @param cfg the configuration frame
    * @param engine the transform engine
    */
   private static void configContext( DataFrame cfg, TransformEngine engine ) {
+
     if ( cfg != null ) {
       TransformContext context = engine.getContext();
 
       if ( context == null ) {
-        context = new TransformContext();
+        if ( cfg.contains( ConfigTag.CLASS ) ) {
+          String className = cfg.getAsString( ConfigTag.CLASS );
+          if ( className != null && StringUtil.countOccurrencesOf( className, "." ) < 1 ) {
+            className = OperationalContext.class.getPackage().getName() + "." + className;
+            cfg.put( ConfigTag.CLASS, className );
+          }
 
-        // Set the configuration so it can be used when the context is opened
-        context.setConfiguration( cfg );
+          try {
+            Class<?> clazz = Class.forName( className );
+            Constructor<?> ctor = clazz.getConstructor();
+            Object object = ctor.newInstance();
 
-        // set the context in the engine
-        engine.setContext( context );
-
-        // set the engine in the context
-        context.setEngine( engine );
-        Log.debug( LogMsg.createMsg( CDX.MSG, "EngineFactory.created_context", context.getClass().getName() ) );
-      }
-
-      Log.debug( LogMsg.createMsg( CDX.MSG, "EngineFactory.loaded_context", context.getClass().getName() ) );
-    } // cfg !null
-  }
-
-
-
-
-  /**
-   * This section of the configuration should be simply name-value pairs.
-   * 
-   * <p>This section describes a context which is persisted between runs. When 
-   * the context is opened, its data is read in from a file. When the context 
-   * is closed, it is written to a file.</p>
-   * 
-   * <p>The values are treated as templates and parsed into their final values
-   * based on the contents of the symbol table and the systems properties 
-   * contained therein.</p>
-   * 
-   * <p>The name value pairs are placed in the symbol table as well as the 
-   * context so that results of processing can be used in subsequent 
-   * templates.</p>
-   * 
-   * @param cfg the configuration frame
-   * @param engine the transform engine
-   */
-  private static void configPersistentContext( DataFrame cfg, TransformEngine engine ) {
-    TransformContext context = engine.getContext();
-
-    if ( context == null ) {
-      if ( engine.getName() != null ) {
-        context = new PersistentContext();
-
-        // null (empty) configurations are allowed
-        if ( cfg != null ) {
-          context.setConfiguration( cfg );
+            if ( object instanceof TransformContext ) {
+              try {
+                context = (TransformContext)object;
+                context.setConfiguration( cfg );
+                engine.setContext( context );
+                context.setEngine( engine );
+                Log.debug( LogMsg.createMsg( CDX.MSG, "EngineFactory.created_custom_context", context.getClass().getName() ) );
+              } catch ( Exception e ) {
+                Log.error( LogMsg.createMsg( CDX.MSG, "EngineFactory.could_not_configure_specified_context", object.getClass().getName(), e.getClass().getSimpleName(), e.getMessage() ) );
+              }
+            } else {
+              Log.warn( LogMsg.createMsg( CDX.MSG, "EngineFactory.specified_context_not_transformcontext", className ) );
+            }
+          } catch ( ClassNotFoundException | NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e ) {
+            Log.error( LogMsg.createMsg( CDX.MSG, "EngineFactory.could_not_create_instance_of_specified_context", className, e.getClass().getName(), e.getMessage() ) );
+          }
         } else {
-          context.setConfiguration( new DataFrame() );
+          // this is a regular, in-memory context with these settings
+          context = new TransformContext();
+          context.setConfiguration( cfg );
+          engine.setContext( context );
+          context.setEngine( engine );
+          Log.debug( LogMsg.createMsg( CDX.MSG, "EngineFactory.created_context", context.getClass().getName() ) );
         }
-
-        // set the context in the engine
-        engine.setContext( context );
-
-        // set the engine in the context
-        context.setEngine( engine );
-
-        Log.debug( LogMsg.createMsg( CDX.MSG, "EngineFactory.created_persistent_context", context.getClass().getName() ) );
+        Log.debug( LogMsg.createMsg( CDX.MSG, "EngineFactory.loaded_context", context.getClass().getName() ) );
       } else {
-        Log.warn( LogMsg.createMsg( CDX.MSG, "EngineFactory.unnamed_engine_configuration" ) );
-        configContext( cfg, engine );
-        return;
+        Log.warn( LogMsg.createMsg( CDX.MSG, "EngineFactory.could_not_replace_existing_context" ) );
       }
-    } else {
-      // TODO: support converting a regular context into a persistent one
-      Log.warn( LogMsg.createMsg( CDX.MSG, "EngineFactory.could_not_replace_existing_context" ) );
-    }
+    } // cfg !null
   }
 
 

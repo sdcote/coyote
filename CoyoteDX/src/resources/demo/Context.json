@@ -1,21 +1,13 @@
 {
 	"Class" : "coyote.dx.Job",
 	"Job" : {
-		"Name" : "DatabaseContext",
-		"Description": "Shows how to define a persistent context backed by a database",
+		"Name" : "Context",
+		"Description": "Shows how to define a context",
 		
 
 		"Context" : {
-			"class" : "DatabaseContext",
-			"target" : "jdbc:h2:[#$jobdir#]/demodb;MODE=Oracle;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE",
-			"autocreate" : true,
-			"driver" : "org.h2.Driver",
-			"username" : "sa",
-			"password" : "",
-			"fields" : {
-				"SomeKey":"SomeValue",
-				"AnotherKey":"AnotherValue"
-			}
+			"SomeKey":"SomeValue",
+			"AnotherKey":"AnotherValue"
 		},
 	
 		"Reader" : {
