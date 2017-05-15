@@ -97,7 +97,7 @@ xsi:schemaLocation="http://izpack.org/schema/installation http://izpack.org/sche
 		<pack name="CoyoteDX" required="no" preselected="yes" >
 			<description>Installs the CoyoteDX Framework and Toolkit as a utility application in its own directory with scripts to enable adding custom components. Use this to install the tool kit as an application.</description>
 			<fileset dir="CoyoteDX\src\dist\bin" targetdir="$INSTALL_PATH/bin" override="true"/>
-			<fileset dir="CoyoteDX\src\dist\cfg" targetdir="$INSTALL_PATH/cfg" override="true"/>
+			<fileset dir="CoyoteDX\src\dist\cfg" targetdir="$INSTALL_PATH/cfg" override="false"/>
 			<fileset dir="CoyoteDX\src\dist\doc" targetdir="$INSTALL_PATH/doc" override="true"/>
 			<fileset dir="CoyoteDX\build\install\CoyoteDX\lib" targetdir="$INSTALL_PATH/lib" includes="CoyoteDX*.jar" override="true"/>
 			<executable targetfile="$INSTALL_PATH/bin/cdx" stage="never" failure="warn" keep="true">
@@ -111,7 +111,7 @@ xsi:schemaLocation="http://izpack.org/schema/installation http://izpack.org/sche
 		<pack name="Daemon" required="no" preselected="no" >
 			<description>Ability to run CoyoteDX components in the background on *NIX systems.</description>
 			<fileset dir="daemon\src\dist\bin" targetdir="$INSTALL_PATH/bin" override="true"/>
-			<fileset dir="daemon\src\dist\cfg" targetdir="$INSTALL_PATH/cfg" override="true"/>
+			<fileset dir="daemon\src\dist\cfg" targetdir="$INSTALL_PATH/cfg" override="false"/>
 			<fileset dir="daemon\src\dist\doc" targetdir="$INSTALL_PATH/doc" override="true"/>
 			<fileset dir="daemon\build\install\daemon\lib" targetdir="$INSTALL_PATH/lib" includes="ServiceDemo*.jar" override="true"/>
 			<executable targetfile="$INSTALL_PATH/bin/coyotedx" stage="never" failure="warn" keep="true">
