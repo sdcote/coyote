@@ -1,6 +1,5 @@
 defaultTasks 'clean', 'build', 'publish', 'installDist'
 mainClassName = "coyote.loader.BootStrap"
-jar.archiveName = "CoyoteFT.jar"
 
 jar {
     manifest {
