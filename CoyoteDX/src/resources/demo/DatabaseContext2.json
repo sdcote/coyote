@@ -27,9 +27,7 @@
 		},
 		"DatabaseContext" : {
 			"target" : "Oracle",
-			"autocreate" : true,
-			
-					
+			"autocreate" : true
 		},
 	
 		"Reader" : {

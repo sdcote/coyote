@@ -7,7 +7,7 @@
 
 		"Context" : {
 			"class" : "DatabaseContext",
-			"target" : "jdbc:h2:[#$jobdir#]/demodb;MODE=Oracle;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE",
+			"target" : "jdbc:h2:[#$jobdir#]/test;MODE=Oracle;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE",
 			"autocreate" : true,
 			"driver" : "org.h2.Driver",
 			"username" : "sa",

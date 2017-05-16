@@ -16,10 +16,7 @@ import static org.junit.Assert.assertNotNull;
 
 import java.io.IOException;
 
-import org.junit.Test;
-
 import coyote.commons.template.SymbolTable;
-import coyote.dx.TransformEngine;
 import coyote.dx.context.TransformContext;
 import coyote.loader.log.Log;
 
@@ -28,9 +25,6 @@ import coyote.loader.log.Log;
  * 
  */
 public class ContextTest extends AbstractTest {
-
-
-
 
   //@Test
   public void test() {
@@ -48,10 +42,8 @@ public class ContextTest extends AbstractTest {
     // run the engine so the context get opened and initialized
     try {
       engine.run();
-    } catch ( Exception ignore ) {
-    }
-    
-    
+    } catch ( Exception ignore ) {}
+
     String filename = context.getAsString( "filename" );
     assertNotNull( filename );
     Log.debug( filename );
