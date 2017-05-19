@@ -15,14 +15,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import coyote.dx.web.InvocationException;
-import coyote.dx.web.Parameters;
-import coyote.dx.web.Proxy;
-import coyote.dx.web.Resource;
-import coyote.dx.web.Response;
-import coyote.dx.web.auth.AuthenticationException;
-import coyote.dx.web.auth.Authenticator;
-import coyote.dx.web.auth.NullAuthenticator;
+import coyote.commons.DataFrameUtil;
 import coyote.commons.StringUtil;
 import coyote.commons.template.Template;
 import coyote.dataframe.DataField;
@@ -33,6 +26,14 @@ import coyote.dx.ConfigurableComponent;
 import coyote.dx.FrameReader;
 import coyote.dx.context.TransactionContext;
 import coyote.dx.context.TransformContext;
+import coyote.dx.web.InvocationException;
+import coyote.dx.web.Parameters;
+import coyote.dx.web.Proxy;
+import coyote.dx.web.Resource;
+import coyote.dx.web.Response;
+import coyote.dx.web.auth.AuthenticationException;
+import coyote.dx.web.auth.Authenticator;
+import coyote.dx.web.auth.NullAuthenticator;
 import coyote.loader.cfg.ConfigurationException;
 import coyote.loader.log.Log;
 import coyote.loader.log.LogMsg;
@@ -251,9 +252,9 @@ public class WebServiceReader extends AbstractFrameReader implements FrameReader
 
     DataFrame result = response.getResult();
 
-    //TODO apply the selector o the results
-    
-    retval.add( CWS.flatten( result ) );
+    //TODO apply the selector to the results
+
+    retval.add( DataFrameUtil.flatten( result ) );
 
     return retval;
   }

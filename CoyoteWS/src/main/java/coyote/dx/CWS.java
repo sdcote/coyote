@@ -251,7 +251,7 @@ public class CWS {
    * appropriate authenticator. If the class is not fully qualified, the 
    * default namespace is assumed.</p>
    * 
-   * @param cfg the configuration frame (must containd a class attribute)
+   * @param cfg the configuration frame (must contain a class attribute)
    * 
    * @return A configured authenticator
    * 
@@ -288,58 +288,6 @@ public class CWS {
     }
 
     return retval;
-  }
-
-
-
-
-  /**
-   * Create a set of properties from the given dataframe.
-   * 
-   * <p>The field names of child frames are concatenated using the '.' character
-   * as is common practice in property file key naming.
-   * 
-   * @param frame The source of the data
-   * 
-   * @return a set of properties representing those in the given frame.
-   */
-  public static DataFrame flatten( DataFrame frame ) {
-    DataFrame retval = new DataFrame();
-    if ( frame != null )
-      recurse( frame, null, retval );
-    return retval;
-  }
-
-
-
-
-  /**
-   * Recurse into the a dataframe, building a target frame as it goes.
-   * 
-   * <p>The hierarchy of the dataframe is represented in the naming of the 
-   * property values using the '.' to delimit each recursion into the frame.
-   * 
-   * @param source The frame being recursed into, providing data for the target 
-   * @param token The current build of the name of the property
-   * @param target The frame into which values are placed.
-   */
-  private static void recurse( DataFrame source, String token, DataFrame target ) {
-    for ( int x = 0; x < source.getFieldCount(); x++ ) {
-      final DataField field = source.getField( x );
-      String fname = field.getName();
-
-      if ( fname == null )
-        fname = Integer.toString( x );
-
-      if ( token != null )
-        fname = token + "." + fname;
-
-      if ( field.isFrame() )
-        recurse( (DataFrame)field.getObjectValue(), fname, target );
-      else
-        target.set( fname, field.getObjectValue() );
-
-    } // for each frame
   }
 
 }
