@@ -69,6 +69,10 @@ public class ConfigTag {
   public static final String CHARACTER = "character";
   public static final String PREEMTIVE_AUTH = "preemptive_auth";
   public static final String ID = "id";
+  public static final String QUEUE = "Queue";
+  public static final String TOPIC = "Topic";
+  public static final String GROUP = "Group";
+
 
   // Networking proxy tags used by several components
   public static final String PROXY = "proxy";
