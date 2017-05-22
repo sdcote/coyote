@@ -11,6 +11,13 @@
  */
 package coyote.mq;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import org.junit.Test;
 
 import coyote.dataframe.DataFrame;
@@ -30,6 +37,8 @@ public class RabbitReaderTest extends AbstractMessagingTest {
   @Test
   public void test() throws ConfigurationException {
     final String QUEUE_NAME = "rtw/work";
+
+    List<DataFrame> received = new ArrayList<DataFrame>();
 
     sendMessage( QUEUE_NAME, new DataFrame( "MSG", "Hello" ) );
     sendMessage( QUEUE_NAME, new DataFrame( "MSG", "World" ) );
@@ -57,19 +66,27 @@ public class RabbitReaderTest extends AbstractMessagingTest {
 
       // perform the read
       DataFrame retval = reader.read( txnContext );
+      if ( retval != null ) {
 
-      // update the 
-      txnContext.setSourceFrame( retval );
-      txnContext.setRow( ++currentFrameNumber );
-      getContext().setRow( currentFrameNumber );
+        // update the 
+        txnContext.setSourceFrame( retval );
+        txnContext.setRow( ++currentFrameNumber );
+        getContext().setRow( currentFrameNumber );
 
-      // fire the read event in all the listeners
-      txnContext.fireRead( txnContext, reader );
+        // fire the read event in all the listeners
+        txnContext.fireRead( txnContext, reader );
 
-      System.out.println( "Received: " + retval.toString() );
+        System.out.println( "Received: " + retval.toString() );
+        received.add( retval );
+      } else {
+        fail( "Received null message/frame" );
+      }
+    } // while
+    Log.trace( "Reads completed - Error=" + getContext().isInError() + " EOF=" + (reader == null ? "NoReader" : reader.eof()) + " Reads=" + getContext().getRow() );
 
-    }
-    Log.trace( "Reads completed - Error=" + getContext().isInError() + " EOF=" + reader == null ? "NoReader" : reader.eof() + " Reads=" + getContext().getRow() );
+    assertTrue( received.size() == 2 );
+    assertTrue( getContext().getRow() == 2 );
+    assertEquals( received.get( 0 ).getAsString( "MSG" ), "Hello" );
 
   }
 

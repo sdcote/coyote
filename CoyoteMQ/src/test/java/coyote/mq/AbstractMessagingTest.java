@@ -31,6 +31,7 @@ import coyote.loader.log.Log;
 public class AbstractMessagingTest {
   protected static TestBroker broker;
   private final TransformContext context = new TransformContext();
+  static final String CLASSNAME = AbstractMessagingTest.class.getSimpleName();
 
 
 
@@ -40,7 +41,7 @@ public class AbstractMessagingTest {
    */
   @BeforeClass
   public static void setUpBeforeClass() throws Exception {
-    Log.addLogger( Log.DEFAULT_LOGGER_NAME, new ConsoleAppender( Log.TRACE_EVENTS | Log.DEBUG_EVENTS | Log.INFO_EVENTS | Log.WARN_EVENTS | Log.ERROR_EVENTS | Log.FATAL_EVENTS ) );
+    Log.addLogger( CLASSNAME, new ConsoleAppender( Log.TRACE_EVENTS | Log.DEBUG_EVENTS | Log.INFO_EVENTS | Log.WARN_EVENTS | Log.ERROR_EVENTS | Log.FATAL_EVENTS ) );
     broker = new TestBroker();
     broker.open();
   }
@@ -53,6 +54,7 @@ public class AbstractMessagingTest {
    */
   @AfterClass
   public static void tearDownAfterClass() throws Exception {
+    Log.removeLogger( CLASSNAME );
     broker.close();
   }
 
