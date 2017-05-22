@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Stephan D. Cote' - All rights reserved.
+ * Copyright (c) 2017 Stephan D. Cote' - All rights reserved.
  * 
  * This program and the accompanying materials are made available under the 
  * terms of the MIT License which accompanies this distribution, and is 
@@ -9,21 +9,23 @@
  *   Stephan D. Cote 
  *      - Initial concept and implementation
  */
-package coyote.batch;
+package coyote.mq;
 
 import coyote.commons.Version;
 import coyote.loader.log.LogMsg.BundleBaseName;
 
-
 /**
- * Batch Mail Tools fixture
+ * 
  */
-public class BatchMT {
-  public static final Version VERSION = new Version( 0, 0, 1, Version.EXPERIMENTAL );
-  public static final String NAME = "BatchMT";
+public class CMQ {
+  public static final Version VERSION = new Version( 0, 1, 0, Version.EXPERIMENTAL );
+  public static final String NAME = "CDX";
+
+  public static final String QUEUE_NAME = "queuename";
 
   public static final BundleBaseName MSG;
   static {
-    MSG = new BundleBaseName( "BatchMTMsg" );
+    MSG = new BundleBaseName( "CmqMsg" );
   }
+
 }

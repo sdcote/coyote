@@ -1,0 +1,23 @@
+defaultTasks 'clean', 'build', 'publish', 'installDist'
+mainClassName = "coyote.loader.BootStrap"
+
+jar {
+    manifest {
+		attributes  'Implementation-Title' : 'Coyote Message Queue Toolkit',
+		'Provider' : 'Coyote Systems',
+		'Main-Class' : "$mainClassName",
+		'Implementation-Version' : version
+	}
+}
+
+ext {
+	junitVersion = '4.12'
+	rabbitVersion = '4.1.0'
+	qpidVersion = '6.1.2'}
+dependencies {
+	compile project(':CoyoteDX')
+	compile "coyote:CoyoteDX:$version"
+	compile "com.rabbitmq:amqp-client:$rabbitVersion"
+	testCompile "org.apache.qpid:qpid-broker:$qpidVersion"
+	testCompile "junit:junit:$junitVersion"	
+}
