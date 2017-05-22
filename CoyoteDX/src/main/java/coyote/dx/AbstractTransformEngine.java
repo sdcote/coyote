@@ -345,8 +345,8 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
             // Set the returned dataframe into the transaction context
             txnContext.setSourceFrame( retval );
             // increment the row number in the contexts
-            txnContext.setRow( ++currentFrameNumber );
-            getContext().setRow( currentFrameNumber );
+            txnContext.setRow( ++currentFrameNumber ); // TODO: Code smell, setting a value in two related objects
+            getContext().setRow( currentFrameNumber ); // TODO: Only one of these should be set as the authority
             getContext().getSymbols().put( Symbols.CURRENT_FRAME, currentFrameNumber );
             getContext().getSymbols().put( Symbols.LAST_FRAME, txnContext.isLastFrame() );
 

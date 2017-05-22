@@ -52,6 +52,7 @@ public class ConfigTag {
   /** User name ({@value}) configuration attribute. */
   public static final String USERNAME = "username";
   public static final String ENCRYPTED_USERNAME = "encrypted_username";
+  public static final String USE_SSL = "usessl";
   public static final String DATEFORMAT = "dateformat";
   public static final String ALIGN = "align";
   public static final String RECURSE = "recurse";
