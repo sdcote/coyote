@@ -22,7 +22,6 @@ import java.util.List;
 import org.junit.Test;
 
 import coyote.dataframe.DataFrame;
-import coyote.dataframe.marshal.JSONMarshaler;
 import coyote.dx.ConfigTag;
 import coyote.dx.FrameReader;
 import coyote.dx.context.TransactionContext;
