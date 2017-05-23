@@ -14,6 +14,7 @@ package coyote.mq;
 import coyote.commons.Version;
 import coyote.loader.log.LogMsg.BundleBaseName;
 
+
 /**
  * 
  */
