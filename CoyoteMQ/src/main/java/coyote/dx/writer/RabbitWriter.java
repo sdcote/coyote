@@ -12,11 +12,31 @@
 package coyote.dx.writer;
 
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
+import java.util.concurrent.TimeoutException;
 
+import com.rabbitmq.client.Channel;
+import com.rabbitmq.client.Connection;
+import com.rabbitmq.client.ConnectionFactory;
+import com.rabbitmq.client.ConsumerCancelledException;
+import com.rabbitmq.client.ShutdownSignalException;
+
+import coyote.commons.CipherUtil;
+import coyote.commons.ExceptionUtil;
+import coyote.commons.StringUtil;
 import coyote.dataframe.DataFrame;
+import coyote.dataframe.DataFrameException;
+import coyote.dx.ConfigTag;
 import coyote.dx.ConfigurableComponent;
 import coyote.dx.FrameWriter;
 import coyote.dx.context.TransformContext;
+import coyote.loader.Loader;
+import coyote.loader.log.Log;
+import coyote.loader.log.LogMsg;
+import coyote.mq.CMQ;
 
 
 /**
@@ -24,13 +44,109 @@ import coyote.dx.context.TransformContext;
  */
 public class RabbitWriter extends AbstractFrameWriter implements FrameWriter, ConfigurableComponent {
 
+  private Connection connection = null;
+  private Channel channel = null;
+
+
+
+
+  public URI getBrokerURI() {
+    if ( configuration.containsIgnoreCase( ConfigTag.SOURCE ) ) {
+      URI retval;
+      try {
+        String fieldname = configuration.getFieldIgnoreCase( ConfigTag.SOURCE ).getName();
+        retval = new URI( configuration.getAsString( fieldname ) );
+        return retval;
+      } catch ( URISyntaxException e ) {
+        Log.debug( LogMsg.createMsg( CMQ.MSG, "Reader.config_attribute_is_not_valid_uri", ConfigTag.SOURCE, configuration.getAsString( ConfigTag.SOURCE ) ) );
+      }
+    }
+    return null;
+  }
+
+
+
+
+  public String getPassword() {
+    if ( configuration.containsIgnoreCase( ConfigTag.PASSWORD ) ) {
+      return configuration.getAsString( ConfigTag.PASSWORD );
+    } else if ( configuration.containsIgnoreCase( Loader.ENCRYPT_PREFIX + ConfigTag.PASSWORD ) ) {
+      return CipherUtil.decryptString( configuration.getAsString( Loader.ENCRYPT_PREFIX + ConfigTag.PASSWORD ) );
+    } else {
+      return null;
+    }
+  }
+
+
+
+
+  public String getUsername() {
+    if ( configuration.containsIgnoreCase( ConfigTag.USERNAME ) ) {
+      return configuration.getFieldIgnoreCase( ConfigTag.USERNAME ).getStringValue();
+    } else if ( configuration.containsIgnoreCase( Loader.ENCRYPT_PREFIX + ConfigTag.USERNAME ) ) {
+      return CipherUtil.decryptString( configuration.getFieldIgnoreCase( Loader.ENCRYPT_PREFIX + ConfigTag.USERNAME ).getStringValue() );
+    } else {
+      return null;
+    }
+  }
+
+
+
+
+  public boolean useSSL() {
+    if ( configuration.containsIgnoreCase( ConfigTag.USE_SSL ) ) {
+      try {
+        String fieldname = configuration.getFieldIgnoreCase( ConfigTag.USE_SSL ).getName();
+        return configuration.getAsBoolean( fieldname );
+      } catch ( final DataFrameException ignore ) {
+        Log.debug( LogMsg.createMsg( CMQ.MSG, "Reader.config_attribute_is_not_valid_boolean", ConfigTag.USE_SSL, configuration.getAsString( ConfigTag.USE_SSL ) ) );
+      }
+    }
+    return false;
+  }
+
+
+
+
+  public String getQueueName() {
+    if ( configuration.containsIgnoreCase( CMQ.QUEUE_NAME ) ) {
+      return configuration.getFieldIgnoreCase( CMQ.QUEUE_NAME ).getStringValue();
+    }
+    return null;
+  }
+
+
+
+
   /**
-   * @see coyote.dx.writer.AbstractFrameWriter#open(coyote.dx.context.TransformContext)
+   * @see coyote.dx.writer.AbstractFrameFileWriter#open(coyote.dx.context.TransformContext)
    */
   @Override
   public void open( TransformContext context ) {
-    // TODO Auto-generated method stub
     super.open( context );
+
+    ConnectionFactory factory = new ConnectionFactory();
+
+    try {
+      factory.setUri( getBrokerURI() );
+      if ( useSSL() ) {
+        factory.useSslProtocol();
+      }
+
+      String username = getUsername();
+      if ( StringUtil.isNotBlank( username ) ) {
+        factory.setUsername( username );
+        factory.setPassword( getPassword() );
+      }
+
+      connection = factory.newConnection();
+      channel = connection.createChannel();
+      channel.queueDeclare( getQueueName(), true, false, false, null );
+
+    } catch ( KeyManagementException | NoSuchAlgorithmException | URISyntaxException | IOException | TimeoutException | ShutdownSignalException | ConsumerCancelledException e ) {
+      Log.error( e.getClass().getSimpleName() + ":" + e.getMessage() + "\n" + ExceptionUtil.stackTrace( e ) );
+    }
+
   }
 
 
@@ -41,19 +157,29 @@ public class RabbitWriter extends AbstractFrameWriter implements FrameWriter, Co
    */
   @Override
   public void write( DataFrame frame ) {
-    // TODO Auto-generated method stub
-
+    if ( frame != null ) {
+      try {
+        byte[] data = frame.getBytes();
+        channel.basicPublish( "", getQueueName(), null, data );
+        Log.debug( "Sent " + data.length + " bytes to '" + getQueueName() + "'" );
+      } catch ( IOException e ) {
+        Log.error( e.getClass().getSimpleName() + ":" + e.getMessage() + "\n" + ExceptionUtil.stackTrace( e ) );
+      }
+    }
   }
 
 
 
 
   /**
-   * @see coyote.dx.writer.AbstractFrameWriter#close()
+   * @see coyote.dx.writer.AbstractFrameFileWriter#close()
    */
   @Override
   public void close() throws IOException {
-    // TODO Auto-generated method stub
+    if ( connection != null ) {
+      connection.close();
+    }
+
     super.close();
   }
 
