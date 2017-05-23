@@ -15,16 +15,19 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Test;
 
 import coyote.dataframe.DataFrame;
+import coyote.dataframe.marshal.JSONMarshaler;
 import coyote.dx.ConfigTag;
 import coyote.dx.FrameReader;
 import coyote.dx.context.TransactionContext;
 import coyote.dx.reader.RabbitReader;
+import coyote.loader.Loader;
 import coyote.loader.cfg.ConfigurationException;
 import coyote.loader.log.Log;
 
@@ -33,6 +36,52 @@ import coyote.loader.log.Log;
  * 
  */
 public class RabbitReaderTest extends AbstractMessagingTest {
+
+  @Test
+  public void externalTest() throws ConfigurationException {
+    final String QUEUE_NAME = "test/work";
+
+    // connect to an external service using encrypted username and password
+    DataFrame cfg = new DataFrame();
+    cfg.set( ConfigTag.SOURCE, "amqp://orangutan.rmq.cloudamqp.com/qqxhunvl" );
+    cfg.set( Loader.ENCRYPT_PREFIX + ConfigTag.USERNAME, "3NaWHlOog2nkA/Wn3CO0i4uGgozkPiFy" );
+    cfg.set( Loader.ENCRYPT_PREFIX + ConfigTag.PASSWORD, "gAFobDfLvfDUtbn+jAI8/1y/dnhBueMSzI4A1niA87ks2Oo7PWqgYv6nPzAGor1tB1kYiig995Gb1vzXWdo21pd19yuXtGXZ" );
+    cfg.set( CMQ.QUEUE_NAME, QUEUE_NAME );
+
+    //System.out.println( JSONMarshaler.toFormattedString( cfg ) );
+
+    long currentFrameNumber = 0;
+    FrameReader reader = new RabbitReader();
+    reader.setConfiguration( cfg );
+
+    reader.open( getContext() );
+
+    while ( getContext().isNotInError() && reader != null && !reader.eof() ) {
+      TransactionContext txnContext = new TransactionContext( getContext() );
+      getContext().setTransaction( txnContext );
+
+      DataFrame retval = reader.read( txnContext );
+      if ( retval != null ) {
+        txnContext.setSourceFrame( retval );
+        txnContext.setRow( ++currentFrameNumber );
+        getContext().setRow( currentFrameNumber );
+        txnContext.fireRead( txnContext, reader );
+        System.out.println( "Received: " + retval.toString() );
+      } else {
+        System.out.println( "Null message" );
+      }
+    }
+    Log.trace( "Reads completed - Error=" + getContext().isInError() + " EOF=" + ( reader == null ? "NoReader" : reader.eof() ) + " Reads=" + getContext().getRow() );
+
+    try {
+      reader.close();
+    } catch ( IOException e ) {
+      Log.warn( e.getClass().getSimpleName() + ":" + e.getMessage() );
+    }
+  }
+
+
+
 
   @Test
   public void test() throws ConfigurationException {
@@ -82,7 +131,13 @@ public class RabbitReaderTest extends AbstractMessagingTest {
         fail( "Received null message/frame" );
       }
     } // while
-    Log.trace( "Reads completed - Error=" + getContext().isInError() + " EOF=" + (reader == null ? "NoReader" : reader.eof()) + " Reads=" + getContext().getRow() );
+    Log.trace( "Reads completed - Error=" + getContext().isInError() + " EOF=" + ( reader == null ? "NoReader" : reader.eof() ) + " Reads=" + getContext().getRow() );
+
+    try {
+      reader.close();
+    } catch ( IOException e ) {
+      Log.warn( e.getClass().getSimpleName() + ":" + e.getMessage() );
+    }
 
     assertTrue( received.size() == 2 );
     assertTrue( getContext().getRow() == 2 );
