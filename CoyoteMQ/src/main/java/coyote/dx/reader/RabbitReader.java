@@ -184,7 +184,7 @@ public class RabbitReader extends AbstractFrameReader implements FrameReader, Co
       channel.basicConsume( getQueueName(), true, consumer );
 
     } catch ( KeyManagementException | NoSuchAlgorithmException | URISyntaxException | IOException | TimeoutException | ShutdownSignalException | ConsumerCancelledException e ) {
-      Log.error( ExceptionUtil.stackTrace( e ) );
+      Log.error( e.getClass().getSimpleName() + ":" + e.getMessage() + "\n" + ExceptionUtil.stackTrace( e ) );
     }
 
     // pause for a short time to allow the consumer to spin-up
@@ -196,8 +196,7 @@ public class RabbitReader extends AbstractFrameReader implements FrameReader, Co
     try {
       messageDrop.waitForDelivery();
     } catch ( InterruptedException e ) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
+      Log.warn( e.getClass().getSimpleName() + ":" + e.getMessage() + "\n" + ExceptionUtil.stackTrace( e ) );
     }
   }
 
