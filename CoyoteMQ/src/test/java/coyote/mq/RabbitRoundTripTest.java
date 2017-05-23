@@ -17,7 +17,7 @@ import static org.junit.Assert.fail;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.Ignore;
+import org.junit.Test;
 
 import coyote.dataframe.DataFrame;
 import coyote.dx.ConfigTag;
@@ -34,13 +34,12 @@ import coyote.loader.cfg.ConfigurationException;
  */
 public class RabbitRoundTripTest extends AbstractMessagingTest {
 
-  @Ignore
+  @Test
   public void test() throws ConfigurationException {
     final String QUEUE_NAME = "rtw/work";
 
     List<DataFrame> received = new ArrayList<DataFrame>();
 
-    long currentFrameNumber = 0;
     DataFrame cfg = new DataFrame();
     cfg.set( ConfigTag.SOURCE, "amqp://localhost:" + broker.port );
     cfg.set( ConfigTag.USERNAME, "guest" );
@@ -57,33 +56,39 @@ public class RabbitRoundTripTest extends AbstractMessagingTest {
     writer.setConfiguration( cfg );
     writer.open( getContext() );
 
-    int limit = 10;
+    int limit = 100;
     for ( int x = 0; x < limit; x++ ) {
-      TransactionContext txnContext = new TransactionContext( getContext() );
-      getContext().setTransaction( txnContext );
-      DataFrame message = new DataFrame( "Binary", Integer.toBinaryString( x ) ).set( "Hex", Integer.toHexString( x ) ).set( "Octal", Integer.toOctalString( x ) );
+      DataFrame message = new DataFrame()
+          .set( "Binary", Integer.toBinaryString( x ) )
+          .set( "Hex", Integer.toHexString( x ) )
+          .set( "Octal", Integer.toOctalString( x ) );
       writer.write( message );
-
-      DataFrame retval = reader.read( txnContext );
-      if ( retval != null ) {
-
-        // update the 
-        txnContext.setSourceFrame( retval );
-        txnContext.setRow( ++currentFrameNumber );
-        getContext().setRow( currentFrameNumber );
-
-        // fire the read event in all the listeners
-        txnContext.fireRead( txnContext, reader );
-
-        System.out.println( "Received: " + retval.toString() );
-        received.add( retval );
-      } else {
-        fail( "Received null message/frame" );
-      }
-
     }
+
+    long timeout = 3000;
+    long endtime = System.currentTimeMillis() + timeout;
+    while ( received.size() < limit ) {
+      read( reader, received );
+      if ( System.currentTimeMillis() > endtime ) {
+        fail( "Only received " + received.size() + " of " + limit + " messages within a " + timeout + "ms timeout period" );
+      }
+    }
+
     assertTrue( received.size() == limit );
 
+  }
+
+
+
+
+  private void read( FrameReader reader, List<DataFrame> received ) {
+    TransactionContext txnContext = new TransactionContext( getContext() );
+    getContext().setTransaction( txnContext );
+    DataFrame retval = reader.read( txnContext );
+    if ( retval != null ) {
+      received.add( retval );
+      System.out.println( "Received msg " + received.size() + " - " + retval.toString() );
+    }
   }
 
 }
