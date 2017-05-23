@@ -97,7 +97,7 @@ public class MessageDrop {
 
 
   /**
-   * Wait indifinitely for data to arrive.
+   * Wait indefinitely for data to arrive.
    * 
    * @throws InterruptedException
    */
