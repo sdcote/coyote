@@ -30,7 +30,7 @@ import coyote.loader.log.LogMsg;
 /**
  * 
  */
-public class FlatFileWriter extends AbstractFrameWriter implements FrameWriter, ConfigurableComponent {
+public class FlatFileWriter extends AbstractFrameFileWriter implements FrameWriter, ConfigurableComponent {
 
   /** The list of fields we are to write in the order they are to be written */
   List<FieldDefinition> fields = new ArrayList<FieldDefinition>();
@@ -42,7 +42,7 @@ public class FlatFileWriter extends AbstractFrameWriter implements FrameWriter, 
 
 
   /**
-   * @see coyote.dx.writer.AbstractFrameWriter#open(coyote.dx.context.TransformContext)
+   * @see coyote.dx.writer.AbstractFrameFileWriter#open(coyote.dx.context.TransformContext)
    */
   @Override
   public void open( final TransformContext context ) {
@@ -107,7 +107,7 @@ public class FlatFileWriter extends AbstractFrameWriter implements FrameWriter, 
 
 
   /**
-   * @see coyote.dx.writer.AbstractFrameWriter#write(coyote.dataframe.DataFrame)
+   * @see coyote.dx.writer.AbstractFrameFileWriter#write(coyote.dataframe.DataFrame)
    */
   @Override
   public void write( final DataFrame frame ) {

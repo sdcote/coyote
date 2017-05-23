@@ -24,10 +24,10 @@ import coyote.loader.log.LogMsg;
  * Writes a data frame as a simple JSON string to either standard output 
  * (default) or standard error.
  */
-public class JSONWriter extends AbstractFrameWriter implements FrameWriter, ConfigurableComponent {
+public class JSONWriter extends AbstractFrameFileWriter implements FrameWriter, ConfigurableComponent {
 
   /**
-   * @see coyote.dx.writer.AbstractFrameWriter#write(coyote.dataframe.DataFrame)
+   * @see coyote.dx.writer.AbstractFrameFileWriter#write(coyote.dataframe.DataFrame)
    */
   @Override
   public void write( final DataFrame frame ) {

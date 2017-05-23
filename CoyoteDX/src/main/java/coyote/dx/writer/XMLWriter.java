@@ -34,7 +34,7 @@ import coyote.loader.log.LogMsg;
  * HEADER
  * &lt;xml version="1.0" encoding="windows-1252"?&gt;
  */
-public class XMLWriter extends AbstractFrameWriter implements FrameWriter, ConfigurableComponent {
+public class XMLWriter extends AbstractFrameFileWriter implements FrameWriter, ConfigurableComponent {
 
   private final StringBuilder b = new StringBuilder();
 
@@ -50,7 +50,7 @@ public class XMLWriter extends AbstractFrameWriter implements FrameWriter, Confi
 
 
   /**
-   * @see coyote.dx.writer.AbstractFrameWriter#close()
+   * @see coyote.dx.writer.AbstractFrameFileWriter#close()
    */
   @Override
   public void close() throws IOException {
@@ -139,7 +139,7 @@ public class XMLWriter extends AbstractFrameWriter implements FrameWriter, Confi
 
 
   /**
-   * @see coyote.dx.writer.AbstractFrameWriter#open(coyote.dx.context.TransformContext)
+   * @see coyote.dx.writer.AbstractFrameFileWriter#open(coyote.dx.context.TransformContext)
    */
   @Override
   public void open( final TransformContext context ) {
@@ -276,7 +276,7 @@ public class XMLWriter extends AbstractFrameWriter implements FrameWriter, Confi
 
 
   /**
-   * @see coyote.dx.writer.AbstractFrameWriter#write(coyote.dataframe.DataFrame)
+   * @see coyote.dx.writer.AbstractFrameFileWriter#write(coyote.dataframe.DataFrame)
    */
   @Override
   public void write( final DataFrame frame ) {

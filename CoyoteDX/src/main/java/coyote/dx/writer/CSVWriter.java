@@ -54,7 +54,7 @@ import coyote.loader.log.LogMsg;
  *   "dateformat" : "yyyy/MM/dd",</pre>
  *  
  */
-public class CSVWriter extends AbstractFrameWriter implements FrameWriter, ConfigurableComponent {
+public class CSVWriter extends AbstractFrameFileWriter implements FrameWriter, ConfigurableComponent {
 
   /** The character used for escaping quotes. */
   public static final char ESCAPE_CHARACTER = '"';
@@ -162,7 +162,7 @@ public class CSVWriter extends AbstractFrameWriter implements FrameWriter, Confi
 
 
   /**
-   * @see coyote.dx.writer.AbstractFrameWriter#open(coyote.dx.context.TransformContext)
+   * @see coyote.dx.writer.AbstractFrameFileWriter#open(coyote.dx.context.TransformContext)
    */
   @Override
   public void open( final TransformContext context ) {
@@ -264,7 +264,7 @@ public class CSVWriter extends AbstractFrameWriter implements FrameWriter, Confi
 
 
   /**
-   * @see coyote.dx.writer.AbstractFrameWriter#write(coyote.dataframe.DataFrame)
+   * @see coyote.dx.writer.AbstractFrameFileWriter#write(coyote.dataframe.DataFrame)
    */
   @Override
   public void write( final DataFrame frame ) {

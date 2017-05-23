@@ -274,7 +274,7 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
 
 
   /**
-   * @see coyote.dx.writer.AbstractFrameWriter#open(coyote.dx.context.TransformContext)
+   * @see coyote.dx.writer.AbstractFrameFileWriter#open(coyote.dx.context.TransformContext)
    */
   @Override
   public void open( final TransformContext context ) {
@@ -545,7 +545,7 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
 
 
   /**
-   * @see coyote.dx.writer.AbstractFrameWriter#write(coyote.dataframe.DataFrame)
+   * @see coyote.dx.writer.AbstractFrameFileWriter#write(coyote.dataframe.DataFrame)
    */
   @Override
   public void write( final DataFrame frame ) {
