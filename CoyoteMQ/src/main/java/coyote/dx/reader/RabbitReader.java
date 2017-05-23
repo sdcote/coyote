@@ -132,7 +132,7 @@ public class RabbitReader extends AbstractFrameReader implements FrameReader, Co
 
 
   /**
-   * @see coyote.dx.writer.AbstractFrameWriter#open(coyote.dx.context.TransformContext)
+   * @see coyote.dx.reader.AbstractFrameReader#open(coyote.dx.context.TransformContext)
    */
   @Override
   public void open( TransformContext context ) {
@@ -240,7 +240,7 @@ public class RabbitReader extends AbstractFrameReader implements FrameReader, Co
 
 
   /**
-   * @see coyote.dx.writer.AbstractFrameWriter#close()
+   * @see coyote.dx.reader.AbstractFrameReader#close()
    */
   @Override
   public void close() throws IOException {
