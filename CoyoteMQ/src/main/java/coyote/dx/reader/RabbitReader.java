@@ -224,13 +224,20 @@ public class RabbitReader extends AbstractFrameReader implements FrameReader, Co
 
 
   /**
+   * Checks to see if there is any data in the message drop.
+   * 
+   * <p>If the message drop is empty, this check will wait for a message for 
+   * 100ms before returning true (no more messages). This is to give threads a 
+   * chance to swap off the CPU and deliver a message without adversely 
+   * affecting performance.
+   * 
    * @see coyote.dx.FrameReader#eof()
    */
   @Override
   public boolean eof() {
     if ( !messageDrop.hasData() ) {
       try {
-        messageDrop.waitForDelivery( 500 );
+        messageDrop.waitForDelivery( 100 );
       } catch ( InterruptedException ignore ) {}
     }
     return !messageDrop.hasData();
