@@ -11,9 +11,11 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import coyote.commons.CipherUtil;
 import coyote.commons.jdbc.DriverDelegate;
 import coyote.dataframe.DataFrameException;
 import coyote.dx.context.TransformContext;
+import coyote.loader.Loader;
 import coyote.loader.log.Log;
 import coyote.loader.log.LogMsg;
 
@@ -49,27 +51,38 @@ public class Database extends AbstractConfigurableComponent implements Configura
    * <p>This does not share nor pool connections, but creates a new connection 
    * on each request. This should be fine for this toolkit as it is expected 
    * that maybe two connections (one for a reader and one for a writer) might be 
-   * created.</p>
+   * created.
    * 
-   * <p>Each connection is tracked and closed when this component is closed.</p>
+   * <p>The primary benifit of this class is that many components can 
+   * reference one database configuration in the job and not have to duplicate 
+   * the configuration in each component. Additionally, this class will keep a 
+   * reference to all the connections and make sure they are closed when the 
+   * JRE exits.
+   * 
+   * <p>Each connection is tracked and closed when this component is closed.
    * 
    * @return a new connection
    */
   public Connection getConnection() {
-    
+
     // TODO: Check if the driver has already been registered
 
     Connection connection = null;
+    ClassLoader cloader = this.getClass().getClassLoader();
 
-    // get the connection to the database
     try {
-      // TODO: Library should be optional as the class path may already contain the necessary drivers
-      URL u = new URL( getLibrary() );
-      URLClassLoader ucl = new URLClassLoader( new URL[] { u } );
-      Driver driver = (Driver)Class.forName( getDriver(), true, ucl ).newInstance();
-      // TODO: this may be redundant...might result in the same driver registered multiple times..acceptable for this toolkit, but not for general use
-      DriverManager.registerDriver( new DriverDelegate( driver ) ); 
+      // Check for optional Library specification and use a URL class loader with that library specification
+      if ( getLibrary() != null ) {
+        URL u = new URL( getLibrary() );
+        cloader = new URLClassLoader( new URL[] { u } );
+      }
 
+      Driver driver = (Driver)Class.forName( getDriver(), true, cloader ).newInstance();
+
+      // TODO: this may be redundant...might result in the same driver registered multiple times..acceptable for this toolkit, but not for general use
+      DriverManager.registerDriver( new DriverDelegate( driver ) );
+
+      // get the connection to the database
       connection = DriverManager.getConnection( getTarget(), getUsername(), getPassword() );
 
       if ( connection != null ) {
@@ -139,7 +152,26 @@ public class Database extends AbstractConfigurableComponent implements Configura
 
 
   public String getPassword() {
-    return configuration.getAsString( ConfigTag.PASSWORD );
+    if ( configuration.containsIgnoreCase( ConfigTag.PASSWORD ) ) {
+      return configuration.getAsString( ConfigTag.PASSWORD );
+    } else if ( configuration.containsIgnoreCase( Loader.ENCRYPT_PREFIX + ConfigTag.PASSWORD ) ) {
+      return CipherUtil.decryptString( configuration.getAsString( Loader.ENCRYPT_PREFIX + ConfigTag.PASSWORD ) );
+    } else {
+      return null;
+    }
+  }
+
+
+
+
+  public String getUsername() {
+    if ( configuration.containsIgnoreCase( ConfigTag.USERNAME ) ) {
+      return configuration.getFieldIgnoreCase( ConfigTag.USERNAME ).getStringValue();
+    } else if ( configuration.containsIgnoreCase( Loader.ENCRYPT_PREFIX + ConfigTag.USERNAME ) ) {
+      return CipherUtil.decryptString( configuration.getFieldIgnoreCase( Loader.ENCRYPT_PREFIX + ConfigTag.USERNAME ).getStringValue() );
+    } else {
+      return null;
+    }
   }
 
 
@@ -150,13 +182,6 @@ public class Database extends AbstractConfigurableComponent implements Configura
    */
   public void setUsername( String value ) {
     configuration.put( ConfigTag.USERNAME, value );
-  }
-
-
-
-
-  public String getUsername() {
-    return configuration.getAsString( ConfigTag.USERNAME );
   }
 
 
@@ -207,7 +232,7 @@ public class Database extends AbstractConfigurableComponent implements Configura
           // don't care - right now
         } // try
       } // !null
-    }// for each connection
+    } // for each connection
   }
 
 }
