@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import coyote.commons.CipherUtil;
+import coyote.commons.ExceptionUtil;
 import coyote.commons.jdbc.DriverDelegate;
 import coyote.dataframe.DataFrameException;
 import coyote.dx.context.TransformContext;
@@ -36,6 +37,7 @@ import coyote.loader.log.LogMsg;
 public class Database extends AbstractConfigurableComponent implements ConfigurableComponent {
 
   private final List<Connection> connections = new ArrayList<Connection>();
+  private Driver driver = null;
 
 
 
@@ -64,32 +66,24 @@ public class Database extends AbstractConfigurableComponent implements Configura
    * @return a new connection
    */
   public Connection getConnection() {
-
-    // TODO: Check if the driver has already been registered
-
     Connection connection = null;
-    ClassLoader cloader = this.getClass().getClassLoader();
 
     try {
-      // Check for optional Library specification and use a URL class loader with that library specification
-      if ( getLibrary() != null ) {
+      if ( driver == null ) {
         URL u = new URL( getLibrary() );
-        cloader = new URLClassLoader( new URL[] { u } );
+        URLClassLoader ucl = new URLClassLoader( new URL[] { u } );
+        driver = (Driver)Class.forName( getDriver(), true, ucl ).newInstance();
+        DriverManager.registerDriver( new DriverDelegate( driver ) );
       }
 
-      Driver driver = (Driver)Class.forName( getDriver(), true, cloader ).newInstance();
-
-      // TODO: this may be redundant...might result in the same driver registered multiple times..acceptable for this toolkit, but not for general use
-      DriverManager.registerDriver( new DriverDelegate( driver ) );
-
-      // get the connection to the database
       connection = DriverManager.getConnection( getTarget(), getUsername(), getPassword() );
 
       if ( connection != null ) {
-        Log.debug( LogMsg.createMsg( CDX.MSG, "EngineFactory.Connected to {}", getTarget() ) );
+        Log.debug( LogMsg.createMsg( CDX.MSG, "Database.connected_to", getTarget() ) );
       }
     } catch ( InstantiationException | IllegalAccessException | ClassNotFoundException | SQLException | MalformedURLException e ) {
       Log.error( "Could not connect to database: " + e.getClass().getSimpleName() + " - " + e.getMessage() );
+      Log.debug( "ERROR: Could not connect to database: " + e.getClass().getSimpleName() + " - " + e.getMessage() + "\n" + ExceptionUtil.stackTrace( e ) );
     }
 
     if ( connection != null ) {
@@ -228,11 +222,9 @@ public class Database extends AbstractConfigurableComponent implements Configura
       if ( connection != null ) {
         try {
           connection.close();
-        } catch ( SQLException ignore ) {
-          // don't care - right now
-        } // try
-      } // !null
-    } // for each connection
+        } catch ( SQLException ignore ) {}
+      }
+    }
   }
 
 }
