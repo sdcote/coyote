@@ -145,6 +145,7 @@ public class RabbitWriter extends AbstractFrameWriter implements FrameWriter, Co
 
     } catch ( KeyManagementException | NoSuchAlgorithmException | URISyntaxException | IOException | TimeoutException | ShutdownSignalException | ConsumerCancelledException e ) {
       Log.error( e.getClass().getSimpleName() + ":" + e.getMessage() + "\n" + ExceptionUtil.stackTrace( e ) );
+      getContext().setError( "Could not open " + getClass().getSimpleName() + ": " + e.getMessage() );
     }
 
   }

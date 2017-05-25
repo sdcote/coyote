@@ -185,6 +185,7 @@ public class RabbitReader extends AbstractFrameReader implements FrameReader, Co
 
     } catch ( KeyManagementException | NoSuchAlgorithmException | URISyntaxException | IOException | TimeoutException | ShutdownSignalException | ConsumerCancelledException e ) {
       Log.error( e.getClass().getSimpleName() + ":" + e.getMessage() + "\n" + ExceptionUtil.stackTrace( e ) );
+      getContext().setError( "Could not open "+getClass().getSimpleName()+": "+e.getMessage() );
     }
 
     // pause for a short time to allow the consumer to spin-up
