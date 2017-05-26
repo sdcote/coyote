@@ -22,8 +22,6 @@ public class CMQ {
   public static final Version VERSION = new Version( 0, 1, 0, Version.EXPERIMENTAL );
   public static final String NAME = "CDX";
 
-  public static final String QUEUE_NAME = "queuename";
-
   public static final BundleBaseName MSG;
   static {
     MSG = new BundleBaseName( "CmqMsg" );

@@ -44,7 +44,7 @@ public class RabbitRoundTripTest extends AbstractMessagingTest {
     cfg.set( ConfigTag.SOURCE, "amqp://localhost:" + broker.port );
     cfg.set( ConfigTag.USERNAME, "guest" );
     cfg.set( ConfigTag.PASSWORD, "guest" );
-    cfg.set( CMQ.QUEUE_NAME, QUEUE_NAME );
+    cfg.set( ConfigTag.QUEUE, QUEUE_NAME );
     cfg.set( ConfigTag.USE_SSL, true );
 
     FrameReader reader = new RabbitReader();

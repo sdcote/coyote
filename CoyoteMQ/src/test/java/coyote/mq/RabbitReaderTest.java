@@ -45,7 +45,7 @@ public class RabbitReaderTest extends AbstractMessagingTest {
     cfg.set( ConfigTag.SOURCE, "amqp://orangutan.rmq.cloudamqp.com/qqxhunvl" );
     cfg.set( Loader.ENCRYPT_PREFIX + ConfigTag.USERNAME, "3NaWHlOog2nkA/Wn3CO0i4uGgozkPiFy" );
     cfg.set( Loader.ENCRYPT_PREFIX + ConfigTag.PASSWORD, "gAFobDfLvfDUtbn+jAI8/1y/dnhBueMSzI4A1niA87ks2Oo7PWqgYv6nPzAGor1tB1kYiig995Gb1vzXWdo21pd19yuXtGXZ" );
-    cfg.set( CMQ.QUEUE_NAME, QUEUE_NAME );
+    cfg.set( ConfigTag.QUEUE, QUEUE_NAME );
 
     //System.out.println( JSONMarshaler.toFormattedString( cfg ) );
 
@@ -96,7 +96,7 @@ public class RabbitReaderTest extends AbstractMessagingTest {
     cfg.set( ConfigTag.SOURCE, "amqp://localhost:" + broker.port );
     cfg.set( ConfigTag.USERNAME, "guest" );
     cfg.set( ConfigTag.PASSWORD, "guest" );
-    cfg.set( CMQ.QUEUE_NAME, QUEUE_NAME );
+    cfg.set( ConfigTag.QUEUE, QUEUE_NAME );
     cfg.set( ConfigTag.USE_SSL, true );
 
     // Engine factory creates an configures the reader

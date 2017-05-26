@@ -109,8 +109,8 @@ public class RabbitWriter extends AbstractFrameWriter implements FrameWriter, Co
 
 
   public String getQueueName() {
-    if ( configuration.containsIgnoreCase( CMQ.QUEUE_NAME ) ) {
-      return configuration.getFieldIgnoreCase( CMQ.QUEUE_NAME ).getStringValue();
+    if ( configuration.containsIgnoreCase( ConfigTag.QUEUE ) ) {
+      return configuration.getFieldIgnoreCase( ConfigTag.QUEUE ).getStringValue();
     }
     return null;
   }

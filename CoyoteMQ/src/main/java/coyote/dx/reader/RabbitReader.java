@@ -122,8 +122,8 @@ public class RabbitReader extends AbstractFrameReader implements FrameReader, Co
 
 
   public String getQueueName() {
-    if ( configuration.containsIgnoreCase( CMQ.QUEUE_NAME ) ) {
-      return configuration.getFieldIgnoreCase( CMQ.QUEUE_NAME ).getStringValue();
+    if ( configuration.containsIgnoreCase( ConfigTag.QUEUE ) ) {
+      return configuration.getFieldIgnoreCase( ConfigTag.QUEUE ).getStringValue();
     }
     return null;
   }
@@ -185,7 +185,7 @@ public class RabbitReader extends AbstractFrameReader implements FrameReader, Co
 
     } catch ( KeyManagementException | NoSuchAlgorithmException | URISyntaxException | IOException | TimeoutException | ShutdownSignalException | ConsumerCancelledException e ) {
       Log.error( e.getClass().getSimpleName() + ":" + e.getMessage() + "\n" + ExceptionUtil.stackTrace( e ) );
-      getContext().setError( "Could not open "+getClass().getSimpleName()+": "+e.getMessage() );
+      getContext().setError( "Could not open " + getClass().getSimpleName() + ": " + e.getMessage() );
     }
 
     // pause for a short time to allow the consumer to spin-up
