@@ -56,15 +56,16 @@ public class RabbitRoundTripTest extends AbstractMessagingTest {
     writer.setConfiguration( cfg );
     writer.open( getContext() );
 
-    int limit = 100;
+    int limit = 100000;
     for ( int x = 0; x < limit; x++ ) {
-      DataFrame message = new DataFrame()
-          .set( "Binary", Integer.toBinaryString( x ) )
-          .set( "Hex", Integer.toHexString( x ) )
-          .set( "Octal", Integer.toOctalString( x ) );
+      DataFrame message = new DataFrame().set( "Binary", Integer.toBinaryString( x ) ).set( "Hex", Integer.toHexString( x ) ).set( "Octal", Integer.toOctalString( x ) );
       writer.write( message );
+      read( reader, received );
     }
-
+    System.out.println( "=========================================================================" );
+    if ( received.size() < limit ) {
+      System.out.println( "Short by " + ( limit - received.size() ) + ", catching up..." );
+    }
     long timeout = 3000;
     long endtime = System.currentTimeMillis() + timeout;
     while ( received.size() < limit ) {
@@ -75,7 +76,6 @@ public class RabbitRoundTripTest extends AbstractMessagingTest {
     }
 
     assertTrue( received.size() == limit );
-
   }
 
 
@@ -87,7 +87,9 @@ public class RabbitRoundTripTest extends AbstractMessagingTest {
     DataFrame retval = reader.read( txnContext );
     if ( retval != null ) {
       received.add( retval );
-      System.out.println( "Received msg " + received.size() + " - " + retval.toString() );
+      if ( received.size() % 100 == 0 ) {
+        System.out.println( "Received msg " + received.size() + " - " + retval.toString() );
+      }
     }
   }
 

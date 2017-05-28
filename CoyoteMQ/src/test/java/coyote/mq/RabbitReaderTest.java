@@ -11,9 +11,7 @@
  */
 package coyote.mq;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -67,7 +65,9 @@ public class RabbitReaderTest extends AbstractMessagingTest {
         txnContext.fireRead( txnContext, reader );
         System.out.println( "Received: " + retval.toString() );
       } else {
-        System.out.println( "Null message" );
+        try {
+          Thread.sleep( 1000 );
+        } catch ( InterruptedException ignore ) {}
       }
     }
     Log.trace( "Reads completed - Error=" + getContext().isInError() + " EOF=" + ( reader == null ? "NoReader" : reader.eof() ) + " Reads=" + getContext().getRow() );
@@ -106,6 +106,9 @@ public class RabbitReaderTest extends AbstractMessagingTest {
     // The engine opens the reader after pre-processing tasks
     reader.open( getContext() );
 
+    // there should be 2 messages in the queue, so EOF should be false
+    assertFalse( reader.eof() );
+
     // The main loop of the engine is based on the reader, model it here
     while ( getContext().isNotInError() && reader != null && !reader.eof() ) {
       // each read is a new transaction
@@ -132,6 +135,9 @@ public class RabbitReaderTest extends AbstractMessagingTest {
     } // while
     Log.trace( "Reads completed - Error=" + getContext().isInError() + " EOF=" + ( reader == null ? "NoReader" : reader.eof() ) + " Reads=" + getContext().getRow() );
 
+    // shere should be no more messages to read
+    assertTrue( reader.eof() );
+    
     try {
       reader.close();
     } catch ( IOException e ) {

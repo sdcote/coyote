@@ -16,16 +16,14 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
+import java.util.Map;
 import java.util.concurrent.TimeoutException;
 
-import com.rabbitmq.client.AMQP;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
-import com.rabbitmq.client.Consumer;
 import com.rabbitmq.client.ConsumerCancelledException;
-import com.rabbitmq.client.DefaultConsumer;
-import com.rabbitmq.client.Envelope;
+import com.rabbitmq.client.GetResponse;
 import com.rabbitmq.client.ShutdownSignalException;
 
 import coyote.commons.CipherUtil;
@@ -42,7 +40,6 @@ import coyote.loader.Loader;
 import coyote.loader.log.Log;
 import coyote.loader.log.LogMsg;
 import coyote.mq.CMQ;
-import coyote.mq.MessageDrop;
 
 
 /**
@@ -50,16 +47,19 @@ import coyote.mq.MessageDrop;
  */
 public class RabbitReader extends AbstractFrameReader implements FrameReader, ConfigurableComponent {
 
-  // blocking message exchange component
-  private final MessageDrop messageDrop = new MessageDrop();
+  private static final boolean NO_AUTO_ACK = false;
+  private static final boolean REQUEUE = true;
+  private static final boolean DURABLE = true; 
+  private static final boolean PUBLIC = false; 
+  private static final boolean KEEP = false;
+  private static final Map<String, Object> NO_ARGUMENTS = null;
 
-  // the connection to the broker
+
+  
   private Connection connection = null;
-
-  Consumer consumer = null;
-
+  private Channel channel = null;
   private int prefetchCount = 1;
-
+  private boolean peekEofCheck = true;
 
 
 
@@ -153,52 +153,14 @@ public class RabbitReader extends AbstractFrameReader implements FrameReader, Co
       }
 
       connection = factory.newConnection();
-      Channel channel = connection.createChannel();
+      channel = connection.createChannel();
       channel.basicQos( prefetchCount );
-      channel.queueDeclare( getQueueName(), true, false, false, null );
-
-      consumer = new DefaultConsumer( channel ) {
-        @Override
-        public void handleDelivery( String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] message ) throws IOException {
-          Log.trace( "Handling delivery of a message" );
-          try {
-            if ( messageDrop.hasData() ) {
-              Log.error( "There is already data in the message drop. Waiting for the data to clear" );
-              messageDrop.waitForRetrieval();
-            }
-            messageDrop.leave( message );
-            Log.trace( "Message has been delivered" );
-          } catch ( InterruptedException e ) {
-            Log.warn( "Interrupted waiting for message retrieval:\n" + ExceptionUtil.toString( e ) );
-            return; // return without acknowledging...what will happen??
-          }
-          if ( messageDrop.hasData() ) {
-            throw new IOException( "Data has not been retrieved" );
-          } else {
-            channel.basicAck( envelope.getDeliveryTag(), false );
-            Log.trace( "Message " + envelope.getDeliveryTag() + " has been delivered" );
-          }
-        }
-      };
-
-      channel.basicConsume( getQueueName(), true, consumer );
-
+      channel.queueDeclare( getQueueName(), DURABLE, PUBLIC, KEEP, NO_ARGUMENTS );
     } catch ( KeyManagementException | NoSuchAlgorithmException | URISyntaxException | IOException | TimeoutException | ShutdownSignalException | ConsumerCancelledException e ) {
       Log.error( e.getClass().getSimpleName() + ":" + e.getMessage() + "\n" + ExceptionUtil.stackTrace( e ) );
       getContext().setError( "Could not open " + getClass().getSimpleName() + ": " + e.getMessage() );
     }
 
-    // pause for a short time to allow the consumer to spin-up
-    try {
-      messageDrop.wait( 500 );
-    } catch ( Exception ignore ) {}
-    Log.debug( "Reader opened" );
-
-    try {
-      messageDrop.waitForDelivery();
-    } catch ( InterruptedException e ) {
-      Log.warn( e.getClass().getSimpleName() + ":" + e.getMessage() + "\n" + ExceptionUtil.stackTrace( e ) );
-    }
   }
 
 
@@ -209,39 +171,56 @@ public class RabbitReader extends AbstractFrameReader implements FrameReader, Co
    */
   @Override
   public DataFrame read( TransactionContext context ) {
-    byte[] message = messageDrop.take();
-    if ( message != null ) {
-      try {
-        DataFrame retval = new DataFrame( message );
-        return retval;
-      } catch ( Exception e ) {
-        Log.error( ExceptionUtil.stackTrace( e ) );
+    DataFrame retval = null;
+    try {
+      GetResponse response = channel.basicGet( getQueueName(), NO_AUTO_ACK );
+      if ( response != null ) {
+        byte[] data = null;
+        try {
+          data = response.getBody();
+          channel.basicAck( response.getEnvelope().getDeliveryTag(), false );
+        } catch ( IOException e ) {
+          Log.error( "Could not get data from message body: " + e.getClass().getName() + " - " + e.getMessage() );
+        }
+        if ( data != null ) {
+          retval = new DataFrame( data );
+        } else {
+          Log.warn( "Retrieved an empty body from a message: " + response.getEnvelope().getDeliveryTag() );
+        }
       }
+    } catch ( IOException e ) {
+      Log.warn( "Exception on message retrieval: " + e.getClass().getName() + " - " + e.getMessage() );
     }
-    return null;
+    return retval;
   }
 
 
 
 
   /**
-   * Checks to see if there is any data in the message drop.
-   * 
-   * <p>If the message drop is empty, this check will wait for a message for 
-   * 100ms before returning true (no more messages). This is to give threads a 
-   * chance to swap off the CPU and deliver a message without adversely 
-   * affecting performance.
-   * 
+   * Always returns false, because messages can arrive at any time.
+   *  
    * @see coyote.dx.FrameReader#eof()
    */
   @Override
   public boolean eof() {
-    if ( !messageDrop.hasData() ) {
+    boolean retval = true;
+    if ( peekEofCheck ) {
       try {
-        messageDrop.waitForDelivery( 100 );
-      } catch ( InterruptedException ignore ) {}
+        GetResponse response = channel.basicGet( getQueueName(), NO_AUTO_ACK );
+        if ( response != null ) {
+          retval = false;
+          try {
+            channel.basicReject( response.getEnvelope().getDeliveryTag(), REQUEUE );
+          } catch ( Exception e ) {
+            Log.error( "Could not requeue message on EOF check: " + e.getClass().getName() + " - " + e.getMessage() );
+          }
+        }
+      } catch ( IOException e ) {
+        Log.error( "Exception on EOF check: " + e.getClass().getName() + " - " + e.getMessage() );
+      }
     }
-    return !messageDrop.hasData();
+    return retval;
   }
 
 

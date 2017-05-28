@@ -162,7 +162,7 @@ public class RabbitWriter extends AbstractFrameWriter implements FrameWriter, Co
       try {
         byte[] data = frame.getBytes();
         channel.basicPublish( "", getQueueName(), null, data );
-        Log.debug( "Sent " + data.length + " bytes to '" + getQueueName() + "'" );
+        //Log.debug( "Sent " + data.length + " bytes to '" + getQueueName() + "'" );
       } catch ( IOException e ) {
         Log.error( e.getClass().getSimpleName() + ":" + e.getMessage() + "\n" + ExceptionUtil.stackTrace( e ) );
       }
