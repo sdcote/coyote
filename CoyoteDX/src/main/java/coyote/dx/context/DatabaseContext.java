@@ -19,6 +19,11 @@ package coyote.dx.context;
  * where the transform is being run, allowing transforms to be run on many 
  * different hosts without having to manage locally persisted context data.
  * 
+ * <p>key value pairs specified in the fields, are used to reset the field 
+ * values in the context at the start of the job. Their values will be 
+ * persisted when the context is closed. Other jobs using the context will 
+ * then have access to these values unless the reset them in a similar fashion. 
+ * 
  * <p>The primary use case is the running of transform jobs in a pool of 
  * distributed instances in the cloud. A particular instance will run one on 
  * one host and run another time on a different host. Another use case is 
