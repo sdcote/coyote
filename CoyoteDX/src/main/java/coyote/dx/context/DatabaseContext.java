@@ -11,6 +11,9 @@
  */
 package coyote.dx.context;
 
+import java.util.Date;
+
+
 /**
  * This is an operational context backed by a database which allows values to 
  * be persisted on remote systems.
@@ -33,6 +36,12 @@ package coyote.dx.context;
  * so that local file access is not required.
  */
 public class DatabaseContext extends TransformContext {
+
+  long runcount = 0;
+  Date lastRunDate = null;
+
+
+
 
   /**
    * @see coyote.dx.context.TransformContext#open()
