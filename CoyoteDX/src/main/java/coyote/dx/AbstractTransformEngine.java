@@ -858,7 +858,7 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
    */
   @Override
   public String getName() {
-    return configuration.getAsString( ConfigTag.NAME );
+    return configuration.getString( ConfigTag.NAME );
   }
 
 
