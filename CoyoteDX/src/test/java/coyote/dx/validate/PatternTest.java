@@ -24,8 +24,7 @@ import coyote.dataframe.DataFrame;
 import coyote.dx.AbstractTest;
 import coyote.dx.FrameValidator;
 import coyote.dx.context.TransactionContext;
-import coyote.dx.validate.Pattern;
-import coyote.dx.validate.ValidationException;
+import coyote.loader.cfg.Config;
 import coyote.loader.cfg.ConfigurationException;
 
 
@@ -38,7 +37,7 @@ public class PatternTest extends AbstractTest {
   public void test() {
 
     String cfgData = "{ \"field\" : \"pci\",  \"avoid\" : \"^4[0-9]{12}(?:[0-9]{3})?$\", \"desc\" : \"VisaCard\", \"halt\" : false  }";
-    DataFrame configuration = parseConfiguration( cfgData );
+    Config configuration = parseConfiguration( cfgData );
 
     // Create a transaction context
     TransactionContext context = createTransactionContext();

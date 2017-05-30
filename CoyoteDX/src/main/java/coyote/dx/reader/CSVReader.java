@@ -28,6 +28,7 @@ import coyote.dx.FrameReader;
 import coyote.dx.Symbols;
 import coyote.dx.context.TransactionContext;
 import coyote.dx.context.TransformContext;
+import coyote.loader.cfg.Config;
 import coyote.loader.cfg.ConfigurationException;
 import coyote.loader.log.Log;
 import coyote.loader.log.LogMsg;
@@ -66,16 +67,16 @@ public class CSVReader extends AbstractFrameReader implements FrameReader, Confi
 
 
   /**
-   * @see coyote.dx.AbstractConfigurableComponent#setConfiguration(coyote.dataframe.DataFrame)
+   * @see coyote.dx.AbstractConfigurableComponent#setConfiguration(coyote.loader.cfg.Config)
    */
   @Override
-  public void setConfiguration( DataFrame frame ) throws ConfigurationException {
-    super.setConfiguration( frame );
+  public void setConfiguration( Config cfg ) throws ConfigurationException {
+    super.setConfiguration( cfg );
 
     // Check if we are to load all the data into memory and read from there
-    if ( frame.contains( ConfigTag.PRELOAD ) ) {
+    if ( cfg.contains( ConfigTag.PRELOAD ) ) {
       try {
-        preload = frame.getAsBoolean( ConfigTag.PRELOAD );
+        preload = cfg.getAsBoolean( ConfigTag.PRELOAD );
       } catch ( DataFrameException e ) {
         Log.info( "Preload not valid " + e.getMessage() );
         preload = false;
@@ -84,9 +85,9 @@ public class CSVReader extends AbstractFrameReader implements FrameReader, Confi
     Log.debug( LogMsg.createMsg( CDX.MSG, "Reader.preload_is", preload ) );
 
     // Check if we are to treat the first line as the header names
-    if ( frame.contains( ConfigTag.HEADER ) ) {
+    if ( cfg.contains( ConfigTag.HEADER ) ) {
       try {
-        hasHeader = frame.getAsBoolean( ConfigTag.HEADER );
+        hasHeader = cfg.getAsBoolean( ConfigTag.HEADER );
       } catch ( DataFrameException e ) {
         Log.info( "Header flag not valid " + e.getMessage() );
         hasHeader = false;
@@ -97,8 +98,8 @@ public class CSVReader extends AbstractFrameReader implements FrameReader, Confi
     Log.debug( LogMsg.createMsg( CDX.MSG, "Reader.header_flag_is", hasHeader ) );
 
     // Check if we are to use a different separator than the default ',' (comma)
-    if ( frame.contains( ConfigTag.CHARACTER ) ) {
-      String value = frame.getAsString( ConfigTag.HEADER );
+    if ( cfg.contains( ConfigTag.CHARACTER ) ) {
+      String value = cfg.getAsString( ConfigTag.HEADER );
 
       if ( StringUtil.isNotEmpty( value ) ) {
         SEPARATOR = value.charAt( 0 );

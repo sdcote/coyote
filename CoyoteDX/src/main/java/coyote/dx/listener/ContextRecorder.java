@@ -11,11 +11,11 @@
  */
 package coyote.dx.listener;
 
-import coyote.dataframe.DataFrame;
 import coyote.dataframe.DataFrameException;
 import coyote.dx.CDX;
 import coyote.dx.ConfigTag;
 import coyote.dx.context.ContextListener;
+import coyote.loader.cfg.Config;
 import coyote.loader.cfg.ConfigurationException;
 import coyote.loader.log.Log;
 import coyote.loader.log.LogMsg;
@@ -55,15 +55,15 @@ public abstract class ContextRecorder extends AbstractListener implements Contex
 
 
   /**
-   * @see coyote.dx.AbstractConfigurableComponent#setConfiguration(coyote.dataframe.DataFrame)
+   * @see coyote.dx.AbstractConfigurableComponent#setConfiguration(coyote.loader.cfg.Config)
    */
   @Override
-  public void setConfiguration( DataFrame frame ) throws ConfigurationException {
-    super.setConfiguration( frame );
+  public void setConfiguration( Config cfg ) throws ConfigurationException {
+    super.setConfiguration( cfg );
 
-    if ( frame.contains( ConfigTag.READ ) ) {
+    if ( cfg.contains( ConfigTag.READ ) ) {
       try {
-        onRead = frame.getAsBoolean( ConfigTag.READ );
+        onRead = cfg.getAsBoolean( ConfigTag.READ );
         Log.debug( LogMsg.createMsg( CDX.MSG, "ContextRecorder.read_flag_set_as", onRead ) );
       } catch ( DataFrameException e ) {
         Log.warn( LogMsg.createMsg( CDX.MSG, "ContextRecorder.read_flag_not_valid", e.getMessage() ) );
@@ -73,9 +73,9 @@ public abstract class ContextRecorder extends AbstractListener implements Contex
       Log.debug( LogMsg.createMsg( CDX.MSG, "ContextRecorder.no_read_flag" ) );
     }
 
-    if ( frame.contains( ConfigTag.WRITE ) ) {
+    if ( cfg.contains( ConfigTag.WRITE ) ) {
       try {
-        onWrite = frame.getAsBoolean( ConfigTag.WRITE );
+        onWrite = cfg.getAsBoolean( ConfigTag.WRITE );
         Log.debug( LogMsg.createMsg( CDX.MSG, "ContextRecorder.write_flag_set_as", onWrite ) );
       } catch ( DataFrameException e ) {
         Log.warn( LogMsg.createMsg( CDX.MSG, "ContextRecorder.write_flag_not_valid", e.getMessage() ) );

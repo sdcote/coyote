@@ -48,11 +48,11 @@ public class LogManager extends AbstractConfigurableComponent implements Configu
 
 
   /**
-   * @see coyote.dx.AbstractConfigurableComponent#setConfiguration(coyote.dataframe.DataFrame)
+   * @see coyote.dx.AbstractConfigurableComponent#setConfiguration(coyote.loader.cfg.Config)
    */
   @Override
-  public void setConfiguration( DataFrame frame ) throws ConfigurationException {
-    super.setConfiguration( frame );
+  public void setConfiguration( Config cfg ) throws ConfigurationException {
+    super.setConfiguration( cfg );
 
     // TODO we should probably perform some validation checks here to ensure logging operates as expected when the engine runs.
   }

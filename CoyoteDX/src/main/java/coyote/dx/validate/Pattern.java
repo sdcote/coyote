@@ -17,6 +17,7 @@ import coyote.dx.ConfigTag;
 import coyote.dx.FrameValidator;
 import coyote.dx.context.TransactionContext;
 import coyote.dx.context.TransformContext;
+import coyote.loader.cfg.Config;
 import coyote.loader.cfg.ConfigurationException;
 
 
@@ -99,20 +100,20 @@ public class Pattern extends AbstractValidator implements FrameValidator {
 
 
   /**
-   * @see coyote.dx.AbstractConfigurableComponent#setConfiguration(coyote.dataframe.DataFrame)
+   * @see coyote.dx.validate.AbstractValidator#setConfiguration(coyote.loader.cfg.Config)
    */
   @Override
-  public void setConfiguration( DataFrame frame ) throws ConfigurationException {
+  public void setConfiguration( Config cfg ) throws ConfigurationException {
     // perform base class configuration first
-    super.setConfiguration( frame );
+    super.setConfiguration( cfg );
 
     //
-    if ( frame.contains( ConfigTag.AVOID ) ) {
+    if ( cfg.contains( ConfigTag.AVOID ) ) {
       setAvoid( true );
-      setRegEx( frame.getAsString( ConfigTag.AVOID ) );
-    } else if ( frame.contains( ConfigTag.MATCH ) ) {
+      setRegEx( cfg.getAsString( ConfigTag.AVOID ) );
+    } else if ( cfg.contains( ConfigTag.MATCH ) ) {
       setAvoid( false );
-      setRegEx( frame.getAsString( ConfigTag.MATCH ) );
+      setRegEx( cfg.getAsString( ConfigTag.MATCH ) );
     } else {
       throw new ConfigurationException( "Pattern validator must contain either '" + ConfigTag.MATCH + "' or '" + ConfigTag.AVOID + "' attribute" );
 
@@ -167,9 +168,9 @@ public class Pattern extends AbstractValidator implements FrameValidator {
               fail( context, fieldName );
               retval = false;
             }
-          }// avoiding?
+          } // avoiding?
 
-        }// field matches?
+        } // field matches?
 
       } // for each field
 

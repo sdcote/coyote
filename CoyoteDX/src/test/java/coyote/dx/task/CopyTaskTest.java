@@ -28,7 +28,7 @@ import coyote.dx.AbstractTest;
 import coyote.dx.ConfigTag;
 import coyote.dx.TaskException;
 import coyote.dx.context.TransformContext;
-import coyote.dx.task.Copy;
+import coyote.loader.cfg.Config;
 import coyote.loader.cfg.ConfigurationException;
 import coyote.loader.log.ConsoleAppender;
 import coyote.loader.log.Log;
@@ -106,7 +106,7 @@ public class CopyTaskTest extends AbstractTest {
   public void testRecursePreserve() {
     resetTestDirectory();
 
-    DataFrame cfg = new DataFrame();
+    Config cfg = new Config();
     cfg.put( ConfigTag.FROMDIR, new File( FileUtil.getCurrentWorkingDirectory(), "src" ).getAbsolutePath() );
     cfg.put( ConfigTag.TODIR, testDir.getAbsolutePath() );
     cfg.put( ConfigTag.PATTERN, ".*\\.(java)$" );
@@ -162,7 +162,7 @@ public class CopyTaskTest extends AbstractTest {
   public void testDirectoryOverwrite() {
     resetTestDirectory();
 
-    DataFrame cfg = new DataFrame();
+    Config cfg = new Config();
     cfg.put( ConfigTag.FROMDIR, new File( FileUtil.getCurrentWorkingDirectory(), "src" ).getAbsolutePath() );
     cfg.put( ConfigTag.TODIR, testDir.getAbsolutePath() );
     cfg.put( ConfigTag.PATTERN, ".*\\.(java)$" );

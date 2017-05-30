@@ -24,6 +24,7 @@ import coyote.dx.ConfigurableComponent;
 import coyote.dx.FieldDefinition;
 import coyote.dx.FrameWriter;
 import coyote.dx.context.TransformContext;
+import coyote.loader.cfg.Config;
 import coyote.loader.cfg.ConfigurationException;
 import coyote.loader.log.Log;
 import coyote.loader.log.LogMsg;
@@ -213,18 +214,18 @@ public class CSVWriter extends AbstractFrameFileWriter implements FrameWriter, C
 
 
   /**
-   * @see coyote.dx.AbstractConfigurableComponent#setConfiguration(coyote.dataframe.DataFrame)
+   * @see coyote.dx.AbstractConfigurableComponent#setConfiguration(coyote.loader.cfg.Config)
    */
   @Override
-  public void setConfiguration( final DataFrame frame ) throws ConfigurationException {
-    super.setConfiguration( frame );
+  public void setConfiguration( final Config cfg ) throws ConfigurationException {
+    super.setConfiguration( cfg );
 
     // Check if we are to treat the first line as the header names
-    if ( frame.contains( ConfigTag.HEADER ) ) {
+    if ( cfg.contains( ConfigTag.HEADER ) ) {
       try {
-        writeHeaders = frame.getAsBoolean( ConfigTag.HEADER );
+        writeHeaders = cfg.getAsBoolean( ConfigTag.HEADER );
       } catch ( final DataFrameException e ) {
-        Log.info( LogMsg.createMsg( CDX.MSG, "Writer.header_flag_is_not_valid " + frame.getAsString( ConfigTag.HEADER ) ) );
+        Log.info( LogMsg.createMsg( CDX.MSG, "Writer.header_flag_is_not_valid " + cfg.getAsString( ConfigTag.HEADER ) ) );
         writeHeaders = false;
       }
     } else {
@@ -233,11 +234,11 @@ public class CSVWriter extends AbstractFrameFileWriter implements FrameWriter, C
     Log.debug( LogMsg.createMsg( CDX.MSG, "Writer.header_flag_is_set_as", writeHeaders ) );
 
     // Check to see if a different date format is to be used
-    if ( frame.contains( ConfigTag.DATEFORMAT ) ) {
+    if ( cfg.contains( ConfigTag.DATEFORMAT ) ) {
       try {
-        DATEFORMAT = new SimpleDateFormat( frame.getAsString( ConfigTag.DATEFORMAT ) );
+        DATEFORMAT = new SimpleDateFormat( cfg.getAsString( ConfigTag.DATEFORMAT ) );
       } catch ( final Exception e ) {
-        Log.warn( LogMsg.createMsg( CDX.MSG, "Writer.date_format_pattern_is_not_valid", frame.getAsString( ConfigTag.DATEFORMAT ), e.getMessage() ) );
+        Log.warn( LogMsg.createMsg( CDX.MSG, "Writer.date_format_pattern_is_not_valid", cfg.getAsString( ConfigTag.DATEFORMAT ), e.getMessage() ) );
         DATEFORMAT = new SimpleDateFormat( DEFAULT_DATE_FORMAT );
       }
     } else {

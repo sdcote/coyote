@@ -14,7 +14,6 @@ package coyote.dx.validate;
 import java.io.IOException;
 
 import coyote.commons.StringUtil;
-import coyote.dataframe.DataFrame;
 import coyote.dataframe.DataFrameException;
 import coyote.dx.AbstractConfigurableComponent;
 import coyote.dx.CDX;
@@ -23,6 +22,7 @@ import coyote.dx.ConfigurableComponent;
 import coyote.dx.FrameValidator;
 import coyote.dx.context.TransactionContext;
 import coyote.dx.context.TransformContext;
+import coyote.loader.cfg.Config;
 import coyote.loader.cfg.ConfigurationException;
 import coyote.loader.log.Log;
 import coyote.loader.log.LogMsg;
@@ -113,28 +113,28 @@ public abstract class AbstractValidator extends AbstractConfigurableComponent im
 
 
 
-  /**
-   * @see coyote.dx.AbstractConfigurableComponent#setConfiguration(coyote.dataframe.DataFrame)
-   */
+ /**
+  * @see coyote.dx.AbstractConfigurableComponent#setConfiguration(coyote.loader.cfg.Config)
+  */
   @Override
-  public void setConfiguration( DataFrame frame ) throws ConfigurationException {
-    configuration = frame;
+  public void setConfiguration( Config cfg ) throws ConfigurationException {
+    configuration = cfg;
 
     // All validators need to know which fields to validate
-    if ( frame.contains( ConfigTag.FIELD ) ) {
-      fieldName = frame.getAsString( ConfigTag.FIELD );
+    if ( cfg.contains( ConfigTag.FIELD ) ) {
+      fieldName = cfg.getAsString( ConfigTag.FIELD );
     } else {
       throw new ConfigurationException( "Missing required '" + ConfigTag.FIELD + "' attribute" );
     }
 
-    if ( frame.contains( ConfigTag.DESCRIPTION ) ) {
-      description = frame.getAsString( ConfigTag.DESCRIPTION );
+    if ( cfg.contains( ConfigTag.DESCRIPTION ) ) {
+      description = cfg.getAsString( ConfigTag.DESCRIPTION );
     }
 
     // Check if we are to thrown a context error if validation fails
-    if ( frame.contains( ConfigTag.HALT_ON_FAIL ) ) {
+    if ( cfg.contains( ConfigTag.HALT_ON_FAIL ) ) {
       try {
-        halt = frame.getAsBoolean( ConfigTag.HALT_ON_FAIL );
+        halt = cfg.getAsBoolean( ConfigTag.HALT_ON_FAIL );
       } catch ( DataFrameException e ) {
         Log.info( LogMsg.createMsg( CDX.MSG, "Task.Header flag not valid " + e.getMessage() ) );
         halt = false;

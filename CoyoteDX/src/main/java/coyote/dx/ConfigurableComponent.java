@@ -11,7 +11,7 @@
  */
 package coyote.dx;
 
-import coyote.dataframe.DataFrame;
+import coyote.loader.cfg.Config;
 import coyote.loader.cfg.ConfigurationException;
 
 
@@ -20,11 +20,11 @@ import coyote.loader.cfg.ConfigurationException;
  */
 public interface ConfigurableComponent extends Component {
 
-  public void setConfiguration( DataFrame frame ) throws ConfigurationException;
+  public void setConfiguration( Config cfg ) throws ConfigurationException;
 
 
 
 
-  public DataFrame getConfiguration();
+  public Config getConfiguration();
 
 }

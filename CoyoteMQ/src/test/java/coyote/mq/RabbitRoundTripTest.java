@@ -26,6 +26,7 @@ import coyote.dx.FrameWriter;
 import coyote.dx.context.TransactionContext;
 import coyote.dx.reader.RabbitReader;
 import coyote.dx.writer.RabbitWriter;
+import coyote.loader.cfg.Config;
 import coyote.loader.cfg.ConfigurationException;
 
 
@@ -40,7 +41,7 @@ public class RabbitRoundTripTest extends AbstractMessagingTest {
 
     List<DataFrame> received = new ArrayList<DataFrame>();
 
-    DataFrame cfg = new DataFrame();
+    Config cfg = new Config();
     cfg.set( ConfigTag.SOURCE, "amqp://localhost:" + broker.port );
     cfg.set( ConfigTag.USERNAME, "guest" );
     cfg.set( ConfigTag.PASSWORD, "guest" );
@@ -56,7 +57,7 @@ public class RabbitRoundTripTest extends AbstractMessagingTest {
     writer.setConfiguration( cfg );
     writer.open( getContext() );
 
-    int limit = 100000;
+    int limit = 1000;
     for ( int x = 0; x < limit; x++ ) {
       DataFrame message = new DataFrame().set( "Binary", Integer.toBinaryString( x ) ).set( "Hex", Integer.toHexString( x ) ).set( "Octal", Integer.toOctalString( x ) );
       writer.write( message );

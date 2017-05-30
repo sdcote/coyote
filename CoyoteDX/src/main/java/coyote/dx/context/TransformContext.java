@@ -22,6 +22,7 @@ import coyote.dataframe.DataField;
 import coyote.dataframe.DataFrame;
 import coyote.dx.Database;
 import coyote.dx.TransformEngine;
+import coyote.loader.cfg.Config;
 
 
 /**
@@ -29,7 +30,7 @@ import coyote.dx.TransformEngine;
  */
 public class TransformContext extends OperationalContext {
 
-  protected DataFrame configuration = new DataFrame();
+  protected Config configuration = new Config();
 
   protected Map<String, Database> databases = new HashMap<String, Database>();
 
@@ -248,8 +249,8 @@ public class TransformContext extends OperationalContext {
 
 
 
-  public void setConfiguration( DataFrame frame ) {
-    configuration = frame;
+  public void setConfiguration( Config config ) {
+    configuration = config;
   }
 
 

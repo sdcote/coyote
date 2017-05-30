@@ -33,6 +33,7 @@ import coyote.dx.task.AbstractTransformTask;
 import coyote.dx.transform.AbstractFrameTransform;
 import coyote.dx.validate.AbstractValidator;
 import coyote.dx.writer.AbstractFrameWriter;
+import coyote.loader.cfg.Config;
 import coyote.loader.cfg.ConfigurationException;
 import coyote.loader.log.Log;
 import coyote.loader.log.LogMsg;
@@ -187,7 +188,7 @@ public class TransformEngineFactory {
           }
         } else if ( ConfigTag.CONTEXT.equalsIgnoreCase( field.getName() ) ) {
           if ( field.isFrame() ) {
-            configContext( (DataFrame)field.getObjectValue(), retval );
+            configContext( new Config( (DataFrame)field.getObjectValue() ), retval );
           } else {
             Log.error( "Invalid context configuration section" );
           }
@@ -315,7 +316,7 @@ public class TransformEngineFactory {
       for ( DataField field : cfg.getFields() ) {
         if ( field.isFrame() ) {
           if ( StringUtil.isNotBlank( field.getName() ) ) {
-            DataFrame dataSourceCfg = (DataFrame)field.getObjectValue();
+            Config dataSourceCfg = new Config( (DataFrame)field.getObjectValue() );
 
             Database store = new Database();
             try {
@@ -449,7 +450,7 @@ public class TransformEngineFactory {
    * context so that results of processing can be used in subsequent 
    * templates.</p>
    * 
-   * <p>If the configuration contais a "class" attribute, then a custom 
+   * <p>If the configuration contains a "class" attribute, then a custom 
    * context will be loaded from that class name and passed the 
    * configuration section to configure it further. In such cases, custom 
    * context classes use the "fields" attribute to populate the context, by 
@@ -459,7 +460,7 @@ public class TransformEngineFactory {
    * @param cfg the configuration frame
    * @param engine the transform engine
    */
-  private static void configContext( DataFrame cfg, TransformEngine engine ) {
+  private static void configContext( Config cfg, TransformEngine engine ) {
 
     if ( cfg != null ) {
       TransformContext context = engine.getContext();

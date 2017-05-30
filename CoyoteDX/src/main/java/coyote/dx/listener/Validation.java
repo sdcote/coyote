@@ -15,10 +15,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import coyote.commons.StringUtil;
-import coyote.dataframe.DataFrame;
 import coyote.dx.FrameValidator;
 import coyote.dx.context.OperationalContext;
 import coyote.dx.context.TransactionContext;
+import coyote.loader.cfg.Config;
 import coyote.loader.cfg.ConfigurationException;
 
 
@@ -33,11 +33,11 @@ public class Validation extends FileRecorder {
 
 
   /**
-   * @see coyote.dx.listener.ContextRecorder#setConfiguration(coyote.dataframe.DataFrame)
+   * @see coyote.dx.listener.ContextRecorder#setConfiguration(coyote.loader.cfg.Config)
    */
   @Override
-  public void setConfiguration( DataFrame frame ) throws ConfigurationException {
-    super.setConfiguration( frame );
+  public void setConfiguration( Config cfg ) throws ConfigurationException {
+    super.setConfiguration( cfg );
 
     // check for any other options to set here...like format, whether to include the error message...
 

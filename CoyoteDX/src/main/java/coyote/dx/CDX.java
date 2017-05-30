@@ -16,11 +16,10 @@ import java.lang.reflect.InvocationTargetException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 
-import coyote.commons.CipherUtil;
 import coyote.commons.StringUtil;
 import coyote.commons.Version;
 import coyote.dataframe.DataFrame;
-import coyote.loader.Loader;
+import coyote.loader.cfg.Config;
 import coyote.loader.cfg.ConfigurationException;
 import coyote.loader.log.Log;
 import coyote.loader.log.LogMsg;
@@ -46,9 +45,6 @@ public class CDX {
 
 
 
- 
-
-
   /**
    * Create an instance of the given named class and configure it with the 
    * given dataframe if it is a configurable component.
@@ -71,7 +67,7 @@ public class CDX {
         if ( cfg != null ) {
           if ( object instanceof ConfigurableComponent ) {
             try {
-              ( (ConfigurableComponent)object ).setConfiguration( cfg );
+              ( (ConfigurableComponent)object ).setConfiguration( new Config( cfg ) );
             } catch ( ConfigurationException e ) {
               Log.error( LogMsg.createMsg( CDX.MSG, "DX.configuration_error", object.getClass().getName(), e.getClass().getSimpleName(), e.getMessage() ) );
             }
@@ -116,7 +112,7 @@ public class CDX {
 
           if ( object instanceof ConfigurableComponent ) {
             try {
-              ( (ConfigurableComponent)object ).setConfiguration( cfg );
+              ( (ConfigurableComponent)object ).setConfiguration( new Config( cfg ) );
             } catch ( ConfigurationException e ) {
               Log.error( LogMsg.createMsg( CDX.MSG, "DX.configuration_error", object.getClass().getName(), e.getClass().getSimpleName(), e.getMessage() ) );
             }

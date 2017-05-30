@@ -18,6 +18,7 @@ import coyote.dx.CDX;
 import coyote.dx.ConfigTag;
 import coyote.dx.FrameMapper;
 import coyote.dx.context.TransactionContext;
+import coyote.loader.cfg.Config;
 import coyote.loader.cfg.ConfigurationException;
 import coyote.loader.log.Log;
 import coyote.loader.log.LogMsg;
@@ -31,18 +32,18 @@ public class DefaultFrameMapper extends AbstractFrameMapper implements FrameMapp
 
   /**
    * Expects a configuration in the form of "Fields" : { "SourceField" : "TargetField" }
-   *  
-   * @see coyote.dx.AbstractConfigurableComponent#setConfiguration(coyote.dataframe.DataFrame)
+   * 
+   * @see coyote.dx.AbstractConfigurableComponent#setConfiguration(coyote.loader.cfg.Config)
    */
   @Override
-  public void setConfiguration( DataFrame frame ) throws ConfigurationException {
-    super.setConfiguration( frame );
+  public void setConfiguration( Config cfg ) throws ConfigurationException {
+    super.setConfiguration( cfg );
 
     // Retrieve the "fields" section from the configuration frame
     DataFrame mapFrame = null;
     try {
-      if ( frame.containsIgnoreCase( ConfigTag.FIELDS ) ) {
-        DataField field = frame.getFieldIgnoreCase( ConfigTag.FIELDS );
+      if ( cfg.containsIgnoreCase( ConfigTag.FIELDS ) ) {
+        DataField field = cfg.getFieldIgnoreCase( ConfigTag.FIELDS );
         if ( field.isFrame() ) {
           mapFrame = (DataFrame)field.getObjectValue();
         } else {

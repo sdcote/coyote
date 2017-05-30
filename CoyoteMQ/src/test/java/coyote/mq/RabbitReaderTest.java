@@ -11,7 +11,10 @@
  */
 package coyote.mq;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -25,6 +28,7 @@ import coyote.dx.FrameReader;
 import coyote.dx.context.TransactionContext;
 import coyote.dx.reader.RabbitReader;
 import coyote.loader.Loader;
+import coyote.loader.cfg.Config;
 import coyote.loader.cfg.ConfigurationException;
 import coyote.loader.log.Log;
 
@@ -39,7 +43,7 @@ public class RabbitReaderTest extends AbstractMessagingTest {
     final String QUEUE_NAME = "test/work";
 
     // connect to an external service using encrypted username and password
-    DataFrame cfg = new DataFrame();
+    Config cfg = new Config();
     cfg.set( ConfigTag.SOURCE, "amqp://orangutan.rmq.cloudamqp.com/qqxhunvl" );
     cfg.set( Loader.ENCRYPT_PREFIX + ConfigTag.USERNAME, "3NaWHlOog2nkA/Wn3CO0i4uGgozkPiFy" );
     cfg.set( Loader.ENCRYPT_PREFIX + ConfigTag.PASSWORD, "gAFobDfLvfDUtbn+jAI8/1y/dnhBueMSzI4A1niA87ks2Oo7PWqgYv6nPzAGor1tB1kYiig995Gb1vzXWdo21pd19yuXtGXZ" );
@@ -92,7 +96,7 @@ public class RabbitReaderTest extends AbstractMessagingTest {
     sendMessage( QUEUE_NAME, new DataFrame( "MSG", "World" ) );
 
     long currentFrameNumber = 0;
-    DataFrame cfg = new DataFrame();
+    Config cfg = new Config();
     cfg.set( ConfigTag.SOURCE, "amqp://localhost:" + broker.port );
     cfg.set( ConfigTag.USERNAME, "guest" );
     cfg.set( ConfigTag.PASSWORD, "guest" );

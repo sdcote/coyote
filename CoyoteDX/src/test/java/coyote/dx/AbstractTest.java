@@ -20,10 +20,9 @@ import java.util.List;
 import coyote.commons.SystemPropertyUtil;
 import coyote.dataframe.DataFrame;
 import coyote.dataframe.marshal.JSONMarshaler;
-import coyote.dx.TransformEngine;
-import coyote.dx.TransformEngineFactory;
 import coyote.dx.context.TransactionContext;
 import coyote.dx.context.TransformContext;
+import coyote.loader.cfg.Config;
 
 
 /**
@@ -36,15 +35,15 @@ public class AbstractTest {
 
 
   /**
-   * Marshal the given JSON text into a dataframe
+   * Marshal the given JSON text into a config
    * 
    * @param cfgData The JSON text to marshal
    * 
    * @return the first configuration frame found in the data.
    */
-  protected DataFrame parseConfiguration( String cfgData ) {
+  protected Config parseConfiguration( String cfgData ) {
     List<DataFrame> cfglist = JSONMarshaler.marshal( cfgData );
-    return cfglist.get( 0 );
+    return new Config( cfglist.get( 0 ) );
   }
 
 
@@ -55,12 +54,15 @@ public class AbstractTest {
   }
 
 
+
+
   /**
    * @return the Transform Context for this test
    */
   protected TransformContext getTransformContext() {
     return transformContext;
   }
+
 
 
 
@@ -101,8 +103,5 @@ public class AbstractTest {
     // return the configured engine
     return engine;
   }
-
-
-
 
 }

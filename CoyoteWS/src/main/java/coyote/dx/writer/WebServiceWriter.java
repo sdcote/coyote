@@ -34,6 +34,7 @@ import coyote.dx.web.Response;
 import coyote.dx.web.auth.AuthenticationException;
 import coyote.dx.web.auth.Authenticator;
 import coyote.dx.web.auth.NullAuthenticator;
+import coyote.loader.cfg.Config;
 import coyote.loader.cfg.ConfigurationException;
 import coyote.loader.log.Log;
 import coyote.loader.log.LogMsg;
@@ -60,12 +61,9 @@ public class WebServiceWriter extends AbstractConfigurableComponent implements F
 
 
 
-  /**
-   * @see coyote.dx.AbstractConfigurableComponent#setConfiguration(coyote.dataframe.DataFrame)
-   */
   @Override
-  public void setConfiguration( DataFrame frame ) throws ConfigurationException {
-    super.setConfiguration( frame );
+  public void setConfiguration( Config cfg ) throws ConfigurationException {
+    super.setConfiguration( cfg );
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     // Look for a conditional statement the writer may use to control if it is 

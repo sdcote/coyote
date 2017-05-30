@@ -17,6 +17,7 @@ import org.junit.Test;
 
 import coyote.dataframe.DataFrame;
 import coyote.dataframe.marshal.JSONMarshaler;
+import coyote.loader.cfg.Config;
 
 
 /**
@@ -82,7 +83,7 @@ public class DatabaseContextTest {
     System.out.println( JSONMarshaler.toFormattedString( config ) );
 
     TransformContext context = new DatabaseContext();
-    context.setConfiguration( config );
+    context.setConfiguration( new Config( config ) );
 
     context.open();
 

@@ -22,8 +22,7 @@ import coyote.dataframe.DataFrame;
 import coyote.dx.AbstractTest;
 import coyote.dx.FrameValidator;
 import coyote.dx.context.TransactionContext;
-import coyote.dx.validate.NotNull;
-import coyote.dx.validate.ValidationException;
+import coyote.loader.cfg.Config;
 import coyote.loader.cfg.ConfigurationException;
 
 
@@ -36,7 +35,7 @@ public class NotNullTest extends AbstractTest {
   public void test() {
 
     String cfgData = "{ \"field\" : \"model\",  \"desc\" : \"Model cannot be empty\" }";
-    DataFrame configuration = parseConfiguration( cfgData );
+    Config configuration = parseConfiguration( cfgData );
 
     // create the component to test
     FrameValidator validator = new NotNull();

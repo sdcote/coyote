@@ -15,12 +15,12 @@ import java.io.IOException;
 
 import coyote.commons.StringUtil;
 import coyote.commons.template.Template;
-import coyote.dataframe.DataFrame;
 import coyote.dx.AbstractConfigurableComponent;
 import coyote.dx.ConfigTag;
 import coyote.dx.TaskException;
 import coyote.dx.TransformTask;
 import coyote.dx.context.TransformContext;
+import coyote.loader.cfg.Config;
 import coyote.loader.cfg.ConfigurationException;
 
 
@@ -66,13 +66,12 @@ public abstract class AbstractTransformTask extends AbstractConfigurableComponen
 
 
 
-
   /**
-   * @see coyote.dx.AbstractConfigurableComponent#setConfiguration(coyote.dataframe.DataFrame)
+   * @see coyote.dx.AbstractConfigurableComponent#setConfiguration(coyote.loader.cfg.Config)
    */
   @Override
-  public void setConfiguration( DataFrame frame ) throws ConfigurationException {
-    super.setConfiguration( frame );
+  public void setConfiguration( Config cfg ) throws ConfigurationException {
+    super.setConfiguration( cfg );
 
     // if there is an enabled flag, set it; otherwise default to true
     if ( contains( ConfigTag.ENABLED ) ) {

@@ -13,12 +13,12 @@ package coyote.dx;
 
 import coyote.commons.CipherUtil;
 import coyote.commons.StringUtil;
-import coyote.commons.security.BlowfishCipher;
 import coyote.commons.template.Template;
 import coyote.dataframe.DataField;
 import coyote.dataframe.DataFrame;
 import coyote.dataframe.DataFrameException;
 import coyote.dx.context.TransformContext;
+import coyote.loader.cfg.Config;
 import coyote.loader.cfg.ConfigurationException;
 import coyote.loader.log.Log;
 import coyote.loader.log.LogMsg;
@@ -29,18 +29,18 @@ import coyote.loader.log.LogMsg;
  */
 public abstract class AbstractConfigurableComponent implements ConfigurableComponent {
 
-  protected DataFrame configuration = new DataFrame();
+  protected Config configuration = new Config();
   protected TransformContext context = null;
 
 
 
 
   /**
-   * @see coyote.dx.ConfigurableComponent#setConfiguration(coyote.dataframe.DataFrame)
+   * @see coyote.dx.ConfigurableComponent#setConfiguration(coyote.loader.cfg.Config)
    */
   @Override
-  public void setConfiguration( DataFrame frame ) throws ConfigurationException {
-    configuration = frame;
+  public void setConfiguration( Config cfg ) throws ConfigurationException {
+    configuration = cfg;
   }
 
 
@@ -61,7 +61,7 @@ public abstract class AbstractConfigurableComponent implements ConfigurableCompo
    * @see coyote.dx.ConfigurableComponent#getConfiguration()
    */
   @Override
-  public DataFrame getConfiguration() {
+  public Config getConfiguration() {
     return configuration;
   }
 
@@ -164,7 +164,7 @@ public abstract class AbstractConfigurableComponent implements ConfigurableCompo
 
     // Perform a case insensitive search for the value with the given key
     value = this.findString( key );
-    
+
     if ( context != null ) {
       // See if there is a match in the context for reference resolution
       if ( value != null ) {
