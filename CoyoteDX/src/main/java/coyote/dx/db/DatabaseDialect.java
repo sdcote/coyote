@@ -11,6 +11,7 @@
  */
 package coyote.dx.db;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -271,4 +272,79 @@ public class DatabaseDialect {
 
   }
 
+  /**
+   * Resolve the given object to a valid type supported by the DataFrame using
+   * the given SQL type as the type indicator.
+   * 
+   * <p>The following table is used to translate JDBC types to Field Types:
+   * <table border="1"><caption>JDBC Type and Name to DataFrame type</caption>
+   * <tr><th>Value</th><th>SQL</th><th>Field</th></tr>
+   * <tr><td>-7</td><td>BIT</td><td>BOL</td></tr>
+   * <tr><td>-6</td><td>TINYINT</td><td>S8</td></tr>
+   * <tr><td>-5</td><td>BIGINT</td><td>LONG</td></tr>
+   * <tr><td>-4</td><td>LONGVARBINARY</td><td>STR</td></tr>
+   * <tr><td>-3</td><td>VARBINARY</td><td>STR</td></tr>
+   * <tr><td>-2</td><td>BINARY</td><td>STR</td></tr>
+   * <tr><td>-1</td><td>LONGVARCHAR</td><td>STR</td></tr>
+   * <tr><td>0</td><td>NULL</td><td>NUL</td></tr>
+   * <tr><td>1</td><td>CHAR</td><td>STR</td></tr>
+   * <tr><td>2</td><td>NUMERIC</td><td>DBL</td></tr>
+   * <tr><td>3</td><td>DECIMAL</td><td>DBL</td></tr>
+   * <tr><td>4</td><td>INTEGER</td><td>S32</td></tr>
+   * <tr><td>5</td><td>SMALLINT</td><td>S16</td></tr>
+   * <tr><td>6</td><td>FLOAT</td><td>DBL</td></tr>
+   * <tr><td>7</td><td>REAL</td><td>FLT</td></tr>
+   * <tr><td>8</td><td>DOUBLE</td><td>DBL</td></tr>
+   * <tr><td>12</td><td>VARCHAR</td><td>STR</td></tr>
+   * <tr><td>91</td><td>DATE</td><td>DAT</td></tr>
+   * <tr><td>92</td><td>TIME</td><td>DAT</td></tr>
+   * <tr><td>93</td><td>TIMESTAMP</td><td>DAT</td></tr>
+   * <tr><td>1111&nbsp;</td><td>OTHER</td><td>STR</td></tr></table>
+   * 
+   * @param value the value to convert
+   * @param type the SQL type of the value passed
+   * 
+   * @return an object which can be safely placed in a DataFrame field.
+   */
+  public static Object resolveValue( Object value, int type ) {
+    Object retval = null;
+
+    if ( value != null ) {
+      switch ( type ) {
+        case 2:
+        case 3:
+          retval = ( (java.math.BigDecimal)value ).doubleValue();
+          break;
+        case 4:
+          retval = ( (Integer)value ).intValue();
+          break;
+        case 5:
+          retval = ( (Integer)value ).shortValue();
+          break;
+        case 6:
+          retval = ( (Double)value ).doubleValue();
+          break;
+        case 7:
+          retval = ( (Float)value ).floatValue();
+          break;
+        case 8:
+          retval = ( (Double)value ).doubleValue();
+          break;
+        case 91:
+          retval = new Date( ( (java.sql.Date)value ).getTime() );
+          break;
+        case 92:
+          retval = new Date( ( (java.sql.Time)value ).getTime() );
+          break;
+        case 93:
+          retval = new Date( ( (java.sql.Timestamp)value ).getTime() );
+          break;
+        default:
+          retval = value.toString();
+      }
+
+    }
+
+    return retval;
+  }
 }
