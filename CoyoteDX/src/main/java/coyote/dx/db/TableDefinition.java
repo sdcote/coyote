@@ -19,6 +19,10 @@ import java.util.List;
  * This models a (database) table definition.
  */
 public class TableDefinition {
+  private String productName;
+  private String productVersion;
+  private int majorVersion;
+  private int minorVersion;
   private String catalogName;
   private String schemaName;
   private final String tableName;
@@ -61,13 +65,14 @@ public class TableDefinition {
 
 
 
-/**
- * Convenience method to add a column with a specified name, type and length.
- * 
- * @param name The name of the column to add
- * @param type The data type of the column
- * @param len The maximum length of the data this column will hold 
- */
+
+  /**
+   * Convenience method to add a column with a specified name, type and length.
+   * 
+   * @param name The name of the column to add
+   * @param type The data type of the column
+   * @param len The maximum length of the data this column will hold 
+   */
   public void addColumn( String name, ColumnType type, int len ) {
     columns.add( new ColumnDefinition( name, type, len ) );
   }
@@ -87,9 +92,10 @@ public class TableDefinition {
 
 
 
-/**
- * @return the reference to the list of column in this table.
- */
+
+  /**
+   * @return the reference to the list of column in this table.
+   */
   public List<ColumnDefinition> getColumns() {
     return columns;
   }
@@ -163,8 +169,6 @@ public class TableDefinition {
     }
     b.append( tableName );
     b.append( "\r\n" );
-    b.append( "================" );
-    b.append( "\r\n" );
     for ( ColumnDefinition column : columns ) {
       b.append( column.getName() );
       b.append( ' ' );
@@ -174,8 +178,6 @@ public class TableDefinition {
       b.append( ')' );
       b.append( "\r\n" );
     }
-    b.append( "================" );
-
     return b.toString();
   }
 
@@ -220,6 +222,86 @@ public class TableDefinition {
       }
     }
     return null;
+  }
+
+
+
+
+  /**
+   * @return the name of the database product hosting this table
+   */
+  public String getProductName() {
+    return productName;
+  }
+
+
+
+
+  /**
+   * @param name the name of the database product hosting this table (e.g. ORACLE, H2, etc.)
+   */
+  public void setProductName( String name ) {
+    productName = name;
+  }
+
+
+
+
+  /**
+   * @return the version of the database product hosting this table
+   */
+  public String getProductVersion() {
+    return productVersion;
+  }
+
+
+
+
+  /**
+   * @param version the version of the database product hosting this table
+   */
+  public void setProductVersion( String version ) {
+    this.productVersion = version;
+  }
+
+
+
+
+  /**
+   * @return the major version number of the database product hosting this table
+   */
+  public int getMajorVersion() {
+    return majorVersion;
+  }
+
+
+
+
+  /**
+   * @param version the major version number of the database product hosting this table
+   */
+  public void setMajorVersion( int version ) {
+    this.majorVersion = version;
+  }
+
+
+
+
+  /**
+   * @return the minor version number of the database product hosting this table
+   */
+  public int getMinorVersion() {
+    return minorVersion;
+  }
+
+
+
+
+  /**
+   * @param version the minor version number of the database product hosting this table
+   */
+  public void setMinorVersion( int version ) {
+    this.minorVersion = version;
   }
 
 }
