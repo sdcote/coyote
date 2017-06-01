@@ -694,7 +694,7 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
         }
 
         symbolTable.put( DatabaseDialect.TABLE_NAME_SYM, getTable() );
-        symbolTable.put( DatabaseDialect.DB_USER_SYM, getUsername() );
+        symbolTable.put( DatabaseDialect.DB_SCHEMA_SYM, getUsername() );
         String command = DatabaseDialect.getCreate( database, schema, symbolTable );
 
         Log.debug( LogMsg.createMsg( CDX.MSG, "Writer.creating_table", getClass().getName(), getTable(), command ) );

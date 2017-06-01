@@ -105,7 +105,7 @@ public class DataProfiler extends FileRecorder implements ContextListener {
     if ( outputSchema.getSampleCount() > 0 ) {
       StringBuffer b = new StringBuffer( "Table Creation for Output" );
       b.append( StringUtil.LINE_FEED );
-      symbols.put( DatabaseDialect.DB_USER_SYM, "DBUser" );
+      symbols.put( DatabaseDialect.DB_SCHEMA_SYM, "DBUser" );
       symbols.put( DatabaseDialect.TABLE_NAME_SYM, "TableName" );
       b.append( "H2: " );
       b.append( DatabaseDialect.getCreate( DatabaseDialect.H2, outputSchema, symbols ) );
@@ -131,7 +131,7 @@ public class DataProfiler extends FileRecorder implements ContextListener {
     if ( inputSchema.getSampleCount() > 0 ) {
       StringBuffer b = new StringBuffer( "Table Creation for Input" );
       b.append( StringUtil.LINE_FEED );
-      symbols.put( DatabaseDialect.DB_USER_SYM, "DBUser" );
+      symbols.put( DatabaseDialect.DB_SCHEMA_SYM, "DBUser" );
       symbols.put( DatabaseDialect.TABLE_NAME_SYM, "TableName" );
       b.append( "H2: " );
       b.append( DatabaseDialect.getCreate( DatabaseDialect.H2, inputSchema, symbols ) );
