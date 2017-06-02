@@ -51,14 +51,14 @@ public class RabbitWriter extends AbstractFrameWriter implements FrameWriter, Co
 
 
   public URI getBrokerURI() {
-    if ( configuration.containsIgnoreCase( ConfigTag.SOURCE ) ) {
+    if ( configuration.containsIgnoreCase( ConfigTag.TARGET ) ) {
       URI retval;
       try {
-        String fieldname = configuration.getFieldIgnoreCase( ConfigTag.SOURCE ).getName();
+        String fieldname = configuration.getFieldIgnoreCase( ConfigTag.TARGET ).getName();
         retval = new URI( configuration.getAsString( fieldname ) );
         return retval;
       } catch ( URISyntaxException e ) {
-        Log.debug( LogMsg.createMsg( CMQ.MSG, "Reader.config_attribute_is_not_valid_uri", ConfigTag.SOURCE, configuration.getAsString( ConfigTag.SOURCE ) ) );
+        Log.debug( LogMsg.createMsg( CMQ.MSG, "Reader.config_attribute_is_not_valid_uri", ConfigTag.TARGET, configuration.getAsString( ConfigTag.TARGET ) ) );
       }
     }
     return null;
