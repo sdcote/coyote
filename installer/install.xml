@@ -145,8 +145,10 @@ xsi:schemaLocation="http://izpack.org/schema/installation http://izpack.org/sche
 			<fileset dir="CoyoteWS\build\install\CoyoteWS\doc" targetdir="$INSTALL_PATH/doc" override="true"/>
 			<fileset dir="CoyoteWS\src\resources\licenses" targetdir="$INSTALL_PATH/doc/licenses" override="true"/>
 			<fileset dir="CoyoteWS\build\install\CoyoteWS\lib" targetdir="$INSTALL_PATH/lib" includes="CoyoteWS*.jar" override="true"/>
-			<fileset dir="CoyoteWS\build\install\CoyoteWS\lib" targetdir="$INSTALL_PATH/lib" includes="jsch-*.jar" override="true"/>
 			<fileset dir="CoyoteWS\build\install\CoyoteWS\lib" targetdir="$INSTALL_PATH/lib" includes="commons-net-*.jar" override="true"/>
+			<fileset dir="CoyoteWS\build\install\CoyoteWS\lib" targetdir="$INSTALL_PATH/lib" includes="http*.jar" override="true"/>
+			<fileset dir="CoyoteWS\build\install\CoyoteWS\lib" targetdir="$INSTALL_PATH/lib" includes="jcl*.jar" override="true"/>
+			<fileset dir="CoyoteWS\build\install\CoyoteWS\lib" targetdir="$INSTALL_PATH/lib" includes="jsoup*.jar" override="true"/>
 		</pack>
 		<pack name="CoyoteWS Source" required="no" preselected="no" >
 			<description>The source code and javadoc files for the Coyote Web Service toolkit.</description>
@@ -162,6 +164,22 @@ xsi:schemaLocation="http://izpack.org/schema/installation http://izpack.org/sche
 			<fileset dir="CoyoteSLF4J\build\install\CoyoteSLF4J\lib" targetdir="$INSTALL_PATH/lib" includes="CoyoteSLF4J*.jar" override="true"/>
 			<fileset dir="CoyoteSLF4J\build\install\CoyoteSLF4J\lib" targetdir="$INSTALL_PATH/lib" includes="slf4j*.jar" override="true"/>
 			<fileset dir="CoyoteSLF4J\src\resources\licenses" targetdir="$INSTALL_PATH/doc/licenses" override="true"/>
+		</pack>		
+		<pack name="CoyoteMQ" required="no" preselected="no" >
+			<description>Installs the Coyote Message Queue toolkit.</description>
+			<fileset dir="CoyoteMQ\build\install\CoyoteMQ\doc" targetdir="$INSTALL_PATH/doc" override="true"/>
+			<fileset dir="CoyoteMQ\src\resources\licenses" targetdir="$INSTALL_PATH/doc/licenses" override="true"/>
+			<fileset dir="CoyoteMQ\build\install\CoyoteMQ\lib" targetdir="$INSTALL_PATH/lib" includes="CoyoteMQ*.jar" override="true"/>
+			<fileset dir="CoyoteMQ\build\install\CoyoteMQ\lib" targetdir="$INSTALL_PATH/lib" includes="amqp-client-*.jar" override="true"/>
+		</pack>
+		<pack name="CoyoteMQ Source" required="no" preselected="no" >
+			<description>The source code and javadoc files for the Coyote Message Queue toolkit.</description>
+			<fileset dir="CoyoteMQ\build\libs" targetdir="$INSTALL_PATH/doc/CoyoteMQ" includes="*-javadoc.jar" override="true"/>
+			<fileset dir="CoyoteMQ\build\libs" targetdir="$INSTALL_PATH/doc/CoyoteMQ" includes="*-sources.jar" override="true"/>
+		</pack>		
+		<pack name="CoyoteMQ Demo" required="no" preselected="no" >
+			<description>A collection of configuration files demonstrating how to use the message queue tools.</description>
+			<fileset dir="CoyoteMQ\src\resources\demo" targetdir="$INSTALL_PATH/demo" override="true"/>
 		</pack>		
 	</packs>
 	
