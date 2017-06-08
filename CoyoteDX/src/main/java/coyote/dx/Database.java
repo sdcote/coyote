@@ -5,6 +5,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.sql.Connection;
+import java.sql.DatabaseMetaData;
 import java.sql.Driver;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -38,6 +39,7 @@ public class Database extends AbstractConfigurableComponent implements Configura
 
   private final List<Connection> connections = new ArrayList<Connection>();
   private Driver driver = null;
+  DatabaseMetaData meta = null;
 
 
 
@@ -67,7 +69,18 @@ public class Database extends AbstractConfigurableComponent implements Configura
    */
   public Connection getConnection() {
     Connection connection = null;
+    connection = createConnection();
+    if ( connection != null ) {
+      connections.add( connection );
+    }
+    return connection;
+  }
 
+
+
+
+  private Connection createConnection() {
+    Connection retval = null;
     try {
       if ( driver == null ) {
         URL u = new URL( getLibrary() );
@@ -76,21 +89,16 @@ public class Database extends AbstractConfigurableComponent implements Configura
         DriverManager.registerDriver( new DriverDelegate( driver ) );
       }
 
-      connection = DriverManager.getConnection( getTarget(), getUsername(), getPassword() );
+      retval = DriverManager.getConnection( getTarget(), getUsername(), getPassword() );
 
-      if ( connection != null ) {
+      if ( retval != null ) {
         Log.debug( LogMsg.createMsg( CDX.MSG, "Database.connected_to", getTarget() ) );
       }
     } catch ( InstantiationException | IllegalAccessException | ClassNotFoundException | SQLException | MalformedURLException e ) {
       Log.error( "Could not connect to database: " + e.getClass().getSimpleName() + " - " + e.getMessage() );
       Log.debug( "ERROR: Could not connect to database: " + e.getClass().getSimpleName() + " - " + e.getMessage() + "\n" + ExceptionUtil.stackTrace( e ) );
     }
-
-    if ( connection != null ) {
-      connections.add( connection );
-    }
-
-    return connection;
+    return retval;
   }
 
 
@@ -207,7 +215,16 @@ public class Database extends AbstractConfigurableComponent implements Configura
    */
   @Override
   public void open( TransformContext context ) {
-    // this is not called as it is not a regular component
+    // This is not called by the framework as it is not a regular component
+    // It may, however, be called programmatically when used separately
+    if ( meta == null ) {
+      try (Connection connection = createConnection()) {
+        Log.debug( LogMsg.createMsg( CDX.MSG, "Database.connected_to", getTarget() ) );
+        meta = connection.getMetaData();
+      } catch ( SQLException e ) {
+        getContext().setError( "Could not connect to database: " + e.getClass().getSimpleName() + " - " + e.getMessage() );
+      }
+    }
   }
 
 
@@ -225,6 +242,93 @@ public class Database extends AbstractConfigurableComponent implements Configura
         } catch ( SQLException ignore ) {}
       }
     }
+  }
+
+
+
+
+  /**
+   * Retrieves the name of this database product.
+   * 
+   * <p>This is converted to uppercase for uniformity with various versions of 
+   * the drivers and API usages.
+   *
+   * @return database product name
+   */
+  public String getProductName() {
+    String retval = null;
+    if ( meta == null ) {
+      open( null );
+    }
+    try {
+      retval = meta.getDatabaseProductName();
+      if ( retval != null ) {
+        return retval.toUpperCase();
+      }
+    } catch ( SQLException e ) {
+      e.printStackTrace();
+    }
+    return retval;
+  }
+
+
+
+
+  /**
+   * Retrieves the version number of this database product.
+   *
+   * @return database version number, null if problems occurred or not supported
+   */
+  public String getProductVersion() {
+    if ( meta == null ) {
+      open( null );
+    }
+    try {
+      return meta.getDatabaseProductVersion();
+    } catch ( SQLException e ) {
+      e.printStackTrace();
+    }
+    return null;
+  }
+
+
+
+
+  /**
+   * Retrieves the major version number of the underlying database.
+   *
+   * @return underlying database's major version, -1 if problems occurred
+   */
+  public int getMajorVersion() {
+    if ( meta == null ) {
+      open( null );
+    }
+    try {
+      return meta.getDatabaseMajorVersion();
+    } catch ( SQLException e ) {
+      e.printStackTrace();
+    }
+    return -1;
+  }
+
+
+
+
+  /**
+   * Retrieves the minor version number of the underlying database.
+   *
+   * @return underlying database's minor version, -1 if problems occurred
+   */
+  public int getMinorVersion() {
+    if ( meta == null ) {
+      open( null );
+    }
+    try {
+      return meta.getDatabaseMinorVersion();
+    } catch ( SQLException e ) {
+      e.printStackTrace();
+    }
+    return -1;
   }
 
 }
