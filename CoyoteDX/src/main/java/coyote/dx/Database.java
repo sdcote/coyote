@@ -55,7 +55,7 @@ public class Database extends AbstractConfigurableComponent implements Configura
    * that maybe two connections (one for a reader and one for a writer) might be 
    * created.
    * 
-   * <p>The primary benifit of this class is that many components can 
+   * <p>The primary benefit of this class is that many components can 
    * reference one database configuration in the job and not have to duplicate 
    * the configuration in each component. Additionally, this class will keep a 
    * reference to all the connections and make sure they are closed when the 
@@ -117,7 +117,7 @@ public class Database extends AbstractConfigurableComponent implements Configura
 
 
   public String getDriver() {
-    return configuration.getAsString( ConfigTag.DRIVER );
+    return configuration.getString( ConfigTag.DRIVER );
   }
 
 
@@ -127,7 +127,7 @@ public class Database extends AbstractConfigurableComponent implements Configura
    * @return the target URI to which the writer will write
    */
   public String getTarget() {
-    return configuration.getAsString( ConfigTag.TARGET );
+    return configuration.getString( ConfigTag.TARGET );
   }
 
 
@@ -189,14 +189,14 @@ public class Database extends AbstractConfigurableComponent implements Configura
 
 
   public String getName() {
-    return configuration.getAsString( ConfigTag.NAME );
+    return configuration.getString( ConfigTag.NAME );
   }
 
 
 
 
   public String getLibrary() {
-    return configuration.getAsString( ConfigTag.LIBRARY );
+    return configuration.getString( ConfigTag.LIBRARY );
   }
 
 
