@@ -48,56 +48,18 @@ import coyote.loader.log.LogMsg;
  * <p>Because Persistent contexts are simple text files, they can be edited 
  * prior to their respective transforms being run
  */
-public class PersistentContext extends TransformContext {
-  private static final String FILENAME = "context.json";
-  File contextFile = null;
+public abstract class PersistentContext extends TransformContext {
   long runcount = 0;
   Date lastRunDate = null;
 
 
 
 
-  public PersistentContext() {}
 
 
 
 
-  /**
-   * @see coyote.dx.context.TransformContext#open()
-   */
-  @Override
-  public void open() {
-
-    contextFile = new File( engine.getJobDirectory(), FILENAME );
-    Log.debug( "Reading context from " + contextFile.getAbsolutePath() );
-    String contents = FileUtil.fileToString( contextFile );
-
-    // fill the context with data previously persisted to the file (if any)
-    if ( StringUtil.isNotBlank( contents ) ) {
-      try {
-        List<DataFrame> frames = JSONMarshaler.marshal( contents );
-        if ( frames.get( 0 ) != null ) {
-          for ( DataField field : frames.get( 0 ).getFields() ) {
-            set( field.getName(), field.getObjectValue() );
-          }
-        }
-      } catch ( MarshalException e ) {
-        Log.warn( "Could not load context: " + e.getClass().getSimpleName() + " - " + e.getMessage() );
-      }
-    }
-
-    incrementRunCount();
-
-    setPreviousRunDate();
-
-    // now resolve our configuration
-    super.open();
-  }
-
-
-
-
-  private void setPreviousRunDate() {
+  protected void setPreviousRunDate() {
     Object value = get( Symbols.PREVIOUS_RUN_DATETIME );
 
     if ( value != null ) {
@@ -131,7 +93,7 @@ public class PersistentContext extends TransformContext {
   /**
    * Increments the run counter by 1
    */
-  private void incrementRunCount() {
+  protected void incrementRunCount() {
 
     // Get the current value
     Object value = get( Symbols.RUN_COUNT );
@@ -167,42 +129,5 @@ public class PersistentContext extends TransformContext {
 
 
 
-  /**
-   * @see coyote.dx.context.TransformContext#close()
-   */
-  @Override
-  public void close() {
-    super.close();
-
-    // create a data frame to structure our data
-    DataFrame frame = new DataFrame();
-
-    // Add each property in the context to the frame
-    for ( String key : properties.keySet() ) {
-      try {
-        frame.add( key, properties.get( key ) );
-      } catch ( Exception e ) {
-        Log.debug( "Cannot persist property '" + key + "' - " + e.getMessage() );
-      }
-    }
-
-    // add the current value of the run counter
-    frame.put( Symbols.RUN_COUNT, runcount );
-
-    // Save the current run date
-    Object rundate = get( Symbols.DATETIME );
-    if ( rundate != null ) {
-      // it should be a date reference
-      if ( rundate instanceof Date ) {
-        // format it in the default format
-        frame.put( Symbols.PREVIOUS_RUN_DATETIME, CDX.DEFAULT_DATETIME_FORMAT.format( (Date)rundate ) );
-      } else {
-        Log.warn( LogMsg.createMsg( CDX.MSG, "Context.run_date_reset", rundate ) );
-      }
-    }
-
-    // write the context to disk using JSON 
-    FileUtil.stringToFile( JSONMarshaler.toFormattedString( frame ), contextFile.getAbsolutePath() );
-
-  }
+ 
 }

@@ -12,7 +12,14 @@
 package coyote.dx.context;
 
 import java.sql.Connection;
-import java.util.Date;
+
+import coyote.commons.StringUtil;
+import coyote.commons.template.Template;
+import coyote.dataframe.DataField;
+import coyote.dx.ConfigTag;
+import coyote.dx.Database;
+import coyote.loader.cfg.Config;
+import coyote.loader.cfg.ConfigurationException;
 
 
 /**
@@ -40,16 +47,14 @@ import java.util.Date;
  * dataframe itself. Reach field is a record in the table differentiated by 
  * the field name and the name of the job to which it belongs.
  */
-public class DatabaseContext extends TransformContext {
-
-  long runcount = 0;
-  Date lastRunDate = null;
+public class DatabaseContext extends PersistentContext {
 
   /** The JDBC connection used by this context to interact with the database */
   protected Connection connection;
 
-  /** The database product name (Oracle, H2, etc.) to which we are connected. */
-  private String database = null;
+  /** Component we use to handle connection creation */
+  private Database database = null;
+  Connection conn = null;
 
 
 
@@ -60,13 +65,39 @@ public class DatabaseContext extends TransformContext {
   @Override
   public void open() {
 
+    if ( configuration != null ) {
+      
+      database = new Database();
+      try {
+        database.setConfiguration( configuration );
+        
+        conn = database.getConnection();
+        
+        
+      } catch ( ConfigurationException e ) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+      }
+
+      Config section = configuration.getSection( ConfigTag.FIELDS );
+      for ( DataField field : section.getFields() ) {
+        if ( !field.isFrame() ) {
+          if ( StringUtil.isNotBlank( field.getName() ) && !field.isNull() ) {
+            String token = field.getStringValue();
+            String value = Template.resolve( token, engine.getSymbolTable() );
+            engine.getSymbolTable().put( field.getName(), value );
+            set( field.getName(), value );
+          } //name-value check
+        } // if frame
+      } // for
+    }
   }
 
 
 
 
   /**
-   * Create the tables necessary to store named values for a named job.
+   * Create the table necessary to store named values for a named job.
    * 
    * <p>The table is simple:<ul>
    * <li>name - name of the transform job/context
@@ -99,7 +130,7 @@ public class DatabaseContext extends TransformContext {
    */
   @Override
   public void close() {
-    // TODO Auto-generated method stub
+
     super.close();
   }
 

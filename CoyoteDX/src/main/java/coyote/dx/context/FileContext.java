@@ -12,7 +12,6 @@
 package coyote.dx.context;
 
 import java.io.File;
-import java.text.ParseException;
 import java.util.Date;
 import java.util.List;
 
@@ -47,11 +46,9 @@ import coyote.loader.log.LogMsg;
  * <p>Because FileContexts are simple text files, they can be edited prior to 
  * their respective transforms being run.
  */
-public class FileContext extends TransformContext {
+public class FileContext extends PersistentContext {
   private static final String FILENAME = "context.json";
   File contextFile = null;
-  long runcount = 0;
-  Date lastRunDate = null;
 
 
 
@@ -91,76 +88,6 @@ public class FileContext extends TransformContext {
 
     // now resolve our configuration
     super.open();
-  }
-
-
-
-
-  private void setPreviousRunDate() {
-    Object value = get( Symbols.PREVIOUS_RUN_DATETIME );
-
-    if ( value != null ) {
-
-      // clear it from the context to reduce confusion
-      set( Symbols.PREVIOUS_RUN_DATETIME, null );
-
-      try {
-        Date prevrun = CDX.DEFAULT_DATETIME_FORMAT.parse( value.toString() );
-
-        // Set the previous run date
-        set( Symbols.PREVIOUS_RUN_DATE, prevrun );
-
-        // set the new value in the symbol table
-        if ( this.symbols != null ) {
-          symbols.put( Symbols.PREVIOUS_RUN_DATE, CDX.DEFAULT_DATE_FORMAT.format( prevrun ) );
-          symbols.put( Symbols.PREVIOUS_RUN_TIME, CDX.DEFAULT_TIME_FORMAT.format( prevrun ) );
-          symbols.put( Symbols.PREVIOUS_RUN_DATETIME, CDX.DEFAULT_DATETIME_FORMAT.format( prevrun ) );
-        }
-
-      } catch ( ParseException e ) {
-        Log.warn( LogMsg.createMsg( CDX.MSG, "Context.previous_run_date_parsing_error", value, e.getClass().getSimpleName(), e.getMessage() ) );
-      }
-    }
-
-  }
-
-
-
-
-  /**
-   * Increments the run counter by 1
-   */
-  private void incrementRunCount() {
-
-    // Get the current value
-    Object value = get( Symbols.RUN_COUNT );
-
-    if ( value != null ) {
-      // if a number...
-      if ( value instanceof Number ) {
-        // set it
-        runcount = ( (Number)value ).longValue();
-      } else {
-        // try parsing it as a string
-        try {
-          runcount = Long.parseLong( value.toString() );
-        } catch ( NumberFormatException e ) {
-          Log.warn( "Could not parse '" + Symbols.RUN_COUNT + "'  value [" + value.toString() + "] into a number " );
-        } // try
-      } // numeric check
-    } // !null
-
-    // increment the counter
-    runcount++;
-
-    set( Symbols.RUN_COUNT, runcount );
-
-    // set the new value in the symbol table
-    if ( this.symbols != null ) {
-      symbols.put( Symbols.RUN_COUNT, runcount );
-    }
-
-    Log.debug( "Runcount is " + runcount );
   }
 
 
