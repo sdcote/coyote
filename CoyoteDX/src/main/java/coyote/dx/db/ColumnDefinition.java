@@ -11,22 +11,22 @@
  */
 package coyote.dx.db;
 
-
-
 /**
  * This holds details about a column in a table
  */
 public class ColumnDefinition {
-  private final String name;
-  private final ColumnType type;
-  private final int length;
-  private final boolean nullable;
-  private final boolean readOnly;
-  private final boolean mandatory;
-  private final boolean primaryKey;
-  private final boolean unique;
-  private final String remarks;
-  private final int position;
+  private String name;
+  private ColumnType type;
+  private int length;
+  private boolean nullable;
+  private boolean readOnly;
+  private boolean mandatory;
+  private boolean primaryKey;
+  private boolean unique;
+  private String remarks;
+  private int position;
+
+
 
 
 
@@ -71,11 +71,27 @@ public class ColumnDefinition {
 
 
 
+  public ColumnDefinition setName( String name ) {
+    this.name = name;
+    return this;
+  }
+
+
+
+
   /**
    * @return the type
    */
   public ColumnType getType() {
     return type;
+  }
+
+
+
+
+  public ColumnDefinition setType( ColumnType type ) {
+    this.type = type;
+    return this;
   }
 
 
@@ -91,11 +107,27 @@ public class ColumnDefinition {
 
 
 
+  public ColumnDefinition setLength( int length ) {
+    this.length = length;
+    return this;
+  }
+
+
+
+
   /**
    * @return the readOnly
    */
   public boolean isReadOnly() {
     return readOnly;
+  }
+
+
+
+
+  public ColumnDefinition setReadOnly( boolean readOnly ) {
+    this.readOnly = readOnly;
+    return this;
   }
 
 
@@ -111,11 +143,27 @@ public class ColumnDefinition {
 
 
 
+  public ColumnDefinition setMandatory( boolean mandatory ) {
+    this.mandatory = mandatory;
+    return this;
+  }
+
+
+
+
   /**
    * @return the primaryKey
    */
   public boolean isPrimaryKey() {
     return primaryKey;
+  }
+
+
+
+
+  public ColumnDefinition setPrimaryKey( boolean primaryKey ) {
+    this.primaryKey = primaryKey;
+    return this;
   }
 
 
@@ -131,11 +179,27 @@ public class ColumnDefinition {
 
 
 
+  public ColumnDefinition setUnique( boolean unique ) {
+    this.unique = unique;
+    return this;
+  }
+
+
+
+
   /**
    * @return the nullable
    */
   public boolean isNullable() {
     return nullable;
+  }
+
+
+
+
+  public ColumnDefinition setNullable( boolean nullable ) {
+    this.nullable = nullable;
+    return this;
   }
 
 
@@ -151,11 +215,27 @@ public class ColumnDefinition {
 
 
 
+  public ColumnDefinition setRemarks( String remarks ) {
+    this.remarks = remarks;
+    return this;
+  }
+
+
+
+
   /**
    * @return the position
    */
   public int getPosition() {
     return position;
+  }
+
+
+
+
+  public ColumnDefinition setPosition( int position ) {
+    this.position = position;
+    return this;
   }
 
 }
