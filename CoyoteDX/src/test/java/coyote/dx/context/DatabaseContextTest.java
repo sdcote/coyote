@@ -13,11 +13,15 @@ package coyote.dx.context;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import coyote.dataframe.DataFrame;
 import coyote.dataframe.marshal.JSONMarshaler;
+import coyote.dx.DefaultTransformEngine;
 import coyote.loader.cfg.Config;
+import coyote.loader.log.ConsoleAppender;
+import coyote.loader.log.Log;
 
 
 /**
@@ -29,7 +33,9 @@ public class DatabaseContextTest {
    * @throws java.lang.Exception
    */
   @BeforeClass
-  public static void setUpBeforeClass() throws Exception {}
+  public static void setUpBeforeClass() throws Exception {
+    Log.addLogger( Log.DEFAULT_LOGGER_NAME, new ConsoleAppender( Log.TRACE_EVENTS | Log.DEBUG_EVENTS | Log.INFO_EVENTS | Log.WARN_EVENTS | Log.ERROR_EVENTS | Log.FATAL_EVENTS ) );
+  }
 
 
 
@@ -46,31 +52,10 @@ public class DatabaseContextTest {
   @Test
   public void contextWithLibraryAttribute() {
       DataFrame config = new DataFrame().set( "Context", new DataFrame()
-        .set( "Class","DatabaseContext" )
-        .set( "Target","jdbc:h2:[#$jobdir#]/test;MODE=Oracle;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE" )
+        .set( "class","DatabaseContext" )
+        .set( "target","jdbc:h2:./testdb;MODE=Oracle" )
         .set( "autocreate",true )
         .set( "library","jar:file:lib/ojdbc7_g.jar!/" )
-        .set( "driver","org.h2.Driver" )
-        .set( "username","sa" )
-        .set( "password","" )
-        .set( "fields",new DataFrame()
-            .set( "SomeKey","SomeValue" )
-            .set( "AnotherKey","AnotherValue" )
-          )
-      );
-    
-    System.out.println( JSONMarshaler.toFormattedString( config ) );
-  }
-
-
-
-
-  @Test
-  public void contextWithoutLibraryAttribute() {
-    DataFrame config = new DataFrame().set( "Context", new DataFrame()
-        .set( "Class","DatabaseContext" )
-        .set( "Target","jdbc:h2:[#$jobdir#]/test;MODE=Oracle;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE" )
-        .set( "autocreate",true )
         .set( "driver","org.h2.Driver" )
         .set( "username","sa" )
         .set( "password","" )
@@ -84,6 +69,37 @@ public class DatabaseContextTest {
 
     TransformContext context = new DatabaseContext();
     context.setConfiguration( new Config( config ) );
+    context.setEngine( new DefaultTransformEngine() );
+
+    context.open();
+
+    // values are saved when the context is closed
+    context.close();
+
+  }
+
+
+
+
+  @Ignore
+  public void contextWithoutLibraryAttribute() {
+    DataFrame config = new DataFrame()
+        .set( "class","DatabaseContext" )
+        .set( "Target","jdbc:h2:[#$jobdir#]/test;MODE=Oracle;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE" )
+        .set( "autocreate",true )
+        .set( "driver","org.h2.Driver" )
+        .set( "username","sa" )
+        .set( "password","" )
+        .set( "fields",new DataFrame()
+            .set( "SomeKey","SomeValue" )
+            .set( "AnotherKey","AnotherValue" )
+        );
+    
+    System.out.println( JSONMarshaler.toFormattedString( config ) );
+
+    TransformContext context = new DatabaseContext();
+    context.setConfiguration( new Config( config ) );
+    context.setEngine( new DefaultTransformEngine() );
 
     context.open();
 

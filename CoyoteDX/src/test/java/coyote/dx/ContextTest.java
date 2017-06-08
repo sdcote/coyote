@@ -16,6 +16,8 @@ import static org.junit.Assert.assertNotNull;
 
 import java.io.IOException;
 
+import org.junit.Test;
+
 import coyote.commons.template.SymbolTable;
 import coyote.dx.context.TransformContext;
 import coyote.loader.log.Log;

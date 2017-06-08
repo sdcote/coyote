@@ -14,10 +14,15 @@ package coyote.dx.context;
 import java.sql.Connection;
 
 import coyote.commons.StringUtil;
+import coyote.commons.jdbc.DatabaseUtil;
 import coyote.commons.template.Template;
 import coyote.dataframe.DataField;
 import coyote.dx.ConfigTag;
 import coyote.dx.Database;
+import coyote.dx.db.ColumnDefinition;
+import coyote.dx.db.ColumnType;
+import coyote.dx.db.DatabaseDialect;
+import coyote.dx.db.TableDefinition;
 import coyote.loader.cfg.Config;
 import coyote.loader.cfg.ConfigurationException;
 
@@ -66,16 +71,15 @@ public class DatabaseContext extends PersistentContext {
   public void open() {
 
     if ( configuration != null ) {
-      
+
       database = new Database();
       try {
         database.setConfiguration( configuration );
-        
+        database.open( null );
         conn = database.getConnection();
-        
-        
+        verifyTables();
+
       } catch ( ConfigurationException e ) {
-        // TODO Auto-generated catch block
         e.printStackTrace();
       }
 
@@ -87,10 +91,12 @@ public class DatabaseContext extends PersistentContext {
             String value = Template.resolve( token, engine.getSymbolTable() );
             engine.getSymbolTable().put( field.getName(), value );
             set( field.getName(), value );
-          } //name-value check
-        } // if frame
-      } // for
+          }
+        }
+      }
+
     }
+
   }
 
 
@@ -105,11 +111,25 @@ public class DatabaseContext extends PersistentContext {
    * <li>value - value of the attribute
    * <li>type - data type matching data frame field types (e.g. 3=String)
    * </ul>
-   * It may be advantageous to create an index on name:key for large systems
-   * and those context performing live updates on the table via the context.
+   * 
+   * <p>This should not be the final table; it should be reviewed and altered 
+   * by the DBA to meet the needs of the application. This is to help ensure 
+   * quick deployment and operation.
    */
   private void createTables() {
 
+    TableDefinition tdef = new TableDefinition( "TestTable" );
+    tdef.addColumn( new ColumnDefinition( "SysId", ColumnType.STRING ).setPrimaryKey( true ) );
+    tdef.addColumn( new ColumnDefinition( "Name", ColumnType.STRING ) );
+    tdef.addColumn( new ColumnDefinition( "Key", ColumnType.STRING ) );
+    tdef.addColumn( new ColumnDefinition( "Value", ColumnType.STRING ) );
+    tdef.addColumn( new ColumnDefinition( "Type", ColumnType.SHORT ) );
+    tdef.addColumn( new ColumnDefinition( "CreatedBy", ColumnType.STRING ) );
+    tdef.addColumn( new ColumnDefinition( "CreatedOn", ColumnType.DATE ) );
+    tdef.addColumn( new ColumnDefinition( "ModifiedBy", ColumnType.STRING ) );
+    tdef.addColumn( new ColumnDefinition( "ModifiedOn", ColumnType.DATE ) );
+
+    String sql = DatabaseDialect.getCreate(database.getProductName(), tdef );
   }
 
 
@@ -119,7 +139,9 @@ public class DatabaseContext extends PersistentContext {
    * Make sure the tables exist.
    */
   private void verifyTables() {
-
+    if( !DatabaseUtil.tableExists( conn, "TestTable" )){
+      createTables();
+    }
   }
 
 
