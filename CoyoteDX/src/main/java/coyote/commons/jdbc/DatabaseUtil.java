@@ -50,18 +50,14 @@ public class DatabaseUtil {
       ResultSet rs = null;
       try {
         DatabaseMetaData meta = connection.getMetaData();
-
-        // get all the tables so we can perform a case insensitive search
         rs = meta.getTables( null, null, "%", null );
         while ( rs.next() ) {
           String table = rs.getString( "TABLE_NAME" );
-          //Log.debug( "Discovered a table named " + table );
           if ( tablename.equalsIgnoreCase( table ) ) {
             retval = true;
           }
         }
         return retval;
-
       } catch ( SQLException e ) {
         e.printStackTrace();
       }
@@ -272,7 +268,7 @@ public class DatabaseUtil {
             if ( result.next() ) {
               retval = new DataFrame();
               for ( int i = 1; i <= columnCount; i++ ) {
-                // Log.info( rsmd.getColumnName( i ) + " - '" + result.getString( i ) + "' (" + rsmd.getColumnType( i ) + ")" );
+                // Log.debug( rsmd.getColumnName( i ) + " - '" + result.getString( i ) + "' (" + rsmd.getColumnType( i ) + ")" );
                 retval.add( rsmd.getColumnName( i ), DatabaseDialect.resolveValue( result.getObject( i ), rsmd.getColumnType( i ) ) );
               }
             } else {
