@@ -14,6 +14,7 @@ package coyote.dx.db;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import coyote.commons.StringUtil;
 import coyote.commons.template.SymbolTable;
@@ -271,7 +272,63 @@ public class DatabaseDialect {
 
   }
 
+  public static String getCreate( String database, TableDefinition tdef ) {
+    Map<String, String> typeMap = TYPES.get( database );
+    if ( typeMap != null ) {
+      StringBuffer b = new StringBuffer();
 
+      if ( Log.isLogging( Log.DEBUG_EVENTS ) ) {
+        for ( Entry<String, String> entry : typeMap.entrySet() ) {
+           Log.debug( String.format( "DB: \"%s\",\"%s\"", entry.getKey(), entry.getValue() ) );
+         }
+       }
+
+      for ( ColumnDefinition column : tdef.getColumns() ) {
+
+        final String fieldname = column.getName();
+        final String fieldtype = column.getType().getName();
+        final long fieldlen = column.getLength();
+
+        Log.debug( String.format( "SN: \"%s\",\"%s\",%d", fieldname, fieldtype, fieldlen ) );
+
+        b.append( fieldname );
+        b.append( " " );
+
+        // lookup the database type to use for this field
+        String type = null;
+
+        if ( StringUtil.isNotBlank( fieldtype ) )
+          type = typeMap.get( fieldtype.toUpperCase() );
+
+        if ( StringUtil.isBlank( type ) ) {
+          Log.debug( LogMsg.createMsg( CDX.MSG, "Database.could_not_find_type", DatabaseDialect.class.getSimpleName(), fieldtype, type, typeMap.get( DEFAULT ), fieldname ) );
+          type = typeMap.get( DEFAULT );
+        }
+
+        //Replace any required length tokens
+        if ( type.indexOf( '#' ) > -1 ) {
+          type = type.replace( "#", Long.toString( fieldlen ) );
+        }
+
+        // place the field and type in the buffer 
+        b.append( type );
+        b.append( ", " );
+      }
+
+      // trim off the last delimiter
+      b.delete( b.length() - 2, b.length() );
+
+      SymbolTable symbols= new SymbolTable();
+      symbols.put( "fielddefinitions", b.toString() );
+      Log.debug( b.toString() );
+      return getSQL( database, CREATE, symbols );
+
+    } else {
+      Log.error( LogMsg.createMsg( CDX.MSG, "Could not find type definition for '{}' database", database ) );
+    }
+
+    return null;    
+  }
 
 
   /**
@@ -349,4 +406,9 @@ public class DatabaseDialect {
 
     return retval;
   }
+
+
+
+
+  
 }
