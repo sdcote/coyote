@@ -16,9 +16,11 @@ import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import coyote.commons.FileUtil;
 import coyote.dataframe.DataFrame;
 import coyote.dataframe.marshal.JSONMarshaler;
 import coyote.dx.DefaultTransformEngine;
+import coyote.dx.TransformEngine;
 import coyote.loader.cfg.Config;
 import coyote.loader.log.ConsoleAppender;
 import coyote.loader.log.Log;
@@ -44,7 +46,9 @@ public class DatabaseContextTest {
    * @throws java.lang.Exception
    */
   @AfterClass
-  public static void tearDownAfterClass() throws Exception {}
+  public static void tearDownAfterClass() throws Exception {
+    
+  }
 
 
 
@@ -65,16 +69,38 @@ public class DatabaseContextTest {
         );
 
     System.out.println( JSONMarshaler.toFormattedString( config ) );
-
+    TransformEngine engine = new DefaultTransformEngine();
     TransformContext context = new DatabaseContext();
     context.setConfiguration( new Config( config ) );
-    context.setEngine( new DefaultTransformEngine() );
-
+    context.setEngine( engine );
+    engine.setContext( context );
     context.open();
+    
+    turnOver(engine);
+    
+    // check context for:
+    // - each of the fields above
+    // - Runcount
+    // - Rundate
 
-    // values are saved when the context is closed
+    context.close();
+    
+    context.open();
+    // run count should be incremented each time the context is opened
+
     context.close();
 
+
+  }
+
+
+
+
+  private void turnOver( TransformEngine engine ) {
+    try {
+      engine.run();
+    } catch ( Exception e ) {
+    }    
   }
 
 
