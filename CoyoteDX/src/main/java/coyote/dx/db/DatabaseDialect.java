@@ -14,7 +14,6 @@ package coyote.dx.db;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import coyote.commons.StringUtil;
 import coyote.commons.template.SymbolTable;
@@ -46,6 +45,10 @@ public class DatabaseDialect {
   public static final String TRUNCATE = "truncate";
   public static final String TIMESTAMP = "timestamp";
   public static final String ALTER_COLUMN = "column_change";
+  public static final String UNIQUE = "unique";
+  public static final String PRIMARY_KEY = "primary_key";
+  public static final String NULLABLE = "nullable";
+  public static final String NOT_NULL = "not_null";
 
   // Database Technologies supported
   public static final String ORACLE = "Oracle";
@@ -83,7 +86,11 @@ public class DatabaseDialect {
     map.put( DELETE, "DELETE FROM [#$" + DB_SCHEMA_SYM + "#].[#$" + TABLE_NAME_SYM + "#] WHERE \"sys_id\" = [#$keyvalue#]" );
     map.put( TRUNCATE, "TRUNCATE TABLE [#$" + DB_SCHEMA_SYM + "#].[#$" + TABLE_NAME_SYM + "#]" );
     map.put( ALTER_COLUMN, "ALTER TABLE [#$" + DB_SCHEMA_SYM + "#].[#$" + TABLE_NAME_SYM + "#] MODIFY [#$columnName#] [#$columnType#]" );
-
+    map.put( UNIQUE, "IDENTITY" );
+    map.put( PRIMARY_KEY, "PRIMARY KEY" );
+    map.put( NULLABLE, "NULL" );
+    map.put( NOT_NULL, "NOT NULL" );
+    
     // Oracle dialect
     map = new HashMap<String, String>();
     TYPES.put( ORACLE, map );
@@ -110,7 +117,11 @@ public class DatabaseDialect {
     map.put( DELETE, "DELETE FROM [#$" + DB_SCHEMA_SYM + "#].[#$" + TABLE_NAME_SYM + "#] WHERE SYS_ID=[#$keyvalue#]" );
     map.put( TRUNCATE, "TRUNCATE TABLE [#$" + DB_SCHEMA_SYM + "#].[#$" + TABLE_NAME_SYM + "#]" );
     map.put( ALTER_COLUMN, "ALTER TABLE [#$" + DB_SCHEMA_SYM + "#].[#$" + TABLE_NAME_SYM + "#] MODIFY [#$columnName#] [#$columnType#]" );
-
+    map.put( UNIQUE, "IDENTITY" );
+    map.put( PRIMARY_KEY, "PRIMARY KEY" );
+    map.put( NULLABLE, "NULL" );
+    map.put( NOT_NULL, "NOT NULL" );
+    
     // H2 Dialect
     map = new HashMap<String, String>();
     TYPES.put( H2, map );
@@ -130,13 +141,17 @@ public class DatabaseDialect {
     map.put( DEFAULT, "VARCHAR(#)" );
     map = new HashMap<String, String>();
     SYNTAX.put( H2, map );
-    map.put( CREATE, "CREATE TABLE [#$" + TABLE_NAME_SYM + "#]( [#$fielddefinitions#] )" );
+    map.put( CREATE, "CREATE TABLE [#$" + TABLE_NAME_SYM + "#] ( [#$fielddefinitions#] )" );
     map.put( GRANT, "" );
     map.put( INSERT, "INSERT INTO [#$" + TABLE_NAME_SYM + "#] ( [#$fieldnames#] VALUES ([#$fieldvalues#])" );
     map.put( UPDATE, "UPDATE [#$" + TABLE_NAME_SYM + "#] SET [#$fieldmap#] WHERE SYS_ID=[#$keyvalue#]" );
     map.put( DELETE, "DELETE FROM [#$" + TABLE_NAME_SYM + "#] WHERE SYS_ID=[#$keyvalue#]" );
     map.put( TRUNCATE, "TRUNCATE TABLE [#$" + TABLE_NAME_SYM + "#]" );
     map.put( ALTER_COLUMN, "ALTER TABLE [#$" + TABLE_NAME_SYM + "#] ALTER COLUMN [#$columnName#] [#$columnType#]" );
+    map.put( UNIQUE, "IDENTITY" );
+    map.put( PRIMARY_KEY, "PRIMARY KEY" );
+    map.put( NULLABLE, "NULL" );
+    map.put( NOT_NULL, "NOT NULL" );
   }
 
 
@@ -272,24 +287,25 @@ public class DatabaseDialect {
 
   }
 
+
+
+
   public static String getCreate( String database, TableDefinition tdef ) {
+    SymbolTable symbols = new SymbolTable();
+    symbols.put( DB_SCHEMA_SYM, tdef.getSchemaName() );
+    symbols.put( TABLE_NAME_SYM, tdef.getName() );
+
     Map<String, String> typeMap = TYPES.get( database );
+    Map<String, String> syntaxMap = SYNTAX.get( database );
+
     if ( typeMap != null ) {
       StringBuffer b = new StringBuffer();
-
-      if ( Log.isLogging( Log.DEBUG_EVENTS ) ) {
-        for ( Entry<String, String> entry : typeMap.entrySet() ) {
-           Log.debug( String.format( "DB: \"%s\",\"%s\"", entry.getKey(), entry.getValue() ) );
-         }
-       }
 
       for ( ColumnDefinition column : tdef.getColumns() ) {
 
         final String fieldname = column.getName();
         final String fieldtype = column.getType().getName();
         final long fieldlen = column.getLength();
-
-        Log.debug( String.format( "SN: \"%s\",\"%s\",%d", fieldname, fieldtype, fieldlen ) );
 
         b.append( fieldname );
         b.append( " " );
@@ -312,13 +328,37 @@ public class DatabaseDialect {
 
         // place the field and type in the buffer 
         b.append( type );
+
+        if ( column.isUnique() ) {
+          if ( syntaxMap.containsKey( UNIQUE ) ) {
+            b.append( ' ' );
+            b.append( syntaxMap.get( UNIQUE ) );
+          }
+        }
+        if ( column.isPrimaryKey() ) {
+          if ( syntaxMap.containsKey( PRIMARY_KEY ) ) {
+            b.append( ' ' );
+            b.append( syntaxMap.get( PRIMARY_KEY ) );
+          }
+        }
+        if( column.isNullable()){
+          if ( syntaxMap.containsKey( NULLABLE ) ) {
+            b.append( ' ' );
+            b.append( syntaxMap.get( NULLABLE ) );
+          }
+        } else{
+          if ( syntaxMap.containsKey( NOT_NULL ) ) {
+            b.append( ' ' );
+            b.append( syntaxMap.get( NOT_NULL ) );
+          }
+        }
+
         b.append( ", " );
       }
 
       // trim off the last delimiter
       b.delete( b.length() - 2, b.length() );
 
-      SymbolTable symbols= new SymbolTable();
       symbols.put( "fielddefinitions", b.toString() );
       Log.debug( b.toString() );
       return getSQL( database, CREATE, symbols );
@@ -327,8 +367,10 @@ public class DatabaseDialect {
       Log.error( LogMsg.createMsg( CDX.MSG, "Could not find type definition for '{}' database", database ) );
     }
 
-    return null;    
+    return null;
   }
+
+
 
 
   /**
@@ -407,8 +449,4 @@ public class DatabaseDialect {
     return retval;
   }
 
-
-
-
-  
 }

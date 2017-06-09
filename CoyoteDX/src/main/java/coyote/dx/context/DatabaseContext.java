@@ -78,7 +78,6 @@ public class DatabaseContext extends PersistentContext {
         database.open( null );
         conn = database.getConnection();
         verifyTables();
-
       } catch ( ConfigurationException e ) {
         e.printStackTrace();
       }
@@ -119,17 +118,19 @@ public class DatabaseContext extends PersistentContext {
   private void createTables() {
 
     TableDefinition tdef = new TableDefinition( "TestTable" );
-    tdef.addColumn( new ColumnDefinition( "SysId", ColumnType.STRING ).setPrimaryKey( true ) );
-    tdef.addColumn( new ColumnDefinition( "Name", ColumnType.STRING ) );
-    tdef.addColumn( new ColumnDefinition( "Key", ColumnType.STRING ) );
-    tdef.addColumn( new ColumnDefinition( "Value", ColumnType.STRING ) );
-    tdef.addColumn( new ColumnDefinition( "Type", ColumnType.SHORT ) );
-    tdef.addColumn( new ColumnDefinition( "CreatedBy", ColumnType.STRING ) );
+    tdef.setSchemaName( "DX" );
+    tdef.addColumn( new ColumnDefinition( "SysId", ColumnType.STRING ).setLength( 32 ).setPrimaryKey( true ) );
+    tdef.addColumn( new ColumnDefinition( "Name", ColumnType.STRING ).setLength( 64 ) );
+    tdef.addColumn( new ColumnDefinition( "Key", ColumnType.STRING ).setLength( 64 ) );
+    tdef.addColumn( new ColumnDefinition( "Value", ColumnType.STRING ).setLength( 255 ).setNullable( true ) );
+    tdef.addColumn( new ColumnDefinition( "Type", ColumnType.SHORT ).setNullable( true ) );
+    tdef.addColumn( new ColumnDefinition( "CreatedBy", ColumnType.STRING ).setLength( 32 ) );
     tdef.addColumn( new ColumnDefinition( "CreatedOn", ColumnType.DATE ) );
-    tdef.addColumn( new ColumnDefinition( "ModifiedBy", ColumnType.STRING ) );
+    tdef.addColumn( new ColumnDefinition( "ModifiedBy", ColumnType.STRING ).setLength( 32 ) );
     tdef.addColumn( new ColumnDefinition( "ModifiedOn", ColumnType.DATE ) );
 
     String sql = DatabaseDialect.getCreate(database.getProductName(), tdef );
+    System.out.println( sql );
   }
 
 

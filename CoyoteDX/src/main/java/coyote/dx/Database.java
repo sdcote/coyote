@@ -83,17 +83,13 @@ public class Database extends AbstractConfigurableComponent implements Configura
     Connection retval = null;
     try {
       if ( driver == null ) {
-        URL u = new URL( getLibrary() );
+        String url = getLibrary();
+        URL u = new URL( url );
         URLClassLoader ucl = new URLClassLoader( new URL[] { u } );
         driver = (Driver)Class.forName( getDriver(), true, ucl ).newInstance();
         DriverManager.registerDriver( new DriverDelegate( driver ) );
       }
-
       retval = DriverManager.getConnection( getTarget(), getUsername(), getPassword() );
-
-      if ( retval != null ) {
-        Log.debug( LogMsg.createMsg( CDX.MSG, "Database.connected_to", getTarget() ) );
-      }
     } catch ( InstantiationException | IllegalAccessException | ClassNotFoundException | SQLException | MalformedURLException e ) {
       Log.error( "Could not connect to database: " + e.getClass().getSimpleName() + " - " + e.getMessage() );
       Log.debug( "ERROR: Could not connect to database: " + e.getClass().getSimpleName() + " - " + e.getMessage() + "\n" + ExceptionUtil.stackTrace( e ) );

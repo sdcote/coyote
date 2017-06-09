@@ -51,20 +51,19 @@ public class DatabaseContextTest {
 
   @Test
   public void contextWithLibraryAttribute() {
-      DataFrame config = new DataFrame().set( "Context", new DataFrame()
+      DataFrame config = new DataFrame()
         .set( "class","DatabaseContext" )
-        .set( "target","jdbc:h2:./testdb;MODE=Oracle" )
+        .set( "target","jdbc:h2:./test" )
         .set( "autocreate",true )
-        .set( "library","jar:file:lib/ojdbc7_g.jar!/" )
+        .set( "library","jar:file:src/resources/demojars/h2-1.4.187.jar!/" )
         .set( "driver","org.h2.Driver" )
         .set( "username","sa" )
         .set( "password","" )
         .set( "fields",new DataFrame()
             .set( "SomeKey","SomeValue" )
             .set( "AnotherKey","AnotherValue" )
-          )
-      );
-    
+        );
+
     System.out.println( JSONMarshaler.toFormattedString( config ) );
 
     TransformContext context = new DatabaseContext();
