@@ -12,6 +12,8 @@
 package coyote.dx.context;
 
 import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Statement;
 
 import coyote.commons.StringUtil;
 import coyote.commons.jdbc.DatabaseUtil;
@@ -72,6 +74,9 @@ public class DatabaseContext extends PersistentContext {
 
     if ( configuration != null ) {
 
+      // TODO: Optionally get database from context
+      // "database":"Oracle5" 
+      
       database = new Database();
       try {
         database.setConfiguration( configuration );
@@ -131,6 +136,15 @@ public class DatabaseContext extends PersistentContext {
 
     String sql = DatabaseDialect.getCreate(database.getProductName(), tdef );
     System.out.println( sql );
+    
+    System.out.println("Creating table in database...");
+    try(Statement stmt = conn.createStatement()) {
+      stmt.executeUpdate(sql);
+      System.out.println("Table created.");
+    } catch ( SQLException e ) {
+      System.out.println("Table creation failed!");
+      e.printStackTrace();
+    }
   }
 
 
