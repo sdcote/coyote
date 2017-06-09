@@ -39,6 +39,7 @@ csharp/
 logback.xml
 wrk/
 /log
+*.db
 
 # Package Files #
 #################
