@@ -79,6 +79,13 @@ public class Database extends AbstractConfigurableComponent implements Configura
 
 
 
+  /**
+   * Create a connection to the database.
+   * 
+   * <p>Caller is responsible for closing the connection when done with it.
+   * 
+   * @return the connection to the database or null if there were problems
+   */
   private Connection createConnection() {
     Connection retval = null;
     try {
@@ -215,7 +222,6 @@ public class Database extends AbstractConfigurableComponent implements Configura
     // It may, however, be called programmatically when used separately
     if ( meta == null ) {
       try (Connection connection = createConnection()) {
-        Log.debug( LogMsg.createMsg( CDX.MSG, "Database.connected_to", getTarget() ) );
         meta = connection.getMetaData();
       } catch ( SQLException e ) {
         getContext().setError( "Could not connect to database: " + e.getClass().getSimpleName() + " - " + e.getMessage() );
