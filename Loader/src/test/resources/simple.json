@@ -1,0 +1,30 @@
+{
+  "Name": "Loader",
+  "Class": "coyote.loader.DefaultLoader",
+  "ID": "16177FFC-AA0E-15A9-714C-B613E3E7E09E",
+  "Components": [
+    {
+      "Name": "Component1",
+      "Class": "coyote.loader.SimpleComponent",
+      "ID": "F56A"
+    },
+    {
+      "Name": "Component2",
+      "Class": "coyote.loader.SimpleComponent",
+      "ID": "DB46"
+    },
+    {
+      "Name": "Component3",
+      "Class": "coyote.loader.SimpleComponent",
+      "ID": "8A0A"
+    }
+  ],
+  "Logger" : {
+    "Class": "ConsoleAppender",
+    "Categories": "TRACE,DEBUG,INFO,LOADER"
+  },
+  "Logger" : {
+    "Class": "SysErrAppender",
+    "Categories": "WARN,ERROR,FATAL"
+  }
+}

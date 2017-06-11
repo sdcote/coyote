@@ -1,0 +1,31 @@
+defaultTasks 'clean', 'build', 'publish'
+group = 'coyote'
+mainClassName = 'coyote.loader.Loader'
+
+ext {
+	title = 'Coyote Loader Framework'
+	provider = 'Coyote Systems'
+	junitVersion = '4.11'
+	httpclientVersion = '4.5.3'
+}
+dependencies {
+	compile project(':DataFrame')
+	compile "coyote:DataFrame:$version"
+	testCompile "junit:junit:$junitVersion"	
+	testCompile "org.apache.httpcomponents:httpclient:$httpclientVersion"
+	testCompile "org.apache.httpcomponents:httpmime:$httpclientVersion"
+}
+
+jar {
+    manifest {
+		attributes  'Implementation-Title' : "$title",
+		'Provider' : "$provider",
+		'Main-Class' : "$mainClassName",
+		'Implementation-Version' : "$version"
+	}
+	from {
+		configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } 
+	}{
+		exclude "META-INF/*.RSA"
+	}
+}

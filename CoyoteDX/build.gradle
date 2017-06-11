@@ -5,12 +5,11 @@ mainClassName = 'coyote.loader.BootStrap'
 ext {
 	title = 'Coyote Data eXchange Framework & Toolkit'
 	provider = 'Coyote Systems'
-	loaderVersion = '1.1'
 	junitVersion = '4.12'
 }
 dependencies {
-	// Loader & Abstract Data Type
-	compile "coyote:Loader:$loaderVersion"
+	compile project(':Loader')
+	compile "coyote:Loader:$version"
 	testCompile "junit:junit:$junitVersion"
 }
 
@@ -27,5 +26,3 @@ jar {
 		exclude "META-INF/*.RSA"
 	}
 }
-
-

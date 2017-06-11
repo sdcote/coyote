@@ -1,0 +1,19 @@
+defaultTasks 'clean', 'build', 'publish'
+group = 'coyote'
+mainClassName = 'coyote.loader.BootStrap'
+
+ext {
+	title = 'Coyote Data Frame Protocol Buffer'
+	provider = 'Coyote Systems'
+	junitVersion = '4.12'
+}
+dependencies {
+	testCompile "junit:junit:$junitVersion"
+}
+jar {
+    manifest {
+		attributes  'Implementation-Title' : "$title",
+		'Provider' : "$provider",
+		'Implementation-Version' : "$version"
+	}
+}
