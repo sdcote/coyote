@@ -5,7 +5,6 @@ ext {
 	title = 'Coyote Logging SLF4J Binding'
 	provider = 'Coyote Systems'
 	junitVersion = '4.11'
-	loaderVersion = '1.1'
 	slf4jVersion = '1.7.7'
 }
 
@@ -13,12 +12,13 @@ jar {
 	manifest {
 		attributes  'Implementation-Title' : "$title",
 		'Provider' : "$provider",
-		'Implementation-Version' : version
+		'Implementation-Version' : "$version"
 	}
 }
 
 dependencies {
-	compile "coyote:Loader:$loaderVersion"
+	compile project(':Loader')
+	compile "coyote:Loader:$version"
 	compile "org.slf4j:slf4j-api:$slf4jVersion"
 	testCompile "junit:junit:$junitVersion"	
 }
