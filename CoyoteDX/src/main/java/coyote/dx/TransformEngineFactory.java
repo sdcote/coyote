@@ -156,7 +156,7 @@ public class TransformEngineFactory {
           } else {
             Log.error( "Invalid writer configuration section" );
           }
-        } else if ( ConfigTag.DATABASES.equalsIgnoreCase( field.getName() ) || ConfigTag.DATABASE.equalsIgnoreCase( field.getName() ) ) {
+        } else if ( ConfigTag.DATABASE.equalsIgnoreCase( field.getName() ) ) {
           if ( field.isFrame() ) {
             configDatabases( (DataFrame)field.getObjectValue(), retval );
           } else {

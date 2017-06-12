@@ -102,7 +102,6 @@ public class ConfigTag {
   public static final String MAPPER = "mapper";
   public static final String FILTERS = "filter";
   public static final String READER = "reader";
-  public static final String DATABASES = "database";
   public static final String VALIDATE = "validate";
   public static final String TRANSFORM = "transform";
   public static final String CATEGORIES = "categories";
