@@ -337,7 +337,7 @@ public class ScheduledBatchJob extends ScheduledJob implements ManagedComponent 
 
   @Override
   public void setContext( Context context ) {
-    context = context;
+    this.context = context;
   }
 
 }
