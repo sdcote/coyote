@@ -213,8 +213,11 @@ public class CSVReader extends AbstractFrameReader implements FrameReader, Confi
         Log.debug( "Source could not be parsed into a URI, assuming a filename" );
         sourceFile = new File( source );
       }
-      Log.debug( "Using a source file of " + sourceFile.getAbsolutePath() );
-
+      if ( sourceFile != null ) {
+        Log.debug( "Using a source file of " + sourceFile.getAbsolutePath() );
+      } else {
+        Log.error( "Using a source file of NULL_REF" );
+      }
       // if not absolute, use the current job directory
       if ( !sourceFile.isAbsolute() ) {
         sourceFile = new File( context.getSymbols().getString( Symbols.JOB_DIRECTORY ), sourceFile.getPath() );
@@ -222,24 +225,18 @@ public class CSVReader extends AbstractFrameReader implements FrameReader, Confi
       Log.debug( "Using an absolute source file of " + sourceFile.getAbsolutePath() );
 
       // Basic checks
-
-      if ( sourceFile == null ) {
-        context.setError( LogMsg.createMsg( CDX.MSG, "Reader.no_source_file_on_open", source ).toString() );
-      } else {
-
-        if ( sourceFile.exists() && sourceFile.canRead() ) {
-          try {
-            reader = new coyote.commons.csv.CSVReader( new FileReader( sourceFile ), SEPARATOR );
-            if ( hasHeader ) {
-              header = reader.readNext();
-            }
-          } catch ( Exception e ) {
-            Log.error( "Could not create reader: " + e.getMessage() );
-            context.setError( e.getMessage() );
+      if ( sourceFile.exists() && sourceFile.canRead() ) {
+        try {
+          reader = new coyote.commons.csv.CSVReader( new FileReader( sourceFile ), SEPARATOR );
+          if ( hasHeader ) {
+            header = reader.readNext();
           }
-        } else {
-          context.setError( LogMsg.createMsg( CDX.MSG, "Reader.could_not_read_from_source", getClass().getName(), sourceFile.getAbsolutePath() ).toString() );
+        } catch ( Exception e ) {
+          Log.error( "Could not create reader: " + e.getMessage() );
+          context.setError( e.getMessage() );
         }
+      } else {
+        context.setError( LogMsg.createMsg( CDX.MSG, "Reader.could_not_read_from_source", getClass().getName(), sourceFile.getAbsolutePath() ).toString() );
       }
     } else {
       Log.error( "No source specified" );
