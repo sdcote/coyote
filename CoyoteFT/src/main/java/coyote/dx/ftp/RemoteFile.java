@@ -34,16 +34,20 @@ public class RemoteFile implements Comparable<RemoteFile> {
    *          is empty
    */
   public String getName() {
-    int index = filename.lastIndexOf( separatorChar );
+    if ( filename != null ) {
+      int index = filename.lastIndexOf( separatorChar );
 
-    if ( index >= 0 ) {
-      return filename.substring( index + 1 );
-    } else {
-      if ( filename == null ) {
-        return "";
+      if ( index >= 0 ) {
+        return filename.substring( index + 1 );
       } else {
-        return filename;
+        if ( filename == null ) {
+          return "";
+        } else {
+          return filename;
+        }
       }
+    } else {
+      return "";
     }
   }
 
