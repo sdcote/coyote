@@ -11,10 +11,8 @@
  */
 package coyote.dx.web;
 
-import javax.net.ssl.SSLEngineResult.Status;
-
-import coyote.commons.network.MimeType;
 import coyote.commons.network.http.IHTTPSession;
+import coyote.dx.context.TransactionContext;
 
 
 /**
@@ -28,23 +26,12 @@ import coyote.commons.network.http.IHTTPSession;
  * a working frame, places this instance in the transaction context and 
  * returns from the read method. The transaction is processed in the pipeline
  * the same as other transactions.
- * 
- * <p>Later in the pipeline, a WebServerWriter uses the data in the 
- * transaction context to create a response and places it in the future object 
- * in the transaction context o which the request thread is presumably still 
- * waiting. The writer then returns from its read method.
- * 
- * <p>Once the writer updates the future object with a response, the request 
- * thread then generates the appropriate HTTP response and the thread closes 
- * the connection and terminates. 
  */
 public class ResponseFuture {
 
+  private TransactionContext context = null;
   private IHTTPSession session;
   private volatile boolean complete = false;
-  private Status responseStatus = Status.OK;
-  private MimeType responseType = MimeType.JSON;
-  private String responseText = "";
 
 
 
@@ -97,60 +84,26 @@ public class ResponseFuture {
 
 
   /**
-   * @return the response status
+   * @return the transaction context used by the transform engine to process 
+   *         this request.
    */
-  public synchronized Status getResponseStatus() {
-    return responseStatus;
+  public TransactionContext getTransactionContext() {
+    return context;
   }
 
 
 
 
   /**
-   * @param status the response status to set
+   * This sets the transaction context in the future to the responder thread
+   * can determine how to generate the response based on what is stored in 
+   * this context.
+   * 
+   * @param context The context the transformation engine is using while 
+   *        processing this transaction data. 
    */
-  public synchronized void setResponseStatus( Status status ) {
-    this.responseStatus = status;
-  }
-
-
-
-
-  /**
-   * @return the response MIME type
-   */
-  public synchronized MimeType getResponseType() {
-    return responseType;
-  }
-
-
-
-
-  /**
-   * @param mimeType the response Type to set
-   */
-  public synchronized void setResponseType( MimeType mimeType ) {
-    this.responseType = mimeType;
-  }
-
-
-
-
-  /**
-   * @return the response Text
-   */
-  public synchronized String getResponseText() {
-    return responseText;
-  }
-
-
-
-
-  /**
-   * @param text the responseText to set
-   */
-  public synchronized void setResponseText( String text ) {
-    this.responseText = text;
+  public void setTransactionContext( TransactionContext context ) {
+    this.context = context;
   }
 
 }
