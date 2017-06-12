@@ -11,17 +11,10 @@
  */
 package coyote.dx.context;
 
-import java.io.File;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.List;
 
-import coyote.commons.FileUtil;
-import coyote.commons.StringUtil;
-import coyote.dataframe.DataField;
-import coyote.dataframe.DataFrame;
-import coyote.dataframe.marshal.JSONMarshaler;
-import coyote.dataframe.marshal.MarshalException;
 import coyote.dx.CDX;
 import coyote.dx.Symbols;
 import coyote.loader.log.Log;
@@ -55,10 +48,6 @@ public abstract class PersistentContext extends TransformContext {
 
 
 
-
-
-
-
   protected void setPreviousRunDate() {
     Object value = get( Symbols.PREVIOUS_RUN_DATETIME );
 
@@ -68,16 +57,16 @@ public abstract class PersistentContext extends TransformContext {
       set( Symbols.PREVIOUS_RUN_DATETIME, null );
 
       try {
-        Date prevrun = CDX.DEFAULT_DATETIME_FORMAT.parse( value.toString() );
+        Date prevrun = new SimpleDateFormat( CDX.DEFAULT_DATETIME_FORMAT ).parse( value.toString() );
 
         // Set the previous run date
         set( Symbols.PREVIOUS_RUN_DATE, prevrun );
 
         // set the new value in the symbol table
         if ( this.symbols != null ) {
-          symbols.put( Symbols.PREVIOUS_RUN_DATE, CDX.DEFAULT_DATE_FORMAT.format( prevrun ) );
-          symbols.put( Symbols.PREVIOUS_RUN_TIME, CDX.DEFAULT_TIME_FORMAT.format( prevrun ) );
-          symbols.put( Symbols.PREVIOUS_RUN_DATETIME, CDX.DEFAULT_DATETIME_FORMAT.format( prevrun ) );
+          symbols.put( Symbols.PREVIOUS_RUN_DATE, new SimpleDateFormat( CDX.DEFAULT_DATE_FORMAT ).format( prevrun ) );
+          symbols.put( Symbols.PREVIOUS_RUN_TIME, new SimpleDateFormat( CDX.DEFAULT_TIME_FORMAT ).format( prevrun ) );
+          symbols.put( Symbols.PREVIOUS_RUN_DATETIME, new SimpleDateFormat( CDX.DEFAULT_DATETIME_FORMAT ).format( prevrun ) );
         }
 
       } catch ( ParseException e ) {
@@ -126,8 +115,4 @@ public abstract class PersistentContext extends TransformContext {
     Log.debug( "Runcount is " + runcount );
   }
 
-
-
-
- 
 }

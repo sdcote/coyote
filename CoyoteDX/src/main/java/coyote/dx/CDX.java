@@ -33,9 +33,9 @@ public class CDX {
 
   public static final Version VERSION = new Version( 0, 9, 0, Version.EXPERIMENTAL );
   public static final String NAME = "CDX";
-  public static final DateFormat DEFAULT_DATETIME_FORMAT = new SimpleDateFormat( "yyyy-MM-dd HH:mm:ss.SSS" );
-  public static final DateFormat DEFAULT_DATE_FORMAT = new SimpleDateFormat( "yyyy-MM-dd" );
-  public static final DateFormat DEFAULT_TIME_FORMAT = new SimpleDateFormat( "HH:mm:ss" );
+  public static final String DEFAULT_DATETIME_FORMAT = "yyyy-MM-dd HH:mm:ss.SSS";
+  public static final String DEFAULT_DATE_FORMAT = "yyyy-MM-dd";
+  public static final String DEFAULT_TIME_FORMAT = "HH:mm:ss";
 
   public static final BundleBaseName MSG;
   static {

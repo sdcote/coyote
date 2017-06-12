@@ -12,6 +12,7 @@
 package coyote.dx.context;
 
 import java.io.File;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
@@ -121,7 +122,7 @@ public class FileContext extends PersistentContext {
       // it should be a date reference
       if ( rundate instanceof Date ) {
         // format it in the default format
-        frame.put( Symbols.PREVIOUS_RUN_DATETIME, CDX.DEFAULT_DATETIME_FORMAT.format( (Date)rundate ) );
+        frame.put( Symbols.PREVIOUS_RUN_DATETIME, new SimpleDateFormat( CDX.DEFAULT_DATETIME_FORMAT ).format( (Date)rundate ) );
       } else {
         Log.warn( LogMsg.createMsg( CDX.MSG, "Context.run_date_reset", rundate ) );
       }

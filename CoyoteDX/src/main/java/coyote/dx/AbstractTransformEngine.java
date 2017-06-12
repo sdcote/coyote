@@ -13,6 +13,7 @@ package coyote.dx;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -886,7 +887,7 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
     if ( date == null )
       return "null";
     else
-      return CDX.DEFAULT_DATETIME_FORMAT.format( date );
+      return new SimpleDateFormat( CDX.DEFAULT_DATETIME_FORMAT ).format( date );
   }
 
 
@@ -903,7 +904,7 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
     if ( date == null )
       return "null";
     else
-      return CDX.DEFAULT_DATE_FORMAT.format( date );
+      return new SimpleDateFormat( CDX.DEFAULT_DATE_FORMAT ).format( date );
   }
 
 
@@ -920,7 +921,7 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
     if ( date == null )
       return "null";
     else
-      return CDX.DEFAULT_TIME_FORMAT.format( date );
+      return new SimpleDateFormat( CDX.DEFAULT_TIME_FORMAT ).format( date );
   }
 
 
