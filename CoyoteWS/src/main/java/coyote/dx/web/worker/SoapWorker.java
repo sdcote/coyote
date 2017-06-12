@@ -162,8 +162,6 @@ public class SoapWorker extends AbstractWorker implements ResourceWorker {
       final String body = EntityUtils.toString( httpResponse.getEntity(), ctype.getCharset() );
       log.debug( this.getClass().getSimpleName() + " marshaling response body of '%s%s", body.substring( 0, body.length() > 500 ? 500 : body.length() ), body.length() <= 500 ? "'" : " ...'" );
 
-      final DataFrame retval = new DataFrame();
-
       if ( body != null ) {
         final List<DataFrame> result = XMLMarshaler.marshal( body );
 

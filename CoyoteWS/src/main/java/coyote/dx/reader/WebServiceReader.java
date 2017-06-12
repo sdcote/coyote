@@ -175,7 +175,7 @@ public class WebServiceReader extends AbstractFrameReader implements FrameReader
       resource.setAuthenticator( authenticator );
 
       // Now look for a Request Decorator configuration frame and add the 
-      // reqest decorators to the new resource 
+      // request decorators to the new resource 
       for ( DataField field : getConfiguration().getFields() ) {
         if ( field.getName() != null && field.getName().equalsIgnoreCase( CWS.DECORATOR ) ) {
           if ( field.isFrame() ) {
@@ -246,8 +246,10 @@ public class WebServiceReader extends AbstractFrameReader implements FrameReader
       e.printStackTrace();
     }
 
-    while ( !response.isComplete() ) {
-      Thread.yield();
+    if ( response != null ) {
+      while ( !response.isComplete() ) {
+        Thread.yield();
+      }
     }
 
     DataFrame result = response.getResult();

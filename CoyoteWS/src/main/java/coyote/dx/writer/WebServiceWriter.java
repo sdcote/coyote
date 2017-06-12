@@ -48,7 +48,6 @@ public class WebServiceWriter extends AbstractConfigurableComponent implements F
   private String expression = null;
   private String servicePath = null;
   private int rowCounter = 0;
-  private TransformContext context = null;
   private DataFrame lastRequest = null;
 
   private Response lastResponse = null;
@@ -276,8 +275,8 @@ public class WebServiceWriter extends AbstractConfigurableComponent implements F
       try {
         resource.setPath( Template.resolve( servicePath, getContext().getTransaction().getSymbols() ) );
       } catch ( URISyntaxException e ) {
-        context.setError( "The Writer could not generate URI path: " + e.getMessage() );
-        context.setStatus( "Resource Path Error" );
+        super.context.setError( "The Writer could not generate URI path: " + e.getMessage() );
+        super.context.setStatus( "Resource Path Error" );
         return bytesWritten;
       }
     }

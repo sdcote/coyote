@@ -106,7 +106,7 @@ public class ZipArchiveTest {
 
     // check to see if we were able to add the new data
     // and if the old data is still there
-    archive = new ZipArchive( new File( "test.zip" ) );
+    new ZipArchive( new File( "test.zip" ) );
 
     //assertNotNull( archive.getEntry( "bus.xml" ) );
     //assertNotNull( archive.getEntry( "busconnector.xml" ) );
