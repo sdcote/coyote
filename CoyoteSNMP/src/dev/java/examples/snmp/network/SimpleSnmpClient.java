@@ -51,8 +51,6 @@ import coyote.commons.network.snmp.SnmpVarBindList;
 
 /**
  * Class SimpleSnmpClient.
- *
- * @version $Revision:$
  */
 public class SimpleSnmpClient extends JFrame implements ActionListener, Runnable
 {

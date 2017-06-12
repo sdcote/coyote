@@ -53,8 +53,6 @@ import coyote.commons.network.snmp.SnmpVariablePair;
 
 /**
  * Class SnmpTrapTest.
- *
- * @version $Revision:$
  */
 public class SnmpTrapTest extends JFrame implements ActionListener, ITrapListener
 {

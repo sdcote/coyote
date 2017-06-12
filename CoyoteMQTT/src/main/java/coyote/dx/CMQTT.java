@@ -16,14 +16,14 @@ import coyote.loader.log.LogMsg.BundleBaseName;
 
 
 /**
- * Batch Mail Tools fixture
+ * Coyote MQTT toolkit
  */
 public class BatchMQTT {
   public static final Version VERSION = new Version( 0, 0, 1, Version.EXPERIMENTAL );
-  public static final String NAME = "BatchMT";
+  public static final String NAME = "CMQTT";
 
   public static final BundleBaseName MSG;
   static {
-    MSG = new BundleBaseName( "BatchMTMsg" );
+    MSG = new BundleBaseName( "CMqttMsg" );
   }
 }

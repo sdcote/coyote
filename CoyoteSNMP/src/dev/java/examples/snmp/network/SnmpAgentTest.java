@@ -59,8 +59,6 @@ import coyote.commons.network.snmp.SnmpVariablePair;
  * 
  * <p>Only 2 OIDs are supported by this listener: &quot;1.3.6.1.2.1.99.0&quot; 
  * and &quot;1.3.6.1.2.1.100.0&quot;.
- *
- * @version $Revision:$
  */
 public class SnmpAgentTest extends JFrame implements ActionListener, IRequestListener
 {

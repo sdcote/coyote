@@ -24,8 +24,6 @@ import coyote.commons.network.snmp.SnmpVarBindList;
 
 /**
  * Class SimpleSnmp.
- *
- * @version $Revision:$
  */
 public class SimpleSnmp
 {

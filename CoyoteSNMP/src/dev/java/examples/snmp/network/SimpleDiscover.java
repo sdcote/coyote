@@ -17,9 +17,6 @@ import coyote.commons.network.snmp.SnmpClient;
 
 /**
  * The SimpleDiscover class models...
- * 
- * @author Stephan D. Cote' - Enterprise Architecture
- * @version $Revision:$
  */
 public class SimpleDiscover
 {
