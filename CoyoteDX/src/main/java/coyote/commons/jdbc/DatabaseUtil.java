@@ -195,6 +195,7 @@ public class DatabaseUtil {
                 break;
               case Types.BIGINT:
                 type = ColumnType.LONG;
+                break;
               case Types.DISTINCT:
                 unique = true;
                 type = ColumnType.STRING;

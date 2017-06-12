@@ -844,6 +844,7 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
                 break;
               case Types.BIGINT:
                 type = ColumnType.LONG;
+                break;
               case Types.DISTINCT:
                 unique = true;
                 type = ColumnType.STRING;
