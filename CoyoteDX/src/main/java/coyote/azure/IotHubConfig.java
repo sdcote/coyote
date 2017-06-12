@@ -22,7 +22,7 @@ public class IotHubConfig {
 
   String iothostname = "azure-devices.net";
 
-  String sasToken = null;
+  String sasToken = "";
   String scheme = "ssl"; // "tcp" or "ssl"
   String port = "8883";
 
