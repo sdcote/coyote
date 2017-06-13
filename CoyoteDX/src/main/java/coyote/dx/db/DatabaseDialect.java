@@ -156,7 +156,7 @@ public class DatabaseDialect {
     map.put( PRIMARY_KEY, "PRIMARY KEY" );
     map.put( NULLABLE, "NULL" );
     map.put( NOT_NULL, "NOT NULL" );
-    map.put( CREATE_SCHEMA, "CREATE SCHEMA IF NOT EXISTS [#$" + DB_SCHEMA_SYM + "#]" );
+    map.put( CREATE_SCHEMA, "CREATE SCHEMA IF NOT EXISTS [#$" + DB_SCHEMA_SYM + "#] AUTHORIZATION [#$" + USERNAME_SYM + "#]" );
 
   }
 
@@ -458,9 +458,11 @@ public class DatabaseDialect {
 
 
 
-  public static void getCreateSchema( String productName, String schemaName, String owner ) {
-    // TODO Auto-generated method stub
-    
+  public static String getCreateSchema( String database, String schemaName, String owner ) {
+    SymbolTable symbols = new SymbolTable();
+    symbols.put( DB_SCHEMA_SYM,schemaName );
+    symbols.put( USERNAME_SYM, owner );
+    return getSQL( database, CREATE_SCHEMA, symbols );
   }
 
 }

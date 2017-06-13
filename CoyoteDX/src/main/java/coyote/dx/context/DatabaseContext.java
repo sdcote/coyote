@@ -152,7 +152,7 @@ public class DatabaseContext extends PersistentContext {
    */
   private void readfields( String name ) {
     Log.debug( "Reading fields for context '" + name + "'" );
-    FrameSet fields = DatabaseUtil.readAllRecords( conn, "select * from " + TABLE_NAME + " where Name = " + name );
+    FrameSet fields = DatabaseUtil.readAllRecords( conn, "select * from " + SCHEMA_NAME + "." + TABLE_NAME + " where Name = " + name );
     for ( DataFrame frame : fields.getRows() ) {
       System.out.println( frame.toString() );
     }
@@ -169,11 +169,16 @@ public class DatabaseContext extends PersistentContext {
    * quick deployment and operation only, not production use.
    */
   private void createTables() {
-    
-    // TODO: Create the schema if not exists!
-    // CREATE SCHEMA Quiz;
-    // CREATE TABLE Quiz.Results
-    DatabaseDialect.getCreateSchema( database.getProductName(), SCHEMA_NAME, database.getUsername() );
+
+    String sql = DatabaseDialect.getCreateSchema( database.getProductName(), SCHEMA_NAME, database.getUsername() );
+    System.out.println( "Creating table in database..." );
+    try (Statement stmt = conn.createStatement()) {
+      stmt.executeUpdate( sql );
+      Log.debug( "Schema created." );
+    } catch ( SQLException e ) {
+      Log.error( "Schema creation failed!" );
+      e.printStackTrace();
+    }
 
     TableDefinition tdef = new TableDefinition( TABLE_NAME );
     tdef.setSchemaName( SCHEMA_NAME );
@@ -187,15 +192,15 @@ public class DatabaseContext extends PersistentContext {
     tdef.addColumn( new ColumnDefinition( "ModifiedBy", ColumnType.STRING ).setLength( 32 ) );
     tdef.addColumn( new ColumnDefinition( "ModifiedOn", ColumnType.DATE ) );
 
-    String sql = DatabaseDialect.getCreate( database.getProductName(), tdef );
+    sql = DatabaseDialect.getCreate( database.getProductName(), tdef );
     System.out.println( sql );
 
     System.out.println( "Creating table in database..." );
     try (Statement stmt = conn.createStatement()) {
       stmt.executeUpdate( sql );
-      System.out.println( "Table created." );
+      Log.debug( "Table created." );
     } catch ( SQLException e ) {
-      System.out.println( "Table creation failed!" );
+      Log.error( "Table creation failed!" );
       e.printStackTrace();
     }
   }
