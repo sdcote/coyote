@@ -18,9 +18,12 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Types;
+import java.util.ArrayList;
+import java.util.List;
 
 import coyote.commons.StringUtil;
 import coyote.dataframe.DataFrame;
+import coyote.dataframe.FrameSet;
 import coyote.dx.db.ColumnDefinition;
 import coyote.dx.db.ColumnType;
 import coyote.dx.db.DatabaseDialect;
@@ -241,7 +244,8 @@ public class DatabaseUtil {
   /**
    * Read from the database and return the first record from the result set.
    * 
-   * <p>Handy for reading a record by its key, expecting one result back.
+   * <p>Handy for reading a record by its key, expecting one result back. 
+   * Commonly used for Select * from [whatever] where SysId = [somevalue]
    * 
    * @return A DataFrame containing the record result or null if no record was retrieved.
    */
@@ -275,6 +279,58 @@ public class DatabaseUtil {
             } else {
               Log.error( "Read past EOF" );
               return retval;
+            }
+          } catch ( SQLException e ) {
+            e.printStackTrace();
+          }
+        }
+      } catch ( SQLException e ) {
+        String emsg = String.format( "Error querying database: '%s' - query = '%s'", e.getMessage().trim(), query );
+        Log.error( emsg );
+      }
+
+    }
+    return retval;
+  }
+
+
+
+
+  /**
+   * Designed for SELECT queries to allow all results to be retrieved into a 
+   * list of DataFrames
+   * 
+   * @param connection the connection on which to perform the query
+   * @param query the SQL (SELECT) query to perform
+   * 
+   * @return FrameSet containing the DataFrames representing the retrieved data
+   */
+  public static FrameSet readAllRecords( Connection connection, String query ) {
+    FrameSet retval = new FrameSet();
+
+    ResultSet result = null;
+    ResultSetMetaData rsmd = null;
+    int columnCount = 0;
+
+    Log.debug( String.format( "Executing query: '%s'", query ) );
+
+    if ( connection != null ) {
+
+      try {
+        Statement statement = connection.createStatement( ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY );
+        result = statement.executeQuery( query );
+        rsmd = result.getMetaData();
+        columnCount = rsmd.getColumnCount();
+
+        if ( result != null ) {
+          try {
+            while ( result.next() ) {
+              DataFrame record = new DataFrame();
+              for ( int i = 1; i <= columnCount; i++ ) {
+                // Log.debug( rsmd.getColumnName( i ) + " - '" + result.getString( i ) + "' (" + rsmd.getColumnType( i ) + ")" );
+                record.add( rsmd.getColumnName( i ), DatabaseDialect.resolveValue( result.getObject( i ), rsmd.getColumnType( i ) ) );
+              }
+              retval.add( record );
             }
           } catch ( SQLException e ) {
             e.printStackTrace();
