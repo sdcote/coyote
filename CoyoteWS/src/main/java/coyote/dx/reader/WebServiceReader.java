@@ -239,25 +239,26 @@ public class WebServiceReader extends AbstractFrameReader implements FrameReader
   private List<DataFrame> retrieveData() {
     List<DataFrame> retval = new ArrayList<DataFrame>();
 
-    Response response = null;
+   
     try {
-      response = resource.request();
+      lastResponse = resource.request();
     } catch ( InvocationException e ) {
       e.printStackTrace();
     }
 
-    if ( response != null ) {
-      while ( !response.isComplete() ) {
+    if ( lastResponse != null ) {
+      while ( !lastResponse.isComplete() ) {
         Thread.yield();
       }
     }
 
-    DataFrame result = response.getResult();
+    if ( lastResponse != null ) {
+      DataFrame result = lastResponse.getResult();
 
-    //TODO apply the selector to the results
+      //TODO apply the selector to the results
 
-    retval.add( DataFrameUtil.flatten( result ) );
-
+      retval.add( DataFrameUtil.flatten( result ) );
+    }
     return retval;
   }
 
