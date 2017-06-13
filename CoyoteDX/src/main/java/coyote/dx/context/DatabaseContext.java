@@ -21,6 +21,7 @@ import coyote.commons.jdbc.DatabaseUtil;
 import coyote.commons.template.Template;
 import coyote.dataframe.DataField;
 import coyote.dataframe.DataFrame;
+import coyote.dataframe.FrameSet;
 import coyote.dataframe.marshal.JSONMarshaler;
 import coyote.dx.CDX;
 import coyote.dx.ConfigTag;
@@ -44,10 +45,11 @@ import coyote.loader.log.LogMsg;
  * where the transform is being run, allowing transforms to be run on many 
  * different hosts without having to manage locally persisted context data.
  * 
- * <p>Key value pairs specified in the fields, are used to reset the field 
- * values in the context at the start of the job. Their values will be 
- * persisted when the context is closed. Other jobs using the context will 
- * then have access to these values unless the reset them in a similar fashion. 
+ * <p>Key value pairs specified in the fields section are used to reset the 
+ * field values in the database context at the start of the job. Their values 
+ * will be persisted when the context is closed. Other jobs using the context 
+ * will then have access to these values unless they reset them in a similar 
+ * fashion. 
  * 
  * <p>The primary use case is the running of transform jobs in a pool of 
  * distributed instances in the cloud. A particular instance will run one on 
@@ -84,6 +86,10 @@ public class DatabaseContext extends PersistentContext {
 
 
   /**
+   * <p>The context is one of the first components opened because all the rest 
+   * of the components need an initialized/opened context to perform their 
+   * functions and to share data.
+   * 
    * @see coyote.dx.context.TransformContext#open()
    */
   @Override
@@ -91,35 +97,47 @@ public class DatabaseContext extends PersistentContext {
 
     if ( configuration != null ) {
 
+      String name = null;
+
       // TODO: Optionally get database from context
       // "database":"Oracle5" 
 
-      database = new Database();
-      try {
-        database.setConfiguration( configuration );
-        database.open( null );
-        conn = database.getConnection();
-        verifyTables();
-        readfields("JobName");
-        incrementRunCount();
-        setPreviousRunDate();
-      } catch ( ConfigurationException e ) {
-        e.printStackTrace();
+      if ( getEngine() == null ) {
+        Log.fatal( "Context is not connected to a transform engine!" );
+        setError( "No engine set in context" );
+        return;
+      } else {
+        name = getEngine().getName();
       }
 
-      // Any fields defined in the configuration override values in the data store
-      Config section = configuration.getSection( ConfigTag.FIELDS );
-      for ( DataField field : section.getFields() ) {
-        if ( !field.isFrame() ) {
-          if ( StringUtil.isNotBlank( field.getName() ) && !field.isNull() ) {
-            String token = field.getStringValue();
-            String value = Template.resolve( token, engine.getSymbolTable() );
-            engine.getSymbolTable().put( field.getName(), value );
-            set( field.getName(), value );
+      if ( StringUtil.isNotBlank( name ) ) {
+        database = new Database();
+        try {
+          database.setConfiguration( configuration );
+          database.open( null );
+          conn = database.getConnection();
+          verifyTables();
+          readfields( name );
+          incrementRunCount();
+          setPreviousRunDate();
+        } catch ( ConfigurationException e ) {
+          e.printStackTrace();
+        }
+
+        // Any fields defined in the configuration override values in the data store
+        Config section = configuration.getSection( ConfigTag.FIELDS );
+        for ( DataField field : section.getFields() ) {
+          if ( !field.isFrame() ) {
+            if ( StringUtil.isNotBlank( field.getName() ) && !field.isNull() ) {
+              String token = field.getStringValue();
+              String value = Template.resolve( token, engine.getSymbolTable() );
+              engine.getSymbolTable().put( field.getName(), value );
+              set( field.getName(), value );
+            }
           }
         }
-      }
 
+      } // has a name
     }
 
   }
@@ -127,9 +145,17 @@ public class DatabaseContext extends PersistentContext {
 
 
 
-  private void readfields( String string ) {
-    // TODO Auto-generated method stub
-    
+  /**
+   * Read in all the context fields from the database with the given name.
+   * 
+   * @param name the name of the context (i.e. job name) to query.
+   */
+  private void readfields( String name ) {
+    Log.debug( "Reading fields for context '" + name + "'" );
+    FrameSet fields = DatabaseUtil.readAllRecords( conn, "select * from " + TABLE_NAME + " where Name = " + name );
+    for ( DataFrame frame : fields.getRows() ) {
+      System.out.println( frame.toString() );
+    }
   }
 
 
@@ -143,6 +169,11 @@ public class DatabaseContext extends PersistentContext {
    * quick deployment and operation only, not production use.
    */
   private void createTables() {
+    
+    // TODO: Create the schema if not exists!
+    // CREATE SCHEMA Quiz;
+    // CREATE TABLE Quiz.Results
+    DatabaseDialect.getCreateSchema( database.getProductName(), SCHEMA_NAME, database.getUsername() );
 
     TableDefinition tdef = new TableDefinition( TABLE_NAME );
     tdef.setSchemaName( SCHEMA_NAME );
@@ -210,12 +241,12 @@ public class DatabaseContext extends PersistentContext {
         Log.warn( LogMsg.createMsg( CDX.MSG, "Context.run_date_reset", rundate ) );
       }
     }
-    
-    System.out.println( JSONMarshaler.toFormattedString( frame ) );
-    
+
+    Log.debug( "Closing context:\n" + JSONMarshaler.toFormattedString( frame ) );
+
     // TODO: Upsert the frame
     // upsert( conn, TABLE_NAME, frame )
-    
+
     super.close();
   }
 

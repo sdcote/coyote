@@ -32,6 +32,7 @@ public class DatabaseDialect {
   // The symbols we expect to find in the symbol table
   public static final String TABLE_NAME_SYM = "tableName";
   public static final String DB_SCHEMA_SYM = "schemaName";
+  public static final String USERNAME_SYM = "username";
   public static final String DATABASE_SYM = "database";
   public static final String DATABASE_VERSION_SYM = "databaseVersion";
   public static final String DATABASE_MAJOR_SYM = "dbMajorVersion";
@@ -49,6 +50,7 @@ public class DatabaseDialect {
   public static final String PRIMARY_KEY = "primary_key";
   public static final String NULLABLE = "nullable";
   public static final String NOT_NULL = "not_null";
+  public static final String CREATE_SCHEMA = "create_schema";
 
   // Database Technologies supported
   public static final String ORACLE = "Oracle";
@@ -90,6 +92,7 @@ public class DatabaseDialect {
     map.put( PRIMARY_KEY, "PRIMARY KEY" );
     map.put( NULLABLE, "NULL" );
     map.put( NOT_NULL, "NOT NULL" );
+    map.put( CREATE_SCHEMA, "CREATE SCHEMA IF NOT EXISTS [#$" + DB_SCHEMA_SYM + "#]" );
     
     // Oracle dialect
     map = new HashMap<String, String>();
@@ -121,6 +124,7 @@ public class DatabaseDialect {
     map.put( PRIMARY_KEY, "PRIMARY KEY" );
     map.put( NULLABLE, "NULL" );
     map.put( NOT_NULL, "NOT NULL" );
+    map.put( CREATE_SCHEMA, "CREATE SCHEMA IF NOT EXISTS [#$" + DB_SCHEMA_SYM + "#]" );
     
     // H2 Dialect
     map = new HashMap<String, String>();
@@ -141,7 +145,7 @@ public class DatabaseDialect {
     map.put( DEFAULT, "VARCHAR(#)" );
     map = new HashMap<String, String>();
     SYNTAX.put( H2, map );
-    map.put( CREATE, "CREATE TABLE [#$" + TABLE_NAME_SYM + "#] ( [#$fielddefinitions#] )" );
+    map.put( CREATE, "CREATE TABLE  [#$" + DB_SCHEMA_SYM + "#].[#$" + TABLE_NAME_SYM + "#] ( [#$fielddefinitions#] )" );
     map.put( GRANT, "" );
     map.put( INSERT, "INSERT INTO [#$" + TABLE_NAME_SYM + "#] ( [#$fieldnames#] VALUES ([#$fieldvalues#])" );
     map.put( UPDATE, "UPDATE [#$" + TABLE_NAME_SYM + "#] SET [#$fieldmap#] WHERE SYS_ID=[#$keyvalue#]" );
@@ -152,6 +156,8 @@ public class DatabaseDialect {
     map.put( PRIMARY_KEY, "PRIMARY KEY" );
     map.put( NULLABLE, "NULL" );
     map.put( NOT_NULL, "NOT NULL" );
+    map.put( CREATE_SCHEMA, "CREATE SCHEMA IF NOT EXISTS [#$" + DB_SCHEMA_SYM + "#]" );
+
   }
 
 
@@ -447,6 +453,14 @@ public class DatabaseDialect {
     }
 
     return retval;
+  }
+
+
+
+
+  public static void getCreateSchema( String productName, String schemaName, String owner ) {
+    // TODO Auto-generated method stub
+    
   }
 
 }
