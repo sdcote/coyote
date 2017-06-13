@@ -213,7 +213,7 @@ public class Response implements Closeable {
 
     try {
       if ( status == null ) {
-        throw new Error( "sendResponse(): Status can't be null." );
+        throw new Error( "send(): Status can't be null." );
       }
       final PrintWriter pw = new PrintWriter( new BufferedWriter( new OutputStreamWriter( outputStream, new ContentType( mimeType ).getEncoding() ) ), false );
       pw.append( "HTTP/1.1 " ).append( status.getDescription() ).append( " \r\n" );
