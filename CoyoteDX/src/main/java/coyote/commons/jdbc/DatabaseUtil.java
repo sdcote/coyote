@@ -303,7 +303,8 @@ public class DatabaseUtil {
    * @param connection the connection on which to perform the query
    * @param query the SQL (SELECT) query to perform
    * 
-   * @return FrameSet containing the DataFrames representing the retrieved data
+   * @return FrameSet containing the DataFrames representing the retrieved 
+   *         data, may be empty, but never null.
    */
   public static FrameSet readAllRecords( Connection connection, String query ) {
     FrameSet retval = new FrameSet();
