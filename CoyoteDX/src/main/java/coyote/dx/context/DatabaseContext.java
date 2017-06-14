@@ -12,12 +12,15 @@
 package coyote.dx.context;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Date;
+import java.util.UUID;
 
 import coyote.commons.StringUtil;
 import coyote.commons.jdbc.DatabaseUtil;
+import coyote.commons.template.SymbolTable;
 import coyote.commons.template.Template;
 import coyote.dataframe.DataField;
 import coyote.dataframe.DataFrame;
@@ -73,7 +76,15 @@ public class DatabaseContext extends PersistentContext {
 
   /** Component we use to handle connection creation */
   private Database database = null;
+
+  /** The connection to the database */
   Connection conn = null;
+
+  /** Our identity to record in the context on inserts and update operations */
+  String identity = this.getClass().getSimpleName();
+
+  /** The list of existing fields in the database for this job */
+  FrameSet existingFields = null;
 
 
 
@@ -116,6 +127,7 @@ public class DatabaseContext extends PersistentContext {
           database.setConfiguration( configuration );
           database.open( null );
           conn = database.getConnection();
+          determineIdentity();
           verifyTables();
           readfields( name );
           incrementRunCount();
@@ -146,14 +158,29 @@ public class DatabaseContext extends PersistentContext {
 
 
   /**
+   * Attempt to determine what database user this context is running as so the 
+   * identity of insert and update or records can be recorded. 
+   */
+  private void determineIdentity() {
+    if ( StringUtil.isNotBlank( database.getUsername() ) ) {
+      identity = identity.concat( ":" + database.getUsername() );
+    } else if ( StringUtil.isNotBlank( database.getConnectedUser() ) ) {
+      identity = identity.concat( ":" + database.getConnectedUser() );
+    }
+  }
+
+
+
+
+  /**
    * Read in all the context fields from the database with the given name.
    * 
    * @param name the name of the context (i.e. job name) to query.
    */
   private void readfields( String name ) {
     Log.debug( "Reading fields for context '" + name + "'" );
-    FrameSet fields = DatabaseUtil.readAllRecords( conn, "select * from " + SCHEMA_NAME + "." + TABLE_NAME + " where Name = " + name );
-    for ( DataFrame frame : fields.getRows() ) {
+    existingFields = DatabaseUtil.readAllRecords( conn, "select * from " + SCHEMA_NAME + "." + TABLE_NAME + " where Name = " + name );
+    for ( DataFrame frame : existingFields.getRows() ) {
       System.out.println( frame.toString() );
     }
   }
@@ -182,7 +209,7 @@ public class DatabaseContext extends PersistentContext {
 
     TableDefinition tdef = new TableDefinition( TABLE_NAME );
     tdef.setSchemaName( SCHEMA_NAME );
-    tdef.addColumn( new ColumnDefinition( "SysId", ColumnType.STRING ).setLength( 32 ).setPrimaryKey( true ) );
+    tdef.addColumn( new ColumnDefinition( "SysId", ColumnType.STRING ).setLength( 36 ).setPrimaryKey( true ) );
     tdef.addColumn( new ColumnDefinition( "Name", ColumnType.STRING ).setLength( 64 ) );
     tdef.addColumn( new ColumnDefinition( "Key", ColumnType.STRING ).setLength( 64 ) );
     tdef.addColumn( new ColumnDefinition( "Value", ColumnType.STRING ).setLength( 255 ).setNullable( true ) );
@@ -249,10 +276,49 @@ public class DatabaseContext extends PersistentContext {
 
     Log.debug( "Closing context:\n" + JSONMarshaler.toFormattedString( frame ) );
 
-    // TODO: Upsert the frame
-    // upsert( conn, TABLE_NAME, frame )
+    upsertFields( conn, TABLE_NAME, frame );
 
     super.close();
+  }
+
+
+
+
+  private void upsertFields( Connection conn, String tableName, DataFrame frame ) {
+    SymbolTable symbols = new SymbolTable();
+    symbols.put( DatabaseDialect.DB_SCHEMA_SYM, SCHEMA_NAME );
+    symbols.put( DatabaseDialect.TABLE_NAME_SYM, TABLE_NAME );
+    
+    String sql = null;
+    
+    for ( DataField field : frame.getFields() ) {
+      if ( existingFields.columnContains( "Name", field.getName() ) ) {
+        // create the fieldmap - "UPDATE DBUSER SET USERNAME = ? WHERE USER_ID = ?";
+        sql = DatabaseDialect.getSQL( database.getProductName(), DatabaseDialect.UPDATE, symbols );
+      } else {
+        symbols.put(DatabaseDialect.FIELD_NAMES_SYM, "SysId, Name, Key, Value, CreatedBy, CreatedOn, ModifiedBy, ModifiedOn");
+        symbols.put(DatabaseDialect.FIELD_VALUES_SYM, "?, ?, ?, ?, ?, ?, ?, ?");
+        sql = DatabaseDialect.getSQL( database.getProductName(), DatabaseDialect.INSERT, symbols );
+        try {
+          PreparedStatement preparedStatement = conn.prepareStatement( sql );
+          preparedStatement.setString( 1, UUID.randomUUID().toString() );
+          preparedStatement.setString( 2, getEngine().getName() );
+          preparedStatement.setString( 3, field.getName() );
+          preparedStatement.setString( 4, field.getStringValue() );
+          preparedStatement.setString( 5, identity );
+          preparedStatement.setDate( 6, new java.sql.Date( new Date().getTime() ) );
+          preparedStatement.setString( 7, identity );
+          preparedStatement.setDate( 8, new java.sql.Date( new Date().getTime() ) );
+          int rowsAffected = preparedStatement.executeUpdate();
+          System.out.println( "Inserted "+rowsAffected+" rows" );
+
+        } catch ( SQLException e ) {
+          // TODO Auto-generated catch block
+          e.printStackTrace();
+        }
+      }
+
+    }
   }
 
 }
