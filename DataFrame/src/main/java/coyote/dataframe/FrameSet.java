@@ -207,4 +207,66 @@ public class FrameSet {
     columns.clear();
   }
 
+
+
+
+  /**
+   * Checks if a string is null, empty ("") or only whitespace.
+   * 
+   * @param str the String to check, may be null
+   * 
+   * @return {@code true} if the argument is empty or null or only whitespace
+   */
+  public static boolean isBlank( String str ) {
+    int strLen;
+    if ( str == null || ( strLen = str.length() ) == 0 ) {
+      return true;
+    }
+    for ( int i = 0; i < strLen; i++ ) {
+      if ( ( Character.isWhitespace( str.charAt( i ) ) == false ) ) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+
+
+
+  /**
+   * Performs a search of all columns with the given name and check for the 
+   * existence of a value.
+   * 
+   * <p>The comparisons are case-sensitive
+   * 
+   * <p>This allows one to search for the existence of a row that has "Bob" in 
+   * the "FirstName" column. In this case, "Bob" is the column value and 
+   * "FirstName" is the column name.  
+   * 
+   * @param columnName the name of the column to query
+   * @param value the string value for which to search
+   * 
+   * @return true if there is the given value in the named column, false if 
+   *         the value does not appear in the column
+   */
+  public boolean columnContains( String columnName, String value ) {
+    if ( !isBlank( columnName ) ) {
+      for ( DataFrame frame : rows ) {
+        DataField field = frame.getField( columnName );
+        if ( field != null ) {
+          if ( isBlank( value ) ) {
+            if ( field.isNull() ) {
+              return true;
+            }
+          } else {
+            if ( value.equals( field.getStringValue() ) ) {
+              return true;
+            }
+          }
+        }
+      }
+    }
+    return false;
+  }
+
 }
