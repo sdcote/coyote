@@ -37,6 +37,9 @@ public class DatabaseDialect {
   public static final String DATABASE_VERSION_SYM = "databaseVersion";
   public static final String DATABASE_MAJOR_SYM = "dbMajorVersion";
   public static final String DATABASE_MINOR_SYM = "dbMinorVersion";
+  public static final String FIELD_NAMES_SYM = "fieldnames";
+  public static final String FIELD_VALUES_SYM = "fieldvalues";
+  
 
   public static final String CREATE = "create";
   public static final String GRANT = "grant";
@@ -83,7 +86,7 @@ public class DatabaseDialect {
     SYNTAX.put( MYSQL, map );
     map.put( CREATE, "CREATE TABLE [#$" + DB_SCHEMA_SYM + "#].[#$" + TABLE_NAME_SYM + "#] ( [#$fielddefinitions#] )" );
     map.put( GRANT, "" );
-    map.put( INSERT, "INSERT INTO [#$" + DB_SCHEMA_SYM + "#].[#$" + TABLE_NAME_SYM + "#] ( [#$fieldnames#] ) VALUES ([#$fieldvalues#])" );
+    map.put( INSERT, "INSERT INTO [#$" + DB_SCHEMA_SYM + "#].[#$" + TABLE_NAME_SYM + "#] ([#$" + FIELD_NAMES_SYM + "#]) VALUES ([#$" + FIELD_VALUES_SYM + "#])" );
     map.put( UPDATE, "UPDATE [#$" + DB_SCHEMA_SYM + "#].[#$" + TABLE_NAME_SYM + "#] SET [#$fieldmap#] WHERE \"sys_id\" = [#$keyvalue#]" );
     map.put( DELETE, "DELETE FROM [#$" + DB_SCHEMA_SYM + "#].[#$" + TABLE_NAME_SYM + "#] WHERE \"sys_id\" = [#$keyvalue#]" );
     map.put( TRUNCATE, "TRUNCATE TABLE [#$" + DB_SCHEMA_SYM + "#].[#$" + TABLE_NAME_SYM + "#]" );
@@ -115,7 +118,7 @@ public class DatabaseDialect {
     SYNTAX.put( ORACLE, map );
     map.put( CREATE, "CREATE TABLE [#$" + DB_SCHEMA_SYM + "#].[#$" + TABLE_NAME_SYM + "#] ( [#$fielddefinitions#] )" );
     map.put( GRANT, "GRANT SELECT,REFERENCES ON [#$" + DB_SCHEMA_SYM + "#].[#$" + TABLE_NAME_SYM + "#] TO PUBLIC" );
-    map.put( INSERT, "INSERT INTO [#$" + DB_SCHEMA_SYM + "#].[#$" + TABLE_NAME_SYM + "#] ( [#$fieldnames#] VALUES [#$fieldvalues#])" );
+    map.put( INSERT, "INSERT INTO [#$" + DB_SCHEMA_SYM + "#].[#$" + TABLE_NAME_SYM + "#] ([#$" + FIELD_NAMES_SYM + "#]) VALUES [#$" + FIELD_VALUES_SYM + "#])" );
     map.put( UPDATE, "UPDATE [#$" + DB_SCHEMA_SYM + "#].[#$" + TABLE_NAME_SYM + "#] SET [#$fieldmap#] WHERE SYS_ID=[#$keyvalue#]" );
     map.put( DELETE, "DELETE FROM [#$" + DB_SCHEMA_SYM + "#].[#$" + TABLE_NAME_SYM + "#] WHERE SYS_ID=[#$keyvalue#]" );
     map.put( TRUNCATE, "TRUNCATE TABLE [#$" + DB_SCHEMA_SYM + "#].[#$" + TABLE_NAME_SYM + "#]" );
@@ -145,13 +148,13 @@ public class DatabaseDialect {
     map.put( DEFAULT, "VARCHAR(#)" );
     map = new HashMap<String, String>();
     SYNTAX.put( H2, map );
-    map.put( CREATE, "CREATE TABLE  [#$" + DB_SCHEMA_SYM + "#].[#$" + TABLE_NAME_SYM + "#] ( [#$fielddefinitions#] )" );
+    map.put( CREATE, "CREATE TABLE [#$" + DB_SCHEMA_SYM + "#].[#$" + TABLE_NAME_SYM + "#] ( [#$fielddefinitions#] )" );
     map.put( GRANT, "" );
-    map.put( INSERT, "INSERT INTO [#$" + TABLE_NAME_SYM + "#] ( [#$fieldnames#] VALUES ([#$fieldvalues#])" );
-    map.put( UPDATE, "UPDATE [#$" + TABLE_NAME_SYM + "#] SET [#$fieldmap#] WHERE SYS_ID=[#$keyvalue#]" );
-    map.put( DELETE, "DELETE FROM [#$" + TABLE_NAME_SYM + "#] WHERE SYS_ID=[#$keyvalue#]" );
-    map.put( TRUNCATE, "TRUNCATE TABLE [#$" + TABLE_NAME_SYM + "#]" );
-    map.put( ALTER_COLUMN, "ALTER TABLE [#$" + TABLE_NAME_SYM + "#] ALTER COLUMN [#$columnName#] [#$columnType#]" );
+    map.put( INSERT, "INSERT INTO [#$" + DB_SCHEMA_SYM + "#].[#$" + TABLE_NAME_SYM + "#] ([#$" + FIELD_NAMES_SYM + "#]) VALUES ([#$" + FIELD_VALUES_SYM + "#])" );
+    map.put( UPDATE, "UPDATE [#$" + DB_SCHEMA_SYM + "#].[#$" + TABLE_NAME_SYM + "#] SET [#$fieldmap#] WHERE SYS_ID=[#$keyvalue#]" );
+    map.put( DELETE, "DELETE FROM [#$" + DB_SCHEMA_SYM + "#].[#$" + TABLE_NAME_SYM + "#] WHERE SYS_ID=[#$keyvalue#]" );
+    map.put( TRUNCATE, "TRUNCATE TABLE [#$" + DB_SCHEMA_SYM + "#].[#$" + TABLE_NAME_SYM + "#]" );
+    map.put( ALTER_COLUMN, "ALTER TABLE [#$" + DB_SCHEMA_SYM + "#].[#$" + TABLE_NAME_SYM + "#] ALTER COLUMN [#$columnName#] [#$columnType#]" );
     map.put( UNIQUE, "IDENTITY" );
     map.put( PRIMARY_KEY, "PRIMARY KEY" );
     map.put( NULLABLE, "NULL" );
