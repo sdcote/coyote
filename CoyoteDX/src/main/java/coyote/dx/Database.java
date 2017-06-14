@@ -19,7 +19,6 @@ import coyote.dataframe.DataFrameException;
 import coyote.dx.context.TransformContext;
 import coyote.loader.Loader;
 import coyote.loader.log.Log;
-import coyote.loader.log.LogMsg;
 
 
 /**
@@ -327,10 +326,24 @@ public class Database extends AbstractConfigurableComponent implements Configura
     }
     try {
       return meta.getDatabaseMinorVersion();
-    } catch ( SQLException e ) {
-      e.printStackTrace();
-    }
+    } catch ( SQLException ignore ) {}
     return -1;
+  }
+
+
+
+
+  /**
+   * Retrieves the user name as known to this database.
+   *
+   * @return the database user name
+   */
+  public String getConnectedUser() {
+    String retval = null;
+    try {
+      retval = meta.getUserName();
+    } catch ( SQLException ignore ) {}
+    return retval;
   }
 
 }
