@@ -18,8 +18,6 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Types;
-import java.util.ArrayList;
-import java.util.List;
 
 import coyote.commons.StringUtil;
 import coyote.dataframe.DataFrame;
@@ -273,7 +271,6 @@ public class DatabaseUtil {
             if ( result.next() ) {
               retval = new DataFrame();
               for ( int i = 1; i <= columnCount; i++ ) {
-                // Log.debug( rsmd.getColumnName( i ) + " - '" + result.getString( i ) + "' (" + rsmd.getColumnType( i ) + ")" );
                 retval.add( rsmd.getColumnName( i ), DatabaseDialect.resolveValue( result.getObject( i ), rsmd.getColumnType( i ) ) );
               }
             } else {
@@ -333,7 +330,7 @@ public class DatabaseUtil {
               }
               retval.add( record );
             }
-          } catch ( SQLException e ) {
+          } catch ( Exception e ) {
             e.printStackTrace();
           }
         }
