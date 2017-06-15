@@ -237,7 +237,7 @@ public class FrameSet {
    * Performs a search of all columns with the given name and check for the 
    * existence of a value.
    * 
-   * <p>The comparisons are case-sensitive
+   * <p>The column name comparison is case in-sensitive as some drivers wil return all upper or all lower case names, but the value comparisons are case-sensitive.
    * 
    * <p>This allows one to search for the existence of a row that has "Bob" in 
    * the "FirstName" column. In this case, "Bob" is the column value and 
@@ -252,7 +252,7 @@ public class FrameSet {
   public boolean columnContains( String columnName, String value ) {
     if ( !isBlank( columnName ) ) {
       for ( DataFrame frame : rows ) {
-        DataField field = frame.getField( columnName );
+        DataField field = frame.getFieldIgnoreCase( columnName );
         if ( field != null ) {
           if ( isBlank( value ) ) {
             if ( field.isNull() ) {

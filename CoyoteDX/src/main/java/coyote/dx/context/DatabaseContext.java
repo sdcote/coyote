@@ -81,7 +81,7 @@ public class DatabaseContext extends PersistentContext {
   Connection conn = null;
 
   /** Our identity to record in the context on inserts and update operations */
-  String identity = this.getClass().getSimpleName();
+  String identity = null;
 
   /** The list of existing fields in the database for this job */
   FrameSet existingFields = null;
@@ -162,10 +162,14 @@ public class DatabaseContext extends PersistentContext {
    * identity of insert and update or records can be recorded. 
    */
   private void determineIdentity() {
-    if ( StringUtil.isNotBlank( database.getUsername() ) ) {
-      identity = identity.concat( ":" + database.getUsername() );
-    } else if ( StringUtil.isNotBlank( database.getConnectedUser() ) ) {
-      identity = identity.concat( ":" + database.getConnectedUser() );
+    if ( identity == null ) {
+      if ( StringUtil.isNotBlank( database.getUsername() ) ) {
+        identity = database.getUsername();
+      } else if ( StringUtil.isNotBlank( database.getConnectedUser() ) ) {
+        identity = database.getConnectedUser();
+      } else {
+        identity = this.getClass().getSimpleName();
+      }
     }
   }
 
@@ -179,9 +183,9 @@ public class DatabaseContext extends PersistentContext {
    */
   private void readfields( String name ) {
     Log.debug( "Reading fields for context '" + name + "'" );
-    existingFields = DatabaseUtil.readAllRecords( conn, "select * from " + SCHEMA_NAME + "." + TABLE_NAME + " where Name = " + name );
+    existingFields = DatabaseUtil.readAllRecords( conn, "select * from " + SCHEMA_NAME + "." + TABLE_NAME + " where Name = '" + name +"'");
     for ( DataFrame frame : existingFields.getRows() ) {
-      System.out.println( frame.toString() );
+      System.out.println("========>"+ frame.toString() );
     }
   }
 
@@ -292,12 +296,11 @@ public class DatabaseContext extends PersistentContext {
     String sql = null;
     
     for ( DataField field : frame.getFields() ) {
-      if ( existingFields.columnContains( "Name", field.getName() ) ) {
-        // create the fieldmap - "UPDATE DBUSER SET USERNAME = ? WHERE USER_ID = ?";
+      if ( existingFields.columnContains( "Key", field.getName() ) ) {
         sql = DatabaseDialect.getSQL( database.getProductName(), DatabaseDialect.UPDATE, symbols );
       } else {
-        symbols.put(DatabaseDialect.FIELD_NAMES_SYM, "SysId, Name, Key, Value, CreatedBy, CreatedOn, ModifiedBy, ModifiedOn");
-        symbols.put(DatabaseDialect.FIELD_VALUES_SYM, "?, ?, ?, ?, ?, ?, ?, ?");
+        symbols.put(DatabaseDialect.FIELD_NAMES_SYM, "SysId, Name, Key, Value, Type, CreatedBy, CreatedOn, ModifiedBy, ModifiedOn");
+        symbols.put(DatabaseDialect.FIELD_VALUES_SYM, "?, ?, ?, ?, ?, ?, ?, ?, ?");
         sql = DatabaseDialect.getSQL( database.getProductName(), DatabaseDialect.INSERT, symbols );
         try {
           PreparedStatement preparedStatement = conn.prepareStatement( sql );
@@ -305,13 +308,13 @@ public class DatabaseContext extends PersistentContext {
           preparedStatement.setString( 2, getEngine().getName() );
           preparedStatement.setString( 3, field.getName() );
           preparedStatement.setString( 4, field.getStringValue() );
-          preparedStatement.setString( 5, identity );
-          preparedStatement.setDate( 6, new java.sql.Date( new Date().getTime() ) );
-          preparedStatement.setString( 7, identity );
-          preparedStatement.setDate( 8, new java.sql.Date( new Date().getTime() ) );
+          preparedStatement.setInt( 5, field.getType() );
+          preparedStatement.setString( 6, identity );
+          preparedStatement.setTimestamp( 7, new java.sql.Timestamp( new Date().getTime() ) );
+          preparedStatement.setString( 8, identity );
+          preparedStatement.setTimestamp( 9, new java.sql.Timestamp( new Date().getTime() ) );
           int rowsAffected = preparedStatement.executeUpdate();
           System.out.println( "Inserted "+rowsAffected+" rows" );
-
         } catch ( SQLException e ) {
           // TODO Auto-generated catch block
           e.printStackTrace();
