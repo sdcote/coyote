@@ -41,6 +41,7 @@ public class DatabaseDialect {
   public static final String FIELD_VALUES_SYM = "fieldvalues";
   public static final String FIELD_MAP_SYM = "fieldmap";
   public static final String SYS_ID_SYM = "sysid";
+  public static final String FIELD_DEF_SYM = "fielddefinitions";
   
 
   public static final String CREATE = "create";
@@ -86,7 +87,7 @@ public class DatabaseDialect {
     map.put( DEFAULT, "VARCHAR(#)" );
     map = new HashMap<String, String>();
     SYNTAX.put( MYSQL, map );
-    map.put( CREATE, "CREATE TABLE [#$" + DB_SCHEMA_SYM + "#].[#$" + TABLE_NAME_SYM + "#] ( [#$fielddefinitions#] )" );
+    map.put( CREATE, "CREATE TABLE [#$" + DB_SCHEMA_SYM + "#].[#$" + TABLE_NAME_SYM + "#] ( [#$" + FIELD_DEF_SYM + "#] )" );
     map.put( GRANT, "" );
     map.put( INSERT, "INSERT INTO [#$" + DB_SCHEMA_SYM + "#].[#$" + TABLE_NAME_SYM + "#] ([#$" + FIELD_NAMES_SYM + "#]) VALUES ([#$" + FIELD_VALUES_SYM + "#])" );
     map.put( UPDATE, "UPDATE [#$" + DB_SCHEMA_SYM + "#].[#$" + TABLE_NAME_SYM + "#] SET [#$" + FIELD_MAP_SYM + "#] WHERE \"sysid\" = [#$" + SYS_ID_SYM + "#]" );
@@ -118,7 +119,7 @@ public class DatabaseDialect {
     map.put( DEFAULT, "VARCHAR2(#)" );
     map = new HashMap<String, String>();
     SYNTAX.put( ORACLE, map );
-    map.put( CREATE, "CREATE TABLE [#$" + DB_SCHEMA_SYM + "#].[#$" + TABLE_NAME_SYM + "#] ( [#$fielddefinitions#] )" );
+    map.put( CREATE, "CREATE TABLE [#$" + DB_SCHEMA_SYM + "#].[#$" + TABLE_NAME_SYM + "#] ( [#$" + FIELD_DEF_SYM + "#] )" );
     map.put( GRANT, "GRANT SELECT,REFERENCES ON [#$" + DB_SCHEMA_SYM + "#].[#$" + TABLE_NAME_SYM + "#] TO PUBLIC" );
     map.put( INSERT, "INSERT INTO [#$" + DB_SCHEMA_SYM + "#].[#$" + TABLE_NAME_SYM + "#] ([#$" + FIELD_NAMES_SYM + "#]) VALUES [#$" + FIELD_VALUES_SYM + "#])" );
     map.put( UPDATE, "UPDATE [#$" + DB_SCHEMA_SYM + "#].[#$" + TABLE_NAME_SYM + "#] SET [#$" + FIELD_MAP_SYM + "#] WHERE SYSID='[#$" + SYS_ID_SYM + "#]'" );
@@ -150,7 +151,7 @@ public class DatabaseDialect {
     map.put( DEFAULT, "VARCHAR(#)" );
     map = new HashMap<String, String>();
     SYNTAX.put( H2, map );
-    map.put( CREATE, "CREATE TABLE [#$" + DB_SCHEMA_SYM + "#].[#$" + TABLE_NAME_SYM + "#] ( [#$fielddefinitions#] )" );
+    map.put( CREATE, "CREATE TABLE [#$" + DB_SCHEMA_SYM + "#].[#$" + TABLE_NAME_SYM + "#] ( [#$" + FIELD_DEF_SYM + "#] )" );
     map.put( GRANT, "" );
     map.put( INSERT, "INSERT INTO [#$" + DB_SCHEMA_SYM + "#].[#$" + TABLE_NAME_SYM + "#] ([#$" + FIELD_NAMES_SYM + "#]) VALUES ([#$" + FIELD_VALUES_SYM + "#])" );
     map.put( UPDATE, "UPDATE [#$" + DB_SCHEMA_SYM + "#].[#$" + TABLE_NAME_SYM + "#] SET [#$" + FIELD_MAP_SYM + "#] WHERE SYSID='[#$" + SYS_ID_SYM + "#]'" );
@@ -224,11 +225,12 @@ public class DatabaseDialect {
    * development process to see what symbols should be provided in the 
    * table.</p>
    * 
-   * @param database the name of the database dialect to use (e.g. Oracle, MySQL, etc.)
+   * @param database the name of the database dialect to use (e.g. Oracle)
    * @param schema the schema of the records to be stored
    * @param symbols the table of symbol values to use in variable substitution
    * 
-   * @return a template string which can be used to generate the
+   * @return a template string which can be used to generate the SQL statement 
+   *         for a table to support the given metrics
    * 
    * @see coyote.commons.template.Template
    */
@@ -283,7 +285,7 @@ public class DatabaseDialect {
 
       // if there is a symbol table, place the field definitions in it
       if ( symbols != null ) {
-        symbols.put( "fielddefinitions", b.toString() );
+        symbols.put( FIELD_DEF_SYM, b.toString() );
       }
 
       // now have return the create command using the field definitions in the 
@@ -301,6 +303,17 @@ public class DatabaseDialect {
 
 
 
+  /**
+   * Generate the proper SQL command to create a table which will hold data 
+   * described by the given table definition.
+   * 
+   * @param database the name of the database dialect to use (e.g. Oracle)
+   * @param schema the schema of the records to be stored
+   * 
+   * @return a SQL string which can be used to generate the table described by 
+   *         the table definition 
+   */
+  @SuppressWarnings("unchecked")
   public static String getCreate( String database, TableDefinition tdef ) {
     SymbolTable symbols = new SymbolTable();
     symbols.put( DB_SCHEMA_SYM, tdef.getSchemaName() );
@@ -370,7 +383,7 @@ public class DatabaseDialect {
       // trim off the last delimiter
       b.delete( b.length() - 2, b.length() );
 
-      symbols.put( "fielddefinitions", b.toString() );
+      symbols.put( FIELD_DEF_SYM, b.toString() );
       Log.debug( b.toString() );
       return getSQL( database, CREATE, symbols );
 
@@ -463,6 +476,7 @@ public class DatabaseDialect {
 
 
 
+  @SuppressWarnings("unchecked")
   public static String getCreateSchema( String database, String schemaName, String owner ) {
     SymbolTable symbols = new SymbolTable();
     symbols.put( DB_SCHEMA_SYM,schemaName );
