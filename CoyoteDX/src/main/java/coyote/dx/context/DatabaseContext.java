@@ -183,9 +183,13 @@ public class DatabaseContext extends PersistentContext {
    */
   private void readfields( String name ) {
     Log.debug( "Reading fields for context '" + name + "'" );
-    existingFields = DatabaseUtil.readAllRecords( conn, "select * from " + SCHEMA_NAME + "." + TABLE_NAME + " where Name = '" + name +"'");
+    existingFields = DatabaseUtil.readAllRecords( conn, "select * from " + SCHEMA_NAME + "." + TABLE_NAME + " where Name = '" + name + "'" );
     for ( DataFrame frame : existingFields.getRows() ) {
-      System.out.println("========>"+ frame.toString() );
+      Log.debug( "Read in context variable:" + frame.toString() );
+      DataField keyField = frame.getFieldIgnoreCase( "Key" );
+      DataField valueField = frame.getFieldIgnoreCase( "Value" );
+      DataField typeField = frame.getFieldIgnoreCase( "Type" );
+      Log.debug( "Converting and placing field:\n"+keyField + "\n" + valueField + "\n" + typeField );
     }
   }
 
@@ -288,39 +292,80 @@ public class DatabaseContext extends PersistentContext {
 
 
 
+  @SuppressWarnings("unchecked")
   private void upsertFields( Connection conn, String tableName, DataFrame frame ) {
-    SymbolTable symbols = new SymbolTable();
-    symbols.put( DatabaseDialect.DB_SCHEMA_SYM, SCHEMA_NAME );
-    symbols.put( DatabaseDialect.TABLE_NAME_SYM, TABLE_NAME );
-    
-    String sql = null;
-    
-    for ( DataField field : frame.getFields() ) {
-      if ( existingFields.columnContains( "Key", field.getName() ) ) {
-        sql = DatabaseDialect.getSQL( database.getProductName(), DatabaseDialect.UPDATE, symbols );
-      } else {
-        symbols.put(DatabaseDialect.FIELD_NAMES_SYM, "SysId, Name, Key, Value, Type, CreatedBy, CreatedOn, ModifiedBy, ModifiedOn");
-        symbols.put(DatabaseDialect.FIELD_VALUES_SYM, "?, ?, ?, ?, ?, ?, ?, ?, ?");
-        sql = DatabaseDialect.getSQL( database.getProductName(), DatabaseDialect.INSERT, symbols );
-        try {
-          PreparedStatement preparedStatement = conn.prepareStatement( sql );
-          preparedStatement.setString( 1, UUID.randomUUID().toString() );
-          preparedStatement.setString( 2, getEngine().getName() );
-          preparedStatement.setString( 3, field.getName() );
-          preparedStatement.setString( 4, field.getStringValue() );
-          preparedStatement.setInt( 5, field.getType() );
-          preparedStatement.setString( 6, identity );
-          preparedStatement.setTimestamp( 7, new java.sql.Timestamp( new Date().getTime() ) );
-          preparedStatement.setString( 8, identity );
-          preparedStatement.setTimestamp( 9, new java.sql.Timestamp( new Date().getTime() ) );
-          int rowsAffected = preparedStatement.executeUpdate();
-          System.out.println( "Inserted "+rowsAffected+" rows" );
-        } catch ( SQLException e ) {
-          // TODO Auto-generated catch block
-          e.printStackTrace();
-        }
-      }
+    SymbolTable sqlsymbols = new SymbolTable();
+    sqlsymbols.put( DatabaseDialect.DB_SCHEMA_SYM, SCHEMA_NAME );
+    sqlsymbols.put( DatabaseDialect.TABLE_NAME_SYM, TABLE_NAME );
 
+    String sql = null;
+
+    for ( DataField field : frame.getFields() ) {
+      DataFrame existingFrame = existingFields.getFrameByColumnValue( "Key", field.getName() );
+      if ( existingFrame != null ) {
+        DataField sysIdField = existingFrame.getFieldIgnoreCase( "SysId" );
+        if ( sysIdField != null ) {
+          String existingValue = null;
+          DataField valueField = existingFrame.getFieldIgnoreCase( "Value" );
+          if ( valueField != null ) {
+            existingValue = valueField.getStringValue();
+          }
+          // Only update if the value is different
+          if ( !field.getStringValue().equals( existingValue ) ) {
+            Log.debug( "Field:" + field.getName() + " was '" + existingValue + "' and now is '" + field.getStringValue() + "'" );
+
+            sqlsymbols.put( DatabaseDialect.FIELD_MAP_SYM, "Value=?, Type=?, ModifiedBy=?, ModifiedOn=?" );
+            sqlsymbols.put( DatabaseDialect.SYS_ID_SYM, sysIdField.getStringValue() );
+            sql = DatabaseDialect.getSQL( database.getProductName(), DatabaseDialect.UPDATE, sqlsymbols );
+            System.out.println( sql );
+
+            try {
+              PreparedStatement preparedStatement = conn.prepareStatement( sql );
+              preparedStatement.setString( 1, field.getStringValue() );
+              preparedStatement.setInt( 2, field.getType() );
+              preparedStatement.setString( 3, identity );
+              preparedStatement.setTimestamp( 4, new java.sql.Timestamp( new Date().getTime() ) );
+              int rowsAffected = preparedStatement.executeUpdate();
+              System.out.println( "Updated " + rowsAffected + " rows" );
+            } catch ( SQLException e ) {
+              e.printStackTrace();
+            }
+          }
+        } else {
+          Log.error( "Existing field does not contain a sysid: " + existingFrame.toString() );
+          insertField( field, sqlsymbols );
+        }
+      } else {
+        insertField( field, sqlsymbols );
+      }
+    }
+  }
+
+
+
+
+  @SuppressWarnings("unchecked")
+  private void insertField( DataField field, SymbolTable sqlsymbols ) {
+    sqlsymbols.put( DatabaseDialect.FIELD_NAMES_SYM, "SysId, Name, Key, Value, Type, CreatedBy, CreatedOn, ModifiedBy, ModifiedOn" );
+    sqlsymbols.put( DatabaseDialect.FIELD_VALUES_SYM, "?, ?, ?, ?, ?, ?, ?, ?, ?" );
+    String sql = DatabaseDialect.getSQL( database.getProductName(), DatabaseDialect.INSERT, sqlsymbols );
+    System.out.println( sql );
+    try {
+      PreparedStatement preparedStatement = conn.prepareStatement( sql );
+      preparedStatement.setString( 1, UUID.randomUUID().toString() );
+      preparedStatement.setString( 2, getEngine().getName() );
+      preparedStatement.setString( 3, field.getName() );
+      preparedStatement.setString( 4, field.getStringValue() );
+      preparedStatement.setInt( 5, field.getType() );
+      preparedStatement.setString( 6, identity );
+      preparedStatement.setTimestamp( 7, new java.sql.Timestamp( new Date().getTime() ) );
+      preparedStatement.setString( 8, identity );
+      preparedStatement.setTimestamp( 9, new java.sql.Timestamp( new Date().getTime() ) );
+      int rowsAffected = preparedStatement.executeUpdate();
+      System.out.println( "Inserted " + rowsAffected + " rows" );
+    } catch ( SQLException e ) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
     }
   }
 
