@@ -237,7 +237,9 @@ public class FrameSet {
    * Performs a search of all columns with the given name and check for the 
    * existence of a value.
    * 
-   * <p>The column name comparison is case in-sensitive as some drivers wil return all upper or all lower case names, but the value comparisons are case-sensitive.
+   * <p>The column name comparison is case in-sensitive as some drivers will 
+   * return all upper or all lower case names, but the value comparisons are 
+   * case-sensitive.
    * 
    * <p>This allows one to search for the existence of a row that has "Bob" in 
    * the "FirstName" column. In this case, "Bob" is the column value and 
@@ -250,23 +252,48 @@ public class FrameSet {
    *         the value does not appear in the column
    */
   public boolean columnContains( String columnName, String value ) {
+    return ( getFrameByColumnValue( columnName, value ) != null );
+  }
+
+
+
+
+  /**
+   * Returns the first dataframe in the set with the given value in the column 
+   * of the given name.
+   * 
+   * <p>Models as simple where clause as in {@code select * from set where 
+   * ColumnName=ColumnValue}. This allows one to search for and retrieve the 
+   * row that has "Bob" in the "FirstName" column. In this case, "Bob" is the 
+   * column value and "FirstName" is the column name. A common use case is to
+   * search for SysId and some identifier to retrieve a specific frame from 
+   * the set.
+   * 
+   * @param columnName the name of the column to query
+   * @param value the string value for which to search
+   * 
+   * @return The first frame in the set with a matching value in the named 
+   *         column or null if that value is not found in any rows with the 
+   *         given column name.
+   */
+  public DataFrame getFrameByColumnValue( String columnName, String value ) {
     if ( !isBlank( columnName ) ) {
       for ( DataFrame frame : rows ) {
         DataField field = frame.getFieldIgnoreCase( columnName );
         if ( field != null ) {
           if ( isBlank( value ) ) {
             if ( field.isNull() ) {
-              return true;
+              return frame;
             }
           } else {
             if ( value.equals( field.getStringValue() ) ) {
-              return true;
+              return frame;
             }
           }
         }
       }
     }
-    return false;
+    return null;
   }
 
 }
