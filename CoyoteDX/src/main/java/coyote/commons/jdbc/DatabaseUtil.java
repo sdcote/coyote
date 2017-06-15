@@ -59,8 +59,8 @@ public class DatabaseUtil {
           }
         }
         return retval;
-      } catch ( SQLException e ) {
-        e.printStackTrace();
+      } catch ( SQLException ignore ) {
+        //ignore.printStackTrace();
       }
       finally {
         if ( rs != null ) {
@@ -285,7 +285,6 @@ public class DatabaseUtil {
         String emsg = String.format( "Error querying database: '%s' - query = '%s'", e.getMessage().trim(), query );
         Log.error( emsg );
       }
-
     }
     return retval;
   }
@@ -313,7 +312,6 @@ public class DatabaseUtil {
     Log.debug( String.format( "Executing query: '%s'", query ) );
 
     if ( connection != null ) {
-
       try {
         Statement statement = connection.createStatement( ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY );
         result = statement.executeQuery( query );
