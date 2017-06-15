@@ -13,6 +13,7 @@ package coyote.commons;
 
 import coyote.dataframe.DataField;
 import coyote.dataframe.DataFrame;
+import coyote.dataframe.FieldType;
 
 
 /**
@@ -69,4 +70,8 @@ public class DataFrameUtil {
     } // for each frame
   }
 
+
+
+
+  
 }

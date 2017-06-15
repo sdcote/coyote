@@ -81,4 +81,13 @@ public class S64Type implements FieldType {
     }
   }
 
+
+
+
+  @Override
+  public Object parse( String text ) {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
 }

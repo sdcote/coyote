@@ -134,4 +134,15 @@ public class StringType implements FieldType {
     }
   }
 
+
+
+
+  /**
+   * @see coyote.dataframe.FieldType#parse(java.lang.String)
+   */
+  @Override
+  public Object parse( String text ) {
+    return text;
+  }
+
 }

@@ -189,6 +189,9 @@ public class DatabaseContext extends PersistentContext {
       DataField keyField = frame.getFieldIgnoreCase( "Key" );
       DataField valueField = frame.getFieldIgnoreCase( "Value" );
       DataField typeField = frame.getFieldIgnoreCase( "Type" );
+      // TODO:
+      DataField.parse( "this is a test", (short)3 );
+      
       Log.debug( "Converting and placing field:\n"+keyField + "\n" + valueField + "\n" + typeField );
     }
   }

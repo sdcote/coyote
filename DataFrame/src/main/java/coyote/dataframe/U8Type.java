@@ -83,4 +83,13 @@ public class U8Type implements FieldType {
     }
   }
 
+
+
+
+  @Override
+  public Object parse( String text ) {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
 }

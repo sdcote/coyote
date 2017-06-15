@@ -98,4 +98,20 @@ public interface FieldType {
    */
   public String stringValue( byte[] val );
 
+
+
+
+  /**
+   * Parse the string into an object of this fields type.
+   * 
+   * <p>Ideally, the text emitted from the stringValue() should parse without 
+   * error.
+   * 
+   * @param text the text to parse
+   * 
+   * @return An object of this fields type, or null if the text could not be 
+   *         parsed into an object.
+   */
+  public Object parse( String text );
+
 }

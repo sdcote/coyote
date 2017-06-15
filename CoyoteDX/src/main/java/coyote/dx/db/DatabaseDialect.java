@@ -308,7 +308,7 @@ public class DatabaseDialect {
    * described by the given table definition.
    * 
    * @param database the name of the database dialect to use (e.g. Oracle)
-   * @param schema the schema of the records to be stored
+   * @param tdef the table definition of the records to be stored
    * 
    * @return a SQL string which can be used to generate the table described by 
    *         the table definition 

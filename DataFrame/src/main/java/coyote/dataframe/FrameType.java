@@ -101,4 +101,13 @@ public class FrameType implements FieldType {
       return "";
   }
 
+
+
+
+  @Override
+  public Object parse( String text ) {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
 }
