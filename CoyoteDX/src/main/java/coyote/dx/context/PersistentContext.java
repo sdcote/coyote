@@ -11,10 +11,10 @@
  */
 package coyote.dx.context;
 
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import coyote.commons.DateUtil;
 import coyote.dx.CDX;
 import coyote.dx.Symbols;
 import coyote.loader.log.Log;
@@ -48,6 +48,7 @@ public abstract class PersistentContext extends TransformContext {
 
 
 
+  @SuppressWarnings("unchecked")
   protected void setPreviousRunDate() {
     Object value = get( Symbols.PREVIOUS_RUN_DATETIME );
 
@@ -57,23 +58,30 @@ public abstract class PersistentContext extends TransformContext {
       set( Symbols.PREVIOUS_RUN_DATETIME, null );
 
       try {
-        Date prevrun = new SimpleDateFormat( CDX.DEFAULT_DATETIME_FORMAT ).parse( value.toString() );
-
-        // Set the previous run date
-        set( Symbols.PREVIOUS_RUN_DATE, prevrun );
-
-        // set the new value in the symbol table
-        if ( this.symbols != null ) {
-          symbols.put( Symbols.PREVIOUS_RUN_DATE, new SimpleDateFormat( CDX.DEFAULT_DATE_FORMAT ).format( prevrun ) );
-          symbols.put( Symbols.PREVIOUS_RUN_TIME, new SimpleDateFormat( CDX.DEFAULT_TIME_FORMAT ).format( prevrun ) );
-          symbols.put( Symbols.PREVIOUS_RUN_DATETIME, new SimpleDateFormat( CDX.DEFAULT_DATETIME_FORMAT ).format( prevrun ) );
+        Date prevrun = null;
+        if ( value instanceof Date ) {
+          prevrun = (Date)value;
+        } else {
+          prevrun = DateUtil.parse( value.toString() );
         }
 
-      } catch ( ParseException e ) {
+        if ( prevrun != null ) {
+          // Set the previous run date
+          set( Symbols.PREVIOUS_RUN_DATE, prevrun );
+
+          // set the new value in the symbol table
+          if ( this.symbols != null ) {
+            symbols.put( Symbols.PREVIOUS_RUN_DATE, new SimpleDateFormat( CDX.DEFAULT_DATE_FORMAT ).format( prevrun ) );
+            symbols.put( Symbols.PREVIOUS_RUN_TIME, new SimpleDateFormat( CDX.DEFAULT_TIME_FORMAT ).format( prevrun ) );
+            symbols.put( Symbols.PREVIOUS_RUN_DATETIME, new SimpleDateFormat( CDX.DEFAULT_DATETIME_FORMAT ).format( prevrun ) );
+          }
+        } else {
+          Log.warn( LogMsg.createMsg( CDX.MSG, "Context.previous_run_date_parsing_error", value, "Unknown Format", "Ignored" ) );
+        }
+      } catch ( Exception e ) {
         Log.warn( LogMsg.createMsg( CDX.MSG, "Context.previous_run_date_parsing_error", value, e.getClass().getSimpleName(), e.getMessage() ) );
       }
     }
-
   }
 
 
