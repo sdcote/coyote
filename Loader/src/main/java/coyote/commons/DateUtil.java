@@ -12,10 +12,13 @@
 package coyote.commons;
 
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.List;
 import java.util.TimeZone;
 
 
@@ -33,6 +36,30 @@ public class DateUtil {
   private static final String days[] = { "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat" };
 
   private static final String months[] = { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
+
+  private static final List<String> formatStrings = Arrays.asList(
+      "yyyy-MM-dd'T'HH:mm:ss.SSSX",
+      "yyyy-MM-dd'T'HH:mm:ss.SSS",
+      "yyyy-MM-dd'T'HH:mm:ss",
+      "yyyy-MM-dd HH:mm:ss.SSSX",
+      "yyyy-MM-dd HH:mm:ss.SSS",
+      "yyyy-MM-dd HH:mm:ss",
+      "yyyy-MM-dd",
+      "MM-dd-yyyy HH:mm:ss.SSSX",
+      "MM-dd-yyyy HH:mm:ss.SSS",
+      "MM-dd-yyyy HH:mm:ss",
+      "MM/dd/yyyy HH:mm:ss",
+      "EEE MMM dd HH:mm:ss zzz yyyy",
+      "HH:mm:ss.SSSX",
+      "HH:mm:ss.SSS",
+      "HH:mm:ss",
+      "HH:mm",
+      "M/y", 
+      "M-y", 
+      "M/d/y", 
+      "M-d-y", 
+      "y/M/d", 
+      "y-M-d");
 
 
 
@@ -71,6 +98,28 @@ public class DateUtil {
       retval = null;
     }
     return retval;
+  }
+
+
+
+
+  /**
+   * This method tries several different formats to parsing a date.
+   * 
+   * <p>This method is useful if the actual format of the date is not known.
+   * 
+   * @param text the date time string to parse
+   * 
+   * @return the Date reference if parsing was successful or null if the text 
+   *         could not be parsed into a date.
+   */
+  public static Date parse( String text ) {
+    for ( String formatString : formatStrings ) {
+      try {
+        return new SimpleDateFormat( formatString ).parse( text );
+      } catch ( ParseException e ) {}
+    }
+    return null;
   }
 
 
