@@ -548,6 +548,11 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
       System.setProperty( Loader.APP_HOME, System.getProperty( "user.dir" ) );
     }
 
+    // Make sure we have a work directory
+    if ( StringUtil.isBlank( System.getProperty( Job.APP_WORK ) ) ) {
+      System.setProperty( Job.APP_WORK, System.getProperty( Loader.APP_HOME ) + System.getProperty( "file.separator" )+"wrk" );
+    }
+
     // Use our name to setup a job directory
     String name = getName();
     if ( StringUtil.isNotBlank( name ) ) {
