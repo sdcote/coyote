@@ -34,6 +34,7 @@ public class DateType implements FieldType {
       "yyyy-MM-dd' 'HH:mm:ss.SSSX",
       "yyyy-MM-dd' 'HH:mm:ss.SSS",
       "yyyy-MM-dd' 'HH:mm:ss",
+      "yyyy-MM-dd HH:mm:ss.SSSX",
       "yyyy-MM-dd HH:mm:ss.SSS",
       "yyyy-MM-dd HH:mm:ss",
       "yyyy-MM-dd",

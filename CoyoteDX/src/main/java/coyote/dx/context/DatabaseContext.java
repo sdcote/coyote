@@ -15,6 +15,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.UUID;
 
@@ -334,7 +335,11 @@ public class DatabaseContext extends PersistentContext {
 
             try {
               PreparedStatement preparedStatement = conn.prepareStatement( sql );
-              preparedStatement.setString( 1, field.getStringValue() );
+              if ( field.getType() == DataField.DATE ) {
+                preparedStatement.setString( 1, new SimpleDateFormat( CDX.DEFAULT_DATETIME_FORMAT ).format( (Date)field.getObjectValue() ) );
+              } else {
+                preparedStatement.setString( 1, field.getStringValue() );
+              }
               preparedStatement.setInt( 2, field.getType() );
               preparedStatement.setString( 3, identity );
               preparedStatement.setTimestamp( 4, new java.sql.Timestamp( new Date().getTime() ) );
