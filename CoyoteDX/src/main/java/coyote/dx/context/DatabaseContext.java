@@ -126,6 +126,19 @@ public class DatabaseContext extends PersistentContext {
           database.setConfiguration( configuration );
           database.open( null );
           conn = database.getConnection();
+
+          try {
+            if ( !conn.isValid( 10 ) ) {
+              Log.fatal( "Database connection is not valid" );
+              setError( "Database connection is not valid" );
+              return;
+            }
+          } catch ( SQLException e ) {
+            Log.fatal( "Database connection is not valid" );
+            setError( "Database connection is not valid" );
+            return;
+          }
+
           determineIdentity();
           verifyTables();
           readfields( name );
@@ -181,7 +194,7 @@ public class DatabaseContext extends PersistentContext {
    * @param name the name of the context (i.e. job name) to query.
    */
   private void readfields( String name ) {
-    Log.debug( "Reading fields for context '" + name + "'" );
+    Log.debug( "Reading fields for context '" + name + "' on " + database.getProductName() );
     existingFields = DatabaseUtil.readAllRecords( conn, "select * from " + SCHEMA_NAME + "." + TABLE_NAME + " where Name = '" + name + "'" );
     for ( DataFrame frame : existingFields.getRows() ) {
       Log.debug( "Read in context variable:" + frame.toString() );
@@ -292,8 +305,6 @@ public class DatabaseContext extends PersistentContext {
         Log.warn( LogMsg.createMsg( CDX.MSG, "Context.run_date_reset", rundate ) );
       }
     }
-
-    //Log.debug( "Closing context:\n" + JSONMarshaler.toFormattedString( frame ) );
 
     upsertFields( conn, TABLE_NAME, frame );
 

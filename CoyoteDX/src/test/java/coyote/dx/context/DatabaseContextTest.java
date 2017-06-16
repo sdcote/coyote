@@ -93,7 +93,7 @@ public class DatabaseContextTest {
     long nextRunCount = (Long)obj;
     assertEquals( runcount + 1, nextRunCount );
 
-    // Replace the context with a new one
+    // Replace the context with a new one to test reading from database
     context = new DatabaseContext();
     context.setConfiguration( new Config( config ) );
     engine.setContext( context );
@@ -104,6 +104,39 @@ public class DatabaseContextTest {
     assertTrue( obj instanceof Long );
     long lastRunCount = (Long)obj;
     assertEquals( nextRunCount + 1, lastRunCount );
+  }
+
+
+  @Test
+  public void msqltests() {
+    String jobName = "ContextTest";
+    
+    DataFrame config = new DataFrame()
+        .set( "class", "DatabaseContext" )
+        .set( "target", "jdbc:sqlserver://coyote.database.windows.net:1433;database=coyotedx" )
+        .set( "autocreate", true )
+        .set( "library", "jar:file:src/resources/demojars/sqljdbc42.jar!/" )
+        .set( "driver", "com.microsoft.sqlserver.jdbc.SQLServerDriver" )
+        .set( "ENC:username", "Z3d0v5lmgvPZRCsUdG/B4FsyrmPUM1WsVrQY8szJIetIJE3TBbjmBQ==" )
+        .set( "ENC:password", "k0Vl7ZgH3Fb0xaR3tlZcWkQKlyFNmIGISCRN0wW45gU=" )
+        .set( "fields", new DataFrame()
+              .set( "SomeKey", "SomeValue" )
+              .set( "AnotherKey", "AnotherValue" ) 
+            );
+
+    TransformEngine engine = new DefaultTransformEngine();
+    engine.setName( jobName);
+    TransformContext context = new DatabaseContext();
+    context.setConfiguration( new Config( config ) );
+    engine.setContext( context );
+
+    turnOver( engine );
+
+    Object obj = context.get( Symbols.RUN_COUNT );
+    assertTrue( obj instanceof Long );
+    long runcount = (Long)obj;
+    assertTrue( runcount > 0 );
+
   }
 
 
@@ -123,29 +156,6 @@ public class DatabaseContextTest {
   }
 
 
-
-
-  @Ignore
-  public void contextWithoutLibraryAttribute() {
-    String jobName = "ContextTest";
-
-    DataFrame config = new DataFrame().set( "class", "DatabaseContext" ).set( "Target", "jdbc:h2:[#$jobdir#]/test;MODE=Oracle;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE" ).set( "autocreate", true ).set( "driver", "org.h2.Driver" ).set( "username", "sa" ).set( "password", "" ).set( "fields", new DataFrame().set( "SomeKey", "SomeValue" ).set( "AnotherKey", "AnotherValue" ) );
-
-    System.out.println( JSONMarshaler.toFormattedString( config ) );
-
-    TransformEngine engine = new DefaultTransformEngine();
-    engine.setName( jobName );
-    TransformContext context = new DatabaseContext();
-    context.setConfiguration( new Config( config ) );
-    engine.setContext( context );
-
-    turnOver( engine );
-
-    Object obj = context.get( Symbols.RUN_COUNT );
-    assertTrue( obj instanceof Long );
-    long runcount = (Long)obj;
-    assertTrue( runcount > 0 );
-  }
 
 
 }
