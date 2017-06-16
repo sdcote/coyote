@@ -807,11 +807,13 @@ public class DataField implements Cloneable {
     return type == ARRAY;
   }
 
-  
+
+
+
   public static Object parse( String text, short type ) {
     FieldType fieldType = DataField.getDataType( type );
     Object retval = fieldType.parse( text );
-    if( retval != null ){
+    if ( retval != null ) {
       return retval;
     }
     return text;

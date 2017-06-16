@@ -84,10 +84,19 @@ public class U32Type implements FieldType {
 
 
 
+  /**
+   * @see coyote.dataframe.FieldType#parse(java.lang.String)
+   */
   @Override
   public Object parse( String text ) {
-    // TODO Auto-generated method stub
-    return null;
+    Long retval = null;
+    try {
+      long num = Long.parseLong( text );
+      if ( num >= 0 && num <= 4294967295L ) {
+        retval = num;
+      }
+    } catch ( NumberFormatException ignore ) {}
+    return retval;
   }
 
 }

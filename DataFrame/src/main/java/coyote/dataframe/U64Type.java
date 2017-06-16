@@ -95,10 +95,19 @@ public class U64Type implements FieldType {
 
 
 
+  /**
+   * @see coyote.dataframe.FieldType#parse(java.lang.String)
+   */
   @Override
   public Object parse( String text ) {
-    // TODO Auto-generated method stub
-    return null;
+    BigInteger retval = null;
+    try {
+      BigInteger num = new BigInteger( text );
+      if ( num.doubleValue() >= 0 && num.doubleValue() <= 18446744073709551615D ) {
+        retval = num;
+      }
+    } catch ( NumberFormatException ignore ) {}
+    return retval;
   }
 
 }

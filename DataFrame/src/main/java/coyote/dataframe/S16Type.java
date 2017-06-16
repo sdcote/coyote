@@ -84,10 +84,15 @@ public class S16Type implements FieldType {
 
 
 
+  /**
+   * @see coyote.dataframe.FieldType#parse(java.lang.String)
+   */
   @Override
   public Object parse( String text ) {
-    // TODO Auto-generated method stub
-    return null;
+    Short retval = null;
+    try {
+      retval = Short.parseShort( text );
+    } catch ( NumberFormatException ignore ) {}
+    return retval;
   }
-
 }

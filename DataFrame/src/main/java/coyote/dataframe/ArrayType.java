@@ -16,7 +16,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
 
 import coyote.commons.ByteUtil;
 
@@ -193,7 +192,7 @@ public class ArrayType implements FieldType {
           Object oval = orray[x];
           if ( oval instanceof Boolean ) {
             b.append( Boolean.toString( (Boolean)oval ) );
-          }else if ( oval instanceof Number ) {
+          } else if ( oval instanceof Number ) {
             b.append( ( (Number)oval ).toString() );
           } else {
             b.append( "\"" );
@@ -218,9 +217,12 @@ public class ArrayType implements FieldType {
 
 
 
+  /**
+   * @see coyote.dataframe.FieldType#parse(java.lang.String)
+   */
   @Override
   public Object parse( String text ) {
-    // TODO Auto-generated method stub
+    System.err.println( "ArrayType.parse not implememted" );
     return null;
   }
 

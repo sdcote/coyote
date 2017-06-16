@@ -84,10 +84,21 @@ public class BooleanType implements FieldType {
 
 
 
+  /**
+   * @see coyote.dataframe.FieldType#parse(java.lang.String)
+   */
   @Override
   public Object parse( String text ) {
-    // TODO Auto-generated method stub
-    return null;
+    Boolean retval = null;
+    if ( text != null ) {
+      String str = text.toLowerCase();
+      if ( "true".equals( str ) || "1".equals( str ) || "yes".equals( str ) ) {
+        retval = true;
+      } else if ( "false".equals( str ) || "0".equals( str ) || "no".equals( str ) ) {
+        retval = false;
+      }
+    }
+    return retval;
   }
 
 }

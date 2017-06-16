@@ -81,9 +81,12 @@ public class ByteArrayType implements FieldType {
 
 
 
+  /**
+   * @see coyote.dataframe.FieldType#parse(java.lang.String)
+   */
   @Override
   public Object parse( String text ) {
-    // TODO Auto-generated method stub
+    System.err.println( "ByteArrayType.parse not implememted" );
     return null;
   }
 

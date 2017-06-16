@@ -1324,7 +1324,7 @@ public class DataFrame implements Cloneable {
   public String toString() {
     StringBuffer b = new StringBuffer();
     if ( fields.size() > 0 ) {
-      boolean isArray = (this.isEmpty() && this.isArrayBiased()) || this.isArray();
+      boolean isArray = ( this.isEmpty() && this.isArrayBiased() ) || this.isArray();
       if ( isArray )
         b.append( "[" );
       else

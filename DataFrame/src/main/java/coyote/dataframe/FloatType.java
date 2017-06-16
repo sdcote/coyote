@@ -84,10 +84,16 @@ public class FloatType implements FieldType {
 
 
 
+  /**
+   * @see coyote.dataframe.FieldType#parse(java.lang.String)
+   */
   @Override
   public Object parse( String text ) {
-    // TODO Auto-generated method stub
-    return null;
+    Float retval = null;
+    try {
+      retval = Float.parseFloat( text );
+    } catch ( NumberFormatException ignore ) {}
+    return retval;
   }
 
 }

@@ -88,10 +88,19 @@ public class U16Type implements FieldType {
 
 
 
+  /**
+   * @see coyote.dataframe.FieldType#parse(java.lang.String)
+   */
   @Override
   public Object parse( String text ) {
-    // TODO Auto-generated method stub
-    return null;
+    Integer retval = null;
+    try {
+      long num = Integer.parseInt( text );
+      if ( num >= 0 && num <= 65535 ) {
+        retval = (int)num;
+      }
+    } catch ( NumberFormatException ignore ) {}
+    return retval;
   }
 
 }

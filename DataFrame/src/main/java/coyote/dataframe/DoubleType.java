@@ -84,10 +84,16 @@ public class DoubleType implements FieldType {
 
 
 
+  /**
+   * @see coyote.dataframe.FieldType#parse(java.lang.String)
+   */
   @Override
   public Object parse( String text ) {
-    // TODO Auto-generated method stub
-    return null;
+    Double retval = null;
+    try {
+      retval = Double.parseDouble( text );
+    } catch ( NumberFormatException ignore ) {}
+    return retval;
   }
 
 }

@@ -86,10 +86,19 @@ public class U8Type implements FieldType {
 
 
 
+  /**
+   * @see coyote.dataframe.FieldType#parse(java.lang.String)
+   */
   @Override
   public Object parse( String text ) {
-    // TODO Auto-generated method stub
-    return null;
+    Short retval = null;
+    try {
+      short num = Short.parseShort( text );
+      if ( num >= 0 && num <= 255 ) {
+        retval = num;
+      }
+    } catch ( NumberFormatException ignore ) {}
+    return retval;
   }
 
 }

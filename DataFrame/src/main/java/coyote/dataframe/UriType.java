@@ -13,6 +13,7 @@ package coyote.dataframe;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
+import java.net.URISyntaxException;
 
 
 /**
@@ -134,10 +135,16 @@ public class UriType implements FieldType {
 
 
 
+  /**
+   * @see coyote.dataframe.FieldType#parse(java.lang.String)
+   */
   @Override
   public Object parse( String text ) {
-    // TODO Auto-generated method stub
-    return null;
+    URI retval = null;
+    try {
+      retval = new URI( text );
+    } catch ( URISyntaxException ignore ) {}
+    return retval;
   }
 
 }
