@@ -39,13 +39,7 @@ public class DatabaseContextTest {
   @BeforeClass
   public static void setUpBeforeClass() throws Exception {
     Log.addLogger( Log.DEFAULT_LOGGER_NAME, new ConsoleAppender( Log.TRACE_EVENTS | Log.DEBUG_EVENTS | Log.INFO_EVENTS | Log.WARN_EVENTS | Log.ERROR_EVENTS | Log.FATAL_EVENTS ) );
-    
-    // TODO: Insert test data
-    // INSERT INTO PUBLIC.CONTEXT (SYSID, NAME, "KEY", VALUE, "TYPE", CREATEDBY, CREATEDON, MODIFIEDBY, MODIFIEDON) VALUES('856c63f9-3d17-42d0-9de8-a74e2e4e9671', '', '', '', 0, '', '', '', '');
-    // INSERT INTO PUBLIC.CONTEXT (SYSID, NAME, "KEY", VALUE, "TYPE", CREATEDBY, CREATEDON, MODIFIEDBY, MODIFIEDON) VALUES('02178772-5166-4e78-91ca-d0c8a7733a4f', '', '', '', 0, '', '', '', '');
-    // INSERT INTO PUBLIC.CONTEXT (SYSID, NAME, "KEY", VALUE, "TYPE", CREATEDBY, CREATEDON, MODIFIEDBY, MODIFIEDON) VALUES('daf248e5-70d1-481c-836f-e5160e06964a', '', '', '', 0, '', '', '', '');
-    // INSERT INTO PUBLIC.CONTEXT (SYSID, NAME, "KEY", VALUE, "TYPE", CREATEDBY, CREATEDON, MODIFIEDBY, MODIFIEDON) VALUES('91d7cca4-9216-4b47-8fbe-92032f1b5064', '', '', '', 0, '', '', '', '');
-
+    //Log.addLogger( Log.DEFAULT_LOGGER_NAME, new ConsoleAppender( Log.INFO_EVENTS | Log.WARN_EVENTS | Log.ERROR_EVENTS | Log.FATAL_EVENTS ) );
   }
 
 
@@ -109,7 +103,7 @@ public class DatabaseContextTest {
     obj = context.get( Symbols.RUN_COUNT );
     assertTrue( obj instanceof Long );
     long lastRunCount = (Long)obj;
-    //assertEquals( nextRunCount + 1, lastRunCount );
+    assertEquals( nextRunCount + 1, lastRunCount );
   }
 
 
@@ -153,44 +147,5 @@ public class DatabaseContextTest {
     assertTrue( runcount > 0 );
   }
 
-
-
-
-  @Ignore
-  public void emptyContext() {
-
-  }
-
-
-
-
-  @Ignore
-  public void existingContext() {
-
-  }
-
-
-
-
-  @Ignore
-  public void differentTypes() {
-
-  }
-
-
-
-
-  @Ignore
-  public void runCount() {
-
-  }
-
-
-
-
-  @Ignore
-  public void lastRun() {
-
-  }
 
 }
