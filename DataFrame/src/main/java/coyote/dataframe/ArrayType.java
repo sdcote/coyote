@@ -222,7 +222,7 @@ public class ArrayType implements FieldType {
    */
   @Override
   public Object parse( String text ) {
-    System.err.println( "ArrayType.parse not implememted" );
+    // TODO: ArrayType.parse not implememted
     return null;
   }
 
