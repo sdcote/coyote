@@ -26,7 +26,6 @@ import coyote.commons.template.Template;
 import coyote.dataframe.DataField;
 import coyote.dataframe.DataFrame;
 import coyote.dataframe.FrameSet;
-import coyote.dataframe.marshal.JSONMarshaler;
 import coyote.dx.CDX;
 import coyote.dx.ConfigTag;
 import coyote.dx.Database;
@@ -111,8 +110,7 @@ public class DatabaseContext extends PersistentContext {
 
       String name = null;
 
-      // TODO: Optionally get database from context
-      // "database":"Oracle5" 
+      // TODO: Optionally get database from context e.g. "database":"Oracle5" 
 
       if ( getEngine() == null ) {
         Log.fatal( "Context is not connected to a transform engine!" );
@@ -220,7 +218,7 @@ public class DatabaseContext extends PersistentContext {
   private void createTables() {
 
     String sql = DatabaseDialect.getCreateSchema( database.getProductName(), SCHEMA_NAME, database.getUsername() );
-    System.out.println( "Creating table in database..." );
+    Log.debug( "Creating table in database..." );
     try (Statement stmt = conn.createStatement()) {
       stmt.executeUpdate( sql );
       Log.debug( "Schema created." );
@@ -242,9 +240,8 @@ public class DatabaseContext extends PersistentContext {
     tdef.addColumn( new ColumnDefinition( "ModifiedOn", ColumnType.DATE ) );
 
     sql = DatabaseDialect.getCreate( database.getProductName(), tdef );
-    System.out.println( sql );
 
-    System.out.println( "Creating table in database..." );
+    Log.debug( "Creating table in database..." );
     try (Statement stmt = conn.createStatement()) {
       stmt.executeUpdate( sql );
       Log.debug( "Table created." );
@@ -296,7 +293,7 @@ public class DatabaseContext extends PersistentContext {
       }
     }
 
-    Log.debug( "Closing context:\n" + JSONMarshaler.toFormattedString( frame ) );
+    //Log.debug( "Closing context:\n" + JSONMarshaler.toFormattedString( frame ) );
 
     upsertFields( conn, TABLE_NAME, frame );
 
@@ -331,7 +328,6 @@ public class DatabaseContext extends PersistentContext {
             sqlsymbols.put( DatabaseDialect.FIELD_MAP_SYM, "Value=?, Type=?, ModifiedBy=?, ModifiedOn=?" );
             sqlsymbols.put( DatabaseDialect.SYS_ID_SYM, sysIdField.getStringValue() );
             sql = DatabaseDialect.getSQL( database.getProductName(), DatabaseDialect.UPDATE, sqlsymbols );
-            System.out.println( sql );
 
             try {
               PreparedStatement preparedStatement = conn.prepareStatement( sql );
@@ -344,7 +340,6 @@ public class DatabaseContext extends PersistentContext {
               preparedStatement.setString( 3, identity );
               preparedStatement.setTimestamp( 4, new java.sql.Timestamp( new Date().getTime() ) );
               int rowsAffected = preparedStatement.executeUpdate();
-              System.out.println( "Updated " + rowsAffected + " rows" );
             } catch ( SQLException e ) {
               e.printStackTrace();
             }
@@ -367,7 +362,6 @@ public class DatabaseContext extends PersistentContext {
     sqlsymbols.put( DatabaseDialect.FIELD_NAMES_SYM, "SysId, Name, Key, Value, Type, CreatedBy, CreatedOn, ModifiedBy, ModifiedOn" );
     sqlsymbols.put( DatabaseDialect.FIELD_VALUES_SYM, "?, ?, ?, ?, ?, ?, ?, ?, ?" );
     String sql = DatabaseDialect.getSQL( database.getProductName(), DatabaseDialect.INSERT, sqlsymbols );
-    System.out.println( sql );
     try {
       PreparedStatement preparedStatement = conn.prepareStatement( sql );
       preparedStatement.setString( 1, UUID.randomUUID().toString() );
@@ -380,7 +374,6 @@ public class DatabaseContext extends PersistentContext {
       preparedStatement.setString( 8, identity );
       preparedStatement.setTimestamp( 9, new java.sql.Timestamp( new Date().getTime() ) );
       int rowsAffected = preparedStatement.executeUpdate();
-      System.out.println( "Inserted " + rowsAffected + " rows" );
     } catch ( SQLException e ) {
       // TODO Auto-generated catch block
       e.printStackTrace();
