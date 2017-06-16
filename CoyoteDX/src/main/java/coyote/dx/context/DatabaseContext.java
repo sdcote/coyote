@@ -187,12 +187,22 @@ public class DatabaseContext extends PersistentContext {
     for ( DataFrame frame : existingFields.getRows() ) {
       Log.debug( "Read in context variable:" + frame.toString() );
       DataField keyField = frame.getFieldIgnoreCase( "Key" );
-      DataField valueField = frame.getFieldIgnoreCase( "Value" );
-      DataField typeField = frame.getFieldIgnoreCase( "Type" );
-      // TODO:
-      DataField.parse( "this is a test", (short)3 );
-      
-      Log.debug( "Converting and placing field:\n"+keyField + "\n" + valueField + "\n" + typeField );
+      if ( keyField != null && StringUtil.isNotBlank( keyField.getStringValue() ) ) {
+        DataField valueField = frame.getFieldIgnoreCase( "Value" );
+        if ( valueField != null && valueField.isNotNull() ) {
+          DataField typeField = frame.getFieldIgnoreCase( "Type" );
+          if ( typeField != null && typeField.isNotNull() ) {
+            Object contextValue = DataField.parse( valueField.getStringValue(), (short)typeField.getObjectValue() );
+            if ( contextValue != null ) {
+              set( keyField.getStringValue(), contextValue );
+            } else {
+              set( keyField.getStringValue(), valueField.getStringValue() );
+            }
+          } else {
+            set( keyField.getStringValue(), valueField.getStringValue() );
+          }
+        }
+      }
     }
   }
 
