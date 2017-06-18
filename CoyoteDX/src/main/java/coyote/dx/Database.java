@@ -38,7 +38,6 @@ public class Database extends AbstractConfigurableComponent implements Configura
 
   private final List<Connection> connections = new ArrayList<Connection>();
   private Driver driver = null;
-  DatabaseMetaData meta = null;
 
 
 
@@ -218,14 +217,6 @@ public class Database extends AbstractConfigurableComponent implements Configura
   @Override
   public void open( TransformContext context ) {
     // This is not called by the framework as it is not a regular component
-    // It may, however, be called programmatically when used separately
-    if ( meta == null ) {
-      try (Connection connection = createConnection()) {
-        meta = connection.getMetaData();
-      } catch ( SQLException e ) {
-        getContext().setError( "Could not connect to database: " + e.getClass().getSimpleName() + " - " + e.getMessage() );
-      }
-    }
   }
 
 
@@ -256,18 +247,22 @@ public class Database extends AbstractConfigurableComponent implements Configura
    *
    * @return database product name
    */
-  public String getProductName() {
+  public String getProductName( Connection connection ) {
     String retval = null;
-    if ( meta == null ) {
-      open( null );
-    }
+    DatabaseMetaData meta = null;
     try {
-      retval = meta.getDatabaseProductName();
+      meta = connection.getMetaData();
+    } catch ( SQLException e ) {
+      getContext().setError( "Could not connect to database: " + e.getClass().getSimpleName() + " - " + e.getMessage() );
+    }
+
+    if ( meta != null ) {
+      try {
+        retval = meta.getDatabaseProductName();
+      } catch ( SQLException ignore ) {}
       if ( retval != null ) {
         return retval.toUpperCase();
       }
-    } catch ( SQLException e ) {
-      e.printStackTrace();
     }
     return retval;
   }
@@ -280,55 +275,28 @@ public class Database extends AbstractConfigurableComponent implements Configura
    *
    * @return database version number, null if problems occurred or not supported
    */
-  public String getProductVersion() {
-    if ( meta == null ) {
-      open( null );
-    }
+  public String getProductVersion(Connection connection) {
+    String retval = null;
+    DatabaseMetaData meta = null;
     try {
-      return meta.getDatabaseProductVersion();
+      meta = connection.getMetaData();
     } catch ( SQLException e ) {
-      e.printStackTrace();
+      getContext().setError( "Could not connect to database: " + e.getClass().getSimpleName() + " - " + e.getMessage() );
     }
-    return null;
+
+    if ( meta != null ) {
+      try {
+        retval = meta.getDatabaseProductVersion();
+      } catch ( SQLException ignore ) {}
+      if ( retval != null ) {
+        return retval.toUpperCase();
+      }
+    }
+    return retval;
   }
 
 
 
-
-  /**
-   * Retrieves the major version number of the underlying database.
-   *
-   * @return underlying database's major version, -1 if problems occurred
-   */
-  public int getMajorVersion() {
-    if ( meta == null ) {
-      open( null );
-    }
-    try {
-      return meta.getDatabaseMajorVersion();
-    } catch ( SQLException e ) {
-      e.printStackTrace();
-    }
-    return -1;
-  }
-
-
-
-
-  /**
-   * Retrieves the minor version number of the underlying database.
-   *
-   * @return underlying database's minor version, -1 if problems occurred
-   */
-  public int getMinorVersion() {
-    if ( meta == null ) {
-      open( null );
-    }
-    try {
-      return meta.getDatabaseMinorVersion();
-    } catch ( SQLException ignore ) {}
-    return -1;
-  }
 
 
 
@@ -338,11 +306,23 @@ public class Database extends AbstractConfigurableComponent implements Configura
    *
    * @return the database user name
    */
-  public String getConnectedUser() {
+  public String getConnectedUser(Connection connection) {
     String retval = null;
+    DatabaseMetaData meta = null;
     try {
-      retval = meta.getUserName();
-    } catch ( SQLException ignore ) {}
+      meta = connection.getMetaData();
+    } catch ( SQLException e ) {
+      getContext().setError( "Could not connect to database: " + e.getClass().getSimpleName() + " - " + e.getMessage() );
+    }
+
+    if ( meta != null ) {
+      try {
+        retval = meta.getDatabaseProductVersion();
+      } catch ( SQLException ignore ) {}
+      if ( retval != null ) {
+        return retval.toUpperCase();
+      }
+    }
     return retval;
   }
 
