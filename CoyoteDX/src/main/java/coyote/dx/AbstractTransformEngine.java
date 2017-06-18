@@ -453,7 +453,7 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
 
       } // transformContext ! err after pre-processing
 
-      Log.trace( "Engine '" + getName() + "' reads completed - Error=" + getContext().isInError() + " EOF=" + reader == null ? "NoReader" : reader.eof() + " Reads=" + getContext().getRow() );
+      Log.trace( "Engine '" + getName() + "' reads completed - Error=" + getContext().isInError() + " Reads=" + getContext().getRow() );
 
       if ( getContext().isInError() ) {
         reportTransformContextError( getContext() );
