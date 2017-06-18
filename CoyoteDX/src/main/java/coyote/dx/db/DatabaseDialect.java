@@ -62,6 +62,7 @@ public class DatabaseDialect {
   public static final String ORACLE = "Oracle";
   public static final String MYSQL = "MySQL";
   public static final String H2 = "H2";
+  public static final String MSQL = "MICROSOFT SQL SERVER";
 
   private static final String DEFAULT = "default";
 
@@ -151,6 +152,38 @@ public class DatabaseDialect {
     map.put( DEFAULT, "VARCHAR(#)" );
     map = new HashMap<String, String>();
     SYNTAX.put( H2, map );
+    map.put( CREATE, "CREATE TABLE [#$" + DB_SCHEMA_SYM + "#].[#$" + TABLE_NAME_SYM + "#] ( [#$" + FIELD_DEF_SYM + "#] )" );
+    map.put( GRANT, "" );
+    map.put( INSERT, "INSERT INTO [#$" + DB_SCHEMA_SYM + "#].[#$" + TABLE_NAME_SYM + "#] ([#$" + FIELD_NAMES_SYM + "#]) VALUES ([#$" + FIELD_VALUES_SYM + "#])" );
+    map.put( UPDATE, "UPDATE [#$" + DB_SCHEMA_SYM + "#].[#$" + TABLE_NAME_SYM + "#] SET [#$" + FIELD_MAP_SYM + "#] WHERE SYSID='[#$" + SYS_ID_SYM + "#]'" );
+    map.put( DELETE, "DELETE FROM [#$" + DB_SCHEMA_SYM + "#].[#$" + TABLE_NAME_SYM + "#] WHERE SYSID='[#$" + SYS_ID_SYM + "#]'" );
+    map.put( TRUNCATE, "TRUNCATE TABLE [#$" + DB_SCHEMA_SYM + "#].[#$" + TABLE_NAME_SYM + "#]" );
+    map.put( ALTER_COLUMN, "ALTER TABLE [#$" + DB_SCHEMA_SYM + "#].[#$" + TABLE_NAME_SYM + "#] ALTER COLUMN [#$columnName#] [#$columnType#]" );
+    map.put( UNIQUE, "IDENTITY" );
+    map.put( PRIMARY_KEY, "PRIMARY KEY" );
+    map.put( NULLABLE, "NULL" );
+    map.put( NOT_NULL, "NOT NULL" );
+    map.put( CREATE_SCHEMA, "CREATE SCHEMA IF NOT EXISTS [#$" + DB_SCHEMA_SYM + "#] AUTHORIZATION [#$" + USERNAME_SYM + "#]" );
+
+    // Microsoft SQL Server Dialect
+    map = new HashMap<String, String>();
+    TYPES.put( MSQL, map );
+    map.put( "STR", "VARCHAR(#)" );
+    map.put( "BOL", "BOOLEAN" );
+    map.put( "S8", "TINYINT" );
+    map.put( "U8", "TINYINT" );
+    map.put( "S16", "SMALLINT" );
+    map.put( "U16", "SMALLINT" );
+    map.put( "S32", "INTEGER" );
+    map.put( "U32", "INTEGER" );
+    map.put( "S64", "BIGINT" );
+    map.put( "U64", "BIGINT" );
+    map.put( "DBL", "DOUBLE" );
+    map.put( "DAT", "TIMESTAMP" );
+    map.put( "FLT", "REAL" );
+    map.put( DEFAULT, "VARCHAR(#)" );
+    map = new HashMap<String, String>();
+    SYNTAX.put( MSQL, map );
     map.put( CREATE, "CREATE TABLE [#$" + DB_SCHEMA_SYM + "#].[#$" + TABLE_NAME_SYM + "#] ( [#$" + FIELD_DEF_SYM + "#] )" );
     map.put( GRANT, "" );
     map.put( INSERT, "INSERT INTO [#$" + DB_SCHEMA_SYM + "#].[#$" + TABLE_NAME_SYM + "#] ([#$" + FIELD_NAMES_SYM + "#]) VALUES ([#$" + FIELD_VALUES_SYM + "#])" );
