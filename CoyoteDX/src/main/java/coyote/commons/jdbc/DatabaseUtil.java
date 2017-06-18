@@ -56,6 +56,7 @@ public class DatabaseUtil {
           String table = rs.getString( "TABLE_NAME" );
           if ( tablename.equalsIgnoreCase( table ) ) {
             retval = true;
+            break;
           }
         }
         return retval;
