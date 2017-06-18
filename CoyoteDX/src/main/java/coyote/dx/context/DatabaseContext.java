@@ -77,14 +77,18 @@ public class DatabaseContext extends PersistentContext {
   /** Component we use to handle connection creation */
   private Database database = null;
 
-  /** The connection to the database */
-  Connection conn = null;
-
   /** Our identity to record in the context on inserts and update operations */
   String identity = null;
 
   /** The list of existing fields in the database for this job */
   FrameSet existingFields = null;
+
+
+
+
+  public String getIdentity() {
+    return configuration.getString( ConfigTag.IDENTIDY );
+  }
 
 
 
@@ -125,10 +129,10 @@ public class DatabaseContext extends PersistentContext {
         try {
           database.setConfiguration( configuration );
           database.open( null );
-          conn = database.getConnection();
+          connection = database.getConnection();
 
           try {
-            if ( !conn.isValid( 10 ) ) {
+            if ( !connection.isValid( 10 ) ) {
               Log.fatal( "Database connection is not valid" );
               setError( "Database connection is not valid" );
               return;
@@ -174,11 +178,12 @@ public class DatabaseContext extends PersistentContext {
    * identity of insert and update or records can be recorded. 
    */
   private void determineIdentity() {
+    identity = getIdentity();
     if ( identity == null ) {
       if ( StringUtil.isNotBlank( database.getUsername() ) ) {
         identity = database.getUsername();
-      } else if ( StringUtil.isNotBlank( database.getConnectedUser() ) ) {
-        identity = database.getConnectedUser();
+      } else if ( StringUtil.isNotBlank( database.getConnectedUser( connection ) ) ) {
+        identity = database.getConnectedUser( connection );
       } else {
         identity = this.getClass().getSimpleName();
       }
@@ -194,11 +199,11 @@ public class DatabaseContext extends PersistentContext {
    * @param name the name of the context (i.e. job name) to query.
    */
   private void readfields( String name ) {
-    Log.debug( "Reading fields for context '" + name + "' on " + database.getProductName() );
-    existingFields = DatabaseUtil.readAllRecords( conn, "select * from " + SCHEMA_NAME + "." + TABLE_NAME + " where Name = '" + name + "'" );
+    Log.debug( "Reading fields for context '" + name + "' on " + database.getProductName( connection ) );
+    existingFields = DatabaseUtil.readAllRecords( connection, "select * from " + SCHEMA_NAME + "." + TABLE_NAME + " where Job = '" + name + "'" );
     for ( DataFrame frame : existingFields.getRows() ) {
       Log.debug( "Read in context variable:" + frame.toString() );
-      DataField keyField = frame.getFieldIgnoreCase( "Key" );
+      DataField keyField = frame.getFieldIgnoreCase( "Name" );
       if ( keyField != null && StringUtil.isNotBlank( keyField.getStringValue() ) ) {
         DataField valueField = frame.getFieldIgnoreCase( "Value" );
         if ( valueField != null && valueField.isNotNull() ) {
@@ -230,9 +235,9 @@ public class DatabaseContext extends PersistentContext {
    */
   private void createTables() {
 
-    String sql = DatabaseDialect.getCreateSchema( database.getProductName(), SCHEMA_NAME, database.getUsername() );
+    String sql = DatabaseDialect.getCreateSchema( database.getProductName( connection ), SCHEMA_NAME, database.getUsername() );
     Log.debug( "Creating table in database..." );
-    try (Statement stmt = conn.createStatement()) {
+    try (Statement stmt = connection.createStatement()) {
       stmt.executeUpdate( sql );
       Log.debug( "Schema created." );
     } catch ( SQLException e ) {
@@ -243,8 +248,8 @@ public class DatabaseContext extends PersistentContext {
     TableDefinition tdef = new TableDefinition( TABLE_NAME );
     tdef.setSchemaName( SCHEMA_NAME );
     tdef.addColumn( new ColumnDefinition( "SysId", ColumnType.STRING ).setLength( 36 ).setPrimaryKey( true ) );
+    tdef.addColumn( new ColumnDefinition( "Job", ColumnType.STRING ).setLength( 64 ) );
     tdef.addColumn( new ColumnDefinition( "Name", ColumnType.STRING ).setLength( 64 ) );
-    tdef.addColumn( new ColumnDefinition( "Key", ColumnType.STRING ).setLength( 64 ) );
     tdef.addColumn( new ColumnDefinition( "Value", ColumnType.STRING ).setLength( 255 ).setNullable( true ) );
     tdef.addColumn( new ColumnDefinition( "Type", ColumnType.SHORT ).setNullable( true ) );
     tdef.addColumn( new ColumnDefinition( "CreatedBy", ColumnType.STRING ).setLength( 32 ) );
@@ -252,10 +257,10 @@ public class DatabaseContext extends PersistentContext {
     tdef.addColumn( new ColumnDefinition( "ModifiedBy", ColumnType.STRING ).setLength( 32 ) );
     tdef.addColumn( new ColumnDefinition( "ModifiedOn", ColumnType.DATE ) );
 
-    sql = DatabaseDialect.getCreate( database.getProductName(), tdef );
+    sql = DatabaseDialect.getCreate( database.getProductName( connection ), tdef );
 
     Log.debug( "Creating table in database..." );
-    try (Statement stmt = conn.createStatement()) {
+    try (Statement stmt = connection.createStatement()) {
       stmt.executeUpdate( sql );
       Log.debug( "Table created." );
     } catch ( SQLException e ) {
@@ -271,7 +276,7 @@ public class DatabaseContext extends PersistentContext {
    * Make sure the tables exist.
    */
   private void verifyTables() {
-    if ( !DatabaseUtil.tableExists( conn, TABLE_NAME ) ) {
+    if ( !DatabaseUtil.tableExists( connection, TABLE_NAME ) ) {
       if ( isAutoCreate() ) {
         createTables();
       }
@@ -306,7 +311,7 @@ public class DatabaseContext extends PersistentContext {
       }
     }
 
-    upsertFields( conn, TABLE_NAME, frame );
+    upsertFields( connection, TABLE_NAME, frame );
 
     super.close();
   }
@@ -323,7 +328,7 @@ public class DatabaseContext extends PersistentContext {
     String sql = null;
 
     for ( DataField field : frame.getFields() ) {
-      DataFrame existingFrame = existingFields.getFrameByColumnValue( "Key", field.getName() );
+      DataFrame existingFrame = existingFields.getFrameByColumnValue( "Name", field.getName() );
       if ( existingFrame != null ) {
         DataField sysIdField = existingFrame.getFieldIgnoreCase( "SysId" );
         if ( sysIdField != null ) {
@@ -338,22 +343,27 @@ public class DatabaseContext extends PersistentContext {
 
             sqlsymbols.put( DatabaseDialect.FIELD_MAP_SYM, "Value=?, Type=?, ModifiedBy=?, ModifiedOn=?" );
             sqlsymbols.put( DatabaseDialect.SYS_ID_SYM, sysIdField.getStringValue() );
-            sql = DatabaseDialect.getSQL( database.getProductName(), DatabaseDialect.UPDATE, sqlsymbols );
+            sql = DatabaseDialect.getSQL( database.getProductName( connection ), DatabaseDialect.UPDATE, sqlsymbols );
 
-            try {
-              PreparedStatement preparedStatement = conn.prepareStatement( sql );
-              if ( field.getType() == DataField.DATE ) {
-                preparedStatement.setString( 1, new SimpleDateFormat( CDX.DEFAULT_DATETIME_FORMAT ).format( (Date)field.getObjectValue() ) );
-              } else {
-                preparedStatement.setString( 1, field.getStringValue() );
+            if ( sql != null ) {
+              try {
+                PreparedStatement preparedStatement = conn.prepareStatement( sql );
+                if ( field.getType() == DataField.DATE ) {
+                  preparedStatement.setString( 1, new SimpleDateFormat( CDX.DEFAULT_DATETIME_FORMAT ).format( (Date)field.getObjectValue() ) );
+                } else {
+                  preparedStatement.setString( 1, field.getStringValue() );
+                }
+                preparedStatement.setInt( 2, field.getType() );
+                preparedStatement.setString( 3, identity );
+                preparedStatement.setTimestamp( 4, new java.sql.Timestamp( new Date().getTime() ) );
+                int rowsAffected = preparedStatement.executeUpdate();
+              } catch ( SQLException e ) {
+                e.printStackTrace();
               }
-              preparedStatement.setInt( 2, field.getType() );
-              preparedStatement.setString( 3, identity );
-              preparedStatement.setTimestamp( 4, new java.sql.Timestamp( new Date().getTime() ) );
-              int rowsAffected = preparedStatement.executeUpdate();
-            } catch ( SQLException e ) {
-              e.printStackTrace();
+            } else {
+              Log.error( "Cannot support " + database.getProductName( connection ) + " database product" );
             }
+
           }
         } else {
           Log.error( "Existing field does not contain a sysid: " + existingFrame.toString() );
@@ -370,24 +380,28 @@ public class DatabaseContext extends PersistentContext {
 
   @SuppressWarnings("unchecked")
   private void insertField( DataField field, SymbolTable sqlsymbols ) {
-    sqlsymbols.put( DatabaseDialect.FIELD_NAMES_SYM, "SysId, Name, Key, Value, Type, CreatedBy, CreatedOn, ModifiedBy, ModifiedOn" );
+    sqlsymbols.put( DatabaseDialect.FIELD_NAMES_SYM, "SysId, Job, Name, Value, Type, CreatedBy, CreatedOn, ModifiedBy, ModifiedOn" );
     sqlsymbols.put( DatabaseDialect.FIELD_VALUES_SYM, "?, ?, ?, ?, ?, ?, ?, ?, ?" );
-    String sql = DatabaseDialect.getSQL( database.getProductName(), DatabaseDialect.INSERT, sqlsymbols );
-    try {
-      PreparedStatement preparedStatement = conn.prepareStatement( sql );
-      preparedStatement.setString( 1, UUID.randomUUID().toString() );
-      preparedStatement.setString( 2, getEngine().getName() );
-      preparedStatement.setString( 3, field.getName() );
-      preparedStatement.setString( 4, field.getStringValue() );
-      preparedStatement.setInt( 5, field.getType() );
-      preparedStatement.setString( 6, identity );
-      preparedStatement.setTimestamp( 7, new java.sql.Timestamp( new Date().getTime() ) );
-      preparedStatement.setString( 8, identity );
-      preparedStatement.setTimestamp( 9, new java.sql.Timestamp( new Date().getTime() ) );
-      int rowsAffected = preparedStatement.executeUpdate();
-    } catch ( SQLException e ) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
+    String sql = DatabaseDialect.getSQL( database.getProductName( connection ), DatabaseDialect.INSERT, sqlsymbols );
+    if ( sql != null ) {
+      try {
+        PreparedStatement preparedStatement = connection.prepareStatement( sql );
+        preparedStatement.setString( 1, UUID.randomUUID().toString() );
+        preparedStatement.setString( 2, getEngine().getName() );
+        preparedStatement.setString( 3, field.getName() );
+        preparedStatement.setString( 4, field.getStringValue() );
+        preparedStatement.setInt( 5, field.getType() );
+        preparedStatement.setString( 6, identity );
+        preparedStatement.setTimestamp( 7, new java.sql.Timestamp( new Date().getTime() ) );
+        preparedStatement.setString( 8, identity );
+        preparedStatement.setTimestamp( 9, new java.sql.Timestamp( new Date().getTime() ) );
+        int rowsAffected = preparedStatement.executeUpdate();
+      } catch ( SQLException e ) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+      }
+    } else {
+      Log.error( "Cannot support " + database.getProductName( connection ) + " database product" );
     }
   }
 
