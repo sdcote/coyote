@@ -49,6 +49,7 @@ public class ConfigTag {
   public static final String PATH = "path";
   public static final String TRIM = "trim";
   public static final String TYPE = "type";
+  public static final String IDENTIDY = "identity";
   /** User name ({@value}) configuration attribute. */
   public static final String USERNAME = "username";
   public static final String ENCRYPTED_USERNAME = "encrypted_username";
