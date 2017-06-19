@@ -128,4 +128,24 @@ public class ConfigTest {
     assertNotNull( cfg.getString( "Port", true ) );
   }
 
+
+
+
+  @Test
+  public void copyTest() {
+    Config cfg = new Config();
+    cfg.set( "port", "123" );
+    assertNotNull( cfg.getString( "port" ) );
+    assertEquals( cfg.getString( "port" ), "123" );
+
+    Config copy = cfg.copy();
+    assertNotNull( copy.getString( "port" ) );
+    assertEquals( "123", copy.getString( "port" ) );
+    copy.put( "port", "456" );
+    
+    assertEquals( "456",copy.getString( "port" ) );
+    assertEquals( "123", cfg.getString( "port" ) );
+
+  }
+
 }
