@@ -7,6 +7,7 @@ import static org.junit.Assert.assertNotNull;
 import java.io.File;
 
 import org.junit.AfterClass;
+import org.junit.Test;
 
 import coyote.commons.FileUtil;
 
@@ -29,6 +30,7 @@ public class ZipArchiveTest {
    *
    * @throws Exception
    */
+  @Test
   public void testExtractTo() throws Exception {
     File tstJar = new File( "test.zip" );
 
@@ -55,6 +57,7 @@ public class ZipArchiveTest {
    *
    * @throws Exception
    */
+  @Test
   public void testCreateZip() throws Exception {
     File tstJar = new File( "test.zip" );
     ZipArchive archive = new ZipArchive( tstJar );
@@ -94,6 +97,7 @@ public class ZipArchiveTest {
    *
    * @throws Exception
    */
+  @Test
   public void testAddFilesToExistingArchive() throws Exception {
 
     File tstFile = new File( "test.zip" );

@@ -40,6 +40,7 @@ logback.xml
 wrk/
 /log
 *.db
+test.zip
 
 # Package Files #
 #################
@@ -56,3 +57,4 @@ wrk/
 !**/dist/bin
 
 CoyoteInstaller.jar
+
