@@ -654,4 +654,14 @@ public class Config extends DataFrame implements Cloneable, Serializable {
     return JSONMarshaler.toFormattedString( this );
   }
 
+
+
+
+  /**
+   * @return a deep copy of this configuration object
+   */
+  public Config copy() {
+    return new Config( (DataFrame)super.clone() );
+  }
+
 }
