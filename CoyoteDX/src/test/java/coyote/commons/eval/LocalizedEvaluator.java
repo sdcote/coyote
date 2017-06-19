@@ -11,7 +11,7 @@ import java.util.Locale;
  * <p>As a French, I prefer "moyenne" to "avg" and "somme" to "sum".</p>
  * 
  * <p>As the default argument function (',') is used as decimal separator in 
- * France, ti may also be changed to ';'.</p>
+ * France, it may also be changed to ';'.</p>
  */
 public class LocalizedEvaluator extends DoubleEvaluator {
 
