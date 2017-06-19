@@ -536,4 +536,24 @@ public abstract class OperationalContext {
     this.currentFrame = row;
   }
 
+
+
+
+  /**
+   * Merge the properties in the given source context into this one, over-
+   * writing any existing properties with the same key.
+   * 
+   * @param source context from which the data is to be read.
+   */
+  public void merge( OperationalContext source ) {
+    if ( source != null ) {
+      for ( String key : source.properties.keySet() ) {
+        Object value = source.properties.get( key );
+        if ( value != null ) {
+          properties.put( key, value );
+        }
+      }
+    }
+  }
+
 }
