@@ -19,6 +19,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.UUID;
 
+import coyote.commons.ExceptionUtil;
 import coyote.commons.StringUtil;
 import coyote.commons.jdbc.DatabaseUtil;
 import coyote.commons.template.SymbolTable;
@@ -154,18 +155,19 @@ public class DatabaseContext extends PersistentContext {
 
         // Any fields defined in the configuration override values in the data store
         Config section = configuration.getSection( ConfigTag.FIELDS );
-        for ( DataField field : section.getFields() ) {
-          if ( !field.isFrame() ) {
-            if ( StringUtil.isNotBlank( field.getName() ) && !field.isNull() ) {
-              String token = field.getStringValue();
-              String value = Template.resolve( token, engine.getSymbolTable() );
-              engine.getSymbolTable().put( field.getName(), value );
-              set( field.getName(), value );
+        if ( section != null ) {
+          for ( DataField field : section.getFields() ) {
+            if ( !field.isFrame() ) {
+              if ( StringUtil.isNotBlank( field.getName() ) && !field.isNull() ) {
+                String token = field.getStringValue();
+                String value = Template.resolve( token, engine.getSymbolTable() );
+                engine.getSymbolTable().put( field.getName(), value );
+                set( field.getName(), value );
+              }
             }
           }
         }
-
-      } // has a name
+      } 
     }
 
   }
@@ -358,7 +360,7 @@ public class DatabaseContext extends PersistentContext {
                 preparedStatement.setTimestamp( 4, new java.sql.Timestamp( new Date().getTime() ) );
                 int rowsAffected = preparedStatement.executeUpdate();
               } catch ( SQLException e ) {
-                e.printStackTrace();
+                Log.fatal( ExceptionUtil.toString( e ) );
               }
             } else {
               Log.error( "Cannot support " + database.getProductName( connection ) + " database product" );
@@ -397,8 +399,7 @@ public class DatabaseContext extends PersistentContext {
         preparedStatement.setTimestamp( 9, new java.sql.Timestamp( new Date().getTime() ) );
         int rowsAffected = preparedStatement.executeUpdate();
       } catch ( SQLException e ) {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
+        Log.fatal( ExceptionUtil.toString( e ) );
       }
     } else {
       Log.error( "Cannot support " + database.getProductName( connection ) + " database product" );
