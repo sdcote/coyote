@@ -234,6 +234,7 @@ public class DatabaseUtil {
         }
       }
     }
+    Log.trace( "Returning table definition of: "+retval );
     return retval;
   }
 
