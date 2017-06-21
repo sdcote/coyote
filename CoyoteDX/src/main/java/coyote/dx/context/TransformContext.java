@@ -256,7 +256,7 @@ public class TransformContext extends OperationalContext {
 
 
 
-  public DataFrame getConfiguration() {
+  public Config getConfiguration() {
     return configuration;
   }
 
