@@ -12,11 +12,13 @@
 package coyote.dx;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.List;
 
+import coyote.commons.FileUtil;
 import coyote.commons.SystemPropertyUtil;
 import coyote.dataframe.DataFrame;
 import coyote.dataframe.marshal.JSONMarshaler;
@@ -102,6 +104,34 @@ public class AbstractTest {
 
     // return the configured engine
     return engine;
+  }
+
+
+
+
+  protected static void deleteWorkDirectory( File dir ) {
+    FileUtil.deleteDirectory( dir );
+  }
+
+
+
+
+  protected static void makeWorkDirectory( File dir ) throws Exception {
+    if ( dir != null && dir.isDirectory() && !dir.exists() ) {
+      FileUtil.makeDirectory( dir );
+    }
+  }
+
+
+
+
+  protected static void resetDirectory( File testDir ) {
+    try {
+      deleteWorkDirectory( testDir );
+      if ( !testDir.exists() ) {
+        makeWorkDirectory( testDir );
+      }
+    } catch ( Exception ignore ) {}
   }
 
 }

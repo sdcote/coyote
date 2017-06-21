@@ -70,30 +70,7 @@ public class CopyTaskTest extends AbstractTest {
 
 
 
-  private static void deleteWorkDirectory( File dir ) {
-    FileUtil.deleteDirectory( dir );
-  }
 
-
-
-
-  private static void makeWorkDirectory( File dir ) throws Exception {
-    if ( dir != null && dir.isDirectory() && !dir.exists() ) {
-      FileUtil.makeDirectory( dir );
-    }
-  }
-
-
-
-
-  private static void resetTestDirectory() {
-    try {
-      deleteWorkDirectory( testDir );
-      if ( !testDir.exists() ) {
-        makeWorkDirectory( testDir );
-      }
-    } catch ( Exception ignore ) {}
-  }
 
 
 
@@ -104,7 +81,7 @@ public class CopyTaskTest extends AbstractTest {
    */
   @Test
   public void testRecursePreserve() {
-    resetTestDirectory();
+    resetDirectory(testDir);
 
     Config cfg = new Config();
     cfg.put( ConfigTag.FROMDIR, new File( FileUtil.getCurrentWorkingDirectory(), "src" ).getAbsolutePath() );
@@ -160,7 +137,7 @@ public class CopyTaskTest extends AbstractTest {
    */
   @Test
   public void testDirectoryOverwrite() {
-    resetTestDirectory();
+    resetDirectory(testDir);
 
     Config cfg = new Config();
     cfg.put( ConfigTag.FROMDIR, new File( FileUtil.getCurrentWorkingDirectory(), "src" ).getAbsolutePath() );
