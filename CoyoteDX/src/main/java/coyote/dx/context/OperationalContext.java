@@ -61,6 +61,8 @@ public abstract class OperationalContext {
 
 
   /**
+   * Set the given symbol table in this context.
+   * 
    * @param symbols the symbols to set in this context
    */
   public void setSymbols( SymbolTable symbols ) {
