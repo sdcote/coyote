@@ -113,7 +113,7 @@ xsi:schemaLocation="http://izpack.org/schema/installation http://izpack.org/sche
 			<description>A collection of configuration files, demonstrating several components, configuration options and integration scenarios.</description>
 			<fileset dir="CoyoteDX\src\resources\demo" targetdir="$INSTALL_PATH/demo" override="true"/>
 		</pack>		
-		<pack name="Daemon" required="no" preselected="no" >
+		<pack name="Daemon" required="no" preselected="yes" >
 			<description>Ability to run CoyoteDX components in the background on *NIX systems.</description>
 			<fileset dir="daemon\src\dist\bin" targetdir="$INSTALL_PATH/bin" override="true"/>
 			<fileset dir="daemon\src\dist\cfg" targetdir="$INSTALL_PATH/cfg" override="false"/>
@@ -128,7 +128,7 @@ xsi:schemaLocation="http://izpack.org/schema/installation http://izpack.org/sche
 			<fileset dir="daemon\build\install\daemon\lib" targetdir="$INSTALL_PATH/lib" includes="ServiceDemo*.jar" override="true"/>
 			<fileset dir="daemon\src\resources\demo" targetdir="$INSTALL_PATH/demo" override="true"/>
 		</pack>
-		<pack name="CoyoteFT" required="no" preselected="no" >
+		<pack name="CoyoteFT" required="no" preselected="yes" >
 			<description>Installs the Coyote File Transfer toolkit.</description>
 			<fileset dir="CoyoteFT\build\install\CoyoteFT\doc" targetdir="$INSTALL_PATH/doc" override="true"/>
 			<fileset dir="CoyoteFT\src\resources\licenses" targetdir="$INSTALL_PATH/doc/licenses" override="true"/>
@@ -145,7 +145,7 @@ xsi:schemaLocation="http://izpack.org/schema/installation http://izpack.org/sche
 			<description>A collection of configuration files demonstrating how to use the file transfer tools.</description>
 			<fileset dir="CoyoteFT\src\resources\demo" targetdir="$INSTALL_PATH/demo" override="true"/>
 		</pack>		
-		<pack name="CoyoteWS" required="no" preselected="no" >
+		<pack name="CoyoteWS" required="no" preselected="yes" >
 			<description>Installs the Coyote Web Service toolkit.</description>
 			<fileset dir="CoyoteWS\build\install\CoyoteWS\doc" targetdir="$INSTALL_PATH/doc" override="true"/>
 			<fileset dir="CoyoteWS\src\resources\licenses" targetdir="$INSTALL_PATH/doc/licenses" override="true"/>
@@ -170,8 +170,8 @@ xsi:schemaLocation="http://izpack.org/schema/installation http://izpack.org/sche
 			<fileset dir="CoyoteSLF4J\build\install\CoyoteSLF4J\lib" targetdir="$INSTALL_PATH/lib" includes="slf4j*.jar" override="true"/>
 			<fileset dir="CoyoteSLF4J\src\resources\licenses" targetdir="$INSTALL_PATH/doc/licenses" override="true"/>
 		</pack>		
-		<pack name="CoyoteMQ" required="no" preselected="no" >
-			<description>Installs the Coyote Message Queue toolkit.</description>
+		<pack name="CoyoteMQ" required="no" preselected="yes" >
+			<description>Installs the Coyote Message Queue toolkit for AMQP messaging.</description>
 			<fileset dir="CoyoteMQ\build\install\CoyoteMQ\doc" targetdir="$INSTALL_PATH/doc" override="true"/>
 			<fileset dir="CoyoteMQ\src\resources\licenses" targetdir="$INSTALL_PATH/doc/licenses" override="true"/>
 			<fileset dir="CoyoteMQ\build\install\CoyoteMQ\lib" targetdir="$INSTALL_PATH/lib" includes="CoyoteMQ*.jar" override="true"/>
