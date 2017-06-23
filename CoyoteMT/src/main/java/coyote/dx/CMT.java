@@ -9,7 +9,7 @@
  *   Stephan D. Cote 
  *      - Initial concept and implementation
  */
-package coyote.batch;
+package coyote.dx;
 
 import coyote.commons.Version;
 import coyote.loader.log.LogMsg.BundleBaseName;
@@ -18,7 +18,7 @@ import coyote.loader.log.LogMsg.BundleBaseName;
 /**
  * Batch Mail Tools fixture
  */
-public class BatchMT {
+public class CMT {
   public static final Version VERSION = new Version( 0, 0, 1, Version.EXPERIMENTAL );
   public static final String NAME = "BatchMT";
 

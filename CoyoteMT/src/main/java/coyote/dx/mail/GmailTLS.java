@@ -9,7 +9,7 @@
  *   Stephan D. Cote 
  *      - Initial concept and implementation
  */
-package coyote.batch.mail;
+package coyote.dx.mail;
 
 /**
  * Sends mail through Gmail using SSL/TLS.

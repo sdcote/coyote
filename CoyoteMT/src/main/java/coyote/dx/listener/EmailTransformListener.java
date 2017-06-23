@@ -9,11 +9,13 @@
  *   Stephan D. Cote 
  *      - Initial concept and implementation
  */
-package coyote.batch.listener;
+package coyote.dx.listener;
 
-import coyote.batch.ContextListener;
-import coyote.batch.OperationalContext;
-import coyote.batch.TransformContext;
+import coyote.dx.context.ContextListener;
+import coyote.dx.context.OperationalContext;
+import coyote.dx.context.TransformContext;
+import coyote.dx.listener.AbstractListener;
+
 
 /**
  * This sends email when the transform completes.
@@ -22,19 +24,18 @@ import coyote.batch.TransformContext;
  * also times when people want to be notified when a particular job runs and 
  * its output is ready to be viewed or processed. This listener supports both. 
  */
-public class EmailTransformListener  extends AbstractListener implements ContextListener {
+public class EmailTransformListener extends AbstractListener implements ContextListener {
 
   /**
-   * @see coyote.batch.listener.AbstractListener#onEnd(coyote.batch.OperationalContext)
+   * @see coyote.dx.listener.AbstractListener#onEnd(coyote.dx.context.OperationalContext)
    */
   @Override
   public void onEnd( OperationalContext context ) {
 
     if ( context instanceof TransformContext ) {
       //
-      
+
     }
   }
-  
 
 }
