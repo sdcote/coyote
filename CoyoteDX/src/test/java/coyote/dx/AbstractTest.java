@@ -117,7 +117,7 @@ public class AbstractTest {
 
 
   protected static void makeWorkDirectory( File dir ) throws Exception {
-    if ( dir != null && dir.isDirectory() && !dir.exists() ) {
+    if ( dir != null && !dir.exists() ) {
       FileUtil.makeDirectory( dir );
     }
   }

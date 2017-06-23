@@ -11,8 +11,15 @@
  */
 package coyote.dx.task;
 
+import java.io.File;
+import java.io.IOException;
+
+import coyote.commons.StringUtil;
+import coyote.commons.ZipUtil;
 import coyote.dx.ConfigTag;
 import coyote.dx.TaskException;
+import coyote.loader.log.Log;
+
 
 /**
  * This task generates a compressed archive of a file or directory.
@@ -34,12 +41,8 @@ import coyote.dx.TaskException;
  * 
  */
 public class Archive extends AbstractFileTask {
-  
-  public String getDirectory() { return configuration.getAsString( ConfigTag.DIRECTORY ); }
-  public void setDirectory( String value ) { configuration.set( ConfigTag.DIRECTORY, value ); }
 
-  public String getTarget() { return configuration.getAsString( ConfigTag.TARGET ); }
-  public void setTarget( String value ) { configuration.set( ConfigTag.TARGET, value ); }
+  private static final String SUFFIX = ".zip";
 
 
 
@@ -50,6 +53,34 @@ public class Archive extends AbstractFileTask {
   @Override
   public void execute() throws TaskException {
 
-  }
+    final String source = getString( ConfigTag.SOURCE );
+    final String target = getString( ConfigTag.TARGET );
 
+    final String pattern = getString( ConfigTag.PATTERN );
+    boolean overwrite = getBoolean( ConfigTag.OVERWRITE );
+
+    if ( StringUtil.isNotBlank( source ) ) {
+      File sourceFile = new File( source );
+      if ( sourceFile.exists() ) {
+        File targetFile;
+
+        if ( StringUtil.isNotBlank( target ) ) {
+          targetFile = new File( target );
+        } else {
+          targetFile = new File( sourceFile.getAbsolutePath() + SUFFIX );
+        }
+
+        Log.debug( "Archiving " + sourceFile.getAbsolutePath() + " to " + targetFile.getAbsolutePath() );
+        try {
+          ZipUtil.zip( sourceFile, targetFile );
+        } catch ( IOException e ) {
+          throw new TaskException( "Could not archive file: "+e.getMessage(), e );
+        }
+      } else {
+        throw new TaskException( "Source does not exist: " + sourceFile.getAbsolutePath() );
+      }
+    } else {
+      throw new TaskException( "No soure specified" );
+    }
+  }
 }

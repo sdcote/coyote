@@ -11,6 +11,7 @@
  */
 package coyote.dx.task;
 
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.File;
@@ -68,12 +69,11 @@ public class ArchiveTaskTest extends AbstractTest {
   @Test
   public void archiveDirectory() {
     resetDirectory( testDir );
-
-    // TODO: Setup directory
+    File target = new File( FileUtil.getCurrentWorkingDirectory(), "jobwrkdir.zip" );
 
     Config cfg = new Config();
-    cfg.put( ConfigTag.DIRECTORY, testDir.getAbsolutePath() );
-    cfg.put( ConfigTag.TARGET, new File( FileUtil.getCurrentWorkingDirectory(), "jobwrkdir.zip" ).getAbsolutePath() );
+    cfg.put( ConfigTag.SOURCE, testDir.getAbsolutePath() );
+    cfg.put( ConfigTag.TARGET, target.getAbsolutePath() );
     System.out.println( cfg );
 
     try (Archive task = new Archive()) {
@@ -81,11 +81,39 @@ public class ArchiveTaskTest extends AbstractTest {
       task.open( context );
       task.execute();
     } catch ( ConfigurationException | TaskException | IOException e ) {
+      e.printStackTrace();
       fail( e.getMessage() );
     }
 
-    // TODO: Test for endstate
-    // TODO: delete archive
+    assertTrue( target.exists() );
+
+    target.delete();
+  }
+
+
+
+
+  @Test
+  public void archiveDirectoryNoTarget() {
+    resetDirectory( testDir );
+
+    Config cfg = new Config();
+    cfg.put( ConfigTag.SOURCE, testDir.getAbsolutePath() );
+    System.out.println( cfg );
+
+    try (Archive task = new Archive()) {
+      task.setConfiguration( cfg );
+      task.open( context );
+      task.execute();
+    } catch ( ConfigurationException | TaskException | IOException e ) {
+      e.printStackTrace();
+      fail( e.getMessage() );
+    }
+
+    File target = new File( FileUtil.getCurrentWorkingDirectory(), DIRECTORY_NAME + ".zip" );
+    assertTrue( target.exists() );
+
+    target.delete();
   }
 
 
@@ -93,10 +121,10 @@ public class ArchiveTaskTest extends AbstractTest {
 
   @Test
   public void archiveFile() {
-
+    File target = new File( FileUtil.getCurrentWorkingDirectory(), "archive.zip" );
     Config cfg = new Config();
-    cfg.put( ConfigTag.FILE, new File( FileUtil.getCurrentWorkingDirectory(), "README.md" ).getAbsolutePath() );
-    cfg.put( ConfigTag.TARGET, new File( FileUtil.getCurrentWorkingDirectory(), "jobwrkdir.zip" ).getAbsolutePath() );
+    cfg.put( ConfigTag.SOURCE, new File( FileUtil.getCurrentWorkingDirectory(), "README.md" ).getAbsolutePath() );
+    cfg.put( ConfigTag.TARGET, target.getAbsolutePath() );
     System.out.println( cfg );
 
     try (Archive task = new Archive()) {
@@ -107,8 +135,32 @@ public class ArchiveTaskTest extends AbstractTest {
       fail( e.getMessage() );
     }
 
-    // TODO: Test for endstate
-    // TODO: delete archive
+    assertTrue( target.exists() );
+
+    target.delete();
+  }
+
+
+
+
+  @Test
+  public void archiveFileNoTarget() {
+    Config cfg = new Config();
+    cfg.put( ConfigTag.SOURCE, new File( FileUtil.getCurrentWorkingDirectory(), "README.md" ).getAbsolutePath() );
+    System.out.println( cfg );
+
+    try (Archive task = new Archive()) {
+      task.setConfiguration( cfg );
+      task.open( context );
+      task.execute();
+    } catch ( ConfigurationException | TaskException | IOException e ) {
+      fail( e.getMessage() );
+    }
+
+    File target = new File( FileUtil.getCurrentWorkingDirectory(), "README.md.zip" );
+    assertTrue( target.exists() );
+
+    target.delete();
   }
 
 }
