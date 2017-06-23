@@ -16,14 +16,25 @@ import coyote.loader.log.LogMsg.BundleBaseName;
 
 
 /**
- * Batch Mail Tools fixture
+ * Coyote Mail Tools fixture.
+ * 
+ * Constants are placed here along with any static method useful across 
+ * multiple classes in the project. 
  */
 public class CMT {
-  public static final Version VERSION = new Version( 0, 0, 1, Version.EXPERIMENTAL );
-  public static final String NAME = "BatchMT";
+  public static final Version VERSION = new Version( 0, 1, 1, Version.EXPERIMENTAL );
+  public static final String NAME = "CMT";
+
+  public static final String SENDER = "sender";
+  public static final String RECEIVER = "receiver";
+  public static final String ATTACH = "attach";
+  public static final String SUBJECT = "subject";
+  public static final String BODY = "body";
 
   public static final BundleBaseName MSG;
+
   static {
-    MSG = new BundleBaseName( "BatchMTMsg" );
+    MSG = new BundleBaseName( "CMTMsg" );
   }
+
 }
