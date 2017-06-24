@@ -179,6 +179,8 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
       setName( GUID.randomGUID().toString() );
     }
 
+    symbols.put( Symbols.JOB_NAME, getName() );
+
     if ( reader == null && writers.size() > 0 )
       throw new IllegalStateException( "No reader configured, nothing to write" );
 

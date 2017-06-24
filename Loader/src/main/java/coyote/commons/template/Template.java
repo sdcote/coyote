@@ -358,6 +358,8 @@ public class Template extends StringParser {
    * @param template The string representing the template data
    * @param symbols the SymbolTable to us when resolving tokens
    * @param cache the class cache to use when looking up class references
+   * @param preprocess to to leave unresolved variables in place, false 
+   *        replaces unresolved variables with an empty string.
    *
    * @return a string representing the fully-resolved template.
    *

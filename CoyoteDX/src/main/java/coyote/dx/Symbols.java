@@ -17,6 +17,7 @@ package coyote.dx;
 public class Symbols {
   public static final String JOB_DIRECTORY = "jobdir";
   public static final String WORK_DIRECTORY = "wrkdir";
+  public static final String JOB_NAME = "JobName";
   public static final String DATE = "Date";
   public static final String TIME = "Time";
   public static final String DATETIME = "DateTime";

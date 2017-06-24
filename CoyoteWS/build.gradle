@@ -19,6 +19,8 @@ dependencies {
 
 	compile project(':CoyoteDX')
 	compile "coyote:CoyoteDX:$version"
+	compile project(':CoyoteMT')
+	compile "coyote:CoyoteMT:$version"
 
 	compile project(':CoyoteSLF4J')
 	compile "coyote:CoyoteSLF4J:$version"
