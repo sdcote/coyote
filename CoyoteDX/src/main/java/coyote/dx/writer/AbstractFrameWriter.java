@@ -41,7 +41,7 @@ public abstract class AbstractFrameWriter extends AbstractConfigurableComponent 
 
     // Look for a conditional statement the writer may use to control if it is 
     // to write the record or not
-    expression = findString( ConfigTag.CONDITION );
+    expression = getConfiguration().getString( ConfigTag.CONDITION );
     if ( StringUtil.isNotBlank( expression ) ) {
       expression = expression.trim();
 

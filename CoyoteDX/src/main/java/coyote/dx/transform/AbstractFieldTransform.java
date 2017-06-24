@@ -43,7 +43,7 @@ public abstract class AbstractFieldTransform extends AbstractFrameTransform impl
     evaluator.setContext( context );
 
     // get the name of the field to transform
-    String token = findString( ConfigTag.NAME );
+    String token = getConfiguration().getString( ConfigTag.NAME );
 
     if ( StringUtil.isBlank( token ) ) {
       context.setError( "Set transform must contain a field name" );
@@ -53,7 +53,7 @@ public abstract class AbstractFieldTransform extends AbstractFrameTransform impl
 
     // Look for a conditional statement the transform may use to control if it
     // processes or not
-    token = findString( ConfigTag.CONDITION );
+    token = getConfiguration().getString( ConfigTag.CONDITION );
     if ( StringUtil.isNotBlank( token ) ) {
       expression = token.trim();
 

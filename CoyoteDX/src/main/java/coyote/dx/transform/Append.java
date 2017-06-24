@@ -81,7 +81,7 @@ public class Append extends AbstractFieldTransform implements FrameTransform {
     // the type of the data to set in the field...any of the data frame types
     // TODO getConfiguration().getFieldIgnoreCase( ConfigTag.TYPE );
 
-    String token = findString( ConfigTag.VALUE );
+    String token = getConfiguration().getString( ConfigTag.VALUE );
     if ( token == null ) {
       Log.warn( LogMsg.createMsg( CDX.MSG, "Transform.Append_setting_null_to_field", fieldName ) );
     } else {

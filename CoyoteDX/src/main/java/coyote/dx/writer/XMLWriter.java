@@ -164,7 +164,7 @@ public class XMLWriter extends AbstractFrameFileWriter implements FrameWriter, C
     // just perform a case insensitive search for the configuration attribute 
     // and do not try to resolve it in the context or as a template...it will 
     // be resolved as a template later.
-    final String rootA = findString( ConfigTag.ROOT_ATTRIBUTE );
+    final String rootA = getConfiguration().getString( ConfigTag.ROOT_ATTRIBUTE );
     if ( StringUtil.isNotBlank( rootA ) ) {
       setRootAttributes( rootA );
     }
@@ -177,7 +177,7 @@ public class XMLWriter extends AbstractFrameFileWriter implements FrameWriter, C
     // just perform a case insensitive search for the configuration attribute 
     // and do not try to resolve it in the context or as a template...it will 
     // be resolved as a template later.
-    final String rowA = findString( ConfigTag.ROW_ATTRIBUTE );
+    final String rowA = getConfiguration().getString( ConfigTag.ROW_ATTRIBUTE );
     if ( StringUtil.isNotBlank( rowE ) ) {
       setRowAttributes( rowA );
     }

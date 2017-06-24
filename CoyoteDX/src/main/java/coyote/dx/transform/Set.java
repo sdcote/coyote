@@ -90,7 +90,7 @@ public class Set extends AbstractFieldTransform implements FrameTransform {
     // the type of the data to set in the field...any of the data frame types
     // TODO getConfiguration().getFieldIgnoreCase( ConfigTag.TYPE );
 
-    String token = findString( ConfigTag.VALUE );
+    String token = getConfiguration().getString( ConfigTag.VALUE );
     if ( token == null ) {
       Log.warn( LogMsg.createMsg( CDX.MSG, "Transform.Set_setting_null_to_field", fieldName ) );
     } else {
@@ -98,7 +98,7 @@ public class Set extends AbstractFieldTransform implements FrameTransform {
     }
 
     if ( StringUtil.isNotBlank( getExpression() ) ) {
-      token = findString( ConfigTag.DEFAULT );
+      token = getConfiguration().getString( ConfigTag.DEFAULT );
       if ( token == null ) {
         Log.warn( LogMsg.createMsg( CDX.MSG, "Transform.Set_setting_null_by_default", fieldName ) );
       } else {

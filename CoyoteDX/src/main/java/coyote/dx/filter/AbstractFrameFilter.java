@@ -58,7 +58,7 @@ public abstract class AbstractFrameFilter extends AbstractConfigurableComponent 
   public void open( TransformContext context ) {
     evaluator.setContext( context );
 
-    String token = findString( ConfigTag.CONDITION );
+    String token = getConfiguration().getString( ConfigTag.CONDITION );
     if ( StringUtil.isNotBlank( token ) ) {
       expression = token.trim();
 
