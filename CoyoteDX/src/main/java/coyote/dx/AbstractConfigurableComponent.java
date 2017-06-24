@@ -104,67 +104,59 @@ public abstract class AbstractConfigurableComponent implements ConfigurableCompo
 
 
 
-  /**
-   * Perform a case insensitive search for a configuration value with the given 
-   * name.
-   * 
-   * @param key than name of the configuration parameter to find
-   * 
-   * @return the string value of the configuration parameter or null if it is
-   *         not found.
-   * 
-   * @see #getString(String) for a fully resolved search including the context
-   */
-  public String findString( String key ) {
-    String retval = null;
-    // Normally we would just call getAsString(key) on the config, but that is 
-    // case sensitive so we will check each frame ourselves
-    for ( DataField field : getConfiguration().getFields() ) {
-      if ( ( field.getName() != null ) && field.getName().equalsIgnoreCase( key ) ) {
-        retval = field.getStringValue();
-        break;
-      }
-    }
-    return retval;
-  }
 
 
 
 
   /**
-   * Return the configuration value with the given (case insensitive) key.
+   * Return the configuration or context value with the given (case 
+   * in-sensitive) key.
    * 
-   * <p>Check the configuration first and return that value, but if there is no 
-   * value set (null) then check the transform context for a value with the 
-   * given key.</p>
+   * <p>This checks the configuration for the value. Normally this is the 
+   * value returned, but the value may point to a value in the context. For 
+   * example, all components are to share the same server port. Instead of 
+   * defining the server port in multiple locations, making changing the port 
+   * more difficult later, the configuration value may point to a single value 
+   * in the context.
    * 
-   * <p>The value is treated as a template and will be resolved against the 
-   * symbol table currently set in the context.</p>
+   * <p>After the value is returned from the configuration, the value is used 
+   * as a key to search for a context value. For example, the component may 
+   * look for a configuration value of "port" which is configured with a value 
+   * of "SmtpPort". This method will then look in the context for a value with 
+   * the key of "SmtpPort" and if a value is found in the context, that value 
+   * will be used. Note: this context lookup is case sensitive.
    * 
-   * <p>This is a case insensitive search, for usability.</p>
+   * <p>If there is no value with that key defined in the configuration, then
+   * this method will search the context with that key. In this case, the 
+   * context serves as an extension of the configuration. For example, a 
+   * component may look for a value of "port" which does not exist in its 
+   * configuration. This methed will then search the context for a value 
+   * mapped to the "port" key and return it if it exists. As an extension of 
+   * the configuration look-up, this search is case in-sensitive.
    * 
-   * <p>NOTE: if you are looking for a value to later use to look up a value in 
-   * the context, what will happen is the context lookup portion of this method 
-   * will probably return the object value in the context and performing a 
-   * {@code toString()} on that object which is probably not what you want. For 
-   * this use case, use the {@code findString()} method for roughly equivalent 
-   * functionality without the context lookup or template resolution.</p>
+   * <p>If any value is found in the context, it is treated as a template and 
+   * pre-processed to resolve any variable in the value. Note: the template is 
+   * not fully resolved, but pre-processed meaning any unresolved variables 
+   * are left in the returned value for later resolution and to aid in 
+   * debugging what symbols are needed or if variables are misspelt.
+   * 
+   * <p>Values pulled directly from the configuration (not retrieved from the 
+   * context) are not treated as a template and passed as they appear in the 
+   * configuration. It is up to the component to resolve any variable in 
+   * configuration values. 
    * 
    * @param key the name of the configuration parameter to return
    * 
    * @return the value with that name in the configuration or null if the given 
    *         key is null, or the configuration value with that name could not 
    *         be found in either the configuration of transform context.
-   * 
-   * @see #findString(String) to just locate the raw value in the configuration 
-   *      without context or template resolution.
    */
   public String getString( String key ) {
     String value = null;
 
     // Perform a case insensitive search for the value with the given key
-    value = this.findString( key );
-
+    value = getConfiguration().getString( key );
+    
     if ( context != null ) {
       // See if there is a match in the context for reference resolution
       if ( value != null ) {
@@ -174,7 +166,7 @@ public abstract class AbstractConfigurableComponent implements ConfigurableCompo
         // if an exact match was found in the context...
         if ( cval != null ) {
           // ...resolve the value as a template
-          return Template.resolve( cval, context.getSymbols() );
+          return Template.preProcess( cval, context.getSymbols() );
         }
       }
 
@@ -182,7 +174,7 @@ public abstract class AbstractConfigurableComponent implements ConfigurableCompo
         // perform a case insensitive search in the context
         value = context.getAsString( key, false );
       }
-      String retval = Template.resolve( value, context.getSymbols() );
+      String retval = Template.preProcess( value, context.getSymbols() );
 
       // Only log if the value changed
       if ( Log.isLogging( Log.DEBUG_EVENTS ) ) {
@@ -193,6 +185,7 @@ public abstract class AbstractConfigurableComponent implements ConfigurableCompo
 
       return retval;
     } else {
+      // no context, return the raw value
       return value;
     }
   }
