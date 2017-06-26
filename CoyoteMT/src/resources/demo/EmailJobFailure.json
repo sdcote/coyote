@@ -5,7 +5,7 @@
 		
 		"Reader" : {
 			"class" : "CSVReader",
-			"source" : "[#$app.home#]/demo/users.csv",
+			"source" : "[#$app.home#]/demo/non-existent-file.csv",
 			"header" : true
 		},
 
@@ -20,7 +20,7 @@
 			}    
 		},
 
-		"Listeners": {
+		"Listener": {
 			"FailureEmailListener": {
 				"hostname": "smtp.gmail.com",
 				"port": 587,

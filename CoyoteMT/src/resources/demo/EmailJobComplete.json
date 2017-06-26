@@ -20,7 +20,7 @@
 			}    
 		},
 
-		"Listeners": {
+		"Listener": {
 			"SuccessEmailListener": {
 				"hostname": "smtp.gmail.com",
 				"port": 587,
