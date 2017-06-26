@@ -88,6 +88,9 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
   /** The facade to log management functions */
   protected LogManager logManager = null;
 
+  /** Globally unique identifier for this instance. */
+  private final String instanceId = GUID.randomGUID().toString();
+
 
 
 
@@ -168,6 +171,8 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
   public void run() {
     Log.trace( "Engine '" + getName() + "' running..." );
 
+    symbols.put( Symbols.JOB_ID, getInstanceId() );
+
     // figure out our job directory
     determineJobDirectory();
 
@@ -176,7 +181,7 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
 
     // Make sure the engine has a name
     if ( StringUtil.isBlank( getName() ) ) {
-      setName( GUID.randomGUID().toString() );
+      setName( instanceId );
     }
 
     symbols.put( Symbols.JOB_NAME, getName() );
@@ -1080,6 +1085,17 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
     } else {
       return 0;
     }
+  }
+
+
+
+
+  /**
+   * @see coyote.dx.TransformEngine#getInstanceId()
+   */
+  @Override
+  public String getInstanceId() {
+    return instanceId;
   }
 
 }

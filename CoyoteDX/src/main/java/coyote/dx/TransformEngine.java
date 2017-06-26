@@ -242,4 +242,20 @@ public interface TransformEngine extends RunnableComponent {
    */
   public int addFilter( FrameFilter filter );
 
+
+
+
+  /**
+   * Access the globally unique identifier for this instance.
+   * 
+   * <p>The name of an engine is logically unique but a named job will run 
+   * many times and only the instance identifier is unique across all 
+   * instances of that named job. For example, The "IncidentImport" job may 
+   * run 24 times each day. The only way to uniquely identify one of those 
+   * jobs is by using its instance identifier.
+   * 
+   * @return the unique identifier for this instance.
+   */
+  public String getInstanceId();
+
 }
