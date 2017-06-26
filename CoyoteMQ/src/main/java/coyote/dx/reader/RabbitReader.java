@@ -16,6 +16,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeoutException;
 
@@ -30,7 +31,9 @@ import coyote.commons.CipherUtil;
 import coyote.commons.ExceptionUtil;
 import coyote.commons.StringUtil;
 import coyote.dataframe.DataFrame;
-import coyote.dataframe.DataFrameException;
+import coyote.dataframe.marshal.JSONMarshaler;
+import coyote.dataframe.marshal.MarshalException;
+import coyote.dataframe.marshal.XMLMarshaler;
 import coyote.dx.ConfigTag;
 import coyote.dx.ConfigurableComponent;
 import coyote.dx.FrameReader;
@@ -49,13 +52,11 @@ public class RabbitReader extends AbstractFrameReader implements FrameReader, Co
 
   private static final boolean NO_AUTO_ACK = false;
   private static final boolean REQUEUE = true;
-  private static final boolean DURABLE = true; 
-  private static final boolean PUBLIC = false; 
+  private static final boolean DURABLE = true;
+  private static final boolean PUBLIC = false;
   private static final boolean KEEP = false;
   private static final Map<String, Object> NO_ARGUMENTS = null;
 
-
-  
   private Connection connection = null;
   private Channel channel = null;
   private int prefetchCount = 1;
@@ -63,15 +64,15 @@ public class RabbitReader extends AbstractFrameReader implements FrameReader, Co
 
 
 
+
   public URI getBrokerURI() {
     if ( configuration.containsIgnoreCase( ConfigTag.SOURCE ) ) {
       URI retval;
       try {
-        String fieldname = configuration.getFieldIgnoreCase( ConfigTag.SOURCE ).getName();
-        retval = new URI( configuration.getAsString( fieldname ) );
+        retval = new URI( configuration.getString( ConfigTag.SOURCE ) );
         return retval;
       } catch ( URISyntaxException e ) {
-        Log.debug( LogMsg.createMsg( CMQ.MSG, "Reader.config_attribute_is_not_valid_uri", ConfigTag.SOURCE, configuration.getAsString( ConfigTag.SOURCE ) ) );
+        Log.debug( LogMsg.createMsg( CMQ.MSG, "Reader.config_attribute_is_not_valid_uri", ConfigTag.SOURCE, configuration.getString( ConfigTag.SOURCE ) ) );
       }
     }
     return null;
@@ -82,9 +83,9 @@ public class RabbitReader extends AbstractFrameReader implements FrameReader, Co
 
   public String getPassword() {
     if ( configuration.containsIgnoreCase( ConfigTag.PASSWORD ) ) {
-      return configuration.getAsString( ConfigTag.PASSWORD );
+      return configuration.getString( ConfigTag.PASSWORD );
     } else if ( configuration.containsIgnoreCase( Loader.ENCRYPT_PREFIX + ConfigTag.PASSWORD ) ) {
-      return CipherUtil.decryptString( configuration.getAsString( Loader.ENCRYPT_PREFIX + ConfigTag.PASSWORD ) );
+      return CipherUtil.decryptString( configuration.getString( Loader.ENCRYPT_PREFIX + ConfigTag.PASSWORD ) );
     } else {
       return null;
     }
@@ -95,9 +96,9 @@ public class RabbitReader extends AbstractFrameReader implements FrameReader, Co
 
   public String getUsername() {
     if ( configuration.containsIgnoreCase( ConfigTag.USERNAME ) ) {
-      return configuration.getFieldIgnoreCase( ConfigTag.USERNAME ).getStringValue();
+      return configuration.getString( ConfigTag.USERNAME );
     } else if ( configuration.containsIgnoreCase( Loader.ENCRYPT_PREFIX + ConfigTag.USERNAME ) ) {
-      return CipherUtil.decryptString( configuration.getFieldIgnoreCase( Loader.ENCRYPT_PREFIX + ConfigTag.USERNAME ).getStringValue() );
+      return CipherUtil.decryptString( configuration.getString( Loader.ENCRYPT_PREFIX + ConfigTag.USERNAME ) );
     } else {
       return null;
     }
@@ -108,12 +109,8 @@ public class RabbitReader extends AbstractFrameReader implements FrameReader, Co
 
   public boolean useSSL() {
     if ( configuration.containsIgnoreCase( ConfigTag.USE_SSL ) ) {
-      try {
-        String fieldname = configuration.getFieldIgnoreCase( ConfigTag.USE_SSL ).getName();
-        return configuration.getAsBoolean( fieldname );
-      } catch ( final DataFrameException ignore ) {
-        Log.debug( LogMsg.createMsg( CMQ.MSG, "Reader.config_attribute_is_not_valid_boolean", ConfigTag.USE_SSL, configuration.getAsString( ConfigTag.USE_SSL ) ) );
-      }
+      String fieldname = configuration.getFieldIgnoreCase( ConfigTag.USE_SSL ).getName();
+      return configuration.getBoolean( fieldname );
     }
     return false;
   }
@@ -123,7 +120,7 @@ public class RabbitReader extends AbstractFrameReader implements FrameReader, Co
 
   public String getQueueName() {
     if ( configuration.containsIgnoreCase( ConfigTag.QUEUE ) ) {
-      return configuration.getFieldIgnoreCase( ConfigTag.QUEUE ).getStringValue();
+      return configuration.getString( ConfigTag.QUEUE );
     }
     return null;
   }
@@ -183,7 +180,32 @@ public class RabbitReader extends AbstractFrameReader implements FrameReader, Co
           Log.error( "Could not get data from message body: " + e.getClass().getName() + " - " + e.getMessage() );
         }
         if ( data != null ) {
-          retval = new DataFrame( data );
+          try {
+            retval = new DataFrame( data );
+          } catch ( Exception e ) {
+            Log.debug( "Received data not in dataframe wire format" );
+            String text = StringUtil.getString( data );
+            try {
+              List<DataFrame> frames = JSONMarshaler.marshal( text );
+              if( frames != null && frames.size()>0){
+                retval = frames.get( 0 );
+              }else{
+                Log.notice( "Received an empty JSON message" );
+              }
+            } catch ( MarshalException e1 ) {
+              Log.debug( "Received data not in JSON format" );
+              try {
+                List<DataFrame> frames =  XMLMarshaler.marshal( text );
+                if( frames != null && frames.size()>0){
+                  retval = frames.get( 0 );
+                }else{
+                  Log.notice( "Received an empty XML message" );
+                }
+              } catch ( MarshalException e2 ) {
+                Log.error( "Could not parse the data received from "+channel.toString() );
+              }
+            }
+          }
         } else {
           Log.warn( "Retrieved an empty body from a message: " + response.getEnvelope().getDeliveryTag() );
         }
