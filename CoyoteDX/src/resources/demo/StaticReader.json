@@ -15,7 +15,8 @@
 
 		"Writer" : {
 			"class" : "CSVWriter",
-			"target" : "single.txt"
+			"target" : "static_reader.csv",
+			"header" : true
 		}
 	}
 

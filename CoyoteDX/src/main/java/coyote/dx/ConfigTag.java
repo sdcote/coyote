@@ -73,7 +73,7 @@ public class ConfigTag {
   public static final String QUEUE = "Queue";
   public static final String TOPIC = "Topic";
   public static final String GROUP = "Group";
-
+  public static final String ENCODING = "Encoding";
 
   // Networking proxy tags used by several components
   public static final String PROXY = "proxy";
@@ -137,11 +137,10 @@ public class ConfigTag {
   public static final String DAYS_OF_WEEK = "weekdays";
   public static final String MONTHS = "months";
   public static final String MILLIS = "millis";
-  
+
   // Manager
-  
+
   public static final String IPACL = "IpACL";
   public static final String FREQUENCY = "Frequency";
-
 
 }
