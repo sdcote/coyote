@@ -169,7 +169,7 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
    */
   @Override
   public void run() {
-    Log.trace( "Engine '" + getName() + "' running..." );
+    Log.trace( "Engine '" + getName() + "' (" + getInstanceId() + ") running..." );
 
     symbols.put( Symbols.JOB_ID, getInstanceId() );
 
@@ -509,7 +509,7 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
       currentFrameNumber = 0;
     }
 
-    Log.trace( "Engine '" + getName() + "' complete" );
+    Log.trace( "Engine '" + getName() + "' (" + getInstanceId() + ") complete" );
 
     // reset the context so it can be reused in the next run (when scheduled)
     getContext().reset();
