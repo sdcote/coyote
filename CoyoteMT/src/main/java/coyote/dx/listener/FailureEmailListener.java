@@ -21,7 +21,7 @@ import coyote.dx.context.TransformContext;
 public class FailureEmailListener extends AbstractEmailListener {
 
   private final String SUBJECT = "Data Transfer Job '[#$JobName#]' Failed";
-  private final String MESSAGE = "An error occurred in the [#$JobName#] data transfer job with the ID of [#$JobId#] at [#$RunDateTime#].\n\nThe job status was\n[#$ContextStatus#].\n\nThe error message was:\n[#$ContextError#]\n\nCheck the lob logs nore more details.";
+  private final String MESSAGE = "An error occurred in the '[#$JobName#]' data transfer job with the ID of [#$JobId#] at [#$RunDateTime#].\n\nThe job status was\n[#$ContextStatus#]\n\nThe error message was:\n[#$ContextError#]\n\nCheck the job logs for more details.";
 
 
 
