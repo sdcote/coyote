@@ -39,7 +39,7 @@ public abstract class OperationalContext {
   protected OperationalContext parent = null;
   protected long currentFrame = 0;
 
-  /** Flag indicating the context is in errorFlag */
+  /** Flag indicating the context is in error */
   protected volatile boolean errorFlag = false;
 
   /** List of listeners which will do something when different events happen. */
@@ -246,7 +246,7 @@ public abstract class OperationalContext {
 
 
   /**
-   * @return the status
+   * @return the textual description of the state of the context.
    */
   public String getStatus() {
     return status;
@@ -256,7 +256,12 @@ public abstract class OperationalContext {
 
 
   /**
-   * @param status the status to set
+   * The status is a textual description of the state if the context.
+   * 
+   * <p>This is most used in error reporting to determine what state the 
+   * context was in when the error occurred.
+   *  
+   * @param status the textual description of the state of the context to set
    */
   public void setStatus( String status ) {
     this.status = status;
@@ -524,7 +529,11 @@ public abstract class OperationalContext {
    * @return the row (current frame number in the sequence)
    */
   public long getRow() {
-    return currentFrame;
+    if ( parent != null ) {
+      return parent.currentFrame;
+    } else {
+      return currentFrame;
+    }
   }
 
 
@@ -535,7 +544,11 @@ public abstract class OperationalContext {
    * @param row the row (frame sequence) to set
    */
   public void setRow( long row ) {
-    this.currentFrame = row;
+    if ( parent != null ) {
+      parent.currentFrame = row;
+    } else {
+      this.currentFrame = row;
+    }
   }
 
 
