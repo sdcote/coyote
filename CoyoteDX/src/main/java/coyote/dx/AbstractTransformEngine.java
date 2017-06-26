@@ -272,6 +272,7 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
         if ( reader != null ) {
           reader.open( getContext() );
           if ( getContext().isInError() ) {
+            getContext().setStatus( "Reader Opening Error" );
             reportTransformContextError( getContext() );
             return;
           }
@@ -284,6 +285,7 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
 
           mapper.open( getContext() );
           if ( getContext().isInError() ) {
+            getContext().setStatus( "Mapper Opening Error" );
             reportTransformContextError( getContext() );
             return;
           }
@@ -292,6 +294,7 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
           for ( FrameWriter writer : writers ) {
             writer.open( getContext() );
             if ( getContext().isInError() ) {
+              getContext().setStatus( "Writer Opening Error" );
               reportTransformContextError( getContext() );
               return;
             }
@@ -302,6 +305,7 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
         for ( FrameFilter filter : filters ) {
           filter.open( getContext() );
           if ( getContext().isInError() ) {
+            getContext().setStatus( "Filter Opening Error" );
             reportTransformContextError( getContext() );
             return;
           }
@@ -311,6 +315,7 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
         for ( FrameValidator validator : validators ) {
           validator.open( getContext() );
           if ( getContext().isInError() ) {
+            getContext().setStatus( "Validator Opening Error" );
             reportTransformContextError( getContext() );
             return;
           }
@@ -320,6 +325,7 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
         for ( FrameTransform transformer : transformers ) {
           transformer.open( getContext() );
           if ( getContext().isInError() ) {
+            getContext().setStatus( "Transformer Opening Error" );
             reportTransformContextError( getContext() );
             return;
           }
