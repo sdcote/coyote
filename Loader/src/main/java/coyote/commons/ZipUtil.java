@@ -458,18 +458,11 @@ public class ZipUtil {
     zos.setMethod( ZipOutputStream.DEFLATED );
 
     if ( file.isDirectory() ) {
-      final ZipEntry ze = new ZipEntry( file.getName() + "/" );
-      ze.setTime( file.lastModified() );
-      zos.putNextEntry( ze );
-      zos.closeEntry();
       addEntries( zos, file, file, match, avoid );
     } else {
       final byte[] buf = new byte[STREAM_BUFFER_SIZE];
-
       final FileInputStream ins = new FileInputStream( file );
-
       final ZipEntry ze = new ZipEntry( getZipName( file.getParentFile(), file ) );
-
       ze.setTime( file.lastModified() );
       ze.setMethod( ZipEntry.DEFLATED );
       zos.putNextEntry( ze );
