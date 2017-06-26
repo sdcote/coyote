@@ -1,0 +1,15 @@
+{
+	"Class": "coyote.dx.Job",
+	"Job": {
+		"Name": "RetrieveAll",
+
+		"Reader": {
+			"class": "RabbitReader",
+            "target": "amqp://runrabbitrun/myexchange",
+            "username": "jdoe",
+            "password": "Ik2mYsjBm",
+			"use_ssl": true,
+			"queue": "rtw/job"
+		}
+	}
+}
