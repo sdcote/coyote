@@ -28,7 +28,8 @@ import coyote.commons.CipherUtil;
 import coyote.commons.ExceptionUtil;
 import coyote.commons.StringUtil;
 import coyote.dataframe.DataFrame;
-import coyote.dataframe.DataFrameException;
+import coyote.dataframe.marshal.JSONMarshaler;
+import coyote.dataframe.marshal.XMLMarshaler;
 import coyote.dx.ConfigTag;
 import coyote.dx.ConfigurableComponent;
 import coyote.dx.FrameWriter;
@@ -44,6 +45,9 @@ import coyote.mq.CMQ;
  */
 public class RabbitWriter extends AbstractFrameWriter implements FrameWriter, ConfigurableComponent {
 
+  private static final String BINARY = "Binary";
+  private static final String JSON = "JSON";
+  private static final String XML = "XML";
   private Connection connection = null;
   private Channel channel = null;
 
@@ -54,11 +58,10 @@ public class RabbitWriter extends AbstractFrameWriter implements FrameWriter, Co
     if ( configuration.containsIgnoreCase( ConfigTag.TARGET ) ) {
       URI retval;
       try {
-        String fieldname = configuration.getFieldIgnoreCase( ConfigTag.TARGET ).getName();
-        retval = new URI( configuration.getAsString( fieldname ) );
+        retval = new URI( configuration.getString( ConfigTag.TARGET ) );
         return retval;
       } catch ( URISyntaxException e ) {
-        Log.debug( LogMsg.createMsg( CMQ.MSG, "Reader.config_attribute_is_not_valid_uri", ConfigTag.TARGET, configuration.getAsString( ConfigTag.TARGET ) ) );
+        Log.debug( LogMsg.createMsg( CMQ.MSG, "Reader.config_attribute_is_not_valid_uri", ConfigTag.TARGET, configuration.getString( ConfigTag.TARGET ) ) );
       }
     }
     return null;
@@ -69,9 +72,9 @@ public class RabbitWriter extends AbstractFrameWriter implements FrameWriter, Co
 
   public String getPassword() {
     if ( configuration.containsIgnoreCase( ConfigTag.PASSWORD ) ) {
-      return configuration.getAsString( ConfigTag.PASSWORD );
+      return configuration.getString( ConfigTag.PASSWORD );
     } else if ( configuration.containsIgnoreCase( Loader.ENCRYPT_PREFIX + ConfigTag.PASSWORD ) ) {
-      return CipherUtil.decryptString( configuration.getAsString( Loader.ENCRYPT_PREFIX + ConfigTag.PASSWORD ) );
+      return CipherUtil.decryptString( configuration.getString( Loader.ENCRYPT_PREFIX + ConfigTag.PASSWORD ) );
     } else {
       return null;
     }
@@ -82,9 +85,9 @@ public class RabbitWriter extends AbstractFrameWriter implements FrameWriter, Co
 
   public String getUsername() {
     if ( configuration.containsIgnoreCase( ConfigTag.USERNAME ) ) {
-      return configuration.getFieldIgnoreCase( ConfigTag.USERNAME ).getStringValue();
+      return configuration.getString( ConfigTag.USERNAME );
     } else if ( configuration.containsIgnoreCase( Loader.ENCRYPT_PREFIX + ConfigTag.USERNAME ) ) {
-      return CipherUtil.decryptString( configuration.getFieldIgnoreCase( Loader.ENCRYPT_PREFIX + ConfigTag.USERNAME ).getStringValue() );
+      return CipherUtil.decryptString( configuration.getString( Loader.ENCRYPT_PREFIX + ConfigTag.USERNAME ) );
     } else {
       return null;
     }
@@ -95,12 +98,8 @@ public class RabbitWriter extends AbstractFrameWriter implements FrameWriter, Co
 
   public boolean useSSL() {
     if ( configuration.containsIgnoreCase( ConfigTag.USE_SSL ) ) {
-      try {
-        String fieldname = configuration.getFieldIgnoreCase( ConfigTag.USE_SSL ).getName();
-        return configuration.getAsBoolean( fieldname );
-      } catch ( final DataFrameException ignore ) {
-        Log.debug( LogMsg.createMsg( CMQ.MSG, "Reader.config_attribute_is_not_valid_boolean", ConfigTag.USE_SSL, configuration.getAsString( ConfigTag.USE_SSL ) ) );
-      }
+      String fieldname = configuration.getFieldIgnoreCase( ConfigTag.USE_SSL ).getName();
+      return configuration.getBoolean( fieldname );
     }
     return false;
   }
@@ -110,7 +109,27 @@ public class RabbitWriter extends AbstractFrameWriter implements FrameWriter, Co
 
   public String getQueueName() {
     if ( configuration.containsIgnoreCase( ConfigTag.QUEUE ) ) {
-      return configuration.getFieldIgnoreCase( ConfigTag.QUEUE ).getStringValue();
+      return configuration.getString( ConfigTag.QUEUE );
+    }
+    return null;
+  }
+
+
+
+
+  public String getFormat() {
+    if ( configuration.containsIgnoreCase( ConfigTag.FORMAT ) ) {
+      return configuration.getString( ConfigTag.FORMAT );
+    }
+    return null;
+  }
+
+
+
+
+  public String getEncoding() {
+    if ( configuration.containsIgnoreCase( ConfigTag.ENCODING ) ) {
+      return configuration.getString( ConfigTag.ENCODING );
     }
     return null;
   }
@@ -124,6 +143,22 @@ public class RabbitWriter extends AbstractFrameWriter implements FrameWriter, Co
   @Override
   public void open( TransformContext context ) {
     super.open( context );
+
+    String format = getFormat();
+    if ( StringUtil.isNotBlank( format ) ) {
+      if ( format.equalsIgnoreCase( JSON ) || format.equalsIgnoreCase( XML ) ) {
+        String encoding = getEncoding();
+        try {
+          "Testing".getBytes( encoding );
+        } catch ( final java.io.UnsupportedEncodingException e ) {
+          Log.error( "Unsupported string encoding of '" + encoding + "'" );
+          getContext().setError( "Unsupported string encoding of '" + encoding + "'" );
+        }
+      }
+    } else {
+      Log.error( "Unsupported message format of '" + format + "' JSON, XML, and Binary are the currently supported options" );
+      getContext().setError( "Unsupported message format of '" + format + "'" );
+    }
 
     ConnectionFactory factory = new ConnectionFactory();
 
@@ -159,10 +194,44 @@ public class RabbitWriter extends AbstractFrameWriter implements FrameWriter, Co
   @Override
   public void write( DataFrame frame ) {
     if ( frame != null ) {
+      byte[] data;
+
       try {
-        byte[] data = frame.getBytes();
+        String format = getFormat();
+        if ( StringUtil.isNotBlank( format ) ) {
+
+          if ( format.equalsIgnoreCase( BINARY ) ) {
+            data = frame.getBytes();
+          } else {
+            String datastring;
+            if ( format.equalsIgnoreCase( JSON ) ) {
+              datastring = JSONMarshaler.marshal( frame );
+            } else if ( format.equalsIgnoreCase( XML ) ) {
+              datastring = XMLMarshaler.marshal( frame );
+            } else {
+              Log.error( "Unsupported message format of '" + format + "' JSON and XML are the currently supported options" );
+              getContext().setError( "Unsupported message format of '" + format + "'" );
+              return;
+            }
+            String encoding = getEncoding();
+            if ( StringUtil.isNotBlank( encoding ) ) {
+              try {
+                data = datastring.getBytes( encoding );
+              } catch ( Exception e ) {
+                Log.error( "Unsupported string encoding of '" + encoding + "'" );
+                getContext().setError( "Unsupported string encoding of '" + encoding + "'" );
+                return;
+              }
+            } else {
+              data = StringUtil.getBytes( datastring );
+            }
+          }
+        } else {
+          data = frame.getBytes();
+        }
+
         channel.basicPublish( "", getQueueName(), null, data );
-        //Log.debug( "Sent " + data.length + " bytes to '" + getQueueName() + "'" );
+        Log.debug( "Sent " + data.length + " bytes to '" + getQueueName() + "'" );
       } catch ( IOException e ) {
         Log.error( e.getClass().getSimpleName() + ":" + e.getMessage() + "\n" + ExceptionUtil.stackTrace( e ) );
       }
