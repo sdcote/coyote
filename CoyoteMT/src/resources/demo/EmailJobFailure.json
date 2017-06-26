@@ -1,0 +1,36 @@
+{
+	"Class" : "coyote.dx.Job",
+	"Job" : {
+		"Name" : "EmailJobComplete",
+		
+		"Reader" : {
+			"class" : "CSVReader",
+			"source" : "[#$app.home#]/demo/users.csv",
+			"header" : true
+		},
+
+		"Writer" : {
+			"class" : "FlatFileWriter",
+			"target" : "users.txt",
+			"fields" : {
+				"Role" : { "start" : 0, "length" : 6 },
+				"FirstName" : { "start" : 7, "length" : 11 },
+				"LastName" : { "start" : 19, "length" : 16 },
+				"MiddleInitial" : { "start" : 36, "length" : 1 }
+			}    
+		},
+
+		"Listeners": {
+			"FailureEmailListener": {
+				"hostname": "smtp.gmail.com",
+				"port": 587,
+				"protocol": "GmailTLS",
+				"ENC:username": "q3YEnVqgPxdNauVIKi/0CNOIA0xDP7rvBNyXksa6eYCrKc9OGmZ2yWl+Yrrw9RNW3QpXrX0Aluw=",
+				"ENC:password": "nrasR4FXrf+ZyM1cigtHktGWc+UeZ5EPoNj/Lack6tXPgx58hFwwXq7BiYmN5SfA",
+				"ENC:sender": "q3YEnVqgPxdNauVIKi/0CNOIA0xDP7rvBNyXksa6eYCrKc9OGmZ2yWl+Yrrw9RNW3QpXrX0Aluw=",
+				"ENC:receiver": "Za1c7XyXOAxh2u35/7iI4l6UEbOUxmRvXHpf9eGrUQfwZRQzKybKgQ=="
+			}
+		}
+	}
+
+}
