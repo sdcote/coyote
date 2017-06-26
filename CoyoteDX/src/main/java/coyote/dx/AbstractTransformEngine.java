@@ -214,6 +214,7 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
     for ( ContextListener listener : listeners ) {
       listener.open( getContext() );
       if ( getContext().isInError() ) {
+        getContext().setStatus( "Listener Initialization Error" );
         reportTransformContextError( getContext() );
         return;
       }
@@ -347,9 +348,7 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
 
             // Set the returned dataframe into the transaction context
             txnContext.setSourceFrame( retval );
-            // increment the row number in the contexts
-            txnContext.setRow( ++currentFrameNumber ); // TODO: Code smell, setting a value in two related objects
-            getContext().setRow( currentFrameNumber ); // TODO: Only one of these should be set as the authority
+            getContext().setRow( ++currentFrameNumber );
             getContext().getSymbols().put( Symbols.CURRENT_FRAME, currentFrameNumber );
             getContext().getSymbols().put( Symbols.LAST_FRAME, txnContext.isLastFrame() );
 
@@ -505,7 +504,7 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
       currentFrameNumber = 0;
     }
 
-    Log.trace( "Engine '" + getName() + "' transformation completed" );
+    Log.trace( "Engine '" + getName() + "' complete" );
 
     // reset the context so it can be reused in the next run (when scheduled)
     getContext().reset();
@@ -515,7 +514,11 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
 
 
   /**
+   * Retrieves a list of command line arguments as set in the symbol table and 
+   * places them in the context.
    * 
+   * <p>If there are no command line arguments, then there will be nothing 
+   * placed in the context.
    */
   private void getCommandLineArguments() {
     List<String> list = new ArrayList<String>();
@@ -530,7 +533,9 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
       }
     }
 
-    getContext().set( ContextKey.COMMAND_LINE_ARGS, list.toArray( new String[list.size()] ) );
+    if ( list.size() > 0 ) {
+      getContext().set( ContextKey.COMMAND_LINE_ARGS, list.toArray( new String[list.size()] ) );
+    }
   }
 
 
@@ -552,7 +557,7 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
 
     // Make sure we have a work directory
     if ( StringUtil.isBlank( System.getProperty( Job.APP_WORK ) ) ) {
-      System.setProperty( Job.APP_WORK, System.getProperty( Loader.APP_HOME ) + System.getProperty( "file.separator" )+"wrk" );
+      System.setProperty( Job.APP_WORK, System.getProperty( Loader.APP_HOME ) + System.getProperty( "file.separator" ) + "wrk" );
     }
 
     // Use our name to setup a job directory
