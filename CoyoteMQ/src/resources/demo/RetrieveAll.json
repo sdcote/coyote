@@ -2,6 +2,7 @@
 	"Class": "coyote.dx.Job",
 	"Job": {
 		"Name": "RetrieveAll",
+		"Description" : "Reads all the messages and exists when the queue is empty",
 
 		"Reader": {
 			"class": "RabbitReader",
@@ -10,6 +11,12 @@
             "password": "Ik2mYsjBm",
 			"use_ssl": true,
 			"queue": "rtw/job"
+		},
+
+		"Writer" : {
+			"class" : "ConsoleWriter",
+			"format" : "json",
+			"indent" : true
 		}
 	}
 }
