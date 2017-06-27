@@ -37,6 +37,7 @@ class FormattedXmlWriter extends XmlWriter {
 
   @Override
   public void writeFrameClose() throws IOException {
+    writer.write( "</frame>" );
     indent--;
     writeIndent();
   }
@@ -46,6 +47,7 @@ class FormattedXmlWriter extends XmlWriter {
 
   @Override
   public void writeFrameOpen() throws IOException {
+    writer.write( "<frame>" );
     indent++;
     writeNewLine();
   }

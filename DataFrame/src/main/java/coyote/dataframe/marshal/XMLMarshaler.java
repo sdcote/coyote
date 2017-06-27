@@ -83,7 +83,7 @@ public class XMLMarshaler {
 
 
   /**
-   * Generate minimal XML (single line, no witespace) with datatype information 
+   * Generate minimal XML (single line, no whitespace) with datatype information 
    * for each field.
    * 
    * @param frame The frame to marshal
@@ -155,6 +155,7 @@ public class XMLMarshaler {
 
     if ( frame.size() > 0 ) {
       DataField field = null;
+      writer.writeFrameOpen();
 
       for ( int i = 0; i < frame.size(); i++ ) {
         field = frame.getField( i );
@@ -186,6 +187,9 @@ public class XMLMarshaler {
           writer.writeFieldClose();
         }
       }
+      writer.writeFrameClose();
+    } else {
+      writer.writeEmptyFrame();      
     }
 
     return;

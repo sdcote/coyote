@@ -109,12 +109,16 @@ public class XmlWriter {
 
 
 
-  public void writeFrameClose() throws IOException {}
+  public void writeFrameClose() throws IOException {
+    writer.write( "</frame>" );
+  }
 
 
 
 
-  public void writeFrameOpen() throws IOException {}
+  public void writeFrameOpen() throws IOException {
+    writer.write( "<frame>" );
+  }
 
 
 
@@ -182,6 +186,13 @@ public class XmlWriter {
       }
     }
     writer.write( string, start, length - start );
+  }
+
+
+
+
+  public void writeEmptyFrame() throws IOException {
+    writer.write( "<frame/>" );    
   }
 
 }
