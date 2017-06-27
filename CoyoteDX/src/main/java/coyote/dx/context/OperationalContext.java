@@ -370,18 +370,20 @@ public abstract class OperationalContext {
    */
   public void end() {
     endTime = System.currentTimeMillis();
-    if ( StringUtil.isNotBlank( getStatus() ) ) {
-      symbols.put( Symbols.CONTEXT_STATUS, getStatus() );
-    } else {
-      symbols.put( Symbols.CONTEXT_STATUS, "No status information found in context" );
+    if ( symbols != null ) {
+      if ( StringUtil.isNotBlank( getStatus() ) ) {
+        symbols.put( Symbols.CONTEXT_STATUS, getStatus() );
+      } else {
+        symbols.put( Symbols.CONTEXT_STATUS, "No status information found in context" );
+      }
+
+      if ( StringUtil.isNotBlank( getErrorMessage() ) ) {
+        symbols.put( Symbols.CONTEXT_ERROR, getErrorMessage() );
+      } else {
+        symbols.put( Symbols.CONTEXT_ERROR, "No error message found in context" );
+      }
     }
 
-    if ( StringUtil.isNotBlank( getErrorMessage() ) ) {
-      symbols.put( Symbols.CONTEXT_ERROR, getErrorMessage() );
-    } else {
-      symbols.put( Symbols.CONTEXT_ERROR, "No error message found in context" );
-    }
-    
     fireEnd( this );
   }
 
