@@ -109,8 +109,17 @@ public class RabbitReader extends AbstractFrameReader implements FrameReader, Co
 
   public boolean useSSL() {
     if ( configuration.containsIgnoreCase( ConfigTag.USE_SSL ) ) {
-      String fieldname = configuration.getFieldIgnoreCase( ConfigTag.USE_SSL ).getName();
-      return configuration.getBoolean( fieldname );
+      return configuration.getBoolean( ConfigTag.USE_SSL );
+    }
+    return false;
+  }
+
+
+
+
+  public boolean isListening() {
+    if ( configuration.containsIgnoreCase( ConfigTag.LISTEN ) ) {
+      return configuration.getBoolean( ConfigTag.LISTEN );
     }
     return false;
   }
@@ -170,44 +179,51 @@ public class RabbitReader extends AbstractFrameReader implements FrameReader, Co
   public DataFrame read( TransactionContext context ) {
     DataFrame retval = null;
     try {
-      GetResponse response = channel.basicGet( getQueueName(), NO_AUTO_ACK );
-      if ( response != null ) {
-        byte[] data = null;
-        try {
-          data = response.getBody();
-          channel.basicAck( response.getEnvelope().getDeliveryTag(), false );
-        } catch ( IOException e ) {
-          Log.error( "Could not get data from message body: " + e.getClass().getName() + " - " + e.getMessage() );
-        }
-        if ( data != null ) {
+      while ( retval == null ) {
+        GetResponse response = channel.basicGet( getQueueName(), NO_AUTO_ACK );
+        if ( response != null ) {
+          byte[] data = null;
           try {
-            retval = new DataFrame( data );
-          } catch ( Exception e ) {
-            Log.debug( "Received data not in dataframe wire format" );
-            String text = StringUtil.getString( data );
+            data = response.getBody();
+            channel.basicAck( response.getEnvelope().getDeliveryTag(), false );
+          } catch ( IOException e ) {
+            Log.error( "Could not get data from message body: " + e.getClass().getName() + " - " + e.getMessage() );
+          }
+          if ( data != null ) {
             try {
-              List<DataFrame> frames = JSONMarshaler.marshal( text );
-              if( frames != null && frames.size()>0){
-                retval = frames.get( 0 );
-              }else{
-                Log.notice( "Received an empty JSON message" );
-              }
-            } catch ( MarshalException e1 ) {
-              Log.debug( "Received data not in JSON format" );
+              retval = new DataFrame( data );
+            } catch ( Exception e ) {
+              Log.debug( "Received data not in dataframe wire format" );
+              String text = StringUtil.getString( data );
               try {
-                List<DataFrame> frames =  XMLMarshaler.marshal( text );
-                if( frames != null && frames.size()>0){
+                List<DataFrame> frames = JSONMarshaler.marshal( text );
+                if ( frames != null && frames.size() > 0 ) {
                   retval = frames.get( 0 );
-                }else{
-                  Log.notice( "Received an empty XML message" );
+                } else {
+                  Log.notice( "Received an empty JSON message" );
                 }
-              } catch ( MarshalException e2 ) {
-                Log.error( "Could not parse the data received from "+channel.toString() );
+              } catch ( MarshalException e1 ) {
+                Log.debug( "Received data not in JSON format" );
+                try {
+                  List<DataFrame> frames = XMLMarshaler.marshal( text );
+                  if ( frames != null && frames.size() > 0 ) {
+                    retval = frames.get( 0 );
+                  } else {
+                    Log.notice( "Received an empty XML message" );
+                  }
+                } catch ( MarshalException e2 ) {
+                  Log.error( "Could not parse the data received from " + channel.toString() );
+                }
               }
             }
+          } else {
+            Log.warn( "Retrieved an empty body from a message: " + response.getEnvelope().getDeliveryTag() );
           }
         } else {
-          Log.warn( "Retrieved an empty body from a message: " + response.getEnvelope().getDeliveryTag() );
+          // If we are not in listen mode, break out of the loop and return null, otherwise loop
+          if ( !isListening() ) {
+            break;
+          }
         }
       }
     } catch ( IOException e ) {
@@ -220,26 +236,28 @@ public class RabbitReader extends AbstractFrameReader implements FrameReader, Co
 
 
   /**
-   * Always returns false, because messages can arrive at any time.
-   *  
    * @see coyote.dx.FrameReader#eof()
    */
   @Override
   public boolean eof() {
     boolean retval = true;
-    if ( peekEofCheck ) {
-      try {
-        GetResponse response = channel.basicGet( getQueueName(), NO_AUTO_ACK );
-        if ( response != null ) {
-          retval = false;
-          try {
-            channel.basicReject( response.getEnvelope().getDeliveryTag(), REQUEUE );
-          } catch ( Exception e ) {
-            Log.error( "Could not requeue message on EOF check: " + e.getClass().getName() + " - " + e.getMessage() );
+    if ( isListening() ) {
+      retval = false;
+    } else {
+      if ( peekEofCheck ) {
+        try {
+          GetResponse response = channel.basicGet( getQueueName(), NO_AUTO_ACK );
+          if ( response != null ) {
+            retval = false;
+            try {
+              channel.basicReject( response.getEnvelope().getDeliveryTag(), REQUEUE );
+            } catch ( Exception e ) {
+              Log.error( "Could not requeue message on EOF check: " + e.getClass().getName() + " - " + e.getMessage() );
+            }
           }
+        } catch ( IOException e ) {
+          Log.error( "Exception on EOF check: " + e.getClass().getName() + " - " + e.getMessage() );
         }
-      } catch ( IOException e ) {
-        Log.error( "Exception on EOF check: " + e.getClass().getName() + " - " + e.getMessage() );
       }
     }
     return retval;

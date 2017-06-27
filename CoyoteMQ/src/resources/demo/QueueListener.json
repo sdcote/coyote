@@ -1,0 +1,23 @@
+{
+	"Class": "coyote.dx.Job",
+	"Job": {
+		"Name": "QueueListener",
+		"Description" : "Listens on a message queue, consumes any messages and displays them on the console",
+
+		"Reader": {
+			"class": "RabbitReader",
+			"source": "amqp://orangutan.rmq.cloudamqp.com/qqxhunvl",
+			"ENC:username": "3NaWHlOog2nkA/Wn3CO0i4uGgozkPiFy",
+			"ENC:password": "AZYOvIzt4+rUtbn+jAI8/1y/dnhBueMSzI4A1niA87ks2Oo7PWqgYv6nPzAGor1tB1kYiig995Gb1vzXWdo21pd19yuXtGXZ",
+			"use_ssl": true,
+			"listen": true,
+			"queue": "rtw/job"
+		},
+
+		"Writer" : {
+			"class" : "ConsoleWriter",
+			"format" : "json",
+			"indent" : true
+		}
+	}
+}
