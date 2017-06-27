@@ -40,7 +40,6 @@ public class ConfigTag {
   public static final String CONDITION = "condition";
   public static final String DEFAULT = "default";
   public static final String PASSWORD = "password";
-  public static final String ENCRYPTED_PASSWORD = "encrypted_password";
   public static final String PRELOAD = "preload";
   public static final String QUERY = "query";
   public static final String SOURCE = "source";
@@ -53,7 +52,6 @@ public class ConfigTag {
   public static final String IDENTITY = "identity";
   /** User name ({@value}) configuration attribute. */
   public static final String USERNAME = "username";
-  public static final String ENCRYPTED_USERNAME = "encrypted_username";
   public static final String USE_SSL = "usessl";
   public static final String DATEFORMAT = "dateformat";
   public static final String ALIGN = "align";

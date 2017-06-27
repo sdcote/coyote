@@ -29,6 +29,7 @@ import coyote.dx.web.auth.AbstractAuthenticator;
 import coyote.dx.web.auth.Authenticator;
 import coyote.dx.web.decorator.AbstractDecorator;
 import coyote.dx.web.decorator.RequestDecorator;
+import coyote.loader.Loader;
 import coyote.loader.cfg.ConfigurationException;
 import coyote.loader.log.Log;
 import coyote.loader.log.LogMsg;
@@ -116,10 +117,10 @@ public class CWS {
         } else if ( ConfigTag.PASSWORD.equalsIgnoreCase( field.getName() ) ) {
           retval.setPassword( field.getStringValue() );
 
-        } else if ( ConfigTag.ENCRYPTED_USERNAME.equalsIgnoreCase( field.getName() ) ) {
+        } else if ( (Loader.ENCRYPT_PREFIX+ConfigTag.USERNAME).equalsIgnoreCase( field.getName() ) ) {
           retval.setUsername( CipherUtil.decryptString( field.getStringValue() ) );
 
-        } else if ( ConfigTag.ENCRYPTED_PASSWORD.equalsIgnoreCase( field.getName() ) ) {
+        } else if ( (Loader.ENCRYPT_PREFIX+ConfigTag.PASSWORD).equalsIgnoreCase( field.getName() ) ) {
           retval.setPassword( CipherUtil.decryptString( field.getStringValue() ) );
         }
       } //for fields

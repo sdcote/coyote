@@ -18,6 +18,7 @@ import coyote.dataframe.DataFrame;
 import coyote.dataframe.DataFrameException;
 import coyote.dx.CWS;
 import coyote.dx.ConfigTag;
+import coyote.loader.Loader;
 import coyote.loader.cfg.ConfigurationException;
 
 
@@ -91,9 +92,9 @@ public abstract class AbstractAuthenticator implements Authenticator {
           setUsername( field.getStringValue() );
         } else if ( ConfigTag.PASSWORD.equalsIgnoreCase( field.getName() ) ) {
           setPassword( field.getStringValue() );
-        } else if ( ConfigTag.ENCRYPTED_USERNAME.equalsIgnoreCase( field.getName() ) ) {
+        } else if ( (Loader.ENCRYPT_PREFIX+ConfigTag.USERNAME).equalsIgnoreCase( field.getName() ) ) {
           setUsername( CipherUtil.decryptString( field.getStringValue() ) );
-        } else if ( ConfigTag.ENCRYPTED_PASSWORD.equalsIgnoreCase( field.getName() ) ) {
+        } else if ( (Loader.ENCRYPT_PREFIX+ConfigTag.PASSWORD).equalsIgnoreCase( field.getName() ) ) {
           setPassword( CipherUtil.decryptString( field.getStringValue() ) );
         } else if ( CWS.PREEMTIVE_AUTH.equalsIgnoreCase( field.getName() ) ) {
           try {

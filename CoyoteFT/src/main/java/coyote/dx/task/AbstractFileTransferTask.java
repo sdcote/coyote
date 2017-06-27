@@ -20,6 +20,7 @@ import coyote.commons.UriUtil;
 import coyote.dx.ConfigTag;
 import coyote.dx.ftp.RemoteSite;
 import coyote.dx.task.AbstractFileTask;
+import coyote.loader.Loader;
 import coyote.loader.cfg.ConfigurationException;
 
 
@@ -69,13 +70,13 @@ public abstract class AbstractFileTransferTask extends AbstractFileTask {
       retval.setProtocol( getString( ConfigTag.PROTOCOL ) );
     }
 
-    if ( contains( ConfigTag.ENCRYPTED_USERNAME ) ) {
+    if ( contains( Loader.ENCRYPT_PREFIX+ConfigTag.USERNAME ) ) {
       // a little more streamlined, uniform way to handle encrypted values
-      retval.setUsername( CipherUtil.decryptString( getString( ConfigTag.ENCRYPTED_USERNAME ) ) );
+      retval.setUsername( CipherUtil.decryptString( getString( Loader.ENCRYPT_PREFIX+ConfigTag.USERNAME ) ) );
     }
 
-    if ( contains( ConfigTag.ENCRYPTED_PASSWORD ) ) {
-      retval.setPassword( CipherUtil.decryptString( getString( ConfigTag.ENCRYPTED_PASSWORD ) ) );
+    if ( contains( Loader.ENCRYPT_PREFIX+ConfigTag.PASSWORD ) ) {
+      retval.setPassword( CipherUtil.decryptString( getString( Loader.ENCRYPT_PREFIX+ConfigTag.PASSWORD ) ) );
     }
 
     return retval;
