@@ -29,6 +29,7 @@ public class ConfigTag {
   public static final String DRIVER = "driver";
   public static final String FIELDS = "fields";
   public static final String FORMAT = "format";
+  public static final String INDENT = "indent";
   public static final String HEADER = "header";
   public static final String FOOTER = "footer";
   public static final String LENGTH = "length";
