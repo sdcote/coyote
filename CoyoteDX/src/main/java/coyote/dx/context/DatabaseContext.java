@@ -190,7 +190,7 @@ public class DatabaseContext extends PersistentContext {
 
 
   public String getIdentity() {
-    return configuration.getString( ConfigTag.IDENTIDY );
+    return configuration.getString( ConfigTag.IDENTITY );
   }
 
 
