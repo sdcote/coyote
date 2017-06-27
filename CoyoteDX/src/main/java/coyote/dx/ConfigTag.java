@@ -50,7 +50,7 @@ public class ConfigTag {
   public static final String PATH = "path";
   public static final String TRIM = "trim";
   public static final String TYPE = "type";
-  public static final String IDENTIDY = "identity";
+  public static final String IDENTITY = "identity";
   /** User name ({@value}) configuration attribute. */
   public static final String USERNAME = "username";
   public static final String ENCRYPTED_USERNAME = "encrypted_username";
@@ -75,6 +75,8 @@ public class ConfigTag {
   public static final String TOPIC = "Topic";
   public static final String GROUP = "Group";
   public static final String ENCODING = "Encoding";
+  public static final String LISTEN = "Listen";
+
 
   // Networking proxy tags used by several components
   public static final String PROXY = "proxy";
