@@ -239,4 +239,33 @@ public class CSVMarshaler {
 
     return sb;
   }
+
+
+
+
+  /**
+   * Return the frame as a set of comma-delimited values.
+   * 
+   * <p>No field names are output and the values are listed in the order they 
+   * appear in the frame.
+   * 
+   * @param frame The dataFrame to represent in CSV format.
+   * 
+   * @return The field values as strings delimited with commas, or an empty 
+   *         string of no frame is given (will not return null)
+   */
+  public static String marshal( DataFrame frame ) {
+    final StringBuilder retval = new StringBuilder();
+    if ( frame != null ) {
+      for ( int x = 0; x < frame.getFieldCount(); x++ ) {
+        DataField field = frame.getField( x );
+        String token = field.getStringValue();
+        retval.append( stringContainsSpecialCharacters( token ) ? processLine( token ) : token );
+        if ( x + 1 < frame.getFieldCount() ) {
+          retval.append( ',' );
+        }
+      }
+    }
+    return retval.toString();
+  }
 }
