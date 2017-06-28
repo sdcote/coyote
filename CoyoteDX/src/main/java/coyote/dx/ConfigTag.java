@@ -108,6 +108,7 @@ public class ConfigTag {
   public static final String VALIDATE = "validate";
   public static final String TRANSFORM = "transform";
   public static final String CATEGORIES = "categories";
+  public static final String CATEGORY = "category";
   public static final String ENABLED = "enabled";
 
   // Tasks

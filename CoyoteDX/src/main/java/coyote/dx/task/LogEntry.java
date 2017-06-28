@@ -12,6 +12,7 @@
 package coyote.dx.task;
 
 import coyote.commons.StringUtil;
+import coyote.dx.ConfigTag;
 import coyote.dx.TaskException;
 import coyote.loader.log.Log;
 
@@ -21,8 +22,22 @@ import coyote.loader.log.Log;
  */
 public class LogEntry extends AbstractTransformTask {
 
-  public static final String LEVEL = "level";
-  public static final String MESSAGE = "msg";
+  public String getMessage() {
+    if ( configuration.containsIgnoreCase( ConfigTag.MESSAGE ) ) {
+      return configuration.getString( ConfigTag.MESSAGE );
+    }
+    return null;
+  }
+
+
+
+
+  public String getCategory() {
+    if ( configuration.containsIgnoreCase( ConfigTag.CATEGORY ) ) {
+      return configuration.getString( ConfigTag.CATEGORY );
+    }
+    return null;
+  }
 
 
 
@@ -33,12 +48,14 @@ public class LogEntry extends AbstractTransformTask {
   @Override
   public void execute() throws TaskException {
 
-    String message = resolveArgument( MESSAGE );
+    String message = getMessage();
     if ( StringUtil.isNotBlank( message ) ) {
-      String level = resolveArgument( LEVEL );
+      String level = getCategory();
       if ( StringUtil.isNotBlank( level ) ) {
         if ( "info".equalsIgnoreCase( level ) ) {
           Log.info( message );
+        } else if ( "notice".equalsIgnoreCase( level ) ) {
+          Log.notice( message );
         } else if ( "debug".equalsIgnoreCase( level ) ) {
           Log.debug( message );
         } else if ( "warn".equalsIgnoreCase( level ) ) {
