@@ -14,7 +14,6 @@ package coyote.dx.validate;
 import java.io.IOException;
 
 import coyote.commons.StringUtil;
-import coyote.dataframe.DataFrameException;
 import coyote.dx.AbstractConfigurableComponent;
 import coyote.dx.CDX;
 import coyote.dx.ConfigTag;
@@ -34,12 +33,13 @@ import coyote.loader.log.LogMsg;
  * 
  * <p>Configuration example:
  * <pre>"Validate" : {
- *   "Distinct" : { "field" : "asset_tag",  "desc" : "Asset tag must be unique"  }
+ *   "Distinct" : { "field" : "asset_tag",  "desc" : "Asset tag must be unique", "halt": false  }
  * },</pre>
+ * 
+ * <p>The "halt" configuration attribute controls if the transaction should be 
+ * halted by placing the transaction context in error. 
  */
 public abstract class AbstractValidator extends AbstractConfigurableComponent implements FrameValidator, ConfigurableComponent {
-
-  protected boolean halt = false;
 
   protected String fieldName = null;
   protected String description = null;
@@ -48,40 +48,31 @@ public abstract class AbstractValidator extends AbstractConfigurableComponent im
 
 
   @Override
-  public void open( TransformContext context ) {
-
-  }
+  public void open( TransformContext context ) {}
 
 
 
 
-  protected boolean haltOnFail() {
-    return halt;
-  }
-
-
-
-
-  @Override
-  public void close() throws IOException {
-
-  }
-
-
-
-
-  /**
-   * @see coyote.dx.FrameValidator#process(coyote.dx.context.TransactionContext)
-   */
-  @Override
-  public boolean process( TransactionContext context ) throws ValidationException {
+  public boolean haltOnFail() {
+    if ( configuration.containsIgnoreCase( ConfigTag.HALT_ON_FAIL ) ) {
+      return configuration.getBoolean( ConfigTag.HALT_ON_FAIL );
+    }
     return false;
   }
 
 
 
 
+  @Override
+  public void close() throws IOException {}
+
+
+
+
   /**
+   * Fires the validation failed event in the listeners with the description 
+   * of this validation rule and optionally sets the transaction context in 
+   * error if {@link #haltOnFail()} is set to true.
    * 
    * @param context
    * @param field
@@ -98,7 +89,10 @@ public abstract class AbstractValidator extends AbstractConfigurableComponent im
 
 
   /**
-   * Fires the validation failed event in the listeners with the description of this validation rule and optionally
+   * Fires the validation failed event in the listeners with the description 
+   * of this validation rule and optionally sets the transaction context in 
+   * error if {@link #haltOnFail()} is set to true.
+   * 
    * @param context
    * @param field
    */
@@ -113,7 +107,7 @@ public abstract class AbstractValidator extends AbstractConfigurableComponent im
 
 
 
- /**
+  /**
   * @see coyote.dx.AbstractConfigurableComponent#setConfiguration(coyote.loader.cfg.Config)
   */
   @Override
@@ -132,12 +126,11 @@ public abstract class AbstractValidator extends AbstractConfigurableComponent im
     }
 
     // Check if we are to thrown a context error if validation fails
-    if ( cfg.contains( ConfigTag.HALT_ON_FAIL ) ) {
+    if ( cfg.containsIgnoreCase( ConfigTag.HALT_ON_FAIL ) ) {
       try {
-        halt = cfg.getAsBoolean( ConfigTag.HALT_ON_FAIL );
-      } catch ( DataFrameException e ) {
+        cfg.getBoolean( ConfigTag.HALT_ON_FAIL );
+      } catch ( Exception e ) {
         Log.info( LogMsg.createMsg( CDX.MSG, "Task.Header flag not valid " + e.getMessage() ) );
-        halt = false;
       }
     } else {
       Log.debug( LogMsg.createMsg( CDX.MSG, "Task.No halt config" ) );
