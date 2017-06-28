@@ -514,9 +514,9 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
     }
 
     if ( getContext().isInError() ) {
-      Log.info( "Engine '" + getName() + "' (" + getInstanceId() + ") completed successfully" );
-    } else {
       Log.info( "Engine '" + getName() + "' (" + getInstanceId() + ") completed with errors: " + getContext().getStatus() + " - " + getContext().getErrorMessage() );
+    } else {
+      Log.info( "Engine '" + getName() + "' (" + getInstanceId() + ") completed successfully" );
     }
 
     // reset the context so it can be reused in the next run (when scheduled)
