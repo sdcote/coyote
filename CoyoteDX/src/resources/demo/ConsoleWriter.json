@@ -10,13 +10,13 @@
 				"Delay": 1000,
 				"Log": true
 			}    
-			
 		},
 
 		"Writer" : {
 			"class" : "ConsoleWriter",
 			"format" : "json",
-			"indent" : true
+			"indent" : false,
+			"message" : "Record [#$CurrentFrame#] received."
 		}
 	}
 

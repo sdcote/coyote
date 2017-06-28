@@ -74,6 +74,7 @@ public class ConfigTag {
   public static final String GROUP = "Group";
   public static final String ENCODING = "Encoding";
   public static final String LISTEN = "Listen";
+  public static final String MESSAGE = "Message";
 
 
   // Networking proxy tags used by several components
