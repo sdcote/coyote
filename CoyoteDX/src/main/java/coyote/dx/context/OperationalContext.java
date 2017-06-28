@@ -441,9 +441,14 @@ public abstract class OperationalContext {
   /**
    * Fire an event indicating validation failed in the given context for the 
    * given reason.
-   * @param validator 
    * 
-   * @param msg error message indicating why the validation failed.
+   * <p>This method is called by FrameValidators to inform interested 
+   * components when frames fail validation checks and to provide a detailed 
+   * message as to why the validation failed, what the values were which 
+   * failed and possibly guidelines on how to locate and correct the error.
+   * 
+   * @param validator the validator generating the event
+   * @param msg error message indicating details why the validation failed.
    */
   public void fireValidationFailed( FrameValidator validator, String msg ) {
     if ( parent != null )

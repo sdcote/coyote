@@ -61,6 +61,9 @@ public interface ContextListener extends ConfigurableComponent {
   /**
    * Event indicating validation failed in the given context.
    * 
+   * <p>Additional details can be pulled from the validator and the context 
+   * for very precise reporting on what happened where and why.
+   * 
    * @param context The context in which the validation failed
    * @param validator The frame validator generating the event
    * @param msg error message indicating why the validation failed.
