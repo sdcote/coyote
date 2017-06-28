@@ -498,7 +498,7 @@ public final class FileUtil {
           file.getParentFile().mkdirs();
         }
       } else if ( backup ) {
-        FileUtil.createGenerationalBackup( file );
+        FileUtil.createBackup( file );
       }
 
       RandomAccessFile seeker = null;
@@ -1202,12 +1202,12 @@ public final class FileUtil {
 
         switch ( c ) {
 
-        // Replace spaces
+          // Replace spaces
           case ' ':
             buffer.append( "%20" );
             continue;
 
-            // Replace every Windows file separator
+          // Replace every Windows file separator
           case '\\':
             buffer.append( "/" );
             continue;
@@ -1704,18 +1704,100 @@ public final class FileUtil {
 
 
   /**
-   * Method backup
+   * Make a copy of a file in the given file using a generation naming 
+   * scheme effectively rotating the files.
+   * 
+   * <p>This task will create a copy of the file and append a number to the end 
+   * of the file name. The latest backup is always 1; as all the files are 
+   * named according to the age of their generation. For example FILE.1 is 
+   * renamed to FILE.2 before the backup is created as FILE.1 so no data is 
+   * lost.
    *
-   * @param file
-   *
+   * <p>If a limit is specified, then only that number of generations will be 
+   * preserved. If limit is less than the current number of generations, the 
+   * excess files will be removed. A limit of 0 (zero) is effectively 
+   * interpreted as no limit. Any negative value is interpreted as zero. The 
+   * default limit is zero.
+   * 
+   * @param targetFile
+   * @param limit
    * @throws IOException
    */
-  public static void createGenerationalBackup( final File file ) throws IOException {
-    int i = 0;
-    for ( i = 0; new File( file.getAbsolutePath() + "." + i ).exists(); i++ ) {
-      ;
+  public static void createGenerationalBackup( File targetFile, int limit ) throws IOException {
+    File target;
+    File file;
+    final String fileName = targetFile.getAbsolutePath();
+
+    int generations = findGenerationSize( targetFile );
+
+    if ( limit > 0 ) {
+      if ( generations > limit ) {
+        for ( int i = generations - 1; i >= limit; i-- ) {
+          file = new File( fileName + '.' + i );
+          if ( file.exists() ) {
+            //System.out.println( "Deleting excess file " + file );
+            file.delete();
+          }
+        }
+      } else if ( generations == limit ) {
+        file = new File( fileName + '.' + generations );
+        if ( file.exists() ) {
+          //System.out.println( "Deleting oldest file " + file );
+          file.delete();
+        }
+      }
     }
 
+    for ( int i = generations - 1; i >= 1; i-- ) {
+      file = new File( fileName + "." + i );
+      if ( file.exists() ) {
+        target = new File( fileName + '.' + ( i + 1 ) );
+        //System.out.println( "Renaming file " + file + " to " + target );
+        file.renameTo( target );
+      }
+    }
+    FileUtil.copyFile( targetFile.getAbsolutePath(), new File( targetFile.getAbsolutePath() + ".1" ).getAbsolutePath() );
+
+  }
+
+
+
+
+  /**
+   * Determine how many generations currently exist for this file.
+   * 
+   * <p>If no generations exist, then 0 (zero) is returned.
+   * 
+   * @param file the file to check
+   * 
+   * @return the number of generations which exist for this file.
+   */
+  private static int findGenerationSize( File file ) {
+    int i = 0;
+    for ( i = 1; new File( file.getAbsolutePath() + "." + i ).exists(); i++ );
+    return i;
+  }
+
+
+
+
+  /**
+   * Create a backup of the file.
+   * 
+   * <p>This will create a file with the same name but with a .1 (one) 
+   * appended to it. If that file exists, the number will be incremented until 
+   * a numbered filename does not exist and then the file is copied to it. 
+   * This results in the latest backup having the highest number.
+   * 
+   * <p>For a more traditional log rotation method, see 
+   * {@link #createGenerationalBackup(File, int)}
+   * 
+   * @param file The file to backup
+   *
+   * @throws IOException if the file could not be copied.
+   */
+  public static void createBackup( final File file ) throws IOException {
+    int i = findGenerationSize( file );
     FileUtil.copyFile( file.getAbsolutePath(), new File( file.getAbsolutePath() + "." + i ).getAbsolutePath() );
   }
 
@@ -1759,7 +1841,7 @@ public final class FileUtil {
 
       try {
         if ( file.exists() && backup ) {
-          FileUtil.createGenerationalBackup( file );
+          FileUtil.createBackup( file );
         }
 
         // Make sure the parent directories are present
@@ -2638,7 +2720,7 @@ public final class FileUtil {
           int nread = 0;
           while ( ( nread = fis.read( dataBytes ) ) != -1 ) {
             md.update( dataBytes, 0, nread );
-          };
+          } ;
         } catch ( Exception e ) {
           e.printStackTrace();
         }
@@ -3157,7 +3239,7 @@ public final class FileUtil {
           } else {
             // just copy it
             copyFile( srcFile, tgtFile, keepDate );
-          }// target exists
+          } // target exists
         } // for each found file
 
       } // recurse
