@@ -1,0 +1,13 @@
+{
+	"Class": "coyote.dx.Job",
+	"Job": {
+		"Name": "Simple",
+		"Task": {
+			"LogEntry": { "message": "This is a log entry" }
+		}
+	},
+
+	"Logging": { 
+		"ConsoleAppender": { "categories": "info, notice, warn, error, fatal" }
+	}
+}
