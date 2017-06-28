@@ -169,7 +169,7 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
    */
   @Override
   public void run() {
-    Log.trace( "Engine '" + getName() + "' (" + getInstanceId() + ") running..." );
+    Log.info( "Engine '" + getName() + "' (" + getInstanceId() + ") running..." );
 
     symbols.put( Symbols.JOB_ID, getInstanceId() );
 
@@ -354,7 +354,7 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
           // Read a frame into the given context (source frame)
           DataFrame retval = reader.read( txnContext );
 
-          // Sometimes readers read empty lines and the like, skip null dataframes!!!
+          // Sometimes readers read empty lines and the like, skip null dataframes
           if ( retval != null ) {
 
             // Set the returned dataframe into the transaction context
@@ -365,8 +365,6 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
 
             // fire the read event in all the listeners
             txnContext.fireRead( txnContext, reader );
-
-            //log.debug( "row {} - {}", context.getRow(), context.getSourceFrame().toString() );
 
             // ...pass it through the filters...
             for ( FrameFilter filter : filters ) {
@@ -381,8 +379,8 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
             // If the working frame did not get filtered out...
             if ( txnContext.getWorkingFrame() != null ) {
 
-              boolean passed = true;
               // pass it through the validation rules - errors are logged
+              boolean passed = true;
               for ( FrameValidator validator : validators ) {
                 try {
                   if ( !validator.process( txnContext ) ) {
@@ -390,12 +388,12 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
                   }
                 } catch ( ValidationException e ) {
                   txnContext.setError( e.getMessage() );
+                  txnContext.setStatus( "Validation Error" );
                 }
               }
 
               // if there were validation errors
               if ( !passed ) {
-                // fire the event for any listeners
                 getContext().fireFrameValidationFailed( txnContext );
               }
 
@@ -515,7 +513,11 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
       currentFrameNumber = 0;
     }
 
-    Log.trace( "Engine '" + getName() + "' (" + getInstanceId() + ") complete" );
+    if ( getContext().isInError() ) {
+      Log.info( "Engine '" + getName() + "' (" + getInstanceId() + ") completed successfully" );
+    } else {
+      Log.info( "Engine '" + getName() + "' (" + getInstanceId() + ") completed with errors: " + getContext().getStatus() + " - " + getContext().getErrorMessage() );
+    }
 
     // reset the context so it can be reused in the next run (when scheduled)
     getContext().reset();
