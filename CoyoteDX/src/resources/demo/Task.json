@@ -3,7 +3,8 @@
 	"Job": {
 		"Name": "Simple",
 		"Task": {
-			"LogEntry": { "message": "This is a log entry" }
+			"LogEntry": { "message": "This is a log entry" },
+			"Touch": { "filename": "README.md" }
 		}
 	},
 
