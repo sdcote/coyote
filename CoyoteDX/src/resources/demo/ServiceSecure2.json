@@ -5,20 +5,20 @@
 		"Port": 443,
 		"Auth": {
 			"Users" : [ 
-				{ "EncryptedName" : "cNcvHrSlDEeVLJTNJTyyUkgkTdMFuOYF", 
-				  "EncryptedPassword" : "GfqGEXtR5jkyh75cRgqlNzgAdPz/K2mz", 
-				  "EncryptedGroups" : "02vnj/GyZwndbwd5zoXpjbievElMHAu1UnVMDb1VaHU="
+				{ "ENC:Name" : "cNcvHrSlDEeVLJTNJTyyUkgkTdMFuOYF", 
+				  "ENC:Password" : "GfqGEXtR5jkyh75cRgqlNzgAdPz/K2mz", 
+				  "ENC:Groups" : "02vnj/GyZwndbwd5zoXpjbievElMHAu1UnVMDb1VaHU="
 				},
-				{ "EncryptedName" : "6UjhJd7E9Q3dbwd5zoXpjUgkTdMFuOYF", 
-				  "EncryptedPassword" : "aYjBkL5R6G0yh75cRgqlNzgAdPz/K2mz", 
-				  "EncryptedGroups" : "6UjhJd7E9Q3dbwd5zoXpjUgkTdMFuOYF"
+				{ "ENC:Name" : "6UjhJd7E9Q3dbwd5zoXpjUgkTdMFuOYF", 
+				  "ENC:Password" : "aYjBkL5R6G0yh75cRgqlNzgAdPz/K2mz", 
+				  "ENC:Groups" : "6UjhJd7E9Q3dbwd5zoXpjUgkTdMFuOYF"
 				},
-				{ "EncryptedName" : "cyVFWJgrHFwNVTBmspLMs0gkTdMFuOYF", 
-				  "EncryptedPassword" : "O0+u0KBTbycyh75cRgqlNzgAdPz/K2mz", 
-				  "EncryptedGroups" : "cyVFWJgrHFwNVTBmspLMs0gkTdMFuOYF"
+				{ "ENC:Name" : "cyVFWJgrHFwNVTBmspLMs0gkTdMFuOYF", 
+				  "ENC:Password" : "O0+u0KBTbycyh75cRgqlNzgAdPz/K2mz", 
+				  "ENC:Groups" : "cyVFWJgrHFwNVTBmspLMs0gkTdMFuOYF"
 				},
-				{ "EncryptedName" : "OjlIAF1dPhHiNBqMCqVJUg==",  
-				  "EncryptedPassword" : "6CIY8APrIlUyh75cRgqlNzgAdPz/K2mz"
+				{ "ENC:Name" : "OjlIAF1dPhHiNBqMCqVJUg==",  
+				  "ENC:Password" : "6CIY8APrIlUyh75cRgqlNzgAdPz/K2mz"
 				}
 			]
 		},
