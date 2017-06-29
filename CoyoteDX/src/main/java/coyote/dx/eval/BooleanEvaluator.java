@@ -74,8 +74,17 @@ public class BooleanEvaluator extends AbstractEvaluator<Boolean> {
   /** A constant that represents the current state of the isLastFrame() method call in the transaction context */
   public static final Constant LAST = new Constant( "islast" );
 
+  /** A constant that represents the current error state of the transform context */
+  public static final Constant CONTEXT_ERROR = new Constant( "contextError" );
+
+  /** A constant that represents the current error state of the transaction context */
+  public static final Constant TRANSACTION_ERROR = new Constant( "transactionError" );
+
   /** The whole set of predefined constants */
-  private static final Constant[] CONSTANTS = new Constant[] { LAST };
+  private static final Constant[] CONSTANTS = new Constant[] { LAST, CONTEXT_ERROR, TRANSACTION_ERROR };
+
+  // Constants for use within function calls
+  private static final String CURRENT_ROW = "currentRow";
 
   // Our default parameters
   private static Parameters DEFAULT_PARAMETERS;
@@ -205,6 +214,20 @@ public class BooleanEvaluator extends AbstractEvaluator<Boolean> {
       } else {
         return new Boolean( false );
       }
+    } else if ( CONTEXT_ERROR.equals( constant ) ) {
+      if ( transformContext != null ) {
+        Boolean retval = new Boolean( transformContext.isInError() );
+        return retval;
+      } else {
+        return new Boolean( false );
+      }
+    } else if ( TRANSACTION_ERROR.equals( constant ) ) {
+      if ( transformContext != null && transformContext.getTransaction() != null ) {
+        Boolean retval = new Boolean( transformContext.getTransaction().isInError() );
+        return retval;
+      } else {
+        return new Boolean( false );
+      }
     } else {
       return super.evaluate( constant, evaluationContext );
     }
@@ -228,6 +251,10 @@ public class BooleanEvaluator extends AbstractEvaluator<Boolean> {
       Boolean o1 = operands.next();
       Boolean o2 = operands.next();
       return o1 && o2;
+    } else if ( operator == EQUAL ) {
+      Object o1 = operands.next();
+      Object o2 = operands.next();
+      return o1.equals( o2 );
     } else {
       return super.evaluate( operator, operands, evaluationContext );
     }
@@ -283,30 +310,87 @@ public class BooleanEvaluator extends AbstractEvaluator<Boolean> {
 
 
 
+  /**
+   * Implements an equality check between the two arguments.
+   * 
+   * <p>Each of the arguments are passed to an function constant evaluator 
+   * which will replace the arguments with any matching constants.
+   * 
+   * <p>Next the arguments are passed to the context to resolve them to named 
+   * values in the transform context, its transaction context and its symbol 
+   * table. Any matching keys are resolved to values. If no match is mage, the 
+   * arguments are returned and assumed to be literals.
+   * 
+   * @param arg1 the value to test
+   * @param arg2 the test against which the value is compared
+   * 
+   * @return true if the arguments evaluate to values which equal each other, 
+   *         false otherwise.
+   */
   private Boolean performEquals( String arg1, String arg2 ) {
-    if ( transformContext != null ) {
-      String value = transformContext.resolveToString( arg1 );
-      if ( value == null ) {
-        value = StringUtil.getQuotedValue( arg1 );
-        if ( value == null ) {
-          value = arg1;
-        }
-      }
-      String test = transformContext.resolveToString( arg2 );
-      if ( test == null ) {
-        value = StringUtil.getQuotedValue( arg2 );
-        if ( value == null ) {
-          value = arg2;
-        }
-      }
+    String op1 = sanitize( arg1 );
+    op1 = evaluateFunctionConstant( op1 );
+    String op2 = sanitize( arg2 );
+    op2 = evaluateFunctionConstant( op2 );
 
-      if ( value.equals( test ) ) {
-        return true;
-      }
-    } else {
-      return false;
+    String value = op1;
+    String test = op2;
+    if ( transformContext != null ) {
+      String rValue = transformContext.resolveToString( op1 );
+      if ( rValue != null )
+        value = rValue;
+
+      String rTest = transformContext.resolveToString( op2 );
+      if ( rTest != null )
+        test = rTest;
     }
-    return false;
+
+    if ( value != null ) {
+      return value.equals( test );
+    } else {
+      return ( test == null );
+    }
+  }
+
+
+
+
+  private String evaluateFunctionConstant( String token ) {
+    if ( token != null ) {
+      if ( token.equals( CURRENT_ROW ) ) {
+        if ( transformContext != null ) {
+          return Long.toString( transformContext.getRow() );
+        }
+      }
+    }
+    return token;
+  }
+
+
+
+
+  /**
+   * Resolve the token in the context and determine if it is null or an empty 
+   * string ("").
+   * 
+   * @param token name of the value to resolve in the context.
+   * 
+   * @return true if the token does not return a value or if the value 
+   *         returned is an empty string, false if not null or empty.
+   */
+  private Boolean performEmpty( String token ) {
+    String key = sanitize( token );
+    String value = transformContext.resolveToString( key );
+    return StringUtil.isEmpty( value );
+  }
+
+
+
+
+  private Boolean performExists( String token ) {
+    String fieldname = sanitize( token );
+    boolean retval = transformContext.containsField( fieldname );
+    return retval;
   }
 
 
@@ -321,19 +405,21 @@ public class BooleanEvaluator extends AbstractEvaluator<Boolean> {
 
 
 
-  private Boolean performEmpty( String arg1 ) {
-    Boolean retval = Boolean.FALSE;
-    // TODO Auto-generated method stub
-    return retval;
-  }
-
-
-
-
-  private Boolean performExists( String arg1 ) {
-    Boolean retval = Boolean.FALSE;
-    // TODO Auto-generated method stub
-    return retval;
+  /**
+   * If the token starts and ends with a double quote, return the value 
+   * contained therein.
+   * @param token
+   * @return
+   */
+  private String sanitize( String token ) {
+    if ( token != null && token.startsWith( "\"" ) && token.endsWith( "\"" ) ) {
+      String retval = StringUtil.getQuotedValue( token );
+      if ( retval != null )
+        return retval.trim();
+      else
+        return retval;
+    }
+    return token;
   }
 
 }

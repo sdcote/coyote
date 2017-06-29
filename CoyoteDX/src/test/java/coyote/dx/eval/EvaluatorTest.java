@@ -21,7 +21,7 @@ import static org.junit.Assert.fail;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import coyote.dx.Symbols;
+import coyote.dataframe.DataFrame;
 import coyote.dx.context.TransactionContext;
 import coyote.dx.context.TransformContext;
 
@@ -52,6 +52,7 @@ public class EvaluatorTest {
     // create a transaction context within the transformation context  
     context = new TransactionContext( transformContext );
     context.setLastFrame( true );
+    context.setWorkingFrame( new DataFrame().set( "field1", "value1" ).set( "Field2", "Value2" ).set( "NullField", null ) );
 
     // Mimic the transform engine and place a reference to the transaction 
     // context in the transform context
@@ -94,16 +95,17 @@ public class EvaluatorTest {
    * Test method for {@link coyote.dx.eval.Evaluator#evaluateBoolean(java.lang.String)}.
    */
   @Test
-  public void testEvaluateBoolean() {
+  public void booleanOperators() {
 
     String expression;
     try {
-      
-      assertEquals(context.getRow(), 42);
 
-      expression = "5 == 5";
-      // assertTrue( evaluator.evaluateBoolean( expression ) );
-      
+      expression = "true == true";
+      assertTrue( evaluator.evaluateBoolean( expression ) );
+
+      expression = "true == false";
+      assertFalse( evaluator.evaluateBoolean( expression ) );
+
       expression = "true && false";
       assertFalse( evaluator.evaluateBoolean( expression ) );
       //System.out.println( expression + " = " + evaluator.evaluateBoolean( expression ) );
@@ -114,42 +116,286 @@ public class EvaluatorTest {
       expression = "!true";
       assertFalse( evaluator.evaluateBoolean( expression ) );
 
+    } catch ( Exception e ) {
+      e.printStackTrace();
+      fail( e.getMessage() );
+    }
+
+  }
+
+
+
+
+  @Test
+  public void booleanIsLast() {
+
+    String expression;
+    try {
       expression = "islast"; // constant supported by the boolean evaluator
       assertTrue( evaluator.evaluateBoolean( expression ) );
 
       expression = "! islast";
       assertFalse( evaluator.evaluateBoolean( expression ) );
-      
-      
+
+      expression = "islast || false";
+      assertTrue( evaluator.evaluateBoolean( expression ) );
+
+      expression = "! islast || false";
+      assertFalse( evaluator.evaluateBoolean( expression ) );
+
     } catch ( Exception e ) {
       e.printStackTrace();
       fail( e.getMessage() );
     }
+  }
 
-    // we need to create methods...functions which take strings as aguments...
-    // this will allow us to do more logical things like looking up values
+
+
+
+  /**
+   * contextError is a literal for the current error state of the current transform (parent) context.
+   */
+  @Test
+  public void booleanContextError() {
+
+    String expression;
+    try {
+      expression = "contextError"; // constant supported by the boolean evaluator
+      assertFalse( evaluator.evaluateBoolean( expression ) );
+
+      expression = "! contextError";
+      assertTrue( evaluator.evaluateBoolean( expression ) );
+
+      transformContext.setError( true );
+
+      expression = "contextError";
+      assertTrue( evaluator.evaluateBoolean( expression ) );
+
+      expression = "! contextError";
+      assertFalse( evaluator.evaluateBoolean( expression ) );
+    } catch ( Exception e ) {
+      e.printStackTrace();
+      fail( e.getMessage() );
+    }
+    finally {
+      transformContext.setError( false );
+    }
+  }
+
+
+
+
+  /**
+   * TransactionError is a literal for the current error state of the current transaction context.
+   */
+  @Test
+  public void booleanTransactionError() {
+
+    String expression;
+    try {
+      expression = "transactionError"; // constant supported by the boolean evaluator
+      assertFalse( evaluator.evaluateBoolean( expression ) );
+
+      expression = "! transactionError";
+      assertTrue( evaluator.evaluateBoolean( expression ) );
+
+      context.setError( true );
+
+      expression = "transactionError";
+      assertTrue( evaluator.evaluateBoolean( expression ) );
+
+      expression = "! transactionError";
+      assertFalse( evaluator.evaluateBoolean( expression ) );
+    } catch ( Exception e ) {
+      e.printStackTrace();
+      fail( e.getMessage() );
+    }
+    finally {
+      context.setError( false );
+    }
+  }
+
+
+
+
+  /**
+   * Exists is a method to check for the existence of a field in the 
+   * transaction context of the transform context.
+   */
+  @Test
+  public void booleanExists() {
+
+    String expression;
+
+    // Test the exists method
     try {
       expression = "exists(\"Source.RecordType\")";
+      assertFalse( evaluator.evaluateBoolean( expression ) );
 
-      evaluator.evaluateBoolean( expression );
-      // assertFalse( evaluator.evaluateBoolean( expression ) );
+      expression = "exists(\"Working.field1\")";
+      assertTrue( evaluator.evaluateBoolean( expression ) );
 
-      expression = "! islast and matches(WorkingFrame.userName,\"22\")";
-      // assertFalse( evaluator.evaluateBoolean( expression ) );
+      expression = "exists(\"field1\")"; // working assumed
+      assertTrue( evaluator.evaluateBoolean( expression ) );
+
+      expression = "exists(\"Working.Field1\")"; // case sensitive
+      assertFalse( evaluator.evaluateBoolean( expression ) );
+
+      expression = "exists(\"Working.NullField\")";
+      assertTrue( evaluator.evaluateBoolean( expression ) );
+
+      // test un-quoted values
+      expression = "exists(field1)";
+      assertTrue( evaluator.evaluateBoolean( expression ) );
+
+      expression = "exists(Working.Field1)";
+      assertFalse( evaluator.evaluateBoolean( expression ) );
+
     } catch ( Exception e ) {
       e.printStackTrace();
       fail( e.getMessage() );
     }
+  }
 
+
+
+
+  /**
+   * Empty is a method which tests the value of a frame field, transform 
+   * context key or symbol in the transform context symbol table. 
+   */
+  @Test
+  public void booleanEmpty() {
+    String expression;
     try {
-      expression = "islast and equals(WorkingFrame.record_type,\"22\")";
-      // assertFalse( evaluator.evaluateBoolean( expression ) );
+      expression = "empty(\"Working.NullField\")";
+      assertTrue( evaluator.evaluateBoolean( expression ) );
 
-      expression = "! islast and matches(WorkingFrame.userName,\"22\")";
-      // assertFalse( evaluator.evaluateBoolean( expression ) );
+      expression = "empty(Working.Field1)";
+      assert ( evaluator.evaluateBoolean( expression ) );
+
+      expression = "empty(\"Working.field1\")";
+      assertFalse( evaluator.evaluateBoolean( expression ) );
+
+      expression = "empty(Working.field1)";
+      assertFalse( evaluator.evaluateBoolean( expression ) );
+
+      expression = "empty(\"field1\")"; // working assumed
+      assertFalse( evaluator.evaluateBoolean( expression ) );
+
+      expression = "empty(field1)"; // working assumed
+      assertFalse( evaluator.evaluateBoolean( expression ) );
+
+      expression = "empty(\"Working.Field1\")"; // case sensitive
+      assertTrue( evaluator.evaluateBoolean( expression ) );
+
+      expression = "empty(Working.Field1)"; // case sensitive
+      assertTrue( evaluator.evaluateBoolean( expression ) );
+
+      expression = "empty(string)"; // context
+      assertFalse( evaluator.evaluateBoolean( expression ) );
+
+      expression = "empty(\"string\")";
+      assertFalse( evaluator.evaluateBoolean( expression ) );
+
+      expression = "empty(\" string \")";
+      assertFalse( evaluator.evaluateBoolean( expression ) );
+
+      expression = "empty(String)";
+      assertTrue( evaluator.evaluateBoolean( expression ) );
+
     } catch ( Exception e ) {
       e.printStackTrace();
       fail( e.getMessage() );
+    }
+  }
+
+  @Test
+  public void booleanEquals() {
+    String expression;
+    try {
+      expression = "equals(5,5)";
+      assertTrue( evaluator.evaluateBoolean( expression ) );
+
+      expression = "equals(5,4)";
+      assertFalse( evaluator.evaluateBoolean( expression ) );
+
+      expression = "equals(currentRow,42)";
+      assertTrue( evaluator.evaluateBoolean( expression ) );
+
+      expression = "equals(currentRow,43)";
+      assertFalse( evaluator.evaluateBoolean( expression ) );
+
+      expression = "equals(Working.field1,value1)";
+      assertTrue( evaluator.evaluateBoolean( expression ) );
+
+
+    } catch ( Exception e ) {
+      e.printStackTrace();
+      fail( e.getMessage() );
+    }
+  }
+
+
+
+  /**
+   * Test some more complex examples
+   */
+  @Test
+  public void booleanComplex() {
+
+    String expression;
+    try {
+
+      expression = "islast || equals(Working.record_type,\"22\")";
+      assertTrue( evaluator.evaluateBoolean( expression ) );
+
+      expression = "! islast || equals(Working.record_type,\"22\")";
+     assertFalse( evaluator.evaluateBoolean( expression ) );
+
+      expression = "islast || equals(Working.field1,\"value1\")";
+      assertTrue( evaluator.evaluateBoolean( expression ) );
+
+      expression = "islast && equals(Working.field1,value1)";
+     assertTrue( evaluator.evaluateBoolean( expression ) );
+
+      expression = "islast && equals(Working.field1,\"value1\")";
+      assertTrue( evaluator.evaluateBoolean( expression ) );
+
+      expression = "! islast && equals(Working.field1,\"value1\")";
+      assertFalse( evaluator.evaluateBoolean( expression ) );
+
+      expression = "! islast && ! equals(Working.field1,\"value1\")";
+      assertFalse( evaluator.evaluateBoolean( expression ) );
+
+      expression = "! islast && match(Working.userName,\"22\")";
+      // assertFalse( evaluator.evaluateBoolean( expression ) );
+
+      expression = "! islast && match(Working.userName,\"22\")";
+      // assertFalse( evaluator.evaluateBoolean( expression ) );
+
+      expression = "contextError && equals(currentRow,0)";
+      assertFalse( evaluator.evaluateBoolean( expression ) );
+
+      transformContext.setError( true );
+      transformContext.setRow( 0 );
+      
+      expression = "contextError && equals(currentRow,0)";
+      assertTrue( evaluator.evaluateBoolean( expression ) );
+
+      transformContext.setError( false );
+      expression = "! contextError && equals(currentRow,0)";
+      assertTrue( evaluator.evaluateBoolean( expression ) );
+
+
+      
+      
+    } catch ( Exception e ) {
+      e.printStackTrace();
+      fail( e.getMessage() );
+    } finally {
+      transformContext.setError( false );
+      transformContext.setRow( 42 );
     }
 
   }
