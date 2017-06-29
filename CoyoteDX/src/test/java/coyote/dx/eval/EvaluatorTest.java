@@ -21,9 +21,9 @@ import static org.junit.Assert.fail;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import coyote.dx.Symbols;
 import coyote.dx.context.TransactionContext;
 import coyote.dx.context.TransformContext;
-import coyote.dx.eval.Evaluator;
 
 
 /**
@@ -47,6 +47,7 @@ public class EvaluatorTest {
     // Create simple transformation context
     transformContext = new TransformContext();
     transformContext.set( "string", "Nylon" );
+    transformContext.setRow( 42 );
 
     // create a transaction context within the transformation context  
     context = new TransactionContext( transformContext );
@@ -97,6 +98,12 @@ public class EvaluatorTest {
 
     String expression;
     try {
+      
+      assertEquals(context.getRow(), 42);
+
+      expression = "5 == 5";
+      // assertTrue( evaluator.evaluateBoolean( expression ) );
+      
       expression = "true && false";
       assertFalse( evaluator.evaluateBoolean( expression ) );
       //System.out.println( expression + " = " + evaluator.evaluateBoolean( expression ) );
@@ -112,6 +119,8 @@ public class EvaluatorTest {
 
       expression = "! islast";
       assertFalse( evaluator.evaluateBoolean( expression ) );
+      
+      
     } catch ( Exception e ) {
       e.printStackTrace();
       fail( e.getMessage() );
@@ -185,7 +194,7 @@ public class EvaluatorTest {
 
     // (2^3-1)*sin(pi/4)/ln(pi^2) = 2.1619718020347976
     //System.out.println(evaluator.evaluateNumeric( "(2^3-1)*sin(pi/4)/ln(pi^2)" ));
-    
+
     double rnd = evaluator.evaluateNumeric( "random()" );
     assertTrue( rnd >= 0 && rnd <= 1.0 );
 

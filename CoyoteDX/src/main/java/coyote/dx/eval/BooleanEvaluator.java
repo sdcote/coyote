@@ -45,8 +45,11 @@ public class BooleanEvaluator extends AbstractEvaluator<Boolean> {
   /** The logical OR operator.*/
   public final static Operator OR = new Operator( "||", 2, Operator.Associativity.LEFT, 1 );
 
+  /** The logical Equals operator.*/
+  public final static Operator EQUAL = new Operator( "==", 2, Operator.Associativity.LEFT, 2 );
+
   /** The standard whole set of predefined operators */
-  private static final Operator[] OPERATORS = new Operator[] { NEGATE, AND, OR };
+  private static final Operator[] OPERATORS = new Operator[] { NEGATE, AND, OR, EQUAL };
 
   // Methods
   /** Performs a case sensitive comparison between two string values */
