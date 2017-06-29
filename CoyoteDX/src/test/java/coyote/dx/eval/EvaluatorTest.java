@@ -310,6 +310,9 @@ public class EvaluatorTest {
     }
   }
 
+
+
+
   @Test
   public void booleanEquals() {
     String expression;
@@ -329,12 +332,12 @@ public class EvaluatorTest {
       expression = "equals(Working.field1,value1)";
       assertTrue( evaluator.evaluateBoolean( expression ) );
 
-
     } catch ( Exception e ) {
       e.printStackTrace();
       fail( e.getMessage() );
     }
   }
+
 
 
 
@@ -351,13 +354,13 @@ public class EvaluatorTest {
       assertTrue( evaluator.evaluateBoolean( expression ) );
 
       expression = "! islast || equals(Working.record_type,\"22\")";
-     assertFalse( evaluator.evaluateBoolean( expression ) );
+      assertFalse( evaluator.evaluateBoolean( expression ) );
 
       expression = "islast || equals(Working.field1,\"value1\")";
       assertTrue( evaluator.evaluateBoolean( expression ) );
 
       expression = "islast && equals(Working.field1,value1)";
-     assertTrue( evaluator.evaluateBoolean( expression ) );
+      assertTrue( evaluator.evaluateBoolean( expression ) );
 
       expression = "islast && equals(Working.field1,\"value1\")";
       assertTrue( evaluator.evaluateBoolean( expression ) );
@@ -368,18 +371,12 @@ public class EvaluatorTest {
       expression = "! islast && ! equals(Working.field1,\"value1\")";
       assertFalse( evaluator.evaluateBoolean( expression ) );
 
-      expression = "! islast && match(Working.userName,\"22\")";
-      // assertFalse( evaluator.evaluateBoolean( expression ) );
-
-      expression = "! islast && match(Working.userName,\"22\")";
-      // assertFalse( evaluator.evaluateBoolean( expression ) );
-
       expression = "contextError && equals(currentRow,0)";
       assertFalse( evaluator.evaluateBoolean( expression ) );
 
       transformContext.setError( true );
       transformContext.setRow( 0 );
-      
+
       expression = "contextError && equals(currentRow,0)";
       assertTrue( evaluator.evaluateBoolean( expression ) );
 
@@ -387,13 +384,17 @@ public class EvaluatorTest {
       expression = "! contextError && equals(currentRow,0)";
       assertTrue( evaluator.evaluateBoolean( expression ) );
 
+      expression = "! islast && match(Working.userName,\"22\")";
+      // assertFalse( evaluator.evaluateBoolean( expression ) );
 
-      
-      
+      expression = "! islast && match(Working.userName,\"22\")";
+      // assertFalse( evaluator.evaluateBoolean( expression ) );
+
     } catch ( Exception e ) {
       e.printStackTrace();
       fail( e.getMessage() );
-    } finally {
+    }
+    finally {
       transformContext.setError( false );
       transformContext.setRow( 42 );
     }
