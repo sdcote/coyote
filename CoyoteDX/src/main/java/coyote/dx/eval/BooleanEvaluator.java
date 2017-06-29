@@ -80,8 +80,11 @@ public class BooleanEvaluator extends AbstractEvaluator<Boolean> {
   /** A constant that represents the current error state of the transaction context */
   public static final Constant TRANSACTION_ERROR = new Constant( "transactionError" );
 
+  /** A constant that represents the state of no rows processed (i.e. currentRow=0) */
+  public static final Constant NO_ROWS_PROCESSED = new Constant( "noRowsProcessed" );
+
   /** The whole set of predefined constants */
-  private static final Constant[] CONSTANTS = new Constant[] { LAST, CONTEXT_ERROR, TRANSACTION_ERROR };
+  private static final Constant[] CONSTANTS = new Constant[] { LAST, CONTEXT_ERROR, TRANSACTION_ERROR, NO_ROWS_PROCESSED };
 
   // Constants for use within function calls
   private static final String CURRENT_ROW = "currentRow";
@@ -224,6 +227,13 @@ public class BooleanEvaluator extends AbstractEvaluator<Boolean> {
     } else if ( TRANSACTION_ERROR.equals( constant ) ) {
       if ( transformContext != null && transformContext.getTransaction() != null ) {
         Boolean retval = new Boolean( transformContext.getTransaction().isInError() );
+        return retval;
+      } else {
+        return new Boolean( false );
+      }
+    } else if ( NO_ROWS_PROCESSED.equals( constant ) ) {
+      if ( transformContext != null ) {
+        Boolean retval = new Boolean( transformContext.getRow() == 0 );
         return retval;
       } else {
         return new Boolean( false );

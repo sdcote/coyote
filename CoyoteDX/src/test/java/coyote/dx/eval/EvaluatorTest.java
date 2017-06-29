@@ -374,14 +374,21 @@ public class EvaluatorTest {
       expression = "contextError && equals(currentRow,0)";
       assertFalse( evaluator.evaluateBoolean( expression ) );
 
+      expression = "! noRowsProcessed";
+      assertTrue( evaluator.evaluateBoolean( expression ) );
+
       transformContext.setError( true );
       transformContext.setRow( 0 );
 
       expression = "contextError && equals(currentRow,0)";
       assertTrue( evaluator.evaluateBoolean( expression ) );
 
+      // job ran successfully but no rows processed
       transformContext.setError( false );
       expression = "! contextError && equals(currentRow,0)";
+      assertTrue( evaluator.evaluateBoolean( expression ) );
+
+      expression = "noRowsProcessed";
       assertTrue( evaluator.evaluateBoolean( expression ) );
 
       expression = "! islast && match(Working.userName,\"22\")";
