@@ -30,7 +30,7 @@ import coyote.loader.log.Log;
 /**
  * 
  */
-public class DatabaseContextTest {
+public class DatabaseContextTest extends AbstractContextTest {
 
   /**
    * @throws java.lang.Exception
@@ -158,22 +158,6 @@ public class DatabaseContextTest {
   }
 
 
-
-
-  /**
-   * Run and close the given engine.
-   * @param engine to run and close
-   */
-  private void turnOver( TransformEngine engine ) {
-    try {
-      engine.run();
-    } catch ( Exception e ) {
-      e.printStackTrace();
-    }
-    try {
-      engine.close();
-    } catch ( Exception e ) {}
-  }
 
 
 
