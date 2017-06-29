@@ -19,7 +19,6 @@ import java.util.Map;
 import coyote.commons.StringUtil;
 import coyote.commons.template.Template;
 import coyote.dataframe.DataField;
-import coyote.dataframe.DataFrame;
 import coyote.dx.Database;
 import coyote.dx.TransformEngine;
 import coyote.loader.cfg.Config;
@@ -170,16 +169,73 @@ public class TransformContext extends OperationalContext {
   /**
    * Return the value of something in this transform context to a string value.
    * 
-   * [field name]
-   * Working.[field name]
-   * Source.[field name]
-   * Target.[field name]
+   * <p>The token is scanned for a prefix to determine if it is a field name 
+   * in one of the data frames in the transaction context. If not, the token 
+   * is checked against object values in the context and the string value of 
+   * any returned object in the context with that name is returned. Finally, 
+   * if the context did not contain an object with a name matching the token, 
+   * the symbol table is checked and any matching symbol is returned.
    * 
-   * @param token
+   * <p>Matching is case sensitive.
    * 
+   * <p>Naming Conventions:<ul>
+   * <li>Working.[field name] field in the working frame of the transaction 
+   * context.
+   * <li>Source.[field name] field in the source frame of the transaction 
+   * context.
+   * <li>Target.[field name] field in the target frame of the transaction 
+   * context.
+   * <li>[field name] field in the working frame of the transaction</ul>
+   * <li>[field name] context value
+   * <li>[field name] symbol value</ul>
+   * 
+   * @param token the name of the field, context or symbol value
+   *  
    * @return the string value of the named value in this context or null if not found.
    */
   public String resolveToString( String token ) {
+    String retval = null;
+    String value = resolveField( token );
+    if ( value != null ) {
+      retval = value;
+    } else {
+      Object obj = get( token );
+      if ( obj != null ) {
+        retval = obj.toString();
+      } else {
+        if ( symbols != null ) {
+          if ( symbols.containsKey( token ) ) {
+            retval = symbols.getString( token );
+          }
+        }
+      }
+    }
+    return retval;
+  }
+
+
+
+
+  /**
+   * Return the value of a data frame field currently set in the transaction 
+   * context of this context.
+   * 
+   * <p>Matching is case sensitive.
+   * 
+   * <p>Naming Conventions:<ul>
+   * <li>Working.[field name] field in the working frame of the transaction 
+   * context.
+   * <li>Source.[field name] field in the source frame of the transaction 
+   * context.
+   * <li>Target.[field name] field in the target frame of the transaction 
+   * context.
+   * <li>[field name] field in the working frame of the transaction</ul>
+   * 
+   * @param token the name of the field, context or symbol value
+   *  
+   * @return the string value of the named value in this context or null if not found.
+   */
+  public String resolveField( String token ) {
     String retval = null;
     if ( token.startsWith( WORKING ) ) {
       String name = token.substring( WORKING.length() );
@@ -202,11 +258,35 @@ public class TransformContext extends OperationalContext {
         retval = transactionContext.getWorkingFrame().getAsString( token );
       }
     }
-
     return retval;
   }
 
 
+  public boolean containsField( String token ) {
+    Boolean retval = false;
+    if ( token.startsWith( WORKING ) ) {
+      String name = token.substring( WORKING.length() );
+      if ( transactionContext != null && transactionContext.getWorkingFrame() != null ) {
+        retval = transactionContext.getWorkingFrame().contains( name );
+      }
+    } else if ( token.startsWith( SOURCE ) ) {
+      String name = token.substring( SOURCE.length() );
+      if ( transactionContext != null && transactionContext.getSourceFrame() != null ) {
+        retval = transactionContext.getSourceFrame().contains( name );
+      }
+    } else if ( token.startsWith( TARGET ) ) {
+      String name = token.substring( TARGET.length() );
+      if ( transactionContext != null && transactionContext.getTargetFrame() != null ) {
+        retval = transactionContext.getTargetFrame().contains( name );
+      }
+    } else {
+      // assume a working frame field
+      if ( transactionContext != null && transactionContext.getWorkingFrame() != null ) {
+        retval = transactionContext.getWorkingFrame().contains( token );
+      }
+    }
+    return retval;
+  }
 
 
   /**
