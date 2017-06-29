@@ -25,16 +25,12 @@ import coyote.dx.context.TransformContext;
  */
 public class NumericEvaluator extends DoubleEvaluator {
 
-  // = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
   // Methods
-  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
   /** Performs a case sensitive comparison between two string values */
   public static final Method DUMMY = new Method( "dummy", 2 );
 
   /** The whole set of predefined functions */
   private static final Method[] METHODS = new Method[] { DUMMY };
-  // = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
   /** The transformation context from which we retrieve data */
   TransformContext transformContext = null;

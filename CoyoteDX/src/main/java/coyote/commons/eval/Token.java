@@ -4,7 +4,7 @@ package coyote.commons.eval;
  * A token of an expression.
  * 
  * <p>When evaluating an expression, it is first split into tokens. These 
- * tokens can be operators, constants, etc ...</p>
+ * tokens can be operators, constants, etc ...
  */
 public class Token {
   private enum Kind {

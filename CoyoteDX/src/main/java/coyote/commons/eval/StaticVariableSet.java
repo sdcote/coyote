@@ -8,7 +8,7 @@ import java.util.Map;
  * A static variable set.
  * 
  * <p>Here, static means that the values of variables are set before starting 
- * to evaluate the expressions.</p>
+ * to evaluate the expressions.
  * 
  * @param <T> The type of the values of the variable (the one handled by the evaluator).
  */

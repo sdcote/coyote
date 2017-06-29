@@ -30,7 +30,7 @@ public class Parameters {
    * This constructor builds an instance with no operators, no functions, no 
    * constants, no methods, no translations and no brackets.
    * 
-   * <p>Function and method argument separator is set to ','.</p>
+   * <p>Function and method argument separator is set to ','.
    */
   public Parameters() {
     operators = new ArrayList<Operator>();

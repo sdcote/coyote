@@ -35,9 +35,7 @@ public class BooleanEvaluator extends AbstractEvaluator<Boolean> {
   /** The transformation context from which we retrieve data */
   TransformContext transformContext = null;
 
-  // = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
   // Operators
-  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   /** The negate unary operator.*/
   public final static Operator NEGATE = new Operator( "!", 1, Operator.Associativity.RIGHT, 3 );
 
@@ -49,12 +47,8 @@ public class BooleanEvaluator extends AbstractEvaluator<Boolean> {
 
   /** The standard whole set of predefined operators */
   private static final Operator[] OPERATORS = new Operator[] { NEGATE, AND, OR };
-  // = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
-  // = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
   // Methods
-  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
   /** Performs a case sensitive comparison between two string values */
   public static final Method EQUALS = new Method( "equals", 2 );
 
@@ -72,25 +66,19 @@ public class BooleanEvaluator extends AbstractEvaluator<Boolean> {
 
   /** The whole set of predefined functions */
   private static final Method[] METHODS = new Method[] { MATCH, EMPTY, EXISTS, REGEX, EQUALS };
-  // = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
-  // = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
   // Constants
-  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   /** A constant that represents the current state of the isLastFrame() method call in the transaction context */
   public static final Constant LAST = new Constant( "islast" );
 
   /** The whole set of predefined constants */
   private static final Constant[] CONSTANTS = new Constant[] { LAST };
-  // = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
   // Our default parameters
   private static Parameters DEFAULT_PARAMETERS;
 
 
 
-
-  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   private static Parameters getParameters() {
     if ( DEFAULT_PARAMETERS == null ) {
@@ -175,25 +163,20 @@ public class BooleanEvaluator extends AbstractEvaluator<Boolean> {
     if ( EQUALS.equals( method ) ) {
       String arg2 = arguments.next();
       String arg1 = arguments.next();
-      // do the thing with the stuff here
       result = performEquals( arg1, arg2 );
     } else if ( REGEX.equals( method ) ) {
       String arg2 = arguments.next();
       String arg1 = arguments.next();
-      // do the thing with the stuff here
       result = performRegex( arg1, arg2 );
     } else if ( MATCH.equals( method ) ) {
       String arg2 = arguments.next();
       String arg1 = arguments.next();
-      // do the thing with the stuff here
       result = performMatch( arg1, arg2 );
     } else if ( EMPTY.equals( method ) ) {
       String arg1 = arguments.next();
-      // do the thing with the stuff here
       result = performEmpty( arg1 );
     } else if ( EXISTS.equals( method ) ) {
       String arg1 = arguments.next();
-      // do the thing with the stuff here
       result = performExists( arg1 );
     } else {
       result = super.evaluate( method, arguments, evaluationContext );

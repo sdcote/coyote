@@ -16,7 +16,7 @@ import java.util.Locale;
  * <li>-: Unary minus</li>
  * <li>*: Multiplication</li>
  * <li>/: Division</li>
- * <li>^: Exponentiation.<br>Warning: Exponentiation is implemented using java.lang.Math.pow which has some limitations (please read oracle documentation about this method to known details).<br>For example (-1)^(1/3) returns NaN.</li>
+ * <li>^: Exponentiation.<br>Warning: Exponentiation is implemented using java.lang.Math.pow which has some limitations (please read Oracle documentation about this method to known details).<br>For example (-1)^(1/3) returns NaN.</li>
  * <li>%: Modulo</li>
  * </ul>
  * 
