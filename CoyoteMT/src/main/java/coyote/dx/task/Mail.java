@@ -16,12 +16,14 @@ import coyote.commons.StringUtil;
 import coyote.commons.template.SymbolTable;
 import coyote.commons.template.Template;
 import coyote.dataframe.DataFrame;
+import coyote.dx.CDX;
 import coyote.dx.CMT;
 import coyote.dx.TaskException;
 import coyote.dx.mail.MailException;
 import coyote.dx.mail.MailProtocol;
 import coyote.loader.cfg.Config;
 import coyote.loader.log.Log;
+import coyote.loader.log.LogMsg;
 
 
 /**
@@ -34,6 +36,28 @@ public class Mail extends AbstractMessageTask {
    */
   @Override
   public void execute() throws TaskException {
+    // If there is a conditional expression
+    if ( getCondition() != null ) {
+
+      try {
+        // if the condition evaluates to true...
+        if ( evaluator.evaluateBoolean( getCondition() ) ) {
+          send();
+        }
+      } catch ( final IllegalArgumentException e ) {
+        Log.warn( LogMsg.createMsg( CDX.MSG, "Task.boolean_evaluation_error", getCondition(), e.getMessage() ) );
+      }
+    } else {
+      // Unconditionally perform the task
+      send();
+    }
+  }
+
+
+
+
+  private void send() throws TaskException {
+
     String protocol = getProtocol();
     String sender = getSender();
     String receiver = getReceiver();

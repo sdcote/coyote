@@ -20,6 +20,7 @@ import coyote.dx.ConfigTag;
 import coyote.dx.TaskException;
 import coyote.dx.TransformTask;
 import coyote.dx.context.TransformContext;
+import coyote.dx.eval.Evaluator;
 import coyote.loader.cfg.Config;
 import coyote.loader.cfg.ConfigurationException;
 
@@ -32,11 +33,26 @@ import coyote.loader.cfg.ConfigurationException;
  * a literal argument. The primary use case is to just use the literal value in 
  * the configuration, but this context look-up gives the tasks the ability to 
  * get dynamic values from the context which were placed there by other 
- * components during runtime operation.</p>
+ * components during runtime operation.
  */
 public abstract class AbstractTransformTask extends AbstractConfigurableComponent implements TransformTask {
   protected boolean haltOnError = true;
   protected boolean enabled = true;
+  protected Evaluator evaluator = new Evaluator();
+
+
+
+
+  /**
+   * @return the condition which must evaluate to true before the task is to 
+   *         execute.
+   */
+  public String getCondition() {
+    if ( configuration.containsIgnoreCase( ConfigTag.CONDITION ) ) {
+      return configuration.getString( ConfigTag.CONDITION );
+    }
+    return null;
+  }
 
 
 
@@ -66,6 +82,7 @@ public abstract class AbstractTransformTask extends AbstractConfigurableComponen
 
 
 
+
   /**
    * @see coyote.dx.AbstractConfigurableComponent#setConfiguration(coyote.loader.cfg.Config)
    */
@@ -89,11 +106,23 @@ public abstract class AbstractTransformTask extends AbstractConfigurableComponen
   @Override
   public void open( TransformContext context ) {
     this.context = context;
+    evaluator.setContext( context );
 
     // If there is a halt on error flag, then set it, otherwise keep the 
     // default value of true    
     if ( contains( ConfigTag.HALT_ON_ERROR ) ) {
       setHaltOnError( getBoolean( ConfigTag.HALT_ON_ERROR ) );
+    }
+
+    // Look for a conditional statement the task may use to control if it is 
+    // to execute or not
+    if ( StringUtil.isNotBlank( getCondition() ) ) {
+
+      try {
+        evaluator.evaluateBoolean( getCondition() );
+      } catch ( final IllegalArgumentException e ) {
+        context.setError( "Invalid boolean expression in writer: " + e.getMessage() );
+      }
     }
 
   }
