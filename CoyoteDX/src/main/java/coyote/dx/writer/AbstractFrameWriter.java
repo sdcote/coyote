@@ -39,6 +39,8 @@ public abstract class AbstractFrameWriter extends AbstractConfigurableComponent 
   public void open( TransformContext context ) {
     super.context = context;
 
+    evaluator.setContext( context );
+    
     // Look for a conditional statement the writer may use to control if it is 
     // to write the record or not
     expression = getConfiguration().getString( ConfigTag.CONDITION );
