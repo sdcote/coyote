@@ -16,6 +16,7 @@ import java.io.IOException;
 import coyote.commons.StringUtil;
 import coyote.commons.template.Template;
 import coyote.dx.AbstractConfigurableComponent;
+import coyote.dx.CDX;
 import coyote.dx.ConfigTag;
 import coyote.dx.TaskException;
 import coyote.dx.TransformTask;
@@ -23,10 +24,17 @@ import coyote.dx.context.TransformContext;
 import coyote.dx.eval.Evaluator;
 import coyote.loader.cfg.Config;
 import coyote.loader.cfg.ConfigurationException;
+import coyote.loader.log.Log;
+import coyote.loader.log.LogMsg;
 
 
 /**
  * This is the base class for pre and post processing tasks.
+ * 
+ * <p>Subclasses should override  {@link #performTask()} and let this class 
+ * handle determining if the task should run based on the conditional 
+ * statements (if one is set) and the enabled flag. This way, all conditional 
+ * checks are handled uniformly across all tasks.
  * 
  * <p>Values in the configuration are first used as keys to the context. If 
  * there is no value with that name in the context, the task uses the value as 
@@ -131,6 +139,52 @@ public abstract class AbstractTransformTask extends AbstractConfigurableComponen
 
 
   /**
+   * Subclasses should probably override {@link #performTask()} instead of 
+   * this method so as to enable this class to handle conditional checks.
+   * 
+   * @see coyote.dx.TransformTask#execute()
+   */
+  @Override
+  public void execute() throws TaskException {
+
+    if ( isEnabled() ) {
+      if ( getCondition() != null ) {
+        try {
+          if ( evaluator.evaluateBoolean( getCondition() ) ) {
+            performTask();
+          }
+        } catch ( final IllegalArgumentException e ) {
+          Log.error( LogMsg.createMsg( CDX.MSG, "Task.boolean_evaluation_error", getCondition(), e.getMessage() ) );
+        }
+      } else {
+        performTask();
+      }
+    }
+  }
+
+
+
+
+  /**
+   * This method is called by the AbstractTransformTask when the 
+   * {@link #execute()} method is called but only if the enabled flag is set 
+   * and any set conditional expression is matched or there is no conditional 
+   * expression.
+   * 
+   * <p>Overriding this task instead of {@link #execute()} allows the 
+   * AbstractTransfromTask to handle all checks in a uniform manner for all 
+   * subclasses.
+   * 
+   * @throws TaskException
+   */
+  protected void performTask() throws TaskException {
+
+  }
+
+
+
+
+  /**
    * Resolve the argument.
    * 
    * <p>This will try to retrieve the value from the transform context using 
@@ -174,10 +228,7 @@ public abstract class AbstractTransformTask extends AbstractConfigurableComponen
    * @see java.io.Closeable#close()
    */
   @Override
-  public void close() throws IOException {
-    // TODO Auto-generated method stub
-
-  }
+  public void close() throws IOException {}
 
 
 
@@ -199,18 +250,6 @@ public abstract class AbstractTransformTask extends AbstractConfigurableComponen
   @Override
   public void setEnabled( boolean flag ) {
     this.enabled = flag;
-  }
-
-
-
-
-  /**
-   * @see coyote.dx.TransformTask#execute()
-   */
-  @Override
-  public void execute() throws TaskException {
-    // TODO Auto-generated method stub
-
   }
 
 }
