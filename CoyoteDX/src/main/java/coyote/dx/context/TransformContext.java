@@ -185,7 +185,7 @@ public class TransformContext extends OperationalContext {
    * context.
    * <li>Target.[field name] field in the target frame of the transaction 
    * context.
-   * <li>[field name] field in the working frame of the transaction</ul>
+   * <li>[field name] field in the working frame of the transaction
    * <li>[field name] context value
    * <li>[field name] symbol value</ul>
    * 
