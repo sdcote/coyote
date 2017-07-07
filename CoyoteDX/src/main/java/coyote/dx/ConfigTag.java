@@ -140,6 +140,7 @@ public class ConfigTag {
   public static final String DAYS_OF_WEEK = "weekdays";
   public static final String MONTHS = "months";
   public static final String MILLIS = "millis";
+  public static final String SECONDS = "seconds";
 
   // Manager
 
