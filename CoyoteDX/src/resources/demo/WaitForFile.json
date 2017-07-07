@@ -1,0 +1,12 @@
+{
+	"Class" : "coyote.dx.Job",
+	
+	"Job" : {
+		"Name" : "Wait For File",
+
+		"Task": { "WaitForFile": {"filename": "/usr/var/inbound/Orders*.dat"} }
+	},
+
+	"Logging": { "ConsoleAppender": { "categories": "trace, debug, info, notice, warn, error, fatal" } }
+
+}
