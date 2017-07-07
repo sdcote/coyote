@@ -38,7 +38,7 @@ public abstract class OperationalContext {
   protected volatile long endTime = 0;
   protected final Map<String, Object> properties = new HashMap<String, Object>();
   protected OperationalContext parent = null;
-  protected long currentFrame = 0;
+  protected volatile long currentFrame = 0;
 
   /** Flag indicating the context is in error */
   protected volatile boolean errorFlag = false;
