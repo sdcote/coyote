@@ -1,7 +1,7 @@
 {
 	"Class": "coyote.dx.Job",
 	"Job": {
-		"Name": "Simple",
+		"Name": "Task",
 		"Task": {
 			"LogEntry": { "message": "This is a log entry" },
 			"Touch": { "filename": "README.md" },
