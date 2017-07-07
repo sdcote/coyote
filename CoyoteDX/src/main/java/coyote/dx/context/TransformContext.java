@@ -20,6 +20,7 @@ import coyote.commons.StringUtil;
 import coyote.commons.template.Template;
 import coyote.dataframe.DataField;
 import coyote.dx.Database;
+import coyote.dx.Symbols;
 import coyote.dx.TransformEngine;
 import coyote.loader.cfg.Config;
 
@@ -41,6 +42,7 @@ public class TransformContext extends OperationalContext {
   private static final String SOURCE = "Source.";
   private static final String TARGET = "Target.";
 
+  protected volatile long openCount = 0;
 
 
 
@@ -82,6 +84,10 @@ public class TransformContext extends OperationalContext {
    * context.</p>
    */
   public void open() {
+
+    // Increment the run count
+    openCount++;
+    engine.getSymbolTable().put( Symbols.RUN_COUNT, openCount );
 
     // If we have a configuration...
     if ( configuration != null ) {

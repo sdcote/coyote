@@ -28,6 +28,7 @@ import coyote.loader.log.LogMsg;
 public class Job extends AbstractBatchLoader implements Loader {
 
   TransformEngine engine = null;
+  boolean repeat = false;
 
 
 
@@ -48,6 +49,11 @@ public class Job extends AbstractBatchLoader implements Loader {
   @Override
   public void configure( Config cfg ) throws ConfigurationException {
     super.configure( cfg );
+    
+    // Support the concept of an ever-repeating job
+    try {
+      repeat = configuration.getBoolean( ConfigTag.REPEAT );
+    } catch ( NumberFormatException ignore ) {}
 
     // calculate and normalize the appropriate value for "app.home"
     determineHomeDirectory();
@@ -113,21 +119,21 @@ public class Job extends AbstractBatchLoader implements Loader {
       // Note that depending on the configuration, this could be placed in the 
       // scheduler and run intermittently as a scheduled job or multiple 
       // transform engines could be run in the thread pool of the super-class.
-      try {
-        engine.run();
-      } catch ( final Exception e ) {
-        Log.fatal( LogMsg.createMsg( CDX.MSG, "Job.exception_running_engine", e.getClass().getSimpleName(), e.getMessage(), engine.getName(), engine.getClass().getSimpleName() ) );
-        Log.fatal( ExceptionUtil.toString( e ) );
-      }
-      finally {
-
+      do {
         try {
-          engine.close();
-        } catch ( final IOException ignore ) {}
-
-        Log.trace( LogMsg.createMsg( CDX.MSG, "Job.completed", engine.getName(), engine.getClass().getSimpleName() ) );
-      } // try-catch-finally
-
+          engine.run();
+        } catch ( final Exception e ) {
+          Log.fatal( LogMsg.createMsg( CDX.MSG, "Job.exception_running_engine", e.getClass().getSimpleName(), e.getMessage(), engine.getName(), engine.getClass().getSimpleName() ) );
+          Log.fatal( ExceptionUtil.toString( e ) );
+        }
+        finally {
+          try {
+            engine.close();
+          } catch ( final IOException ignore ) {}
+          Log.trace( LogMsg.createMsg( CDX.MSG, "Job.completed", engine.getName(), engine.getClass().getSimpleName() ) );
+        } // try-catch-finally
+      }
+      while ( repeat );
     } else {
       Log.fatal( LogMsg.createMsg( CDX.MSG, "Job.no_engine" ) );
     }

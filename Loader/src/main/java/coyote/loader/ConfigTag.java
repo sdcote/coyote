@@ -56,6 +56,9 @@ public class ConfigTag {
   /** Name ({@value}) of the configuration attribute specifying the Denial of Service (DoD) frequency table. */
   public static final String FREQUENCY = "Frequency";
 
+  /** Flag ({@value}) indicating the loader should continually repeat its execution. */
+  public static final String REPEAT = "Repeat";
+
   // These tags are legacy configuration elements -- may be deprecated
   public static final String LOG_TAG = "Log";
   public static final String ENABLED_TAG = "Enabled";
