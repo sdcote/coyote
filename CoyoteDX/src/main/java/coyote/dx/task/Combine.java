@@ -169,10 +169,10 @@ public class Combine extends AbstractFileTask implements TransformTask {
 
 
   /**
-   * @see coyote.dx.TransformTask#execute()
+   * @see coyote.dx.task.AbstractTransformTask#performTask()
    */
   @Override
-  public void execute() throws TaskException {
+  protected void performTask() throws TaskException {
 
     // get the list of files
     List<File> flist = FileUtil.getFiles( directory, pattern, recurse );

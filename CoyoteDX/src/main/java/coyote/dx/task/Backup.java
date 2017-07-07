@@ -63,10 +63,10 @@ public class Backup extends AbstractFileTask {
 
 
   /**
-   * @see coyote.dx.TransformTask#execute()
+   * @see coyote.dx.task.AbstractTransformTask#performTask()
    */
   @Override
-  public void execute() throws TaskException {
+  protected void performTask() throws TaskException {
     String filename = getFilename();
     if ( StringUtil.isNotBlank( filename ) ) {
       File file = new File( filename );

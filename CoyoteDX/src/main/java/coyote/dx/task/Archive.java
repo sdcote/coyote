@@ -48,10 +48,10 @@ public class Archive extends AbstractFileTask {
 
 
   /**
-   * @see coyote.dx.task.AbstractTransformTask#execute()
+   * @see coyote.dx.task.AbstractTransformTask#performTask()
    */
   @Override
-  public void execute() throws TaskException {
+  protected void performTask() throws TaskException {
 
     final String source = getString( ConfigTag.SOURCE );
     final String target = getString( ConfigTag.TARGET );
@@ -74,7 +74,7 @@ public class Archive extends AbstractFileTask {
         try {
           ZipUtil.zip( sourceFile, targetFile );
         } catch ( IOException e ) {
-          throw new TaskException( "Could not archive file: "+e.getMessage(), e );
+          throw new TaskException( "Could not archive file: " + e.getMessage(), e );
         }
       } else {
         throw new TaskException( "Source does not exist: " + sourceFile.getAbsolutePath() );

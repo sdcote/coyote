@@ -12,9 +12,9 @@
 
 		"Writer": {
 			"class": "RabbitWriter",
-			"target": "amqp://runrabbitrun/myexchange",
-			"username": "jdoe",
-			"password": "Ik2mYsjBm",
+			"target": "amqp://orangutan.rmq.cloudamqp.com/qqxhunvl",
+			"username": "qqxhunvl",
+			"password": "Ik8vVHjf2-v_pgd3hWdcWjb-2mYsjB-m",
 			"use_ssl": true,
 			"queue": "rtw/job",
 			"format": "binary"

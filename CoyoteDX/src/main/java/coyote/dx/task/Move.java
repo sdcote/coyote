@@ -23,10 +23,10 @@ import coyote.dx.TaskException;
 public class Move extends AbstractFileTask {
 
   /**
-   * @see coyote.dx.TransformTask#execute()
-   */
+  * @see coyote.dx.task.AbstractTransformTask#performTask()
+  */
   @Override
-  public void execute() throws TaskException {
+  protected void performTask() throws TaskException {
     // TODO Auto-generated method stub
 
   }

@@ -43,10 +43,10 @@ public class LogEntry extends AbstractTransformTask {
 
 
   /**
-   * @see coyote.dx.TransformTask#execute()
+   * @see coyote.dx.task.AbstractTransformTask#performTask()
    */
   @Override
-  public void execute() throws TaskException {
+  protected void performTask() throws TaskException {
 
     String message = getMessage();
     if ( StringUtil.isNotBlank( message ) ) {

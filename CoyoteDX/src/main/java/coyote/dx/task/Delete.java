@@ -29,10 +29,10 @@ import coyote.loader.log.LogMsg;
 public class Delete extends AbstractFileTask {
 
   /**
-   * @see coyote.dx.TransformTask#execute()
+   * @see coyote.dx.task.AbstractTransformTask#performTask()
    */
   @Override
-  public void execute() throws TaskException {
+  protected void performTask() throws TaskException {
     final String filename = getString( ConfigTag.FILE );
     final String directory = getString( ConfigTag.DIRECTORY );
     if ( contains( ConfigTag.HALT_ON_ERROR ) ) {

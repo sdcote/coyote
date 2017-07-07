@@ -42,10 +42,10 @@ import coyote.loader.log.LogMsg;
 public class Copy extends AbstractFileTask {
 
   /**
-   * @see coyote.dx.TransformTask#execute()
+   * @see coyote.dx.task.AbstractTransformTask#performTask()
    */
   @Override
-  public void execute() throws TaskException {
+  protected void performTask() throws TaskException {
 
     // determine our configuration settings
     final String source = getString( ConfigTag.SOURCE );
