@@ -81,6 +81,7 @@ public class StaticReader extends AbstractFrameReader {
    */
   @Override
   public void open( TransformContext context ) {
+    counter = 0;
     try {
       limit = configuration.getInt( ConfigTag.LIMIT );
     } catch ( NumberFormatException e ) {
