@@ -67,7 +67,7 @@ import coyote.loader.log.Log;
  * been closed.  
  */
 public class WaitForFile extends AbstractFileTask {
-  private static final long WAIT_TIME = 3000;
+  private static final long WAIT_TIME = 1000;
   Glob globber = null;
 
 
