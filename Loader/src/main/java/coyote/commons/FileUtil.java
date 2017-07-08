@@ -1429,15 +1429,19 @@ public final class FileUtil {
 
 
   /**
-   * Method getFile
+   * Get the filename from the string which may contain a path.
+   * 
+   * <p>This returns "readme.txt" from "usr/lib/readme.txt" and from 
+   * "C:\bob\readme.txt" 
    *
-   * @param filename
+   * @param filename absolute or relative path to a file.
    *
-   * @return TODO Complete Documentation
+   * @return just the filename portion of the string or an empty string if the 
+   *         string ends with a file separator ( forward or back slash)
    */
   public static String getFile( final String filename ) {
-    final String tmp = new String( filename );
-    tmp.replace( '\\', '/' );
+    String tmp = new String( filename );
+    tmp = tmp.replace( '\\', '/' );
 
     final int i = tmp.lastIndexOf( '/' );
     return ( i != -1 ) ? tmp.substring( i + 1 ) : tmp;
