@@ -195,7 +195,7 @@ public class Template extends StringParser {
             }
           } else {
             if ( preprocess ) {
-              if ( symbols.containsKey( token.substring( 1 ) ) ) {
+              if ( symbols.containsKey( token.substring( 1 ) ) || symbols.containsLiteral( token.substring( 1 ) ) ) {
                 retval.append( symbols.getString( token.substring( 1 ) ) );
               } else {
                 retval.append( OPEN );

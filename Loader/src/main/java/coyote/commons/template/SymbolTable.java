@@ -374,4 +374,18 @@ public class SymbolTable extends HashMap {
     return retval.toString();
   }
 
+
+
+
+  /**
+   * Determine if the given symbol is a supported literal.
+   * 
+   * @param symbol the literal symbol to check
+   * 
+   * @return true if it is a supported literal, false if the symbol is not a literal
+   */
+  public boolean containsLiteral( String symbol ) {
+    return (getStaticValue(symbol)!=null);
+  }
+
 }
