@@ -44,6 +44,7 @@ import java.util.Vector;
  */
 public class Glob extends Object {
   private Vector specs = null;
+  private String specPattern;
 
 
 
@@ -60,10 +61,11 @@ public class Glob extends Object {
    * Constructs a new Glob object, setting the match list to that specified by
    * the parameter.
    *
-   * @param default_spec The default match specs.
+   * @param pattern The default match specs.
    */
-  public Glob( final String default_spec ) {
-    setMatchSpec( default_spec );
+  public Glob( final String pattern ) {
+    specPattern = pattern;
+    setMatchSpec( pattern );
   }
 
 
@@ -372,4 +374,17 @@ public class Glob extends Object {
   public int size() {
     return specs.size();
   }
+
+
+
+
+  /**
+   * @see java.lang.Object#toString()
+   */
+  @Override
+  public String toString() {
+    return specPattern;
+  }
+  
+  
 }
