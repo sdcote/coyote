@@ -32,13 +32,23 @@ import coyote.loader.log.Log;
 /**
  * This task will wait for a file to arrive and to be readable.
  * 
- * Absolute file
+ * <p>This looks in a specific directory for files. It does not recurse into
+ * subdirectories so it is easier to add backup files to subdirectories 
+ * without triggering this task. This makes it easier to look for files in a 
+ * directory, process them and place them in a subdirectory for easier file 
+ * management.
  * 
+ * <p>If a directory is configured that directory will be used. If there is no 
+ * directory configured, the filename will be used to determine the directory 
+ * so it should be an absolute path followed by a file glob expression.
+ * 
+ * <p>Directory and File<pre>
+ * "WaitForFile": {"directory": "[#$wrkdir#]","filename": "*.csv"}</pre> 
+ * 
+ * <p>Absolute file<pre>
+ * "WaitForFile": {"filename": "[#$wrkdir#][#$FS#]*.csv"}</pre> 
  * Glob patterns /usr/var/inbound/orders*.dat will look in "/usr/var/inbound/" 
  * for any files matching the pattern of "orders*.dat" 
- * 
- * watch a directory:
- * http://docs.oracle.com/javase/tutorial/essential/io/notification.html
  */
 public class WaitForFile extends AbstractFileTask {
   private static final long WAIT_TIME = 1000;
@@ -53,16 +63,51 @@ public class WaitForFile extends AbstractFileTask {
   @Override
   protected void performTask() throws TaskException {
 
-    final String pattern = getString( ConfigTag.FILE );
-    globber = new Glob( pattern );
+    File directoryToWatch = null;
 
-    File directoryToWatch = getDirectory();
+    final String directory = getString( ConfigTag.DIRECTORY );
+    final String pattern = getString( ConfigTag.FILE );
+
+    // Determine our watch directory
+    if ( StringUtil.isNotBlank( directory ) ) {
+      directoryToWatch = new File( directory );
+      if ( !directoryToWatch.isDirectory() ) {
+        getContext().setError( "Configured directory is not valid: " + directoryToWatch.getAbsolutePath() );
+        return;
+      }
+    } else {
+      Log.debug( "No directory specified in configuration, using filename pattern" );
+      String parent = FileUtil.getPath( pattern );
+      if ( StringUtil.isNotBlank( parent ) ) {
+        directoryToWatch = new File( parent );
+        if ( !directoryToWatch.isDirectory() ) {
+          getContext().setError( "Parent directory of filename is not valid: '" + parent + "' (" + directoryToWatch.getAbsolutePath() + ")" );
+          return;
+        }
+      } else {
+        Log.debug( "No directory specified in filename, using current working directory" );
+        directoryToWatch = FileUtil.getCurrentWorkingDirectory();
+      }
+    }
+
+    if ( !directoryToWatch.exists() ) {
+      getContext().setError( "Configured directory does not exist: " + directoryToWatch.getAbsolutePath() );
+      return;
+    }
+    if ( !directoryToWatch.canRead() ) {
+      getContext().setError( "Configured directory is not readable: " + directoryToWatch.getAbsolutePath() );
+      return;
+    }
+
+    String base = FileUtil.getFile( pattern );
+    globber = new Glob( base );
+
     if ( directoryToWatch.exists() ) {
       // First get a list of all the files in the directory and look for matches
       File[] files = directoryToWatch.listFiles();
 
       for ( File file : files ) {
-        Log.debug( "Checking " + file.getName() );
+        Log.debug( "Checking " + file.getName() + " against " + globber );
         if ( globber.isFileMatched( file.getName() ) ) {
           Log.debug( "Found a matching file :" + file.getAbsolutePath() );
           return;
@@ -123,26 +168,6 @@ public class WaitForFile extends AbstractFileTask {
 
 
 
-  private File getDirectory() {
-    File retval = null;
-    final String directory = getString( ConfigTag.DIRECTORY );
-    if ( StringUtil.isBlank( directory ) ) {
-      final String filename = getString( ConfigTag.FILE );
-      String parent = FileUtil.getPath( filename );
-      if ( StringUtil.isNotBlank( parent ) ) {
-        retval = new File( parent );
-      } else {
-        retval = FileUtil.getCurrentWorkingDirectory();
-      }
-    } else {
-      retval = new File( directory );
-    }
-    return retval;
-  }
-
-
-
-
   /**
    * Test of the WatchService concept.
    * @param args
@@ -165,5 +190,5 @@ public class WaitForFile extends AbstractFileTask {
       key.reset();
     }
   }
-  
+
 }
