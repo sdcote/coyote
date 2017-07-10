@@ -16,9 +16,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import coyote.commons.NetUtil;
-import coyote.commons.StringUtil;
-import coyote.commons.Version;
 import coyote.commons.network.IpAddress;
 import coyote.commons.network.IpNetwork;
 import coyote.commons.network.MimeType;
@@ -202,13 +199,6 @@ public class WebServer extends AbstractLoader {
             }
           }
         }
-        // if we have no components defined, install a wedge to keep the server open
-        if ( components.size() == 0 ) {
-          Wedge wedge = new Wedge();
-          wedge.setLoader( this );
-          components.put( wedge, cfg );
-          activate( wedge, cfg ); // activate it
-        }
 
         // configure the server to use our statistics board
         server.setStatBoard( getStats() );
@@ -334,6 +324,7 @@ public class WebServer extends AbstractLoader {
     if ( isActive() ) {
       return;
     }
+
     Log.info( "Running server with " + server.getMappings().size() + " mappings" );
     try {
       server.start( HTTPD.SOCKET_READ_TIMEOUT, false );
@@ -363,6 +354,15 @@ public class WebServer extends AbstractLoader {
 
     // Parse through the configuration and initialize all the components
     initComponents();
+
+    // if we have no components defined, install a wedge to keep the server open
+    if ( components.size() == 0 ) {
+      Wedge wedge = new Wedge();
+      wedge.setLoader( this );
+      components.put( wedge, getConfig() );
+      activate( wedge, getConfig() );
+    }
+
     Log.info( LogMsg.createMsg( MSG, "Loader.components_initialized" ) );
 
     final StringBuffer b = new StringBuffer( NAME );
