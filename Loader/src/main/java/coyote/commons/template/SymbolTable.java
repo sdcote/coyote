@@ -41,7 +41,7 @@ import coyote.loader.Loader;
 public class SymbolTable extends HashMap {
 
   private static final long serialVersionUID = -3448311765253950903L;
-  
+
   /** keys with this prefix are assumed to be encrypted and should be decrypted before being returned */
   static final String ENCRYPT_PREFIX = Loader.ENCRYPT_PREFIX;
 
@@ -385,7 +385,7 @@ public class SymbolTable extends HashMap {
    * @return true if it is a supported literal, false if the symbol is not a literal
    */
   public boolean containsLiteral( String symbol ) {
-    return (getStaticValue(symbol)!=null);
+    return ( StringUtil.isNotEmpty( getStaticValue( symbol ) ) );
   }
 
 }
