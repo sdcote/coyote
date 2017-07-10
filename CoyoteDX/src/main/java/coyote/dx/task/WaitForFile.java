@@ -54,7 +54,7 @@ import coyote.loader.log.Log;
  * Glob patterns /usr/var/inbound/orders*.dat will look in "/usr/var/inbound/" 
  * for any files matching the pattern of "orders*.dat" 
  * 
- * <p><strong>NOTE:</string> Just because the file is there does not mean it 
+ * <p><strong>NOTE:</strong> Just because the file is there does not mean it 
  * is ready for processing. A file can appear in the file system but still be 
  * locked and unavailable to the data transfer job. It is possible to create a 
  * file in the directory and start streaming data to it over a period of time.
