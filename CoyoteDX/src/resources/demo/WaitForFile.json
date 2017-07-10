@@ -4,7 +4,7 @@
 	"Job" : {
 		"Name" : "Wait For File",
 
-		"Task": { "WaitForFile": {"filename": "/usr/var/inbound/Orders*.dat"} }
+		"Task": { "WaitForFile": {"filename": "[#$wrkdir#][#$FS#]*.csv"} }
 	},
 
 	"Logging": { "ConsoleAppender": { "categories": "trace, debug, info, notice, warn, error, fatal" } }

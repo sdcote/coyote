@@ -195,12 +195,15 @@ public class Template extends StringParser {
             }
           } else {
             if ( preprocess ) {
-              if ( symbols.containsKey( token.substring( 1 ) ) ) {
-                retval.append( symbols.getString( token.substring( 1 ) ) );
+              String key = token.substring( 1 );
+              if ( symbols.containsKey( key ) ) {
+                retval.append( symbols.getString( key ) );
+              } else if ( symbols.containsLiteral( key ) ) {
+                retval.append( symbols.getString( key ) );
               } else {
                 retval.append( OPEN );
                 retval.append( VAR );
-                retval.append( token.substring( 1 ) );
+                retval.append( key );
                 retval.append( CLOSE );
               }
             } else {

@@ -113,7 +113,7 @@ public class Job extends AbstractBatchLoader implements Loader {
   public void start() {
 
     if ( engine != null ) {
-      Log.trace( LogMsg.createMsg( CDX.MSG, "Job.running", engine.getName() ) );
+      Log.trace( LogMsg.createMsg( CDX.MSG, "Job.running", engine.getName(), engine.getClass().getSimpleName() ) );
 
       // run the transformation
       // Note that depending on the configuration, this could be placed in the 
@@ -134,6 +134,7 @@ public class Job extends AbstractBatchLoader implements Loader {
         } // try-catch-finally
       }
       while ( repeat );
+      
     } else {
       Log.fatal( LogMsg.createMsg( CDX.MSG, "Job.no_engine" ) );
     }

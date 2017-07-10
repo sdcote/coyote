@@ -13,6 +13,10 @@ package coyote.dx.task;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.RandomAccessFile;
+import java.nio.channels.FileChannel;
+import java.nio.channels.FileLock;
+import java.nio.channels.OverlappingFileLockException;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -32,13 +36,35 @@ import coyote.loader.log.Log;
 /**
  * This task will wait for a file to arrive and to be readable.
  * 
- * Absolute file
+ * <p>This looks in a specific directory for files. It does not recurse into
+ * subdirectories so it is easier to add backup files to subdirectories 
+ * without triggering this task. This makes it easier to look for files in a 
+ * directory, process them and place them in a subdirectory for easier file 
+ * management.
  * 
+ * <p>If a directory is configured that directory will be used. If there is no 
+ * directory configured, the filename will be used to determine the directory 
+ * so it should be an absolute path followed by a file glob expression.
+ * 
+ * <p>Directory and File<pre>
+ * "WaitForFile": {"directory": "[#$wrkdir#]","filename": "*.csv"}</pre> 
+ * 
+ * <p>Absolute file<pre>
+ * "WaitForFile": {"filename": "[#$wrkdir#][#$FS#]*.csv"}</pre> 
  * Glob patterns /usr/var/inbound/orders*.dat will look in "/usr/var/inbound/" 
  * for any files matching the pattern of "orders*.dat" 
  * 
- * watch a directory:
- * http://docs.oracle.com/javase/tutorial/essential/io/notification.html
+ * <p><strong>NOTE:</strong> Just because the file is there does not mean it 
+ * is ready for processing. A file can appear in the file system but still be 
+ * locked and unavailable to the data transfer job. It is possible to create a 
+ * file in the directory and start streaming data to it over a period of time.
+ * This is common in SCP and FTP files. The best approach is to perform some 
+ * atomic operation such as a copy or move at the file system level once the 
+ * data in the file has been completely written to it. DO NOT try to read FTP 
+ * files from their incoming directory unless you know for sure the FTP server
+ * only created the file after it has been closed. Always move the files into 
+ * the watched directory with atomic file system operations after the file has 
+ * been closed.  
  */
 public class WaitForFile extends AbstractFileTask {
   private static final long WAIT_TIME = 1000;
@@ -53,18 +79,54 @@ public class WaitForFile extends AbstractFileTask {
   @Override
   protected void performTask() throws TaskException {
 
-    final String pattern = getString( ConfigTag.FILE );
-    globber = new Glob( pattern );
+    File directoryToWatch = null;
 
-    File directoryToWatch = getDirectory();
+    final String directory = getString( ConfigTag.DIRECTORY );
+    final String pattern = getString( ConfigTag.FILE );
+
+    // Determine our watch directory
+    if ( StringUtil.isNotBlank( directory ) ) {
+      directoryToWatch = new File( directory );
+      if ( !directoryToWatch.isDirectory() ) {
+        getContext().setError( "Configured directory is not valid: " + directoryToWatch.getAbsolutePath() );
+        return;
+      }
+    } else {
+      Log.debug( "No directory specified in configuration, using filename pattern" );
+      String parent = FileUtil.getPath( pattern );
+      if ( StringUtil.isNotBlank( parent ) ) {
+        directoryToWatch = new File( parent );
+        if ( !directoryToWatch.isDirectory() ) {
+          getContext().setError( "Parent directory of filename is not valid: '" + parent + "' (" + directoryToWatch.getAbsolutePath() + ")" );
+          return;
+        }
+      } else {
+        Log.debug( "No directory specified in filename, using current working directory" );
+        directoryToWatch = FileUtil.getCurrentWorkingDirectory();
+      }
+    }
+
+    if ( !directoryToWatch.exists() ) {
+      getContext().setError( "Configured directory does not exist: " + directoryToWatch.getAbsolutePath() );
+      return;
+    }
+    if ( !directoryToWatch.canRead() ) {
+      getContext().setError( "Configured directory is not readable: " + directoryToWatch.getAbsolutePath() );
+      return;
+    }
+
+    String base = FileUtil.getFile( pattern );
+    globber = new Glob( base );
+
     if ( directoryToWatch.exists() ) {
       // First get a list of all the files in the directory and look for matches
       File[] files = directoryToWatch.listFiles();
 
       for ( File file : files ) {
-        Log.debug( "Checking " + file.getName() );
+        Log.debug( "Checking " + file.getName() + " against " + globber );
         if ( globber.isFileMatched( file.getName() ) ) {
           Log.debug( "Found a matching file :" + file.getAbsolutePath() );
+          waitForAvailable( file );
           return;
         }
       }
@@ -87,22 +149,9 @@ public class WaitForFile extends AbstractFileTask {
                 if ( globber.isFileMatched( filename ) ) {
                   File matchedFile = new File( filename );
                   Log.debug( "Found " + matchedFile.getAbsolutePath() );
-
-                  if ( !matchedFile.canWrite() ) {
-                    Log.debug( "Waiting for file to become available for processing" );
-                    // use write permission because it is a better judge of a file being closed and complete
-                    while ( !matchedFile.canWrite() ) {
-                      try {
-                        Thread.sleep( WAIT_TIME );
-                      } catch ( InterruptedException ignore ) {
-                        getContext().setError( "Interrupted while waiting for file to be available" );
-                        return;
-                      }
-                    } // wait for availability
-                  } // available
-                  Log.debug( "File ready for processing: " + matchedFile.getAbsolutePath() );
+                  waitForAvailable( matchedFile );
                   return;
-                } // file match 
+                }
               }
             }
             key.reset();
@@ -123,21 +172,71 @@ public class WaitForFile extends AbstractFileTask {
 
 
 
-  private File getDirectory() {
-    File retval = null;
-    final String directory = getString( ConfigTag.DIRECTORY );
-    if ( StringUtil.isBlank( directory ) ) {
-      final String filename = getString( ConfigTag.FILE );
-      String parent = FileUtil.getPath( filename );
-      if ( StringUtil.isNotBlank( parent ) ) {
-        retval = new File( parent );
-      } else {
-        retval = FileUtil.getCurrentWorkingDirectory();
+  /**
+   * Make an attempt to ensure the file is available for reading.
+   * 
+   * <p>This is a blocking call and will only return one it is possible to 
+   * open the file for RW access.
+   * 
+   * @param file the file to check
+   */
+  private void waitForAvailable( File file ) {
+    if ( isLocked( file ) ) {
+      Log.debug( "Waiting for file to become available for processing" );
+      while ( isLocked( file ) ) {
+        try {
+          Thread.sleep( WAIT_TIME );
+        } catch ( InterruptedException ignore ) {
+          getContext().setError( "Interrupted while waiting for file to be available" );
+          return;
+        }
       }
-    } else {
-      retval = new File( directory );
     }
-    return retval;
+    Log.debug( "File ready for processing: " + file.getAbsolutePath() );
+  }
+
+
+
+
+  /**
+   * Best effort guess as to whether or not the given file is locked.
+   * 
+   * <p>Not all Java implementations or operating systems support file locking 
+   * in a uniform manner so this may not work in all situations.
+   * 
+   * <p>Returns false if the file does not exist as the file technically does 
+   * not have a lock.
+   * 
+   * @param file the file to test
+   * 
+   * @return false only if this process can obtain a lock on this file, 
+   *         otherwise this returns true indicating either the file is locked 
+   *         by another process or an error occurred in trying to obtain a 
+   *         lock on the file indicating a logical lock on the file.
+   */
+  private boolean isLocked( File file ) {
+    if ( file == null || !file.exists() ) {
+      return false;
+    }
+
+    try (FileChannel channel = new RandomAccessFile( file, "rw" ).getChannel()) {
+      FileLock lock = null;
+      try {
+        lock = channel.tryLock();
+        return false;
+      } catch ( OverlappingFileLockException inner ) {
+        inner.printStackTrace();
+        return true;
+      }
+      finally {
+        if ( lock != null ) {
+          lock.release();
+        }
+      }
+    } catch ( Exception e ) {
+      return true;
+    }
+
   }
 
 
@@ -165,5 +264,5 @@ public class WaitForFile extends AbstractFileTask {
       key.reset();
     }
   }
-  
+
 }
