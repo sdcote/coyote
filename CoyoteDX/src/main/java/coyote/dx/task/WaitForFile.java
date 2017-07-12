@@ -122,12 +122,14 @@ public class WaitForFile extends AbstractFileTask {
       // First get a list of all the files in the directory and look for matches
       File[] files = directoryToWatch.listFiles();
 
-      for ( File file : files ) {
-        Log.debug( "Checking " + file.getName() + " against " + globber );
-        if ( globber.isFileMatched( file.getName() ) ) {
-          Log.debug( "Found a matching file :" + file.getAbsolutePath() );
-          waitForAvailable( file );
-          return;
+      if ( files != null ) {
+        for ( File file : files ) {
+          Log.debug( "Checking " + file.getName() + " against " + globber );
+          if ( globber.isFileMatched( file.getName() ) ) {
+            Log.debug( "Found a matching file :" + file.getAbsolutePath() );
+            waitForAvailable( file );
+            return;
+          }
         }
       }
 

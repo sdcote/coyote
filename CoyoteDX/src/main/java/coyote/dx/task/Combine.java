@@ -143,20 +143,21 @@ public class Combine extends AbstractFileTask implements TransformTask {
         }
 
         // if not absolute, use the current job directory
-        if ( !targetFile.isAbsolute() ) {
-          targetFile = new File( context.getSymbols().getString( Symbols.JOB_DIRECTORY ), targetFile.getPath() );
+        if ( targetFile != null ) {
+          if ( !targetFile.isAbsolute() ) {
+            targetFile = new File( context.getSymbols().getString( Symbols.JOB_DIRECTORY ), targetFile.getPath() );
+          }
+          Log.debug( "Using a target file of " + targetFile.getAbsolutePath() );
+
+          try {
+            final Writer fwriter = new FileWriter( targetFile, append );
+            printwriter = new PrintWriter( fwriter );
+
+          } catch ( final Exception e ) {
+            Log.error( "Could not create writer: " + e.getMessage() );
+            context.setError( e.getMessage() );
+          }
         }
-        Log.debug( "Using a target file of " + targetFile.getAbsolutePath() );
-
-        try {
-          final Writer fwriter = new FileWriter( targetFile, append );
-          printwriter = new PrintWriter( fwriter );
-
-        } catch ( final Exception e ) {
-          Log.error( "Could not create writer: " + e.getMessage() );
-          context.setError( e.getMessage() );
-        }
-
       } else {
         Log.error( "No target specified" );
         context.setError( getClass().getName() + " could not determine target" );
