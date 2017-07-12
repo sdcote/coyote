@@ -18,6 +18,7 @@ import java.io.InputStream;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
 
+import coyote.commons.ByteUtil;
 import coyote.commons.FileUtil;
 import coyote.commons.StringUtil;
 import coyote.dx.CDX;
@@ -52,11 +53,7 @@ public abstract class AbstractDigestTask extends AbstractFileTask {
       while ( numRead != -1 );
     }
     final byte[] digest = md.digest();
-    final StringBuffer b = new StringBuffer();
-    for ( final byte element : digest ) {
-      b.append( Integer.toString( ( element & 0xff ) + 0x100, 16 ).substring( 1 ) );
-    }
-    return b.toString();
+    return ByteUtil.bytesToHex( digest, "" ).toLowerCase();
   }
 
   protected String CHECKSUM_EXTENSION;

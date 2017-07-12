@@ -11,6 +11,7 @@
  */
 package coyote.dx.task;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -69,6 +70,41 @@ public class CheckMD5Test {
     File file = new File( checksumFile );
     try {
       assertNotNull( context.get( checksumFile ) );
+      assertTrue( file.exists() );
+    }
+    finally {
+      file.delete();
+    }
+
+  }
+
+
+
+
+  @Test
+  public void md5Check() throws ConfigurationException, TaskException, IOException {
+
+    String testFile = new File( FileUtil.getCurrentWorkingDirectory(), "src/resources/demojars/h2-database.txt" ).getAbsolutePath();
+
+    Config cfg = new Config();
+    cfg.put( ConfigTag.FILE, testFile );
+    System.out.println( cfg );
+
+    String checksumFile = null;
+    try (CheckMD5 task = new CheckMD5()) {
+      task.setConfiguration( cfg );
+      task.open( context );
+      task.execute();
+      assertFalse( context.getErrorMessage(), context.isInError() );
+      checksumFile = testFile + task.getFileExtension();
+    }
+
+    File file = new File( checksumFile );
+    try {
+      assertNotNull( context.get( checksumFile ) );
+      String retrievedChecksum = context.get( checksumFile ).toString();
+      System.out.println( retrievedChecksum ); // generates d41d8cd98f00b204e9800998ecf8427e
+      assertEquals( "97bd2ef7eb248a49109e09cc53679d1b", retrievedChecksum ); // md5sum on unix
       assertTrue( file.exists() );
     }
     finally {
