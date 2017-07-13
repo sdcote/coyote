@@ -1084,4 +1084,15 @@ public class StringUtil {
 
     return retval;
   }
+
+
+
+
+  /**
+   * @return null if string is null or empty
+   */
+  public static String getNullIfEmpty( final String text ) {
+    return StringUtil.isBlank( text ) ? null : text.trim();
+  }
+
 }
