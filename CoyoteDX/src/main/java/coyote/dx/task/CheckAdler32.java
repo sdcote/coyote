@@ -26,7 +26,7 @@ import java.util.zip.Checksum;
  * the checksum file so other components and tasks can ensure the integrity of
  * the file throughout the job.
  */
-public class CheckAlder32 extends AbstractChecksumTask {
+public class CheckAdler32 extends AbstractChecksumTask {
 
   /**
    * Utility method to get the checksum for the given file.
@@ -36,13 +36,13 @@ public class CheckAlder32 extends AbstractChecksumTask {
    * @return the checksum of the file or "0" if there were errors
    */
   public static String checksum( final File file ) {
-    return getAlder32Checksum( file );
+    return getAdler32Checksum( file );
   }
 
 
 
 
-  public CheckAlder32() {
+  public CheckAdler32() {
     CHECKSUM_EXTENSION = ".adler32";
     ALGORITHM = "Adler32";
   }

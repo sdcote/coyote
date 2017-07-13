@@ -11,7 +11,10 @@
  */
 package coyote.dx.task;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
@@ -49,14 +52,14 @@ public class CheckAlder32Test {
   @Test
   public void simpleCheck() throws ConfigurationException, TaskException, IOException {
 
-    String testFile = new File( FileUtil.getCurrentWorkingDirectory(), "build.gradle" ).getAbsolutePath();
+    String testFile = new File( FileUtil.getCurrentWorkingDirectory(), "src/test/resources/coyote.jpg" ).getAbsolutePath();
 
     Config cfg = new Config();
     cfg.put( ConfigTag.FILE, testFile );
     System.out.println( cfg );
 
     String checksumFile = null;
-    try (CheckAlder32 task = new CheckAlder32()) {
+    try (CheckAdler32 task = new CheckAdler32()) {
       task.setConfiguration( cfg );
       task.open( context );
       task.execute();
@@ -67,6 +70,9 @@ public class CheckAlder32Test {
     File file = new File( checksumFile );
     try {
       assertNotNull( context.get( checksumFile ) );
+      String retrievedChecksum = context.get( checksumFile ).toString();
+      System.out.println( retrievedChecksum );
+      assertEquals( "e30225b5", retrievedChecksum );
       assertTrue( file.exists() );
     }
     finally {
