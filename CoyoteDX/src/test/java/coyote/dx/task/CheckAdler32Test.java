@@ -35,7 +35,7 @@ import coyote.loader.log.Log;
 /**
  * 
  */
-public class CheckAlder32Test {
+public class CheckAdler32Test {
   private final TransformContext context = new TransformContext();
 
 

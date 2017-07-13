@@ -71,7 +71,7 @@ public class CheckCRC32Test {
     try {
       assertNotNull( context.get( checksumFile ) );
       String retrievedChecksum = context.get( checksumFile ).toString();
-      System.out.println( retrievedChecksum );
+      System.out.println( retrievedChecksum ); // 849078457
       assertEquals( "329be8b9", retrievedChecksum );
       assertTrue( file.exists() );
     }

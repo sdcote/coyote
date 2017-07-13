@@ -11,6 +11,7 @@
  */
 package coyote.dx.task;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -68,6 +69,9 @@ public class CheckSHA256Test {
     File file = new File( checksumFile );
     try {
       assertNotNull( context.get( checksumFile ) );
+      String retrievedChecksum = context.get( checksumFile ).toString();
+      System.out.println( retrievedChecksum ); // df8f6993127af3b990f2db040d3c47040cee2c0ae51fb81e606e38575a1d6add
+      assertEquals( "744ceb14ce533326ec88eb28554f36f9d21cd04e362c7658b4ec5fae56f7fce1", retrievedChecksum );
       assertTrue( file.exists() );
     }
     finally {

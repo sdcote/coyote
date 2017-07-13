@@ -17,14 +17,11 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import coyote.commons.ByteUtil;
 import coyote.commons.FileUtil;
 import coyote.dx.ConfigTag;
 import coyote.dx.TaskException;
@@ -55,38 +52,6 @@ public class CheckMD5Test {
   @Test
   public void simpleCheck() throws ConfigurationException, TaskException, IOException {
 
-    String testFile = new File( FileUtil.getCurrentWorkingDirectory(), "build.gradle" ).getAbsolutePath();
-
-    Config cfg = new Config();
-    cfg.put( ConfigTag.FILE, testFile );
-    System.out.println( cfg );
-
-    String checksumFile = null;
-    try (CheckMD5 task = new CheckMD5()) {
-      task.setConfiguration( cfg );
-      task.open( context );
-      task.execute();
-      assertFalse( context.getErrorMessage(), context.isInError() );
-      checksumFile = testFile + task.getFileExtension();
-    }
-
-    File file = new File( checksumFile );
-    try {
-      assertNotNull( context.get( checksumFile ) );
-      assertTrue( file.exists() );
-    }
-    finally {
-      file.delete();
-    }
-
-  }
-
-
-
-
-  @Test
-  public void md5Check() throws ConfigurationException, TaskException, IOException {
-
     String testFile = new File( FileUtil.getCurrentWorkingDirectory(), "src/test/resources/coyote.jpg" ).getAbsolutePath();
 
     Config cfg = new Config();
@@ -106,15 +71,14 @@ public class CheckMD5Test {
     try {
       assertNotNull( context.get( checksumFile ) );
       String retrievedChecksum = context.get( checksumFile ).toString();
-      System.out.println( retrievedChecksum ); 
+      System.out.println( retrievedChecksum );
       assertEquals( "60db9367c3bd6fa5222f602698bfce34", retrievedChecksum );
       assertTrue( file.exists() );
     }
     finally {
       file.delete();
     }
-  }
-  
 
+  }
 
 }

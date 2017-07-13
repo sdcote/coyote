@@ -33,26 +33,17 @@ import coyote.loader.log.LogMsg;
  * Methods common to multiple checksum tasks
  */
 public abstract class AbstractChecksumTask extends AbstractFileTask {
-  protected static String getAlder32Checksum( final File file ) {
-    try {
-      return getChecksum( file, new Adler32() );
-    } catch ( final IOException e ) {
-      return null;
-    }
-  }
+
+  protected String CHECKSUM_EXTENSION;
+  protected String ALGORITHM;
 
 
 
 
-  private static String getChecksum( final File file, final Checksum algorithm ) throws IOException {
-    long checksum = 0;
-    try (InputStream is = new FileInputStream( file ); CheckedInputStream cis = new CheckedInputStream( is, algorithm )) {
-      final byte[] tempBuf = new byte[BLOCK_SIZE];
-      while ( cis.read( tempBuf ) >= 0 ) {}
-      checksum = cis.getChecksum().getValue();
-    }
-    return Long.toString( checksum );
-  }
+  /**
+   * @return a new instance of a message checksum to use;
+   */
+  abstract Checksum getChecksum();
 
 
 
@@ -65,9 +56,29 @@ public abstract class AbstractChecksumTask extends AbstractFileTask {
     }
   }
 
-  protected String CHECKSUM_EXTENSION;
 
-  protected String ALGORITHM;
+
+
+  protected static String getAdler32Checksum( final File file ) {
+    try {
+      return getChecksum( file, new Adler32() );
+    } catch ( final IOException e ) {
+      return null;
+    }
+  }
+
+
+
+
+  private static String getChecksum( final File file, final Checksum algorithm ) throws IOException {
+    long checksum = 0;
+    try (InputStream fis = new FileInputStream( file ); CheckedInputStream cis = new CheckedInputStream( fis, new CRC32() )) {
+      final byte[] buffer = new byte[STREAM_BUFFER_LENGTH];
+      while ( cis.read( buffer ) >= 0 ) {}
+      checksum = cis.getChecksum().getValue();
+    }
+    return Long.toString( checksum );
+  }
 
 
 
@@ -78,14 +89,6 @@ public abstract class AbstractChecksumTask extends AbstractFileTask {
   public String getAlgorithm() {
     return ALGORITHM;
   }
-
-
-
-
-  /**
-   * @return a new instance of a message checksum to use;
-   */
-  abstract Checksum getChecksum();
 
 
 
@@ -160,7 +163,6 @@ public abstract class AbstractChecksumTask extends AbstractFileTask {
               return;
             }
           }
-
         } else {
           final String msg = LogMsg.createMsg( CDX.MSG, "%s checksum task could process empty file '%s' (%s)", ALGORITHM, filename, file.getAbsolutePath() ).toString();
           Log.error( msg );
