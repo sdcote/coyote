@@ -51,11 +51,12 @@ public class CheckSHA256Test {
 
   @Test
   public void simpleCheck() throws ConfigurationException, TaskException, IOException {
-    String testFile = new File( FileUtil.getCurrentWorkingDirectory(), "build.gradle" ).getAbsolutePath();
+
+    String testFile = new File( FileUtil.getCurrentWorkingDirectory(), "src/test/resources/coyote.jpg" ).getAbsolutePath();
 
     Config cfg = new Config();
     cfg.put( ConfigTag.FILE, testFile );
-    System.out.println( cfg );
+    //System.out.println( cfg );
 
     String checksumFile = null;
     try (CheckSHA256 task = new CheckSHA256()) {
@@ -70,7 +71,6 @@ public class CheckSHA256Test {
     try {
       assertNotNull( context.get( checksumFile ) );
       String retrievedChecksum = context.get( checksumFile ).toString();
-      System.out.println( retrievedChecksum ); // df8f6993127af3b990f2db040d3c47040cee2c0ae51fb81e606e38575a1d6add
       assertEquals( "744ceb14ce533326ec88eb28554f36f9d21cd04e362c7658b4ec5fae56f7fce1", retrievedChecksum );
       assertTrue( file.exists() );
     }

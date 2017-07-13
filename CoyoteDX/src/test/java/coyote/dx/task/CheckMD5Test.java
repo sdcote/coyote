@@ -56,7 +56,7 @@ public class CheckMD5Test {
 
     Config cfg = new Config();
     cfg.put( ConfigTag.FILE, testFile );
-    System.out.println( cfg );
+    //System.out.println( cfg );
 
     String checksumFile = null;
     try (CheckMD5 task = new CheckMD5()) {
@@ -71,7 +71,6 @@ public class CheckMD5Test {
     try {
       assertNotNull( context.get( checksumFile ) );
       String retrievedChecksum = context.get( checksumFile ).toString();
-      System.out.println( retrievedChecksum );
       assertEquals( "60db9367c3bd6fa5222f602698bfce34", retrievedChecksum );
       assertTrue( file.exists() );
     }
