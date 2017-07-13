@@ -72,12 +72,12 @@ public abstract class AbstractChecksumTask extends AbstractFileTask {
 
   private static String getChecksum( final File file, final Checksum algorithm ) throws IOException {
     long checksum = 0;
-    try (InputStream fis = new FileInputStream( file ); CheckedInputStream cis = new CheckedInputStream( fis, new CRC32() )) {
+    try (InputStream fis = new FileInputStream( file ); CheckedInputStream cis = new CheckedInputStream( fis, algorithm )) {
       final byte[] buffer = new byte[STREAM_BUFFER_LENGTH];
       while ( cis.read( buffer ) >= 0 ) {}
       checksum = cis.getChecksum().getValue();
     }
-    return Long.toString( checksum );
+    return Long.toHexString( checksum );
   }
 
 
