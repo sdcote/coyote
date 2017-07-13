@@ -11,6 +11,7 @@
  */
 package coyote.dx.task;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -51,7 +52,7 @@ public class CheckCRC32Test {
   @Test
   public void simpleCheck() throws ConfigurationException, TaskException, IOException {
 
-    String testFile = new File( FileUtil.getCurrentWorkingDirectory(), "build.gradle" ).getAbsolutePath();
+    String testFile = new File( FileUtil.getCurrentWorkingDirectory(), "src/test/resources/coyote.jpg" ).getAbsolutePath();
 
     Config cfg = new Config();
     cfg.put( ConfigTag.FILE, testFile );
@@ -69,6 +70,9 @@ public class CheckCRC32Test {
     File file = new File( checksumFile );
     try {
       assertNotNull( context.get( checksumFile ) );
+      String retrievedChecksum = context.get( checksumFile ).toString();
+      System.out.println( retrievedChecksum );
+      assertEquals( "329be8b9", retrievedChecksum );
       assertTrue( file.exists() );
     }
     finally {
