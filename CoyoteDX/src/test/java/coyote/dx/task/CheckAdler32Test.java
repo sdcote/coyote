@@ -71,7 +71,6 @@ public class CheckAdler32Test {
     try {
       assertNotNull( context.get( checksumFile ) );
       String retrievedChecksum = context.get( checksumFile ).toString();
-      System.out.println( retrievedChecksum );
       assertEquals( "e30225b5", retrievedChecksum );
       assertTrue( file.exists() );
     }
