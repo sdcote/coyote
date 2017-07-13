@@ -17,6 +17,6 @@ package coyote.dx.task;
  */
 public abstract class AbstractFileTask extends AbstractTransformTask {
 
-  protected static final int BLOCK_SIZE = 128;
+  protected static final int STREAM_BUFFER_LENGTH = 1024;
 
 }
