@@ -20,10 +20,10 @@ import coyote.loader.log.LogMsg.BundleBaseName;
  */
 public class BatchMT {
   public static final Version VERSION = new Version( 0, 0, 1, Version.EXPERIMENTAL );
-  public static final String NAME = "BatchMT";
+  public static final String NAME = "CMB";
 
   public static final BundleBaseName MSG;
   static {
-    MSG = new BundleBaseName( "BatchMTMsg" );
+    MSG = new BundleBaseName( "CmbMsg" );
   }
 }
