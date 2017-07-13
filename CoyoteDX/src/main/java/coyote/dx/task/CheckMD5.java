@@ -26,6 +26,9 @@ import java.security.NoSuchAlgorithmException;
  * <p>The checksum will be posted in the transform context with the name of
  * the checksum file so other components and tasks can ensure the integrity of
  * the file throughout the job.
+ * 
+ * <p>Configure thusly:<pre>
+ * "CheckMD5": {"filename":"D:\some\path\somefile.dat"}</pre>
  */
 public class CheckMD5 extends AbstractDigestTask {
 
