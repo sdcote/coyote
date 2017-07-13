@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 import coyote.commons.ByteUtil;
 import coyote.commons.FileUtil;
@@ -32,33 +33,12 @@ import coyote.loader.log.LogMsg;
  * Methods common to multiple checksum tasks
  */
 public abstract class AbstractDigestTask extends AbstractFileTask {
-
-  /**
-   * Generate the digest for the file.
-   *
-   * @param file The file to process
-   * @param md the message digest to use
-   *
-   * @return a string representing the digest of the file
-   *
-   * @throws IOException if there were problems reading the given file
-   */
-  protected static String digest( final File file, final MessageDigest md ) throws IOException {
-    try (InputStream fis = new FileInputStream( file ); DigestInputStream dis = new DigestInputStream( fis, md )) {
-      final byte[] buffer = new byte[BLOCK_SIZE];
-      int numRead;
-      do {
-        numRead = fis.read( buffer );
-      }
-      while ( numRead != -1 );
-    }
-    final byte[] digest = md.digest();
-    return ByteUtil.bytesToHex( digest, "" ).toLowerCase();
-  }
-
   protected String CHECKSUM_EXTENSION;
-
   protected String ALGORITHM;
+
+
+
+
 
 
 
@@ -177,6 +157,31 @@ public abstract class AbstractDigestTask extends AbstractFileTask {
       }
     }
 
+  }
+
+
+  
+
+  /**
+   * Generate the digest for the file.
+   *
+   * @param file The file to process
+   * @param md the message digest to use
+   *
+   * @return a string representing the digest of the file
+   *
+   * @throws IOException if there were problems reading the given file
+   */
+  protected static String digest( final File file, final MessageDigest md ) throws IOException {
+    try (InputStream fis = new FileInputStream( file )) {
+      final byte[] buffer = new byte[STREAM_BUFFER_LENGTH];
+      int read = fis.read( buffer, 0, STREAM_BUFFER_LENGTH );
+      while ( read > -1 ) {
+        md.update( buffer, 0, read );
+        read = fis.read( buffer, 0, STREAM_BUFFER_LENGTH );
+      }
+      return ByteUtil.bytesToHex( md.digest(), "" ).toLowerCase();
+    }
   }
 
 }
