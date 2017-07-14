@@ -21,9 +21,9 @@ import java.net.URL;
 
 import coyote.commons.FileUtil;
 import coyote.commons.StringUtil;
+import coyote.commons.network.http.HTTP;
 import coyote.dx.CDX;
 import coyote.dx.ConfigTag;
-import coyote.dx.Symbols;
 import coyote.dx.TaskException;
 import coyote.loader.log.Log;
 import coyote.loader.log.LogMsg;
@@ -33,7 +33,21 @@ import coyote.loader.log.LogMsg;
  * Retrieve the data via the given source URL and place it in the job 
  * directory unless a file or directory is specified.
  * 
- * <p>The standard use case is a simple WebGet from some site.
+ * <p>The standard use case is a simple HTTP Get from some site. The filename 
+ * will be that of the file and it will be placed in the Job Directory.
+ * 
+ * <p>If a file name is specified, the file will be named matching that 
+ * filename argument. Otherwise, it will have the name name as it is 
+ * specified on the URL. If the response contains the "Content-Disposition" 
+ * header containing the filename, that filename will be used. This allows for 
+ * web service calls which return files.
+ * 
+ * <p>The directory argument will be used to determine the directory into 
+ * which the file is placed, unless the filename is absolute, in which case 
+ * the directory name is ignored.
+ * 
+ * <p>If the filename is relative and no directory name is specified, the 
+ * current job directory will be used.
  */
 public class WebGet extends AbstractFileTask {
 
@@ -76,7 +90,8 @@ public class WebGet extends AbstractFileTask {
 
       String fileName = "";
       if ( StringUtil.isBlank( filename ) ) {
-        String disposition = httpConn.getHeaderField( "Content-Disposition" );
+        String disposition = httpConn.getHeaderField( HTTP.HDR_CONTENT_DISPOSITION );
+
         if ( disposition != null ) {
           int index = disposition.indexOf( "filename=" );
           if ( index > 0 ) {
@@ -99,20 +114,20 @@ public class WebGet extends AbstractFileTask {
           targetFile = new File( getJobDir(), fileName );
         }
       }
-      
-      Log.debug( "WebGet retrieving "+source+" to "+targetFile.getAbsolutePath() );
-      
+
+      Log.debug( "WebGet retrieving " + source + " to " + targetFile.getAbsolutePath() + ", Content Type: " + httpConn.getContentType() + ", Content Length: " + httpConn.getContentLength() );
+
       try {
-        int bytesTotal=0;
+        int bytesTotal = 0;
         try (InputStream inputStream = httpConn.getInputStream(); FileOutputStream outputStream = new FileOutputStream( targetFile )) {
           int bytesRead = -1;
           byte[] buffer = new byte[STREAM_BUFFER_LENGTH];
           while ( ( bytesRead = inputStream.read( buffer ) ) != -1 ) {
             outputStream.write( buffer, 0, bytesRead );
-            bytesTotal=+bytesRead;
+            bytesTotal += bytesRead;
           }
         }
-        Log.debug( "Downloaded "+bytesTotal+" from "+source );
+        Log.debug( "Downloaded " + FileUtil.formatSizeBytes( bytesTotal ) + " from " + source + " to " + targetFile.getAbsolutePath() );
       } catch ( IOException e ) {
         final String msg = LogMsg.createMsg( CDX.MSG, "WebGet could not retrieve file from server: {0} - {1}", e.getClass().getSimpleName(), e.getMessage() ).toString();
         Log.error( msg );
@@ -129,63 +144,6 @@ public class WebGet extends AbstractFileTask {
         return;
       }
     }
-  }
-
-
-
-
-
-
-
-
-  /**
-   * Downloads a file from a URL
-   * 
-   * @param fileURL HTTP URL of the file to be retrieved
-   * @param saveDir path of the directory to save the file
-   * 
-   * @throws IOException
-   */
-  public static void downloadFile( String fileURL, File target ) throws IOException {
-    URL url = new URL( fileURL );
-    HttpURLConnection httpConn = (HttpURLConnection)url.openConnection();
-    int responseCode = httpConn.getResponseCode();
-
-    // always check HTTP response code first
-    if ( responseCode == HttpURLConnection.HTTP_OK ) {
-      String fileName = "";
-      String disposition = httpConn.getHeaderField( "Content-Disposition" );
-      String contentType = httpConn.getContentType();
-      int contentLength = httpConn.getContentLength();
-
-      if ( disposition != null ) {
-        // extracts file name from header field
-        int index = disposition.indexOf( "filename=" );
-        if ( index > 0 ) {
-          fileName = disposition.substring( index + 10, disposition.length() - 1 );
-        }
-      } else {
-        // extracts file name from URL
-        fileName = fileURL.substring( fileURL.lastIndexOf( "/" ) + 1, fileURL.length() );
-      }
-
-      System.out.println( "Content-Type = " + contentType );
-      System.out.println( "Content-Disposition = " + disposition );
-      System.out.println( "Content-Length = " + contentLength );
-      System.out.println( "fileName = " + fileName );
-
-      try (InputStream inputStream = httpConn.getInputStream(); FileOutputStream outputStream = new FileOutputStream( target )) {
-        int bytesRead = -1;
-        byte[] buffer = new byte[STREAM_BUFFER_LENGTH];
-        while ( ( bytesRead = inputStream.read( buffer ) ) != -1 ) {
-          outputStream.write( buffer, 0, bytesRead );
-        }
-      }
-      System.out.println( "File downloaded" );
-    } else {
-      System.out.println( "No file to download. Server replied HTTP code: " + responseCode );
-    }
-    httpConn.disconnect();
   }
 
 }
