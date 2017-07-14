@@ -11,6 +11,9 @@
  */
 package coyote.dx.task;
 
+import coyote.dx.Symbols;
+
+
 /**
  * This contains access to utility functions any file-based operation may find
  * useful.
@@ -18,5 +21,18 @@ package coyote.dx.task;
 public abstract class AbstractFileTask extends AbstractTransformTask {
 
   protected static final int STREAM_BUFFER_LENGTH = 1024;
+
+
+
+
+  /**
+   * @return the absolute path to the job directory or "" if not set.
+   */
+  protected String getJobDir() {
+    try {
+      return getContext().getSymbols().get( Symbols.JOB_DIRECTORY ).toString();
+    } catch ( Throwable t ) {}
+    return "";
+  }
 
 }
