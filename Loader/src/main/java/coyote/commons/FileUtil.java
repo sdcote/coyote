@@ -2324,7 +2324,7 @@ public final class FileUtil {
 
     if ( size < FileUtil.ONE_KB ) {
       text = "bytes";
-      divider = 1.0;
+      divider = 1;
     } else if ( size < FileUtil.ONE_MB ) {
       text = "KB";
       divider = FileUtil.ONE_KB;
@@ -2340,8 +2340,11 @@ public final class FileUtil {
     }
 
     final double d = ( (double)size ) / divider;
-    FileUtil.byteFormat.format( d, buf, new FieldPosition( 0 ) ).append( ' ' ).append( text );
-
+    if ( size < FileUtil.ONE_KB ) {
+      buf.append( String.format( "%d", (int)d )).append( ' ' ).append( text );
+    } else {
+      FileUtil.byteFormat.format( d, buf, new FieldPosition( 0 ) ).append( ' ' ).append( text );
+    }
     return buf.toString();
   }
 
