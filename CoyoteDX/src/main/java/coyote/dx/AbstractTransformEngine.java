@@ -777,7 +777,9 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
   public void close() throws IOException {
 
     // close the connections in the transform contexts
-    getContext().close();
+    if ( getContext() != null ) {
+      getContext().close();
+    }
 
     if ( logManager != null )
       logManager.close();
