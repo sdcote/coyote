@@ -2341,7 +2341,7 @@ public final class FileUtil {
 
     final double d = ( (double)size ) / divider;
     if ( size < FileUtil.ONE_KB ) {
-      buf.append( String.format( "%d", (int)d )).append( ' ' ).append( text );
+      buf.append( String.format( "%d", (int)d ) ).append( ' ' ).append( text );
     } else {
       FileUtil.byteFormat.format( d, buf, new FieldPosition( 0 ) ).append( ' ' ).append( text );
     }
@@ -2551,31 +2551,27 @@ public final class FileUtil {
 
 
 
+  /**
+   * Read the given file and return each line as a string in an array.
+   * 
+   * <p>No encoding is performed.
+   * 
+   * @param file the file to read
+   * 
+   * @return each line of the (test) file in an array of strings.
+   */
   public static String[] textToArray( final File file ) {
     final ArrayList<String> array = new ArrayList<String>();
-    FileInputStream fin = null;
     String line;
-    try {
-      fin = new FileInputStream( file );
-      final BufferedReader myInput = new BufferedReader( new InputStreamReader( fin ) );
+    try (FileInputStream fin = new FileInputStream( file ); BufferedReader myInput = new BufferedReader( new InputStreamReader( fin ) )) {
       while ( ( line = myInput.readLine() ) != null ) {
         array.add( line );
       }
     } catch ( final Exception e ) {
       e.printStackTrace();
     }
-    finally {
-      try {
-        fin.close();
-      } catch ( final Exception e ) {}
-    }
 
-    final String[] retval = new String[array.size()];
-    for ( int x = 0; x < retval.length; retval[x] = array.get( x++ ) ) {
-      ;
-    }
-
-    return retval;
+    return array.toArray( new String[array.size()] );
   }
 
 
