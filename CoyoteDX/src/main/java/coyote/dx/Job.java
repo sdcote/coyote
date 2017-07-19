@@ -125,6 +125,9 @@ public class Job extends AbstractBatchLoader implements Loader {
         } catch ( final Exception e ) {
           Log.fatal( LogMsg.createMsg( CDX.MSG, "Job.exception_running_engine", e.getClass().getSimpleName(), e.getMessage(), engine.getName(), engine.getClass().getSimpleName() ) );
           Log.fatal( ExceptionUtil.toString( e ) );
+          if( Log.isLogging( Log.DEBUG_EVENTS )){
+            Log.debug( ExceptionUtil.stackTrace( e ) );
+          }
         }
         finally {
           try {
