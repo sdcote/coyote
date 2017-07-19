@@ -1,0 +1,28 @@
+{
+	"Class": "coyote.dx.Job",
+	"Job": 
+	{
+		"Name": "Vulnerabilities",
+
+		"Preprocess": {
+			"WebGet": { "source": "https://static.nvd.nist.gov/feeds/json/cve/1.0/nvdcve-1.0-recent.meta" },
+			"ReadIntoContext": { "source": "nvdcve-1.0-recent.meta", "separator": ":" },
+			"SaveContextValue": { "source": "sha256", "target": "nvdcve-1.0-recent.json.sha256" },
+			"WebGet":  { "source": "https://static.nvd.nist.gov/feeds/json/cve/1.0/nvdcve-1.0-recent.json.zip" },
+			"Unzip":  { "source": "nvdcve-1.0-recent.json.zip" },
+			"CheckSHA256":  { "source": "nvdcve-1.0-recent.json" }
+		},
+
+		"Reader": {
+			"class": "JsonReader",
+			"source": "nvdcve-1.0-recent.json"
+		},
+
+		"Writer": {
+			"class": "ConsoleWriter",
+			"format": "json",
+			"indent": false,
+			"message": "Record [#$CurrentFrame#] received."
+		}
+	}
+}
