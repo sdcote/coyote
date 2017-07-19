@@ -11,6 +11,7 @@
  */
 package coyote.dx.task;
 
+import coyote.dx.ConfigTag;
 import coyote.dx.TaskException;
 import coyote.loader.log.Log;
 
@@ -30,6 +31,13 @@ public class SaveContextValue extends AbstractFileTask {
    */
   @Override
   protected void performTask() throws TaskException {
+
+    // the context variable to retrieve
+    final String source = getString( ConfigTag.SOURCE );
+    
+    final String target = getString( ConfigTag.TARGET );
+    final String filename = getString( ConfigTag.FILE );
+
     Log.fatal( "Not implemented" );
   }
 

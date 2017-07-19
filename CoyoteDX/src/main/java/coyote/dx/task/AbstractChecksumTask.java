@@ -111,6 +111,13 @@ public abstract class AbstractChecksumTask extends AbstractFileTask {
   @Override
   protected void performTask() throws TaskException {
     final String filename = getString( ConfigTag.FILE );
+    final String source = getString( ConfigTag.SOURCE );
+    // TODO: Expect "source", support "file", check for null
+
+    // TODO: Support retrieving the checksum from a context variable
+    final String contextKey = getString( ConfigTag.CONTEXT );
+    
+    
     final File file = new File( filename );
     if ( file.exists() ) {
       if ( file.canRead() ) {

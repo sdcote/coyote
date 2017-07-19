@@ -15,9 +15,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.security.DigestInputStream;
 import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 
 import coyote.commons.ByteUtil;
 import coyote.commons.FileUtil;
@@ -35,10 +33,6 @@ import coyote.loader.log.LogMsg;
 public abstract class AbstractDigestTask extends AbstractFileTask {
   protected String CHECKSUM_EXTENSION;
   protected String ALGORITHM;
-
-
-
-
 
 
 
@@ -79,6 +73,12 @@ public abstract class AbstractDigestTask extends AbstractFileTask {
   @Override
   protected void performTask() throws TaskException {
     final String filename = getString( ConfigTag.FILE );
+    final String source = getString( ConfigTag.SOURCE );
+    // TODO: Expect "source", support "file", check for null
+
+    // TODO: Support retrieving the digest from a context variable
+    final String contextKey = getString( ConfigTag.CONTEXT );
+
     final File file = new File( filename );
     if ( file.exists() ) {
       if ( file.canRead() ) {
@@ -160,7 +160,7 @@ public abstract class AbstractDigestTask extends AbstractFileTask {
   }
 
 
-  
+
 
   /**
    * Generate the digest for the file.
