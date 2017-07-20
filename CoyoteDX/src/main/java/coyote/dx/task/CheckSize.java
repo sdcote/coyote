@@ -38,14 +38,35 @@ public class CheckSize extends AbstractFileTask {
       Log.debug( getClass().getSimpleName() + " using absolute filename of '" + file.getAbsolutePath() + "'" );;
 
       if ( file.exists() ) {
+        String attrName = getConfiguration().getString( ConfigTag.CONTEXT );
 
-        // TODO: use the given attribute name in the context
-        String size = getContext().getAsString( ConfigTag.CONTEXT );
-        Log.info( "Size should be "+size );
-        
+        String value = getContext().getAsString( attrName );
+        Log.info( "Size should be " + value );
+        long size;
+
+        try {
+          size = Long.parseLong( value );
+        } catch ( NumberFormatException e ) {
+          final String msg = LogMsg.createMsg( CDX.MSG, "%s failed: Context attribute %s does not contain a valid numeric (%s)", getClass().getSimpleName(), attrName, value ).toString();
+          Log.error( msg );
+          if ( haltOnError ) {
+            getContext().setError( msg );
+          }
+          return;
+        }
+
         if ( file.length() > 0 ) {
 
-          Log.fatal( getClass().getSimpleName() + ": Not fully implemented" );
+          if ( file.length() == size ) {
+            Log.info( "File size verified for " + file.getAbsolutePath() );
+          } else {
+            final String msg = LogMsg.createMsg( CDX.MSG, "File size verification failed for '%s'  expecting %d was actually %d", source, file.getAbsolutePath(), size, file.length() ).toString();
+            Log.error( msg );
+            if ( haltOnError ) {
+              getContext().setError( msg );
+              return;
+            }
+          }
 
         } else {
           Log.warn( LogMsg.createMsg( CDX.MSG, "%s did not read any data from %s - empty file (%s)", getClass().getSimpleName(), source, file.getAbsolutePath() ) );
