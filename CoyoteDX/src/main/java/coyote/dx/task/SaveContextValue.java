@@ -31,6 +31,12 @@ import coyote.loader.log.LogMsg;
  * 
  * <p>The value will be treated as a template and resolved with values from 
  * the symbol table in the context.
+ *
+ * <p>Can be used thusly:<pre>
+ * "SaveContextValue": { "source": "sha256", "target": "nvdcve-1.0-recent.json.sha256", "enabled": false }</pre>
+ * with {@code source} being the name of the context attribute to query and 
+ * {@code target} being the file to which the value is written.
+
  */
 public class SaveContextValue extends AbstractFileTask {
 

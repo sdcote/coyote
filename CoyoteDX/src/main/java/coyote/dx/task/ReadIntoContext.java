@@ -30,6 +30,11 @@ import coyote.loader.log.LogMsg;
  * <p>The file is assumed to be a simple text file containing name-value
  * pairs. Each line is expected to contain one pair delimited with an equals
  * '=' sign. Other characters can be specified as a delimiter.
+ * 
+ * <p>This task can be configured as follows:<pre>
+ * "ReadIntoContext": { "source": "nvdcve-1.0-recent.meta", "delimiter": ":" }</pre>
+ * with {@code source} being the file to read and {@code delimiter} being the
+ * string which separates names from values.
  */
 public class ReadIntoContext extends AbstractFileTask {
 
