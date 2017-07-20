@@ -39,7 +39,7 @@ public class SaveContextValue extends AbstractFileTask {
   @Override
   protected void performTask() throws TaskException {
 
-    // don't resolve the value, but get the actual configuration attribute
+    // get the actual configuration attribute, not a fully resolved value
     final String source = getConfiguration().getString( ConfigTag.SOURCE );
 
     if ( StringUtil.isNotEmpty( source ) ) {
@@ -68,7 +68,6 @@ public class SaveContextValue extends AbstractFileTask {
             return;
           }
         }
-
       }
     } else {
       final String msg = LogMsg.createMsg( CDX.MSG, "%s failed: No source (context key) configured", getClass().getSimpleName() ).toString();
@@ -77,9 +76,8 @@ public class SaveContextValue extends AbstractFileTask {
         getContext().setError( msg );
         return;
       }
-
     }
-    Log.fatal( getClass().getSimpleName() + ": Not implemented" );
+
   }
 
 }

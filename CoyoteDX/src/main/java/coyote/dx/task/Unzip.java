@@ -24,7 +24,7 @@ public class Unzip extends AbstractFileTask {
    */
   @Override
   protected void performTask() throws TaskException {
-    Log.fatal( "Not implemented" );
+    Log.fatal( getClass().getSimpleName() + ": Not implemented" );
   }
 
   
