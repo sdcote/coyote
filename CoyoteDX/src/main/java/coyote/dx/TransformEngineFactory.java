@@ -391,7 +391,7 @@ public class TransformEngineFactory {
           if ( object != null ) {
             if ( object instanceof TransformTask ) {
               int seq = engine.addPreProcessTask( (TransformTask)object );
-              Log.debug( LogMsg.createMsg( CDX.MSG, "EngineFactory.created_preprocess_task", object.getClass().getName(), seq, cfg ) );
+              Log.debug( LogMsg.createMsg( CDX.MSG, "EngineFactory.created_preprocess_task", object.getClass().getName(), seq, taskConfig ) );
             } else {
               Log.error( LogMsg.createMsg( CDX.MSG, "EngineFactory.preprocess_class_not_transform_task", object.getClass().getName() ) );
             }
