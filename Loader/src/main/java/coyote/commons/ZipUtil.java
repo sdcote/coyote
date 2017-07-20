@@ -613,6 +613,34 @@ public class ZipUtil {
 
 
   /**
+   * Unzip an archive into a directory with the same root name as the archive.
+   * 
+   * @param source the archive file to decompress
+   *  
+   * @throws IOException if there were problems decompressing the file
+   */
+  public static void unzip( final File source ) throws IOException {
+
+  }
+
+
+
+
+  /**
+   * Unzip an archive into the given directory.
+   * 
+   * @param source the archive file to decompress
+   *  
+   * @throws IOException if there were problems decompressing the file
+   */
+  public static void unzip( final File source, final File directory ) throws IOException {
+
+  }
+
+
+
+
+  /**
    * Zip a single file into a compressed ZIP archive.
    *
    * <p>This will result in a compressed archive that contain a single file
