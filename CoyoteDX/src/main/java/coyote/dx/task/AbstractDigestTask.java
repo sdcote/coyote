@@ -72,31 +72,38 @@ public abstract class AbstractDigestTask extends AbstractFileTask {
    */
   @Override
   protected void performTask() throws TaskException {
-    final String filename = getString( ConfigTag.FILE );
-    final String source = getString( ConfigTag.SOURCE );
-    // TODO: Expect "source", support "file", check for null
+    final String source = getSourceOrFile();
 
     // TODO: Support retrieving the digest from a context variable
     final String contextKey = getString( ConfigTag.CONTEXT );
 
-    final File file = new File( filename );
-    if ( file.exists() ) {
-      if ( file.canRead() ) {
-        if ( file.length() > 0 ) {
-          String digest = null;
-          try {
-            digest = digest( file, getDigest() );
-            Log.debug( file.getAbsolutePath() + " has a " + ALGORITHM + " digest of " + digest );
-            final String digestFilename = file.getAbsolutePath() + CHECKSUM_EXTENSION;
-            final File digestFile = new File( digestFilename );
-            if ( digestFile.exists() ) {
-              if ( digestFile.canRead() ) {
-                final String expected = FileUtil.fileToString( digestFile );
-                if ( StringUtil.isNotBlank( expected ) ) {
-                  if ( digest.equalsIgnoreCase( expected.trim() ) ) {
-                    Log.info( ALGORITHM + " checksum verified for " + file.getAbsolutePath() );
+    if ( StringUtil.isNotBlank( source ) ) {
+      final File file = new File( source );
+      if ( file.exists() ) {
+        if ( file.canRead() ) {
+          if ( file.length() > 0 ) {
+            String digest = null;
+            try {
+              digest = digest( file, getDigest() );
+              Log.debug( file.getAbsolutePath() + " has a " + ALGORITHM + " digest of " + digest );
+              final String digestFilename = file.getAbsolutePath() + CHECKSUM_EXTENSION;
+              final File digestFile = new File( digestFilename );
+              if ( digestFile.exists() ) {
+                if ( digestFile.canRead() ) {
+                  final String expected = FileUtil.fileToString( digestFile );
+                  if ( StringUtil.isNotBlank( expected ) ) {
+                    if ( digest.equalsIgnoreCase( expected.trim() ) ) {
+                      Log.info( ALGORITHM + " checksum verified for " + file.getAbsolutePath() );
+                    } else {
+                      final String msg = LogMsg.createMsg( CDX.MSG, "%s verification failed for '%s' (%s)", ALGORITHM, source, file.getAbsolutePath() ).toString();
+                      Log.error( msg );
+                      if ( haltOnError ) {
+                        getContext().setError( msg );
+                        return;
+                      }
+                    }
                   } else {
-                    final String msg = LogMsg.createMsg( CDX.MSG, "%s verification failed for '%s' (%s)", ALGORITHM, filename, file.getAbsolutePath() ).toString();
+                    final String msg = LogMsg.createMsg( CDX.MSG, "%s data was blank in checksum file '%s' (%s)", ALGORITHM, source, file.getAbsolutePath() ).toString();
                     Log.error( msg );
                     if ( haltOnError ) {
                       getContext().setError( msg );
@@ -104,7 +111,7 @@ public abstract class AbstractDigestTask extends AbstractFileTask {
                     }
                   }
                 } else {
-                  final String msg = LogMsg.createMsg( CDX.MSG, "%s data was blank in checksum file '%s' (%s)", ALGORITHM, filename, file.getAbsolutePath() ).toString();
+                  final String msg = LogMsg.createMsg( CDX.MSG, "%s data could not read from checksum file '%s' (%s)", ALGORITHM, source, file.getAbsolutePath() ).toString();
                   Log.error( msg );
                   if ( haltOnError ) {
                     getContext().setError( msg );
@@ -112,19 +119,19 @@ public abstract class AbstractDigestTask extends AbstractFileTask {
                   }
                 }
               } else {
-                final String msg = LogMsg.createMsg( CDX.MSG, "%s data could not read from checksum file '%s' (%s)", ALGORITHM, filename, file.getAbsolutePath() ).toString();
-                Log.error( msg );
-                if ( haltOnError ) {
-                  getContext().setError( msg );
-                  return;
-                }
+                FileUtil.stringToFile( digest, digestFilename );
               }
-            } else {
-              FileUtil.stringToFile( digest, digestFilename );
+              getContext().set( digestFilename, digest );
+            } catch ( final IOException e ) {
+              final String msg = LogMsg.createMsg( CDX.MSG, "%s digest could not be calculated: %s - '%s' (%s)", ALGORITHM, e.getMessage(), source, file.getAbsolutePath() ).toString();
+              Log.error( msg );
+              if ( haltOnError ) {
+                getContext().setError( msg );
+                return;
+              }
             }
-            getContext().set( digestFilename, digest );
-          } catch ( final IOException e ) {
-            final String msg = LogMsg.createMsg( CDX.MSG, "%s digest could not be calculated: %s - '%s' (%s)", ALGORITHM, e.getMessage(), filename, file.getAbsolutePath() ).toString();
+          } else {
+            final String msg = LogMsg.createMsg( CDX.MSG, "%s digest task could process empty file '%s' (%s)", ALGORITHM, source, file.getAbsolutePath() ).toString();
             Log.error( msg );
             if ( haltOnError ) {
               getContext().setError( msg );
@@ -132,7 +139,7 @@ public abstract class AbstractDigestTask extends AbstractFileTask {
             }
           }
         } else {
-          final String msg = LogMsg.createMsg( CDX.MSG, "%s digest task could process empty file '%s' (%s)", ALGORITHM, filename, file.getAbsolutePath() ).toString();
+          final String msg = LogMsg.createMsg( CDX.MSG, "%s digest task could not read '%s' (%s)", ALGORITHM, source, file.getAbsolutePath() ).toString();
           Log.error( msg );
           if ( haltOnError ) {
             getContext().setError( msg );
@@ -140,7 +147,8 @@ public abstract class AbstractDigestTask extends AbstractFileTask {
           }
         }
       } else {
-        final String msg = LogMsg.createMsg( CDX.MSG, "%s digest task could not read '%s' (%s)", ALGORITHM, filename, file.getAbsolutePath() ).toString();
+        Log.error( "File does not exist: " + source + " (" + file.getAbsolutePath() + ")" );
+        final String msg = LogMsg.createMsg( CDX.MSG, "%s digest task could not read '%s' - file does not exist (%s)", ALGORITHM, source, file.getAbsolutePath() ).toString();
         Log.error( msg );
         if ( haltOnError ) {
           getContext().setError( msg );
@@ -148,8 +156,7 @@ public abstract class AbstractDigestTask extends AbstractFileTask {
         }
       }
     } else {
-      Log.error( "File does not exist: " + filename + " (" + file.getAbsolutePath() + ")" );
-      final String msg = LogMsg.createMsg( CDX.MSG, "%s digest task could not read '%s' - file does not exist (%s)", ALGORITHM, filename, file.getAbsolutePath() ).toString();
+      final String msg = LogMsg.createMsg( CDX.MSG, "%s failed: No data in %s configuration attribute", getClass().getSimpleName(), ConfigTag.SOURCE ).toString();
       Log.error( msg );
       if ( haltOnError ) {
         getContext().setError( msg );

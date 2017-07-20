@@ -11,6 +11,10 @@
  */
 package coyote.dx.task;
 
+import java.io.File;
+
+import coyote.commons.StringUtil;
+import coyote.dx.ConfigTag;
 import coyote.dx.Symbols;
 
 
@@ -35,4 +39,40 @@ public abstract class AbstractFileTask extends AbstractTransformTask {
     return "";
   }
 
+
+
+
+  /**
+   * @return the string for the SOURCE configuration attribute, otherwise use 
+   *         FILENAME. May be null
+   */
+  protected String getSourceOrFile() {
+    final String source = getString( ConfigTag.SOURCE );
+    if ( StringUtil.isNotBlank( source ) ) {
+      return source;
+    } else {
+      return getString( ConfigTag.FILE );
+    }
+  }
+
+
+
+
+  /**
+   * @param source
+   * @return
+   */
+  protected File getFile( String source ) {
+    final File file = new File( source );
+    File retval = null;
+    if ( !file.exists() ) {
+      if ( !file.isAbsolute() ) {
+        retval = new File( getJobDir(), source );
+      }
+    } else {
+      retval = file;
+    }
+    return retval;
+  }
+  
 }
