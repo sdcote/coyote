@@ -1,12 +1,12 @@
 /*
  * Copyright (c) 2017 Stephan D. Cote' - All rights reserved.
- * 
- * This program and the accompanying materials are made available under the 
- * terms of the MIT License which accompanies this distribution, and is 
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the MIT License which accompanies this distribution, and is
  * available at http://creativecommons.org/licenses/MIT/
  *
  * Contributors:
- *   Stephan D. Cote 
+ *   Stephan D. Cote
  *      - Initial concept and implementation
  */
 package coyote.dx.task;
@@ -24,11 +24,11 @@ import coyote.loader.log.LogMsg;
 
 /**
  * Read a text file into the context as a set of name-value pairs.
- * 
+ *
  * <p>This allows a job to be populated with context variables at runtime.
- * 
- * <p>The file is assumed to be a simple text file containing name-value 
- * pairs. Each line is expected to contain one pair delimited with an equals 
+ *
+ * <p>The file is assumed to be a simple text file containing name-value
+ * pairs. Each line is expected to contain one pair delimited with an equals
  * '=' sign. Other characters can be specified as a delimiter.
  */
 public class ReadIntoContext extends AbstractFileTask {
@@ -39,24 +39,66 @@ public class ReadIntoContext extends AbstractFileTask {
 
 
   /**
+   * Divide the line into two strings based on the given delimiter.
+   *
+   * @param line the line to split
+   * @param delimiter the delimiter
+   *
+   * @return an array of 2 elements, the first is the key, the second is the
+   *         value. If there is no delimiter, the first element will be the
+   *         entire string and the second element will be null.
+   */
+  private String[] divide( final String line, final String delimiter ) {
+    final String[] retval = new String[2];
+    final int indx = line.indexOf( delimiter );
+    if ( indx != -1 ) {
+      retval[0] = line.substring( 0, indx );
+      if ( indx < line.length() ) {
+        retval[1] = line.substring( indx+1, line.length() );
+      }
+    } else {
+      retval[0] = line;
+    }
+    return retval;
+  }
+
+
+
+
+  /**
+   * @return the string which delimits the key from the value or the default
+   *         value if no delimiter configuration attribute is found.
+   */
+  private String getDelimiter() {
+    final String separator = getString( ConfigTag.DELIMITER );
+    if ( StringUtil.isNotBlank( separator ) ) {
+      return separator;
+    }
+    return DEFAULT_DELIMITER;
+  }
+
+
+
+
+  /**
    * @see coyote.dx.task.AbstractTransformTask#performTask()
    */
   @Override
   protected void performTask() throws TaskException {
-    String delimiter = getDelimiter();
-    String source = getSourceOrFile();
+    final String delimiter = getDelimiter();
+    final String source = getSourceOrFile();
     if ( StringUtil.isNotBlank( source ) ) {
       Log.debug( "Using a filename of '" + source + "'" );;
-      final File file = getFile( source );
+      final File file = getExistingFile( source );
       Log.debug( "Using absolute filename of '" + file.getAbsolutePath() + "'" );;
 
       if ( file.exists() ) {
         if ( file.canRead() ) {
           if ( file.length() > 0 ) {
-            String[] lines = FileUtil.textToArray( file );
+            final String[] lines = FileUtil.textToArray( file );
             Log.info( "Read in " + lines.length + " lines" );
-            for ( String line : lines ) {
-              String[] kvp = divide( line, delimiter );
+            for ( final String line : lines ) {
+              final String[] kvp = divide( line, delimiter );
               if ( StringUtil.isNotEmpty( kvp[1] ) ) {
                 getContext().set( kvp[0], kvp[1] );
                 Log.debug( "Recording '" + kvp[0] + "' in contex as '" + kvp[1] + "'" );
@@ -91,48 +133,6 @@ public class ReadIntoContext extends AbstractFileTask {
         return;
       }
     }
-  }
-
-
-
-
-
-
-
-
-
-  /**
-   * @param line
-   * @param delimiter
-   * @return
-   */
-  private String[] divide( String line, String delimiter ) {
-    String[] retval = new String[2];
-    final int indx = line.indexOf( delimiter );
-    if ( indx != -1 ) {
-      retval[0] = line.substring( 0, indx );
-      if ( indx < line.length() ) {
-        retval[1] = line.substring( indx, line.length() );
-      }
-    } else {
-      retval[0] = line;
-    }
-
-    return retval;
-  }
-
-
-
-
-  /**
-   * @return the string which delimits the key from the value
-   */
-  private String getDelimiter() {
-    String separator = getString( ConfigTag.DELIMITER );
-    if ( StringUtil.isNotBlank( separator ) ) {
-      return separator;
-    }
-    return DEFAULT_DELIMITER;
   }
 
 }
