@@ -111,93 +111,121 @@ public abstract class AbstractChecksumTask extends AbstractFileTask {
   @Override
   protected void performTask() throws TaskException {
     final String source = getSourceOrFile();
+    String expectedChecksum = null;
 
-    // TODO: Support retrieving the checksum from a context variable
-    final String contextKey = getString( ConfigTag.CONTEXT );
-    
+    // Retrieve the checksum from a context variable
+    final String contextKey = getConfiguration().getString( ConfigTag.CONTEXT );
+    if ( StringUtil.isNotBlank( contextKey ) ) {
+      expectedChecksum = getString( contextKey );
+    }
+
     if ( StringUtil.isNotBlank( source ) ) {
-    final File file = getAbsoluteFile( source );
-    if ( file.exists() ) {
-      if ( file.canRead() ) {
-        if ( file.length() > 0 ) {
-          String checksum = null;
-          try {
-            checksum = getChecksum( file, getChecksum() );
-            Log.debug( file.getAbsolutePath() + " has a " + ALGORITHM + " checksum of " + checksum );
-            final String checksumFilename = file.getAbsolutePath() + CHECKSUM_EXTENSION;
-            final File checksumFile = new File( checksumFilename );
-            if ( checksumFile.exists() ) {
-              if ( checksumFile.canRead() ) {
-                final String expected = FileUtil.fileToString( checksumFile );
-                if ( StringUtil.isNotBlank( expected ) ) {
-                  if ( checksum.equalsIgnoreCase( expected.trim() ) ) {
-                    Log.info( ALGORITHM + " checksum verified for " + file.getAbsolutePath() );
-                  } else {
-                    final String msg = LogMsg.createMsg( CDX.MSG, "%s verification failed for '%s' (%s)", ALGORITHM, source, file.getAbsolutePath() ).toString();
-                    Log.error( msg );
-                    if ( haltOnError ) {
-                      getContext().setError( msg );
-                      return;
-                    }
-                  }
+      final File file = getAbsoluteFile( source );
+      if ( file.exists() ) {
+        if ( file.canRead() ) {
+          if ( file.length() > 0 ) {
+            String checksum = null;
+            try {
+              checksum = getChecksum( file, getChecksum() );
+              Log.debug( LogMsg.createMsg( CDX.MSG, "Checksum.results", file.getAbsolutePath(), ALGORITHM, checksum ) );
+
+              final String checksumFilename = file.getAbsolutePath() + CHECKSUM_EXTENSION;
+              final File checksumFile = new File( checksumFilename );
+
+              if ( StringUtil.isNotBlank( expectedChecksum ) ) {
+                if ( checksum.equalsIgnoreCase( expectedChecksum.trim() ) ) {
+                  Log.info( LogMsg.createMsg( CDX.MSG, "Checksum.verified", ALGORITHM, file.getAbsolutePath() ) );
+                  getContext().set( checksumFilename, checksum );
                 } else {
-                  final String msg = LogMsg.createMsg( CDX.MSG, "%s data was blank in checksum file '%s' (%s)", ALGORITHM, source, file.getAbsolutePath() ).toString();
-                  Log.error( msg );
+                  final String msg = LogMsg.createMsg( CDX.MSG, "Checksum.verification_failed", ALGORITHM, source, file.getAbsolutePath() ).toString();
                   if ( haltOnError ) {
-                    getContext().setError( msg );
+                    throw new TaskException( msg );
+                  } else {
+                    Log.error( msg );
                     return;
                   }
                 }
               } else {
-                final String msg = LogMsg.createMsg( CDX.MSG, "%s data could not read from checksum file '%s' (%s)", ALGORITHM, source, file.getAbsolutePath() ).toString();
-                Log.error( msg );
-                if ( haltOnError ) {
-                  getContext().setError( msg );
-                  return;
+                if ( checksumFile.exists() ) {
+                  if ( checksumFile.canRead() ) {
+                    final String expected = FileUtil.fileToString( checksumFile );
+                    if ( StringUtil.isNotBlank( expected ) ) {
+                      if ( checksum.equalsIgnoreCase( expected.trim() ) ) {
+                        Log.info( LogMsg.createMsg( CDX.MSG, "Checksum.verified", ALGORITHM, file.getAbsolutePath() ) );
+                        getContext().set( checksumFilename, checksum );
+                      } else {
+                        final String msg = LogMsg.createMsg( CDX.MSG, "Checksum.verification_failed", ALGORITHM, source, file.getAbsolutePath() ).toString();
+                        if ( haltOnError ) {
+                          throw new TaskException( msg );
+                        } else {
+                          Log.error( msg );
+                          return;
+                        }
+                      }
+                    } else {
+                      final String msg = LogMsg.createMsg( CDX.MSG, "Checksum.blank_digest_data", ALGORITHM, source, file.getAbsolutePath() ).toString();
+                      if ( haltOnError ) {
+                        throw new TaskException( msg );
+                      } else {
+                        Log.error( msg );
+                        return;
+                      }
+                    }
+                  } else {
+                    final String msg = LogMsg.createMsg( CDX.MSG, "Checksum.could_not_read_digest_file", ALGORITHM, source, file.getAbsolutePath() ).toString();
+                    if ( haltOnError ) {
+                      throw new TaskException( msg );
+                    } else {
+                      Log.error( msg );
+                      return;
+                    }
+                  }
+                } else {
+                  Log.warn( LogMsg.createMsg( CDX.MSG, "Checksum.no_digest_data", ALGORITHM, file.getAbsolutePath() ) );
                 }
               }
-            } else {
-              FileUtil.stringToFile( checksum, checksumFilename );
+            } catch ( final IOException e ) {
+              final String msg = LogMsg.createMsg( CDX.MSG, "Checksum.calculation_error", ALGORITHM, e.getMessage(), source, file.getAbsolutePath() ).toString();
+              if ( haltOnError ) {
+                throw new TaskException( msg );
+              } else {
+                Log.error( msg );
+                return;
+              }
             }
-            getContext().set( checksumFilename, checksum );
-          } catch ( final IOException e ) {
-            final String msg = LogMsg.createMsg( CDX.MSG, "%s checksum could not be calculated: %s - '%s' (%s)", ALGORITHM, e.getMessage(), source, file.getAbsolutePath() ).toString();
-            Log.error( msg );
+          } else {
+            final String msg = LogMsg.createMsg( CDX.MSG, "Checksum.empty_source_file", ALGORITHM, source, file.getAbsolutePath() ).toString();
             if ( haltOnError ) {
-              getContext().setError( msg );
+              throw new TaskException( msg );
+            } else {
+              Log.error( msg );
               return;
             }
           }
         } else {
-          final String msg = LogMsg.createMsg( CDX.MSG, "%s checksum task could process empty file '%s' (%s)", ALGORITHM, source, file.getAbsolutePath() ).toString();
-          Log.error( msg );
+          final String msg = LogMsg.createMsg( CDX.MSG, "Checksum.source_could_not_be_read", ALGORITHM, source, file.getAbsolutePath() ).toString();
           if ( haltOnError ) {
-            getContext().setError( msg );
+            throw new TaskException( msg );
+          } else {
+            Log.error( msg );
             return;
           }
         }
       } else {
-        final String msg = LogMsg.createMsg( CDX.MSG, "%s checksum task could not read '%s' (%s)", ALGORITHM, source, file.getAbsolutePath() ).toString();
-        Log.error( msg );
+        final String msg = LogMsg.createMsg( CDX.MSG, "Checksum.source_does_not_exist", ALGORITHM, source, file.getAbsolutePath() ).toString();
         if ( haltOnError ) {
-          getContext().setError( msg );
+          throw new TaskException( msg );
+        } else {
+          Log.error( msg );
           return;
         }
       }
     } else {
-      Log.error( "File does not exist: " + source + " (" + file.getAbsolutePath() + ")" );
-      final String msg = LogMsg.createMsg( CDX.MSG, "%s checksum task could not read '%s' - file does not exist (%s)", ALGORITHM, source, file.getAbsolutePath() ).toString();
-      Log.error( msg );
+      final String msg = LogMsg.createMsg( CDX.MSG, "Checksum.configuration_error", getClass().getSimpleName(), ConfigTag.SOURCE ).toString();
       if ( haltOnError ) {
-        getContext().setError( msg );
-        return;
-      }
-    }
-    } else {
-      final String msg = LogMsg.createMsg( CDX.MSG, "%s failed: No data in %s configuration attribute", getClass().getSimpleName(), ConfigTag.SOURCE ).toString();
-      Log.error( msg );
-      if ( haltOnError ) {
-        getContext().setError( msg );
+        throw new TaskException( msg );
+      } else {
+        Log.error( msg );
         return;
       }
     }
