@@ -382,25 +382,27 @@ public final class FileUtil {
   /**
    * Get the base filename of a file (e.g. no directory or extension)
    *
-   * <p>Returns "readme" from "T:\projects\src\readme.txt".</p>
-   *
-   * <p>NOTE: This method uses the default file separator for the system.</p>
+   * <p>Returns "readme" from "T:\projects\src\readme.txt". If there are no 
+   * extensions on the filename, then the last path element is returned. For 
+   * example, "T:\projects\src\readme" also returns "readme".
+   * 
+   * <p>If there are multiple extensions, only the base is returned. For 
+   * example "T:\projects\src\readme.txt.bak" will return "readme" and drop 
+   * everything after the first '.' character.
    *
    * @param fileName Original pathname to get the base name from.
    *
    * @return The base file name
    */
   public static String getBase( final String fileName ) {
-    String tempName1 = new String( "" );
+    String tempName = new String( "" );
     final StringTokenizer stk1 = new StringTokenizer( fileName, "/\\" );
 
-    // Cruise through the string and eat up all the tokens before the last
-    // directory delimiter
     while ( stk1.hasMoreTokens() ) {
-      tempName1 = stk1.nextToken();
+      tempName = stk1.nextToken();
     }
 
-    final StringTokenizer stk = new StringTokenizer( tempName1, "." );
+    final StringTokenizer stk = new StringTokenizer( tempName, "." );
     return stk.nextToken();
   }
 
