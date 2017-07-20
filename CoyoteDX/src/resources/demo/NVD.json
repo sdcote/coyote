@@ -5,7 +5,7 @@
 
 		"Preprocess": {
 			"WebGet": { "source": "https://static.nvd.nist.gov/feeds/json/cve/1.0/nvdcve-1.0-recent.meta" },
-			"ReadIntoContext": { "source": "nvdcve-1.0-recent.meta", "separator": ":" },
+			"ReadIntoContext": { "source": "nvdcve-1.0-recent.meta", "delimiter": ":" },
 			"SaveContextValue": { "source": "sha256", "target": "nvdcve-1.0-recent.json.sha256" },
 			"WebGet": { "source": "https://static.nvd.nist.gov/feeds/json/cve/1.0/nvdcve-1.0-recent.json.zip" },
 			"Unzip": { "source": "nvdcve-1.0-recent.json.zip" },
