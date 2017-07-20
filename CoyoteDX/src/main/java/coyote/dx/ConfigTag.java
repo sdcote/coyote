@@ -75,6 +75,7 @@ public class ConfigTag {
   public static final String ENCODING = "Encoding";
   public static final String LISTEN = "Listen";
   public static final String MESSAGE = "Message";
+  public static final String DELIMITER = "Delimiter";
 
 
   // Networking proxy tags used by several components
@@ -146,5 +147,5 @@ public class ConfigTag {
 
   public static final String IPACL = "IpACL";
   public static final String FREQUENCY = "Frequency";
-
+  
 }
