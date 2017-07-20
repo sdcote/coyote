@@ -15,6 +15,7 @@ import java.io.File;
 
 import coyote.commons.FileUtil;
 import coyote.commons.StringUtil;
+import coyote.commons.template.Template;
 import coyote.dx.CDX;
 import coyote.dx.ConfigTag;
 import coyote.dx.TaskException;
@@ -44,14 +45,20 @@ public class SaveContextValue extends AbstractFileTask {
 
     if ( StringUtil.isNotEmpty( source ) ) {
       final String target = getTargetOrFile();
+
       if ( StringUtil.isNotBlank( target ) ) {
         Log.debug( "Using a filename of '" + target + "'" );;
+
         final File file = getAbsoluteFile( target );
         Log.debug( "Using absolute filename of '" + file.getAbsolutePath() + "'" );
+
         String contextVariable = getContext().getAsString( source );
         if ( StringUtil.isNotEmpty( contextVariable ) ) {
-          if ( FileUtil.stringToFile( contextVariable, file.getAbsolutePath() ) ) {
-            Log.debug( "Wrote context variable '" + source + "' ( " + contextVariable.length() + "chars) to " + file.getAbsolutePath() );
+          
+          String resolvedValue = Template.resolve( contextVariable, getContext().getSymbols() );
+          
+          if ( FileUtil.stringToFile( resolvedValue, file.getAbsolutePath() ) ) {
+            Log.debug( "Wrote context variable '" + source + "' ( " + resolvedValue.length() + "chars) to " + file.getAbsolutePath() );
           } else {
             final String msg = LogMsg.createMsg( CDX.MSG, "%s failed: Write failed to %s (%s)", getClass().getSimpleName(), target, file.getAbsolutePath() ).toString();
             Log.error( msg );
