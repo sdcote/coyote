@@ -78,7 +78,7 @@ public abstract class AbstractDigestTask extends AbstractFileTask {
     final String contextKey = getString( ConfigTag.CONTEXT );
 
     if ( StringUtil.isNotBlank( source ) ) {
-      final File file = new File( source );
+      final File file = getAbsoluteFile( source );
       if ( file.exists() ) {
         if ( file.canRead() ) {
           if ( file.length() > 0 ) {
