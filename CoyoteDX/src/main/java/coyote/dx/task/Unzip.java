@@ -12,8 +12,10 @@
 package coyote.dx.task;
 
 import java.io.File;
+import java.io.IOException;
 
 import coyote.commons.StringUtil;
+import coyote.commons.ZipUtil;
 import coyote.dx.CDX;
 import coyote.dx.ConfigTag;
 import coyote.dx.TaskException;
@@ -40,11 +42,11 @@ public class Unzip extends AbstractFileTask {
       if ( file.exists() ) {
         if ( file.canRead() ) {
           if ( file.length() > 0 ) {
-
-            // TODO: get the target directory
-            
-            Log.fatal( getClass().getSimpleName() + ": Not fully implemented" );
-
+            try {
+              ZipUtil.unzip( file, getDirectory() );
+            } catch ( IOException e ) {
+              throw new TaskException( "Could not unzip file: " + e.getMessage(), e );
+            }
           } else {
             Log.warn( LogMsg.createMsg( CDX.MSG, "%s did not read any data from %s - empty file (%s)", getClass().getSimpleName(), source, file.getAbsolutePath() ) );
           }
@@ -71,6 +73,25 @@ public class Unzip extends AbstractFileTask {
         getContext().setError( msg );
         return;
       }
+    }
+  }
+
+
+
+
+  /**
+   * @return the target directory for the unzipped files
+   */
+  private File getDirectory() {
+    String directory = getString( ConfigTag.DIRECTORY );
+    if ( StringUtil.isNotBlank( directory ) ) {
+      File retval = new File( directory );
+      if ( !retval.isAbsolute() ) {
+        retval = new File( getJobDir(), directory );
+      }
+      return retval;
+    } else {
+      return new File( getJobDir() );
     }
   }
 
