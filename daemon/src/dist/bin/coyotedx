@@ -42,9 +42,14 @@ if [ -z "$CIPHER_KEY" ] ; then
 	CIPHER_KEY="TG9hZGVyQ295b3Rl"
 fi
 
-# This enables remote debugging; set to "" in production
+# Here is where you set the options for the VM
 if [ -z "$JAVA_OPTS" ] ; then
-	JAVA_OPTS="-agentlib:jdwp=transport=dt_socket,server=y,address=8000,suspend=n"
+	# Enables remote debugging
+	# JAVA_OPTS="-agentlib:jdwp=transport=dt_socket,server=y,address=8000,suspend=n"
+	# Creates heap profiles for memory analysis with jhat and other tools
+    # JAVA_OPTS="-agentlib:hprof=heap=all,format=b"
+	# Always pick sensible memory limits; you should not need much memory for Coyote
+	# JAVA_OPTS= "-Xms16m -Xmx32m"
 fi
 
 CONSOLE_LOG=$APP_HOME/console.log
