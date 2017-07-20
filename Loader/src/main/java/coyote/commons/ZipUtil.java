@@ -20,6 +20,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.StringTokenizer;
 import java.util.zip.DataFormatException;
 import java.util.zip.Deflater;
 import java.util.zip.DeflaterOutputStream;
@@ -50,7 +51,7 @@ public class ZipUtil {
 
 
   /**
-   * Method addEntries
+   * Add entries to the given Zip output stream.
    *
    * @param zos The ZipOutputStream to send all our ZipEntries through
    * @param topDir The Top-level directory used to calculate the proper 
@@ -620,7 +621,26 @@ public class ZipUtil {
    * @throws IOException if there were problems decompressing the file
    */
   public static void unzip( final File source ) throws IOException {
+    String directoryName = source.getParent();
+    
+    if( source.getName().toLowerCase().endsWith( ZIP_SUFFIX )){
+      String ap = source.getAbsolutePath();
+      
+      String tempName = new String( "" );
+      final StringTokenizer stk1 = new StringTokenizer( ap, "/\\" );
+      while ( stk1.hasMoreTokens() ) {
+        tempName = stk1.nextToken();
+      }
+      
+      int indx = tempName.lastIndexOf( '.' );
+      if( indx>-1){
+        directoryName = tempName.substring( 0, indx );
+      }
 
+      directoryName = source.getParent().concat( File.separator ).concat( directoryName );
+    }
+    
+    unzip( source, new File(directoryName));
   }
 
 
@@ -633,8 +653,46 @@ public class ZipUtil {
    *  
    * @throws IOException if there were problems decompressing the file
    */
-  public static void unzip( final File source, final File directory ) throws IOException {
+  public static void unzip( final File source, final File destDir ) throws IOException {
+    String destDirectory = destDir.getAbsolutePath();
+    if ( !destDir.exists() ) {
+      destDir.mkdir();
+    }
+    try (ZipInputStream zipIn = new ZipInputStream( new FileInputStream( source ) )) {
+      ZipEntry entry = zipIn.getNextEntry();
+      while ( entry != null ) {
+        String filePath = destDirectory + File.separator + entry.getName();
+        if ( !entry.isDirectory() ) {
+          extractFile( zipIn, filePath );
+        } else {
+          File dir = new File( filePath );
+          dir.mkdir();
+        }
+        zipIn.closeEntry();
+        entry = zipIn.getNextEntry();
+      }
+    }
+  }
 
+
+
+
+  /**
+   * Extracts a zip entry (file entry) and places it in the given file
+   * 
+   * @param zipIn the input stream of archived data
+   * @param filePath where to save the entry
+   * 
+   * @throws IOException
+   */
+  private static void extractFile( ZipInputStream zipIn, String filePath ) throws IOException {
+    BufferedOutputStream bos = new BufferedOutputStream( new FileOutputStream( filePath ) );
+    byte[] bytesIn = new byte[STREAM_BUFFER_SIZE];
+    int read = 0;
+    while ( ( read = zipIn.read( bytesIn ) ) != -1 ) {
+      bos.write( bytesIn, 0, read );
+    }
+    bos.close();
   }
 
 
