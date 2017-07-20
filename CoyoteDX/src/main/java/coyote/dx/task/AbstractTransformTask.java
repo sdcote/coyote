@@ -98,6 +98,12 @@ public abstract class AbstractTransformTask extends AbstractConfigurableComponen
   public void setConfiguration( Config cfg ) throws ConfigurationException {
     super.setConfiguration( cfg );
 
+    // If there is a halt on error flag, then set it, otherwise keep the 
+    // default value of true    
+    if ( contains( ConfigTag.HALT_ON_ERROR ) ) {
+      setHaltOnError( getBoolean( ConfigTag.HALT_ON_ERROR ) );
+    }
+
     // if there is an enabled flag, set it; otherwise default to true
     if ( contains( ConfigTag.ENABLED ) ) {
       setEnabled( getBoolean( ConfigTag.ENABLED ) );
@@ -116,16 +122,9 @@ public abstract class AbstractTransformTask extends AbstractConfigurableComponen
     this.context = context;
     evaluator.setContext( context );
 
-    // If there is a halt on error flag, then set it, otherwise keep the 
-    // default value of true    
-    if ( contains( ConfigTag.HALT_ON_ERROR ) ) {
-      setHaltOnError( getBoolean( ConfigTag.HALT_ON_ERROR ) );
-    }
-
     // Look for a conditional statement the task may use to control if it is 
     // to execute or not
     if ( StringUtil.isNotBlank( getCondition() ) ) {
-
       try {
         evaluator.evaluateBoolean( getCondition() );
       } catch ( final IllegalArgumentException e ) {
