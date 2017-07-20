@@ -47,9 +47,27 @@ public abstract class AbstractFileTask extends AbstractTransformTask {
    *         FILENAME. May be null
    */
   protected String getSourceOrFile() {
-    final String source = getString( ConfigTag.SOURCE );
-    if ( StringUtil.isNotBlank( source ) ) {
-      return source;
+    return getTagOrFile( ConfigTag.SOURCE );
+  }
+
+
+
+
+  /**
+   * @return the string for the TARGET configuration attribute, otherwise use 
+   *         FILENAME. May be null
+   */
+  protected String getTargetOrFile() {
+    return getTagOrFile( ConfigTag.TARGET );
+  }
+
+
+
+
+  private String getTagOrFile( String tag ) {
+    final String retval = getString( tag );
+    if ( StringUtil.isNotBlank( retval ) ) {
+      return retval;
     } else {
       return getString( ConfigTag.FILE );
     }
@@ -59,10 +77,12 @@ public abstract class AbstractFileTask extends AbstractTransformTask {
 
 
   /**
+   * Get a file reference which should exist.
+   * 
    * @param source
    * @return
    */
-  protected File getFile( String source ) {
+  protected File getExistingFile( String source ) {
     final File file = new File( source );
     File retval = null;
     if ( !file.exists() ) {
@@ -74,5 +94,27 @@ public abstract class AbstractFileTask extends AbstractTransformTask {
     }
     return retval;
   }
-  
+
+
+
+
+  /**
+   * Get a file reference and resolve it to the job directory if it is not 
+   * absolute.
+   * 
+   * @param name
+   * 
+   * @return
+   */
+  protected File getAbsoluteFile( String name ) {
+    final File file = new File( name );
+    File retval = null;
+    if ( !file.isAbsolute() ) {
+      retval = new File( getJobDir(), name );
+    } else {
+      retval = file;
+    }
+    return retval;
+  }
+
 }

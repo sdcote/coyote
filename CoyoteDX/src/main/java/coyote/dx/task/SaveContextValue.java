@@ -11,9 +11,16 @@
  */
 package coyote.dx.task;
 
+import java.io.File;
+
+import coyote.commons.FileUtil;
+import coyote.commons.StringUtil;
+import coyote.dx.CDX;
 import coyote.dx.ConfigTag;
 import coyote.dx.TaskException;
 import coyote.loader.log.Log;
+import coyote.loader.log.LogMsg;
+
 
 /**
  * Save a context variable to a file.
@@ -32,14 +39,47 @@ public class SaveContextValue extends AbstractFileTask {
   @Override
   protected void performTask() throws TaskException {
 
-    // the context variable to retrieve
-    final String source = getString( ConfigTag.SOURCE );
-    
-    final String target = getString( ConfigTag.TARGET );
-    final String filename = getString( ConfigTag.FILE );
+    // don't resolve the value, but get the actual configuration attribute
+    final String source = getConfiguration().getString( ConfigTag.SOURCE );
 
-    Log.fatal( "Not implemented" );
+    if ( StringUtil.isNotEmpty( source ) ) {
+      final String target = getTargetOrFile();
+      if ( StringUtil.isNotBlank( target ) ) {
+        Log.debug( "Using a filename of '" + target + "'" );;
+        final File file = getAbsoluteFile( target );
+        Log.debug( "Using absolute filename of '" + file.getAbsolutePath() + "'" );
+        String contextVariable = getContext().getAsString( source );
+        if ( StringUtil.isNotEmpty( contextVariable ) ) {
+          if ( FileUtil.stringToFile( contextVariable, file.getAbsolutePath() ) ) {
+            Log.debug( "Wrote context variable '" + source + "' ( " + contextVariable.length() + "chars) to " + file.getAbsolutePath() );
+          } else {
+            final String msg = LogMsg.createMsg( CDX.MSG, "%s failed: Write failed to %s (%s)", getClass().getSimpleName(), target, file.getAbsolutePath() ).toString();
+            Log.error( msg );
+            if ( haltOnError ) {
+              getContext().setError( msg );
+              return;
+            }
+          }
+        } else {
+          final String msg = LogMsg.createMsg( CDX.MSG, "%s failed: Context did not contain a value for '%s'", getClass().getSimpleName(), source ).toString();
+          Log.error( msg );
+          if ( haltOnError ) {
+            getContext().setError( msg );
+            return;
+          }
+        }
+
+      }
+    } else {
+      final String msg = LogMsg.createMsg( CDX.MSG, "%s failed: No source (context key) configured", getClass().getSimpleName() ).toString();
+      Log.error( msg );
+      if ( haltOnError ) {
+        getContext().setError( msg );
+        return;
+      }
+
+    }
+    Log.fatal( getClass().getSimpleName() + ": Not implemented" );
   }
 
-  
 }
