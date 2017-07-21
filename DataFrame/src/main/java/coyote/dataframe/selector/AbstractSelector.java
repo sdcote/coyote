@@ -87,7 +87,7 @@ public abstract class AbstractSelector {
         String fname = field.getName();
 
         if ( fname == null ) {
-          fname = "frame" + x;
+          fname = "[" + x + "]";
         }
 
         if ( token != null ) {
