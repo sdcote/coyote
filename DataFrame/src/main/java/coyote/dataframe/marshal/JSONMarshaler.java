@@ -153,7 +153,12 @@ public class JSONMarshaler {
         } else if ( field.isNumeric() ) {
           writer.writeNumber( field.getStringValue() );
         } else if ( field.isArray() ) {
-          writer.writeArray( field.getObjectValue() );
+          Object obj = field.getObjectValue();
+          if ( obj instanceof DataFrame ) {
+            writeFrame( (DataFrame)obj, writer );
+          } else {
+            writer.writeArray( obj );
+          }
         } else if ( field.getType() == DataField.FRAMETYPE ) {
           writeFrame( (DataFrame)field.getObjectValue(), writer );
         } else {
@@ -175,8 +180,13 @@ public class JSONMarshaler {
         writer.writeObjectClose();
 
     } else {
-      writer.writeObjectOpen();
-      writer.writeObjectClose();
+      if ( frame.isArrayBiased() ) {
+        writer.writeArrayOpen();
+        writer.writeArrayClose();
+      } else {
+        writer.writeObjectOpen();
+        writer.writeObjectClose();
+      }
     }
 
     return;
