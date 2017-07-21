@@ -53,10 +53,13 @@ public class CheckMD5Test {
   public void simpleCheck() throws ConfigurationException, TaskException, IOException {
 
     String testFile = new File( FileUtil.getCurrentWorkingDirectory(), "src/test/resources/coyote.jpg" ).getAbsolutePath();
+    String expected = "60db9367c3bd6fa5222f602698bfce34";
+    context.set( "Checksum", expected );
 
     Config cfg = new Config();
     cfg.put( ConfigTag.FILE, testFile );
-    //System.out.println( cfg );
+    cfg.put( ConfigTag.CONTEXT, "Checksum" );
+    System.out.println( cfg );
 
     String checksumFile = null;
     try (CheckMD5 task = new CheckMD5()) {
@@ -71,8 +74,7 @@ public class CheckMD5Test {
     try {
       assertNotNull( context.get( checksumFile ) );
       String retrievedChecksum = context.get( checksumFile ).toString();
-      assertEquals( "60db9367c3bd6fa5222f602698bfce34", retrievedChecksum );
-      assertTrue( file.exists() );
+      assertEquals( expected, retrievedChecksum );
     }
     finally {
       file.delete();

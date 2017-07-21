@@ -53,9 +53,12 @@ public class CheckAdler32Test {
   public void simpleCheck() throws ConfigurationException, TaskException, IOException {
 
     String testFile = new File( FileUtil.getCurrentWorkingDirectory(), "src/test/resources/coyote.jpg" ).getAbsolutePath();
+    String expected = "e30225b5";
+    context.set( "Checksum", expected );
 
     Config cfg = new Config();
     cfg.put( ConfigTag.FILE, testFile );
+    cfg.put( ConfigTag.CONTEXT, "Checksum" );
     System.out.println( cfg );
 
     String checksumFile = null;
@@ -71,8 +74,7 @@ public class CheckAdler32Test {
     try {
       assertNotNull( context.get( checksumFile ) );
       String retrievedChecksum = context.get( checksumFile ).toString();
-      assertEquals( "e30225b5", retrievedChecksum );
-      assertTrue( file.exists() );
+      assertEquals( expected, retrievedChecksum );
     }
     finally {
       file.delete();

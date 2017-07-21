@@ -14,7 +14,6 @@ package coyote.dx.task;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
@@ -53,10 +52,13 @@ public class CheckSHA256Test {
   public void simpleCheck() throws ConfigurationException, TaskException, IOException {
 
     String testFile = new File( FileUtil.getCurrentWorkingDirectory(), "src/test/resources/coyote.jpg" ).getAbsolutePath();
+    String expected = "744ceb14ce533326ec88eb28554f36f9d21cd04e362c7658b4ec5fae56f7fce1";
+    context.set( "Checksum", expected );
 
     Config cfg = new Config();
     cfg.put( ConfigTag.FILE, testFile );
-    //System.out.println( cfg );
+    cfg.put( ConfigTag.CONTEXT, "Checksum" );
+    System.out.println( cfg );
 
     String checksumFile = null;
     try (CheckSHA256 task = new CheckSHA256()) {
@@ -71,8 +73,7 @@ public class CheckSHA256Test {
     try {
       assertNotNull( context.get( checksumFile ) );
       String retrievedChecksum = context.get( checksumFile ).toString();
-      assertEquals( "744ceb14ce533326ec88eb28554f36f9d21cd04e362c7658b4ec5fae56f7fce1", retrievedChecksum );
-      assertTrue( file.exists() );
+      assertEquals( expected, retrievedChecksum );
     }
     finally {
       file.delete();

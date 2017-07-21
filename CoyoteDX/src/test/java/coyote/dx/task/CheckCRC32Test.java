@@ -53,9 +53,12 @@ public class CheckCRC32Test {
   public void simpleCheck() throws ConfigurationException, TaskException, IOException {
 
     String testFile = new File( FileUtil.getCurrentWorkingDirectory(), "src/test/resources/coyote.jpg" ).getAbsolutePath();
+    String expected = "329be8b9";
+    context.set( "Checksum", expected );
 
     Config cfg = new Config();
     cfg.put( ConfigTag.FILE, testFile );
+    cfg.put( ConfigTag.CONTEXT, "Checksum" );
     System.out.println( cfg );
 
     String checksumFile = null;
@@ -71,8 +74,7 @@ public class CheckCRC32Test {
     try {
       assertNotNull( context.get( checksumFile ) );
       String retrievedChecksum = context.get( checksumFile ).toString();
-      assertEquals( "329be8b9", retrievedChecksum );
-      assertTrue( file.exists() );
+      assertEquals( expected, retrievedChecksum );
     }
     finally {
       file.delete();
