@@ -31,6 +31,7 @@ import coyote.dx.context.TransformContext;
 import coyote.loader.log.Log;
 import coyote.loader.log.LogMsg;
 
+
 /**
  * 
  * 
@@ -104,28 +105,34 @@ public class JsonReader extends AbstractFrameReader implements FrameReader, Conf
       // Basic checks
       if ( sourceFile.exists() && sourceFile.canRead() ) {
         String data = FileUtil.fileToString( sourceFile );
-        Log.info( "read in "+data.length()+" characters of data" );
-        
+        Log.info( "read in " + data.length() + " characters of data" );
+
         List<DataFrame> frames = JSONMarshaler.marshal( data );
-        Log.info( "read in "+frames.size()+" frames" );
+        Log.info( "read in " + frames.size() + " frames" );
         DataFrame frame = frames.get( 0 );
-        
-        FrameSelector selector = new FrameSelector( "CVE_Items.cve" );
-        List<DataFrame> results = selector.select( frame );
-        Log.info( "Selected "+results.size()+" frames" );
-        
-        for(int x=0;x<10;x++){
-          //System.out.println( results.get( x ) );
+
+        String pattern = getString( ConfigTag.SELECTOR );
+        if ( StringUtil.isNotBlank( pattern ) ) {
+          FrameSelector selector = new FrameSelector( "CVE_Items.*.cve" );
+          List<DataFrame> results = selector.select( frame );
+          Log.info( "Selected " + results.size() + " frames" );
+          frames = results;
         }
 
-        
-        
+        for ( int x = 0; x < 10; x++ ) {
+          if ( x < frames.size() ) {
+            System.out.println( frames.get( x ) );
+          } else
+            break;
+        }
+
       } else {
         context.setError( LogMsg.createMsg( CDX.MSG, "Reader.could_not_read_from_source", getClass().getName(), sourceFile.getAbsolutePath() ).toString() );
       }
     } else {
       Log.error( "No source specified" );
       context.setError( getClass().getName() + " could not determine source" );
-    }  }
+    }
+  }
 
 }

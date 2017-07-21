@@ -17,7 +17,8 @@
 
 		"Reader": {
 			"class": "JsonReader",
-			"source": "nvdcve-1.0-recent.json"
+			"source": "nvdcve-1.0-recent.json",
+			"selector": "CVE_Items.*.cve"
 		},
 
 		"Writer": {

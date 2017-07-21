@@ -76,6 +76,7 @@ public class ConfigTag {
   public static final String LISTEN = "Listen";
   public static final String MESSAGE = "Message";
   public static final String DELIMITER = "Delimiter";
+  public static final String SELECTOR = "Selector";
 
 
   // Networking proxy tags used by several components
