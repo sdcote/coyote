@@ -20,6 +20,7 @@ import coyote.commons.StringUtil;
 import coyote.commons.UriUtil;
 import coyote.dataframe.DataFrame;
 import coyote.dataframe.marshal.JSONMarshaler;
+import coyote.dataframe.selector.FrameSelector;
 import coyote.dx.CDX;
 import coyote.dx.ConfigTag;
 import coyote.dx.ConfigurableComponent;
@@ -32,6 +33,8 @@ import coyote.loader.log.LogMsg;
 
 /**
  * 
+ * 
+ * TODO: Make into a streaming reader with preload optional.
  */
 public class JsonReader extends AbstractFrameReader implements FrameReader, ConfigurableComponent {
 
@@ -104,8 +107,17 @@ public class JsonReader extends AbstractFrameReader implements FrameReader, Conf
         Log.info( "read in "+data.length()+" characters of data" );
         
         List<DataFrame> frames = JSONMarshaler.marshal( data );
-        
         Log.info( "read in "+frames.size()+" frames" );
+        DataFrame frame = frames.get( 0 );
+        
+        FrameSelector selector = new FrameSelector( "CVE_Items.cve" );
+        List<DataFrame> results = selector.select( frame );
+        Log.info( "Selected "+results.size()+" frames" );
+        
+        for(int x=0;x<10;x++){
+          //System.out.println( results.get( x ) );
+        }
+
         
         
       } else {

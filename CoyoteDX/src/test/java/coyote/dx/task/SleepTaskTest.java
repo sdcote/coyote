@@ -68,10 +68,13 @@ public class SleepTaskTest {
     }
   }
 
+
+
+
   @Test
   public void seconds() {
     Config cfg = new Config();
-    cfg.put( ConfigTag.SECONDS, TIMEOUT/1000 );
+    cfg.put( ConfigTag.SECONDS, TIMEOUT / 1000 );
     System.out.println( cfg );
 
     try (Sleep task = new Sleep()) {
