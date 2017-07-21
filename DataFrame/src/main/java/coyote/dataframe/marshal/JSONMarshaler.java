@@ -135,7 +135,7 @@ public class JSONMarshaler {
 
         if ( !isArray ) {
           if ( field.getName() != null ) {
-            writer.writeString( field.getName() );
+            writer.writeMemberName( field.getName() );
           } else {
             writer.writeString( "" );
           }

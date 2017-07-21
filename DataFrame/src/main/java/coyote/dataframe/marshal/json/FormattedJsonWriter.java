@@ -50,6 +50,7 @@ class FormattedJsonWriter extends JsonWriter {
 
   @Override
   public void writeMemberSeparator() throws IOException {
+    writer.write( ' ' );
     writer.write( ':' );
     writer.write( ' ' );
   }
