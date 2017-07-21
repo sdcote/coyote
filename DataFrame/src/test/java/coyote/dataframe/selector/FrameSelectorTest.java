@@ -58,9 +58,10 @@ public class FrameSelectorTest {
     assertTrue( frames.size() == 1 );
     DataFrame frame = frames.get( 0 );
 
-    FrameSelector selector = new FrameSelector( "CVE_Items.cve" );
+    FrameSelector selector = new FrameSelector( "CVE_Items.*.cve" );
     List<DataFrame> results = selector.select( frame );
-    System.out.println( "Selected " + results.size() + " frames" );
+    
+    assertTrue( results.size()==4);
   }
 
 }
