@@ -1,0 +1,426 @@
+{
+  "CVE_data_type" : "CVE",
+  "CVE_data_format" : "MITRE",
+  "CVE_data_version" : "4.0",
+  "CVE_data_numberOfCVEs" : "3",
+  "CVE_data_timestamp" : "2017-07-21T12:00Z",
+  "CVE_Items" : [ {
+    "cve" : {
+      "CVE_data_meta" : {
+        "ID" : "CVE-2014-0052"
+      },
+      "affects" : {
+        "vendor" : {
+          "vendor_data" : [ ]
+        }
+      },
+      "problemtype" : {
+        "problemtype_data" : [ {
+          "description" : [ ]
+        } ]
+      },
+      "references" : {
+        "reference_data" : [ ]
+      },
+      "description" : {
+        "description_data" : [ {
+          "lang" : "en",
+          "value" : "** REJECT **  DO NOT USE THIS CANDIDATE NUMBER.  ConsultIDs: none.  Reason: This candidate was withdrawn by its CNA.  Further investigation showed that it was not a security issue.  Notes: none."
+        } ]
+      }
+    },
+    "configurations" : {
+      "CVE_data_version" : "4.0",
+      "nodes" : [ ]
+    },
+    "impact" : { },
+    "publishedDate" : "2017-07-20T15:29Z",
+    "lastModifiedDate" : "2017-07-20T15:29Z"
+  }, {
+    "cve" : {
+      "CVE_data_meta" : {
+        "ID" : "CVE-2014-7953"
+      },
+      "affects" : {
+        "vendor" : {
+          "vendor_data" : [ {
+            "vendor_name" : "google",
+            "product" : {
+              "product_data" : [ {
+                "product_name" : "android",
+                "version" : {
+                  "version_data" : [ {
+                    "version_value" : "4.4.4"
+                  } ]
+                }
+              } ]
+            }
+          } ]
+        }
+      },
+      "problemtype" : {
+        "problemtype_data" : [ {
+          "description" : [ {
+            "lang" : "en",
+            "value" : "CWE-362"
+          } ]
+        } ]
+      },
+      "references" : {
+        "reference_data" : [ {
+          "url" : "http://seclists.org/fulldisclosure/2015/Apr/52"
+        }, {
+          "url" : "http://www.securityfocus.com/archive/1/archive/1/535296/100/1100/threaded"
+        }, {
+          "url" : "http://www.securityfocus.com/bid/74213"
+        }, {
+          "url" : "https://android.googlesource.com/platform/frameworks/base/+/a8f6d1b%5E%21/"
+        } ]
+      },
+      "description" : {
+        "description_data" : [ {
+          "lang" : "en",
+          "value" : "Race condition in the bindBackupAgent method in the ActivityManagerService in Android 4.4.4 allows local users with adb shell access to execute arbitrary code or any valid package as system by running \"pm install\" with the target apk, and simultaneously running a crafted script to process logcat's output looking for a dexopt line, which once found should execute bindBackupAgent with the uid member of the ApplicationInfo parameter set to 1000."
+        } ]
+      }
+    },
+    "configurations" : {
+      "CVE_data_version" : "4.0",
+      "nodes" : [ {
+        "operator" : "OR",
+        "cpe" : [ {
+          "vulnerable" : true,
+          "cpeMatchString" : "cpe:/o:google:android:4.4.4",
+          "cpe23Uri" : "cpe:2.3:o:google:android:4.4.4:*:*:*:*:*:*:*"
+        } ]
+      } ]
+    },
+    "impact" : {
+      "baseMetricV3" : {
+        "cvssV3" : {
+          "vectorString" : "AV:L/AC:H/PR:L/UI:N/S:U/C:H/I:H/A:H",
+          "attackVector" : "LOCAL",
+          "attackComplexity" : "HIGH",
+          "privilegesRequired" : "LOW",
+          "userInteraction" : "NONE",
+          "scope" : "UNCHANGED",
+          "confidentialityImpact" : "HIGH",
+          "integrityImpact" : "HIGH",
+          "availabilityImpact" : "HIGH",
+          "baseScore" : 7.0,
+          "baseSeverity" : "HIGH"
+        },
+        "exploitabilityScore" : 1.0,
+        "impactScore" : 5.9
+      },
+      "baseMetricV2" : {
+        "cvssV2" : {
+          "vectorString" : "(AV:L/AC:M/Au:N/C:C/I:C/A:C)",
+          "accessVector" : "LOCAL",
+          "accessComplexity" : "MEDIUM",
+          "authentication" : "NONE",
+          "confidentialityImpact" : "COMPLETE",
+          "integrityImpact" : "COMPLETE",
+          "availabilityImpact" : "COMPLETE",
+          "baseScore" : 6.9
+        },
+        "severity" : "MEDIUM",
+        "exploitabilityScore" : 3.4,
+        "impactScore" : 10.0,
+        "obtainAllPrivilege" : false,
+        "obtainUserPrivilege" : false,
+        "obtainOtherPrivilege" : false,
+        "userInteractionRequired" : false
+      }
+    },
+    "publishedDate" : "2017-07-07T17:29Z",
+    "lastModifiedDate" : "2017-07-13T12:35Z"
+  }, {
+    "cve" : {
+      "CVE_data_meta" : {
+        "ID" : "CVE-2015-0249"
+      },
+      "affects" : {
+        "vendor" : {
+          "vendor_data" : [ ]
+        }
+      },
+      "problemtype" : {
+        "problemtype_data" : [ {
+          "description" : [ ]
+        } ]
+      },
+      "references" : {
+        "reference_data" : [ {
+          "url" : "http://cve.killedkenny.io/cve/CVE-2015-0249"
+        }, {
+          "url" : "http://www.openwall.com/lists/oss-security/2015/03/30/13"
+        }, {
+          "url" : "https://mail-archives.apache.org/mod_mbox/roller-user/201503.mbox/%3CCAF1aazAPWTduVhrPr7WiFaspFdsh21yf0YiSB3UmLjtDVGnfXw@mail.gmail.com%3E"
+        } ]
+      },
+      "description" : {
+        "description_data" : [ {
+          "lang" : "en",
+          "value" : "The weblog page template in Apache Roller 5.1 through 5.1.1 allows remote authenticated users with admin privileges for a weblog to execute arbitrary Java code via crafted Velocity Text Language (aka VTL)."
+        } ]
+      }
+    },
+    "configurations" : {
+      "CVE_data_version" : "4.0",
+      "nodes" : [ ]
+    },
+    "impact" : { },
+    "publishedDate" : "2017-07-17T13:18Z",
+    "lastModifiedDate" : "2017-07-17T13:18Z"
+  }, {
+    "cve" : {
+      "CVE_data_meta" : {
+        "ID" : "CVE-2015-3297"
+      },
+      "affects" : {
+        "vendor" : {
+          "vendor_data" : [ {
+            "vendor_name" : "etherpad",
+            "product" : {
+              "product_data" : [ {
+                "product_name" : "etherpad",
+                "version" : {
+                  "version_data" : [ {
+                    "version_value" : "1.2.81"
+                  }, {
+                    "version_value" : "1.2.91"
+                  }, {
+                    "version_value" : "1.2.9"
+                  }, {
+                    "version_value" : "1.2.7"
+                  }, {
+                    "version_value" : "1.2.6"
+                  }, {
+                    "version_value" : "1.1.2"
+                  }, {
+                    "version_value" : "1.2.1"
+                  }, {
+                    "version_value" : "1.3.0"
+                  }, {
+                    "version_value" : "1.2.8"
+                  }, {
+                    "version_value" : "1.1.4"
+                  }, {
+                    "version_value" : "1.2.3"
+                  }, {
+                    "version_value" : "1.4.1"
+                  }, {
+                    "version_value" : "1.5.0"
+                  }, {
+                    "version_value" : "1.1.3"
+                  }, {
+                    "version_value" : "1.2.2"
+                  }, {
+                    "version_value" : "1.4.0"
+                  }, {
+                    "version_value" : "1.1.5"
+                  }, {
+                    "version_value" : "1.2.4"
+                  }, {
+                    "version_value" : "1.5.1"
+                  }, {
+                    "version_value" : "1.1.1"
+                  }, {
+                    "version_value" : "1.2.0"
+                  }, {
+                    "version_value" : "1.2.5"
+                  }, {
+                    "version_value" : "1.5.2"
+                  }, {
+                    "version_value" : "1.2.11"
+                  }, {
+                    "version_value" : "1.2.12"
+                  }, {
+                    "version_value" : "1.2.10"
+                  } ]
+                }
+              } ]
+            }
+          } ]
+        }
+      },
+      "problemtype" : {
+        "problemtype_data" : [ {
+          "description" : [ {
+            "lang" : "en",
+            "value" : "CWE-22"
+          } ]
+        } ]
+      },
+      "references" : {
+        "reference_data" : [ {
+          "url" : "http://www.openwall.com/lists/oss-security/2015/04/11/1"
+        }, {
+          "url" : "http://www.openwall.com/lists/oss-security/2015/04/12/1"
+        }, {
+          "url" : "http://www.securityfocus.com/bid/74056"
+        }, {
+          "url" : "https://github.com/ether/etherpad-lite/commit/9d4e5f6"
+        } ]
+      },
+      "description" : {
+        "description_data" : [ {
+          "lang" : "en",
+          "value" : "Directory traversal vulnerability in node/utils/Minify.js in Etherpad 1.1.1 through 1.5.2 allows remote attackers to read arbitrary files by leveraging replacement of backslashes with slashes in the path parameter of HTTP API requests."
+        } ]
+      }
+    },
+    "configurations" : {
+      "CVE_data_version" : "4.0",
+      "nodes" : [ {
+        "operator" : "OR",
+        "cpe" : [ {
+          "vulnerable" : true,
+          "cpeMatchString" : "cpe:/a:etherpad:etherpad:1.1.1",
+          "cpe23Uri" : "cpe:2.3:a:etherpad:etherpad:1.1.1:*:*:*:*:*:*:*"
+        }, {
+          "vulnerable" : true,
+          "cpeMatchString" : "cpe:/a:etherpad:etherpad:1.1.2",
+          "cpe23Uri" : "cpe:2.3:a:etherpad:etherpad:1.1.2:*:*:*:*:*:*:*"
+        }, {
+          "vulnerable" : true,
+          "cpeMatchString" : "cpe:/a:etherpad:etherpad:1.1.3",
+          "cpe23Uri" : "cpe:2.3:a:etherpad:etherpad:1.1.3:*:*:*:*:*:*:*"
+        }, {
+          "vulnerable" : true,
+          "cpeMatchString" : "cpe:/a:etherpad:etherpad:1.1.4",
+          "cpe23Uri" : "cpe:2.3:a:etherpad:etherpad:1.1.4:*:*:*:*:*:*:*"
+        }, {
+          "vulnerable" : true,
+          "cpeMatchString" : "cpe:/a:etherpad:etherpad:1.1.5",
+          "cpe23Uri" : "cpe:2.3:a:etherpad:etherpad:1.1.5:*:*:*:*:*:*:*"
+        }, {
+          "vulnerable" : true,
+          "cpeMatchString" : "cpe:/a:etherpad:etherpad:1.2.0",
+          "cpe23Uri" : "cpe:2.3:a:etherpad:etherpad:1.2.0:*:*:*:*:*:*:*"
+        }, {
+          "vulnerable" : true,
+          "cpeMatchString" : "cpe:/a:etherpad:etherpad:1.2.1",
+          "cpe23Uri" : "cpe:2.3:a:etherpad:etherpad:1.2.1:*:*:*:*:*:*:*"
+        }, {
+          "vulnerable" : true,
+          "cpeMatchString" : "cpe:/a:etherpad:etherpad:1.2.2",
+          "cpe23Uri" : "cpe:2.3:a:etherpad:etherpad:1.2.2:*:*:*:*:*:*:*"
+        }, {
+          "vulnerable" : true,
+          "cpeMatchString" : "cpe:/a:etherpad:etherpad:1.2.3",
+          "cpe23Uri" : "cpe:2.3:a:etherpad:etherpad:1.2.3:*:*:*:*:*:*:*"
+        }, {
+          "vulnerable" : true,
+          "cpeMatchString" : "cpe:/a:etherpad:etherpad:1.2.4",
+          "cpe23Uri" : "cpe:2.3:a:etherpad:etherpad:1.2.4:*:*:*:*:*:*:*"
+        }, {
+          "vulnerable" : true,
+          "cpeMatchString" : "cpe:/a:etherpad:etherpad:1.2.5",
+          "cpe23Uri" : "cpe:2.3:a:etherpad:etherpad:1.2.5:*:*:*:*:*:*:*"
+        }, {
+          "vulnerable" : true,
+          "cpeMatchString" : "cpe:/a:etherpad:etherpad:1.2.6",
+          "cpe23Uri" : "cpe:2.3:a:etherpad:etherpad:1.2.6:*:*:*:*:*:*:*"
+        }, {
+          "vulnerable" : true,
+          "cpeMatchString" : "cpe:/a:etherpad:etherpad:1.2.7",
+          "cpe23Uri" : "cpe:2.3:a:etherpad:etherpad:1.2.7:*:*:*:*:*:*:*"
+        }, {
+          "vulnerable" : true,
+          "cpeMatchString" : "cpe:/a:etherpad:etherpad:1.2.8",
+          "cpe23Uri" : "cpe:2.3:a:etherpad:etherpad:1.2.8:*:*:*:*:*:*:*"
+        }, {
+          "vulnerable" : true,
+          "cpeMatchString" : "cpe:/a:etherpad:etherpad:1.2.9",
+          "cpe23Uri" : "cpe:2.3:a:etherpad:etherpad:1.2.9:*:*:*:*:*:*:*"
+        }, {
+          "vulnerable" : true,
+          "cpeMatchString" : "cpe:/a:etherpad:etherpad:1.2.10",
+          "cpe23Uri" : "cpe:2.3:a:etherpad:etherpad:1.2.10:*:*:*:*:*:*:*"
+        }, {
+          "vulnerable" : true,
+          "cpeMatchString" : "cpe:/a:etherpad:etherpad:1.2.11",
+          "cpe23Uri" : "cpe:2.3:a:etherpad:etherpad:1.2.11:*:*:*:*:*:*:*"
+        }, {
+          "vulnerable" : true,
+          "cpeMatchString" : "cpe:/a:etherpad:etherpad:1.2.12",
+          "cpe23Uri" : "cpe:2.3:a:etherpad:etherpad:1.2.12:*:*:*:*:*:*:*"
+        }, {
+          "vulnerable" : true,
+          "cpeMatchString" : "cpe:/a:etherpad:etherpad:1.2.81",
+          "cpe23Uri" : "cpe:2.3:a:etherpad:etherpad:1.2.81:*:*:*:*:*:*:*"
+        }, {
+          "vulnerable" : true,
+          "cpeMatchString" : "cpe:/a:etherpad:etherpad:1.2.91",
+          "cpe23Uri" : "cpe:2.3:a:etherpad:etherpad:1.2.91:*:*:*:*:*:*:*"
+        }, {
+          "vulnerable" : true,
+          "cpeMatchString" : "cpe:/a:etherpad:etherpad:1.3.0",
+          "cpe23Uri" : "cpe:2.3:a:etherpad:etherpad:1.3.0:*:*:*:*:*:*:*"
+        }, {
+          "vulnerable" : true,
+          "cpeMatchString" : "cpe:/a:etherpad:etherpad:1.4.0",
+          "cpe23Uri" : "cpe:2.3:a:etherpad:etherpad:1.4.0:*:*:*:*:*:*:*"
+        }, {
+          "vulnerable" : true,
+          "cpeMatchString" : "cpe:/a:etherpad:etherpad:1.4.1",
+          "cpe23Uri" : "cpe:2.3:a:etherpad:etherpad:1.4.1:*:*:*:*:*:*:*"
+        }, {
+          "vulnerable" : true,
+          "cpeMatchString" : "cpe:/a:etherpad:etherpad:1.5.0",
+          "cpe23Uri" : "cpe:2.3:a:etherpad:etherpad:1.5.0:*:*:*:*:*:*:*"
+        }, {
+          "vulnerable" : true,
+          "cpeMatchString" : "cpe:/a:etherpad:etherpad:1.5.1",
+          "cpe23Uri" : "cpe:2.3:a:etherpad:etherpad:1.5.1:*:*:*:*:*:*:*"
+        }, {
+          "vulnerable" : true,
+          "cpeMatchString" : "cpe:/a:etherpad:etherpad:1.5.2",
+          "cpe23Uri" : "cpe:2.3:a:etherpad:etherpad:1.5.2:*:*:*:*:*:*:*"
+        } ]
+      } ]
+    },
+    "impact" : {
+      "baseMetricV3" : {
+        "cvssV3" : {
+          "vectorString" : "AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N",
+          "attackVector" : "NETWORK",
+          "attackComplexity" : "LOW",
+          "privilegesRequired" : "NONE",
+          "userInteraction" : "NONE",
+          "scope" : "UNCHANGED",
+          "confidentialityImpact" : "HIGH",
+          "integrityImpact" : "NONE",
+          "availabilityImpact" : "NONE",
+          "baseScore" : 7.5,
+          "baseSeverity" : "HIGH"
+        },
+        "exploitabilityScore" : 3.9,
+        "impactScore" : 3.6
+      },
+      "baseMetricV2" : {
+        "cvssV2" : {
+          "vectorString" : "(AV:N/AC:L/Au:N/C:P/I:N/A:N)",
+          "accessVector" : "NETWORK",
+          "accessComplexity" : "LOW",
+          "authentication" : "NONE",
+          "confidentialityImpact" : "PARTIAL",
+          "integrityImpact" : "NONE",
+          "availabilityImpact" : "NONE",
+          "baseScore" : 5.0
+        },
+        "severity" : "MEDIUM",
+        "exploitabilityScore" : 10.0,
+        "impactScore" : 2.9,
+        "obtainAllPrivilege" : false,
+        "obtainUserPrivilege" : false,
+        "obtainOtherPrivilege" : false,
+        "userInteractionRequired" : false
+      }
+    },
+    "publishedDate" : "2017-07-07T16:29Z",
+    "lastModifiedDate" : "2017-07-14T13:16Z"
+  } ]
+}

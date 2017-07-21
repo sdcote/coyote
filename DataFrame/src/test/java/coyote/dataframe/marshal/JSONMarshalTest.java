@@ -15,6 +15,9 @@ package coyote.dataframe.marshal;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import java.io.DataInputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.util.List;
 
 import org.junit.Test;
@@ -122,6 +125,22 @@ public class JSONMarshalTest {
 
 
   @Test
+  public void arrayOfFrames() {
+    String expected = "{\"Team\":[{\"First\":\"Alice\",\"Last\":\"Smith\"},{\"First\":\"Bob\",\"Last\":\"Wilson\"},{\"First\":\"Carol\",\"Last\":\"Jones\"}]}";
+    DataFrame frame1 = new DataFrame().set( "First", "Alice" ).set( "Last", "Smith" );
+    DataFrame frame2 = new DataFrame().set( "First", "Bob" ).set( "Last", "Wilson" );
+    DataFrame frame3 = new DataFrame().set( "First", "Carol" ).set( "Last", "Jones" );
+    DataFrame[] frames = { frame1, frame2, frame3 };
+    DataFrame root = new DataFrame().set( "Team", frames );
+    String text = JSONMarshaler.marshal( root );
+    System.out.println( text );
+    //assertEquals(expected,root.toString());
+  }
+
+
+
+
+  @Test
   public void testDataFrameArray() {
     DataFrame frame = new DataFrame().set( "uriList", new String[0] );
     System.out.println( frame.toString() );
@@ -188,7 +207,7 @@ public class JSONMarshalTest {
 
     DataField field = frame.getField( "emptyArray" );
     assertNotNull( field );
-  //  assertTrue( field.isArray() );
+    //  assertTrue( field.isArray() );
     System.out.println( field );
 
     System.out.println( frame ); //TODO: this does not print properly
@@ -209,11 +228,32 @@ public class JSONMarshalTest {
 
     //for(DataField field: frame.getFields()){ System.out.println( field.toString() ); }
     DataField users = frame.getField( "Users" );
-//    assertTrue(users.isArray()); // list of unnamed fields
-//    assertTrue( user);
-//    DataField[] fields = (DataField[])users.getObjectValue();
-//    System.out.println( fields.length );
+    //    assertTrue(users.isArray()); // list of unnamed fields
+    //    assertTrue( user);
+    //    DataField[] fields = (DataField[])users.getObjectValue();
+    //    System.out.println( fields.length );
 
+  }
+
+
+
+
+  @Test
+  public void readArrayData() {
+    ClassLoader classLoader = getClass().getClassLoader();
+    File file = new File( classLoader.getResource( "nvdcve.json" ).getFile() );
+    byte[] bytes = new byte[new Long( file.length() ).intValue()];
+    try (DataInputStream dis = new DataInputStream( new FileInputStream( file ) )) {
+      dis.readFully( bytes );
+    } catch ( final Exception ignore ) {}
+    String json = new String( bytes );
+    //System.out.println( json );
+
+    List<DataFrame> frames = JSONMarshaler.marshal( json );
+    assertTrue( frames.size() == 1 );
+    DataFrame frame = frames.get( 0 );
+    //System.out.println( frame.toString() );
+    System.out.println( JSONMarshaler.toFormattedString( frame ) );
   }
 
 }
