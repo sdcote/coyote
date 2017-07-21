@@ -160,7 +160,12 @@ public class JSONMarshaler {
             writer.writeArray( obj );
           }
         } else if ( field.getType() == DataField.FRAMETYPE ) {
-          writeFrame( (DataFrame)field.getObjectValue(), writer );
+          DataFrame dfm = (DataFrame)field.getObjectValue();
+          if ( dfm == null ) {
+            writer.writeEmptyArray();
+          } else {
+            writeFrame( dfm, writer );
+          }
         } else {
           Object obj = field.getObjectValue();
           if ( obj != null ) {

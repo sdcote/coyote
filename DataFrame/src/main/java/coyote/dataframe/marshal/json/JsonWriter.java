@@ -214,4 +214,11 @@ public class JsonWriter {
     writeArrayClose();
   }
 
+
+
+
+  public void writeEmptyArray() throws IOException {
+    writer.write( "[]" );    
+  }
+
 }

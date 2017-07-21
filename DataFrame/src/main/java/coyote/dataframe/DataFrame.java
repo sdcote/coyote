@@ -1361,7 +1361,7 @@ public class DataFrame implements Cloneable {
           }
         } else {
           if ( field.isNull() ) {
-            b.append( "{}" );
+            b.append( "[]" );
           } else {
             b.append( field.getObjectValue().toString() );
           }

@@ -12,7 +12,9 @@
 package coyote.dataframe.marshal;
 
 //import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.DataInputStream;
@@ -132,9 +134,10 @@ public class JSONMarshalTest {
     DataFrame frame3 = new DataFrame().set( "First", "Carol" ).set( "Last", "Jones" );
     DataFrame[] frames = { frame1, frame2, frame3 };
     DataFrame root = new DataFrame().set( "Team", frames );
+
     String text = JSONMarshaler.marshal( root );
-    System.out.println( text );
-    //assertEquals(expected,root.toString());
+    //System.out.println( text );
+    assertEquals( expected, root.toString() );
   }
 
 
@@ -143,7 +146,6 @@ public class JSONMarshalTest {
   @Test
   public void testDataFrameArray() {
     DataFrame frame = new DataFrame().set( "uriList", new String[0] );
-    System.out.println( frame.toString() );
     String json = JSONMarshaler.marshal( frame );
     System.out.println( json );
     assertTrue( json.indexOf( ":[]" ) > 0 );
@@ -200,6 +202,7 @@ public class JSONMarshalTest {
   @Test
   public void readEmptyArray() throws Exception {
     String json = "{ \"emptyArray\": [] }";
+    String expected = "{\"emptyArray\":[]}";
 
     List<DataFrame> results = JSONMarshaler.marshal( json );
     assertTrue( results.size() == 1 );
@@ -207,13 +210,20 @@ public class JSONMarshalTest {
 
     DataField field = frame.getField( "emptyArray" );
     assertNotNull( field );
-    //  assertTrue( field.isArray() );
-    System.out.println( field );
+    assertTrue( field.isFrame() ); // arrays are stored as a frame of unnamed fields
+    assertNull( field.getObjectValue() ); // DataFrame should be null, nothing in it
 
-    System.out.println( frame ); //TODO: this does not print properly
+    //System.out.println( frame );
+    assertEquals( expected, frame.toString() );
+
+    String newjson = JSONMarshaler.marshal( frame );
+    //System.out.println( newjson );
+    assertEquals( expected, newjson );
+
     String formatted = JSONMarshaler.toFormattedString( frame );
-    System.out.println( formatted );
-    System.out.println( "----------------------------\r\n" );
+    //System.out.println( formatted );
+    assertTrue( formatted.contains( "\"emptyArray\" : []" ) );
+    //System.out.println( "----------------------------\r\n" );
   }
 
 
