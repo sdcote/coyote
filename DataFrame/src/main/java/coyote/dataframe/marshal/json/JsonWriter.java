@@ -190,23 +190,26 @@ public class JsonWriter {
 
   public void writeArray( Object value ) throws IOException {
     writeArrayOpen();
-    if ( value instanceof Object[] ) {
-      Object[] array = (Object[])value;
-      for ( int x = 0; x < array.length; x++ ) {
-        if ( array[x] != null ) {
-          if ( array[x] instanceof Number ) {
-            writeNumber( array[x].toString() );
-          } else if ( array[x] instanceof Boolean ) {
-            writeLiteral( array[x].toString() );
-          } else {
-            writeString( array[x].toString() );
+    if ( value != null ) {
+      if ( value instanceof Object[] ) {
+        Object[] array = (Object[])value;
+        for ( int x = 0; x < array.length; x++ ) {
+          if ( array[x] != null ) {
+            if ( array[x] instanceof Number ) {
+              writeNumber( array[x].toString() );
+            } else if ( array[x] instanceof Boolean ) {
+              writeLiteral( array[x].toString() );
+            } else {
+              writeString( array[x].toString() );
+            }
+          }
+          if ( x + 1 < array.length ) {
+            writeObjectSeparator();
           }
         }
-        if ( x + 1 < array.length ) {
-          writeObjectSeparator();
-        }
+      } else {
+        System.err.println( "JsonWriter.writeArray cannot handle " + value.getClass().getSimpleName() );
       }
-
     }
     writeArrayClose();
   }
