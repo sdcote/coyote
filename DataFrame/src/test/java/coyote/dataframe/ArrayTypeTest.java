@@ -16,6 +16,8 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
+import coyote.dataframe.marshal.JSONMarshaler;
+
 
 /**
  * This class contains unit test for the ArrayType
@@ -61,7 +63,7 @@ public class ArrayTypeTest {
     assertTrue( obj instanceof DataFrame );
     DataFrame array = (DataFrame)obj;
     assertTrue( array.size() == 3 );
-    DataField value1 = array.getField( 0);
+    DataField value1 = array.getField( 0 );
     assertTrue( value1.getType() == DataField.STRING );
   }
 
@@ -148,44 +150,44 @@ public class ArrayTypeTest {
     assertTrue( obj instanceof DataFrame );
     DataFrame array = (DataFrame)obj;
     assertTrue( array.size() == 10 );
-    DataField element = array.getField(0);
+    DataField element = array.getField( 0 );
     //System.out.println( "Element 0 is " + element.getClass() + " value=>" + element.toString() + " Original=>" + values[0] );
-    assertTrue( element.getType()==DataField.STRING );
+    assertTrue( element.getType() == DataField.STRING );
     assertTrue( "test".equals( element.getStringValue() ) );
-    element = array.getField(1);
+    element = array.getField( 1 );
     //System.out.println( "Element 1 is " + element.getClass() + " value=>" + element.toString() + " Original=>" + values[1] );
-    assertTrue( element.getType()==DataField.U8 );
+    assertTrue( element.getType() == DataField.U8 );
     assertTrue( 255 == ( (Short)element.getObjectValue() ).shortValue() );
-    element = array.getField(2);
+    element = array.getField( 2 );
     //System.out.println( "Element 2 is " + element.getClass() + " value=>" + element.toString() + " Original=>" + values[2] );
-    assertTrue( element.getType()==DataField.S16 );
+    assertTrue( element.getType() == DataField.S16 );
     assertTrue( -32768 == ( (Short)element.getObjectValue() ).shortValue() );
-    element = array.getField(3);
+    element = array.getField( 3 );
     //System.out.println( "Element 3 is " + element.getClass() + " value=>" + element.toString() + " Original=>" + values[3] );
-    assertTrue( element.getType()==DataField.U16 );
+    assertTrue( element.getType() == DataField.U16 );
     assertTrue( 65535 == ( (Integer)element.getObjectValue() ).intValue() );
-    element = array.getField(4);
+    element = array.getField( 4 );
     //System.out.println( "Element 4 is " + element.getClass() + " value=>" + element.toString() + " Original=>" + values[4] );
     assertTrue( -2147483648 == ( (Integer)element.getObjectValue() ).intValue() );
-    element = array.getField(5);
+    element = array.getField( 5 );
     //System.out.println( "Element 5 is " + element.getClass() + " value=>" + element.toString() + " Original=>" + values[5] );
-    assertTrue( element.getType()==DataField.S64 );
+    assertTrue( element.getType() == DataField.S64 );
     assertTrue( 4294967296L == ( (Long)element.getObjectValue() ).longValue() );
-    element = array.getField(6);
+    element = array.getField( 6 );
     //System.out.println( "Element 6 is " + element.getClass() + " value=>" + element.toString() + " Original=>" + values[6] );
-    assertTrue( element.getType()==DataField.S64 );
+    assertTrue( element.getType() == DataField.S64 );
     assertTrue( -9223372036854775808L == ( (Long)element.getObjectValue() ).longValue() );
-    element = array.getField(7);
+    element = array.getField( 7 );
     //System.out.println( "Element 7 is " + element.getClass() + " value=>" + element.toString() + " Original=>" + values[7] );
-    assertTrue( element.getType()==DataField.S64 );
+    assertTrue( element.getType() == DataField.S64 );
     assertTrue( 9223372036854775807L == ( (Long)element.getObjectValue() ).longValue() );
-    element = array.getField(8);
+    element = array.getField( 8 );
     //System.out.println( "Element 8 is " + element.getClass() + " value=>" + element.toString() + " Original=>" + values[8] );
-    assertTrue( element.getType()==DataField.FLOAT );
+    assertTrue( element.getType() == DataField.FLOAT );
     assertTrue( 123456.5F == ( (Float)element.getObjectValue() ).floatValue() );
-    element = array.getField(9);
+    element = array.getField( 9 );
     //System.out.println( "Element 9 is " + element.getClass() + " value=>" + element.toString() + " Original=>" + values[9] );
-    assertTrue( element.getType()==DataField.DOUBLE );
+    assertTrue( element.getType() == DataField.DOUBLE );
     assertTrue( 123456.5D == ( (Double)element.getObjectValue() ).doubleValue() );
   }
 
@@ -204,14 +206,30 @@ public class ArrayTypeTest {
     Boolean[] bools = new Boolean[] { true, false, true, true, false };
     bytes = subject.encode( bools );
     text = subject.stringValue( bytes );
-    System.out.println( text );
+    //System.out.println( text );
     assertEquals( "[true,false,true,true,false]", text );
 
     String[] strings = new String[] { "a", "b", "c", "6" };
     bytes = subject.encode( strings );
     text = subject.stringValue( bytes );
-    System.out.println( text );
+    //System.out.println( text );
     assertEquals( "[\"a\",\"b\",\"c\",\"6\"]", text );
+  }
+
+
+
+
+  @Test
+  public void arrayOfFrames() {
+    String expected = "{\"Team\":[{\"First\":\"Alice\",\"Last\":\"Smith\"},{\"First\":\"Bob\",\"Last\":\"Wilson\"},{\"First\":\"Carol\",\"Last\":\"Jones\"}]}";
+    DataFrame frame1 = new DataFrame().set( "First", "Alice" ).set( "Last", "Smith" );
+    DataFrame frame2 = new DataFrame().set( "First", "Bob" ).set( "Last", "Wilson" );
+    DataFrame frame3 = new DataFrame().set( "First", "Carol" ).set( "Last", "Jones" );
+    DataFrame[] frames = { frame1, frame2, frame3 };
+    DataFrame root = new DataFrame().set( "Team", frames );
+    String text = root.toString();
+    System.out.println( text );
+    assertEquals(expected,root.toString());
   }
 
 }
