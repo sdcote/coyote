@@ -1434,7 +1434,7 @@ public class DataFrame implements Cloneable {
    * in this frame.
    * 
    * <p>When frames are created, they have no fields, this leave them in a 
-   * state which can be difficult to represent my marshalers. They may be 
+   * state which can be difficult to represent by marshalers. They may be 
    * expected to contain all unnamed fields (an array) or have no such 
    * constraint. Additionally, logic may desire to know if this collection of 
    * fields should be limited to one type (like an array) or may contain 
@@ -1455,7 +1455,8 @@ public class DataFrame implements Cloneable {
 
 
   /**
-   * @param flag true indicates this collection of fields should be reated as an array, false otherwise
+   * @param flag true indicates this collection of fields should be created as 
+   *        an array, false otherwise
    */
   public void setArrayBias( boolean flag ) {
     this.arrayBiased = flag;
