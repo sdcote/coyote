@@ -191,7 +191,12 @@ public class SegmentFilter {
           }
         }
       } // for each segment
-      // PASSED!
+
+      // check for too many subSegments to match our filter
+      if ( subSegments.length > segments.length ) {
+        return false;
+      }
+
     } else {
       return false; // no match
     }

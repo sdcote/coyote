@@ -12,6 +12,7 @@
 package coyote.dataframe.selector;
 
 //import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -28,15 +29,13 @@ public class SegmentFilterTest {
    * Method testConstructor0
    */
   @Test
-  public void testConstructor0()
-  {
+  public void testConstructor0() {
     SegmentFilter filter = null;
     String testPattern = "my.sample.subject";
 
     try {
       filter = new SegmentFilter( testPattern );
-    }
-    catch( Exception ex ) {
+    } catch ( Exception ex ) {
       fail( "Could not parse '" + testPattern + "'" );
     }
 
@@ -54,15 +53,13 @@ public class SegmentFilterTest {
    * Method testConstructor1
    */
   @Test
-  public void testConstructor1()
-  {
+  public void testConstructor1() {
     SegmentFilter filter = null;
     String testPattern = "my.sample.>";
 
     try {
       filter = new SegmentFilter( testPattern );
-    }
-    catch( Exception ex ) {
+    } catch ( Exception ex ) {
       fail( "Could not parse '" + testPattern + "'" );
     }
 
@@ -80,15 +77,13 @@ public class SegmentFilterTest {
    * Method testConstructor2
    */
   @Test
-  public void testConstructor2()
-  {
+  public void testConstructor2() {
     SegmentFilter filter = null;
     String testPattern = "my.simple.*.subject.>";
 
     try {
       filter = new SegmentFilter( testPattern );
-    }
-    catch( Exception ex ) {
+    } catch ( Exception ex ) {
       fail( "Could not parse '" + testPattern + "'" );
     }
 
@@ -115,16 +110,14 @@ public class SegmentFilterTest {
    * Method testConstructor3
    */
   @Test
-  public void testConstructor3()
-  {
+  public void testConstructor3() {
     String testPattern = "my.si>mple.*.subject.>";
 
     try {
       new SegmentFilter( testPattern );
 
       fail( "Should not have parsed '" + testPattern + "'" );
-    }
-    catch( Exception ex ) {
+    } catch ( Exception ex ) {
       // good
     }
   }
@@ -136,15 +129,13 @@ public class SegmentFilterTest {
    * Method testMatch0
    */
   @Test
-  public void testMatch0()
-  {
+  public void testMatch0() {
     SegmentFilter filter = null;
     String testPattern = "my.simple.*.subject.>";
 
     try {
       filter = new SegmentFilter( testPattern );
-    }
-    catch( Exception ex ) {
+    } catch ( Exception ex ) {
       fail( "Could not parse '" + testPattern + "'" );
     }
 
@@ -158,15 +149,13 @@ public class SegmentFilterTest {
    * Method testMatch1
    */
   @Test
-  public void testMatch1()
-  {
+  public void testMatch1() {
     SegmentFilter filter = null;
     String testPattern = "net.bralyn.util.SegmentFilter.>";
 
     try {
       filter = new SegmentFilter( testPattern );
-    }
-    catch( Exception ex ) {
+    } catch ( Exception ex ) {
       fail( "Could not parse '" + testPattern + "'" );
     }
 
@@ -182,25 +171,33 @@ public class SegmentFilterTest {
    * Method testMatch2
    */
   @Test
-  public void testMatch2()
-  {
+  public void testMatch2() {
     SegmentFilter filter = null;
     String testPattern = "EVENT.>";
 
     try {
       filter = new SegmentFilter( testPattern );
-    }
-    catch( Exception ex ) {
+    } catch ( Exception ex ) {
       fail( "Could not parse '" + testPattern + "'" );
     }
 
     assertTrue( filter.matches( "EVENT.Message" ) );
     assertTrue( filter.matches( "EVENT.Metric" ) );
 
-    if( filter.matches( "METRIC.EVENT.description" ) ) {
+    if ( filter.matches( "METRIC.EVENT.description" ) ) {
       fail( "Failed to filter 'METRIC'" );
     }
+  }
 
+
+
+
+  @Test
+  public void tooManySegmentsBug() {
+    String testPattern = "CVE_Items.*.cve";
+    SegmentFilter filter = new SegmentFilter( testPattern );
+    assertTrue( filter.matches( "CVE_Items.[3].cve" ) );
+    assertFalse( "too many segments", filter.matches( "CVE_Items.[3].cve.references.reference_data.[0]" ) );
   }
 
 }
