@@ -11,10 +11,24 @@
  */
 package coyote.dx.reader;
 
+import java.io.File;
+import java.net.URI;
+import java.util.List;
+
+import coyote.commons.FileUtil;
+import coyote.commons.StringUtil;
+import coyote.commons.UriUtil;
 import coyote.dataframe.DataFrame;
+import coyote.dataframe.marshal.JSONMarshaler;
+import coyote.dx.CDX;
+import coyote.dx.ConfigTag;
 import coyote.dx.ConfigurableComponent;
 import coyote.dx.FrameReader;
+import coyote.dx.Symbols;
 import coyote.dx.context.TransactionContext;
+import coyote.dx.context.TransformContext;
+import coyote.loader.log.Log;
+import coyote.loader.log.LogMsg;
 
 /**
  * 
@@ -39,5 +53,67 @@ public class JsonReader extends AbstractFrameReader implements FrameReader, Conf
   public boolean eof() {
     return true;
   }
+
+
+
+
+  /**
+   * @see coyote.dx.reader.AbstractFrameReader#open(coyote.dx.context.TransformContext)
+   */
+  @Override
+  public void open( TransformContext context ) {
+    super.context = context;
+
+    // check for a source in our configuration, if not there use the transform 
+    // context as it may have been set by a previous operation
+    String source = super.getString( ConfigTag.SOURCE );
+    Log.debug( LogMsg.createMsg( CDX.MSG, "Reader.configured_source_is", source ) );
+    if ( StringUtil.isNotBlank( source ) ) {
+
+      File sourceFile = null;
+      URI uri = UriUtil.parse( source );
+      if ( uri != null ) {
+        sourceFile = UriUtil.getFile( uri );
+        if ( sourceFile == null ) {
+          if ( uri.getScheme() == null ) {
+            // Assume a file if there is no scheme
+            Log.debug( "Source URI did not contain a scheme, assuming a filename" );
+            sourceFile = new File( source );
+          } else {
+            Log.warn( LogMsg.createMsg( CDX.MSG, "Reader.source_is_not_file", source ) );
+          }
+        }
+      } else {
+        Log.debug( "Source could not be parsed into a URI, assuming a filename" );
+        sourceFile = new File( source );
+      }
+      if ( sourceFile != null ) {
+        Log.debug( "Using a source file of " + sourceFile.getAbsolutePath() );
+      } else {
+        Log.error( "Using a source file of NULL_REF" );
+      }
+      // if not absolute, use the current job directory
+      if ( !sourceFile.isAbsolute() ) {
+        sourceFile = new File( context.getSymbols().getString( Symbols.JOB_DIRECTORY ), sourceFile.getPath() );
+      }
+      Log.debug( "Using an absolute source file of " + sourceFile.getAbsolutePath() );
+
+      // Basic checks
+      if ( sourceFile.exists() && sourceFile.canRead() ) {
+        String data = FileUtil.fileToString( sourceFile );
+        Log.info( "read in "+data.length()+" characters of data" );
+        
+        List<DataFrame> frames = JSONMarshaler.marshal( data );
+        
+        Log.info( "read in "+frames.size()+" frames" );
+        
+        
+      } else {
+        context.setError( LogMsg.createMsg( CDX.MSG, "Reader.could_not_read_from_source", getClass().getName(), sourceFile.getAbsolutePath() ).toString() );
+      }
+    } else {
+      Log.error( "No source specified" );
+      context.setError( getClass().getName() + " could not determine source" );
+    }  }
 
 }
