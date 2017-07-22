@@ -41,7 +41,7 @@ public class SegmentFilter {
     segments = getSegments( pattern );
 
     if ( segments == null ) {
-      throw new IllegalArgumentException( "Subject pattern is not legal" );
+      throw new IllegalArgumentException( "Filter pattern is not legal" );
     }
 
   }
