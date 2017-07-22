@@ -15,9 +15,18 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import coyote.commons.StringUtil;
+import coyote.dataframe.DataField;
+import coyote.dataframe.DataFrame;
 import coyote.dx.AbstractConfigurableComponent;
+import coyote.dx.CDX;
 import coyote.dx.Component;
+import coyote.dx.ConfigTag;
 import coyote.dx.context.TransformContext;
+import coyote.loader.cfg.Config;
+import coyote.loader.cfg.ConfigurationException;
+import coyote.loader.log.Log;
+import coyote.loader.log.LogMsg;
 
 
 /**
@@ -26,6 +35,47 @@ import coyote.dx.context.TransformContext;
 public abstract class AbstractFrameMapper extends AbstractConfigurableComponent implements Component {
   /** An insertion ordered list of target fields to be written to the target frame */
   List<SourceToTarget> fields = new ArrayList<SourceToTarget>();
+
+
+
+
+  /**
+   * Expects a configuration in the form of "Fields" : { "SourceField" : "TargetField", ... }
+   * 
+   * @see coyote.dx.AbstractConfigurableComponent#setConfiguration(coyote.loader.cfg.Config)
+   */
+  @Override
+  public void setConfiguration( Config cfg ) throws ConfigurationException {
+    super.setConfiguration( cfg );
+
+    // Retrieve the "fields" section from the configuration frame
+    DataFrame mapFrame = null;
+    try {
+      if ( cfg.containsIgnoreCase( ConfigTag.FIELDS ) ) {
+        DataField field = cfg.getFieldIgnoreCase( ConfigTag.FIELDS );
+        if ( field.isFrame() ) {
+          mapFrame = (DataFrame)field.getObjectValue();
+        } else {
+          Log.warn( LogMsg.createMsg( CDX.MSG, "Mapper.invalid_section_in_configuration", ConfigTag.FIELDS ) );
+        }
+      }
+    } catch ( Exception e ) {
+      mapFrame = null;
+    }
+
+    // If we found the "fields" frame...
+    if ( mapFrame != null ) {
+      // For each name:value pair, setup a soure:target mapping
+      for ( DataField field : mapFrame.getFields() ) {
+        if ( StringUtil.isNotBlank( field.getName() ) && field.getValue().length > 0 ) {
+          fields.add( new SourceToTarget( field.getName(), field.getObjectValue().toString() ) );
+        }
+      }
+    } else {
+      Log.warn( LogMsg.createMsg( CDX.MSG, "Mapper.no_section_in_configuration", ConfigTag.FIELDS ) );
+    }
+
+  }
 
 
 
@@ -47,7 +97,6 @@ public abstract class AbstractFrameMapper extends AbstractConfigurableComponent 
   @Override
   public void open( TransformContext context ) {
     this.context = context;
-
   }
 
 
@@ -98,6 +147,17 @@ public abstract class AbstractFrameMapper extends AbstractConfigurableComponent 
      */
     public String getSourceName() {
       return sourceName;
+    }
+
+
+
+
+    /**
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString() {
+      return "Mapping: '".concat( sourceName ).concat( "' to '" ).concat( targetName ).concat( "'" );
     }
 
   }

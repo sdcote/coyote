@@ -2,12 +2,13 @@
 	"Class": "coyote.dx.Job",
 	"Job": {
 		"Name": "Vulnerabilities",
+		"Description": "Reads recently discovered vulnerabilities from the NIST National Vulnerability Database which is updated every few hours",
 
 		"Preprocess": {
-			"WebGet": { "source": "https://static.nvd.nist.gov/feeds/json/cve/1.0/nvdcve-1.0-recent.meta" },
+			"WebGet": { "source": "https://static.nvd.nist.gov/feeds/json/cve/1.0/nvdcve-1.0-recent.meta", "enabled": false  },
 			"ReadIntoContext": { "source": "nvdcve-1.0-recent.meta", "delimiter": ":" },
 			"SaveContextValue": { "source": "sha256", "target": "nvdcve-1.0-recent.json.sha256", "enabled": false },
-			"WebGet": { "source": "https://static.nvd.nist.gov/feeds/json/cve/1.0/nvdcve-1.0-recent.json.zip" },
+			"WebGet": { "source": "https://static.nvd.nist.gov/feeds/json/cve/1.0/nvdcve-1.0-recent.json.zip", "enabled": false  },
 			"CheckSize": { "source": "nvdcve-1.0-recent.json.zip", "Context":"zipSize" },
 			"Unzip": { "source": "nvdcve-1.0-recent.json.zip" },
 			"CheckSize": { "source": "nvdcve-1.0-recent.json", "Context":"size" },
@@ -16,9 +17,21 @@
 		},
 
 		"Reader": {
-			"class": "JsonReader",
+			"class": "JSONReader",
 			"source": "nvdcve-1.0-recent.json",
 			"selector": "CVE_Items.*.cve"
+		},
+
+		"Mapper" : {
+			"class": "SegmentMapper",
+			"fields" : {
+				"CVE_data_meta.ID": "ID",
+				"description.description_data.*.value": "Description",
+				"affects.vendor.vendor_data.*.vendor_name": "Vendor",
+				"affects.vendor.vendor_data.*.product.product_data.*.product_name": "Products",
+				"affects.vendor.vendor_data.*.product.product_data.*.version.version_data.*.version_value": "Versions",
+				"problemtype.problemtype_data.*.description.*.value": "Problem"
+			}
 		},
 
 		"Writer": {
@@ -26,6 +39,11 @@
 			"format": "json",
 			"indent": false,
 			"message": "Record [#$CurrentFrame#] received."
-		}
+		},
+		
+		"Listener" : {
+			"ContextLogger": { "target": "outfile.txt", "read": false, "write": false },
+			"DataProfiler": { "target": "profile.txt" }
+		}		
 	}
 }

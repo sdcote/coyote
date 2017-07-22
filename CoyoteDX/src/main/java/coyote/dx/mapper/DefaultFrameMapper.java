@@ -11,17 +11,10 @@
  */
 package coyote.dx.mapper;
 
-import coyote.commons.StringUtil;
 import coyote.dataframe.DataField;
 import coyote.dataframe.DataFrame;
-import coyote.dx.CDX;
-import coyote.dx.ConfigTag;
 import coyote.dx.FrameMapper;
 import coyote.dx.context.TransactionContext;
-import coyote.loader.cfg.Config;
-import coyote.loader.cfg.ConfigurationException;
-import coyote.loader.log.Log;
-import coyote.loader.log.LogMsg;
 
 
 /**
@@ -29,47 +22,6 @@ import coyote.loader.log.LogMsg;
  * with one name to the target frame with another.
  */
 public class DefaultFrameMapper extends AbstractFrameMapper implements FrameMapper {
-
-  /**
-   * Expects a configuration in the form of "Fields" : { "SourceField" : "TargetField" }
-   * 
-   * @see coyote.dx.AbstractConfigurableComponent#setConfiguration(coyote.loader.cfg.Config)
-   */
-  @Override
-  public void setConfiguration( Config cfg ) throws ConfigurationException {
-    super.setConfiguration( cfg );
-
-    // Retrieve the "fields" section from the configuration frame
-    DataFrame mapFrame = null;
-    try {
-      if ( cfg.containsIgnoreCase( ConfigTag.FIELDS ) ) {
-        DataField field = cfg.getFieldIgnoreCase( ConfigTag.FIELDS );
-        if ( field.isFrame() ) {
-          mapFrame = (DataFrame)field.getObjectValue();
-        } else {
-          Log.warn( LogMsg.createMsg( CDX.MSG, "Mapper.invalid_section_in_configuration", ConfigTag.FIELDS ) );
-        }
-      }
-    } catch ( Exception e ) {
-      mapFrame = null;
-    }
-
-    // If we found the "fields" frame...
-    if ( mapFrame != null ) {
-      // For each name:value pair, setup a soure:target mapping
-      for ( DataField field : mapFrame.getFields() ) {
-        if ( StringUtil.isNotBlank( field.getName() ) && field.getValue().length > 0 ) {
-          fields.add( new SourceToTarget( field.getName(), field.getObjectValue().toString() ) );
-        }
-      }
-    } else {
-      Log.warn( LogMsg.createMsg( CDX.MSG, "Mapper.no_section_in_configuration", ConfigTag.FIELDS ) );
-    }
-
-  }
-
-
-
 
   /**
    * @see coyote.dx.FrameMapper#process(coyote.dx.context.TransactionContext)
