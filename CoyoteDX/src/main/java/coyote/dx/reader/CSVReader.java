@@ -36,6 +36,8 @@ import coyote.loader.log.LogMsg;
 
 /**
  * Character Separated Value Reader
+ * 
+ * TODO: Support preload
  */
 public class CSVReader extends AbstractFrameReader implements FrameReader, ConfigurableComponent {
 
