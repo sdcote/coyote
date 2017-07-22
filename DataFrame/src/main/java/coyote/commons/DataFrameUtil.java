@@ -13,7 +13,6 @@ package coyote.commons;
 
 import coyote.dataframe.DataField;
 import coyote.dataframe.DataFrame;
-import coyote.dataframe.FieldType;
 
 
 /**
@@ -62,11 +61,14 @@ public class DataFrameUtil {
       if ( token != null )
         fname = token + "." + fname;
 
-      if ( field.isFrame() )
-        recurse( (DataFrame)field.getObjectValue(), fname, target );
-      else
+      if ( field.isFrame() ){
+        DataFrame childFrame = (DataFrame)field.getObjectValue();
+        if( childFrame!= null){
+        recurse( childFrame, fname, target );
+        }
+      } else {
         target.set( fname, field.getObjectValue() );
-
+      }
     } // for each frame
   }
 
