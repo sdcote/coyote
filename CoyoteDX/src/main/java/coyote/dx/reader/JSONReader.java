@@ -13,8 +13,10 @@ package coyote.dx.reader;
 
 import java.io.File;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.List;
 
+import coyote.commons.DataFrameUtil;
 import coyote.commons.FileUtil;
 import coyote.commons.StringUtil;
 import coyote.commons.UriUtil;
@@ -39,12 +41,44 @@ import coyote.loader.log.LogMsg;
  */
 public class JSONReader extends AbstractFrameReader implements FrameReader, ConfigurableComponent {
 
+  private final List<DataFrame> buffer = new ArrayList<DataFrame>();
+  private volatile int currentFrame = 0;
+  private volatile DataFrame nextFrame = null;
+
+  /** Flag indicating all data should be loaded into and read from memory. */
+  private final boolean preload = true; // we only support buffered reads
+
+
+
+
   /**
    * @see coyote.dx.FrameReader#read(coyote.dx.context.TransactionContext)
    */
   @Override
   public DataFrame read( TransactionContext context ) {
-    return null;
+    DataFrame retval;
+    if ( nextFrame != null ) {
+      retval = DataFrameUtil.flatten( nextFrame );
+    } else {
+      retval = null;
+    }
+    currentFrame++;
+    if ( preload ) {
+      if ( currentFrame < buffer.size() ) {
+        nextFrame = buffer.get( currentFrame );
+      } else {
+        nextFrame = null;
+      }
+    } else {
+      Log.warn( "Whoa! We don't support streaming yet" );
+    }
+
+    // Support the concept of last frame    
+    if ( nextFrame == null ) {
+      context.setLastFrame( true );
+    }
+
+    return retval;
   }
 
 
@@ -55,7 +89,7 @@ public class JSONReader extends AbstractFrameReader implements FrameReader, Conf
    */
   @Override
   public boolean eof() {
-    return true;
+    return nextFrame == null;
   }
 
 
@@ -66,11 +100,11 @@ public class JSONReader extends AbstractFrameReader implements FrameReader, Conf
    */
   @Override
   public void open( TransformContext context ) {
-    super.context = context;
+    setContext( context );
 
     // check for a source in our configuration, if not there use the transform 
     // context as it may have been set by a previous operation
-    String source = super.getString( ConfigTag.SOURCE );
+    String source = getString( ConfigTag.SOURCE );
     Log.debug( LogMsg.createMsg( CDX.MSG, "Reader.configured_source_is", source ) );
     if ( StringUtil.isNotBlank( source ) ) {
 
@@ -105,25 +139,24 @@ public class JSONReader extends AbstractFrameReader implements FrameReader, Conf
       // Basic checks
       if ( sourceFile.exists() && sourceFile.canRead() ) {
         String data = FileUtil.fileToString( sourceFile );
-        Log.info( "read in " + data.length() + " characters of data" );
+        Log.debug( "Read in " + data.length() + " characters of data" );
 
         List<DataFrame> frames = JSONMarshaler.marshal( data );
-        Log.info( "read in " + frames.size() + " frames" );
+        Log.debug( "Read in " + frames.size() + " frames" );
         DataFrame frame = frames.get( 0 );
 
         String pattern = getString( ConfigTag.SELECTOR );
         if ( StringUtil.isNotBlank( pattern ) ) {
           FrameSelector selector = new FrameSelector( "CVE_Items.*.cve" );
           List<DataFrame> results = selector.select( frame );
-          Log.info( "Selected " + results.size() + " frames" );
+          Log.debug( "Selected " + results.size() + " frames" );
           frames = results;
         }
 
-        for ( int x = 0; x < 10; x++ ) {
-          if ( x < frames.size() ) {
-            System.out.println( frames.get( x ) );
-          } else
-            break;
+        if ( frames.size() > 0 ) {
+          buffer.addAll( frames );
+          Log.info( "Preloaded " + buffer.size() + " frames" );
+          nextFrame = buffer.get( currentFrame );
         }
 
       } else {
