@@ -37,7 +37,7 @@ import coyote.loader.log.LogMsg;
  * 
  * TODO: Make into a streaming reader with preload optional.
  */
-public class JsonReader extends AbstractFrameReader implements FrameReader, ConfigurableComponent {
+public class JSONReader2 extends AbstractFrameReader implements FrameReader, ConfigurableComponent {
 
   /**
    * @see coyote.dx.FrameReader#read(coyote.dx.context.TransactionContext)
