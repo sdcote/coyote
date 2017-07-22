@@ -16,8 +16,7 @@ import coyote.dataframe.marshal.PropertyFrame;
 public class FieldSelectorTest {
 
   @Test
-  public void testFieldSelector()
-  {
+  public void testFieldSelector() {
     new FieldSelector( "java.*.>" );
     new FieldSelector( ">" );
     new FieldSelector( "java" );
@@ -29,15 +28,20 @@ public class FieldSelectorTest {
 
 
   @Test
-  public void testSelect()
-  {
+  public void testSelect() {
     PropertyFrame marshaler = new PropertyFrame();
     DataFrame frame = marshaler.marshal( System.getProperties(), true );
     assertNotNull( frame );
+
     FieldSelector selector = new FieldSelector( "java.vm.>" );
     List<DataField> results = selector.select( frame );
     assertNotNull( results );
     assertTrue( results.size() > 0 );
+
+    for ( DataField dframe : results ) {
+      System.out.println( dframe.getName() );
+    }
+
   }
 
 }
