@@ -359,15 +359,15 @@ public class TransformEngineFactory {
           if ( object != null ) {
             if ( object instanceof FrameFilter ) {
               int seq = engine.addFilter( (FrameFilter)object );
-              Log.debug( LogMsg.createMsg( CDX.MSG, "EngineFactory.Created filter task {} seq={} cfg={}", object.getClass().getName(), seq, cfg ) );
+              Log.debug( LogMsg.createMsg( CDX.MSG, "EngineFactory.created_filter", object.getClass().getName(), seq, cfg ) );
             } else {
-              Log.error( LogMsg.createMsg( CDX.MSG, "EngineFactory.Specified filter class was not a frame filter" ) );
+              Log.error( LogMsg.createMsg( CDX.MSG, "EngineFactory.class_not_filter",object.getClass().getName() ) );
             }
           } else {
-            Log.error( LogMsg.createMsg( CDX.MSG, "EngineFactory.Could not create an instance of the specified filter '{}'", className ) );
+            Log.error( LogMsg.createMsg( CDX.MSG, "EngineFactory.coult_not_create_filter", className ) );
           }
         } else {
-          Log.error( LogMsg.createMsg( CDX.MSG, "EngineFactory.filter did not contain a configuration, only scalar {}", field.getStringValue() ) );
+          Log.error( LogMsg.createMsg( CDX.MSG, "EngineFactory.filter_config_not_section", field.getStringValue() ) );
         }
       } // for each task
     } // cfg !null
