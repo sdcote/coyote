@@ -368,12 +368,17 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
 
             // ...pass it through the filters...
             for ( FrameFilter filter : filters ) {
-              if ( !filter.process( txnContext ) ) {
-                // filter signaled to discontinue filter checks (early exit)
-                break;
+              if ( filter.isEnabled() ) {
+                if ( !filter.process( txnContext ) ) {
+                  // filter signaled to discontinue filter checks (early exit)
+                  break;
+                }
+                if ( txnContext.getWorkingFrame() == null ) {
+                  // no need to continue, the working record was removed from 
+                  // the transaction context
+                  break;
+                }
               }
-              if ( txnContext.getWorkingFrame() == null )
-                break;
             }
 
             // If the working frame did not get filtered out...

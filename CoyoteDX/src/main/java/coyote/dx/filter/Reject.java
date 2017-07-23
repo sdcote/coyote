@@ -22,6 +22,23 @@ import coyote.loader.log.LogMsg;
  * If the conditions in this frame are met, then this frame is rejected, no 
  * other processing is performed.
  * 
+ * <p>An example configuration is as follows:<pre>
+ * "Filter": {
+ *     "Reject": { "condition": "match(Working.Record Type,LN)" }
+ * }, </pre>
+ * 
+ * The above will only reject one type of record and allow all other to pass 
+ * through. 
+ *  
+ *  <p>A Reject filter with no condition, is an un-conditional rejection of 
+ *  all frames. This is useful when implementing a white list where Accepts 
+ *  are placed before an unconditional reject:<pre>
+ * "Filter": {
+ *     "Accept": { "condition": "match(Working.Record Type,LN)" }
+ *     "Reject": {  }
+ * },</pre>
+ * The above will only allow "Record Type" with a value of "LN" to pass 
+ * through, all others are rejected. 
  */
 public class Reject extends AbstractFrameFilter implements FrameFilter {
 

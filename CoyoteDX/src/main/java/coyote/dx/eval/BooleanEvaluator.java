@@ -13,6 +13,7 @@ package coyote.dx.eval;
 
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.regex.Pattern;
 
 import coyote.commons.StringUtil;
 import coyote.commons.eval.AbstractEvaluator;
@@ -406,9 +407,13 @@ public class BooleanEvaluator extends AbstractEvaluator<Boolean> {
 
 
 
-  private Boolean performRegex( String arg1, String arg2 ) {
-    Boolean retval = Boolean.FALSE;
-    // TODO Auto-generated method stub
+  private Boolean performRegex( String token, String regex ) {
+    boolean retval = false;
+    String key = sanitize( token );
+    String pattern = sanitize( regex );
+    String value = transformContext.resolveToString( key );
+    if ( value != null )
+      retval = Pattern.compile( regex ).matcher( value ).find();
     return retval;
   }
 
@@ -418,8 +423,10 @@ public class BooleanEvaluator extends AbstractEvaluator<Boolean> {
   /**
    * If the token starts and ends with a double quote, return the value 
    * contained therein.
+   * 
    * @param token
-   * @return
+   * 
+   * @return just the bare token
    */
   private String sanitize( String token ) {
     if ( token != null && token.startsWith( "\"" ) && token.endsWith( "\"" ) ) {

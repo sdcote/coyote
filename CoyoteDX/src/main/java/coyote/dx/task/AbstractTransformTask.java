@@ -105,8 +105,8 @@ public abstract class AbstractTransformTask extends AbstractConfigurableComponen
     }
 
     // if there is an enabled flag, set it; otherwise default to true
-    if ( contains( ConfigTag.ENABLED ) ) {
-      setEnabled( getBoolean( ConfigTag.ENABLED ) );
+    if ( containsIgnoreCase( ConfigTag.ENABLED ) ) {
+      setEnabled( getBoolean( getConfiguration().getFieldIgnoreCase( ConfigTag.ENABLED ).getName() ) );
     }
 
   }

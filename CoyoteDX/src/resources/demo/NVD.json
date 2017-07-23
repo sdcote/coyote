@@ -21,6 +21,13 @@
 			"source": "nvdcve-1.0-recent.json",
 			"selector": "CVE_Items.*.cve"
 		},
+		
+		"Filter": {
+			"Reject": { "condition": "regex(description.description_data.0.value, .*DO NOT USE.* )", "enabled": false },
+			
+			"Accept": { "condition": "regex(affects.vendor.vendor_data.0.vendor_name , ^apache )", "enabled": true },
+			"Reject": { "enabled": true }
+		},		
 
 		"Mapper" : {
 			"class": "SegmentMapper",
@@ -42,7 +49,7 @@
 		},
 		
 		"Listener" : {
-			"ContextLogger": { "target": "outfile.txt", "read": false, "write": false },
+			"ContextLogger": { "target": "outfile.txt", "read": true, "write": false },
 			"DataProfiler": { "target": "profile.txt" }
 		}		
 	}

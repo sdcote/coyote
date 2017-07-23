@@ -47,5 +47,23 @@ public interface FrameFilter extends ConfigurableComponent {
    * @return true to continue processing remaining filters, false to skip any remaining filters (early exit). 
    */
   public boolean process( TransactionContext context );
+  
+
+
+  /**
+   * @return true if this filter is enabled to run, false if the filter is not 
+   *         to be processed
+   */
+  public boolean isEnabled();
+
+
+
+
+  /**
+   * @param flag true to enable this task, false to prevent it from being
+   *        processed.
+   */
+  public void setEnabled( boolean flag );
+
 
 }
