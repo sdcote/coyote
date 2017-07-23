@@ -18,20 +18,4 @@ public interface TransformTask extends ConfigurableComponent {
 
   public void execute() throws TaskException;
 
-
-
-
-  /**
-   * @return true if this task is enabled to run, false if the tasks is not to be executed
-   */
-  public boolean isEnabled();
-
-
-
-
-  /**
-   * @param flag true to enable this task, false to prevent it from being executed.
-   */
-  public void setEnabled( boolean flag );
-
 }

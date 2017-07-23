@@ -38,7 +38,6 @@ import coyote.dx.eval.Evaluator;
  * final Reject eliminating all others.
  */
 public abstract class AbstractFrameFilter extends AbstractConfigurableComponent implements FrameFilter, ConfigurableComponent {
-  protected boolean enabled = true;
   protected Evaluator evaluator = new Evaluator();
   protected String expression = null;
 
@@ -80,35 +79,8 @@ public abstract class AbstractFrameFilter extends AbstractConfigurableComponent 
       }
     }
 
-    // if there is an enabled flag, set it; otherwise default to true
-    if ( containsIgnoreCase( ConfigTag.ENABLED ) ) {
-      setEnabled( getBoolean( getConfiguration().getFieldIgnoreCase( ConfigTag.ENABLED ).getName() ) );
-    }
-
     // TODO: support the log flag to have the filter generate a log entry when fired...helps with debugging
 
-  }
-
-
-
-
-  /**
-   * @see coyote.dx.FrameFilter#isEnabled()
-   */
-  @Override
-  public boolean isEnabled() {
-    return enabled;
-  }
-
-
-
-
-  /**
-   * @see coyote.dx.FrameFilter#setEnabled(boolean)
-   */
-  @Override
-  public void setEnabled( boolean flag ) {
-    this.enabled = flag;
   }
 
 

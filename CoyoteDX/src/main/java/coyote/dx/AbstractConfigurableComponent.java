@@ -14,7 +14,6 @@ package coyote.dx;
 import coyote.commons.CipherUtil;
 import coyote.commons.StringUtil;
 import coyote.commons.template.Template;
-import coyote.dataframe.DataField;
 import coyote.dataframe.DataFrame;
 import coyote.dataframe.DataFrameException;
 import coyote.dx.context.TransformContext;
@@ -31,6 +30,9 @@ public abstract class AbstractConfigurableComponent implements ConfigurableCompo
 
   protected Config configuration = new Config();
   protected TransformContext context = null;
+  
+  // All components are enabled unless specifically configured otherwise
+  protected boolean enabled = true;
 
 
 
@@ -41,6 +43,12 @@ public abstract class AbstractConfigurableComponent implements ConfigurableCompo
   @Override
   public void setConfiguration( Config cfg ) throws ConfigurationException {
     configuration = cfg;
+
+    // if there is an enabled flag, set it; otherwise default to true
+    if ( containsIgnoreCase( ConfigTag.ENABLED ) ) {
+      setEnabled( getBoolean( getConfiguration().getFieldIgnoreCase( ConfigTag.ENABLED ).getName() ) );
+    }
+
   }
 
 
@@ -104,10 +112,6 @@ public abstract class AbstractConfigurableComponent implements ConfigurableCompo
 
 
 
-
-
-
-
   /**
    * Return the configuration or context value with the given (case 
    * in-sensitive) key.
@@ -156,7 +160,7 @@ public abstract class AbstractConfigurableComponent implements ConfigurableCompo
 
     // Perform a case insensitive search for the value with the given key
     value = getConfiguration().getString( key );
-    
+
     if ( context != null ) {
       // See if there is a match in the context for reference resolution
       if ( value != null ) {
@@ -263,6 +267,26 @@ public abstract class AbstractConfigurableComponent implements ConfigurableCompo
     }
 
     return 0;
+  }
+
+
+
+
+  /**
+   * @return true if this task is enabled to run, false if the tasks is not to be executed
+   */
+  public boolean isEnabled() {
+    return enabled;
+  }
+
+
+
+
+  /**
+   * @param flag true to enable this task, false to prevent it from being executed.
+   */
+  public void setEnabled( boolean flag ) {
+    this.enabled = flag;
   }
 
 

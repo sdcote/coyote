@@ -45,7 +45,6 @@ import coyote.loader.log.LogMsg;
  */
 public abstract class AbstractTransformTask extends AbstractConfigurableComponent implements TransformTask {
   protected boolean haltOnError = true;
-  protected boolean enabled = true;
   protected Evaluator evaluator = new Evaluator();
 
 
@@ -104,10 +103,6 @@ public abstract class AbstractTransformTask extends AbstractConfigurableComponen
       setHaltOnError( getBoolean( ConfigTag.HALT_ON_ERROR ) );
     }
 
-    // if there is an enabled flag, set it; otherwise default to true
-    if ( containsIgnoreCase( ConfigTag.ENABLED ) ) {
-      setEnabled( getBoolean( getConfiguration().getFieldIgnoreCase( ConfigTag.ENABLED ).getName() ) );
-    }
 
   }
 
@@ -232,23 +227,5 @@ public abstract class AbstractTransformTask extends AbstractConfigurableComponen
 
 
 
-  /**
-   * @return true if this task is enabled to run, false if the tasks is not to be executed
-   */
-  @Override
-  public boolean isEnabled() {
-    return enabled;
-  }
-
-
-
-
-  /**
-   * @param flag true to enable this task, false to prevent it from being executed.
-   */
-  @Override
-  public void setEnabled( boolean flag ) {
-    this.enabled = flag;
-  }
 
 }
