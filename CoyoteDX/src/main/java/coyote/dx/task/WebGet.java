@@ -79,9 +79,10 @@ public class WebGet extends AbstractFileTask {
       responseCode = httpConn.getResponseCode();
     } catch ( IOException e ) {
       final String msg = LogMsg.createMsg( CDX.MSG, "WebGet could not connect to server: {0} - Reason: {1}", source, e.getMessage() ).toString();
-      Log.error( msg );
       if ( haltOnError ) {
-        getContext().setError( msg );
+        throw new TaskException( msg );
+      } else {
+        Log.error( msg );
         return;
       }
     }
@@ -130,17 +131,19 @@ public class WebGet extends AbstractFileTask {
         Log.debug( "Downloaded " + FileUtil.formatSizeBytes( bytesTotal ) + " from " + source + " to " + targetFile.getAbsolutePath() );
       } catch ( IOException e ) {
         final String msg = LogMsg.createMsg( CDX.MSG, "WebGet could not retrieve file from server: {0} - {1}", e.getClass().getSimpleName(), e.getMessage() ).toString();
-        Log.error( msg );
         if ( haltOnError ) {
-          getContext().setError( msg );
+          throw new TaskException( msg );
+        } else {
+          Log.error( msg );
           return;
         }
       }
     } else {
       final String msg = LogMsg.createMsg( CDX.MSG, "WebGet could not retrieve file from server - Response: {0} for {1}", responseCode, source ).toString();
-      Log.error( msg );
       if ( haltOnError ) {
-        getContext().setError( msg );
+        throw new TaskException( msg );
+      } else {
+        Log.error( msg );
         return;
       }
     }

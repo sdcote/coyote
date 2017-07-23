@@ -53,10 +53,10 @@ public class Delete extends AbstractFileTask {
       if ( !FileUtil.deleteFile( sourceFile ) ) {
         String msg = LogMsg.createMsg( CDX.MSG, "Task.file_deletion_error", file, sourceFile.getAbsolutePath() ).toString();
         if ( haltOnError ) {
-          getContext().setError( msg );
-          return;
+          throw new TaskException( msg );
         } else {
           Log.error( msg );
+          return;
         }
       }
 
@@ -77,19 +77,19 @@ public class Delete extends AbstractFileTask {
           } catch ( final Exception e ) {
             String msg = LogMsg.createMsg( CDX.MSG, "Task.directory_deletion_error", dir, dirFile.getAbsolutePath() ).toString();
             if ( haltOnError ) {
-              getContext().setError( msg );
-              return;
+              throw new TaskException( msg );
             } else {
               Log.error( msg );
+              return;
             }
           }
         } else {
           String msg = LogMsg.createMsg( CDX.MSG, "Task.directory_specified_file_found", this.getClass().getName(), dir, dirFile.getAbsolutePath() ).toString();
           if ( haltOnError ) {
-            getContext().setError( msg );
-            return;
+            throw new TaskException( msg );
           } else {
             Log.error( msg );
+            return;
           }
         }
       }

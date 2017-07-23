@@ -100,9 +100,8 @@ public abstract class AbstractTransformTask extends AbstractConfigurableComponen
     // If there is a halt on error flag, then set it, otherwise keep the 
     // default value of true    
     if ( contains( ConfigTag.HALT_ON_ERROR ) ) {
-      setHaltOnError( getBoolean( ConfigTag.HALT_ON_ERROR ) );
+      setHaltOnError( getBoolean( getConfiguration().getFieldIgnoreCase( ConfigTag.HALT_ON_ERROR ).getName() ) );
     }
-
 
   }
 

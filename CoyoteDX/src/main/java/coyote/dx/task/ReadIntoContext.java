@@ -115,26 +115,29 @@ public class ReadIntoContext extends AbstractFileTask {
             Log.warn( LogMsg.createMsg( CDX.MSG, "%s did not read any data from %s - empty file (%s)", getClass().getSimpleName(), source, file.getAbsolutePath() ) );
           }
         } else {
-          final String msg = LogMsg.createMsg( CDX.MSG, "%s failed: File %s cannot be read (%s)", getClass().getSimpleName(), source, file.getAbsolutePath() ).toString();
-          Log.error( msg );
+          final String msg = LogMsg.createMsg( CDX.MSG, "Task.failed_file_cannot_be_read", getClass().getSimpleName(), source, file.getAbsolutePath() ).toString();
           if ( haltOnError ) {
-            getContext().setError( msg );
+            throw new TaskException( msg );
+          } else {
+            Log.error( msg );
             return;
           }
         }
       } else {
-        final String msg = LogMsg.createMsg( CDX.MSG, "%s failed: File %s does not exist (%s)", getClass().getSimpleName(), source, file.getAbsolutePath() ).toString();
-        Log.error( msg );
+        final String msg = LogMsg.createMsg( CDX.MSG, "Task.failed_file_does_not_exist", getClass().getSimpleName(), source, file.getAbsolutePath() ).toString();
         if ( haltOnError ) {
-          getContext().setError( msg );
+          throw new TaskException( msg );
+        } else {
+          Log.error( msg );
           return;
         }
       }
     } else {
       final String msg = LogMsg.createMsg( CDX.MSG, "%s failed: No data in %s configuration attribute", getClass().getSimpleName(), ConfigTag.SOURCE ).toString();
-      Log.error( msg );
       if ( haltOnError ) {
-        getContext().setError( msg );
+        throw new TaskException( msg );
+      } else {
+        Log.error( msg );
         return;
       }
     }

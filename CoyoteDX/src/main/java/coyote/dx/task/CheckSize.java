@@ -48,42 +48,44 @@ public class CheckSize extends AbstractFileTask {
           size = Long.parseLong( value );
         } catch ( NumberFormatException e ) {
           final String msg = LogMsg.createMsg( CDX.MSG, "%s failed: Context attribute %s does not contain a valid numeric (%s)", getClass().getSimpleName(), attrName, value ).toString();
-          Log.error( msg );
           if ( haltOnError ) {
-            getContext().setError( msg );
+            throw new TaskException( msg );
+          } else {
+            Log.error( msg );
+            return;
           }
-          return;
         }
 
         if ( file.length() > 0 ) {
-
           if ( file.length() == size ) {
             Log.info( "File size verified for " + file.getAbsolutePath() );
           } else {
             final String msg = LogMsg.createMsg( CDX.MSG, "File size verification failed for '%s'  expecting %d was actually %d", source, file.getAbsolutePath(), size, file.length() ).toString();
-            Log.error( msg );
             if ( haltOnError ) {
-              getContext().setError( msg );
+              throw new TaskException( msg );
+            } else {
+              Log.error( msg );
               return;
             }
           }
-
         } else {
           Log.warn( LogMsg.createMsg( CDX.MSG, "%s did not read any data from %s - empty file (%s)", getClass().getSimpleName(), source, file.getAbsolutePath() ) );
         }
       } else {
-        final String msg = LogMsg.createMsg( CDX.MSG, "%s failed: File %s does not exist (%s)", getClass().getSimpleName(), source, file.getAbsolutePath() ).toString();
-        Log.error( msg );
+        final String msg = LogMsg.createMsg( CDX.MSG, "Task.failed_file_does_not_exist", getClass().getSimpleName(), source, file.getAbsolutePath() ).toString();
         if ( haltOnError ) {
-          getContext().setError( msg );
+          throw new TaskException( msg );
+        } else {
+          Log.error( msg );
           return;
         }
       }
     } else {
       final String msg = LogMsg.createMsg( CDX.MSG, "%s failed: No data in %s configuration attribute", getClass().getSimpleName(), ConfigTag.SOURCE ).toString();
-      Log.error( msg );
       if ( haltOnError ) {
-        getContext().setError( msg );
+        throw new TaskException( msg );
+      } else {
+        Log.error( msg );
         return;
       }
     }

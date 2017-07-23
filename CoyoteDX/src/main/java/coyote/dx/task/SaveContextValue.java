@@ -67,26 +67,29 @@ public class SaveContextValue extends AbstractFileTask {
             Log.debug( "Wrote context variable '" + source + "' ( " + resolvedValue.length() + "chars) to " + file.getAbsolutePath() );
           } else {
             final String msg = LogMsg.createMsg( CDX.MSG, "%s failed: Write failed to %s (%s)", getClass().getSimpleName(), target, file.getAbsolutePath() ).toString();
-            Log.error( msg );
             if ( haltOnError ) {
-              getContext().setError( msg );
+              throw new TaskException( msg );
+            } else {
+              Log.error( msg );
               return;
             }
           }
         } else {
           final String msg = LogMsg.createMsg( CDX.MSG, "%s failed: Context did not contain a value for '%s'", getClass().getSimpleName(), source ).toString();
-          Log.error( msg );
           if ( haltOnError ) {
-            getContext().setError( msg );
+            throw new TaskException( msg );
+          } else {
+            Log.error( msg );
             return;
           }
         }
       }
     } else {
       final String msg = LogMsg.createMsg( CDX.MSG, "%s failed: No source (context key) configured", getClass().getSimpleName() ).toString();
-      Log.error( msg );
       if ( haltOnError ) {
-        getContext().setError( msg );
+        throw new TaskException( msg );
+      } else {
+        Log.error( msg );
         return;
       }
     }
