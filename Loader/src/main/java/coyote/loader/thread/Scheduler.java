@@ -353,7 +353,6 @@ public class Scheduler extends ThreadJob {
    */
   public void schedule( ScheduledJob job ) {
     if ( job != null ) {
-      job.setScheduler( this );
 
       Log.append( SCHED, "Scheduling job " + job + " to run at " + new Date( job.getExecutionTime() ) );
 

@@ -65,9 +65,6 @@ public class ScheduledJob extends ThreadJob implements Namable, Describable {
   /** Indicates this job is enabled to be run */
   protected volatile boolean enabled = true;
 
-  /** The Scheduler managing the timing of our execution */
-  protected Scheduler scheduler = null;
-
 
 
 
@@ -478,40 +475,6 @@ public class ScheduledJob extends ThreadJob implements Namable, Describable {
     synchronized( mutex ) {
       this.enabled = enabled;
     }
-  }
-
-
-
-
-  /**
-   * Place this job back in the currently set scheduler.
-   */
-  public void reschedule() {
-    if ( scheduler != null ) {
-      scheduler.reschedule( this );
-    }
-  }
-
-
-
-
-  /**
-   * @return the scheduler currently managing this job.
-   */
-  public Scheduler getScheduler() {
-    return scheduler;
-  }
-
-
-
-
-  /**
-   * Set the scheduler currently managing this job.
-   *
-   * @param scheduler the scheduler currently managing this job.
-   */
-  public void setScheduler( Scheduler scheduler ) {
-    this.scheduler = scheduler;
   }
 
 
