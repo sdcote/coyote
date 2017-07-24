@@ -9,7 +9,7 @@
  *   Stephan D. Cote 
  *      - Initial concept and implementation
  */
-package coyote.batch;
+package coyote.dx;
 
 import coyote.commons.Version;
 import coyote.loader.log.LogMsg.BundleBaseName;
