@@ -5,10 +5,10 @@
 		"Description": "Reads recently discovered vulnerabilities from the NIST National Vulnerability Database which is updated every few hours",
 
 		"Preprocess": {
-			"WebGet": { "source": "https://static.nvd.nist.gov/feeds/json/cve/1.0/nvdcve-1.0-recent.meta", "enabled": false  },
+			"WebGet": { "source": "https://static.nvd.nist.gov/feeds/json/cve/1.0/nvdcve-1.0-recent.meta", "enabled": true  },
 			"ReadIntoContext": { "source": "nvdcve-1.0-recent.meta", "delimiter": ":" },
 			"SaveContextValue": { "source": "sha256", "target": "nvdcve-1.0-recent.json.sha256", "enabled": false },
-			"WebGet": { "source": "https://static.nvd.nist.gov/feeds/json/cve/1.0/nvdcve-1.0-recent.json.zip", "enabled": false  },
+			"WebGet": { "source": "https://static.nvd.nist.gov/feeds/json/cve/1.0/nvdcve-1.0-recent.json.zip", "enabled": true },
 			"CheckSize": { "source": "nvdcve-1.0-recent.json.zip", "Context":"zipSize" },
 			"Unzip": { "source": "nvdcve-1.0-recent.json.zip" },
 			"CheckSize": { "source": "nvdcve-1.0-recent.json", "Context":"size" },
