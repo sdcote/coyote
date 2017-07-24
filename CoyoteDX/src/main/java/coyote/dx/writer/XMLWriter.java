@@ -60,6 +60,8 @@ public class XMLWriter extends AbstractFrameFileWriter implements FrameWriter, C
     printwriter.write( footerText );
     printwriter.write( StringUtil.LINE_FEED );
     printwriter.flush();
+    
+    b.delete( 0, b.length() );
 
     // Super class close always comes last
     super.close();

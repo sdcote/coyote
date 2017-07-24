@@ -101,6 +101,7 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
     if ( frameset.size() > 0 ) {
       Log.debug( LogMsg.createMsg( CDX.MSG, "Writer.completing_batch", getClass().getName(), frameset.size() ) );
       writeBatch();
+      frameset.clearAll();
     }
 
     if ( ps != null ) {

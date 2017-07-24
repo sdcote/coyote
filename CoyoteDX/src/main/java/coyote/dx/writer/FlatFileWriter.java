@@ -11,6 +11,7 @@
  */
 package coyote.dx.writer;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -182,6 +183,18 @@ public class FlatFileWriter extends AbstractFrameFileWriter implements FrameWrit
     // Increment the row number
     rowNumber++;
 
+  }
+
+
+
+
+  /**
+   * @see coyote.dx.writer.AbstractFrameFileWriter#close()
+   */
+  @Override
+  public void close() throws IOException {
+    fields.clear();
+    super.close();
   }
 
 }

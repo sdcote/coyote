@@ -11,6 +11,7 @@
  */
 package coyote.dx.writer;
 
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -401,6 +402,18 @@ public class CSVWriter extends AbstractFrameFileWriter implements FrameWriter, C
     printwriter.write( retval.toString() );
     printwriter.flush();
 
+  }
+
+
+
+
+  /**
+   * @see coyote.dx.writer.AbstractFrameFileWriter#close()
+   */
+  @Override
+  public void close() throws IOException {
+    fields.clear();
+    super.close();
   }
 
 }
