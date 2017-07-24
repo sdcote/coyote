@@ -61,7 +61,7 @@ public class SleepTaskTest {
       long start = System.currentTimeMillis();
       task.execute();
       long elapsed = System.currentTimeMillis() - start;
-      assertTrue( elapsed >= TIMEOUT );
+      assertTrue( "Milliseconds elapsed was" + elapsed + " expected >= " + TIMEOUT, elapsed >= TIMEOUT );
     } catch ( ConfigurationException | TaskException | IOException e ) {
       e.printStackTrace();
       fail( e.getMessage() );
@@ -83,7 +83,7 @@ public class SleepTaskTest {
       long start = System.currentTimeMillis();
       task.execute();
       long elapsed = System.currentTimeMillis() - start;
-      assertTrue( elapsed >= TIMEOUT );
+      assertTrue( "Milliseconds elapsed was" + elapsed + " expected >= " + TIMEOUT, elapsed >= TIMEOUT );
     } catch ( ConfigurationException | TaskException | IOException e ) {
       e.printStackTrace();
       fail( e.getMessage() );
