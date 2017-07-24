@@ -101,7 +101,6 @@ public class ReadIntoContext extends AbstractFileTask {
         if ( file.canRead() ) {
           if ( file.length() > 0 ) {
             final String[] lines = FileUtil.textToArray( file );
-            Log.info( "Read in " + lines.length + " lines" );
             for ( final String line : lines ) {
               final String[] kvp = divide( line, delimiter );
               if ( StringUtil.isNotEmpty( kvp[1] ) ) {
