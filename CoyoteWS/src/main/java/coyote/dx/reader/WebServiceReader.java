@@ -140,7 +140,7 @@ public class WebServiceReader extends AbstractFrameReader implements FrameReader
           break;
         } else {
           context.setError( "Invalid protocol configuration, expected a section not an attribute" );
-          context.setStatus( "Configuration Error" );
+          context.setState( "Configuration Error" );
           return;
         }
       }

@@ -31,8 +31,7 @@ import coyote.dx.Symbols;
  * amongst each other while remaining functionally separate.</p>
  */
 public abstract class OperationalContext {
-  public static final String ERROR_STATUS = "Error";
-  protected String status = null;
+  protected String state = null;
   protected StringBuffer errorMessage = null;
   protected volatile long startTime = 0;
   protected volatile long endTime = 0;
@@ -214,12 +213,13 @@ public abstract class OperationalContext {
   /**
    * Set the context in an error state with the given message.
    * 
+   * <p>The message will be prepended with the state of the context.
+   * 
    * @param errMsg The error message to place in the context.
    */
   public void setError( String errMsg ) {
     errorFlag = true;
-    status = ERROR_STATUS;
-    setErrorMessage( errMsg );
+    setErrorMessage( "[" + state + "] " + errMsg );
   }
 
 
@@ -249,23 +249,23 @@ public abstract class OperationalContext {
   /**
    * @return the textual description of the state of the context.
    */
-  public String getStatus() {
-    return status;
+  public String getState() {
+    return state;
   }
 
 
 
 
   /**
-   * The status is a textual description of the state if the context.
+   * The state is a textual description of the state if the context.
    * 
    * <p>This is most used in error reporting to determine what state the 
    * context was in when the error occurred.
    *  
-   * @param status the textual description of the state of the context to set
+   * @param state the textual description of the state of the context to set
    */
-  public void setStatus( String status ) {
-    this.status = status;
+  public void setState( String state ) {
+    this.state = state;
   }
 
 
@@ -380,8 +380,8 @@ public abstract class OperationalContext {
   public void end() {
     endTime = System.currentTimeMillis();
     if ( symbols != null ) {
-      if ( StringUtil.isNotBlank( getStatus() ) ) {
-        symbols.put( Symbols.CONTEXT_STATUS, getStatus() );
+      if ( StringUtil.isNotBlank( getState() ) ) {
+        symbols.put( Symbols.CONTEXT_STATUS, getState() );
       } else {
         symbols.put( Symbols.CONTEXT_STATUS, "No status information found in context" );
       }

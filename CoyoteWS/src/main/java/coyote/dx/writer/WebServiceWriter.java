@@ -103,7 +103,7 @@ public class WebServiceWriter extends AbstractConfigurableComponent implements F
 
         if ( StringUtil.isBlank( targetUrl ) ) {
           context.setError( "The Writer configuration did not contain the '" + ConfigTag.TARGET + "' element" );
-          context.setStatus( "Configuration Error" );
+          context.setState( "Configuration Error" );
           return;
         }
 
@@ -141,7 +141,7 @@ public class WebServiceWriter extends AbstractConfigurableComponent implements F
               break;
             } else {
               context.setError( "Invalid proxy configuration, expected a section not a scalar" );
-              context.setStatus( "Configuration Error" );
+              context.setState( "Configuration Error" );
               return;
             }
           }
@@ -162,7 +162,7 @@ public class WebServiceWriter extends AbstractConfigurableComponent implements F
               break;
             } else {
               context.setError( "Invalid protocol configuration, expected a section not an attribute" );
-              context.setStatus( "Configuration Error" );
+              context.setState( "Configuration Error" );
               return;
             }
           }
@@ -198,11 +198,11 @@ public class WebServiceWriter extends AbstractConfigurableComponent implements F
 
         } catch ( IOException e ) {
           context.setError( "The Writer could not connect the resource: " + e.getMessage() );
-          context.setStatus( "Connection Error" );
+          context.setState( "Connection Error" );
           return;
         } catch ( AuthenticationException e ) {
           context.setError( "The Writer could not authenticate the resource: " + e.getMessage() );
-          context.setStatus( "Authentication Error" );
+          context.setState( "Authentication Error" );
         }
       } else {
         Log.debug( "Using resource set in the transform context" );
@@ -276,7 +276,7 @@ public class WebServiceWriter extends AbstractConfigurableComponent implements F
         resource.setPath( Template.resolve( servicePath, getContext().getTransaction().getSymbols() ) );
       } catch ( URISyntaxException e ) {
         super.context.setError( "The Writer could not generate URI path: " + e.getMessage() );
-        super.context.setStatus( "Resource Path Error" );
+        super.context.setState( "Resource Path Error" );
         return bytesWritten;
       }
     }
