@@ -33,7 +33,7 @@ import coyote.dx.Symbols;
 public abstract class OperationalContext {
   public static final String ERROR_STATUS = "Error";
   protected String status = null;
-  protected String errorMessage = null;
+  protected StringBuffer errorMessage = null;
   protected volatile long startTime = 0;
   protected volatile long endTime = 0;
   protected final Map<String, Object> properties = new HashMap<String, Object>();
@@ -219,7 +219,7 @@ public abstract class OperationalContext {
   public void setError( String errMsg ) {
     errorFlag = true;
     status = ERROR_STATUS;
-    errorMessage = errMsg;
+    setErrorMessage( errMsg );
   }
 
 
@@ -275,7 +275,11 @@ public abstract class OperationalContext {
    * @return the message
    */
   public String getErrorMessage() {
-    return errorMessage;
+    if ( errorMessage != null ) {
+      return errorMessage.toString();
+    } else {
+      return null;
+    }
   }
 
 
@@ -290,7 +294,12 @@ public abstract class OperationalContext {
    * @param errMsg the message to set
    */
   public void setErrorMessage( String errMsg ) {
-    this.errorMessage = errMsg;
+    if ( errorMessage == null ) {
+      errorMessage = new StringBuffer( errMsg );
+    } else {
+      errorMessage.append( "\n" );
+      errorMessage.append( errMsg );
+    }
   }
 
 
