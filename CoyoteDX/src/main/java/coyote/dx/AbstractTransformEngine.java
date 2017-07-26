@@ -170,6 +170,7 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
   @Override
   public void run() {
     Log.info( "Engine '" + getName() + "' (" + getInstanceId() + ") running..." );
+    int transactionErrors = 0;
 
     symbols.put( Symbols.JOB_ID, getInstanceId() );
 
@@ -248,7 +249,6 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
         }
       } catch ( TaskException e ) {
         getContext().setError( e.getMessage() );
-        getContext().setState( "Pre-Processing Error" );
         break;
       }
     }
@@ -466,13 +466,21 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
             // context to record the transaction if so configured
             txnContext.end();
 
+            if ( txnContext.isInError() ) {
+              transactionErrors++;
+            }
+
           } // if something was read in
 
         } // Reader !eof and context is without error
 
       } // transformContext ! err after pre-processing
 
-      Log.trace( "Engine '" + getName() + "' reads completed - Error=" + getContext().isInError() + " Reads=" + getContext().getRow() );
+      if ( transactionErrors > 0 ) {
+        getContext().setError( "Transform experienced " + transactionErrors + " transaction errors" );
+      }
+
+      Log.trace( "Engine '" + getName() + "' reads completed - Error=" + getContext().isInError() + " Reads=" + getContext().getRow() + " TxnErrors=" + transactionErrors );
 
       if ( getContext().isInError() ) {
         reportTransformContextError( getContext() );
