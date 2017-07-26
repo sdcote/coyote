@@ -219,7 +219,7 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
     for ( ContextListener listener : listeners ) {
       listener.open( getContext() );
       if ( getContext().isInError() ) {
-        getContext().setStatus( "Listener Initialization Error" );
+        getContext().setState( "Listener Initialization Error" );
         reportTransformContextError( getContext() );
         return;
       }
@@ -237,6 +237,8 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
     // fire the transformation start event
     getContext().start();
 
+    getContext().setState( "Pre-Process" );
+
     // Execute all the pre-processing tasks
     for ( TransformTask task : preProcesses ) {
       try {
@@ -246,7 +248,7 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
         }
       } catch ( TaskException e ) {
         getContext().setError( e.getMessage() );
-        getContext().setStatus( "Pre-Processing Error" );
+        getContext().setState( "Pre-Processing Error" );
         break;
       }
     }
@@ -270,9 +272,9 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
         // to share data. If the reader is null, there is no need to open the 
         // mapper and the writer
         if ( reader != null ) {
+          getContext().setState( "Reader Init" );
           reader.open( getContext() );
           if ( getContext().isInError() ) {
-            getContext().setStatus( "Reader Opening Error" );
             reportTransformContextError( getContext() );
             return;
           }
@@ -283,49 +285,45 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
             mapper = new DefaultFrameMapper();
           }
 
+          getContext().setState( "Mapper Init" );
           mapper.open( getContext() );
           if ( getContext().isInError() ) {
-            getContext().setStatus( "Mapper Opening Error" );
             reportTransformContextError( getContext() );
             return;
           }
 
-          // Open all the writers
+          getContext().setState( "Writer Init" );
           for ( FrameWriter writer : writers ) {
             writer.open( getContext() );
             if ( getContext().isInError() ) {
-              getContext().setStatus( "Writer Opening Error" );
               reportTransformContextError( getContext() );
               return;
             }
           }
         }
 
-        // Open all the filters
+        getContext().setState( "Filter Init" );
         for ( FrameFilter filter : filters ) {
           filter.open( getContext() );
           if ( getContext().isInError() ) {
-            getContext().setStatus( "Filter Opening Error" );
             reportTransformContextError( getContext() );
             return;
           }
         }
 
-        // Open all the validators
+        getContext().setState( "Validator Init" );
         for ( FrameValidator validator : validators ) {
           validator.open( getContext() );
           if ( getContext().isInError() ) {
-            getContext().setStatus( "Validator Opening Error" );
             reportTransformContextError( getContext() );
             return;
           }
         }
 
-        // Open all the transformers
+        getContext().setState( "Transform Init" );
         for ( FrameTransform transformer : transformers ) {
           transformer.open( getContext() );
           if ( getContext().isInError() ) {
-            getContext().setStatus( "Transformer Opening Error" );
             reportTransformContextError( getContext() );
             return;
           }
@@ -334,6 +332,7 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
 
         // loop through all data read in by the reader until EOF or an error in 
         // the transform context occurs.
+        getContext().setState( "Process" );
         while ( getContext().isNotInError() && reader != null && !reader.eof() ) {
 
           // Create a new Transaction context with the list of listeners to react 
@@ -350,6 +349,7 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
           // Start the clock and fire event listeners for the beginning of the
           // transaction
           txnContext.start();
+          txnContext.setState( "Read" );
 
           // Read a frame into the given context (source frame)
           DataFrame retval = reader.read( txnContext );
@@ -367,6 +367,7 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
             txnContext.fireRead( txnContext, reader );
 
             // ...pass it through the filters...
+            txnContext.setState( "Filter" );
             for ( FrameFilter filter : filters ) {
               if ( filter.isEnabled() ) {
                 if ( !filter.process( txnContext ) ) {
@@ -385,6 +386,7 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
             if ( txnContext.getWorkingFrame() != null ) {
 
               // pass it through the validation rules - errors are logged
+              txnContext.setState( "Validate" );
               boolean passed = true;
               for ( FrameValidator validator : validators ) {
                 try {
@@ -393,7 +395,6 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
                   }
                 } catch ( ValidationException e ) {
                   txnContext.setError( e.getMessage() );
-                  txnContext.setStatus( "Validation Error" );
                 }
               }
 
@@ -404,6 +405,7 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
 
               if ( txnContext.isNotInError() ) {
 
+                txnContext.setState( "Transform" );
                 // Pass the working frame through the transformers
                 for ( FrameTransform transformer : transformers ) {
                   try {
@@ -416,7 +418,6 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
                   } catch ( Exception e ) {
                     // catch any manner of transformation exception
                     txnContext.setError( e.getMessage() );
-                    txnContext.setStatus( "Transformation Error" );
                   }
                 }
 
@@ -430,18 +431,20 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
                     txnContext.setTargetFrame( new DataFrame() );
                   }
 
+                  txnContext.setState( "Map" );
+
                   // Map / Move fields from the working to the target frame
                   try {
                     mapper.process( txnContext );
                   } catch ( MappingException e ) {
                     txnContext.setError( e.getMessage() );
-                    txnContext.setStatus( "Mapping Error" );
                   }
                 }
 
                 // It is possible that a transform has been configured to simply
                 // read and validate data so the writer may be null
                 if ( txnContext.isNotInError() && writers.size() > 0 ) {
+                  txnContext.setState( "Write" );
                   // Pass the frame to all the writers
                   for ( FrameWriter writer : writers ) {
                     try {
@@ -449,7 +452,8 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
                       writer.write( txnContext.getTargetFrame() );
                       txnContext.fireWrite( txnContext, writer );
                     } catch ( Exception e ) {
-                      Log.warn( LogMsg.createMsg( CDX.MSG, "Engine.write_error", e.getClass().getSimpleName(), e.getMessage(), ExceptionUtil.stackTrace( e ) ) );
+                      Log.error( LogMsg.createMsg( CDX.MSG, "Engine.write_error", e.getClass().getSimpleName(), e.getMessage(), ExceptionUtil.stackTrace( e ) ) );
+                      txnContext.setError( e.getMessage() );
                     }
                   }
                 }
@@ -478,6 +482,8 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
         // interfere with post-processing tasks from completing properly
         closeInternalComponents();
 
+        getContext().setState( "Post-Process" );
+
         // Execute all the post-processing tasks
         for ( TransformTask task : postProcesses ) {
           try {
@@ -487,7 +493,6 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
             }
           } catch ( TaskException e ) {
             getContext().setError( e.getMessage() );
-            getContext().setStatus( "Post-Processing Error" );
           }
         }
 
@@ -501,6 +506,7 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
             Log.warn( LogMsg.createMsg( CDX.MSG, "Engine.problems_closing_postprocess_task", task.getClass().getName(), e.getClass().getSimpleName(), e.getMessage() ) );
           }
         }
+        getContext().setState( "Complete" );
 
         if ( getContext().isInError() ) {
           reportTransformContextError( getContext() );
@@ -519,7 +525,7 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
     }
 
     if ( getContext().isInError() ) {
-      Log.info( "Engine '" + getName() + "' (" + getInstanceId() + ") completed with errors: " + getContext().getStatus() + " - " + getContext().getErrorMessage() );
+      Log.info( "Engine '" + getName() + "' (" + getInstanceId() + ") completed with errors: " + getContext().getErrorMessage() );
     } else {
       Log.info( "Engine '" + getName() + "' (" + getInstanceId() + ") completed successfully" );
     }
@@ -677,7 +683,7 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
 
 
   protected void reportTransformContextError( TransformContext context ) {
-    Log.error( context.getStatus() + " - " + context.getErrorMessage() );
+    Log.error( context.getState() + " Error - " + context.getErrorMessage() );
   }
 
 
