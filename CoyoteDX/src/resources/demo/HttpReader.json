@@ -1,0 +1,20 @@
+{
+	"Class" : "coyote.dx.Job",
+	"Job" : {
+		"Name" : "StaticReader",
+		
+		"Reader" : {
+			"class" : "HttpReader",
+			"port" : 80,
+			"path" : "/coyote"
+		},
+
+		"Writer" : {
+			"class" : "ConsoleWriter",
+			"format" : "json",
+			"indent" : false,
+			"message" : "Record [#$CurrentFrame#] received."
+		}
+	}
+
+}
