@@ -11,16 +11,13 @@
  */
 package coyote.dx.reader;
 
+import java.util.List;
+
 import coyote.commons.StringUtil;
-import coyote.dataframe.DataField;
 import coyote.dataframe.DataFrame;
-import coyote.dx.CDX;
-import coyote.dx.ConfigTag;
 import coyote.dx.context.TransactionContext;
 import coyote.dx.context.TransformContext;
-import coyote.loader.cfg.Config;
 import coyote.loader.log.Log;
-import coyote.loader.log.LogMsg;
 
 
 /**
@@ -28,14 +25,23 @@ import coyote.loader.log.LogMsg;
  * 
  * <p>The purpose of this reader is to enable the creation of an engine in 
  * memory to which data can be passed programmatically. This allows an engine 
- * to create other engines which can process its data.
+ * to create other engines which can process its data. This also makes testing 
+ * other components easier.
  * 
- * <p>This also makes testing other components easier. 
+ * <p>A single DataFrame or an array of DataFrames should be placed in the 
+ * engines TransformContext with a key (field name) of "ContextInput". This 
+ * can be overridden in the reader's configuration by specifying the name of 
+ * the field in the "source" configuration parameter. Note that the name of 
+ * the field is context sensitive while the "source" attribute is not. A List 
+ * of DataFrames is supported, but that will cause som inefficiencies as each 
+ * DataFrame will be copied to a private array resulting in an extral copy 
+ * operation and a duplication of DataFrames in memory. 
  */
 public class ContextReader extends AbstractFrameReader {
   private int counter = 0;
-  private int limit = 1;
-  private DataFrame frame = null;
+  public static final String DEFAULT_CONTEXT_FIELD = "ContextInput";
+  private String contextFieldName = DEFAULT_CONTEXT_FIELD;
+  private DataFrame[] frames = null;
 
 
 
@@ -45,11 +51,15 @@ public class ContextReader extends AbstractFrameReader {
    */
   @Override
   public DataFrame read( TransactionContext context ) {
+    DataFrame retval = null;
+    if ( counter < frames.length ) {
+      retval = frames[counter];
+    }
     counter++;
-    if(counter>=limit){
+    if ( counter == frames.length ) {
       context.setLastFrame( true );
     }
-    return frame;
+    return retval;
   }
 
 
@@ -60,7 +70,7 @@ public class ContextReader extends AbstractFrameReader {
    */
   @Override
   public boolean eof() {
-    return counter >= limit;
+    return counter >= frames.length;
   }
 
 
@@ -71,28 +81,33 @@ public class ContextReader extends AbstractFrameReader {
    */
   @Override
   public void open( TransformContext context ) {
-    counter = 0;
-    try {
-      limit = configuration.getInt( ConfigTag.LIMIT );
-    } catch ( NumberFormatException e ) {
-      limit = 1;
+    super.open( context );
+
+    String fieldName = configuration.getString( "source" );
+    if ( StringUtil.isNotBlank( fieldName ) ) {
+      contextFieldName = fieldName.trim();
     }
-    
-    final Config section = configuration.getSection( ConfigTag.FIELDS );
-    if ( section != null ) {
-      frame = new DataFrame();
-      for ( final DataField field : section.getFields() ) {
-        if ( !field.isFrame() ) {
-          if ( StringUtil.isNotBlank( field.getName() ) && !field.isNull() ) {
-            frame.set( field.getName(), field.getObjectValue() );
-          }
+
+    Object dataobj = getContext().get( contextFieldName );
+    if ( dataobj instanceof DataFrame ) {
+      frames = new DataFrame[1];
+      frames[0] = (DataFrame)dataobj;
+    } else if ( dataobj instanceof DataFrame[] ) {
+      frames = (DataFrame[])dataobj;
+    } else if ( dataobj instanceof List ) {
+      List list = (List)dataobj;
+      frames = new DataFrame[list.size()];
+      for ( int x = 0; x < list.size(); x++ ) {
+        Object frm = list.get( x );
+        if ( frm instanceof DataFrame ) {
+          frames[x] = (DataFrame)frm;
+        } else {
+          Log.warn( "Context Reader found " + frm.getClass().getName() + " in element " + x + " of data list - Skipping. Expect a null frame to be read." );
         }
       }
-    } else {
-      String msg = LogMsg.createMsg( CDX.MSG, "Reader.no_fields_specified", getClass().getName() ).toString();
-      Log.error( msg );
-      context.setError( msg );
+
     }
+
   }
 
 }
