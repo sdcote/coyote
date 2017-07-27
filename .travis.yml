@@ -1,0 +1,15 @@
+language: java
+
+jdk:
+  - oraclejdk8
+
+os:
+  - linux
+
+branches:
+  only:
+    - develop
+
+cache:
+  directories:
+  - $HOME/.gradle
