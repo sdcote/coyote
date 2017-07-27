@@ -1,6 +1,7 @@
 
 # Coyote DX
-[![Build Status](https://travis-ci.org/sdcote/coyote.svg?branch=develop)](https://travis-ci.org/sdcote/coyote) [![codecov](https://codecov.io/gh/sdcote/coyote/branch/develop/graph/badge.svg)](https://codecov.io/gh/sdcote/coyote)
+[![Build Status](https://travis-ci.org/sdcote/coyote.svg?branch=develop)](https://travis-ci.org/sdcote/coyote) [![codecov](https://codecov.io/gh/sdcote/coyote/branch/develop/graph/badge.svg)](https://codecov.io/gh/sdcote/coyote) [![Code Climate](https://codeclimate.com/github/sdcote/coyote/badges/gpa.svg)](https://codeclimate.com/github/sdcote/coyote)
+
 
 This is a lightweight toolkit for performing basic data exchange (integration) tasks.
 
