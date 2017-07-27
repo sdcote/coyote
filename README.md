@@ -1,4 +1,4 @@
-
+[![Build Status](https://travis-ci.org/sdcote/coyote.svg?branch=develop)](https://travis-ci.org/sdcote/coyote)
 # Coyote DX
 
 This is a lightweight toolkit for performing basic data exchange (integration) tasks.
