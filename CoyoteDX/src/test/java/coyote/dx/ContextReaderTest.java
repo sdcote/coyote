@@ -15,6 +15,9 @@ package coyote.dx;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -22,6 +25,7 @@ import coyote.commons.template.SymbolTable;
 import coyote.dataframe.DataFrame;
 import coyote.dx.context.TransformContext;
 import coyote.dx.reader.ContextReader;
+import coyote.dx.writer.ContextWriter;
 import coyote.loader.log.ConsoleAppender;
 import coyote.loader.log.Log;
 
@@ -65,10 +69,90 @@ public class ContextReaderTest extends AbstractTest {
     turnOver( engine );
     System.out.println( engine.getContext().getRow() );
     assertTrue( 1 == context.getRow() );
-
-    Object obj = context.get( "ContextOutput" );
-
-    //assertNotNull(obj);
   }
 
+
+
+
+  @Test
+  public void arrayTest() {
+    TransformEngine engine = loadEngine( "ContextReadWrite" );
+    assertNotNull( engine );
+
+    TransformContext transformContext = new TransformContext();
+
+    engine.setContext( transformContext );
+    TransformContext context = engine.getContext();
+    assertNotNull( context );
+
+    SymbolTable symbols = engine.getSymbolTable();
+    assertNotNull( symbols );
+
+    DataFrame[] frames = new DataFrame[2];
+    frames[0] = new DataFrame().set( "field1", "value1" ).set( "Field2", "Value2" ).set( "NullField", null );
+    frames[1] = new DataFrame().set( "field3", "value3" ).set( "Field4", "Value4" ).set( "NullField", null );
+
+    context.set( ContextReader.DEFAULT_CONTEXT_FIELD, frames );
+
+    turnOver( engine );
+    System.out.println( engine.getContext().getRow() );
+    assertTrue( 2 == context.getRow() );
+  }
+
+
+
+
+  @Test
+  public void listTest() {
+    TransformEngine engine = loadEngine( "ContextReadWrite" );
+    assertNotNull( engine );
+
+    TransformContext transformContext = new TransformContext();
+
+    engine.setContext( transformContext );
+    TransformContext context = engine.getContext();
+    assertNotNull( context );
+
+    SymbolTable symbols = engine.getSymbolTable();
+    assertNotNull( symbols );
+
+    List<DataFrame> frames = new ArrayList<DataFrame>();
+    frames.add( new DataFrame().set( "field1", "value1" ).set( "Field2", "Value2" ).set( "NullField", null ) );
+    frames.add( new DataFrame().set( "field3", "value3" ).set( "Field4", "Value4" ).set( "NullField", null ) );
+
+    context.set( ContextReader.DEFAULT_CONTEXT_FIELD, frames );
+
+    turnOver( engine );
+    System.out.println( engine.getContext().getRow() );
+    assertTrue( 2 == context.getRow() );
+  }
+
+
+
+
+  @Test
+  public void readWrite() {
+    TransformEngine engine = loadEngine( "ContextReadWrite" );
+    assertNotNull( engine );
+    TransformContext transformContext = new TransformContext();
+    engine.setContext( transformContext );
+    TransformContext context = engine.getContext();
+    assertNotNull( context );
+    SymbolTable symbols = engine.getSymbolTable();
+    assertNotNull( symbols );
+    DataFrame[] frames = new DataFrame[3];
+    frames[0] = new DataFrame().set( "field1", "value1" ).set( "Field2", "Value2" ).set( "NullField", null );
+    frames[1] = new DataFrame().set( "field3", "value3" ).set( "Field4", "Value4" ).set( "NullField", null );
+    frames[2] = new DataFrame().set( "field5", "value5" ).set( "Field6", "Value6" ).set( "NullField", null );
+    context.set( ContextReader.DEFAULT_CONTEXT_FIELD, frames );
+    turnOver( engine );
+    assertTrue( 3 == context.getRow() );
+
+    Object dataobj = context.get( ContextWriter.DEFAULT_CONTEXT_FIELD );
+    assertNotNull( dataobj );
+
+    assertTrue( dataobj instanceof DataFrame[] );
+    DataFrame[] outframes = (DataFrame[])dataobj;
+    assertTrue( outframes.length == 3 );
+  }
 }
