@@ -194,6 +194,9 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
     if ( getContext() == null ) {
       // Create a transformation context for components to share data
       setContext( new TransformContext() );
+    } else{
+      // reset the context in case is was used previously
+      getContext().reset();
     }
 
     // get the command line arguments from the symbol table and post the array
@@ -538,8 +541,6 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
       Log.info( "Engine '" + getName() + "' (" + getInstanceId() + ") completed successfully" );
     }
 
-    // reset the context so it can be reused in the next run (when scheduled)
-    getContext().reset();
   }
 
 
