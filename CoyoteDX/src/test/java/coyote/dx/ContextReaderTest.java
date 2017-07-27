@@ -13,8 +13,7 @@ package coyote.dx;
 
 //import static org.junit.Assert.*;
 import static org.junit.Assert.assertNotNull;
-
-import java.io.IOException;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -22,6 +21,7 @@ import org.junit.Test;
 import coyote.commons.template.SymbolTable;
 import coyote.dataframe.DataFrame;
 import coyote.dx.context.TransformContext;
+import coyote.dx.reader.ContextReader;
 import coyote.loader.log.ConsoleAppender;
 import coyote.loader.log.Log;
 
@@ -35,7 +35,7 @@ public class ContextReaderTest extends AbstractTest {
    */
   @BeforeClass
   public static void setUpBeforeClass() throws Exception {
-    //Log.addLogger( Log.DEFAULT_LOGGER_NAME, new ConsoleAppender( Log.TRACE_EVENTS | Log.DEBUG_EVENTS | Log.INFO_EVENTS | Log.WARN_EVENTS | Log.ERROR_EVENTS | Log.FATAL_EVENTS ) );
+    Log.addLogger( Log.DEFAULT_LOGGER_NAME, new ConsoleAppender( Log.TRACE_EVENTS | Log.DEBUG_EVENTS | Log.INFO_EVENTS | Log.WARN_EVENTS | Log.ERROR_EVENTS | Log.FATAL_EVENTS ) );
     //Log.addLogger( Log.DEFAULT_LOGGER_NAME, new ConsoleAppender( Log.INFO_EVENTS | Log.WARN_EVENTS | Log.ERROR_EVENTS | Log.FATAL_EVENTS ) );
   }
 
@@ -43,10 +43,10 @@ public class ContextReaderTest extends AbstractTest {
 
 
   @Test
-  public void test() {
+  public void singleFrame() {
 
     // load the configuration from the class path
-    TransformEngine engine = loadEngine( "contextreader" );
+    TransformEngine engine = loadEngine( "ContextReadWrite" );
     assertNotNull( engine );
 
     TransformContext transformContext = new TransformContext();
@@ -60,21 +60,15 @@ public class ContextReaderTest extends AbstractTest {
 
     DataFrame frame = new DataFrame().set( "field1", "value1" ).set( "Field2", "Value2" ).set( "NullField", null );
 
-    context.set( "DATAFRAME", frame );
+    context.set( ContextReader.DEFAULT_CONTEXT_FIELD, frame );
 
-    try {
-      engine.run();
-    } catch ( Exception ignore ) {}
+    turnOver( engine );
+    System.out.println( engine.getContext().getRow() );
+    assertTrue( 1 == context.getRow() );
 
-    Log.debug( context.dump() );
+    Object obj = context.get( "ContextOutput" );
 
-    try {
-      engine.close();
-    } catch ( IOException e ) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    }
-
+    //assertNotNull(obj);
   }
 
 }

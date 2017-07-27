@@ -1,24 +1,12 @@
 {
-	"Class" : "coyote.dx.Job",
-	"Job" : {
-		"Name" : "Simple",
-		
-		"Reader" : {
-			"class" : "CSVReader",
-			"source" : "[#$app.home#]/demo/users.csv",
-			"header" : true
-		},
-
-		"Writer" : {
-			"class" : "FlatFileWriter",
-			"target" : "users.txt",
-			"fields" : {
-				"Role" : { "start" : 0, "length" : 6 },
-				"FirstName" : { "start" : 7, "length" : 11 },
-				"LastName" : { "start" : 19, "length" : 16 },
-				"MiddleInitial" : { "start" : 36, "length" : 1 }
-			}    
-		}
+	"Name": "ContextReadWrite",
+	"Description": "Show how to configure a context reader and writer as a source and target for data frames",
+	"Reader": {
+		"class": "ContextReader",
+		"source": "ContextInput"
+	},
+	"Writer": {
+		"class": "ContextWriter",
+		"target": "ContextOutput"
 	}
-
 }

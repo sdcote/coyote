@@ -134,4 +134,21 @@ public class AbstractTest {
     } catch ( Exception ignore ) {}
   }
 
+
+
+
+  /**
+   * Run and close the given engine.
+   * @param engine to run and close
+   */
+  protected void turnOver( TransformEngine engine ) {
+    try {
+      engine.run();
+    }
+    finally {
+      try {
+        engine.close();
+      } catch ( Exception ignore ) {}
+    }
+  }
 }
