@@ -144,6 +144,8 @@ public class RunJob extends AbstractTransformTask {
             } // localfile is absolute
           } // localfile does not exist
         } //localfile != null
+      }else{
+        // TODO: get the string data from the network 
       } // cfguri is not valid
 
       if ( cfgUri != null ) {
@@ -212,7 +214,6 @@ public class RunJob extends AbstractTransformTask {
 
 
 
-
   /**
    * @see coyote.dx.task.AbstractTransformTask#performTask()
    */
@@ -226,12 +227,14 @@ public class RunJob extends AbstractTransformTask {
 
     if ( cfgUri != null ) {
       try {
-        Config engineConfig = Config.read( cfgUri );
-        if ( StringUtil.isBlank( engineConfig.getName() ) ) {
-          engineConfig.setName( UriUtil.getBase( cfgUri ) );
+        Config jobConfig = Config.read( cfgUri );
+        if ( StringUtil.isBlank( jobConfig.getName() ) ) {
+          jobConfig.setName( UriUtil.getBase( cfgUri ) );
         }
 
-        TransformEngine engine = loadEngine( engineConfig.toString() );
+        Config engineConfig = jobConfig .getSection( ConfigTag.JOB );
+        
+        TransformEngine engine = TransformEngineFactory.getInstance( engineConfig.toString() );
 
         String contextKey = getString( ConfigTag.CONTEXT );
         if ( StringUtil.isBlank( contextKey ) ) {
@@ -268,5 +271,9 @@ public class RunJob extends AbstractTransformTask {
       return;
     }
   }
+
+
+
+
 
 }
