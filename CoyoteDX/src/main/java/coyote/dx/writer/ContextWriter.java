@@ -55,7 +55,7 @@ public class ContextWriter extends AbstractFrameWriter {
     Object dataobj = getContext().get( contextFieldName );
     if ( dataobj == null ) {
       DataFrame[] frames = new DataFrame[1];
-      frames[0] = (DataFrame)dataobj;
+      frames[0] = frame;
       getContext().set( contextFieldName, frames );
     } else if ( dataobj instanceof DataFrame[] ) {
       DataFrame[] ary = (DataFrame[])dataobj;
