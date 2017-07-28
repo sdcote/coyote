@@ -173,7 +173,7 @@ public class Service extends AbstractBatchLoader implements Loader {
     super.initComponents();
 
     // Now load "Jobs" sections representing individual transform engines
-    for ( Config section : configuration.getSections( "Job" ) ) {
+    for ( Config section : configuration.getSections( ConfigTag.JOB ) ) {
 
       // make sure the Job configuration has the appropriate wrapper class
       section.setClassName( ScheduledBatchJob.class.getName() );

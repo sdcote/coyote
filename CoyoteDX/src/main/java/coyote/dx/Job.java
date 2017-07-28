@@ -60,7 +60,7 @@ public class Job extends AbstractBatchLoader implements Loader {
 
     determineWorkDirectory();
 
-    List<Config> jobs = cfg.getSections( "Job" );
+    List<Config> jobs = cfg.getSections( coyote.dx.ConfigTag.JOB );
 
     if ( jobs.size() > 0 ) {
 

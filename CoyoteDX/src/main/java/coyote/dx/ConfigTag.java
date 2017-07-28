@@ -21,6 +21,8 @@ public class ConfigTag {
   public static final String CIPHER_NAME = "cipher.name";
   public static final String CIPHER_KEY = "cipher.key";
 
+  public static final String JOB = "Job";
+
   public static final String AUTO_ADJUST = "autoadjust";
   public static final String AUTO_CREATE = "autocreate";
   /** Batch size ({@value}) configuration attribute. */
