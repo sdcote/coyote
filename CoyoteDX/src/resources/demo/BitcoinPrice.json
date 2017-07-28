@@ -1,0 +1,19 @@
+{
+	"Class": "coyote.dx.Job",
+	"Job": {
+		"Name": "BitcoinPrice",
+
+		"Preprocess": {
+			"WebGet": { "source": "https://blockchain.info/ticker"  }
+		},
+
+		"Reader": { "class": "JSONReader", "source": "ticker" },
+
+		"Mapper": { "fields" : { "USD.15m": "15m", "USD.last": "Last", "USD.buy": "Buy", "USD.sell": "Sell" } },
+
+		"Writer": { "class": "ConsoleWriter", "format": "json", "indent": true },
+
+		"Writer": { "class": "ContextWriter" }		
+
+	}
+}
