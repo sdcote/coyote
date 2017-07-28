@@ -600,4 +600,32 @@ public abstract class OperationalContext {
     }
   }
 
+
+
+
+  /**
+   * Return a shallow copy of the properties in this context.
+   * 
+   * <p>Note: this only retrieves the references in the properties map. This 
+   * does not retrieve the symbol table values, sart time, state, error 
+   * message, end time, current frame, or listeners. If you want these values, 
+   * your will need to "set" them in the properties. This is generally a bad 
+   * idea, but that's up to you.
+   * 
+   * <p>Changing the property value changes both values as this is a shallow 
+   * copy of the properties map in this context.
+   * 
+   * @return a shallow copy of the properties in this context.
+   */
+  public Map<String, Object> toProperties() {
+    final Map<String, Object> retval = new HashMap<String, Object>();
+    for ( String key : properties.keySet() ) {
+      Object value = properties.get( key );
+      if ( value != null ) {
+        retval.put( key, value );
+      }
+    }
+    return retval;
+  }
+
 }

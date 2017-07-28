@@ -23,7 +23,6 @@ import coyote.commons.FileUtil;
 import coyote.commons.StringUtil;
 import coyote.commons.SystemPropertyUtil;
 import coyote.commons.UriUtil;
-import coyote.dx.AbstractTest;
 import coyote.dx.CDX;
 import coyote.dx.ConfigTag;
 import coyote.dx.TaskException;
@@ -196,7 +195,7 @@ public class RunJob extends AbstractTransformTask {
     SystemPropertyUtil.load( name.toLowerCase() );
     final StringBuffer b = new StringBuffer();
     try {
-      final BufferedReader reader = new BufferedReader( new InputStreamReader( AbstractTest.class.getClassLoader().getResourceAsStream( name + ".json" ) ) );
+      final BufferedReader reader = new BufferedReader( new InputStreamReader( RunJob.class.getClassLoader().getResourceAsStream( name + ".json" ) ) );
       String line;
       while ( ( line = reader.readLine() ) != null ) {
         b.append( line );
@@ -219,6 +218,7 @@ public class RunJob extends AbstractTransformTask {
    */
   @Override
   protected void performTask() throws TaskException {
+
     final String filename = getString( ConfigTag.FILE );
     Log.debug( "Reading configuration file " + filename );
     final URI cfgUri = confirmConfigurationLocation( filename );
@@ -233,6 +233,11 @@ public class RunJob extends AbstractTransformTask {
 
         TransformEngine engine = loadEngine( engineConfig.toString() );
 
+        String contextKey = getString( ConfigTag.CONTEXT );
+        if ( StringUtil.isBlank( contextKey ) ) {
+          contextKey = engine.getName();
+        }
+
         try {
           engine.run();
         } catch ( Throwable t ) {
@@ -245,11 +250,11 @@ public class RunJob extends AbstractTransformTask {
           }
         }
         finally {
+          getContext().set( contextKey, engine.getContext().toProperties() );
           try {
             engine.close();
           } catch ( Exception ignore ) {}
         }
-
       } catch ( IOException | ConfigurationException e ) {
         final String errMsg = "Could not read configuration from " + cfgUri + " - " + e.getMessage();
         if ( haltOnError ) {
