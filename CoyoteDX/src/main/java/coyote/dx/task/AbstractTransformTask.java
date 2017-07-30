@@ -171,7 +171,7 @@ public abstract class AbstractTransformTask extends AbstractConfigurableComponen
    * @throws TaskException
    */
   protected void performTask() throws TaskException {
-
+    // do nothing method
   }
 
 
@@ -222,9 +222,5 @@ public abstract class AbstractTransformTask extends AbstractConfigurableComponen
    */
   @Override
   public void close() throws IOException {}
-
-
-
-
 
 }
