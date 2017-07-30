@@ -604,25 +604,58 @@ public abstract class OperationalContext {
 
 
   /**
-   * Return a shallow copy of the properties in this context.
+   * Return a shallow copy of the properties in this context as a map.
    * 
    * <p>Note: this only retrieves the references in the properties map. This 
    * does not retrieve the symbol table values, sart time, state, error 
-   * message, end time, current frame, or listeners. If you want these values, 
-   * your will need to "set" them in the properties. This is generally a bad 
-   * idea, but that's up to you.
+   * message, end time, current frame, or listeners.
+   * 
+   * <p>The map is mutable in so far as objects can be added and removed 
+   * without affecting the contents of the context.
    * 
    * <p>Changing the property value changes both values as this is a shallow 
    * copy of the properties map in this context.
    * 
    * @return a shallow copy of the properties in this context.
    */
-  public Map<String, Object> toProperties() {
+  public Map<String, Object> toMap() {
     final Map<String, Object> retval = new HashMap<String, Object>();
     for ( String key : properties.keySet() ) {
       Object value = properties.get( key );
       if ( value != null ) {
         retval.put( key, value );
+      }
+    }
+    return retval;
+  }
+
+
+
+
+  /**
+   * Returns the value as a map.
+   * 
+   * <p>If the value is a scalar, it will be placed in a map with its name as 
+   * the key. If it is a map, it will be returned as a shallow copy of the 
+   * that map.
+   * 
+   * @param name Name of the property to retrieve
+   * 
+   * @return the data as a map or a shallow copy of the map; will never return null.
+   */
+  public Map<String, Object> getAsMap( String name ) {
+    Map retval = new HashMap();
+    Object obj = properties.get( name );
+    if ( obj != null ) {
+      if ( obj instanceof Map ) {
+        for ( Object key : ( (Map)obj ).keySet() ) {
+          Object value = ( (Map)obj ).get( key );
+          if ( value != null ) {
+            retval.put( key.toString(), value );
+          }
+        }
+      } else {
+        retval.put( name, obj );
       }
     }
     return retval;
