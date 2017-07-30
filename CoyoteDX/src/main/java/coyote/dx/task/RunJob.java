@@ -182,37 +182,6 @@ public class RunJob extends AbstractTransformTask {
 
 
 
-  /**
-  * Loads a configuration file and set of properties from the class path
-  *
-  * <p>This loads [name].properties as the system properties and [name.json as
-  * the engine configuration.
-  *
-  * @param name the name of the files to use
-  *
-  * @return The transform engine configured with the requested configuration
-  */
-  private TransformEngine loadEngine( final String name ) {
-    TransformEngine engine = null;
-    SystemPropertyUtil.load( name.toLowerCase() );
-    final StringBuffer b = new StringBuffer();
-    try {
-      final BufferedReader reader = new BufferedReader( new InputStreamReader( RunJob.class.getClassLoader().getResourceAsStream( name + ".json" ) ) );
-      String line;
-      while ( ( line = reader.readLine() ) != null ) {
-        b.append( line );
-      }
-    } catch ( final FileNotFoundException e ) {
-      e.printStackTrace();
-    } catch ( final IOException e ) {
-      e.printStackTrace();
-    }
-    final String cfgFile = b.toString();
-    engine = TransformEngineFactory.getInstance( cfgFile );
-    return engine;
-  }
-
-
 
   /**
    * @see coyote.dx.task.AbstractTransformTask#performTask()
@@ -236,6 +205,11 @@ public class RunJob extends AbstractTransformTask {
         
         TransformEngine engine = TransformEngineFactory.getInstance( engineConfig.toString() );
 
+        String jobName = getString( ConfigTag.NAME );
+        if(StringUtil.isNotBlank( jobName )){
+          engine.setName( jobName );
+        }
+        
         String contextKey = getString( ConfigTag.CONTEXT );
         if ( StringUtil.isBlank( contextKey ) ) {
           contextKey = engine.getName();
@@ -253,10 +227,10 @@ public class RunJob extends AbstractTransformTask {
           }
         }
         finally {
-          getContext().set( contextKey, engine.getContext().toProperties() );
           try {
             engine.close();
           } catch ( Exception ignore ) {}
+          getContext().set( contextKey, engine.getContext().toMap() );
         }
       } catch ( IOException | ConfigurationException e ) {
         final String errMsg = "Could not read configuration from " + cfgUri + " - " + e.getMessage();
