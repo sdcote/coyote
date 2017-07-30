@@ -5,7 +5,7 @@
 		"Description": "Shows how to define a persistent context backed by a database with shared database definitions",
 		
 		"Database": {
-			"Notes": "This is a list of shared database definitions for components to reference by name",
+			"Notes": "This is a shared database definition for components to reference by name",
 			"Oracle": {
 				"library": "jar:file:lib/ojdbc7_g.jar!/",
 				"driver" : "oracle.jdbc.OracleDriver",
@@ -24,10 +24,6 @@
 				"SomeKey":"SomeValue",
 				"AnotherKey":"AnotherValue"
 			}
-		},
-		"DatabaseContext" : {
-			"target" : "Oracle",
-			"autocreate" : true
 		},
 	
 		"Reader" : {
