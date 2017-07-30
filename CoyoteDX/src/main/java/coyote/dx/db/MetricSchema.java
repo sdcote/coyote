@@ -96,4 +96,15 @@ public class MetricSchema {
     return samples;
   }
 
+
+
+
+  /**
+   * Clear all the metrics from this schema.
+   */
+  public void clear() {
+    metrics.clear();
+    samples = 0;
+  }
+
 }
