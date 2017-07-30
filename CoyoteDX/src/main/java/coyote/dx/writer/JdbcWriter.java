@@ -131,6 +131,9 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
         }
       }
     }
+    
+    schema.clear();
+    super.close();
   }
 
 
