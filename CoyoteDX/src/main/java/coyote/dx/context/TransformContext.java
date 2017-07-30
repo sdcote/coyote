@@ -122,6 +122,15 @@ public class TransformContext extends OperationalContext {
       }
     }
 
+    // Set the closing disposition of the job 
+    Map<String, Object> disposition = new HashMap<String, Object>();
+    disposition.put( Symbols.RUN_COUNT, openCount);
+    disposition.put( "StartTime", startTime);
+    disposition.put( "EndTime", endTime);
+    disposition.put( "ErrorState", errorFlag);
+    disposition.put( "ErrorMessage", errorMessage);
+    disposition.put( "FrameCount", currentFrame);
+    properties.put( "TransformDisposition", disposition );
   }
 
 
@@ -359,5 +368,8 @@ public class TransformContext extends OperationalContext {
     super.errorFlag = false;
     super.errorMessage = null;
   }
+
+
+
 
 }
