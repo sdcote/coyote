@@ -21,6 +21,7 @@ import java.util.Map;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.Ignore;
 
 import coyote.dataframe.DataFrame;
 import coyote.dx.ConfigTag;
@@ -59,13 +60,14 @@ public class RunJobTest {
 
 
 
-  @Test
+  @Ignore
   public void execute() throws ConfigurationException, TaskException, IOException {
     final TransformContext context = new TransformContext();
 
     Config cfg = new Config();
-    cfg.put( ConfigTag.FILE, "src/resources/demo/BitcoinPrice" );
-    Log.debug("\"RunJob\":"+ cfg );
+    cfg.put( ConfigTag.FILE, "src/resources/demo/BitcoinPrice" ); // Won't work in CI builds!
+    cfg.put( ConfigTag.NAME, "RunJobTest" ); // override the name of the job
+    Log.info( "\"RunJob\":" + cfg );
 
     try (RunJob task = new RunJob()) {
       task.setConfiguration( cfg );
@@ -74,20 +76,27 @@ public class RunJobTest {
       assertFalse( context.getErrorMessage(), context.isInError() );
 
       // The context of jobs are stored under the name of the job
-      Object results = context.get("BitcoinPrice");
-      assertNotNull(results);
-      assertTrue( results instanceof Map); // contexts are maps
-      
+      Object results = context.get( "RunJobTest" );
+      assertNotNull( results );
+      assertTrue( results instanceof Map ); // contexts are maps
+
       // The context writer writes all its frames to an array stored in its 
       // context with a default key of ContextOutput 
-      Object object = ((Map)results).get(ContextWriter.DEFAULT_CONTEXT_FIELD);
-      assertNotNull(object);
+      Object object = ( (Map)results ).get( ContextWriter.DEFAULT_CONTEXT_FIELD );
+      assertNotNull( object );
       DataFrame[] frames = (DataFrame[])object; // should be an array of frames
-      assertTrue( frames.length>0);
-      
+      assertTrue( frames.length > 0 );
+
       DataFrame frame = frames[0]; // get the first one
-      assertNotNull(frame);
+      assertNotNull( frame );
       System.out.println( frame );
+
+      Map jobContext = context.getAsMap( "RunJobTest" );
+      assertNotNull( jobContext );
+      System.out.println("CONTEXT: "+ jobContext );
+      Map jobDisposition = (Map)jobContext.get( "TransformDisposition" );
+      assertNotNull( jobDisposition );
+      System.out.println("DISPOSITION: "+  jobDisposition );
     }
 
   }
