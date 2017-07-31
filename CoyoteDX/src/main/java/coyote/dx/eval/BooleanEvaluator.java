@@ -252,17 +252,17 @@ public class BooleanEvaluator extends AbstractEvaluator<Boolean> {
    */
   @Override
   protected Boolean evaluate( Operator operator, Iterator<Boolean> operands, Object evaluationContext ) {
-    if ( operator == NEGATE ) {
+    if ( NEGATE.equals( operator ) ) {
       return !operands.next();
-    } else if ( operator == OR ) {
+    } else if ( OR.equals( operator ) ) {
       Boolean o1 = operands.next();
       Boolean o2 = operands.next();
       return o1 || o2;
-    } else if ( operator == AND ) {
+    } else if ( AND.equals( operator ) ) {
       Boolean o1 = operands.next();
       Boolean o2 = operands.next();
       return o1 && o2;
-    } else if ( operator == EQUAL ) {
+    } else if ( EQUAL.equals( operator ) ) {
       Object o1 = operands.next();
       Object o2 = operands.next();
       return o1.equals( o2 );
@@ -410,7 +410,6 @@ public class BooleanEvaluator extends AbstractEvaluator<Boolean> {
   private Boolean performRegex( String token, String regex ) {
     boolean retval = false;
     String key = sanitize( token );
-    String pattern = sanitize( regex );
     String value = transformContext.resolveToString( key );
     if ( value != null )
       retval = Pattern.compile( regex ).matcher( value ).find();
