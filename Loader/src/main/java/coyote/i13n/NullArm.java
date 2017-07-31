@@ -88,7 +88,9 @@ public class NullArm implements ArmTransaction {
    * @see coyote.i13n.NullArm#destroy()
    */
   @Override
-  public void destroy() {}
+  public void destroy() {
+    // no-op method
+  }
 
 
 
@@ -300,6 +302,8 @@ public class NullArm implements ArmTransaction {
    * @see coyote.i13n.NullArm#update(java.lang.String, java.lang.Object)
    */
   @Override
-  public void update( final String name, final Object value ) {}
+  public void update( final String name, final Object value ) {
+    // no-op method
+  }
 
 }

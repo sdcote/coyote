@@ -51,7 +51,7 @@ public class CheckAdler32 extends AbstractChecksumTask {
 
 
   @Override
-  Checksum getChecksum() {
+  public Checksum getChecksum() {
     return new Adler32();
   }
 

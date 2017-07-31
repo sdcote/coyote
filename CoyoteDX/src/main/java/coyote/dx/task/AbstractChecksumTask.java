@@ -43,7 +43,7 @@ public abstract class AbstractChecksumTask extends AbstractFileTask {
   /**
    * @return a new instance of a message checksum to use;
    */
-  abstract Checksum getChecksum();
+  public abstract Checksum getChecksum();
 
 
 

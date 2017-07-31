@@ -37,7 +37,9 @@ public class NullAuthenticator implements Authenticator {
    * @see coyote.dx.web.auth.Authenticator#setPreemptiveAuthentication(boolean)
    */
   @Override
-  public void setPreemptiveAuthentication( boolean preemptive ) {}
+  public void setPreemptiveAuthentication( boolean preemptive ) {
+    // no-op method
+  }
 
 
 
@@ -68,7 +70,9 @@ public class NullAuthenticator implements Authenticator {
    * @see coyote.dx.web.auth.Authenticator#setUsername(java.lang.String)
    */
   @Override
-  public void setUsername( String username ) {}
+  public void setUsername( String username ) {
+    // no-op method
+  }
 
 
 
@@ -77,7 +81,9 @@ public class NullAuthenticator implements Authenticator {
    * @see coyote.dx.web.auth.Authenticator#setPassword(java.lang.String)
    */
   @Override
-  public void setPassword( String password ) {}
+  public void setPassword( String password ) {
+    // no-op method
+  }
 
 
 
@@ -86,7 +92,9 @@ public class NullAuthenticator implements Authenticator {
    * @see coyote.dx.web.auth.Authenticator#init(coyote.dx.web.Resource)
    */
   @Override
-  public void init( Resource resource ) {}
+  public void init( Resource resource ) {
+    // no-op method
+  }
 
 
 
@@ -95,6 +103,8 @@ public class NullAuthenticator implements Authenticator {
    * @see coyote.dx.web.auth.Authenticator#setConfiguration(coyote.dataframe.DataFrame)
    */
   @Override
-  public void setConfiguration( DataFrame cfg ) throws ConfigurationException {}
+  public void setConfiguration( DataFrame cfg ) throws ConfigurationException {
+    // no-op method
+  }
 
 }

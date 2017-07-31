@@ -46,89 +46,15 @@ import coyote.loader.log.Log;
  * specify names in lower case.)
  */
 public class GenericAuthProvider implements AuthProvider {
-  /**
-  * Class to hold user data
-  */
-  class User {
-    private String name = null;
-    private byte[] pass = null;
-    private final List<String> groups = new ArrayList<String>();
-
-
-
-
-    void addGroup( final String groupname ) {
-      groups.add( groupname );
-    }
-
-
-
-
-    List<String> getGroups() {
-      return groups;
-    }
-
-
-
-
-    String getName() {
-      return name;
-    }
-
-
-
-
-    byte[] getPassword() {
-      return pass;
-    }
-
-
-
-
-    public boolean memberOf( final String group ) {
-      for ( final String groupname : groups ) {
-        if ( groupname.equals( group ) ) {
-          return true;
-        }
-      }
-      return false;
-    }
-
-
-
-
-    boolean passwordMatches( final byte[] data ) {
-      return Arrays.equals( data, pass );
-    }
-
-
-
-
-    void setName( final String name ) {
-      this.name = name;
-    }
-
-
-
-
-    void setPassword( final byte[] pass ) {
-      this.pass = pass;
-    }
-
-  }
-
   public static final String AUTH_SECTION = "Auth";
   public static final String USER_SECTION = "Users";
   public static final String NAME = "Name";
   public static final String PASSWORD = "Password";
   public static final String GROUPS = "Groups";
   public static final String ENCRYPTED = "Encrypted";
-
   public static final String ALLOW_NO_SSL = "AllowUnsecuredConnections";
   public static final String SEND_AUTH_ON_FAILURE = "SendAuthRequestOnFailure";
-
   private static final String MD5 = "MD5";
-
   private static final String UTF8 = "UTF8";
 
   static {
@@ -424,6 +350,77 @@ public class GenericAuthProvider implements AuthProvider {
    */
   void setDigestRounds( final int rounds ) {
     digestRounds = rounds;
+  }
+
+  /**
+  * Class to hold user data
+  */
+  class User {
+    private String name = null;
+    private byte[] pass = null;
+    private final List<String> groups = new ArrayList<String>();
+
+
+
+
+    void addGroup( final String groupname ) {
+      groups.add( groupname );
+    }
+
+
+
+
+    List<String> getGroups() {
+      return groups;
+    }
+
+
+
+
+    String getName() {
+      return name;
+    }
+
+
+
+
+    byte[] getPassword() {
+      return pass;
+    }
+
+
+
+
+    public boolean memberOf( final String group ) {
+      for ( final String groupname : groups ) {
+        if ( groupname.equals( group ) ) {
+          return true;
+        }
+      }
+      return false;
+    }
+
+
+
+
+    boolean passwordMatches( final byte[] data ) {
+      return Arrays.equals( data, pass );
+    }
+
+
+
+
+    void setName( final String name ) {
+      this.name = name;
+    }
+
+
+
+
+    void setPassword( final byte[] pass ) {
+      this.pass = pass;
+    }
+
   }
 
 }

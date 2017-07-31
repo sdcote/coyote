@@ -487,13 +487,17 @@ public class WebServer extends AbstractLoader {
 
 
     @Override
-    public void doWork() {}
+    public void doWork() {
+      // no-op method
+    }
 
 
 
 
     @Override
-    public void terminate() {}
+    public void terminate() {
+      // no-op method
+    }
 
   }
 

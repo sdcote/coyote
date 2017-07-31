@@ -37,14 +37,17 @@ import coyote.loader.cfg.ConfigurationException;
  */
 public class Pattern extends AbstractValidator implements FrameValidator {
 
-  public Pattern() {
-    description = "Field value appears to be invalid";
-  }
-
   private String regularExpression = "";
   private boolean avoid = true;
   private java.util.regex.Pattern fieldPattern = null;
   private java.util.regex.Pattern valuePattern = null;
+
+
+
+
+  public Pattern() {
+    description = "Field value appears to be invalid";
+  }
 
 
 

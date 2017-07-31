@@ -58,112 +58,11 @@ import coyote.loader.log.Log;
  * This is the base class for all workers.
  */
 public abstract class AbstractWorker implements ResourceWorker {
-  /**
-   * Runnable executor of the HTTP request.
-   */
-  protected class RequestRunner implements Runnable {
-    HttpRequest request;
-    coyote.dx.web.Response response;
-    Parameters parameters;
-
-
-
-
-    protected RequestRunner( final HttpRequest request, final coyote.dx.web.Response response, final Parameters params ) {
-      this.request = request;
-      this.response = response;
-      parameters = params;
-    }
-
-
-
-
-    @Override
-    public void run() {
-      Log.debug( "Running request in " + Thread.currentThread().getName() );
-
-      decorate( request );
-
-      response.transactionStart();
-      response.requestStart();
-
-      try (CloseableHttpResponse httpResponse = httpClient.execute( target, request, localContext )) {
-        response.requestEnd();
-
-        final int status = httpResponse.getStatusLine().getStatusCode();
-        response.setHttpStatusCode( status );
-        response.setHttpStatusPhrase( httpResponse.getStatusLine().getReasonPhrase() );
-
-        log.debug( "Request:\r\n    %s\r\nResponse:\r\n    %s", request.toString(), httpResponse.getStatusLine().toString() );
-        if ( ( status >= 200 ) && ( status < 300 ) ) {
-          log.debug( "Success - %s", httpResponse.getStatusLine().toString() );
-        } else if ( ( status >= 300 ) && ( status < 400 ) ) {
-          final String errmsg = "Unexpected Response - " + httpResponse.getStatusLine().toString();
-          log.debug( errmsg );
-          // Status of a 301 or a 302, look for a Location: header in the response and use that URL
-          response.setLink( httpResponse.getFirstHeader( "Location" ).getValue() );
-        } else if ( ( status >= 400 ) && ( status < 500 ) ) {
-          final String errmsg = "Access error - " + httpResponse.getStatusLine().toString();
-          log.debug( errmsg );
-        } else if ( status >= 500 ) {
-          final String errmsg = "Server error - " + httpResponse.getStatusLine().toString();
-          log.debug( errmsg );
-        }
-
-        if ( httpResponse.getEntity() != null ) {
-          response.parseStart();
-          try {
-            marshalResponseBody( response, httpResponse, parameters );
-          } catch ( final Exception e ) {
-            Log.error( e.toString() );
-          }
-          finally {
-            response.parseEnd();
-          }
-        } else {
-          log.debug( "The response did not contain a body" );
-        }
-
-      } catch ( final ClientProtocolException e1 ) {
-        response.requestEnd();
-        log.error( e1.getMessage() );
-      } catch ( final IOException e1 ) {
-        response.requestEnd();
-        log.error( e1.getMessage() );
-      }
-      finally {
-        response.transactionEnd();
-      }
-
-      // set key performance metrics
-      response.setRequestStart( response.getRequestStart() );
-      response.setRequestEnd( response.getRequestEnd() );
-      response.setParseStart( response.getParseStart() );
-      response.setParseEnd( response.getParseEnd() );
-      response.setTransactionStart( response.getTransactionStart() );
-      response.setTransactionEnd( response.getTransactionEnd() );
-
-      // add some HTTP status information
-      response.setHttpStatusCode( response.getHttpStatusCode() );
-      response.setHttpStatusPhrase( response.getHttpStatusPhrase() );
-
-      // mark the end of the operation
-      response.operationEnd();
-      response.setComplete( true );
-    }
-
-  }
-
   protected static final String RESULT_FRAME = "result";
-
   protected static final String ERROR_FRAME = "error";
-
   protected static final String STATUS_FIELD = "status";
-
   protected static final String ERROR_MESSAGE_FIELD = "message";
-
   protected static final String ERROR_DETAIL_FIELD = "detail";
-  /** The logger this class uses */
   protected static final Logger log = LoggerFactory.getLogger( AbstractWorker.class );
   protected Resource resource;
 
@@ -467,6 +366,102 @@ public abstract class AbstractWorker implements ResourceWorker {
     if ( params.getContentType() != null ) {
       request.setHeader( coyote.commons.network.http.HTTP.HDR_CONTENT_TYPE, params.getContentType().getType() );
     }
+  }
+
+  /**
+   * Runnable executor of the HTTP request.
+   */
+  protected class RequestRunner implements Runnable {
+    HttpRequest request;
+    coyote.dx.web.Response response;
+    Parameters parameters;
+
+
+
+
+    protected RequestRunner( final HttpRequest request, final coyote.dx.web.Response response, final Parameters params ) {
+      this.request = request;
+      this.response = response;
+      parameters = params;
+    }
+
+
+
+
+    @Override
+    public void run() {
+      Log.debug( "Running request in " + Thread.currentThread().getName() );
+
+      decorate( request );
+
+      response.transactionStart();
+      response.requestStart();
+
+      try (CloseableHttpResponse httpResponse = httpClient.execute( target, request, localContext )) {
+        response.requestEnd();
+
+        final int status = httpResponse.getStatusLine().getStatusCode();
+        response.setHttpStatusCode( status );
+        response.setHttpStatusPhrase( httpResponse.getStatusLine().getReasonPhrase() );
+
+        log.debug( "Request:\r\n    %s\r\nResponse:\r\n    %s", request.toString(), httpResponse.getStatusLine().toString() );
+        if ( ( status >= 200 ) && ( status < 300 ) ) {
+          log.debug( "Success - %s", httpResponse.getStatusLine().toString() );
+        } else if ( ( status >= 300 ) && ( status < 400 ) ) {
+          final String errmsg = "Unexpected Response - " + httpResponse.getStatusLine().toString();
+          log.debug( errmsg );
+          // Status of a 301 or a 302, look for a Location: header in the response and use that URL
+          response.setLink( httpResponse.getFirstHeader( "Location" ).getValue() );
+        } else if ( ( status >= 400 ) && ( status < 500 ) ) {
+          final String errmsg = "Access error - " + httpResponse.getStatusLine().toString();
+          log.debug( errmsg );
+        } else if ( status >= 500 ) {
+          final String errmsg = "Server error - " + httpResponse.getStatusLine().toString();
+          log.debug( errmsg );
+        }
+
+        if ( httpResponse.getEntity() != null ) {
+          response.parseStart();
+          try {
+            marshalResponseBody( response, httpResponse, parameters );
+          } catch ( final Exception e ) {
+            Log.error( e.toString() );
+          }
+          finally {
+            response.parseEnd();
+          }
+        } else {
+          log.debug( "The response did not contain a body" );
+        }
+
+      } catch ( final ClientProtocolException e1 ) {
+        response.requestEnd();
+        log.error( e1.getMessage() );
+      } catch ( final IOException e1 ) {
+        response.requestEnd();
+        log.error( e1.getMessage() );
+      }
+      finally {
+        response.transactionEnd();
+      }
+
+      // set key performance metrics
+      response.setRequestStart( response.getRequestStart() );
+      response.setRequestEnd( response.getRequestEnd() );
+      response.setParseStart( response.getParseStart() );
+      response.setParseEnd( response.getParseEnd() );
+      response.setTransactionStart( response.getTransactionStart() );
+      response.setTransactionEnd( response.getTransactionEnd() );
+
+      // add some HTTP status information
+      response.setHttpStatusCode( response.getHttpStatusCode() );
+      response.setHttpStatusPhrase( response.getHttpStatusPhrase() );
+
+      // mark the end of the operation
+      response.operationEnd();
+      response.setComplete( true );
+    }
+
   }
 
 }

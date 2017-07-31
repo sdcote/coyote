@@ -33,7 +33,9 @@ public abstract class AbstractListener extends AbstractConfigurableComponent imp
    * @see coyote.dx.context.ContextListener#onError(coyote.dx.context.OperationalContext)
    */
   @Override
-  public void onError( OperationalContext context ) {}
+  public void onError( OperationalContext context ) {
+    // listeners should override this method to recieve error notifications
+  }
 
 
 
@@ -42,7 +44,9 @@ public abstract class AbstractListener extends AbstractConfigurableComponent imp
    * @see coyote.dx.context.ContextListener#onEnd(coyote.dx.context.OperationalContext)
    */
   @Override
-  public void onEnd( OperationalContext context ) {}
+  public void onEnd( OperationalContext context ) {
+    // listeners should override this method to perform processing when the transform or context ends
+  }
 
 
 
@@ -51,7 +55,9 @@ public abstract class AbstractListener extends AbstractConfigurableComponent imp
    * @see coyote.dx.context.ContextListener#onStart(coyote.dx.context.OperationalContext)
    */
   @Override
-  public void onStart( OperationalContext context ) {}
+  public void onStart( OperationalContext context ) {
+    // listeners should override this method to perform processing before the transform or transaction starts
+  }
 
 
 
@@ -60,7 +66,9 @@ public abstract class AbstractListener extends AbstractConfigurableComponent imp
    * @see coyote.dx.context.ContextListener#onRead(coyote.dx.context.TransactionContext, coyote.dx.FrameReader)
    */
   @Override
-  public void onRead( TransactionContext context, FrameReader reader ) {}
+  public void onRead( TransactionContext context, FrameReader reader ) {
+    // listeners should override this method to perform processing related to reads
+  }
 
 
 
@@ -69,7 +77,9 @@ public abstract class AbstractListener extends AbstractConfigurableComponent imp
    * @see coyote.dx.context.ContextListener#onWrite(coyote.dx.context.TransactionContext, coyote.dx.FrameWriter)
    */
   @Override
-  public void onWrite( TransactionContext context, FrameWriter writer ) {}
+  public void onWrite( TransactionContext context, FrameWriter writer ) {
+    // listeners should override this method to perform processing related to write
+  }
 
 
 
@@ -78,7 +88,9 @@ public abstract class AbstractListener extends AbstractConfigurableComponent imp
    * @see coyote.dx.context.ContextListener#onValidationFailed(coyote.dx.context.OperationalContext, coyote.dx.FrameValidator, java.lang.String)
    */
   @Override
-  public void onValidationFailed( OperationalContext context, FrameValidator validator, String msg ) {}
+  public void onValidationFailed( OperationalContext context, FrameValidator validator, String msg ) {
+    // listeners should override this method to perform processing when a field fails validations
+  }
 
 
 
@@ -98,7 +110,9 @@ public abstract class AbstractListener extends AbstractConfigurableComponent imp
    * @see java.io.Closeable#close()
    */
   @Override
-  public void close() throws IOException {}
+  public void close() throws IOException {
+    // listeners should perform their clean-up processing here
+  }
 
 
 
@@ -107,6 +121,8 @@ public abstract class AbstractListener extends AbstractConfigurableComponent imp
    * @see coyote.dx.context.ContextListener#onFrameValidationFailed(coyote.dx.context.TransactionContext)
    */
   @Override
-  public void onFrameValidationFailed( TransactionContext context ) {}
+  public void onFrameValidationFailed( TransactionContext context ) {
+    // override this method to perform processing when the entire frame fails validation
+  }
 
 }

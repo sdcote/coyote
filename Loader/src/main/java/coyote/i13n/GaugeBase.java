@@ -36,42 +36,6 @@ import coyote.dataframe.DataFrame;
  * or updated only once, maybe twice, per second.
  */
 public class GaugeBase extends NullGauge {
-  /**
-   * The NetworkService class models a time-stamped sampling of data.
-   *
-   * <p>This class is designed to be used in a linked list pattern, allowing
-   * for smooth movement from one node to the next without having to check
-   * array indexes for wraps in circular arrays.
-   */
-  private class Node {
-    long timestamp;
-    long value;
-    Node nextNode;
-    Node prevNode;
-
-
-
-
-    /**
-     * A sample of occurrences.
-     *
-     * @param time Time the node represents
-     * @param sample The number of occurrences in this node
-     * @param prev The previous node for linking
-     */
-    Node( final long time, final long sample, final Node prev ) {
-      timestamp = time;
-      value = sample;
-      prevNode = prev;
-
-      // create the forward link on the previous node
-      if ( prevNode != null ) {
-        prevNode.nextNode = this;
-      }
-    }
-
-  } // NetworkService inner class
-
   private static final String CLASS_TAG = "Gauge";
   public static final String VPS = "Vps";
   public static final String LAST_VPS = "LastVps";
@@ -81,9 +45,7 @@ public class GaugeBase extends NullGauge {
   public static final String ELAPSED = "Elapsed";
   public static final String TOTAL = "Total";
   public static final String FIRST_ACCESS = "FirstAccess";
-
   public static final String LAST_ACCESS = "LastAccess";
-
   public static final String GAUGE = "Gauge";
   public static final String NAME = "Name";
 
@@ -551,5 +513,41 @@ public class GaugeBase extends NullGauge {
     }
 
   }
+
+  /**
+   * The NetworkService class models a time-stamped sampling of data.
+   *
+   * <p>This class is designed to be used in a linked list pattern, allowing
+   * for smooth movement from one node to the next without having to check
+   * array indexes for wraps in circular arrays.
+   */
+  private class Node {
+    long timestamp;
+    long value;
+    Node nextNode;
+    Node prevNode;
+
+
+
+
+    /**
+     * A sample of occurrences.
+     *
+     * @param time Time the node represents
+     * @param sample The number of occurrences in this node
+     * @param prev The previous node for linking
+     */
+    Node( final long time, final long sample, final Node prev ) {
+      timestamp = time;
+      value = sample;
+      prevNode = prev;
+
+      // create the forward link on the previous node
+      if ( prevNode != null ) {
+        prevNode.nextNode = this;
+      }
+    }
+
+  } // NetworkService inner class
 
 } // GaugeBase Class

@@ -60,12 +60,12 @@ public class RunJobTest {
 
 
 
-  @Ignore
+  @Test
   public void execute() throws ConfigurationException, TaskException, IOException {
     final TransformContext context = new TransformContext();
 
     Config cfg = new Config();
-    cfg.put( ConfigTag.FILE, "src/resources/demo/BitcoinPrice" ); // Won't work in CI builds!
+    cfg.put( ConfigTag.FILE, "src/resources/demo/BitcoinPrice.json" );
     cfg.put( ConfigTag.NAME, "RunJobTest" ); // override the name of the job
     Log.info( "\"RunJob\":" + cfg );
 

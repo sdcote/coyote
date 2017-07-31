@@ -51,7 +51,7 @@ public class CheckCRC extends AbstractChecksumTask {
 
 
   @Override
-  Checksum getChecksum() {
+  public Checksum getChecksum() {
     return new CRC32();
   }
 
