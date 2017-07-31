@@ -5,8 +5,8 @@ engines:
   pmd:
     enabled: true
     channel: "beta"
-  ratings:
-    paths:
-    -"**.java"
+ratings:
+  paths:
+  - "**.java"
 exclude_paths:
 - CoyoteUI/**/*
