@@ -21,7 +21,6 @@ import java.util.Map;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.junit.Ignore;
 
 import coyote.dataframe.DataFrame;
 import coyote.dx.ConfigTag;
@@ -93,10 +92,10 @@ public class RunJobTest {
 
       Map jobContext = context.getAsMap( "RunJobTest" );
       assertNotNull( jobContext );
-      System.out.println("CONTEXT: "+ jobContext );
+      System.out.println( "CONTEXT: " + jobContext );
       Map jobDisposition = (Map)jobContext.get( "TransformDisposition" );
       assertNotNull( jobDisposition );
-      System.out.println("DISPOSITION: "+  jobDisposition );
+      System.out.println( "DISPOSITION: " + jobDisposition );
     }
 
   }
