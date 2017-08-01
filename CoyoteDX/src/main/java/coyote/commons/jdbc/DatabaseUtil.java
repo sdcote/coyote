@@ -41,33 +41,33 @@ public class DatabaseUtil {
    * 
    * @return true the named table exists, false the table does not exist.
    */
-  public static boolean tableExists( Connection connection, String tablename ) {
+  public static boolean tableExists(Connection connection, String tablename) {
     boolean retval = false;
-    if ( StringUtil.isNotBlank( tablename ) ) {
-      if ( connection == null ) {
-        throw new IllegalArgumentException( "Null connection argument" );
+    if (StringUtil.isNotBlank(tablename)) {
+      if (connection == null) {
+        throw new IllegalArgumentException("Null connection argument");
       }
 
       ResultSet rs = null;
       try {
         DatabaseMetaData meta = connection.getMetaData();
-        rs = meta.getTables( null, null, "%", null );
-        while ( rs.next() ) {
-          String table = rs.getString( "TABLE_NAME" );
-          if ( tablename.equalsIgnoreCase( table ) ) {
+        rs = meta.getTables(null, null, "%", null);
+        while (rs.next()) {
+          String table = rs.getString("TABLE_NAME");
+          if (tablename.equalsIgnoreCase(table)) {
             retval = true;
             break;
           }
         }
         return retval;
-      } catch ( SQLException ignore ) {
+      } catch (SQLException ignore) {
         //ignore.printStackTrace();
       }
       finally {
-        if ( rs != null ) {
+        if (rs != null) {
           try {
             rs.close();
-          } catch ( SQLException ignore ) {
+          } catch (SQLException ignore) {
             //ignore.printStackTrace();
           }
         }
@@ -90,11 +90,11 @@ public class DatabaseUtil {
    * 
    * @return a table schema for the database table to which this writer is writing.
    */
-  public static TableDefinition getTableSchema( Connection connection, String tablename ) {
+  public static TableDefinition getTableSchema(Connection connection, String tablename) {
     TableDefinition retval = null;
-    if ( StringUtil.isNotBlank( tablename ) ) {
-      if ( connection == null ) {
-        throw new IllegalArgumentException( "Null connection argument" );
+    if (StringUtil.isNotBlank(tablename)) {
+      if (connection == null) {
+        throw new IllegalArgumentException("Null connection argument");
       }
 
       String tableSchemaName = null;
@@ -104,40 +104,40 @@ public class DatabaseUtil {
         DatabaseMetaData meta = connection.getMetaData();
 
         // get all the tables so we can perform a case insensitive search
-        rs = meta.getTables( null, null, "%", null );
-        while ( rs.next() ) {
-          if ( tablename.equalsIgnoreCase( rs.getString( "TABLE_NAME" ) ) ) {
-            tableSchemaName = rs.getString( "TABLE_NAME" );
+        rs = meta.getTables(null, null, "%", null);
+        while (rs.next()) {
+          if (tablename.equalsIgnoreCase(rs.getString("TABLE_NAME"))) {
+            tableSchemaName = rs.getString("TABLE_NAME");
             break;
           }
         }
-      } catch ( SQLException e ) {
+      } catch (SQLException e) {
         e.printStackTrace();
       }
       finally {
-        if ( rs != null ) {
+        if (rs != null) {
           try {
             rs.close();
-          } catch ( SQLException ignore ) {}
+          } catch (SQLException ignore) {}
         }
       }
 
-      if ( StringUtil.isNotEmpty( tableSchemaName ) ) {
-        retval = new TableDefinition( tableSchemaName );
+      if (StringUtil.isNotEmpty(tableSchemaName)) {
+        retval = new TableDefinition(tableSchemaName);
 
         rs = null;
         try {
           DatabaseMetaData meta = connection.getMetaData();
 
           String product = meta.getDatabaseProductName();
-          if ( StringUtil.isNotBlank( product ) ) {
-            retval.setProductName( product.toUpperCase() );
+          if (StringUtil.isNotBlank(product)) {
+            retval.setProductName(product.toUpperCase());
           }
-          retval.setProductVersion( meta.getDatabaseProductVersion() );
-          retval.setMajorVersion( meta.getDatabaseMajorVersion() );
-          retval.setMinorVersion( meta.getDatabaseMinorVersion() );
+          retval.setProductVersion(meta.getDatabaseProductVersion());
+          retval.setMajorVersion(meta.getDatabaseMajorVersion());
+          retval.setMinorVersion(meta.getDatabaseMinorVersion());
 
-          rs = meta.getColumns( null, null, tableSchemaName, "%" );
+          rs = meta.getColumns(null, null, tableSchemaName, "%");
 
           String name;
           ColumnType type;
@@ -150,25 +150,25 @@ public class DatabaseUtil {
           int pos;
           String remarks;
 
-          while ( rs.next() ) {
+          while (rs.next()) {
             readOnly = nullable = mandatory = primaryKey = unique = false;
             length = pos = 0;
             name = remarks = null;
 
-            if ( rs.getString( "TABLE_CAT" ) != null && retval.getCatalogName() == null ) {
-              retval.setCatalogName( rs.getString( "TABLE_CAT" ) );
+            if (rs.getString("TABLE_CAT") != null && retval.getCatalogName() == null) {
+              retval.setCatalogName(rs.getString("TABLE_CAT"));
             }
 
-            if ( rs.getString( "TABLE_SCHEM" ) != null && retval.getSchemaName() == null ) {
-              retval.setSchemaName( rs.getString( "TABLE_SCHEM" ) );
+            if (rs.getString("TABLE_SCHEM") != null && retval.getSchemaName() == null) {
+              retval.setSchemaName(rs.getString("TABLE_SCHEM"));
             }
 
-            name = rs.getString( "COLUMN_NAME" );
-            length = rs.getInt( "COLUMN_SIZE" );
-            pos = rs.getInt( "ORDINAL_POSITION" );
-            remarks = rs.getString( "REMARKS" );
+            name = rs.getString("COLUMN_NAME");
+            length = rs.getInt("COLUMN_SIZE");
+            pos = rs.getInt("ORDINAL_POSITION");
+            remarks = rs.getString("REMARKS");
 
-            switch ( rs.getInt( "DATA_TYPE" ) ) {
+            switch (rs.getInt("DATA_TYPE")) {
               case Types.TIME:
               case Types.TIMESTAMP:
               case Types.DATE:
@@ -204,9 +204,10 @@ public class DatabaseUtil {
                 break;
               default:
                 type = ColumnType.STRING;
+                break;
             }
 
-            switch ( rs.getInt( "NULLABLE" ) ) {
+            switch (rs.getInt("NULLABLE")) {
               case DatabaseMetaData.columnNoNulls:
                 nullable = false;
                 break;
@@ -218,23 +219,24 @@ public class DatabaseUtil {
                 break;
               default:
                 nullable = false;
+                break;
             }
-            retval.addColumn( new ColumnDefinition( name, type, length, nullable, readOnly, mandatory, primaryKey, unique, remarks, pos ) );
+            retval.addColumn(new ColumnDefinition(name, type, length, nullable, readOnly, mandatory, primaryKey, unique, remarks, pos));
           }
 
-        } catch ( SQLException e ) {
+        } catch (SQLException e) {
           e.printStackTrace();
         }
         finally {
-          if ( rs != null ) {
+          if (rs != null) {
             try {
               rs.close();
-            } catch ( SQLException ignore ) {}
+            } catch (SQLException ignore) {}
           }
         }
       }
     }
-    Log.trace( "Returning table definition of: "+retval );
+    Log.trace("Returning table definition of: " + retval);
     return retval;
   }
 
@@ -249,43 +251,43 @@ public class DatabaseUtil {
    * 
    * @return A DataFrame containing the record result or null if no record was retrieved.
    */
-  public static DataFrame readRecord( Connection connection, String query ) {
+  public static DataFrame readRecord(Connection connection, String query) {
     DataFrame retval = null;
 
     ResultSet result = null;
     ResultSetMetaData rsmd = null;
     int columnCount = 0;
 
-    Log.debug( String.format( "Executing query: '%s'", query ) );
+    Log.debug(String.format("Executing query: '%s'", query));
 
-    if ( connection != null ) {
+    if (connection != null) {
 
       try {
-        Statement statement = connection.createStatement( ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY );
-        result = statement.executeQuery( query );
+        Statement statement = connection.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY);
+        result = statement.executeQuery(query);
 
         rsmd = result.getMetaData();
 
         columnCount = rsmd.getColumnCount();
 
-        if ( result != null ) {
+        if (result != null) {
           try {
-            if ( result.next() ) {
+            if (result.next()) {
               retval = new DataFrame();
-              for ( int i = 1; i <= columnCount; i++ ) {
-                retval.add( rsmd.getColumnName( i ), DatabaseDialect.resolveValue( result.getObject( i ), rsmd.getColumnType( i ) ) );
+              for (int i = 1; i <= columnCount; i++) {
+                retval.add(rsmd.getColumnName(i), DatabaseDialect.resolveValue(result.getObject(i), rsmd.getColumnType(i)));
               }
             } else {
-              Log.error( "Read past EOF" );
+              Log.error("Read past EOF");
               return retval;
             }
-          } catch ( SQLException e ) {
+          } catch (SQLException e) {
             e.printStackTrace();
           }
         }
-      } catch ( SQLException e ) {
-        String emsg = String.format( "Error querying database: '%s' - query = '%s'", e.getMessage().trim(), query );
-        Log.error( emsg );
+      } catch (SQLException e) {
+        String emsg = String.format("Error querying database: '%s' - query = '%s'", e.getMessage().trim(), query);
+        Log.error(emsg);
       }
     }
     return retval;
@@ -304,39 +306,39 @@ public class DatabaseUtil {
    * @return FrameSet containing the DataFrames representing the retrieved 
    *         data, may be empty, but never null.
    */
-  public static FrameSet readAllRecords( Connection connection, String query ) {
+  public static FrameSet readAllRecords(Connection connection, String query) {
     FrameSet retval = new FrameSet();
 
     ResultSet result = null;
     ResultSetMetaData rsmd = null;
     int columnCount = 0;
 
-    Log.debug( String.format( "Executing query: '%s'", query ) );
+    Log.debug(String.format("Executing query: '%s'", query));
 
-    if ( connection != null ) {
+    if (connection != null) {
       try {
-        Statement statement = connection.createStatement( ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY );
-        result = statement.executeQuery( query );
+        Statement statement = connection.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY);
+        result = statement.executeQuery(query);
         rsmd = result.getMetaData();
         columnCount = rsmd.getColumnCount();
 
-        if ( result != null ) {
+        if (result != null) {
           try {
-            while ( result.next() ) {
+            while (result.next()) {
               DataFrame record = new DataFrame();
-              for ( int i = 1; i <= columnCount; i++ ) {
+              for (int i = 1; i <= columnCount; i++) {
                 // Log.debug( rsmd.getColumnName( i ) + " - '" + result.getString( i ) + "' (" + rsmd.getColumnType( i ) + ")" );
-                record.add( rsmd.getColumnName( i ), DatabaseDialect.resolveValue( result.getObject( i ), rsmd.getColumnType( i ) ) );
+                record.add(rsmd.getColumnName(i), DatabaseDialect.resolveValue(result.getObject(i), rsmd.getColumnType(i)));
               }
-              retval.add( record );
+              retval.add(record);
             }
-          } catch ( Exception e ) {
+          } catch (Exception e) {
             e.printStackTrace();
           }
         }
-      } catch ( SQLException e ) {
-        String emsg = String.format( "Error querying database: '%s' - query = '%s'", e.getMessage().trim(), query );
-        Log.error( emsg );
+      } catch (SQLException e) {
+        String emsg = String.format("Error querying database: '%s' - query = '%s'", e.getMessage().trim(), query);
+        Log.error(emsg);
       }
 
     }

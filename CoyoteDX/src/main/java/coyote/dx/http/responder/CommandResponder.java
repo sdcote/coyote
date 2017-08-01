@@ -36,32 +36,33 @@ public class CommandResponder extends AbstractBatchResponder implements Responde
 
 
   @Override
-  public Response get( Resource resource, Map<String, String> urlParams, IHTTPSession session ) {
+  public Response get(Resource resource, Map<String, String> urlParams, IHTTPSession session) {
 
     // The first init parameter should be the service in which everything is running
-    Service service = resource.initParameter( 0, Service.class );
+    Service service = resource.initParameter(0, Service.class);
 
     // Get the command from the URL parameters specified when we were registered with the router 
-    String command = urlParams.get( "command" );
+    String command = urlParams.get("command");
 
     // Process the command
-    if ( StringUtil.isNotBlank( command ) ) {
-      results.put( "command", command );
-      switch ( command ) {
+    if (StringUtil.isNotBlank(command)) {
+      results.put("command", command);
+      switch (command) {
         case SHUTDOWN:
           // Create a Scheduled Job which will shutdown the service in a few seconds
-          service.getScheduler().schedule( new ShutdownCmd(), System.currentTimeMillis() + 2000 );
-          results.put( "result", "success" );
+          service.getScheduler().schedule(new ShutdownCmd(), System.currentTimeMillis() + 2000);
+          results.put("result", "success");
           break;
         default:
-          results.put( "result", "Unknown command" );
+          results.put("result", "Unknown command");
+          break;
       }
     } else {
-      results.put( "result", "No command found" );
+      results.put("result", "No command found");
     }
 
     // Send the result
-    return Response.createFixedLengthResponse( getStatus(), getMimeType(), getText() );
+    return Response.createFixedLengthResponse(getStatus(), getMimeType(), getText());
   }
 
   // 
@@ -79,8 +80,8 @@ public class CommandResponder extends AbstractBatchResponder implements Responde
   private class ShutdownCmd implements Runnable {
     @Override
     public void run() {
-      Log.append( Scheduler.SCHED, "Running shutdown command" );
-      System.exit( 1 );
+      Log.append(Scheduler.SCHED, "Running shutdown command");
+      System.exit(1);
     }
   }
 

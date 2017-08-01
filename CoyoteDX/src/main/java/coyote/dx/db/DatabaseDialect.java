@@ -499,6 +499,7 @@ public class DatabaseDialect {
           break;
         default:
           retval = value.toString();
+          break;
       }
 
     }
