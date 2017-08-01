@@ -4,24 +4,16 @@
  * This program and the accompanying materials are made available under the
  * terms of the MIT License which accompanies this distribution, and is
  * available at http://creativecommons.org/licenses/MIT/
- *
- * Contributors:
- *   Stephan D. Cote
- *      - Initial concept and implementation
  */
 package coyote.dx.task;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.URI;
 import java.net.URISyntaxException;
 
 import coyote.commons.FileUtil;
 import coyote.commons.StringUtil;
-import coyote.commons.SystemPropertyUtil;
 import coyote.commons.UriUtil;
 import coyote.dx.CDX;
 import coyote.dx.ConfigTag;
@@ -49,94 +41,94 @@ public class RunJob extends AbstractTransformTask {
    *
    * @throws TaskException
    */
-  private URI confirmConfigurationLocation( final String cfgLoc ) throws TaskException {
+  private URI confirmConfigurationLocation(final String cfgLoc) throws TaskException {
     URI cfgUri = null;
-    final StringBuffer errMsg = new StringBuffer( LogMsg.createMsg( CDX.MSG, "Task.runjob.confirming_cfg_location", cfgLoc ) + StringUtil.CRLF );
+    final StringBuffer errMsg = new StringBuffer(LogMsg.createMsg(CDX.MSG, "Task.runjob.confirming_cfg_location", cfgLoc) + StringUtil.CRLF);
 
-    if ( StringUtil.isNotBlank( cfgLoc ) ) {
+    if (StringUtil.isNotBlank(cfgLoc)) {
 
       try {
-        cfgUri = new URI( cfgLoc );
-      } catch ( final URISyntaxException e ) {
+        cfgUri = new URI(cfgLoc);
+      } catch (final URISyntaxException e) {
         // This can happen when the location is a filename
       }
 
-      if ( ( cfgUri == null ) || StringUtil.isBlank( cfgUri.getScheme() ) ) {
+      if ((cfgUri == null) || StringUtil.isBlank(cfgUri.getScheme())) {
 
-        final File localfile = new File( cfgLoc );
-        File alternativeFile = new File( cfgLoc + JSON_EXT );
+        final File localfile = new File(cfgLoc);
+        File alternativeFile = new File(cfgLoc + JSON_EXT);
 
-        if ( localfile != null ) {
+        if (localfile != null) {
 
-          if ( localfile.exists() ) {
-            cfgUri = FileUtil.getFileURI( localfile );
+          if (localfile.exists()) {
+            cfgUri = FileUtil.getFileURI(localfile);
           } else {
-            if ( !alternativeFile.exists() ) {
+            if (!alternativeFile.exists()) {
               alternativeFile = null;
             }
 
-            errMsg.append( LogMsg.createMsg( CDX.MSG, "Task.runjob.no_local_cfg_file", localfile.getAbsolutePath() ) + StringUtil.CRLF );
+            errMsg.append(LogMsg.createMsg(CDX.MSG, "Task.runjob.no_local_cfg_file", localfile.getAbsolutePath()) + StringUtil.CRLF);
 
-            if ( !localfile.isAbsolute() ) {
+            if (!localfile.isAbsolute()) {
 
-              final String path = System.getProperties().getProperty( Loader.APP_HOME );
+              final String path = System.getProperties().getProperty(Loader.APP_HOME);
 
-              if ( StringUtil.isNotBlank( path ) ) {
-                final String appDir = FileUtil.normalizePath( path );
-                final File homeDir = new File( appDir );
-                final File configDir = new File( homeDir, "cfg" );
+              if (StringUtil.isNotBlank(path)) {
+                final String appDir = FileUtil.normalizePath(path);
+                final File homeDir = new File(appDir);
+                final File configDir = new File(homeDir, "cfg");
 
-                if ( configDir.exists() ) {
-                  if ( configDir.isDirectory() ) {
-                    final File cfgFile = new File( configDir, cfgLoc );
-                    if ( cfgFile.exists() ) {
-                      cfgUri = FileUtil.getFileURI( cfgFile );
+                if (configDir.exists()) {
+                  if (configDir.isDirectory()) {
+                    final File cfgFile = new File(configDir, cfgLoc);
+                    if (cfgFile.exists()) {
+                      cfgUri = FileUtil.getFileURI(cfgFile);
                     } else {
-                      if ( alternativeFile != null ) {
-                        cfgUri = FileUtil.getFileURI( alternativeFile );
+                      if (alternativeFile != null) {
+                        cfgUri = FileUtil.getFileURI(alternativeFile);
                       } else {
-                        alternativeFile = new File( configDir, cfgLoc + JSON_EXT );
-                        if ( alternativeFile.exists() ) {
-                          cfgUri = FileUtil.getFileURI( alternativeFile );
+                        alternativeFile = new File(configDir, cfgLoc + JSON_EXT);
+                        if (alternativeFile.exists()) {
+                          cfgUri = FileUtil.getFileURI(alternativeFile);
                         } else {
-                          errMsg.append( LogMsg.createMsg( CDX.MSG, "Task.runjob.no_common_cfg_file", cfgFile.getAbsolutePath() ) + StringUtil.CRLF );
-                          errMsg.append( LogMsg.createMsg( CDX.MSG, "Task.runjob.cfg_file_not_found", cfgLoc ) + StringUtil.CRLF );
-                          if ( haltOnError ) {
-                            throw new TaskException( errMsg.toString() );
+                          errMsg.append(LogMsg.createMsg(CDX.MSG, "Task.runjob.no_common_cfg_file", cfgFile.getAbsolutePath()) + StringUtil.CRLF);
+                          errMsg.append(LogMsg.createMsg(CDX.MSG, "Task.runjob.cfg_file_not_found", cfgLoc) + StringUtil.CRLF);
+                          if (haltOnError) {
+                            throw new TaskException(errMsg.toString());
                           } else {
-                            Log.error( errMsg.toString() );
+                            Log.error(errMsg.toString());
                             return null;
                           }
                         }
                       }
                     }
                   } else {
-                    errMsg.append( LogMsg.createMsg( CDX.MSG, "Task.runjob.cfg_dir_is_not_directory", appDir ) + StringUtil.CRLF );
-                    if ( haltOnError ) {
-                      throw new TaskException( errMsg.toString() );
+                    errMsg.append(LogMsg.createMsg(CDX.MSG, "Task.runjob.cfg_dir_is_not_directory", appDir) + StringUtil.CRLF);
+                    if (haltOnError) {
+                      throw new TaskException(errMsg.toString());
                     } else {
-                      Log.error( errMsg.toString() );
+                      Log.error(errMsg.toString());
                       return null;
                     }
                   }
                 } else {
-                  errMsg.append( LogMsg.createMsg( CDX.MSG, "Task.runjob.cfg_dir_does_not_exist", appDir ) + StringUtil.CRLF );
-                  if ( haltOnError ) {
-                    throw new TaskException( errMsg.toString() );
+                  errMsg.append(LogMsg.createMsg(CDX.MSG, "Task.runjob.cfg_dir_does_not_exist", appDir) + StringUtil.CRLF);
+                  if (haltOnError) {
+                    throw new TaskException(errMsg.toString());
                   } else {
-                    Log.error( errMsg.toString() );
+                    Log.error(errMsg.toString());
                     return null;
                   }
                 }
               } else {
-                if ( alternativeFile != null ) {
-                  cfgUri = FileUtil.getFileURI( alternativeFile );
+                if (alternativeFile != null) {
+                  cfgUri = FileUtil.getFileURI(alternativeFile);
                 } else {
-                  errMsg.append( LogMsg.createMsg( CDX.MSG, "Task.runjob.cfg_dir_not_provided", Loader.APP_HOME ) + StringUtil.CRLF );
-                  if ( haltOnError ) {
-                    throw new TaskException( errMsg.toString() );
+                  errMsg.append(LogMsg.createMsg(CDX.MSG, "Task.runjob.cfg_dir_not_provided", Loader.APP_HOME) + StringUtil.CRLF);
+                  if (haltOnError) {
+                    throw new TaskException(errMsg.toString());
                   } else {
-                    Log.error( errMsg.toString() );
+                    Log.error(errMsg.toString());
                     return null;
                   }
                 }
@@ -144,41 +136,40 @@ public class RunJob extends AbstractTransformTask {
             } // localfile is absolute
           } // localfile does not exist
         } //localfile != null
-      }else{
-        // TODO: get the string data from the network 
+      } else {
+        // TODO: get the string data from the network
       } // cfguri is not valid
 
-      if ( cfgUri != null ) {
-        if ( UriUtil.isFile( cfgUri ) ) {
-          final File test = UriUtil.getFile( cfgUri );
-          if ( !test.exists() || !test.canRead() ) {
-            errMsg.append( LogMsg.createMsg( CDX.MSG, "Task.runjob.cfg_file_not_readable", test.getAbsolutePath() ) + StringUtil.CRLF );
-            if ( haltOnError ) {
-              throw new TaskException( errMsg.toString() );
+      if (cfgUri != null) {
+        if (UriUtil.isFile(cfgUri)) {
+          final File test = UriUtil.getFile(cfgUri);
+          if (!test.exists() || !test.canRead()) {
+            errMsg.append(LogMsg.createMsg(CDX.MSG, "Task.runjob.cfg_file_not_readable", test.getAbsolutePath()) + StringUtil.CRLF);
+            if (haltOnError) {
+              throw new TaskException(errMsg.toString());
             } else {
-              Log.error( errMsg.toString() );
+              Log.error(errMsg.toString());
               return null;
             }
           }
-          Log.info( LogMsg.createMsg( CDX.MSG, "Task.runjob.cfg_reading_from_file", test.getAbsolutePath() ) );
+          Log.info(LogMsg.createMsg(CDX.MSG, "Task.runjob.cfg_reading_from_file", test.getAbsolutePath()));
         } else {
-          Log.info( LogMsg.createMsg( CDX.MSG, "Task.runjob.cfg_reading_from_network" ) );
+          Log.info(LogMsg.createMsg(CDX.MSG, "Task.runjob.cfg_reading_from_network"));
         }
       } else {
-        errMsg.append( LogMsg.createMsg( CDX.MSG, "Task.runjob.cfg_file_not_found", cfgLoc ) + StringUtil.CRLF );
-        if ( haltOnError ) {
-          throw new TaskException( errMsg.toString() );
+        errMsg.append(LogMsg.createMsg(CDX.MSG, "Task.runjob.cfg_file_not_found", cfgLoc) + StringUtil.CRLF);
+        if (haltOnError) {
+          throw new TaskException(errMsg.toString());
         } else {
-          Log.error( errMsg.toString() );
+          Log.error(errMsg.toString());
           return null;
         }
       }
     } else {
-      System.err.println( LogMsg.createMsg( CDX.MSG, "Task.runjob.no_config_uri_defined" ) );
+      System.err.println(LogMsg.createMsg(CDX.MSG, "Task.runjob.no_config_uri_defined"));
     }
     return cfgUri;
   }
-
 
 
 
@@ -189,55 +180,55 @@ public class RunJob extends AbstractTransformTask {
   @Override
   protected void performTask() throws TaskException {
 
-    final String filename = getString( ConfigTag.FILE );
-    Log.debug( "Reading configuration file " + filename );
-    final URI cfgUri = confirmConfigurationLocation( filename );
-    Log.debug( "Calculated URI of " + cfgUri );
+    final String filename = getString(ConfigTag.FILE);
+    Log.debug("Reading configuration file " + filename);
+    final URI cfgUri = confirmConfigurationLocation(filename);
+    Log.debug("Calculated URI of " + cfgUri);
 
-    if ( cfgUri != null ) {
+    if (cfgUri != null) {
       try {
-        Config jobConfig = Config.read( cfgUri );
-        if ( StringUtil.isBlank( jobConfig.getName() ) ) {
-          jobConfig.setName( UriUtil.getBase( cfgUri ) );
+        final Config jobConfig = Config.read(cfgUri);
+        if (StringUtil.isBlank(jobConfig.getName())) {
+          jobConfig.setName(UriUtil.getBase(cfgUri));
         }
 
-        Config engineConfig = jobConfig .getSection( ConfigTag.JOB );
-        
-        TransformEngine engine = TransformEngineFactory.getInstance( engineConfig.toString() );
+        final Config engineConfig = jobConfig.getSection(ConfigTag.JOB);
 
-        String jobName = getString( ConfigTag.NAME );
-        if(StringUtil.isNotBlank( jobName )){
-          engine.setName( jobName );
+        final TransformEngine engine = TransformEngineFactory.getInstance(engineConfig.toString());
+
+        final String jobName = getString(ConfigTag.NAME);
+        if (StringUtil.isNotBlank(jobName)) {
+          engine.setName(jobName);
         }
-        
-        String contextKey = getString( ConfigTag.CONTEXT );
-        if ( StringUtil.isBlank( contextKey ) ) {
+
+        String contextKey = getString(ConfigTag.CONTEXT);
+        if (StringUtil.isBlank(contextKey)) {
           contextKey = engine.getName();
         }
 
         try {
           engine.run();
-        } catch ( Throwable t ) {
-          String errMsg = "Processing exception running Job: " + t.getMessage();
-          if ( haltOnError ) {
-            throw new TaskException( errMsg );
+        } catch (final Throwable t) {
+          final String errMsg = "Processing exception running Job: " + t.getMessage();
+          if (haltOnError) {
+            throw new TaskException(errMsg);
           } else {
-            Log.error( errMsg );
+            Log.error(errMsg);
             return;
           }
         }
         finally {
           try {
             engine.close();
-          } catch ( Exception ignore ) {}
-          getContext().set( contextKey, engine.getContext().toMap() );
+          } catch (final Exception ignore) {}
+          getContext().set(contextKey, engine.getContext().toMap());
         }
-      } catch ( IOException | ConfigurationException e ) {
+      } catch (IOException | ConfigurationException e) {
         final String errMsg = "Could not read configuration from " + cfgUri + " - " + e.getMessage();
-        if ( haltOnError ) {
-          throw new TaskException( errMsg );
+        if (haltOnError) {
+          throw new TaskException(errMsg);
         } else {
-          Log.error( errMsg );
+          Log.error(errMsg);
           return;
         }
       }
@@ -245,9 +236,5 @@ public class RunJob extends AbstractTransformTask {
       return;
     }
   }
-
-
-
-
 
 }

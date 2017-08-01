@@ -4,15 +4,12 @@
  * This program and the accompanying materials are made available under the 
  * terms of the MIT License which accompanies this distribution, and is 
  * available at http://creativecommons.org/licenses/MIT/
- *
- * Contributors:
- *   Stephan D. Cote 
- *      - Initial concept and implementation
  */
 package coyote.dx.eval;
 
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 import coyote.commons.StringUtil;
@@ -38,54 +35,60 @@ public class BooleanEvaluator extends AbstractEvaluator<Boolean> {
 
   // Operators
   /** The negate unary operator.*/
-  public final static Operator NEGATE = new Operator( "!", 1, Operator.Associativity.RIGHT, 3 );
+  public final static Operator NEGATE = new Operator("!", 1, Operator.Associativity.RIGHT, 3);
 
   /** The logical AND operator.*/
-  private static final Operator AND = new Operator( "&&", 2, Operator.Associativity.LEFT, 2 );
+  private static final Operator AND = new Operator("&&", 2, Operator.Associativity.LEFT, 2);
 
   /** The logical OR operator.*/
-  public final static Operator OR = new Operator( "||", 2, Operator.Associativity.LEFT, 1 );
+  public final static Operator OR = new Operator("||", 2, Operator.Associativity.LEFT, 1);
 
   /** The logical Equals operator.*/
-  public final static Operator EQUAL = new Operator( "==", 2, Operator.Associativity.LEFT, 2 );
+  public final static Operator EQUAL = new Operator("==", 2, Operator.Associativity.LEFT, 2);
 
   /** The standard whole set of predefined operators */
-  private static final Operator[] OPERATORS = new Operator[] { NEGATE, AND, OR, EQUAL };
+  private static final Operator[] OPERATORS = new Operator[]{NEGATE, AND, OR, EQUAL};
 
   // Methods
   /** Performs a case sensitive comparison between two string values */
-  public static final Method EQUALS = new Method( "equals", 2 );
+  public static final Method EQUALS = new Method("equals", 2);
 
   /** Performs a regular expression match on the value of a field */
-  public static final Method REGEX = new Method( "regex", 2 );
+  public static final Method REGEX = new Method("regex", 2);
 
   /** Performs a case insensitive comparison between two string values*/
-  public static final Method MATCH = new Method( "match", 2 );
+  public static final Method MATCH = new Method("match", 2);
 
   /** Checks if the given field contains a value */
-  public static final Method EMPTY = new Method( "empty", 1 );
+  public static final Method EMPTY = new Method("empty", 1);
 
   /** Checks if the given field exists in the context */
-  public static final Method EXISTS = new Method( "exists", 1 );
+  public static final Method EXISTS = new Method("exists", 1);
+
+  /** Checks if the named job completed successfully */
+  public static final Method JOB_SUCCESS = new Method("jobSuccess", 1);
+
+  /** Checks if the named job failed to complete successfully */
+  public static final Method JOB_FAILURE = new Method("jobFailure", 1);
 
   /** The whole set of predefined functions */
-  private static final Method[] METHODS = new Method[] { MATCH, EMPTY, EXISTS, REGEX, EQUALS };
+  private static final Method[] METHODS = new Method[]{MATCH, EMPTY, EXISTS, REGEX, EQUALS, JOB_SUCCESS, JOB_FAILURE};
 
   // Constants
   /** A constant that represents the current state of the isLastFrame() method call in the transaction context */
-  public static final Constant LAST = new Constant( "islast" );
+  public static final Constant LAST = new Constant("islast");
 
   /** A constant that represents the current error state of the transform context */
-  public static final Constant CONTEXT_ERROR = new Constant( "contextError" );
+  public static final Constant CONTEXT_ERROR = new Constant("contextError");
 
   /** A constant that represents the current error state of the transaction context */
-  public static final Constant TRANSACTION_ERROR = new Constant( "transactionError" );
+  public static final Constant TRANSACTION_ERROR = new Constant("transactionError");
 
   /** A constant that represents the state of no rows processed (i.e. currentRow=0) */
-  public static final Constant NO_ROWS_PROCESSED = new Constant( "noRowsProcessed" );
+  public static final Constant NO_ROWS_PROCESSED = new Constant("noRowsProcessed");
 
   /** The whole set of predefined constants */
-  private static final Constant[] CONSTANTS = new Constant[] { LAST, CONTEXT_ERROR, TRANSACTION_ERROR, NO_ROWS_PROCESSED };
+  private static final Constant[] CONSTANTS = new Constant[]{LAST, CONTEXT_ERROR, TRANSACTION_ERROR, NO_ROWS_PROCESSED};
 
   // Constants for use within function calls
   private static final String CURRENT_ROW = "currentRow";
@@ -97,7 +100,7 @@ public class BooleanEvaluator extends AbstractEvaluator<Boolean> {
 
 
   private static Parameters getParameters() {
-    if ( DEFAULT_PARAMETERS == null ) {
+    if (DEFAULT_PARAMETERS == null) {
       DEFAULT_PARAMETERS = getDefaultParameters();
     }
     return DEFAULT_PARAMETERS;
@@ -110,7 +113,7 @@ public class BooleanEvaluator extends AbstractEvaluator<Boolean> {
    * Default constructor which uses the default evaluation parameters.
    */
   public BooleanEvaluator() {
-    this( getParameters() );
+    this(getParameters());
   }
 
 
@@ -121,8 +124,8 @@ public class BooleanEvaluator extends AbstractEvaluator<Boolean> {
    * 
    * @param parameters the evaluation parameters this evaluator should use
    */
-  private BooleanEvaluator( Parameters parameters ) {
-    super( parameters );
+  private BooleanEvaluator(Parameters parameters) {
+    super(parameters);
   }
 
 
@@ -140,11 +143,11 @@ public class BooleanEvaluator extends AbstractEvaluator<Boolean> {
    */
   public static Parameters getDefaultParameters() {
     final Parameters retval = new Parameters();
-    retval.addOperators( Arrays.asList( OPERATORS ) );
-    retval.addMethods( Arrays.asList( METHODS ) );
-    retval.addConstants( Arrays.asList( CONSTANTS ) );
-    retval.addFunctionBracket( BracketPair.PARENTHESES );
-    retval.addExpressionBracket( BracketPair.PARENTHESES );
+    retval.addOperators(Arrays.asList(OPERATORS));
+    retval.addMethods(Arrays.asList(METHODS));
+    retval.addConstants(Arrays.asList(CONSTANTS));
+    retval.addFunctionBracket(BracketPair.PARENTHESES);
+    retval.addExpressionBracket(BracketPair.PARENTHESES);
     return retval;
   }
 
@@ -157,11 +160,11 @@ public class BooleanEvaluator extends AbstractEvaluator<Boolean> {
    * @see coyote.commons.eval.AbstractEvaluator#toValue(java.lang.String, java.lang.Object)
    */
   @Override
-  protected Boolean toValue( String literal, Object evaluationContext ) {
-    if ( LITERAL_TRUE.equalsIgnoreCase( literal ) || LITERAL_FALSE.equalsIgnoreCase( literal ) ) {
-      return Boolean.valueOf( literal );
+  protected Boolean toValue(String literal, Object evaluationContext) {
+    if (LITERAL_TRUE.equalsIgnoreCase(literal) || LITERAL_FALSE.equalsIgnoreCase(literal)) {
+      return Boolean.valueOf(literal);
     } else {
-      throw new IllegalArgumentException( "'" + literal + "' is not a valid boolean literal" );
+      throw new IllegalArgumentException("'" + literal + "' is not a valid boolean literal");
     }
   }
 
@@ -174,28 +177,34 @@ public class BooleanEvaluator extends AbstractEvaluator<Boolean> {
    * @see coyote.commons.eval.AbstractEvaluator#evaluate(coyote.commons.eval.Method, java.util.Iterator, java.lang.Object)
    */
   @Override
-  protected Boolean evaluate( Method method, Iterator<String> arguments, Object evaluationContext ) {
+  protected Boolean evaluate(Method method, Iterator<String> arguments, Object evaluationContext) {
     Boolean result;
-    if ( EQUALS.equals( method ) ) {
+    if (EQUALS.equals(method)) {
       String arg2 = arguments.next();
       String arg1 = arguments.next();
-      result = performEquals( arg1, arg2 );
-    } else if ( REGEX.equals( method ) ) {
+      result = performEquals(arg1, arg2);
+    } else if (REGEX.equals(method)) {
       String arg2 = arguments.next();
       String arg1 = arguments.next();
-      result = performRegex( arg1, arg2 );
-    } else if ( MATCH.equals( method ) ) {
+      result = performRegex(arg1, arg2);
+    } else if (MATCH.equals(method)) {
       String arg2 = arguments.next();
       String arg1 = arguments.next();
-      result = performMatch( arg1, arg2 );
-    } else if ( EMPTY.equals( method ) ) {
+      result = performMatch(arg1, arg2);
+    } else if (EMPTY.equals(method)) {
       String arg1 = arguments.next();
-      result = performEmpty( arg1 );
-    } else if ( EXISTS.equals( method ) ) {
+      result = performEmpty(arg1);
+    } else if (EXISTS.equals(method)) {
       String arg1 = arguments.next();
-      result = performExists( arg1 );
+      result = performExists(arg1);
+    } else if (JOB_SUCCESS.equals(method)) {
+      String arg1 = arguments.next();
+      result = performJobSuccess(arg1);
+    } else if (JOB_FAILURE.equals(method)) {
+      String arg1 = arguments.next();
+      result = !performJobSuccess(arg1);
     } else {
-      result = super.evaluate( method, arguments, evaluationContext );
+      result = super.evaluate(method, arguments, evaluationContext);
     }
 
     return result;
@@ -211,36 +220,36 @@ public class BooleanEvaluator extends AbstractEvaluator<Boolean> {
    * @see coyote.commons.eval.AbstractEvaluator#evaluate(coyote.commons.eval.Constant, java.lang.Object)
    */
   @Override
-  protected Boolean evaluate( final Constant constant, final Object evaluationContext ) {
-    if ( LAST.equals( constant ) ) {
-      if ( transformContext != null && transformContext.getTransaction() != null ) {
-        return new Boolean( transformContext.getTransaction().isLastFrame() );
+  protected Boolean evaluate(final Constant constant, final Object evaluationContext) {
+    if (LAST.equals(constant)) {
+      if (transformContext != null && transformContext.getTransaction() != null) {
+        return new Boolean(transformContext.getTransaction().isLastFrame());
       } else {
-        return new Boolean( false );
+        return new Boolean(false);
       }
-    } else if ( CONTEXT_ERROR.equals( constant ) ) {
-      if ( transformContext != null ) {
-        Boolean retval = new Boolean( transformContext.isInError() );
+    } else if (CONTEXT_ERROR.equals(constant)) {
+      if (transformContext != null) {
+        Boolean retval = new Boolean(transformContext.isInError());
         return retval;
       } else {
-        return new Boolean( false );
+        return new Boolean(false);
       }
-    } else if ( TRANSACTION_ERROR.equals( constant ) ) {
-      if ( transformContext != null && transformContext.getTransaction() != null ) {
-        Boolean retval = new Boolean( transformContext.getTransaction().isInError() );
+    } else if (TRANSACTION_ERROR.equals(constant)) {
+      if (transformContext != null && transformContext.getTransaction() != null) {
+        Boolean retval = new Boolean(transformContext.getTransaction().isInError());
         return retval;
       } else {
-        return new Boolean( false );
+        return new Boolean(false);
       }
-    } else if ( NO_ROWS_PROCESSED.equals( constant ) ) {
-      if ( transformContext != null ) {
-        Boolean retval = new Boolean( transformContext.getRow() == 0 );
+    } else if (NO_ROWS_PROCESSED.equals(constant)) {
+      if (transformContext != null) {
+        Boolean retval = new Boolean(transformContext.getRow() == 0);
         return retval;
       } else {
-        return new Boolean( false );
+        return new Boolean(false);
       }
     } else {
-      return super.evaluate( constant, evaluationContext );
+      return super.evaluate(constant, evaluationContext);
     }
   }
 
@@ -251,30 +260,30 @@ public class BooleanEvaluator extends AbstractEvaluator<Boolean> {
    * @see coyote.commons.eval.AbstractEvaluator#evaluate(coyote.commons.eval.Operator, java.util.Iterator, java.lang.Object)
    */
   @Override
-  protected Boolean evaluate( Operator operator, Iterator<Boolean> operands, Object evaluationContext ) {
-    if ( NEGATE.equals( operator ) ) {
+  protected Boolean evaluate(Operator operator, Iterator<Boolean> operands, Object evaluationContext) {
+    if (NEGATE.equals(operator)) {
       return !operands.next();
-    } else if ( OR.equals( operator ) ) {
+    } else if (OR.equals(operator)) {
       Boolean o1 = operands.next();
       Boolean o2 = operands.next();
       return o1 || o2;
-    } else if ( AND.equals( operator ) ) {
+    } else if (AND.equals(operator)) {
       Boolean o1 = operands.next();
       Boolean o2 = operands.next();
       return o1 && o2;
-    } else if ( EQUAL.equals( operator ) ) {
+    } else if (EQUAL.equals(operator)) {
       Object o1 = operands.next();
       Object o2 = operands.next();
-      return o1.equals( o2 );
+      return o1.equals(o2);
     } else {
-      return super.evaluate( operator, operands, evaluationContext );
+      return super.evaluate(operator, operands, evaluationContext);
     }
   }
 
 
 
 
-  public void setContext( TransformContext context ) {
+  public void setContext(TransformContext context) {
     transformContext = context;
   }
 
@@ -292,24 +301,24 @@ public class BooleanEvaluator extends AbstractEvaluator<Boolean> {
    * 
    * @return true if a arguments match, false otherwise
    */
-  private boolean performMatch( String arg1, String arg2 ) {
-    if ( transformContext != null ) {
-      String value = transformContext.resolveToString( arg1 );
-      if ( value == null ) {
-        value = StringUtil.getQuotedValue( arg1 );
-        if ( value == null ) {
+  private boolean performMatch(String arg1, String arg2) {
+    if (transformContext != null) {
+      String value = transformContext.resolveToString(arg1);
+      if (value == null) {
+        value = StringUtil.getQuotedValue(arg1);
+        if (value == null) {
           value = arg1;
         }
       }
-      String test = transformContext.resolveToString( arg2 );
-      if ( test == null ) {
-        test = StringUtil.getQuotedValue( arg2 );
-        if ( test == null ) {
+      String test = transformContext.resolveToString(arg2);
+      if (test == null) {
+        test = StringUtil.getQuotedValue(arg2);
+        if (test == null) {
           test = arg2;
         }
       }
 
-      if ( value.equalsIgnoreCase( test ) ) {
+      if (value.equalsIgnoreCase(test)) {
         return true;
       }
     } else {
@@ -338,39 +347,39 @@ public class BooleanEvaluator extends AbstractEvaluator<Boolean> {
    * @return true if the arguments evaluate to values which equal each other, 
    *         false otherwise.
    */
-  private Boolean performEquals( String arg1, String arg2 ) {
-    String op1 = sanitize( arg1 );
-    op1 = evaluateFunctionConstant( op1 );
-    String op2 = sanitize( arg2 );
-    op2 = evaluateFunctionConstant( op2 );
+  private Boolean performEquals(String arg1, String arg2) {
+    String op1 = sanitize(arg1);
+    op1 = evaluateFunctionConstant(op1);
+    String op2 = sanitize(arg2);
+    op2 = evaluateFunctionConstant(op2);
 
     String value = op1;
     String test = op2;
-    if ( transformContext != null ) {
-      String rValue = transformContext.resolveToString( op1 );
-      if ( rValue != null )
+    if (transformContext != null) {
+      String rValue = transformContext.resolveToString(op1);
+      if (rValue != null)
         value = rValue;
 
-      String rTest = transformContext.resolveToString( op2 );
-      if ( rTest != null )
+      String rTest = transformContext.resolveToString(op2);
+      if (rTest != null)
         test = rTest;
     }
 
-    if ( value != null ) {
-      return value.equals( test );
+    if (value != null) {
+      return value.equals(test);
     } else {
-      return ( test == null );
+      return (test == null);
     }
   }
 
 
 
 
-  private String evaluateFunctionConstant( String token ) {
-    if ( token != null ) {
-      if ( token.equals( CURRENT_ROW ) ) {
-        if ( transformContext != null ) {
-          return Long.toString( transformContext.getRow() );
+  private String evaluateFunctionConstant(String token) {
+    if (token != null) {
+      if (token.equals(CURRENT_ROW)) {
+        if (transformContext != null) {
+          return Long.toString(transformContext.getRow());
         }
       }
     }
@@ -389,30 +398,68 @@ public class BooleanEvaluator extends AbstractEvaluator<Boolean> {
    * @return true if the token does not return a value or if the value 
    *         returned is an empty string, false if not null or empty.
    */
-  private Boolean performEmpty( String token ) {
-    String key = sanitize( token );
-    String value = transformContext.resolveToString( key );
-    return StringUtil.isEmpty( value );
+  private Boolean performEmpty(String token) {
+    String key = sanitize(token);
+    String value = transformContext.resolveToString(key);
+    return StringUtil.isEmpty(value);
   }
 
 
 
 
-  private Boolean performExists( String token ) {
-    String fieldname = sanitize( token );
-    boolean retval = transformContext.containsField( fieldname );
+  private Boolean performExists(String token) {
+    String fieldname = sanitize(token);
+    boolean retval = transformContext.containsField(fieldname);
     return retval;
   }
 
 
 
 
-  private Boolean performRegex( String token, String regex ) {
+  private Boolean performRegex(String token, String regex) {
     boolean retval = false;
-    String key = sanitize( token );
-    String value = transformContext.resolveToString( key );
-    if ( value != null )
-      retval = Pattern.compile( regex ).matcher( value ).find();
+    String key = sanitize(token);
+    String value = transformContext.resolveToString(key);
+    if (value != null)
+      retval = Pattern.compile(regex).matcher(value).find();
+    return retval;
+  }
+
+
+
+
+  /**
+   * Returns if the job was executed successfully or not.
+   * 
+   * <p>This looks in the current context for an object with the given job 
+   * name, expecting to find a map representing a context for the named job. 
+   * If it is there, a transform disposition map is retrieved. If there is a 
+   * disposition map in that context map, the Error State flag is checked. If 
+   * it is there and false then true is returned.
+   * 
+   * <p>Not that if there is no job disposition found for the named job, this 
+   * will return false which may not indicate the job failed. It may indicate 
+   * that job does not exist. 
+   * 
+   * @param token the name of the job to query
+   * 
+   * @return true if a job with that name had a disposition with an error 
+   *         state of false, otherwise false will be returned.
+   */
+  private Boolean performJobSuccess(String token) {
+    boolean retval = false;
+    String key = sanitize(token);
+    Object value = transformContext.get(key);
+    if (value != null && value instanceof Map) {
+      Map ctx = (Map)value;
+      Object obj = ctx.get(TransformContext.DISPOSITION);
+      if (obj != null && obj instanceof Map) {
+        Object flag = ((Map)obj).get(TransformContext.ERROR_STATE);
+        if (flag != null && flag instanceof Boolean) {
+          retval = !((Boolean)flag).booleanValue();
+        }
+      }
+    }
     return retval;
   }
 
@@ -427,10 +474,10 @@ public class BooleanEvaluator extends AbstractEvaluator<Boolean> {
    * 
    * @return just the bare token
    */
-  private String sanitize( String token ) {
-    if ( token != null && token.startsWith( "\"" ) && token.endsWith( "\"" ) ) {
-      String retval = StringUtil.getQuotedValue( token );
-      if ( retval != null )
+  private String sanitize(String token) {
+    if (token != null && token.startsWith("\"") && token.endsWith("\"")) {
+      String retval = StringUtil.getQuotedValue(token);
+      if (retval != null)
         return retval.trim();
       else
         return retval;

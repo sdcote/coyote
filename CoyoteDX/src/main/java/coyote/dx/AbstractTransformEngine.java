@@ -4,10 +4,6 @@
  * This program and the accompanying materials are made available under the 
  * terms of the MIT License which accompanies this distribution, and is 
  * available at http://creativecommons.org/licenses/MIT/
- *
- * Contributors:
- *   Stephan D. Cote 
- *      - Initial concept and implementation
  */
 package coyote.dx;
 
@@ -123,12 +119,12 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
    * @param dir the private directory to set
    */
   @SuppressWarnings("unchecked")
-  protected void setJobDirectory( File dir ) {
+  protected void setJobDirectory(File dir) {
     jobDirectory = dir;
-    if ( dir != null ) {
-      symbols.put( Symbols.JOB_DIRECTORY, jobDirectory.getAbsolutePath() );
+    if (dir != null) {
+      symbols.put(Symbols.JOB_DIRECTORY, jobDirectory.getAbsolutePath());
     } else {
-      symbols.put( Symbols.JOB_DIRECTORY, null );
+      symbols.put(Symbols.JOB_DIRECTORY, null);
     }
   }
 
@@ -152,12 +148,12 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
    * @param dir the common working directory to set
    */
   @SuppressWarnings("unchecked")
-  public void setWorkDirectory( File dir ) {
+  public void setWorkDirectory(File dir) {
     workDirectory = dir;
-    if ( dir != null ) {
-      symbols.put( Symbols.WORK_DIRECTORY, workDirectory.getAbsolutePath() );
+    if (dir != null) {
+      symbols.put(Symbols.WORK_DIRECTORY, workDirectory.getAbsolutePath());
     } else {
-      symbols.put( Symbols.WORK_DIRECTORY, null );
+      symbols.put(Symbols.WORK_DIRECTORY, null);
     }
   }
 
@@ -169,10 +165,10 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
    */
   @Override
   public void run() {
-    Log.info( "Engine '" + getName() + "' (" + getInstanceId() + ") running..." );
+    Log.info("Engine '" + getName() + "' (" + getInstanceId() + ") running...");
     int transactionErrors = 0;
 
-    symbols.put( Symbols.JOB_ID, getInstanceId() );
+    symbols.put(Symbols.JOB_ID, getInstanceId());
 
     // figure out our job directory
     determineJobDirectory();
@@ -181,20 +177,20 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
     Date rundate = setRunDate();
 
     // Make sure the engine has a name
-    if ( StringUtil.isBlank( getName() ) ) {
-      setName( instanceId );
+    if (StringUtil.isBlank(getName())) {
+      setName(instanceId);
     }
 
-    symbols.put( Symbols.JOB_NAME, getName() );
+    symbols.put(Symbols.JOB_NAME, getName());
 
-    if ( reader == null && writers.size() > 0 )
-      throw new IllegalStateException( "No reader configured, nothing to write" );
+    if (reader == null && writers.size() > 0)
+      throw new IllegalStateException("No reader configured, nothing to write");
 
     // Make sure we have a context
-    if ( getContext() == null ) {
+    if (getContext() == null) {
       // Create a transformation context for components to share data
-      setContext( new TransformContext() );
-    } else{
+      setContext(new TransformContext());
+    } else {
       // reset the context in case is was used previously
       getContext().reset();
     }
@@ -204,13 +200,13 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
     getCommandLineArguments();
 
     // set our list of listeners in the context 
-    getContext().setListeners( listeners );
+    getContext().setListeners(listeners);
 
     // Set this engine as the context's engine
-    getContext().setEngine( this );
+    getContext().setEngine(this);
 
     // Set the symbol table to the one this engine uses
-    getContext().setSymbols( symbols );
+    getContext().setSymbols(symbols);
 
     // Open / initialize the context - This is done before the listeners are 
     // opened so the listeners can be opened within an initialized context and 
@@ -220,164 +216,164 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
     getContext().open();
 
     // Open all the listeners first so the transform context will trigger
-    for ( ContextListener listener : listeners ) {
-      listener.open( getContext() );
-      if ( getContext().isInError() ) {
-        getContext().setState( "Listener Initialization Error" );
-        reportTransformContextError( getContext() );
+    for (ContextListener listener : listeners) {
+      listener.open(getContext());
+      if (getContext().isInError()) {
+        getContext().setState("Listener Initialization Error");
+        reportTransformContextError(getContext());
         return;
       }
     }
 
     // Set the run date in the context after it was opened (possibly loaded)
-    getContext().set( Symbols.DATETIME, rundate );
+    getContext().set(Symbols.DATETIME, rundate);
 
     // Open the log manager with the current transform context
-    if ( logManager != null )
-      logManager.open( getContext() );
+    if (logManager != null)
+      logManager.open(getContext());
 
-    Log.trace( "Engine '" + getName() + "' starting transform; rundate:" + rundate );
+    Log.trace("Engine '" + getName() + "' starting transform; rundate:" + rundate);
 
     // fire the transformation start event
     getContext().start();
 
-    getContext().setState( "Pre-Process" );
+    getContext().setState("Pre-Process");
 
     // Execute all the pre-processing tasks
-    for ( TransformTask task : preProcesses ) {
+    for (TransformTask task : preProcesses) {
       try {
-        if ( task.isEnabled() ) {
-          task.open( getContext() );
+        if (task.isEnabled()) {
+          task.open(getContext());
           task.execute();
         }
-      } catch ( TaskException e ) {
-        getContext().setError( e.getMessage() );
+      } catch (TaskException e) {
+        getContext().setError(e.getMessage());
         break;
       }
     }
     // Close all the tasks after pre-processing is done regardless of outcome
-    for ( TransformTask task : preProcesses ) {
+    for (TransformTask task : preProcesses) {
       try {
-        if ( task.isEnabled() ) {
+        if (task.isEnabled()) {
           task.close();
         }
-      } catch ( IOException e ) {
-        Log.warn( LogMsg.createMsg( CDX.MSG, "Engine.problems_closing_preprocess_task", task.getClass().getName(), e.getClass().getSimpleName(), e.getMessage() ) );
+      } catch (IOException e) {
+        Log.warn(LogMsg.createMsg(CDX.MSG, "Engine.problems_closing_preprocess_task", task.getClass().getName(), e.getClass().getSimpleName(), e.getMessage()));
       }
     }
 
     try {
       // If pre-processing completed without error, start opening the rest of the 
       // tooling
-      if ( getContext().isNotInError() ) {
+      if (getContext().isNotInError()) {
 
         // If the reader is not null, open the core components using this context 
         // to share data. If the reader is null, there is no need to open the 
         // mapper and the writer
-        if ( reader != null ) {
-          getContext().setState( "Reader Init" );
-          reader.open( getContext() );
-          if ( getContext().isInError() ) {
-            reportTransformContextError( getContext() );
+        if (reader != null) {
+          getContext().setState("Reader Init");
+          reader.open(getContext());
+          if (getContext().isInError()) {
+            reportTransformContextError(getContext());
             return;
           }
 
           // if no mapper, just use the default mapper with default settings
-          if ( mapper == null ) {
-            Log.debug( "No mapper defined...using default settings" );
+          if (mapper == null) {
+            Log.debug("No mapper defined...using default settings");
             mapper = new DefaultFrameMapper();
           }
 
-          getContext().setState( "Mapper Init" );
-          mapper.open( getContext() );
-          if ( getContext().isInError() ) {
-            reportTransformContextError( getContext() );
+          getContext().setState("Mapper Init");
+          mapper.open(getContext());
+          if (getContext().isInError()) {
+            reportTransformContextError(getContext());
             return;
           }
 
-          getContext().setState( "Writer Init" );
-          for ( FrameWriter writer : writers ) {
-            writer.open( getContext() );
-            if ( getContext().isInError() ) {
-              reportTransformContextError( getContext() );
+          getContext().setState("Writer Init");
+          for (FrameWriter writer : writers) {
+            writer.open(getContext());
+            if (getContext().isInError()) {
+              reportTransformContextError(getContext());
               return;
             }
           }
         }
 
-        getContext().setState( "Filter Init" );
-        for ( FrameFilter filter : filters ) {
-          filter.open( getContext() );
-          if ( getContext().isInError() ) {
-            reportTransformContextError( getContext() );
+        getContext().setState("Filter Init");
+        for (FrameFilter filter : filters) {
+          filter.open(getContext());
+          if (getContext().isInError()) {
+            reportTransformContextError(getContext());
             return;
           }
         }
 
-        getContext().setState( "Validator Init" );
-        for ( FrameValidator validator : validators ) {
-          validator.open( getContext() );
-          if ( getContext().isInError() ) {
-            reportTransformContextError( getContext() );
+        getContext().setState("Validator Init");
+        for (FrameValidator validator : validators) {
+          validator.open(getContext());
+          if (getContext().isInError()) {
+            reportTransformContextError(getContext());
             return;
           }
         }
 
-        getContext().setState( "Transform Init" );
-        for ( FrameTransform transformer : transformers ) {
-          transformer.open( getContext() );
-          if ( getContext().isInError() ) {
-            reportTransformContextError( getContext() );
+        getContext().setState("Transform Init");
+        for (FrameTransform transformer : transformers) {
+          transformer.open(getContext());
+          if (getContext().isInError()) {
+            reportTransformContextError(getContext());
             return;
           }
         }
-        Log.trace( "Engine '" + getName() + "' entering read loop" );
+        Log.trace("Engine '" + getName() + "' entering read loop");
 
         // loop through all data read in by the reader until EOF or an error in 
         // the transform context occurs.
-        getContext().setState( "Process" );
-        while ( getContext().isNotInError() && reader != null && !reader.eof() ) {
+        getContext().setState("Process");
+        while (getContext().isNotInError() && reader != null && !reader.eof()) {
 
           // Create a new Transaction context with the list of listeners to react 
           // to events in the transaction.
-          TransactionContext txnContext = new TransactionContext( getContext() );
+          TransactionContext txnContext = new TransactionContext(getContext());
           // place a reference to the transaction in the transform context
-          getContext().setTransaction( txnContext );
+          getContext().setTransaction(txnContext);
 
           // Create a component to place in the Templates to give them access to
           // all the data in the contexts and advanced functions
-          TemplateAccess access = new TemplateAccess( getContext() );
-          Template.put( "Context", access );
+          TemplateAccess access = new TemplateAccess(getContext());
+          Template.put("Context", access);
 
           // Start the clock and fire event listeners for the beginning of the
           // transaction
           txnContext.start();
-          txnContext.setState( "Read" );
+          txnContext.setState("Read");
 
           // Read a frame into the given context (source frame)
-          DataFrame retval = reader.read( txnContext );
+          DataFrame retval = reader.read(txnContext);
 
           // Sometimes readers read empty lines and the like, skip null dataframes
-          if ( retval != null ) {
+          if (retval != null) {
 
             // Set the returned dataframe into the transaction context
-            txnContext.setSourceFrame( retval );
-            getContext().setRow( ++currentFrameNumber );
-            getContext().getSymbols().put( Symbols.CURRENT_FRAME, currentFrameNumber );
-            getContext().getSymbols().put( Symbols.LAST_FRAME, txnContext.isLastFrame() );
+            txnContext.setSourceFrame(retval);
+            getContext().setRow(++currentFrameNumber);
+            getContext().getSymbols().put(Symbols.CURRENT_FRAME, currentFrameNumber);
+            getContext().getSymbols().put(Symbols.LAST_FRAME, txnContext.isLastFrame());
 
             // fire the read event in all the listeners
-            txnContext.fireRead( txnContext, reader );
+            txnContext.fireRead(txnContext, reader);
 
             // ...pass it through the filters...
-            txnContext.setState( "Filter" );
-            for ( FrameFilter filter : filters ) {
-              if ( filter.isEnabled() ) {
-                if ( !filter.process( txnContext ) ) {
+            txnContext.setState("Filter");
+            for (FrameFilter filter : filters) {
+              if (filter.isEnabled()) {
+                if (!filter.process(txnContext)) {
                   // filter signaled to discontinue filter checks (early exit)
                   break;
                 }
-                if ( txnContext.getWorkingFrame() == null ) {
+                if (txnContext.getWorkingFrame() == null) {
                   // no need to continue, the working record was removed from 
                   // the transaction context
                   break;
@@ -386,77 +382,77 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
             }
 
             // If the working frame did not get filtered out...
-            if ( txnContext.getWorkingFrame() != null ) {
+            if (txnContext.getWorkingFrame() != null) {
 
               // pass it through the validation rules - errors are logged
-              txnContext.setState( "Validate" );
+              txnContext.setState("Validate");
               boolean passed = true;
-              for ( FrameValidator validator : validators ) {
+              for (FrameValidator validator : validators) {
                 try {
-                  if ( !validator.process( txnContext ) ) {
+                  if (!validator.process(txnContext)) {
                     passed = false;
                   }
-                } catch ( ValidationException e ) {
-                  txnContext.setError( e.getMessage() );
+                } catch (ValidationException e) {
+                  txnContext.setError(e.getMessage());
                 }
               }
 
               // if there were validation errors
-              if ( !passed ) {
-                getContext().fireFrameValidationFailed( txnContext );
+              if (!passed) {
+                getContext().fireFrameValidationFailed(txnContext);
               }
 
-              if ( txnContext.isNotInError() ) {
+              if (txnContext.isNotInError()) {
 
-                txnContext.setState( "Transform" );
+                txnContext.setState("Transform");
                 // Pass the working frame through the transformers
-                for ( FrameTransform transformer : transformers ) {
+                for (FrameTransform transformer : transformers) {
                   try {
                     // Have the transformer process the frame
-                    DataFrame resultFrame = transformer.process( txnContext.getWorkingFrame() );
+                    DataFrame resultFrame = transformer.process(txnContext.getWorkingFrame());
 
                     // place the results of the transformation in the context
-                    txnContext.setWorkingFrame( resultFrame );
+                    txnContext.setWorkingFrame(resultFrame);
 
-                  } catch ( Exception e ) {
+                  } catch (Exception e) {
                     // catch any manner of transformation exception
-                    txnContext.setError( e.getMessage() );
+                    txnContext.setError(e.getMessage());
                   }
                 }
 
                 // Pass it through the mapper - only the required fields should 
                 // exist in the target frame after the mapper is done.
-                if ( txnContext.isNotInError() ) {
+                if (txnContext.isNotInError()) {
 
                   // We need to create a target frame into which the mapper will 
                   // place fields...
-                  if ( txnContext.getTargetFrame() == null ) {
-                    txnContext.setTargetFrame( new DataFrame() );
+                  if (txnContext.getTargetFrame() == null) {
+                    txnContext.setTargetFrame(new DataFrame());
                   }
 
-                  txnContext.setState( "Map" );
+                  txnContext.setState("Map");
 
                   // Map / Move fields from the working to the target frame
                   try {
-                    mapper.process( txnContext );
-                  } catch ( MappingException e ) {
-                    txnContext.setError( e.getMessage() );
+                    mapper.process(txnContext);
+                  } catch (MappingException e) {
+                    txnContext.setError(e.getMessage());
                   }
                 }
 
                 // It is possible that a transform has been configured to simply
                 // read and validate data so the writer may be null
-                if ( txnContext.isNotInError() && writers.size() > 0 ) {
-                  txnContext.setState( "Write" );
+                if (txnContext.isNotInError() && writers.size() > 0) {
+                  txnContext.setState("Write");
                   // Pass the frame to all the writers
-                  for ( FrameWriter writer : writers ) {
+                  for (FrameWriter writer : writers) {
                     try {
                       // Write the target (new) frame
-                      writer.write( txnContext.getTargetFrame() );
-                      txnContext.fireWrite( txnContext, writer );
-                    } catch ( Exception e ) {
-                      Log.error( LogMsg.createMsg( CDX.MSG, "Engine.write_error", e.getClass().getSimpleName(), e.getMessage(), ExceptionUtil.stackTrace( e ) ) );
-                      txnContext.setError( e.getMessage() );
+                      writer.write(txnContext.getTargetFrame());
+                      txnContext.fireWrite(txnContext, writer);
+                    } catch (Exception e) {
+                      Log.error(LogMsg.createMsg(CDX.MSG, "Engine.write_error", e.getClass().getSimpleName(), e.getMessage(), ExceptionUtil.stackTrace(e)));
+                      txnContext.setError(e.getMessage());
                     }
                   }
                 }
@@ -469,7 +465,7 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
             // context to record the transaction if so configured
             txnContext.end();
 
-            if ( txnContext.isInError() ) {
+            if (txnContext.isInError()) {
               transactionErrors++;
             }
 
@@ -479,48 +475,48 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
 
       } // transformContext ! err after pre-processing
 
-      if ( transactionErrors > 0 ) {
-        getContext().setError( "Transform experienced " + transactionErrors + " transaction errors" );
+      if (transactionErrors > 0) {
+        getContext().setError("Transform experienced " + transactionErrors + " transaction errors");
       }
 
-      Log.trace( "Engine '" + getName() + "' reads completed - Error=" + getContext().isInError() + " Reads=" + getContext().getRow() + " TxnErrors=" + transactionErrors );
+      Log.trace("Engine '" + getName() + "' reads completed - Error=" + getContext().isInError() + " Reads=" + getContext().getRow() + " TxnErrors=" + transactionErrors);
 
-      if ( getContext().isInError() ) {
-        reportTransformContextError( getContext() );
+      if (getContext().isInError()) {
+        reportTransformContextError(getContext());
       } else {
 
         // close any internal components like readers and writers which may 
         // interfere with post-processing tasks from completing properly
         closeInternalComponents();
 
-        getContext().setState( "Post-Process" );
+        getContext().setState("Post-Process");
 
         // Execute all the post-processing tasks
-        for ( TransformTask task : postProcesses ) {
+        for (TransformTask task : postProcesses) {
           try {
-            if ( task.isEnabled() ) {
-              task.open( getContext() );
+            if (task.isEnabled()) {
+              task.open(getContext());
               task.execute();
             }
-          } catch ( TaskException e ) {
-            getContext().setError( e.getMessage() );
+          } catch (TaskException e) {
+            getContext().setError(e.getMessage());
           }
         }
 
         // Close all the tasks after post-processing is done regardless of outcome
-        for ( TransformTask task : postProcesses ) {
+        for (TransformTask task : postProcesses) {
           try {
-            if ( task.isEnabled() ) {
+            if (task.isEnabled()) {
               task.close();
             }
-          } catch ( IOException e ) {
-            Log.warn( LogMsg.createMsg( CDX.MSG, "Engine.problems_closing_postprocess_task", task.getClass().getName(), e.getClass().getSimpleName(), e.getMessage() ) );
+          } catch (IOException e) {
+            Log.warn(LogMsg.createMsg(CDX.MSG, "Engine.problems_closing_postprocess_task", task.getClass().getName(), e.getClass().getSimpleName(), e.getMessage()));
           }
         }
-        getContext().setState( "Complete" );
+        getContext().setState("Complete");
 
-        if ( getContext().isInError() ) {
-          reportTransformContextError( getContext() );
+        if (getContext().isInError()) {
+          reportTransformContextError(getContext());
         }
       }
     }
@@ -535,10 +531,10 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
       currentFrameNumber = 0;
     }
 
-    if ( getContext().isInError() ) {
-      Log.info( "Engine '" + getName() + "' (" + getInstanceId() + ") completed with errors: " + getContext().getErrorMessage() );
+    if (getContext().isInError()) {
+      Log.info("Engine '" + getName() + "' (" + getInstanceId() + ") completed with errors: " + getContext().getErrorMessage());
     } else {
-      Log.info( "Engine '" + getName() + "' (" + getInstanceId() + ") completed successfully" );
+      Log.info("Engine '" + getName() + "' (" + getInstanceId() + ") completed successfully");
     }
 
   }
@@ -557,17 +553,17 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
     List<String> list = new ArrayList<String>();
 
     // retrieve a list of command line arguments from the symbol table in order
-    for ( int x = 0; x < 1024; x++ ) {
-      Object obj = getSymbolTable().get( Symbols.COMMAND_LINE_ARG_PREFIX + x );
-      if ( obj != null ) {
-        list.add( obj.toString() );
+    for (int x = 0; x < 1024; x++) {
+      Object obj = getSymbolTable().get(Symbols.COMMAND_LINE_ARG_PREFIX + x);
+      if (obj != null) {
+        list.add(obj.toString());
       } else {
         break; // ran out of arguments
       }
     }
 
-    if ( list.size() > 0 ) {
-      getContext().set( ContextKey.COMMAND_LINE_ARGS, list.toArray( new String[list.size()] ) );
+    if (list.size() > 0) {
+      getContext().set(ContextKey.COMMAND_LINE_ARGS, list.toArray(new String[list.size()]));
     }
   }
 
@@ -584,36 +580,36 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
     File jobDir;
 
     // Make sure we have a home directory
-    if ( StringUtil.isBlank( System.getProperty( Loader.APP_HOME ) ) ) {
-      System.setProperty( Loader.APP_HOME, System.getProperty( "user.dir" ) );
+    if (StringUtil.isBlank(System.getProperty(Loader.APP_HOME))) {
+      System.setProperty(Loader.APP_HOME, System.getProperty("user.dir"));
     }
 
     // Make sure we have a work directory
-    if ( StringUtil.isBlank( System.getProperty( Job.APP_WORK ) ) ) {
-      System.setProperty( Job.APP_WORK, System.getProperty( Loader.APP_HOME ) + System.getProperty( "file.separator" ) + "wrk" );
+    if (StringUtil.isBlank(System.getProperty(Job.APP_WORK))) {
+      System.setProperty(Job.APP_WORK, System.getProperty(Loader.APP_HOME) + System.getProperty("file.separator") + "wrk");
     }
 
     // Use our name to setup a job directory
     String name = getName();
-    if ( StringUtil.isNotBlank( name ) ) {
+    if (StringUtil.isNotBlank(name)) {
       // replace the illegal filename characters by only allowing simple names
-      String dirname = name.trim().replaceAll( "[^a-zA-Z0-9.-]", "_" );
-      jobDir = new File( System.getProperty( Job.APP_WORK ) + FileUtil.FILE_SEPARATOR + dirname );
+      String dirname = name.trim().replaceAll("[^a-zA-Z0-9.-]", "_");
+      jobDir = new File(System.getProperty(Job.APP_WORK) + FileUtil.FILE_SEPARATOR + dirname);
 
       try {
         jobDir.mkdirs();
-        setJobDirectory( jobDir );
-        setWorkDirectory( jobDir.getParentFile() );
-        Log.debug( LogMsg.createMsg( CDX.MSG, "Engine.calculated_job_directory", jobDir.getAbsolutePath(), jobDir.getParentFile() ) );
+        setJobDirectory(jobDir);
+        setWorkDirectory(jobDir.getParentFile());
+        Log.debug(LogMsg.createMsg(CDX.MSG, "Engine.calculated_job_directory", jobDir.getAbsolutePath(), jobDir.getParentFile()));
 
-      } catch ( final Exception e ) {
-        Log.error( e.getMessage() );
+      } catch (final Exception e) {
+        Log.error(e.getMessage());
       }
     } else {
       // unnamed jobs just use the current directory
-      jobDir = new File( System.getProperty( "user.dir" ) );
-      setJobDirectory( jobDir );
-      setWorkDirectory( jobDir );
+      jobDir = new File(System.getProperty("user.dir"));
+      setJobDirectory(jobDir);
+      setWorkDirectory(jobDir);
     }
   }
 
@@ -627,61 +623,61 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
     Calendar cal = Calendar.getInstance();
 
     Date rundate = new Date();
-    if ( rundate != null ) {
-      cal.setTime( rundate );
+    if (rundate != null) {
+      cal.setTime(rundate);
 
-      symbols.put( Symbols.DATE, formatDate( rundate ) );
-      symbols.put( Symbols.TIME, formatTime( rundate ) );
-      symbols.put( Symbols.DATETIME, formatDateTime( rundate ) );
+      symbols.put(Symbols.DATE, formatDate(rundate));
+      symbols.put(Symbols.TIME, formatTime(rundate));
+      symbols.put(Symbols.DATETIME, formatDateTime(rundate));
 
       // duplicates the above, but in the case of persistent contexts, make for more readable configuration files when combined with PREVIOUS_RUN_*
-      symbols.put( Symbols.CURRENT_RUN_DATE, formatDate( rundate ) );
-      symbols.put( Symbols.CURRENT_RUN_TIME, formatTime( rundate ) );
-      symbols.put( Symbols.CURRENT_RUN_DATETIME, formatTime( rundate ) );
+      symbols.put(Symbols.CURRENT_RUN_DATE, formatDate(rundate));
+      symbols.put(Symbols.CURRENT_RUN_TIME, formatTime(rundate));
+      symbols.put(Symbols.CURRENT_RUN_DATETIME, formatTime(rundate));
 
-      symbols.put( Symbols.MONTH, String.valueOf( cal.get( Calendar.MONTH ) + 1 ) );
-      symbols.put( Symbols.DAY, String.valueOf( cal.get( Calendar.DAY_OF_MONTH ) ) );
-      symbols.put( Symbols.YEAR, String.valueOf( cal.get( Calendar.YEAR ) ) );
-      symbols.put( Symbols.HOUR, String.valueOf( cal.get( Calendar.HOUR ) ) );
-      symbols.put( Symbols.MINUTE, String.valueOf( cal.get( Calendar.MINUTE ) ) );
-      symbols.put( Symbols.SECOND, String.valueOf( cal.get( Calendar.SECOND ) ) );
-      symbols.put( Symbols.MILLISECOND, String.valueOf( cal.get( Calendar.MILLISECOND ) ) );
-      symbols.put( Symbols.MONTH_MM, StringUtil.zeropad( cal.get( Calendar.MONTH ) + 1, 2 ) );
-      symbols.put( Symbols.DAY_DD, StringUtil.zeropad( cal.get( Calendar.DAY_OF_MONTH ), 2 ) );
-      symbols.put( Symbols.YEAR_YYYY, StringUtil.zeropad( cal.get( Calendar.YEAR ), 4 ) );
-      symbols.put( Symbols.HOUR_24, StringUtil.zeropad( cal.get( Calendar.HOUR_OF_DAY ), 2 ) );
-      symbols.put( Symbols.HOUR_HH, StringUtil.zeropad( cal.get( Calendar.HOUR ), 2 ) );
-      symbols.put( Symbols.MINUTE_MM, StringUtil.zeropad( cal.get( Calendar.MINUTE ), 2 ) );
-      symbols.put( Symbols.SECOND_SS, StringUtil.zeropad( cal.get( Calendar.SECOND ), 2 ) );
-      symbols.put( Symbols.MILLISECOND_ZZZ, StringUtil.zeropad( cal.get( Calendar.MILLISECOND ), 3 ) );
+      symbols.put(Symbols.MONTH, String.valueOf(cal.get(Calendar.MONTH) + 1));
+      symbols.put(Symbols.DAY, String.valueOf(cal.get(Calendar.DAY_OF_MONTH)));
+      symbols.put(Symbols.YEAR, String.valueOf(cal.get(Calendar.YEAR)));
+      symbols.put(Symbols.HOUR, String.valueOf(cal.get(Calendar.HOUR)));
+      symbols.put(Symbols.MINUTE, String.valueOf(cal.get(Calendar.MINUTE)));
+      symbols.put(Symbols.SECOND, String.valueOf(cal.get(Calendar.SECOND)));
+      symbols.put(Symbols.MILLISECOND, String.valueOf(cal.get(Calendar.MILLISECOND)));
+      symbols.put(Symbols.MONTH_MM, StringUtil.zeropad(cal.get(Calendar.MONTH) + 1, 2));
+      symbols.put(Symbols.DAY_DD, StringUtil.zeropad(cal.get(Calendar.DAY_OF_MONTH), 2));
+      symbols.put(Symbols.YEAR_YYYY, StringUtil.zeropad(cal.get(Calendar.YEAR), 4));
+      symbols.put(Symbols.HOUR_24, StringUtil.zeropad(cal.get(Calendar.HOUR_OF_DAY), 2));
+      symbols.put(Symbols.HOUR_HH, StringUtil.zeropad(cal.get(Calendar.HOUR), 2));
+      symbols.put(Symbols.MINUTE_MM, StringUtil.zeropad(cal.get(Calendar.MINUTE), 2));
+      symbols.put(Symbols.SECOND_SS, StringUtil.zeropad(cal.get(Calendar.SECOND), 2));
+      symbols.put(Symbols.MILLISECOND_ZZZ, StringUtil.zeropad(cal.get(Calendar.MILLISECOND), 3));
 
       // go back to midnight
-      cal.set( Calendar.HOUR_OF_DAY, 0 );
-      cal.set( Calendar.MINUTE, 0 );
-      cal.set( Calendar.SECOND, 0 );
-      cal.set( Calendar.MILLISECOND, 0 );
-      symbols.put( Symbols.SECONDS_PAST_MIDNIGHT, StringUtil.zeropad( ( rundate.getTime() - cal.getTimeInMillis() ) / 1000, 5 ) );
+      cal.set(Calendar.HOUR_OF_DAY, 0);
+      cal.set(Calendar.MINUTE, 0);
+      cal.set(Calendar.SECOND, 0);
+      cal.set(Calendar.MILLISECOND, 0);
+      symbols.put(Symbols.SECONDS_PAST_MIDNIGHT, StringUtil.zeropad((rundate.getTime() - cal.getTimeInMillis()) / 1000, 5));
 
       // go to tomorrow midnight
-      cal.add( Calendar.DATE, +1 );
-      symbols.put( Symbols.SECONDS_TILL_MIDNIGHT, StringUtil.zeropad( ( cal.getTimeInMillis() - rundate.getTime() ) / 1000, 5 ) );
+      cal.add(Calendar.DATE, +1);
+      symbols.put(Symbols.SECONDS_TILL_MIDNIGHT, StringUtil.zeropad((cal.getTimeInMillis() - rundate.getTime()) / 1000, 5));
 
       // reset to todays date/time      
-      cal.setTime( rundate );
+      cal.setTime(rundate);
 
       // go back one day and get the "previous day" Month Day and Year 
-      cal.add( Calendar.DATE, -1 );
-      symbols.put( Symbols.PREV_MONTH_PM, StringUtil.zeropad( cal.get( Calendar.MONTH ) + 1, 2 ) );
-      symbols.put( Symbols.PREV_DAY_PD, StringUtil.zeropad( cal.get( Calendar.DAY_OF_MONTH ), 2 ) );
-      symbols.put( Symbols.PREV_YEAR_PYYY, StringUtil.zeropad( cal.get( Calendar.YEAR ), 4 ) );
+      cal.add(Calendar.DATE, -1);
+      symbols.put(Symbols.PREV_MONTH_PM, StringUtil.zeropad(cal.get(Calendar.MONTH) + 1, 2));
+      symbols.put(Symbols.PREV_DAY_PD, StringUtil.zeropad(cal.get(Calendar.DAY_OF_MONTH), 2));
+      symbols.put(Symbols.PREV_YEAR_PYYY, StringUtil.zeropad(cal.get(Calendar.YEAR), 4));
 
       // reset to todays date/time      
-      cal.setTime( rundate );
+      cal.setTime(rundate);
 
       // go back a month
-      cal.add( Calendar.MONTH, -1 );
-      symbols.put( Symbols.PREV_MONTH_LM, StringUtil.zeropad( cal.get( Calendar.MONTH ) + 1, 2 ) );
-      symbols.put( Symbols.PREV_YEAR_LMYY, StringUtil.zeropad( cal.get( Calendar.YEAR ), 4 ) );
+      cal.add(Calendar.MONTH, -1);
+      symbols.put(Symbols.PREV_MONTH_LM, StringUtil.zeropad(cal.get(Calendar.MONTH) + 1, 2));
+      symbols.put(Symbols.PREV_YEAR_LMYY, StringUtil.zeropad(cal.get(Calendar.YEAR), 4));
 
     }
 
@@ -691,15 +687,15 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
 
 
 
-  protected void reportTransformContextError( TransformContext context ) {
-    Log.error( context.getState() + " Error - " + context.getErrorMessage() );
+  protected void reportTransformContextError(TransformContext context) {
+    Log.error(context.getState() + " Error - " + context.getErrorMessage());
   }
 
 
 
 
   @Override
-  public void setContext( TransformContext context ) {
+  public void setContext(TransformContext context) {
     transformContext = context;
   }
 
@@ -710,7 +706,7 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
    * @see coyote.dx.Component#open(coyote.dx.context.TransformContext)
    */
   @Override
-  public void open( TransformContext context ) {
+  public void open(TransformContext context) {
     transformContext = context;
   }
 
@@ -729,59 +725,59 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
 
 
   private void closeTooling() {
-    if ( reader != null ) {
+    if (reader != null) {
       try {
         reader.close();
-      } catch ( Exception e ) {
-        Log.warn( LogMsg.createMsg( CDX.MSG, "Engine.problems_closing_reader", reader.getClass().getName(), e.getClass().getSimpleName(), e.getMessage() ) );
+      } catch (Exception e) {
+        Log.warn(LogMsg.createMsg(CDX.MSG, "Engine.problems_closing_reader", reader.getClass().getName(), e.getClass().getSimpleName(), e.getMessage()));
       }
     }
 
-    for ( FrameWriter writer : writers ) {
+    for (FrameWriter writer : writers) {
       try {
         writer.close();
-      } catch ( Exception e ) {
-        Log.warn( LogMsg.createMsg( CDX.MSG, "Engine.problems_closing_writer", writer.getClass().getName(), e.getClass().getSimpleName(), e.getMessage() ) );
+      } catch (Exception e) {
+        Log.warn(LogMsg.createMsg(CDX.MSG, "Engine.problems_closing_writer", writer.getClass().getName(), e.getClass().getSimpleName(), e.getMessage()));
       }
     }
 
-    if ( mapper != null ) {
+    if (mapper != null) {
       try {
         mapper.close();
-      } catch ( Exception e ) {
-        Log.warn( LogMsg.createMsg( CDX.MSG, "Engine.problems_closing_mapper", mapper.getClass().getName(), e.getClass().getSimpleName(), e.getMessage() ) );
+      } catch (Exception e) {
+        Log.warn(LogMsg.createMsg(CDX.MSG, "Engine.problems_closing_mapper", mapper.getClass().getName(), e.getClass().getSimpleName(), e.getMessage()));
       }
     }
 
-    for ( FrameFilter filter : filters ) {
+    for (FrameFilter filter : filters) {
       try {
         filter.close();
-      } catch ( Exception e ) {
-        Log.warn( LogMsg.createMsg( CDX.MSG, "Engine.problems_closing_filter", filter.getClass().getName(), e.getClass().getSimpleName(), e.getMessage() ) );
+      } catch (Exception e) {
+        Log.warn(LogMsg.createMsg(CDX.MSG, "Engine.problems_closing_filter", filter.getClass().getName(), e.getClass().getSimpleName(), e.getMessage()));
       }
     }
 
-    for ( FrameValidator validator : validators ) {
+    for (FrameValidator validator : validators) {
       try {
         validator.close();
-      } catch ( Exception e ) {
-        Log.warn( LogMsg.createMsg( CDX.MSG, "Engine.problems_closing_validator", validator.getClass().getName(), e.getClass().getSimpleName(), e.getMessage() ) );
+      } catch (Exception e) {
+        Log.warn(LogMsg.createMsg(CDX.MSG, "Engine.problems_closing_validator", validator.getClass().getName(), e.getClass().getSimpleName(), e.getMessage()));
       }
     }
 
-    for ( FrameTransform transformer : transformers ) {
+    for (FrameTransform transformer : transformers) {
       try {
         transformer.close();
-      } catch ( Exception e ) {
-        Log.warn( LogMsg.createMsg( CDX.MSG, "Engine.problems_closing_transformer", transformer.getClass().getName(), e.getClass().getSimpleName(), e.getMessage() ) );
+      } catch (Exception e) {
+        Log.warn(LogMsg.createMsg(CDX.MSG, "Engine.problems_closing_transformer", transformer.getClass().getName(), e.getClass().getSimpleName(), e.getMessage()));
       }
     }
 
-    for ( ContextListener listener : listeners ) {
+    for (ContextListener listener : listeners) {
       try {
         listener.close();
-      } catch ( Exception e ) {
-        Log.warn( LogMsg.createMsg( CDX.MSG, "Engine.problems_closing_listener", listener.getClass().getName(), e.getClass().getSimpleName(), e.getMessage() ) );
+      } catch (Exception e) {
+        Log.warn(LogMsg.createMsg(CDX.MSG, "Engine.problems_closing_listener", listener.getClass().getName(), e.getClass().getSimpleName(), e.getMessage()));
       }
     }
 
@@ -797,11 +793,11 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
   public void close() throws IOException {
 
     // close the connections in the transform contexts
-    if ( getContext() != null ) {
+    if (getContext() != null) {
       getContext().close();
     }
 
-    if ( logManager != null )
+    if (logManager != null)
       logManager.close();
 
   }
@@ -815,19 +811,19 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
    * deleting files. 
    */
   private void closeInternalComponents() {
-    if ( reader != null ) {
+    if (reader != null) {
       try {
         reader.close();
-      } catch ( Exception e ) {
-        Log.warn( LogMsg.createMsg( CDX.MSG, "Engine.problems_closing_reader", reader.getClass().getName(), e.getClass().getSimpleName(), e.getMessage() ) );
+      } catch (Exception e) {
+        Log.warn(LogMsg.createMsg(CDX.MSG, "Engine.problems_closing_reader", reader.getClass().getName(), e.getClass().getSimpleName(), e.getMessage()));
       }
     }
 
-    for ( FrameWriter writer : writers ) {
+    for (FrameWriter writer : writers) {
       try {
         writer.close();
-      } catch ( Exception e ) {
-        Log.warn( LogMsg.createMsg( CDX.MSG, "Engine.problems_closing_writer", writer.getClass().getName(), e.getClass().getSimpleName(), e.getMessage() ) );
+      } catch (Exception e) {
+        Log.warn(LogMsg.createMsg(CDX.MSG, "Engine.problems_closing_writer", writer.getClass().getName(), e.getClass().getSimpleName(), e.getMessage()));
       }
     }
   }
@@ -839,7 +835,7 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
    * @see coyote.dx.TransformEngine#setReader(coyote.dx.FrameReader)
    */
   @Override
-  public void setReader( FrameReader reader ) {
+  public void setReader(FrameReader reader) {
     this.reader = reader;
   }
 
@@ -850,8 +846,8 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
    * @see coyote.dx.TransformEngine#addWriter(coyote.dx.FrameWriter)
    */
   @Override
-  public void addWriter( FrameWriter writer ) {
-    writers.add( writer );
+  public void addWriter(FrameWriter writer) {
+    writers.add(writer);
   }
 
 
@@ -861,7 +857,7 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
    * @see coyote.dx.TransformEngine#setMapper(coyote.dx.FrameMapper)
    */
   @Override
-  public void setMapper( FrameMapper mapper ) {
+  public void setMapper(FrameMapper mapper) {
     this.mapper = mapper;
   }
 
@@ -872,8 +868,8 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
    * @see coyote.dx.TransformEngine#addListener(coyote.dx.context.ContextListener)
    */
   @Override
-  public void addListener( ContextListener listener ) {
-    listeners.add( listener );
+  public void addListener(ContextListener listener) {
+    listeners.add(listener);
   }
 
 
@@ -906,7 +902,7 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
    */
   @Override
   public String getName() {
-    return configuration.getString( ConfigTag.NAME );
+    return configuration.getString(ConfigTag.NAME);
   }
 
 
@@ -916,8 +912,8 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
    * @see coyote.dx.TransformEngine#setName(java.lang.String)
    */
   @Override
-  public void setName( String value ) {
-    configuration.put( ConfigTag.NAME, value );
+  public void setName(String value) {
+    configuration.put(ConfigTag.NAME, value);
   }
 
 
@@ -930,11 +926,11 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
    * 
    * @return The formatted date string.
    */
-  public static String formatDateTime( Date date ) {
-    if ( date == null )
+  public static String formatDateTime(Date date) {
+    if (date == null)
       return "null";
     else
-      return new SimpleDateFormat( CDX.DEFAULT_DATETIME_FORMAT ).format( date );
+      return new SimpleDateFormat(CDX.DEFAULT_DATETIME_FORMAT).format(date);
   }
 
 
@@ -947,11 +943,11 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
    * 
    * @return only the date portion formatted
    */
-  public static String formatDate( Date date ) {
-    if ( date == null )
+  public static String formatDate(Date date) {
+    if (date == null)
       return "null";
     else
-      return new SimpleDateFormat( CDX.DEFAULT_DATE_FORMAT ).format( date );
+      return new SimpleDateFormat(CDX.DEFAULT_DATE_FORMAT).format(date);
   }
 
 
@@ -964,11 +960,11 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
    * 
    * @return only the time portion formatted
    */
-  public static String formatTime( Date date ) {
-    if ( date == null )
+  public static String formatTime(Date date) {
+    if (date == null)
       return "null";
     else
-      return new SimpleDateFormat( CDX.DEFAULT_TIME_FORMAT ).format( date );
+      return new SimpleDateFormat(CDX.DEFAULT_TIME_FORMAT).format(date);
   }
 
 
@@ -989,9 +985,9 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
    * @see coyote.dx.TransformEngine#addPreProcessTask(coyote.dx.TransformTask)
    */
   @Override
-  public int addPreProcessTask( TransformTask task ) {
-    if ( task != null ) {
-      preProcesses.add( task );
+  public int addPreProcessTask(TransformTask task) {
+    if (task != null) {
+      preProcesses.add(task);
       return preProcesses.size() - 1;
     } else {
       return 0;
@@ -1005,9 +1001,9 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
    * @see coyote.dx.TransformEngine#addPostProcessTask(coyote.dx.TransformTask)
    */
   @Override
-  public int addPostProcessTask( TransformTask task ) {
-    if ( task != null ) {
-      postProcesses.add( task );
+  public int addPostProcessTask(TransformTask task) {
+    if (task != null) {
+      postProcesses.add(task);
       return postProcesses.size() - 1;
     } else {
       return 0;
@@ -1021,13 +1017,13 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
    * @see coyote.dx.TransformEngine#addDatabase(coyote.dx.Database)
    */
   @Override
-  public void addDatabase( Database database ) {
+  public void addDatabase(Database database) {
 
-    if ( getContext() == null ) {
-      setContext( new TransformContext( listeners ) );
+    if (getContext() == null) {
+      setContext(new TransformContext(listeners));
     }
 
-    getContext().addDataStore( database );
+    getContext().addDataStore(database);
   }
 
 
@@ -1037,9 +1033,9 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
    * @see coyote.dx.TransformEngine#addValidator(coyote.dx.FrameValidator)
    */
   @Override
-  public void addValidator( FrameValidator validator ) {
-    if ( validator != null ) {
-      validators.add( validator );
+  public void addValidator(FrameValidator validator) {
+    if (validator != null) {
+      validators.add(validator);
     }
   }
 
@@ -1050,9 +1046,9 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
    * @see coyote.dx.TransformEngine#addTransformer(coyote.dx.FrameTransform)
    */
   @Override
-  public void addTransformer( FrameTransform transformer ) {
-    if ( transformer != null ) {
-      transformers.add( transformer );
+  public void addTransformer(FrameTransform transformer) {
+    if (transformer != null) {
+      transformers.add(transformer);
     }
   }
 
@@ -1086,7 +1082,7 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
    * @see coyote.dx.TransformEngine#shutdown(coyote.dataframe.DataFrame)
    */
   @Override
-  public void shutdown( DataFrame params ) {
+  public void shutdown(DataFrame params) {
 
   }
 
@@ -1097,7 +1093,7 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
    * @see coyote.dx.TransformEngine#setLogManager(coyote.dx.LogManager)
    */
   @Override
-  public void setLogManager( LogManager logmgr ) {
+  public void setLogManager(LogManager logmgr) {
     logManager = logmgr;
   }
 
@@ -1108,9 +1104,9 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
    * @see coyote.dx.TransformEngine#addFilter(coyote.dx.FrameFilter)
    */
   @Override
-  public int addFilter( FrameFilter filter ) {
-    if ( filter != null ) {
-      filters.add( filter );
+  public int addFilter(FrameFilter filter) {
+    if (filter != null) {
+      filters.add(filter);
       return filters.size() - 1;
     } else {
       return 0;

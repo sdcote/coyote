@@ -1,13 +1,9 @@
 /*
  * Copyright (c) 2017 Stephan D. Cote' - All rights reserved.
- * 
- * This program and the accompanying materials are made available under the 
- * terms of the MIT License which accompanies this distribution, and is 
- * available at http://creativecommons.org/licenses/MIT/
  *
- * Contributors:
- *   Stephan D. Cote 
- *      - Initial concept and implementation
+ * This program and the accompanying materials are made available under the
+ * terms of the MIT License which accompanies this distribution, and is
+ * available at http://creativecommons.org/licenses/MIT/
  */
 package coyote.dx.task;
 
@@ -34,7 +30,7 @@ import coyote.loader.log.Log;
 
 
 /**
- * 
+ *
  */
 public class RunJobTest {
 
@@ -43,7 +39,7 @@ public class RunJobTest {
    */
   @BeforeClass
   public static void setUpBeforeClass() throws Exception {
-    Log.addLogger( Log.DEFAULT_LOGGER_NAME, new ConsoleAppender( Log.INFO_EVENTS | Log.WARN_EVENTS | Log.ERROR_EVENTS | Log.FATAL_EVENTS ) );
+    Log.addLogger(Log.DEFAULT_LOGGER_NAME, new ConsoleAppender(Log.INFO_EVENTS | Log.WARN_EVENTS | Log.ERROR_EVENTS | Log.FATAL_EVENTS));
     // Log.addLogger( Log.DEFAULT_LOGGER_NAME, new ConsoleAppender( Log.TRACE_EVENTS | Log.DEBUG_EVENTS | Log.INFO_EVENTS | Log.WARN_EVENTS | Log.ERROR_EVENTS | Log.FATAL_EVENTS ) );
   }
 
@@ -63,39 +59,41 @@ public class RunJobTest {
   public void execute() throws ConfigurationException, TaskException, IOException {
     final TransformContext context = new TransformContext();
 
-    Config cfg = new Config();
-    cfg.put( ConfigTag.FILE, "src/resources/demo/BitcoinPrice.json" );
-    cfg.put( ConfigTag.NAME, "RunJobTest" ); // override the name of the job
-    Log.info( "\"RunJob\":" + cfg );
+    final Config cfg = new Config();
+    cfg.put(ConfigTag.FILE, "src/resources/demo/BitcoinPrice.json");
+    cfg.put(ConfigTag.NAME, "RunJobTest"); // override the name of the job
+    Log.info("\"RunJob\":" + cfg);
 
     try (RunJob task = new RunJob()) {
-      task.setConfiguration( cfg );
-      task.open( context );
+      task.setConfiguration(cfg);
+      task.open(context);
       task.execute();
-      assertFalse( context.getErrorMessage(), context.isInError() );
+      assertFalse(context.getErrorMessage(), context.isInError());
 
       // The context of jobs are stored under the name of the job
-      Object results = context.get( "RunJobTest" );
-      assertNotNull( results );
-      assertTrue( results instanceof Map ); // contexts are maps
+      final Object results = context.get("RunJobTest");
+      assertNotNull(results);
+      assertTrue(results instanceof Map); // contexts are maps
 
-      // The context writer writes all its frames to an array stored in its 
-      // context with a default key of ContextOutput 
-      Object object = ( (Map)results ).get( ContextWriter.DEFAULT_CONTEXT_FIELD );
-      assertNotNull( object );
-      DataFrame[] frames = (DataFrame[])object; // should be an array of frames
-      assertTrue( frames.length > 0 );
+      // The context writer writes all its frames to an array stored in its
+      // context with a default key of ContextOutput
+      final Object object = ((Map)results).get(ContextWriter.DEFAULT_CONTEXT_FIELD);
+      assertNotNull(object);
+      final DataFrame[] frames = (DataFrame[])object; // should be an array of frames
+      assertTrue(frames.length > 0);
 
-      DataFrame frame = frames[0]; // get the first one
-      assertNotNull( frame );
-      System.out.println( frame );
+      final DataFrame frame = frames[0]; // get the first one
+      assertNotNull(frame);
+      System.out.println(frame);
 
-      Map jobContext = context.getAsMap( "RunJobTest" );
-      assertNotNull( jobContext );
-      System.out.println( "CONTEXT: " + jobContext );
-      Map jobDisposition = (Map)jobContext.get( "TransformDisposition" );
-      assertNotNull( jobDisposition );
-      System.out.println( "DISPOSITION: " + jobDisposition );
+      final Map jobContext = context.getAsMap("RunJobTest");
+      assertNotNull(jobContext);
+      System.out.println("CONTEXT: " + jobContext);
+      final Map jobDisposition = (Map)jobContext.get("TransformDisposition");
+      assertNotNull(jobDisposition);
+      System.out.println("DISPOSITION: " + jobDisposition);
+      final Boolean errorFlag = (Boolean)jobDisposition.get(TransformContext.ERROR_STATE);
+      assertFalse(errorFlag);
     }
 
   }
