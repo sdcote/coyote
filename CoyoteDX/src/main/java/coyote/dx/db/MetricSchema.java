@@ -1,12 +1,12 @@
 /*
  * Copyright (c) 2015 Stephan D. Cote' - All rights reserved.
- * 
- * This program and the accompanying materials are made available under the 
- * terms of the MIT License which accompanies this distribution, and is 
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the MIT License which accompanies this distribution, and is
  * available at http://creativecommons.org/licenses/MIT/
  *
  * Contributors:
- *   Stephan D. Cote 
+ *   Stephan D. Cote
  *      - Initial concept and implementation
  */
 
@@ -20,53 +20,47 @@ import coyote.dataframe.DataFrame;
 
 
 /**
- * Represents a basic structure of a group of records to be used in database 
+ * Represents a basic structure of a group of records to be used in database
  * operations.
- * 
- * <p>Writers (and other components) can use this class to compile data about 
- * Data Frames they have observed, compiling a detailed profile about the set 
- * of frames.</p> 
+ *
+ * <p>Writers (and other components) can use this class to compile data about
+ * Data Frames they have observed, compiling a detailed profile about the set
+ * of frames.</p>
  */
 public class MetricSchema {
 
-  private long samples = 0;
+  private final List<FieldMetrics> metrics = new ArrayList<FieldMetrics>();
 
-  private List<FieldMetrics> metrics = new ArrayList<FieldMetrics>();
+  private long samples = 0;
 
 
 
 
   /**
-   * Take a sample.
-   * 
-   * @param frame DataFrame containing the fileds to sample.
+   * Clear all the metrics from this schema.
    */
-  public void sample(DataFrame frame) {
-    if (frame != null) {
-      samples++;
-      for (DataField field : frame.getFields()) {
-        getMetric(field.getName()).sample(field);
-      } // for
-    } // null
+  public void clear() {
+    metrics.clear();
+    samples = 0;
   }
 
 
 
 
   /**
-   * Return FieldMetrics associated with the named field. 
-   * 
-   * <p>If one is not found, one will be created and placed in the cache for 
+   * Return FieldMetrics associated with the named field.
+   *
+   * <p>If one is not found, one will be created and placed in the cache for
    * later reference. This method never returns null.</p>
-   * 
+   *
    * @param name The name of the field to be represented by the returned metric
-   * 
+   *
    * @return a FieldMetric associated with the named field. Never returns null.
    */
-  public FieldMetrics getMetric(String name) {
+  public FieldMetrics getMetric(final String name) {
     FieldMetrics retval = null;
     if (name != null) {
-      for (FieldMetrics metric : metrics) {
+      for (final FieldMetrics metric : metrics) {
         if (name.equals(metric.getName())) {
           retval = metric;
           break;
@@ -106,11 +100,17 @@ public class MetricSchema {
 
 
   /**
-   * Clear all the metrics from this schema.
+   * Take a sample.
+   *
+   * @param frame DataFrame containing the fileds to sample.
    */
-  public void clear() {
-    metrics.clear();
-    samples = 0;
+  public void sample(final DataFrame frame) {
+    if (frame != null) {
+      samples++;
+      for (final DataField field : frame.getFields()) {
+        getMetric(field.getName()).sample(field);
+      } // for
+    } // null
   }
 
 }

@@ -1,12 +1,12 @@
 /*
  * Copyright (c) 2015 Stephan D. Cote' - All rights reserved.
- * 
- * This program and the accompanying materials are made available under the 
- * terms of the MIT License which accompanies this distribution, and is 
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the MIT License which accompanies this distribution, and is
  * available at http://creativecommons.org/licenses/MIT/
  *
  * Contributors:
- *   Stephan D. Cote 
+ *   Stephan D. Cote
  *      - Initial concept and implementation
  */
 
@@ -25,49 +25,49 @@ import coyote.loader.log.LogMsg;
 
 
 /**
- * This class holds the mapping of different database types to DataFrame types 
+ * This class holds the mapping of different database types to DataFrame types
  * so tables can be created in different databases for DX data.
  */
 public class DatabaseDialect {
 
-  // The symbols we expect to find in the symbol table
-  public static final String TABLE_NAME_SYM = "tableName";
-  public static final String DB_SCHEMA_SYM = "schemaName";
-  public static final String USERNAME_SYM = "username";
-  public static final String DATABASE_SYM = "database";
-  public static final String DATABASE_VERSION_SYM = "databaseVersion";
+  public static final String ALTER_COLUMN = "column_change";
+  public static final String CREATE = "create";
+  public static final String CREATE_SCHEMA = "create_schema";
   public static final String DATABASE_MAJOR_SYM = "dbMajorVersion";
   public static final String DATABASE_MINOR_SYM = "dbMinorVersion";
-  public static final String FIELD_NAMES_SYM = "fieldnames";
-  public static final String FIELD_VALUES_SYM = "fieldvalues";
-  public static final String FIELD_MAP_SYM = "fieldmap";
-  public static final String SYS_ID_SYM = "sysid";
-  public static final String FIELD_DEF_SYM = "fielddefinitions";
-
-  public static final String CREATE = "create";
-  public static final String GRANT = "grant";
-  public static final String INSERT = "insert";
-  public static final String UPDATE = "update";
+  public static final String DATABASE_SYM = "database";
+  public static final String DATABASE_VERSION_SYM = "databaseVersion";
+  public static final String DB_SCHEMA_SYM = "schemaName";
   public static final String DELETE = "delete";
-  public static final String TRUNCATE = "truncate";
-  public static final String TIMESTAMP = "timestamp";
-  public static final String ALTER_COLUMN = "column_change";
-  public static final String UNIQUE = "unique";
-  public static final String PRIMARY_KEY = "primary_key";
-  public static final String NULLABLE = "nullable";
-  public static final String NOT_NULL = "not_null";
-  public static final String CREATE_SCHEMA = "create_schema";
+  public static final String FIELD_DEF_SYM = "fielddefinitions";
+  public static final String FIELD_MAP_SYM = "fieldmap";
+  public static final String FIELD_NAMES_SYM = "fieldnames";
 
+  public static final String FIELD_VALUES_SYM = "fieldvalues";
+  public static final String GRANT = "grant";
+  public static final String H2 = "H2";
+  public static final String INSERT = "insert";
+  public static final String MSQL = "MICROSOFT SQL SERVER";
+  public static final String MYSQL = "MySQL";
+  public static final String NOT_NULL = "not_null";
+  public static final String NULLABLE = "nullable";
   // Database Technologies supported
   public static final String ORACLE = "Oracle";
-  public static final String MYSQL = "MySQL";
-  public static final String H2 = "H2";
-  public static final String MSQL = "MICROSOFT SQL SERVER";
+  public static final String PRIMARY_KEY = "primary_key";
+  public static final String SYS_ID_SYM = "sysid";
+  // The symbols we expect to find in the symbol table
+  public static final String TABLE_NAME_SYM = "tableName";
+  public static final String TIMESTAMP = "timestamp";
+
+  public static final String TRUNCATE = "truncate";
+  public static final String UNIQUE = "unique";
+  public static final String UPDATE = "update";
+  public static final String USERNAME_SYM = "username";
 
   private static final String DEFAULT = "default";
 
-  private static final Map<String, Map<String, String>> TYPES = new HashMap<String, Map<String, String>>();
   private static final Map<String, Map<String, String>> SYNTAX = new HashMap<String, Map<String, String>>();
+  private static final Map<String, Map<String, String>> TYPES = new HashMap<String, Map<String, String>>();
 
   static {
     // MySQL
@@ -203,77 +203,32 @@ public class DatabaseDialect {
 
 
   /**
-   * Retrieve the syntax for a command for a particular database product.
-   * 
-   * <p>The result will be a template of the command and the caller will need 
-   * to substitute specific tokens for intended values.</p>
-   * 
-   * <p>Hint: Use the static constants of this class to ensure conformity.</p>
-   * 
-   * @param database The database product being used
-   * @param command the command to retrieve
-   * @param symbols symbols to be used in resolving template variables
-   * 
-   * @return the command template or null if the database is not supported or the command is not recognized.
-   */
-  public static String getSQL(String database, String command, SymbolTable symbols) {
-    // find the map of commands for this database
-    Map<String, String> map = SYNTAX.get(database);
-
-    // If this database is supported
-    if (map != null) {
-      // lookup the requested command in this databases map of commands
-      String cmdstr = map.get(command);
-
-      if (StringUtil.isNotBlank(cmdstr)) {
-
-        // If we have a symbol table,
-        if (symbols != null) {
-
-          // resolve the variables in the command string
-          Template tmplt = new Template(cmdstr, symbols);
-          return tmplt.toString();
-
-        } else {
-
-          //...otherwise just return the raw template
-          return cmdstr;
-        }
-      }
-    }
-    return null;
-  }
-
-
-
-
-  /**
-   * Generate the proper SQL command to create a table which will hold data 
+   * Generate the proper SQL command to create a table which will hold data
    * described by the given metric schema.
-   * 
-   * <p>A {@code Template} is used to handle variable substitution. If the 
-   * {@code SymbolTable} is null, then the template will not be evaluated and 
-   * returned to the caller as a raw template which the caller must process 
-   * before using as a valid SQL statement. This can be helpful during the 
-   * development process to see what symbols should be provided in the 
+   *
+   * <p>A {@code Template} is used to handle variable substitution. If the
+   * {@code SymbolTable} is null, then the template will not be evaluated and
+   * returned to the caller as a raw template which the caller must process
+   * before using as a valid SQL statement. This can be helpful during the
+   * development process to see what symbols should be provided in the
    * table.</p>
-   * 
+   *
    * @param database the name of the database dialect to use (e.g. Oracle)
    * @param schema the schema of the records to be stored
    * @param symbols the table of symbol values to use in variable substitution
-   * 
-   * @return a template string which can be used to generate the SQL statement 
+   *
+   * @return a template string which can be used to generate the SQL statement
    *         for a table to support the given metrics
-   * 
+   *
    * @see coyote.commons.template.Template
    */
   @SuppressWarnings("unchecked")
-  public static String getCreate(String database, MetricSchema schema, SymbolTable symbols) {
+  public static String getCreate(final String database, final MetricSchema schema, final SymbolTable symbols) {
 
-    Map<String, String> typeMap = TYPES.get(database);
+    final Map<String, String> typeMap = TYPES.get(database);
     if (typeMap != null) {
 
-      StringBuffer b = new StringBuffer();
+      final StringBuffer b = new StringBuffer();
 
       // if ( Log.isLogging( Log.DEBUG_EVENTS ) ) {
       //   for ( Entry<String, String> entry : typeMap.entrySet() ) {
@@ -281,7 +236,7 @@ public class DatabaseDialect {
       //   }
       // }
 
-      for (FieldMetrics metrics : schema.getMetrics()) {
+      for (final FieldMetrics metrics : schema.getMetrics()) {
 
         final String fieldname = metrics.getName();
         final String fieldtype = metrics.getType();
@@ -295,8 +250,9 @@ public class DatabaseDialect {
         // lookup the database type to use for this field
         String type = null;
 
-        if (StringUtil.isNotBlank(fieldtype))
+        if (StringUtil.isNotBlank(fieldtype)) {
           type = typeMap.get(fieldtype.toUpperCase());
+        }
 
         if (StringUtil.isBlank(type)) {
           Log.debug(LogMsg.createMsg(CDX.MSG, "Database.could_not_find_type", DatabaseDialect.class.getSimpleName(), fieldtype, type, typeMap.get(DEFAULT), fieldname));
@@ -308,7 +264,7 @@ public class DatabaseDialect {
           type = type.replace("#", Long.toString(fieldlen));
         }
 
-        // place the field and type in the buffer 
+        // place the field and type in the buffer
         b.append(type);
         b.append(", ");
       }
@@ -321,7 +277,7 @@ public class DatabaseDialect {
         symbols.put(FIELD_DEF_SYM, b.toString());
       }
 
-      // now have return the create command using the field definitions in the 
+      // now have return the create command using the field definitions in the
       // symbol table to fill out the command template
       return getSQL(database, CREATE, symbols);
 
@@ -337,28 +293,28 @@ public class DatabaseDialect {
 
 
   /**
-   * Generate the proper SQL command to create a table which will hold data 
+   * Generate the proper SQL command to create a table which will hold data
    * described by the given table definition.
-   * 
+   *
    * @param database the name of the database dialect to use (e.g. Oracle)
    * @param tdef the table definition of the records to be stored
-   * 
-   * @return a SQL string which can be used to generate the table described by 
-   *         the table definition 
+   *
+   * @return a SQL string which can be used to generate the table described by
+   *         the table definition
    */
   @SuppressWarnings("unchecked")
-  public static String getCreate(String database, TableDefinition tdef) {
-    SymbolTable symbols = new SymbolTable();
+  public static String getCreate(final String database, final TableDefinition tdef) {
+    final SymbolTable symbols = new SymbolTable();
     symbols.put(DB_SCHEMA_SYM, tdef.getSchemaName());
     symbols.put(TABLE_NAME_SYM, tdef.getName());
 
-    Map<String, String> typeMap = TYPES.get(database);
-    Map<String, String> syntaxMap = SYNTAX.get(database);
+    final Map<String, String> typeMap = TYPES.get(database);
+    final Map<String, String> syntaxMap = SYNTAX.get(database);
 
     if (typeMap != null) {
-      StringBuffer b = new StringBuffer();
+      final StringBuffer b = new StringBuffer();
 
-      for (ColumnDefinition column : tdef.getColumns()) {
+      for (final ColumnDefinition column : tdef.getColumns()) {
 
         final String fieldname = column.getName();
         final String fieldtype = column.getType().getName();
@@ -370,8 +326,9 @@ public class DatabaseDialect {
         // lookup the database type to use for this field
         String type = null;
 
-        if (StringUtil.isNotBlank(fieldtype))
+        if (StringUtil.isNotBlank(fieldtype)) {
           type = typeMap.get(fieldtype.toUpperCase());
+        }
 
         if (StringUtil.isBlank(type)) {
           Log.debug(LogMsg.createMsg(CDX.MSG, "Database.could_not_find_type", DatabaseDialect.class.getSimpleName(), fieldtype, type, typeMap.get(DEFAULT), fieldname));
@@ -383,7 +340,7 @@ public class DatabaseDialect {
           type = type.replace("#", Long.toString(fieldlen));
         }
 
-        // place the field and type in the buffer 
+        // place the field and type in the buffer
         b.append(type);
 
         if (column.isUnique()) {
@@ -430,10 +387,66 @@ public class DatabaseDialect {
 
 
 
+  @SuppressWarnings("unchecked")
+  public static String getCreateSchema(final String database, final String schemaName, final String owner) {
+    final SymbolTable symbols = new SymbolTable();
+    symbols.put(DB_SCHEMA_SYM, schemaName);
+    symbols.put(USERNAME_SYM, owner);
+    return getSQL(database, CREATE_SCHEMA, symbols);
+  }
+
+
+
+
+  /**
+   * Retrieve the syntax for a command for a particular database product.
+   *
+   * <p>The result will be a template of the command and the caller will need
+   * to substitute specific tokens for intended values.</p>
+   *
+   * <p>Hint: Use the static constants of this class to ensure conformity.</p>
+   *
+   * @param database The database product being used
+   * @param command the command to retrieve
+   * @param symbols symbols to be used in resolving template variables
+   *
+   * @return the command template or null if the database is not supported or the command is not recognized.
+   */
+  public static String getSQL(final String database, final String command, final SymbolTable symbols) {
+    // find the map of commands for this database
+    final Map<String, String> map = SYNTAX.get(database);
+
+    // If this database is supported
+    if (map != null) {
+      // lookup the requested command in this databases map of commands
+      final String cmdstr = map.get(command);
+
+      if (StringUtil.isNotBlank(cmdstr)) {
+
+        // If we have a symbol table,
+        if (symbols != null) {
+
+          // resolve the variables in the command string
+          final Template tmplt = new Template(cmdstr, symbols);
+          return tmplt.toString();
+
+        } else {
+
+          //...otherwise just return the raw template
+          return cmdstr;
+        }
+      }
+    }
+    return null;
+  }
+
+
+
+
   /**
    * Resolve the given object to a valid type supported by the DataFrame using
    * the given SQL type as the type indicator.
-   * 
+   *
    * <p>The following table is used to translate JDBC types to Field Types:
    * <table border="1"><caption>JDBC Type and Name to DataFrame type</caption>
    * <tr><th>Value</th><th>SQL</th><th>Field</th></tr>
@@ -458,13 +471,13 @@ public class DatabaseDialect {
    * <tr><td>92</td><td>TIME</td><td>DAT</td></tr>
    * <tr><td>93</td><td>TIMESTAMP</td><td>DAT</td></tr>
    * <tr><td>1111&nbsp;</td><td>OTHER</td><td>STR</td></tr></table>
-   * 
+   *
    * @param value the value to convert
    * @param type the SQL type of the value passed
-   * 
+   *
    * @return an object which can be safely placed in a DataFrame field.
    */
-  public static Object resolveValue(Object value, int type) {
+  public static Object resolveValue(final Object value, final int type) {
     Object retval = null;
 
     if (value != null) {
@@ -505,17 +518,6 @@ public class DatabaseDialect {
     }
 
     return retval;
-  }
-
-
-
-
-  @SuppressWarnings("unchecked")
-  public static String getCreateSchema(String database, String schemaName, String owner) {
-    SymbolTable symbols = new SymbolTable();
-    symbols.put(DB_SCHEMA_SYM, schemaName);
-    symbols.put(USERNAME_SYM, owner);
-    return getSQL(database, CREATE_SCHEMA, symbols);
   }
 
 }

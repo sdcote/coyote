@@ -1,12 +1,12 @@
 /*
  * Copyright (c) 2016 Stephan D. Cote' - All rights reserved.
- * 
- * This program and the accompanying materials are made available under the 
- * terms of the MIT License which accompanies this distribution, and is 
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the MIT License which accompanies this distribution, and is
  * available at http://creativecommons.org/licenses/MIT/
  *
  * Contributors:
- *   Stephan D. Cote 
+ *   Stephan D. Cote
  *      - Initial concept and implementation
  */
 
@@ -16,58 +16,39 @@ package coyote.dx.db;
  * The supported data types for database columns.
  */
 public enum ColumnType {
-  /** String. */
-  STRING("STR", 0),
   /** . */
   BOOLEAN("BOL", 1),
   /** . */
   BYTE("S8", 8),
   /** . */
-  SHORT("S16", 16),
+  DATE("DAT", 64),
+  /** . */
+  DOUBLE("DBL", 64),
+  /** . */
+  FLOAT("FLT", 64),
   /** . */
   INT("S32", 32),
   /** . */
   LONG("S64", 64),
   /** . */
-  FLOAT("FLT", 64),
-  /** . */
-  DOUBLE("DBL", 64),
-  /** . */
-  DATE("DAT", 64);
+  SHORT("S16", 16),
+  /** String. */
+  STRING("STR", 0);
 
-  private String name;
   private int length;
-
-
-
-
-  private ColumnType(String name, int length) {
-    this.name = name;
-    this.length = length;
-  }
-
-
-
-
-  /**
-   * @see java.lang.Enum#toString()
-   */
-  @Override
-  public String toString() {
-    return name;
-  }
+  private String name;
 
 
 
 
   /**
    * Get the column type by name.
-   * 
+   *
    * @param name name of the column to return
-   * 
+   *
    * @return the column type with the given mane or null if not found.
    */
-  public static ColumnType getColumnTypeByName(String name) {
+  public static ColumnType getColumnTypeByName(final String name) {
     ColumnType retval = null;
     if (name != null) {
       for (final ColumnType type : ColumnType.values()) {
@@ -83,8 +64,9 @@ public enum ColumnType {
 
 
 
-  public String getName() {
-    return name;
+  private ColumnType(final String name, final int length) {
+    this.name = name;
+    this.length = length;
   }
 
 
@@ -92,6 +74,24 @@ public enum ColumnType {
 
   public int getLength() {
     return length;
+  }
+
+
+
+
+  public String getName() {
+    return name;
+  }
+
+
+
+
+  /**
+   * @see java.lang.Enum#toString()
+   */
+  @Override
+  public String toString() {
+    return name;
   }
 
 }

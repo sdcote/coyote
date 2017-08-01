@@ -1,12 +1,12 @@
 /*
  * Copyright (c) 2016 Stephan D. Cote' - All rights reserved.
- * 
- * This program and the accompanying materials are made available under the 
- * terms of the MIT License which accompanies this distribution, and is 
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the MIT License which accompanies this distribution, and is
  * available at http://creativecommons.org/licenses/MIT/
  *
  * Contributors:
- *   Stephan D. Cote 
+ *   Stephan D. Cote
  *      - Initial concept and implementation
  */
 
@@ -16,35 +16,35 @@ package coyote.dx.db;
  * This holds details about a column in a table.
  */
 public class ColumnDefinition {
-  private String name;
-  private ColumnType type;
   private int length;
-  private boolean nullable;
-  private boolean readOnly;
   private boolean mandatory;
-  private boolean primaryKey;
-  private boolean unique;
-  private String remarks;
+  private String name;
+  private boolean nullable;
   private int position;
+  private boolean primaryKey;
+  private boolean readOnly;
+  private String remarks;
+  private ColumnType type;
+  private boolean unique;
 
 
 
 
-  public ColumnDefinition(String name, ColumnType type) {
+  public ColumnDefinition(final String name, final ColumnType type) {
     this(name, type, type.getLength(), false, false, false, false, false, null, 0);
   }
 
 
 
 
-  public ColumnDefinition(String name, ColumnType type, int len) {
+  public ColumnDefinition(final String name, final ColumnType type, final int len) {
     this(name, type, len, false, false, false, false, false, null, 0);
   }
 
 
 
 
-  public ColumnDefinition(String name, ColumnType type, int len, boolean nullable, boolean ro, boolean req, boolean key, boolean unique, String remarks, int pos) {
+  public ColumnDefinition(final String name, final ColumnType type, final int len, final boolean nullable, final boolean ro, final boolean req, final boolean key, final boolean unique, final String remarks, final int pos) {
     this.name = name;
     this.type = type;
     length = len;
@@ -61,42 +61,6 @@ public class ColumnDefinition {
 
 
   /**
-   * @return the name
-   */
-  public String getName() {
-    return name;
-  }
-
-
-
-
-  public ColumnDefinition setName(String name) {
-    this.name = name;
-    return this;
-  }
-
-
-
-
-  /**
-   * @return the type
-   */
-  public ColumnType getType() {
-    return type;
-  }
-
-
-
-
-  public ColumnDefinition setType(ColumnType type) {
-    this.type = type;
-    return this;
-  }
-
-
-
-
-  /**
    * @return the length
    */
   public int getLength() {
@@ -106,117 +70,11 @@ public class ColumnDefinition {
 
 
 
-  public ColumnDefinition setLength(int length) {
-    this.length = length;
-    return this;
-  }
-
-
-
-
   /**
-   * @return the readOnly
+   * @return the name
    */
-  public boolean isReadOnly() {
-    return readOnly;
-  }
-
-
-
-
-  public ColumnDefinition setReadOnly(boolean readOnly) {
-    this.readOnly = readOnly;
-    return this;
-  }
-
-
-
-
-  /**
-   * @return the mandatory
-   */
-  public boolean isMandatory() {
-    return mandatory;
-  }
-
-
-
-
-  public ColumnDefinition setMandatory(boolean mandatory) {
-    this.mandatory = mandatory;
-    return this;
-  }
-
-
-
-
-  /**
-   * @return the primaryKey
-   */
-  public boolean isPrimaryKey() {
-    return primaryKey;
-  }
-
-
-
-
-  public ColumnDefinition setPrimaryKey(boolean primaryKey) {
-    this.primaryKey = primaryKey;
-    return this;
-  }
-
-
-
-
-  /**
-   * @return the unique
-   */
-  public boolean isUnique() {
-    return unique;
-  }
-
-
-
-
-  public ColumnDefinition setUnique(boolean unique) {
-    this.unique = unique;
-    return this;
-  }
-
-
-
-
-  /**
-   * @return the nullable
-   */
-  public boolean isNullable() {
-    return nullable;
-  }
-
-
-
-
-  public ColumnDefinition setNullable(boolean nullable) {
-    this.nullable = nullable;
-    return this;
-  }
-
-
-
-
-  /**
-   * @return the remarks
-   */
-  public String getRemarks() {
-    return remarks;
-  }
-
-
-
-
-  public ColumnDefinition setRemarks(String remarks) {
-    this.remarks = remarks;
-    return this;
+  public String getName() {
+    return name;
   }
 
 
@@ -232,8 +90,150 @@ public class ColumnDefinition {
 
 
 
-  public ColumnDefinition setPosition(int position) {
+  /**
+   * @return the remarks
+   */
+  public String getRemarks() {
+    return remarks;
+  }
+
+
+
+
+  /**
+   * @return the type
+   */
+  public ColumnType getType() {
+    return type;
+  }
+
+
+
+
+  /**
+   * @return the mandatory
+   */
+  public boolean isMandatory() {
+    return mandatory;
+  }
+
+
+
+
+  /**
+   * @return the nullable
+   */
+  public boolean isNullable() {
+    return nullable;
+  }
+
+
+
+
+  /**
+   * @return the primaryKey
+   */
+  public boolean isPrimaryKey() {
+    return primaryKey;
+  }
+
+
+
+
+  /**
+   * @return the readOnly
+   */
+  public boolean isReadOnly() {
+    return readOnly;
+  }
+
+
+
+
+  /**
+   * @return the unique
+   */
+  public boolean isUnique() {
+    return unique;
+  }
+
+
+
+
+  public ColumnDefinition setLength(final int length) {
+    this.length = length;
+    return this;
+  }
+
+
+
+
+  public ColumnDefinition setMandatory(final boolean mandatory) {
+    this.mandatory = mandatory;
+    return this;
+  }
+
+
+
+
+  public ColumnDefinition setName(final String name) {
+    this.name = name;
+    return this;
+  }
+
+
+
+
+  public ColumnDefinition setNullable(final boolean nullable) {
+    this.nullable = nullable;
+    return this;
+  }
+
+
+
+
+  public ColumnDefinition setPosition(final int position) {
     this.position = position;
+    return this;
+  }
+
+
+
+
+  public ColumnDefinition setPrimaryKey(final boolean primaryKey) {
+    this.primaryKey = primaryKey;
+    return this;
+  }
+
+
+
+
+  public ColumnDefinition setReadOnly(final boolean readOnly) {
+    this.readOnly = readOnly;
+    return this;
+  }
+
+
+
+
+  public ColumnDefinition setRemarks(final String remarks) {
+    this.remarks = remarks;
+    return this;
+  }
+
+
+
+
+  public ColumnDefinition setType(final ColumnType type) {
+    this.type = type;
+    return this;
+  }
+
+
+
+
+  public ColumnDefinition setUnique(final boolean unique) {
+    this.unique = unique;
     return this;
   }
 
