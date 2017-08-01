@@ -7,6 +7,6 @@ engines:
     channel: "beta"
 ratings:
   paths:
-  -"**.java"
+  - "**.java"
 exclude_paths:
 - CoyoteUI/**/*
