@@ -9,6 +9,7 @@
  *   Stephan D. Cote 
  *      - Initial concept and implementation
  */
+
 package coyote.azure;
 
 import java.io.UnsupportedEncodingException;
@@ -50,25 +51,25 @@ public final class Signature {
    *
    * @param deviceKey the device key.
    */
-  public Signature( String resourceUri, long expiryTime, String deviceKey ) {
+  public Signature(String resourceUri, long expiryTime, String deviceKey) {
     // Create the raw signature encoded in UTF-8
-    byte[] rawSig = buildRawSignature( resourceUri, expiryTime );
+    byte[] rawSig = buildRawSignature(resourceUri, expiryTime);
 
     // Decode the device key using Base64
-    byte[] decodedDeviceKey = Base64.getDecoder().decode( deviceKey.getBytes() );
+    byte[] decodedDeviceKey = Base64.getDecoder().decode(deviceKey.getBytes());
 
     // Generate a HMAC digest the raw signature using SHA256 with the decoded 
     // device key as the secret 
-    byte[] encryptedSig = encryptSignature( rawSig, decodedDeviceKey );
+    byte[] encryptedSig = encryptSignature(rawSig, decodedDeviceKey);
 
     // Encode the encrypted signature using Base64
-    byte[] encryptedSigBase64 = Base64.getEncoder().encode( encryptedSig );
+    byte[] encryptedSigBase64 = Base64.getEncoder().encode(encryptedSig);
 
     // Encode the signature using the UTF-8 character set
-    String utf8Sig = new String( encryptedSigBase64, SIGNATURE_CHARSET );
+    String utf8Sig = new String(encryptedSigBase64, SIGNATURE_CHARSET);
 
     // Make the string web safe
-    this.sig = encodeSignatureWebSafe( utf8Sig );
+    this.sig = encodeSignatureWebSafe(utf8Sig);
   }
 
 
@@ -98,8 +99,8 @@ public final class Signature {
    *
    * @return the raw signature.
    */
-  public static byte[] buildRawSignature( String scope, long expiry ) {
-    return String.format( RAW_SIGNATURE_FORMAT, scope, expiry ).getBytes( SIGNATURE_CHARSET );
+  public static byte[] buildRawSignature(String scope, long expiry) {
+    return String.format(RAW_SIGNATURE_FORMAT, scope, expiry).getBytes(SIGNATURE_CHARSET);
   }
 
 
@@ -114,19 +115,19 @@ public final class Signature {
    *
    * @return the HMAC-SHA256 encrypted signature.
    */
-  public static byte[] encryptSignature( byte[] sig, byte[] deviceKey ) {
+  public static byte[] encryptSignature(byte[] sig, byte[] deviceKey) {
     String hmacSha256 = "HmacSHA256";
 
-    SecretKeySpec secretKey = new SecretKeySpec( deviceKey, hmacSha256 );
+    SecretKeySpec secretKey = new SecretKeySpec(deviceKey, hmacSha256);
 
     byte[] encryptedSig = null;
     try {
-      Mac hMacSha256 = Mac.getInstance( hmacSha256 );
-      hMacSha256.init( secretKey );
-      encryptedSig = hMacSha256.doFinal( sig );
-    } catch ( NoSuchAlgorithmException e ) {
+      Mac macSha256 = Mac.getInstance(hmacSha256);
+      macSha256.init(secretKey);
+      encryptedSig = macSha256.doFinal(sig);
+    } catch (NoSuchAlgorithmException e) {
       // should never happen, since the algorithm is hard-coded.
-    } catch ( InvalidKeyException e ) {
+    } catch (InvalidKeyException e) {
       // should never happen, since the input key type is hard-coded.
     }
 
@@ -148,13 +149,13 @@ public final class Signature {
    *
    * @return the web-safe encoding of the signature.
    */
-  public static String encodeSignatureWebSafe( String sig ) {
+  public static String encodeSignatureWebSafe(String sig) {
     String strSig = "";
     try {
-      strSig = URLEncoder.encode( sig, SIGNATURE_CHARSET.name() );
-    } catch ( UnsupportedEncodingException e ) {
+      strSig = URLEncoder.encode(sig, SIGNATURE_CHARSET.name());
+    } catch (UnsupportedEncodingException e) {
       // should never happen, since the encoding is hard-coded.
-      throw new IllegalStateException( e );
+      throw new IllegalStateException(e);
     }
 
     return strSig;

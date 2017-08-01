@@ -9,10 +9,11 @@
  *   Stephan D. Cote 
  *      - Initial concept and implementation
  */
+
 package coyote.azure;
 
 /**
- * 
+ * Configuration for IoT hub.
  */
 public class IotHubConfig {
 
@@ -42,7 +43,7 @@ public class IotHubConfig {
    * @param deviceId the device identifier
    * @param deviceKey the primary or secondary key of the device
    */
-  public IotHubConfig( String hubname, String deviceId, String deviceKey ) {
+  public IotHubConfig(String hubname, String deviceId, String deviceKey) {
     this.hubname = hubname;
     this.deviceId = deviceId;
     this.deviceKey = deviceKey;
@@ -54,7 +55,7 @@ public class IotHubConfig {
   /**
    * @return the full URI to the IoT Hub
    */
-  public String getBrokerURI() {
+  public String getBrokerUri() {
     return scheme + "://" + getIotHubHostname() + ":" + port;
   }
 
@@ -82,7 +83,7 @@ public class IotHubConfig {
 
 
   /**
-   * @return the name of the topic on which we can send data
+   * @return the name of the topic on which we can send data.
    */
   public String getSendTopic() {
     return "devices/" + deviceId + "/messages/events/";
@@ -92,7 +93,7 @@ public class IotHubConfig {
 
 
   /**
-   * @return the topic on which we can receive data from the IoT hub
+   * @return the topic on which we can receive data from the IoT hub.
    */
   public String getReceiveTopic() {
     return "devices/" + deviceId + "/messages/devicebound/#";
@@ -102,7 +103,7 @@ public class IotHubConfig {
 
 
   /**
-   * @return the name of the user to be used to identify this client
+   * @return the name of the user to be used to identify this client.
    */
   public String getUsername() {
     return getIotHubHostname() + "/" + deviceId;
@@ -136,11 +137,11 @@ public class IotHubConfig {
    */
   public char[] getPassword() {
 
-    String scope = IotHubUri.getResourceUri( getIotHubHostname(), deviceId );
+    String scope = IotHubUri.getResourceUri(getIotHubHostname(), deviceId);
 
-    long expiry = System.currentTimeMillis() / 1000l + getTokenValidSecs() + 1l;
+    long expiry = System.currentTimeMillis() / 1000L + getTokenValidSecs() + 1L;
 
-    SASToken token = new SASToken( scope, deviceKey, expiry );
+    SasToken token = new SasToken(scope, deviceKey, expiry);
 
     return token.toString().toCharArray();
   }
@@ -149,7 +150,7 @@ public class IotHubConfig {
 
 
   /**
-   * @return the number of seconds any SAS token generated is to expire
+   * @return the number of seconds any SAS token generated is to expire.
    */
   private long getTokenValidSecs() {
     return DEFAULT_TOKEN_VALID_SECS;

@@ -9,17 +9,16 @@
  *   Stephan D. Cote 
  *      - Initial concept and implementation
  */
-package coyote.azure;
 
-//import static org.junit.Assert.*;
-import static org.junit.Assert.*;
+package coyote.azure;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+
 /**
- * 
+ * tests.
  */
 public class IotHubUriTest {
 

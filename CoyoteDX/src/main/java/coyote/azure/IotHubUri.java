@@ -9,6 +9,7 @@
  *   Stephan D. Cote
  *      - Initial concept and implementation
  */
+
 package coyote.azure;
 
 import java.io.UnsupportedEncodingException;
@@ -40,7 +41,7 @@ public final class IotHubUri {
 
 
   public IotHubUri() {
-
+    // default constructor
   }
 
 
@@ -54,16 +55,16 @@ public final class IotHubUri {
    * @param name the query param name.
    * @param value the query param value.
    */
-  protected static void appendQueryParam( final StringBuilder uriBuilder, final String name, final String value ) {
+  protected static void appendQueryParam(final StringBuilder uriBuilder, final String name, final String value) {
     try {
-      final String urlEncodedName = URLEncoder.encode( name, IOTHUB_URL_ENCODING_CHARSET.name() );
-      final String urlEncodedValue = URLEncoder.encode( value, IOTHUB_URL_ENCODING_CHARSET.name() );
-      uriBuilder.append( urlEncodedName );
-      uriBuilder.append( "=" );
-      uriBuilder.append( urlEncodedValue );
-    } catch ( final UnsupportedEncodingException e ) {
+      final String urlEncodedName = URLEncoder.encode(name, IOTHUB_URL_ENCODING_CHARSET.name());
+      final String urlEncodedValue = URLEncoder.encode(value, IOTHUB_URL_ENCODING_CHARSET.name());
+      uriBuilder.append(urlEncodedName);
+      uriBuilder.append("=");
+      uriBuilder.append(urlEncodedValue);
+    } catch (final UnsupportedEncodingException e) {
       // should never happen, since the encoding is hard-coded.
-      throw new IllegalStateException( e );
+      throw new IllegalStateException(e);
     }
   }
 
@@ -83,8 +84,8 @@ public final class IotHubUri {
    * @return the string representation of the IoT Hub resource URI with the 
    *         format '[iotHubHostname]/devices/[deviceId]'.
    */
-  public static String getResourceUri( final String iotHubHostname, final String deviceId ) {
-    final IotHubUri iotHubUri = new IotHubUri( iotHubHostname, deviceId, "" );
+  public static String getResourceUri(final String iotHubHostname, final String deviceId) {
+    final IotHubUri iotHubUri = new IotHubUri(iotHubHostname, deviceId, "");
     return iotHubUri.getHostname() + iotHubUri.getPath();
   }
 
@@ -98,20 +99,20 @@ public final class IotHubUri {
    *
    * @return a path with each subdirectory URL-encoded.
    */
-  protected static String urlEncodePath( final String path ) {
-    final String[] pathSubDirs = path.split( "/" );
+  protected static String urlEncodePath(final String path) {
+    final String[] pathSubDirs = path.split("/");
     final StringBuilder urlEncodedPathBuilder = new StringBuilder();
     try {
-      for ( final String subDir : pathSubDirs ) {
-        if ( subDir.length() > 0 ) {
-          final String urlEncodedSubDir = URLEncoder.encode( subDir, IOTHUB_URL_ENCODING_CHARSET.name() );
-          urlEncodedPathBuilder.append( "/" );
-          urlEncodedPathBuilder.append( urlEncodedSubDir );
+      for (final String subDir : pathSubDirs) {
+        if (subDir.length() > 0) {
+          final String urlEncodedSubDir = URLEncoder.encode(subDir, IOTHUB_URL_ENCODING_CHARSET.name());
+          urlEncodedPathBuilder.append("/");
+          urlEncodedPathBuilder.append(urlEncodedSubDir);
         }
       }
-    } catch ( final UnsupportedEncodingException e ) {
+    } catch (final UnsupportedEncodingException e) {
       // should never happen.
-      throw new IllegalStateException( e );
+      throw new IllegalStateException(e);
     }
 
     return urlEncodedPathBuilder.toString();
@@ -131,11 +132,11 @@ public final class IotHubUri {
    * @param deviceId the device ID.
    * @param iotHubMethodPath the path from the IoT Hub resource to the method.
    */
-  public IotHubUri( final String iotHubHostname, final String deviceId, final String iotHubMethodPath ) {
+  public IotHubUri(final String iotHubHostname, final String deviceId, final String iotHubMethodPath) {
     // Codes_SRS_IOTHUBURI_11_007: [The constructor shall return .]
     // Codes_SRS_IOTHUBURI_11_015: [The constructor shall URL-encode the device ID.]
     // Codes_SRS_IOTHUBURI_11_016: [The constructor shall URL-encode the IoT Hub method path.]
-    this( iotHubHostname, deviceId, iotHubMethodPath, null );
+    this(iotHubHostname, deviceId, iotHubMethodPath, null);
   }
 
 
@@ -152,22 +153,22 @@ public final class IotHubUri {
    * @param iotHubMethodPath the path from the IoT Hub resource to the method.
    * @param queryParams the URL query parameters. Can be null.
    */
-  public IotHubUri( final String iotHubHostname, final String deviceId, final String iotHubMethodPath, final Map<String, String> queryParams ) {
+  public IotHubUri(final String iotHubHostname, final String deviceId, final String iotHubMethodPath, final Map<String, String> queryParams) {
     hostname = iotHubHostname;
 
-    final String rawPath = String.format( PATH_FORMAT, deviceId, iotHubMethodPath );
-    path = urlEncodePath( rawPath );
+    final String rawPath = String.format(PATH_FORMAT, deviceId, iotHubMethodPath);
+    path = urlEncodePath(rawPath);
 
-    final StringBuilder uriBuilder = new StringBuilder( hostname );
-    uriBuilder.append( path );
-    uriBuilder.append( "?" );
-    uriBuilder.append( API_VERSION );
-    if ( queryParams != null ) {
+    final StringBuilder uriBuilder = new StringBuilder(hostname);
+    uriBuilder.append(path);
+    uriBuilder.append("?");
+    uriBuilder.append(API_VERSION);
+    if (queryParams != null) {
       final Iterator<Map.Entry<String, String>> paramIter = queryParams.entrySet().iterator();
-      while ( paramIter.hasNext() ) {
+      while (paramIter.hasNext()) {
         final Map.Entry<String, String> param = paramIter.next();
-        uriBuilder.append( "&" );
-        appendQueryParam( uriBuilder, param.getKey(), param.getValue() );
+        uriBuilder.append("&");
+        appendQueryParam(uriBuilder, param.getKey(), param.getValue());
       }
     }
 
