@@ -41,9 +41,9 @@ public enum ColumnType {
 
 
 
-  private ColumnType(String s, int l) {
-    name = s;
-    length = l;
+  private ColumnType(String name, int length) {
+    this.name = name;
+    this.length = length;
   }
 
 
@@ -68,14 +68,16 @@ public enum ColumnType {
    * @return the column type with the given mane or null if not found.
    */
   public static ColumnType getColumnTypeByName(String name) {
+    ColumnType retval = null;
     if (name != null) {
-      for (ColumnType type : ColumnType.values()) {
+      for (final ColumnType type : ColumnType.values()) {
         if (name.equalsIgnoreCase(type.toString())) {
-          return type;
+          retval = type;
+          break;
         }
       }
     }
-    return null;
+    return retval;
   }
 
 
