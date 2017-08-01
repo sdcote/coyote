@@ -1,14 +1,11 @@
 /*
  * Copyright (c) 2004 Stephan D. Cote' - All rights reserved.
- * 
- * This program and the accompanying materials are made available under the 
- * terms of the MIT License which accompanies this distribution, and is 
- * available at http://creativecommons.org/licenses/MIT/
  *
- * Contributors:
- *   Stephan D. Cote 
- *      - Initial concept and implementation
+ * This program and the accompanying materials are made available under the
+ * terms of the MIT License which accompanies this distribution, and is
+ * available at http://creativecommons.org/licenses/MIT/
  */
+
 package coyote.commons.template;
 
 import java.io.IOException;
@@ -22,15 +19,15 @@ import coyote.commons.StringUtil;
 /**
  * Parses a String and replaces variables with the values represented in a
  * table of symbols.
- * 
- * <p>Templates are designed to be created once then evaluated multiple times 
- * using different or updated {@code SymbolTable} objects so different values 
+ *
+ * <p>Templates are designed to be created once then evaluated multiple times
+ * using different or updated {@code SymbolTable} objects so different values
  * can be used. The original use case for this class was creating an email body
- * for a monitoring system which would send an email with the details of an 
- * event in consistent manner. The details of the event were different (e.g. 
- * time, error message, component in error, severity addressee, etc.) and 
- * concatenating strings was just to cumbersome. This class made it easy to 
- * create a template of the message and populate the symbol table with the 
+ * for a monitoring system which would send an email with the details of an
+ * event in consistent manner. The details of the event were different (e.g.
+ * time, error message, component in error, severity addressee, etc.) and
+ * concatenating strings was just to cumbersome. This class made it easy to
+ * create a template of the message and populate the symbol table with the
  * details of event and let the template fill in the variables.</p>
  *
  * <p>This utility searches for tags delimited by the opening &quot;[#&quot;
@@ -46,11 +43,11 @@ import coyote.commons.StringUtil;
  * string, then an empty string is returned.</p>
  *
  * <p>Tokens that are not preceded with a &quot;$&quot; are treated as object
- * tokens. When encountered, the parser attempts to lookup the object in the 
- * static cache of objects. If found, the object's {@code toString()} method is 
- * called and that value is used at that location in the template. If the class 
+ * tokens. When encountered, the parser attempts to lookup the object in the
+ * static cache of objects. If found, the object's {@code toString()} method is
+ * called and that value is used at that location in the template. If the class
  * is not found, a string value of &quot;null&quot; is returned.</p>
- * 
+ *
  * <p>Pre-initialized class references may be placed into the class cache in an
  * effort to give the template visibility into component frameworks. This
  * allows templates to call into generic, sharable facilities such as Data
@@ -58,45 +55,61 @@ import coyote.commons.StringUtil;
  * that is designed to present data in a string format.</p>
  */
 public class Template extends StringParser {
-  private static SymbolTable symbols = new SymbolTable();
-  private Hashtable<String, Object> classCache = new Hashtable<String, Object>();
-  private static Hashtable<String, Object> staticCache = new Hashtable<String, Object>();
+  private static final String CLOSE = "#]";
+  private static final char CP = ')';
+  private static final char DOT = '.';
   private static final String[] EMPTY_ARGS = new String[0];
 
-  private static final String OPEN = "[#";
-  private static final String CLOSE = "#]";
-  private static final char DOT = '.';
   private static final char OP = '(';
-  private static final char CP = ')';
-  private static final char VAR = '$';
+  private static final String OPEN = "[#";
   private static final char PIPE = '|';
-  private static final String VAR_PREFIX = String.valueOf( VAR );
+  private static Hashtable<String, Object> staticCache = new Hashtable<String, Object>();
+  private static SymbolTable symbols = new SymbolTable();
+  private static final char VAR = '$';
+  private static final String VAR_PREFIX = String.valueOf(VAR);
+  private final Hashtable<String, Object> classCache = new Hashtable<String, Object>();
 
 
 
 
   /**
-   * Constructor Template
+   * Get the object with the given name from the cache.
    *
-   * @param string
+   * @param name The name of the object to retrieve.
+   *
+   * @return the object with the given name or null if not found.
    */
-  public Template( String string ) {
-    super( string );
+  public static Object get(final String name) {
+    if ((name != null) && (name.length() > 0)) {
+      return staticCache.get(name);
+    }
+    return null;
   }
 
 
 
 
   /**
-   * Constructor Template
+   * Resolve the template string with the given symbol table, but leave the
+   * unresolved variables in the template.
    *
-   * @param string
-   * @param symbols
+   * <p>This enables several passes through the template with different symbol
+   * tables, each contributing its own symbols to the result. This implies
+   * that the final pass through the symbol table should be with the resolve
+   * method to ensure all the template markup is removed.
+   *
+   * @param text the template text
+   * @param symbols the symbol table to use in resolving the variables
+   *
+   * @return the resulting string with only the variables existing in the
+   *         given table resolved and the rest left unchanged.
    */
-  public Template( String string, SymbolTable symbols ) {
-    super( string );
-
-    Template.symbols = symbols;
+  public static String preProcess(final String text, final SymbolTable symbols) {
+    if ((symbols != null) && (text != null)) {
+      return new Template(text, symbols).preProcess();
+    } else {
+      return text;
+    }
   }
 
 
@@ -107,9 +120,9 @@ public class Template extends StringParser {
    *
    * @param obj the object to cache
    */
-  public static void put( Object obj ) {
-    if ( obj != null ) {
-      staticCache.put( obj.getClass().getName(), obj );
+  public static void put(final Object obj) {
+    if (obj != null) {
+      staticCache.put(obj.getClass().getName(), obj);
     }
   }
 
@@ -122,9 +135,9 @@ public class Template extends StringParser {
    * @param obj the object to cache
    * @param name name of the class to place in the template
    */
-  public static void put( String name, Object obj ) {
-    if ( obj != null && name != null && name.length() > 0 ) {
-      staticCache.put( name, obj );
+  public static void put(final String name, final Object obj) {
+    if ((obj != null) && (name != null) && (name.length() > 0)) {
+      staticCache.put(name, obj);
     }
   }
 
@@ -132,17 +145,26 @@ public class Template extends StringParser {
 
 
   /**
-   * Get the object with the given name from the cache.
+   * Resolve the template string with the given symbol table.
    *
-   * @param name The name of the object to retrieve.
+   * <p>This is a utility method to make using templates easier and to improve
+   * the readability of code.</p>
    *
-   * @return the object with the given name or null if not found.
+   * <p>If the text or the symbol reference is null, the reference to the text
+   * is returned unchanged. This prevents null reference exceptions from being
+   * thrown.</p>
+   *
+   * @param text the template text
+   * @param symbols the symbol table to use in resolving the variables
+   *
+   * @return the resulting string with all the variable resolved.
    */
-  public static Object get( String name ) {
-    if ( ( name != null ) && ( name.length() > 0 ) ) {
-      return staticCache.get( name );
+  public static String resolve(final String text, final SymbolTable symbols) {
+    if ((symbols != null) && (text != null)) {
+      return new Template(text, symbols).toString();
+    } else {
+      return text;
     }
-    return null;
   }
 
 
@@ -153,145 +175,145 @@ public class Template extends StringParser {
    *
    * @param tag the tag this method is to resolve
    * @param symbols The hash of scalar typed data mapped by name
-   * @param cache the hash table of object instances that may provide dynamic 
+   * @param cache the hash table of object instances that may provide dynamic
    *        data
-   * @param preprocess true indicates unresolved symbols should remain in the 
+   * @param preprocess true indicates unresolved symbols should remain in the
    *        result, false means they should be replaced with an empty string.
    *
    * @return a string representing the data behind the given tag.
    */
-  public static String resolve( String tag, SymbolTable symbols, Hashtable cache, boolean preprocess ) {
-    StringBuffer retval = new StringBuffer();
+  public static String resolve(final String tag, final SymbolTable symbols, final Hashtable cache, final boolean preprocess) {
+    final StringBuffer retval = new StringBuffer();
 
-    StringParser parser = new StringParser( tag );
+    final StringParser parser = new StringParser(tag);
 
     try {
-      while ( !parser.eof() ) {
-        String token = parser.readToken();
+      while (!parser.eof()) {
+        final String token = parser.readToken();
 
-        if ( ( token == null ) || ( token.length() < 1 ) ) {
+        if ((token == null) || (token.length() < 1)) {
           break;
         }
 
-        if ( token.startsWith( VAR_PREFIX ) ) {
+        if (token.startsWith(VAR_PREFIX)) {
           // if the token contains a vertical pipe character, split the token into the variable key and the format string.
-          int boundry = token.indexOf( PIPE );
-          if ( boundry > 0 ) {
-            String key = token.substring( 1, boundry );
-            String format = token.substring( boundry + 1 );
-            if ( preprocess ) {
-              if ( symbols.containsKey( key ) ) {
-                retval.append( symbols.getString( key, format ) );
+          final int boundry = token.indexOf(PIPE);
+          if (boundry > 0) {
+            final String key = token.substring(1, boundry);
+            final String format = token.substring(boundry + 1);
+            if (preprocess) {
+              if (symbols.containsKey(key)) {
+                retval.append(symbols.getString(key, format));
               } else {
-                retval.append( OPEN );
-                retval.append( VAR );
-                retval.append( key );
-                retval.append( PIPE );
-                retval.append( format );
-                retval.append( CLOSE );
+                retval.append(OPEN);
+                retval.append(VAR);
+                retval.append(key);
+                retval.append(PIPE);
+                retval.append(format);
+                retval.append(CLOSE);
               }
             } else {
-              retval.append( symbols.getString( key, format ) );
+              retval.append(symbols.getString(key, format));
             }
           } else {
-            if ( preprocess ) {
-              String key = token.substring( 1 );
-              if ( symbols.containsKey( key ) ) {
-                retval.append( symbols.getString( key ) );
-              } else if ( symbols.containsLiteral( key ) ) {
-                retval.append( symbols.getString( key ) );
+            if (preprocess) {
+              final String key = token.substring(1);
+              if (symbols.containsKey(key)) {
+                retval.append(symbols.getString(key));
+              } else if (symbols.containsLiteral(key)) {
+                retval.append(symbols.getString(key));
               } else {
-                retval.append( OPEN );
-                retval.append( VAR );
-                retval.append( key );
-                retval.append( CLOSE );
+                retval.append(OPEN);
+                retval.append(VAR);
+                retval.append(key);
+                retval.append(CLOSE);
               }
             } else {
-              retval.append( symbols.getString( token.substring( 1 ) ) );
+              retval.append(symbols.getString(token.substring(1)));
             }
           }
         } else {
           // Must be a class; use the entire tag when parsing
 
           // the last dotted token is always assumed to be a method name
-          int indx = tag.lastIndexOf( DOT );
-          if ( indx != -1 ) {
+          int indx = tag.lastIndexOf(DOT);
+          if (indx != -1) {
             // we have an object key and a method
-            String objectKey = tag.substring( 0, indx );
-            String methodToken = tag.substring( indx + 1 );
+            final String objectKey = tag.substring(0, indx);
+            final String methodToken = tag.substring(indx + 1);
             String methodName = null;
             String[] arguments = EMPTY_ARGS;
 
             // get the object by the key
-            Object obj = Template.get( objectKey );
+            final Object obj = Template.get(objectKey);
 
-            if ( obj != null ) {
+            if (obj != null) {
               // parse out the method to call - It should be within parentheses
-              indx = methodToken.indexOf( OP );
-              if ( indx != -1 ) {
-                methodName = methodToken.substring( 0, indx );
-                String args = methodToken.substring( indx + 1 );
+              indx = methodToken.indexOf(OP);
+              if (indx != -1) {
+                methodName = methodToken.substring(0, indx);
+                String args = methodToken.substring(indx + 1);
 
                 // parse to the closing parentheses
-                indx = args.indexOf( CP );
-                if ( indx != -1 ) {
-                  args = args.substring( 0, indx );
+                indx = args.indexOf(CP);
+                if (indx != -1) {
+                  args = args.substring(0, indx);
                 }
 
-                if ( StringUtil.isNotBlank( args ) ) {
+                if (StringUtil.isNotBlank(args)) {
                   // split the argument portion into separate strings by commas
                   // ignoring any spaces
-                  arguments = args.split( ",\\s*" );
+                  arguments = args.split(",\\s*");
                 }
               }
 
               // if the arguments start with a $, resolve them to their values
-              for ( int x = 0; x < arguments.length; x++ ) {
-                if ( StringUtil.isNotBlank( arguments[x] ) && arguments[x].charAt( 0 ) == VAR ) {
-                  arguments[x] = symbols.getString( arguments[x].substring( 1 ) );
+              for (int x = 0; x < arguments.length; x++) {
+                if (StringUtil.isNotBlank(arguments[x]) && (arguments[x].charAt(0) == VAR)) {
+                  arguments[x] = symbols.getString(arguments[x].substring(1));
                 }
 
                 // Handle quoted values especially empty string arguments: ""
-                if ( arguments[x].length() > 1 && arguments[x].indexOf( '"' ) > -1 ) {
-                  String qval = StringUtil.getQuotedValue( arguments[x] );
-                  if ( qval != null ) {
+                if ((arguments[x].length() > 1) && (arguments[x].indexOf('"') > -1)) {
+                  final String qval = StringUtil.getQuotedValue(arguments[x]);
+                  if (qval != null) {
                     arguments[x] = qval;
                   }
                 }
 
               }
-              if ( StringUtil.isNotBlank( methodName ) ) {
-                // reflect into the object to see if there is the named method 
+              if (StringUtil.isNotBlank(methodName)) {
+                // reflect into the object to see if there is the named method
                 // with the correct number of string arguments
 
                 Method method = null;
                 Object returned = null;
 
                 // setup the argument signature
-                Class<?>[] cArg = new Class[arguments.length];
-                for ( int x = 0; x < arguments.length; x++ ) {
+                final Class<?>[] cArg = new Class[arguments.length];
+                for (int x = 0; x < arguments.length; x++) {
                   cArg[x] = arguments[x].getClass();;
                 }
 
                 // find the method with the argument signature
                 try {
-                  method = obj.getClass().getMethod( methodName, cArg );
-                } catch ( Exception e1 ) {
+                  method = obj.getClass().getMethod(methodName, cArg);
+                } catch (final Exception e1) {
                   // silently ignore e1.printStackTrace();
                 }
 
                 // if we found a method matching the signature
-                if ( method != null ) {
+                if (method != null) {
                   // invoke the method
                   try {
-                    returned = method.invoke( obj, (Object[])arguments );
+                    returned = method.invoke(obj, (Object[])arguments);
 
                     // If we received a return value, append it
-                    if ( returned != null ) {
-                      retval.append( returned.toString() );
+                    if (returned != null) {
+                      retval.append(returned.toString());
                     }
-                  } catch ( Exception e ) {
-                    System.out.println( "Template Class Error:" + e.getClass().getSimpleName() + ":" + e.getMessage() );
+                  } catch (final Exception e) {
+                    System.out.println("Template Class Error:" + e.getClass().getSimpleName() + ":" + e.getMessage());
                     //e.printStackTrace();
                   }
 
@@ -300,10 +322,10 @@ public class Template extends StringParser {
               } // if we have a method name to call
 
             } else {
-              if ( preprocess ) {
-                retval.append( OPEN );
-                retval.append( token );
-                retval.append( CLOSE );
+              if (preprocess) {
+                retval.append(OPEN);
+                retval.append(token);
+                retval.append(CLOSE);
               }
             } // if object with the name is found
 
@@ -311,43 +333,23 @@ public class Template extends StringParser {
             // we just have an object
 
             // get the object by the key
-            Object obj = Template.get( token );
+            final Object obj = Template.get(token);
 
             // If we have an object with that name call its toString method
-            if ( obj != null ) {
-              retval.append( obj.toString() );
+            if (obj != null) {
+              retval.append(obj.toString());
             }
 
-          } // object key 
+          } // object key
 
         } // variable or object token?
 
       } // while parser not EOF
-    } catch ( Exception ex ) {
+    } catch (final Exception ex) {
 
     }
 
     return retval.toString();
-  }
-
-
-
-
-  /**
-   * Return this template as a string, resolving all the tags.
-   *
-   * @return the String representing the resolved template.
-   */
-  public String toString() {
-    try {
-      // call our static method with our instance attributes
-      return toString( this, symbols, classCache, false );
-    } catch ( TemplateException te ) {
-      System.err.println( te.getMessage() );
-      System.err.println( te.getContext() );
-
-      throw new IllegalArgumentException( "Parser error" );
-    }
   }
 
 
@@ -361,61 +363,61 @@ public class Template extends StringParser {
    * @param template The string representing the template data
    * @param symbols the SymbolTable to us when resolving tokens
    * @param cache the class cache to use when looking up class references
-   * @param preprocess to to leave unresolved variables in place, false 
+   * @param preprocess to to leave unresolved variables in place, false
    *        replaces unresolved variables with an empty string.
    *
    * @return a string representing the fully-resolved template.
    *
    * @throws TemplateException
    */
-  public static String toString( Template template, SymbolTable symbols, Hashtable cache, boolean preprocess ) throws TemplateException {
-    if ( template != null ) {
-      if ( symbols == null ) {
+  public static String toString(final Template template, SymbolTable symbols, final Hashtable cache, final boolean preprocess) throws TemplateException {
+    if (template != null) {
+      if (symbols == null) {
         symbols = new SymbolTable();
       }
 
-      StringBuffer buffer = new StringBuffer();
+      final StringBuffer buffer = new StringBuffer();
 
       try {
         // Keep looping
-        while ( !template.eof() ) {
-          String userText = template.readToPattern( OPEN );
+        while (!template.eof()) {
+          final String userText = template.readToPattern(OPEN);
 
-          if ( userText != null ) {
-            buffer.append( userText );
+          if (userText != null) {
+            buffer.append(userText);
           }
 
           // if we are at the End Of the File, then we are done
-          if ( template.eof() ) {
+          if (template.eof()) {
             break;
           } else {
             // Skip past the opening tag delimiter
-            template.skip( OPEN.length() );
+            template.skip(OPEN.length());
 
             // Start reading the contents of the tag
-            String tag = template.readToPattern( CLOSE );
+            final String tag = template.readToPattern(CLOSE);
 
             // If we are at EOF then the read terminated before the closing tag
             // was encountered. This means the template is not complete.
-            if ( template.eof() ) {
-              buffer.append( "TEMPLATE ERROR: reached EOF before finding closing delimiter '" + CLOSE + "' at " + template.getPosition() );
+            if (template.eof()) {
+              buffer.append("TEMPLATE ERROR: reached EOF before finding closing delimiter '" + CLOSE + "' at " + template.getPosition());
 
               return buffer.toString();
             }
 
             // read past the closing delimiter
-            template.skip( CLOSE.length() );
+            template.skip(CLOSE.length());
 
             // OK, now perform our replacement magik
-            if ( ( tag != null ) && ( tag.length() > 0 ) ) {
+            if ((tag != null) && (tag.length() > 0)) {
               // resolve the tag using the given symbol table and class cache
-              buffer.append( resolve( tag, symbols, cache, preprocess ) );
+              buffer.append(resolve(tag, symbols, cache, preprocess));
             }
 
           }
         }
-      } catch ( IOException ioe ) {
-        throw new TemplateException( "IOE", ioe );
+      } catch (final IOException ioe) {
+        throw new TemplateException("IOE", ioe);
       }
 
       return buffer.toString();
@@ -428,12 +430,42 @@ public class Template extends StringParser {
 
 
   /**
-   * Method mergeSymbols
+   * Constructor Template
    *
-   * @param table
+   * @param string
    */
-  public void mergeSymbols( SymbolTable table ) {
-    symbols.merge( table );
+  public Template(final String string) {
+    super(string);
+  }
+
+
+
+
+  /**
+   * Constructor Template
+   *
+   * @param string
+   * @param symbols
+   */
+  public Template(final String string, final SymbolTable symbols) {
+    super(string);
+
+    Template.symbols = symbols;
+  }
+
+
+
+
+  /**
+   * Method addSymbol
+   *
+   * @param name
+   * @param value
+   */
+  public void addSymbol(final String name, final Object value) {
+    if ((name != null) && (value != null)) {
+      symbols.put(name, value);
+    }
   }
 
 
@@ -452,11 +484,23 @@ public class Template extends StringParser {
 
 
   /**
+   * Method mergeSymbols
+   *
+   * @param table
+   */
+  public void mergeSymbols(final SymbolTable table) {
+    symbols.merge(table);
+  }
+
+
+
+
+  /**
    * Method setSymbols
    *
    * @param symbols
    */
-  public void setSymbols( SymbolTable symbols ) {
+  public void setSymbols(final SymbolTable symbols) {
     Template.symbols = symbols;
   }
 
@@ -464,14 +508,20 @@ public class Template extends StringParser {
 
 
   /**
-   * Method addSymbol
+   * Return this template as a string, resolving all the tags.
    *
-   * @param name
-   * @param value
+   * @return the String representing the resolved template.
    */
-  public void addSymbol( String name, Object value ) {
-    if ( ( name != null ) && ( value != null ) ) {
-      symbols.put( name, value );
+  @Override
+  public String toString() {
+    try {
+      // call our static method with our instance attributes
+      return toString(this, symbols, classCache, false);
+    } catch (final TemplateException te) {
+      System.err.println(te.getMessage());
+      System.err.println(te.getContext());
+
+      throw new IllegalArgumentException("Parser error");
     }
   }
 
@@ -479,73 +529,21 @@ public class Template extends StringParser {
 
 
   /**
-   * Resolve the template string with the given symbol table.
-   * 
-   * <p>This is a utility method to make using templates easier and to improve 
-   * the readability of code.</p>
-   * 
-   * <p>If the text or the symbol reference is null, the reference to the text 
-   * is returned unchanged. This prevents null reference exceptions from being 
-   * thrown.</p> 
-   * 
-   * @param text the template text
-   * @param symbols the symbol table to use in resolving the variables
-   * 
-   * @return the resulting string with all the variable resolved.
-   */
-  public static String resolve( String text, SymbolTable symbols ) {
-    if ( symbols != null && text != null ) {
-      return new Template( text, symbols ).toString();
-    } else {
-      return text;
-    }
-  }
-
-
-
-
-  /**
-   * Resolve the template string with the given symbol table, but leave the 
-   * unresolved variables in the template.
-   * 
-   * <p>This enables several passes through the template with different symbol 
-   * tables, each contributing its own symbols to the result. This implies 
-   * that the final pass through the symbol table should be with the resolve 
-   * method to ensure all the template markup is removed.
-   * 
-   * @param text the template text
-   * @param symbols the symbol table to use in resolving the variables
-   * 
-   * @return the resulting string with only the variables existing in the 
-   *         given table resolved and the rest left unchanged.
-   */
-  public static String preProcess( String text, SymbolTable symbols ) {
-    if ( symbols != null && text != null ) {
-      return new Template( text, symbols ).preProcess();
-    } else {
-      return text;
-    }
-  }
-
-
-
-
-  /**
-   * Resolve this template with the given symbol table leaving the unresolved 
+   * Resolve this template with the given symbol table leaving the unresolved
    * variables in the template.
-   * 
-   * @return the resulting string with only the variables existing in the 
+   *
+   * @return the resulting string with only the variables existing in the
    *         given table resolved and the rest left unchanged.
    */
   private String preProcess() {
     try {
       // call our static method with our instance attributes
-      return toString( this, symbols, classCache, true );
-    } catch ( TemplateException te ) {
-      System.err.println( te.getMessage() );
-      System.err.println( te.getContext() );
+      return toString(this, symbols, classCache, true);
+    } catch (final TemplateException te) {
+      System.err.println(te.getMessage());
+      System.err.println(te.getContext());
 
-      throw new IllegalArgumentException( "Parser error" );
+      throw new IllegalArgumentException("Parser error");
     }
   }
 

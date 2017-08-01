@@ -18,22 +18,29 @@ import coyote.commons.network.http.Status;
  */
 public abstract class WebSocketDaemon extends HTTPD {
 
-  static final Logger LOG = Logger.getLogger(WebSocketDaemon.class.getName());
+  public static final String HEADER_CONNECTION = "connection";
 
+  public static final String HEADER_CONNECTION_VALUE = "Upgrade";
   public static final String HEADER_UPGRADE = "upgrade";
   public static final String HEADER_UPGRADE_VALUE = "websocket";
-  public static final String HEADER_CONNECTION = "connection";
-  public static final String HEADER_CONNECTION_VALUE = "Upgrade";
+  public static final String HEADER_WEBSOCKET_ACCEPT = "sec-websocket-accept";
+  public static final String HEADER_WEBSOCKET_KEY = "sec-websocket-key";
+  public static final String HEADER_WEBSOCKET_PROTOCOL = "sec-websocket-protocol";
   public static final String HEADER_WEBSOCKET_VERSION = "sec-websocket-version";
   public static final String HEADER_WEBSOCKET_VERSION_VALUE = "13";
-  public static final String HEADER_WEBSOCKET_KEY = "sec-websocket-key";
-  public static final String HEADER_WEBSOCKET_ACCEPT = "sec-websocket-accept";
-  public static final String HEADER_WEBSOCKET_PROTOCOL = "sec-websocket-protocol";
-  private final static String WEBSOCKET_KEY_MAGIC = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
   private final static char[] ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/".toCharArray();
+  private final static String WEBSOCKET_KEY_MAGIC = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
+  static final Logger LOG = Logger.getLogger(WebSocketDaemon.class.getName());
 
-  public static enum State {
-    UNCONNECTED, CONNECTING, OPEN, CLOSING, CLOSED
+
+
+
+  public static String makeAcceptKey(final String key) throws NoSuchAlgorithmException {
+    final MessageDigest md = MessageDigest.getInstance("SHA-1");
+    final String text = key + WebSocketDaemon.WEBSOCKET_KEY_MAGIC;
+    md.update(text.getBytes(), 0, text.length());
+    final byte[] sha1hash = md.digest();
+    return encodeBase64(sha1hash);
   }
 
 
@@ -41,9 +48,9 @@ public abstract class WebSocketDaemon extends HTTPD {
 
   /**
    * Translates the specified byte array into Base64 string.
-   * 
+   *
    * @param buf the byte array (not null)
-   * 
+   *
    * @return the translated Base64 string (not null)
    */
   private static String encodeBase64(final byte[] buf) {
@@ -76,17 +83,6 @@ public abstract class WebSocketDaemon extends HTTPD {
 
 
 
-  public static String makeAcceptKey(final String key) throws NoSuchAlgorithmException {
-    final MessageDigest md = MessageDigest.getInstance("SHA-1");
-    final String text = key + WebSocketDaemon.WEBSOCKET_KEY_MAGIC;
-    md.update(text.getBytes(), 0, text.length());
-    final byte[] sha1hash = md.digest();
-    return encodeBase64(sha1hash);
-  }
-
-
-
-
   public WebSocketDaemon(final int port) {
     super(port);
   }
@@ -97,30 +93,6 @@ public abstract class WebSocketDaemon extends HTTPD {
   public WebSocketDaemon(final String hostname, final int port) {
     super(hostname, port);
   }
-
-
-
-
-  private boolean isWebSocketConnectionHeader(final Map<String, String> headers) {
-    final String connection = headers.get(WebSocketDaemon.HEADER_CONNECTION);
-    return (connection != null) && connection.toLowerCase().contains(WebSocketDaemon.HEADER_CONNECTION_VALUE.toLowerCase());
-  }
-
-
-
-
-  protected boolean isWebsocketRequested(final IHTTPSession session) {
-    final Map<String, String> headers = session.getRequestHeaders();
-    final String upgrade = headers.get(WebSocketDaemon.HEADER_UPGRADE);
-    final boolean isCorrectConnection = isWebSocketConnectionHeader(headers);
-    final boolean isUpgrade = WebSocketDaemon.HEADER_UPGRADE_VALUE.equalsIgnoreCase(upgrade);
-    return isUpgrade && isCorrectConnection;
-  }
-
-
-
-
-  protected abstract WebSocket openWebSocket(IHTTPSession handshake);
 
 
 
@@ -158,6 +130,30 @@ public abstract class WebSocketDaemon extends HTTPD {
 
 
 
+  private boolean isWebSocketConnectionHeader(final Map<String, String> headers) {
+    final String connection = headers.get(WebSocketDaemon.HEADER_CONNECTION);
+    return (connection != null) && connection.toLowerCase().contains(WebSocketDaemon.HEADER_CONNECTION_VALUE.toLowerCase());
+  }
+
+
+
+
+  protected boolean isWebsocketRequested(final IHTTPSession session) {
+    final Map<String, String> headers = session.getRequestHeaders();
+    final String upgrade = headers.get(WebSocketDaemon.HEADER_UPGRADE);
+    final boolean isCorrectConnection = isWebSocketConnectionHeader(headers);
+    final boolean isUpgrade = WebSocketDaemon.HEADER_UPGRADE_VALUE.equalsIgnoreCase(upgrade);
+    return isUpgrade && isCorrectConnection;
+  }
+
+
+
+
+  protected abstract WebSocket openWebSocket(IHTTPSession handshake);
+
+
+
+
   protected Response serveHttp(final IHTTPSession session) throws SecurityResponseException {
     return super.serve(session);
   }
@@ -171,6 +167,10 @@ public abstract class WebSocketDaemon extends HTTPD {
   @Override
   protected boolean useGzipWhenAccepted(final Response r) {
     return false;
+  }
+
+  public static enum State {
+    CLOSED, CLOSING, CONNECTING, OPEN, UNCONNECTED
   }
 
 }

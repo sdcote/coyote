@@ -4,10 +4,8 @@
  * This program and the accompanying materials are made available under the
  * terms of the MIT License which accompanies this distribution, and is
  * available at http://creativecommons.org/licenses/MIT/
- *
- * Contributors:
- *   Stephan D. Cote
  */
+
 package coyote.commons.network.http;
 
 import java.io.IOException;
@@ -29,17 +27,14 @@ import coyote.loader.log.Log;
 public class ServerRunnable implements Runnable {
 
   private final HTTPD httpd;
-
   private final int timeout;
-
-  IOException bindException;
-
+  protected IOException bindException;
   boolean hasBinded = false;
 
 
 
 
-  ServerRunnable( final HTTPD httpd, final int timeout ) {
+  protected ServerRunnable( final HTTPD httpd, final int timeout ) {
     this.httpd = httpd;
     this.timeout = timeout;
   }

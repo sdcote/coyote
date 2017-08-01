@@ -1,13 +1,3 @@
-/*
- * Copyright (c) 2016 Stephan D. Cote' - All rights reserved.
- * 
- * This program and the accompanying materials are made available under the 
- * terms of the MIT License which accompanies this distribution, and is 
- * available at http://creativecommons.org/licenses/MIT/
- *
- * Contributors:
- *   Stephan D. Cote 
- */
 package coyote.commons.network.http.wsd;
 
 import java.io.IOException;
@@ -24,15 +14,22 @@ public class WebSocketException extends IOException {
 
 
 
-  public WebSocketException( WebSocketFrame.CloseCode code, String reason ) {
-    this( code, reason, null );
+  public WebSocketException(final Exception cause) {
+    this(CloseCode.InternalServerError, cause.toString(), cause);
   }
 
 
 
 
-  public WebSocketException( WebSocketFrame.CloseCode code, String reason, Exception cause ) {
-    super( code + ": " + reason, cause );
+  public WebSocketException(final WebSocketFrame.CloseCode code, final String reason) {
+    this(code, reason, null);
+  }
+
+
+
+
+  public WebSocketException(final WebSocketFrame.CloseCode code, final String reason, final Exception cause) {
+    super(code + ": " + reason, cause);
     this.code = code;
     this.reason = reason;
   }
@@ -40,22 +37,15 @@ public class WebSocketException extends IOException {
 
 
 
-  public WebSocketException( Exception cause ) {
-    this( CloseCode.InternalServerError, cause.toString(), cause );
-  }
-
-
-
-
   public WebSocketFrame.CloseCode getCode() {
-    return this.code;
+    return code;
   }
 
 
 
 
   public String getReason() {
-    return this.reason;
+    return reason;
   }
 
 }

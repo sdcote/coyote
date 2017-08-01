@@ -1,32 +1,26 @@
 /*
  * Copyright (c) 2014 Stephan D. Cote' - All rights reserved.
- * 
- * This program and the accompanying materials are made available under the 
- * terms of the MIT License which accompanies this distribution, and is 
- * available at http://creativecommons.org/licenses/MIT/
  *
- * Contributors:
- *   Stephan D. Cote 
- *      - Initial concept and implementation
+ * This program and the accompanying materials are made available under the
+ * terms of the MIT License which accompanies this distribution, and is
+ * available at http://creativecommons.org/licenses/MIT/
  */
+
 package coyote.commons.security;
 
 /**
- * 
+ *
  */
 public class GenericSession implements Session {
-  private Login login = null;
   private String identifier = null;
+  private Login login = null;
 
 
 
 
-  /**
-   * @see coyote.commons.security.Session#setLogin(coyote.commons.security.Login)
-   */
   @Override
-  public void setLogin( Login login ) {
-    this.login = login;
+  public String getId() {
+    return identifier;
   }
 
 
@@ -44,16 +38,19 @@ public class GenericSession implements Session {
 
 
   @Override
-  public String getId() {
-    return identifier;
+  public void setId(final String id) {
+    identifier = id;
   }
 
 
 
 
+  /**
+   * @see coyote.commons.security.Session#setLogin(coyote.commons.security.Login)
+   */
   @Override
-  public void setId( String id ) {
-    identifier = id;
+  public void setLogin(final Login login) {
+    this.login = login;
   }
 
 }

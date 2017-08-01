@@ -4,15 +4,12 @@
  * This program and the accompanying materials are made available under the 
  * terms of the MIT License which accompanies this distribution, and is 
  * available at http://creativecommons.org/licenses/MIT/
- *
- * Contributors:
- *   Stephan D. Cote 
  */
+
 package coyote.commons.network.http;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Locale;
 import java.util.TimeZone;
 
 

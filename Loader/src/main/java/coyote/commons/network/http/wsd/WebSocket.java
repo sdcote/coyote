@@ -1,13 +1,3 @@
-/*
- * Copyright (c) 2016 Stephan D. Cote' - All rights reserved.
- * 
- * This program and the accompanying materials are made available under the 
- * terms of the MIT License which accompanies this distribution, and is 
- * available at http://creativecommons.org/licenses/MIT/
- *
- * Contributors:
- *   Stephan D. Cote 
- */
 package coyote.commons.network.http.wsd;
 
 import java.io.IOException;
@@ -29,40 +19,67 @@ import coyote.commons.network.http.wsd.WebSocketFrame.OpCode;
 
 public abstract class WebSocket {
 
-  private final InputStream in;
-
-  private OutputStream out;
+  private final List<WebSocketFrame> continuousFrames = new LinkedList<WebSocketFrame>();
 
   private WebSocketFrame.OpCode continuousOpCode = null;
 
-  private final List<WebSocketFrame> continuousFrames = new LinkedList<WebSocketFrame>();
-
-  private State state = State.UNCONNECTED;
-
   private final IHTTPSession handshakeRequest;
 
-  private final Response handshakeResponse = new Response( Status.SWITCH_PROTOCOL, null, (InputStream)null, 0 ) {
+  private final Response handshakeResponse = new Response(Status.SWITCH_PROTOCOL, null, (InputStream)null, 0) {
 
     @Override
-    protected void send( OutputStream out ) {
+    protected void send(final OutputStream out) {
       WebSocket.this.out = out;
-      WebSocket.this.state = State.CONNECTING;
-      super.send( out );
-      WebSocket.this.state = State.OPEN;
+      state = State.CONNECTING;
+      super.send(out);
+      state = State.OPEN;
       WebSocket.this.onOpen();
       readWebsocket();
     }
   };
 
+  private final InputStream in;
+
+  private OutputStream out;
+
+  private State state = State.UNCONNECTED;
 
 
 
-  public WebSocket( IHTTPSession handshakeRequest ) {
+
+  public WebSocket(final IHTTPSession handshakeRequest) {
     this.handshakeRequest = handshakeRequest;
-    this.in = handshakeRequest.getInputStream();
+    in = handshakeRequest.getInputStream();
 
-    this.handshakeResponse.addHeader( WebSocketDaemon.HEADER_UPGRADE, WebSocketDaemon.HEADER_UPGRADE_VALUE );
-    this.handshakeResponse.addHeader( WebSocketDaemon.HEADER_CONNECTION, WebSocketDaemon.HEADER_CONNECTION_VALUE );
+    handshakeResponse.addHeader(WebSocketDaemon.HEADER_UPGRADE, WebSocketDaemon.HEADER_UPGRADE_VALUE);
+    handshakeResponse.addHeader(WebSocketDaemon.HEADER_CONNECTION, WebSocketDaemon.HEADER_CONNECTION_VALUE);
+  }
+
+
+
+
+  public void close(final CloseCode code, final String reason, final boolean initiatedByRemote) throws IOException {
+    final State oldState = state;
+    state = State.CLOSING;
+    if (oldState == State.OPEN) {
+      sendFrame(new CloseFrame(code, reason));
+    } else {
+      doClose(code, reason, initiatedByRemote);
+    }
+  }
+
+
+
+
+  public IHTTPSession getHandshakeRequest() {
+    return handshakeRequest;
+  }
+
+
+
+
+  public Response getHandshakeResponse() {
+    return handshakeResponse;
   }
 
 
@@ -75,170 +92,119 @@ public abstract class WebSocket {
 
 
 
-  protected abstract void onOpen();
-
-
-
-
-  protected abstract void onClose( CloseCode code, String reason, boolean initiatedByRemote );
-
-
-
-
-  protected abstract void onMessage( WebSocketFrame message );
-
-
-
-
-  protected abstract void onPong( WebSocketFrame pong );
-
-
-
-
-  protected abstract void onException( IOException exception );
-
-
-
-
-  /**
-   * Debug method. <b>Do not Override unless for debug purposes!</b>
-   * 
-   * @param frame The received WebSocket Frame.
-   */
-  protected void debugFrameReceived( WebSocketFrame frame ) {}
-
-
-
-
-  /**
-   * Debug method. <b>Do not Override unless for debug purposes!</b><br>
-   * This method is called before actually sending the frame.
-   * 
-   * @param frame The sent WebSocket Frame.
-   */
-  protected void debugFrameSent( WebSocketFrame frame ) {}
-
-
-
-
-  public void close( CloseCode code, String reason, boolean initiatedByRemote ) throws IOException {
-    State oldState = this.state;
-    this.state = State.CLOSING;
-    if ( oldState == State.OPEN ) {
-      sendFrame( new CloseFrame( code, reason ) );
-    } else {
-      doClose( code, reason, initiatedByRemote );
-    }
+  public void ping(final byte[] payload) throws IOException {
+    sendFrame(new WebSocketFrame(OpCode.Ping, true, payload));
   }
 
 
 
 
-  private void doClose( CloseCode code, String reason, boolean initiatedByRemote ) {
-    if ( this.state == State.CLOSED ) {
+  public void send(final byte[] payload) throws IOException {
+    sendFrame(new WebSocketFrame(OpCode.Binary, true, payload));
+  }
+
+
+
+
+  public void send(final String payload) throws IOException {
+    sendFrame(new WebSocketFrame(OpCode.Text, true, payload));
+  }
+
+
+
+
+  public synchronized void sendFrame(final WebSocketFrame frame) throws IOException {
+    debugFrameSent(frame);
+    frame.write(out);
+  }
+
+
+
+
+  private void doClose(final CloseCode code, final String reason, final boolean initiatedByRemote) {
+    if (state == State.CLOSED) {
       return;
     }
-    if ( this.in != null ) {
+    if (in != null) {
       try {
-        this.in.close();
-      } catch ( IOException e ) {
-        WebSocketDaemon.LOG.log( Level.FINE, "close failed", e );
+        in.close();
+      } catch (final IOException e) {
+        WebSocketDaemon.LOG.log(Level.FINE, "close failed", e);
       }
     }
-    if ( this.out != null ) {
+    if (out != null) {
       try {
-        this.out.close();
-      } catch ( IOException e ) {
-        WebSocketDaemon.LOG.log( Level.FINE, "close failed", e );
+        out.close();
+      } catch (final IOException e) {
+        WebSocketDaemon.LOG.log(Level.FINE, "close failed", e);
       }
     }
-    this.state = State.CLOSED;
-    onClose( code, reason, initiatedByRemote );
+    state = State.CLOSED;
+    onClose(code, reason, initiatedByRemote);
   }
 
 
 
 
-  public IHTTPSession getHandshakeRequest() {
-    return this.handshakeRequest;
-  }
-
-
-
-
-  public Response getHandshakeResponse() {
-    return this.handshakeResponse;
-  }
-
-
-
-
-  private void handleCloseFrame( WebSocketFrame frame ) throws IOException {
+  private void handleCloseFrame(final WebSocketFrame frame) throws IOException {
     CloseCode code = CloseCode.NormalClosure;
     String reason = "";
-    if ( frame instanceof CloseFrame ) {
-      code = ( (CloseFrame)frame ).getCloseCode();
-      reason = ( (CloseFrame)frame ).getCloseReason();
+    if (frame instanceof CloseFrame) {
+      code = ((CloseFrame)frame).getCloseCode();
+      reason = ((CloseFrame)frame).getCloseReason();
     }
-    if ( this.state == State.CLOSING ) {
-      doClose( code, reason, false );
+    if (state == State.CLOSING) {
+      doClose(code, reason, false);
     } else {
-      close( code, reason, true );
+      close(code, reason, true);
     }
   }
 
 
 
 
-  private void handleFrameFragment( WebSocketFrame frame ) throws IOException {
-    if ( frame.getOpCode() != OpCode.Continuation ) {
-      if ( this.continuousOpCode != null ) {
-        throw new WebSocketException( CloseCode.ProtocolError, "Previous continuous frame sequence not completed." );
+  private void handleFrameFragment(final WebSocketFrame frame) throws IOException {
+    if (frame.getOpCode() != OpCode.Continuation) {
+      if (continuousOpCode != null) {
+        throw new WebSocketException(CloseCode.ProtocolError, "Previous continuous frame sequence not completed.");
       }
-      this.continuousOpCode = frame.getOpCode();
-      this.continuousFrames.clear();
-      this.continuousFrames.add( frame );
-    } else if ( frame.isFin() ) {
-      if ( this.continuousOpCode == null ) {
-        throw new WebSocketException( CloseCode.ProtocolError, "Continuous frame sequence was not started." );
+      continuousOpCode = frame.getOpCode();
+      continuousFrames.clear();
+      continuousFrames.add(frame);
+    } else if (frame.isFin()) {
+      if (continuousOpCode == null) {
+        throw new WebSocketException(CloseCode.ProtocolError, "Continuous frame sequence was not started.");
       }
-      onMessage( new WebSocketFrame( this.continuousOpCode, this.continuousFrames ) );
-      this.continuousOpCode = null;
-      this.continuousFrames.clear();
-    } else if ( this.continuousOpCode == null ) {
-      throw new WebSocketException( CloseCode.ProtocolError, "Continuous frame sequence was not started." );
+      onMessage(new WebSocketFrame(continuousOpCode, continuousFrames));
+      continuousOpCode = null;
+      continuousFrames.clear();
+    } else if (continuousOpCode == null) {
+      throw new WebSocketException(CloseCode.ProtocolError, "Continuous frame sequence was not started.");
     } else {
-      this.continuousFrames.add( frame );
+      continuousFrames.add(frame);
     }
   }
 
 
 
 
-  private void handleWebsocketFrame( WebSocketFrame frame ) throws IOException {
-    debugFrameReceived( frame );
-    if ( frame.getOpCode() == OpCode.Close ) {
-      handleCloseFrame( frame );
-    } else if ( frame.getOpCode() == OpCode.Ping ) {
-      sendFrame( new WebSocketFrame( OpCode.Pong, true, frame.getBinaryPayload() ) );
-    } else if ( frame.getOpCode() == OpCode.Pong ) {
-      onPong( frame );
-    } else if ( !frame.isFin() || frame.getOpCode() == OpCode.Continuation ) {
-      handleFrameFragment( frame );
-    } else if ( this.continuousOpCode != null ) {
-      throw new WebSocketException( CloseCode.ProtocolError, "Continuous frame sequence not completed." );
-    } else if ( frame.getOpCode() == OpCode.Text || frame.getOpCode() == OpCode.Binary ) {
-      onMessage( frame );
+  private void handleWebsocketFrame(final WebSocketFrame frame) throws IOException {
+    debugFrameReceived(frame);
+    if (frame.getOpCode() == OpCode.Close) {
+      handleCloseFrame(frame);
+    } else if (frame.getOpCode() == OpCode.Ping) {
+      sendFrame(new WebSocketFrame(OpCode.Pong, true, frame.getBinaryPayload()));
+    } else if (frame.getOpCode() == OpCode.Pong) {
+      onPong(frame);
+    } else if (!frame.isFin() || (frame.getOpCode() == OpCode.Continuation)) {
+      handleFrameFragment(frame);
+    } else if (continuousOpCode != null) {
+      throw new WebSocketException(CloseCode.ProtocolError, "Continuous frame sequence not completed.");
+    } else if ((frame.getOpCode() == OpCode.Text) || (frame.getOpCode() == OpCode.Binary)) {
+      onMessage(frame);
     } else {
-      throw new WebSocketException( CloseCode.ProtocolError, "Non control or continuous frame expected." );
+      throw new WebSocketException(CloseCode.ProtocolError, "Non control or continuous frame expected.");
     }
-  }
-
-
-
-
-  public void ping( byte[] payload ) throws IOException {
-    sendFrame( new WebSocketFrame( OpCode.Ping, true, payload ) );
   }
 
 
@@ -246,42 +212,66 @@ public abstract class WebSocket {
 
   private void readWebsocket() {
     try {
-      while ( this.state == State.OPEN ) {
-        handleWebsocketFrame( WebSocketFrame.read( this.in ) );
+      while (state == State.OPEN) {
+        handleWebsocketFrame(WebSocketFrame.read(in));
       }
-    } catch ( CharacterCodingException e ) {
-      onException( e );
-      doClose( CloseCode.InvalidFramePayloadData, e.toString(), false );
-    } catch ( IOException e ) {
-      onException( e );
-      if ( e instanceof WebSocketException ) {
-        doClose( ( (WebSocketException)e ).getCode(), ( (WebSocketException)e ).getReason(), false );
+    } catch (final CharacterCodingException e) {
+      onException(e);
+      doClose(CloseCode.InvalidFramePayloadData, e.toString(), false);
+    } catch (final IOException e) {
+      onException(e);
+      if (e instanceof WebSocketException) {
+        doClose(((WebSocketException)e).getCode(), ((WebSocketException)e).getReason(), false);
       }
     }
     finally {
-      doClose( CloseCode.InternalServerError, "Responder terminated without closing the connection.", false );
+      doClose(CloseCode.InternalServerError, "Responder terminated without closing the connection.", false);
     }
   }
 
 
 
 
-  public void send( byte[] payload ) throws IOException {
-    sendFrame( new WebSocketFrame( OpCode.Binary, true, payload ) );
-  }
+  /**
+   * Debug method. <b>Do not Override unless for debug purposes!</b>
+   *
+   * @param frame The received WebSocket Frame.
+   */
+  protected void debugFrameReceived(final WebSocketFrame frame) {}
 
 
 
 
-  public void send( String payload ) throws IOException {
-    sendFrame( new WebSocketFrame( OpCode.Text, true, payload ) );
-  }
+  /**
+   * Debug method. <b>Do not Override unless for debug purposes!</b><br>
+   * This method is called before actually sending the frame.
+   *
+   * @param frame The sent WebSocket Frame.
+   */
+  protected void debugFrameSent(final WebSocketFrame frame) {}
 
 
 
 
-  public synchronized void sendFrame( WebSocketFrame frame ) throws IOException {
-    debugFrameSent( frame );
-    frame.write( this.out );
-  }
+  protected abstract void onClose(CloseCode code, String reason, boolean initiatedByRemote);
+
+
+
+
+  protected abstract void onException(IOException exception);
+
+
+
+
+  protected abstract void onMessage(WebSocketFrame message);
+
+
+
+
+  protected abstract void onOpen();
+
+
+
+
+  protected abstract void onPong(WebSocketFrame pong);
 }
