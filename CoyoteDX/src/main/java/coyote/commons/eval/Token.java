@@ -2,74 +2,64 @@ package coyote.commons.eval;
 
 /**
  * A token of an expression.
- * 
- * <p>When evaluating an expression, it is first split into tokens. These 
+ *
+ * <p>When evaluating an expression, it is first split into tokens. These
  * tokens can be operators, constants, etc ...
  */
 public class Token {
-  private enum Kind {
-    OPEN_BRACKET, CLOSE_BRACKET, FUNCTION_SEPARATOR, FUNCTION, METHOD, OPERATOR, LITERAL
-  }
-
-  static final Token FUNCTION_ARG_SEPARATOR = new Token( Kind.FUNCTION_SEPARATOR, null );
-
-
-
-
-  static Token buildCloseToken( final BracketPair pair ) {
-    return new Token( Kind.CLOSE_BRACKET, pair );
-  }
-
-
-
-
-  static Token buildFunction( final Function function ) {
-    return new Token( Kind.FUNCTION, function );
-  }
-
-
-
-
-  static Token buildMethod( final Method method ) {
-    return new Token( Kind.METHOD, method );
-  }
-
-
-
-
-  static Token buildLiteral( final String literal ) {
-    return new Token( Kind.LITERAL, literal );
-  }
-
-
-
-
-  static Token buildOpenToken( final BracketPair pair ) {
-    return new Token( Kind.OPEN_BRACKET, pair );
-  }
-
-
-
-
-  static Token buildOperator( final Operator ope ) {
-    return new Token( Kind.OPERATOR, ope );
-  }
-
+  static final Token FUNCTION_ARG_SEPARATOR = new Token(Kind.FUNCTION_SEPARATOR, null);
+  private final Object content;
   private final Kind kind;
 
-  private final Object content;
+
+
+
+  protected static Token buildCloseToken(final BracketPair pair) {
+    return new Token(Kind.CLOSE_BRACKET, pair);
+  }
 
 
 
 
-  private Token( final Kind kind, final Object content ) {
+  protected static Token buildFunction(final Function function) {
+    return new Token(Kind.FUNCTION, function);
+  }
+
+
+
+
+  protected static Token buildLiteral(final String literal) {
+    return new Token(Kind.LITERAL, literal);
+  }
+
+
+
+
+  protected static Token buildMethod(final Method method) {
+    return new Token(Kind.METHOD, method);
+  }
+
+
+
+
+  protected static Token buildOpenToken(final BracketPair pair) {
+    return new Token(Kind.OPEN_BRACKET, pair);
+  }
+
+
+
+
+  protected static Token buildOperator(final Operator ope) {
+    return new Token(Kind.OPERATOR, ope);
+  }
+
+
+
+
+  private Token(final Kind kind, final Object content) {
     super();
-    if ( 
-        ( kind.equals( Kind.OPERATOR ) && !( content instanceof Operator ) ) || 
-        ( kind.equals( Kind.FUNCTION ) && !( content instanceof Function ) ) || 
-        ( kind.equals( Kind.METHOD ) && !( content instanceof Method ) ) || 
-        ( kind.equals( Kind.LITERAL ) && !( content instanceof String ) ) 
-       ) { throw new IllegalArgumentException();
+    if ((kind.equals(Kind.OPERATOR) && !(content instanceof Operator)) || (kind.equals(Kind.FUNCTION) && !(content instanceof Function)) || (kind.equals(Kind.METHOD) && !(content instanceof Method)) || (kind.equals(Kind.LITERAL) && !(content instanceof String))) {
+      throw new IllegalArgumentException();
     }
     this.kind = kind;
     this.content = content;
@@ -78,72 +68,13 @@ public class Token {
 
 
 
-  Operator.Associativity getAssociativity() {
-    return getOperator().getAssociativity();
-  }
-
-
-
-
-  BracketPair getBrackets() {
-    return (BracketPair)content;
-  }
-
-
-
-
-  Function getFunction() {
-    return (Function)content;
-  }
-
-
-
-
-  Method getMethod() {
-    return (Method)content;
-  }
-
-
-
-
-  Kind getKind() {
-    return kind;
-  }
-
-
-
-
-  String getLiteral() {
-    if ( !kind.equals( Kind.LITERAL ) ) {
-      throw new IllegalArgumentException();
-    }
-    return (String)content;
-  }
-
-
-
-
-  Operator getOperator() {
-    return (Operator)content;
-  }
-
-
-
-
-  int getPrecedence() {
-    return getOperator().getPrecedence();
-  }
-
-
-
-
   /**
    * Tests whether the token is a close bracket.
-   * 
+   *
    * @return true if the token is a close bracket
    */
   public boolean isCloseBracket() {
-    return kind.equals( Kind.CLOSE_BRACKET );
+    return kind.equals(Kind.CLOSE_BRACKET);
   }
 
 
@@ -151,23 +82,11 @@ public class Token {
 
   /**
    * Tests whether the token is a function.
-   * 
+   *
    * @return true if the token is a function
    */
   public boolean isFunction() {
-    return kind.equals( Kind.FUNCTION );
-  }
-
-
-
-
-  /**
-   * Tests whether the token is a method.
-   * 
-   * @return true if the token is a method
-   */
-  public boolean isMethod() {
-    return kind.equals( Kind.METHOD );
+    return kind.equals(Kind.FUNCTION);
   }
 
 
@@ -175,11 +94,11 @@ public class Token {
 
   /**
    * Tests whether the token is a function argument separator.
-   * 
+   *
    * @return true if the token is a function argument separator
    */
   public boolean isFunctionArgumentSeparator() {
-    return kind.equals( Kind.FUNCTION_SEPARATOR );
+    return kind.equals(Kind.FUNCTION_SEPARATOR);
   }
 
 
@@ -187,11 +106,23 @@ public class Token {
 
   /**
    * Tests whether the token is a literal or a constant or a variable name.
-   * 
+   *
    * @return true if the token is a literal, a constant or a variable name
    */
   public boolean isLiteral() {
-    return kind.equals( Kind.LITERAL );
+    return kind.equals(Kind.LITERAL);
+  }
+
+
+
+
+  /**
+   * Tests whether the token is a method.
+   *
+   * @return true if the token is a method
+   */
+  public boolean isMethod() {
+    return kind.equals(Kind.METHOD);
   }
 
 
@@ -199,11 +130,11 @@ public class Token {
 
   /**
    * Tests whether the token is an open bracket.
-   * 
+   *
    * @return true if the token is an open bracket
    */
   public boolean isOpenBracket() {
-    return kind.equals( Kind.OPEN_BRACKET );
+    return kind.equals(Kind.OPEN_BRACKET);
   }
 
 
@@ -211,11 +142,11 @@ public class Token {
 
   /**
    * Tests whether the token is an operator.
-   * 
+   *
    * @return true if the token is an operator
    */
   public boolean isOperator() {
-    return kind.equals( Kind.OPERATOR );
+    return kind.equals(Kind.OPERATOR);
   }
 
 
@@ -227,6 +158,69 @@ public class Token {
   @Override
   public String toString() {
     return content != null ? content.toString() : "NULL";
+  }
+
+
+
+
+  protected Operator.Associativity getAssociativity() {
+    return getOperator().getAssociativity();
+  }
+
+
+
+
+  protected BracketPair getBrackets() {
+    return (BracketPair)content;
+  }
+
+
+
+
+  protected Function getFunction() {
+    return (Function)content;
+  }
+
+
+
+
+  protected Kind getKind() {
+    return kind;
+  }
+
+
+
+
+  protected String getLiteral() {
+    if (!kind.equals(Kind.LITERAL)) {
+      throw new IllegalArgumentException();
+    }
+    return (String)content;
+  }
+
+
+
+
+  protected Method getMethod() {
+    return (Method)content;
+  }
+
+
+
+
+  protected Operator getOperator() {
+    return (Operator)content;
+  }
+
+
+
+
+  protected int getPrecedence() {
+    return getOperator().getPrecedence();
+  }
+
+  private enum Kind {
+    CLOSE_BRACKET, FUNCTION, FUNCTION_SEPARATOR, LITERAL, METHOD, OPEN_BRACKET, OPERATOR
   }
 
 }
