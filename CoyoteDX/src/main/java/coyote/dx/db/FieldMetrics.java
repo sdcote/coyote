@@ -9,6 +9,7 @@
  *   Stephan D. Cote 
  *      - Initial concept and implementation
  */
+
 package coyote.dx.db;
 
 import java.util.HashSet;
@@ -33,15 +34,15 @@ public class FieldMetrics {
   long nullCount = 0;
   long emptyCount = 0;
   long blankCount = 0;
-  SimpleMetric stringLength = new SimpleMetric( STRING_LENGTH, "" );
-  SimpleMetric byteLength = new SimpleMetric( BYTE_LENGTH, "" );
+  SimpleMetric stringLength = new SimpleMetric(STRING_LENGTH, "");
+  SimpleMetric byteLength = new SimpleMetric(BYTE_LENGTH, "");
   private Set<Object> values = new HashSet<Object>();
   long sampleCount = 0;
 
 
 
 
-  public FieldMetrics( String name ) {
+  public FieldMetrics(String name) {
     fieldName = name;
   }
 
@@ -51,7 +52,7 @@ public class FieldMetrics {
   /**
    * @param typeName
    */
-  public void setType( String typeName ) {
+  public void setType(String typeName) {
     fieldType = typeName;
   }
 
@@ -78,29 +79,29 @@ public class FieldMetrics {
 
 
 
-  public void sample( DataField field ) {
+  public void sample(DataField field) {
     sampleCount++;
     // Set the type of the field
-    if ( getType() == null ) {
-      setType( field.getTypeName() );
-    } else if ( !field.getTypeName().equals( getType() ) ) {
+    if (getType() == null) {
+      setType(field.getTypeName());
+    } else if (!field.getTypeName().equals(getType())) {
       // TODO count the different types observed for this field not including UDEF as might be observed when a NUL value is sampled.
       // System.err.println( "TYPE SWITCH FROM '" + metric.getType() + "' TO '" + field.getTypeName() + "'" );
     }
 
     // Set metrics based on the value of the field
     String value = field.getStringValue();
-    if ( value != null ) {
-      values.add( value );
+    if (value != null) {
+      values.add(value);
 
-      if ( value.length() == 0 ) {
+      if (value.length() == 0) {
         emptyCount++;
-      } else if ( value.trim().length() == 0 ) {
+      } else if (value.trim().length() == 0) {
         blankCount++;
       }
 
-      stringLength.sample( value.length() );
-      byteLength.sample( field.getBytes().length );
+      stringLength.sample(value.length());
+      byteLength.sample(field.getBytes().length);
     } else {
       nullCount++;
     }
@@ -238,8 +239,8 @@ public class FieldMetrics {
 
 
   public float getCoincidence() {
-    if ( sampleCount > 0 ) {
-      return (float)( sampleCount - ( values.size() - 1 ) ) / (float)sampleCount;
+    if (sampleCount > 0) {
+      return (float)(sampleCount - (values.size() - 1)) / (float)sampleCount;
     } else {
       return 1F;
     }
@@ -258,9 +259,9 @@ public class FieldMetrics {
 
 
 
-  public void setMaxLength( long len ) {
+  public void setMaxLength(long len) {
 
-    stringLength.sample( len );;
+    stringLength.sample(len);;
   }
 
 
@@ -270,7 +271,7 @@ public class FieldMetrics {
    * @return the field Length
    */
   public long getLength() {
-    if ( fieldLength >= 0 ) {
+    if (fieldLength >= 0) {
       return fieldLength;
     } else {
       return 0;
@@ -283,7 +284,7 @@ public class FieldMetrics {
   /**
    * @param length the length to set
    */
-  public void setLength( long length ) {
+  public void setLength(long length) {
     fieldLength = length;
   }
 

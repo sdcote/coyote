@@ -9,6 +9,7 @@
  *   Stephan D. Cote 
  *      - Initial concept and implementation
  */
+
 package coyote.dx.db;
 
 import java.util.Date;
@@ -42,7 +43,6 @@ public class DatabaseDialect {
   public static final String FIELD_MAP_SYM = "fieldmap";
   public static final String SYS_ID_SYM = "sysid";
   public static final String FIELD_DEF_SYM = "fielddefinitions";
-  
 
   public static final String CREATE = "create";
   public static final String GRANT = "grant";
@@ -72,130 +72,130 @@ public class DatabaseDialect {
   static {
     // MySQL
     Map<String, String> map = new HashMap<String, String>();
-    TYPES.put( MYSQL, map );
-    map.put( "STR", "VARCHAR(#)" );
-    map.put( "BOL", "TINYINT" );
-    map.put( "S8", "TINYINT" );
-    map.put( "U8", "TINYINT" );
-    map.put( "S16", "INTEGER" );
-    map.put( "U16", "INTEGER" );
-    map.put( "S32", "INTEGER" );
-    map.put( "U32", "INTEGER" );
-    map.put( "S64", "INTEGER" );
-    map.put( "U64", "INTEGER" );
-    map.put( "DBL", "DOUBLE" );
-    map.put( "FLT", "DOUBLE" );
-    map.put( DEFAULT, "VARCHAR(#)" );
+    TYPES.put(MYSQL, map);
+    map.put("STR", "VARCHAR(#)");
+    map.put("BOL", "TINYINT");
+    map.put("S8", "TINYINT");
+    map.put("U8", "TINYINT");
+    map.put("S16", "INTEGER");
+    map.put("U16", "INTEGER");
+    map.put("S32", "INTEGER");
+    map.put("U32", "INTEGER");
+    map.put("S64", "INTEGER");
+    map.put("U64", "INTEGER");
+    map.put("DBL", "DOUBLE");
+    map.put("FLT", "DOUBLE");
+    map.put(DEFAULT, "VARCHAR(#)");
     map = new HashMap<String, String>();
-    SYNTAX.put( MYSQL, map );
-    map.put( CREATE, "CREATE TABLE [#$" + DB_SCHEMA_SYM + "#].[#$" + TABLE_NAME_SYM + "#] ( [#$" + FIELD_DEF_SYM + "#] )" );
-    map.put( GRANT, "" );
-    map.put( INSERT, "INSERT INTO [#$" + DB_SCHEMA_SYM + "#].[#$" + TABLE_NAME_SYM + "#] ([#$" + FIELD_NAMES_SYM + "#]) VALUES ([#$" + FIELD_VALUES_SYM + "#])" );
-    map.put( UPDATE, "UPDATE [#$" + DB_SCHEMA_SYM + "#].[#$" + TABLE_NAME_SYM + "#] SET [#$" + FIELD_MAP_SYM + "#] WHERE \"sysid\" = [#$" + SYS_ID_SYM + "#]" );
-    map.put( DELETE, "DELETE FROM [#$" + DB_SCHEMA_SYM + "#].[#$" + TABLE_NAME_SYM + "#] WHERE \"sysid\" = [#$" + SYS_ID_SYM + "#]" );
-    map.put( TRUNCATE, "TRUNCATE TABLE [#$" + DB_SCHEMA_SYM + "#].[#$" + TABLE_NAME_SYM + "#]" );
-    map.put( ALTER_COLUMN, "ALTER TABLE [#$" + DB_SCHEMA_SYM + "#].[#$" + TABLE_NAME_SYM + "#] MODIFY [#$columnName#] [#$columnType#]" );
-    map.put( UNIQUE, "IDENTITY" );
-    map.put( PRIMARY_KEY, "PRIMARY KEY" );
-    map.put( NULLABLE, "NULL" );
-    map.put( NOT_NULL, "NOT NULL" );
-    map.put( CREATE_SCHEMA, "CREATE SCHEMA IF NOT EXISTS [#$" + DB_SCHEMA_SYM + "#]" );
-    
+    SYNTAX.put(MYSQL, map);
+    map.put(CREATE, "CREATE TABLE [#$" + DB_SCHEMA_SYM + "#].[#$" + TABLE_NAME_SYM + "#] ( [#$" + FIELD_DEF_SYM + "#] )");
+    map.put(GRANT, "");
+    map.put(INSERT, "INSERT INTO [#$" + DB_SCHEMA_SYM + "#].[#$" + TABLE_NAME_SYM + "#] ([#$" + FIELD_NAMES_SYM + "#]) VALUES ([#$" + FIELD_VALUES_SYM + "#])");
+    map.put(UPDATE, "UPDATE [#$" + DB_SCHEMA_SYM + "#].[#$" + TABLE_NAME_SYM + "#] SET [#$" + FIELD_MAP_SYM + "#] WHERE \"sysid\" = [#$" + SYS_ID_SYM + "#]");
+    map.put(DELETE, "DELETE FROM [#$" + DB_SCHEMA_SYM + "#].[#$" + TABLE_NAME_SYM + "#] WHERE \"sysid\" = [#$" + SYS_ID_SYM + "#]");
+    map.put(TRUNCATE, "TRUNCATE TABLE [#$" + DB_SCHEMA_SYM + "#].[#$" + TABLE_NAME_SYM + "#]");
+    map.put(ALTER_COLUMN, "ALTER TABLE [#$" + DB_SCHEMA_SYM + "#].[#$" + TABLE_NAME_SYM + "#] MODIFY [#$columnName#] [#$columnType#]");
+    map.put(UNIQUE, "IDENTITY");
+    map.put(PRIMARY_KEY, "PRIMARY KEY");
+    map.put(NULLABLE, "NULL");
+    map.put(NOT_NULL, "NOT NULL");
+    map.put(CREATE_SCHEMA, "CREATE SCHEMA IF NOT EXISTS [#$" + DB_SCHEMA_SYM + "#]");
+
     // Oracle dialect
     map = new HashMap<String, String>();
-    TYPES.put( ORACLE, map );
-    map.put( "STR", "VARCHAR2(#)" );
-    map.put( "BOL", "NUMBER(1)" );
-    map.put( "S8", "NUMBER(8)" );
-    map.put( "U8", "NUMBER(8)" );
-    map.put( "S16", "NUMBER(10)" );
-    map.put( "U16", "NUMBER(10)" );
-    map.put( "S32", "NUMBER" );
-    map.put( "U32", "NUMBER" );
-    map.put( "S64", "NUMBER" );
-    map.put( "U64", "NUMBER" );
-    map.put( "DBL", "NUMBER" );
-    map.put( "DAT", "TIMESTAMP" );
-    map.put( "FLT", "NUMBER" );
-    map.put( DEFAULT, "VARCHAR2(#)" );
+    TYPES.put(ORACLE, map);
+    map.put("STR", "VARCHAR2(#)");
+    map.put("BOL", "NUMBER(1)");
+    map.put("S8", "NUMBER(8)");
+    map.put("U8", "NUMBER(8)");
+    map.put("S16", "NUMBER(10)");
+    map.put("U16", "NUMBER(10)");
+    map.put("S32", "NUMBER");
+    map.put("U32", "NUMBER");
+    map.put("S64", "NUMBER");
+    map.put("U64", "NUMBER");
+    map.put("DBL", "NUMBER");
+    map.put("DAT", "TIMESTAMP");
+    map.put("FLT", "NUMBER");
+    map.put(DEFAULT, "VARCHAR2(#)");
     map = new HashMap<String, String>();
-    SYNTAX.put( ORACLE, map );
-    map.put( CREATE, "CREATE TABLE [#$" + DB_SCHEMA_SYM + "#].[#$" + TABLE_NAME_SYM + "#] ( [#$" + FIELD_DEF_SYM + "#] )" );
-    map.put( GRANT, "GRANT SELECT,REFERENCES ON [#$" + DB_SCHEMA_SYM + "#].[#$" + TABLE_NAME_SYM + "#] TO PUBLIC" );
-    map.put( INSERT, "INSERT INTO [#$" + DB_SCHEMA_SYM + "#].[#$" + TABLE_NAME_SYM + "#] ([#$" + FIELD_NAMES_SYM + "#]) VALUES [#$" + FIELD_VALUES_SYM + "#])" );
-    map.put( UPDATE, "UPDATE [#$" + DB_SCHEMA_SYM + "#].[#$" + TABLE_NAME_SYM + "#] SET [#$" + FIELD_MAP_SYM + "#] WHERE SYSID='[#$" + SYS_ID_SYM + "#]'" );
-    map.put( DELETE, "DELETE FROM [#$" + DB_SCHEMA_SYM + "#].[#$" + TABLE_NAME_SYM + "#] WHERE SYSID='[#$" + SYS_ID_SYM + "#]'" );
-    map.put( TRUNCATE, "TRUNCATE TABLE [#$" + DB_SCHEMA_SYM + "#].[#$" + TABLE_NAME_SYM + "#]" );
-    map.put( ALTER_COLUMN, "ALTER TABLE [#$" + DB_SCHEMA_SYM + "#].[#$" + TABLE_NAME_SYM + "#] MODIFY [#$columnName#] [#$columnType#]" );
-    map.put( UNIQUE, "IDENTITY" );
-    map.put( PRIMARY_KEY, "PRIMARY KEY" );
-    map.put( NULLABLE, "NULL" );
-    map.put( NOT_NULL, "NOT NULL" );
-    map.put( CREATE_SCHEMA, "CREATE SCHEMA IF NOT EXISTS [#$" + DB_SCHEMA_SYM + "#]" );
-    
+    SYNTAX.put(ORACLE, map);
+    map.put(CREATE, "CREATE TABLE [#$" + DB_SCHEMA_SYM + "#].[#$" + TABLE_NAME_SYM + "#] ( [#$" + FIELD_DEF_SYM + "#] )");
+    map.put(GRANT, "GRANT SELECT,REFERENCES ON [#$" + DB_SCHEMA_SYM + "#].[#$" + TABLE_NAME_SYM + "#] TO PUBLIC");
+    map.put(INSERT, "INSERT INTO [#$" + DB_SCHEMA_SYM + "#].[#$" + TABLE_NAME_SYM + "#] ([#$" + FIELD_NAMES_SYM + "#]) VALUES [#$" + FIELD_VALUES_SYM + "#])");
+    map.put(UPDATE, "UPDATE [#$" + DB_SCHEMA_SYM + "#].[#$" + TABLE_NAME_SYM + "#] SET [#$" + FIELD_MAP_SYM + "#] WHERE SYSID='[#$" + SYS_ID_SYM + "#]'");
+    map.put(DELETE, "DELETE FROM [#$" + DB_SCHEMA_SYM + "#].[#$" + TABLE_NAME_SYM + "#] WHERE SYSID='[#$" + SYS_ID_SYM + "#]'");
+    map.put(TRUNCATE, "TRUNCATE TABLE [#$" + DB_SCHEMA_SYM + "#].[#$" + TABLE_NAME_SYM + "#]");
+    map.put(ALTER_COLUMN, "ALTER TABLE [#$" + DB_SCHEMA_SYM + "#].[#$" + TABLE_NAME_SYM + "#] MODIFY [#$columnName#] [#$columnType#]");
+    map.put(UNIQUE, "IDENTITY");
+    map.put(PRIMARY_KEY, "PRIMARY KEY");
+    map.put(NULLABLE, "NULL");
+    map.put(NOT_NULL, "NOT NULL");
+    map.put(CREATE_SCHEMA, "CREATE SCHEMA IF NOT EXISTS [#$" + DB_SCHEMA_SYM + "#]");
+
     // H2 Dialect
     map = new HashMap<String, String>();
-    TYPES.put( H2, map );
-    map.put( "STR", "VARCHAR(#)" );
-    map.put( "BOL", "BOOLEAN" );
-    map.put( "S8", "TINYINT" );
-    map.put( "U8", "TINYINT" );
-    map.put( "S16", "SMALLINT" );
-    map.put( "U16", "SMALLINT" );
-    map.put( "S32", "INTEGER" );
-    map.put( "U32", "INTEGER" );
-    map.put( "S64", "BIGINT" );
-    map.put( "U64", "BIGINT" );
-    map.put( "DBL", "DOUBLE" );
-    map.put( "DAT", "TIMESTAMP" );
-    map.put( "FLT", "REAL" );
-    map.put( DEFAULT, "VARCHAR(#)" );
+    TYPES.put(H2, map);
+    map.put("STR", "VARCHAR(#)");
+    map.put("BOL", "BOOLEAN");
+    map.put("S8", "TINYINT");
+    map.put("U8", "TINYINT");
+    map.put("S16", "SMALLINT");
+    map.put("U16", "SMALLINT");
+    map.put("S32", "INTEGER");
+    map.put("U32", "INTEGER");
+    map.put("S64", "BIGINT");
+    map.put("U64", "BIGINT");
+    map.put("DBL", "DOUBLE");
+    map.put("DAT", "TIMESTAMP");
+    map.put("FLT", "REAL");
+    map.put(DEFAULT, "VARCHAR(#)");
     map = new HashMap<String, String>();
-    SYNTAX.put( H2, map );
-    map.put( CREATE, "CREATE TABLE [#$" + DB_SCHEMA_SYM + "#].[#$" + TABLE_NAME_SYM + "#] ( [#$" + FIELD_DEF_SYM + "#] )" );
-    map.put( GRANT, "" );
-    map.put( INSERT, "INSERT INTO [#$" + DB_SCHEMA_SYM + "#].[#$" + TABLE_NAME_SYM + "#] ([#$" + FIELD_NAMES_SYM + "#]) VALUES ([#$" + FIELD_VALUES_SYM + "#])" );
-    map.put( UPDATE, "UPDATE [#$" + DB_SCHEMA_SYM + "#].[#$" + TABLE_NAME_SYM + "#] SET [#$" + FIELD_MAP_SYM + "#] WHERE SYSID='[#$" + SYS_ID_SYM + "#]'" );
-    map.put( DELETE, "DELETE FROM [#$" + DB_SCHEMA_SYM + "#].[#$" + TABLE_NAME_SYM + "#] WHERE SYSID='[#$" + SYS_ID_SYM + "#]'" );
-    map.put( TRUNCATE, "TRUNCATE TABLE [#$" + DB_SCHEMA_SYM + "#].[#$" + TABLE_NAME_SYM + "#]" );
-    map.put( ALTER_COLUMN, "ALTER TABLE [#$" + DB_SCHEMA_SYM + "#].[#$" + TABLE_NAME_SYM + "#] ALTER COLUMN [#$columnName#] [#$columnType#]" );
-    map.put( UNIQUE, "IDENTITY" );
-    map.put( PRIMARY_KEY, "PRIMARY KEY" );
-    map.put( NULLABLE, "NULL" );
-    map.put( NOT_NULL, "NOT NULL" );
-    map.put( CREATE_SCHEMA, "CREATE SCHEMA IF NOT EXISTS [#$" + DB_SCHEMA_SYM + "#] AUTHORIZATION [#$" + USERNAME_SYM + "#]" );
+    SYNTAX.put(H2, map);
+    map.put(CREATE, "CREATE TABLE [#$" + DB_SCHEMA_SYM + "#].[#$" + TABLE_NAME_SYM + "#] ( [#$" + FIELD_DEF_SYM + "#] )");
+    map.put(GRANT, "");
+    map.put(INSERT, "INSERT INTO [#$" + DB_SCHEMA_SYM + "#].[#$" + TABLE_NAME_SYM + "#] ([#$" + FIELD_NAMES_SYM + "#]) VALUES ([#$" + FIELD_VALUES_SYM + "#])");
+    map.put(UPDATE, "UPDATE [#$" + DB_SCHEMA_SYM + "#].[#$" + TABLE_NAME_SYM + "#] SET [#$" + FIELD_MAP_SYM + "#] WHERE SYSID='[#$" + SYS_ID_SYM + "#]'");
+    map.put(DELETE, "DELETE FROM [#$" + DB_SCHEMA_SYM + "#].[#$" + TABLE_NAME_SYM + "#] WHERE SYSID='[#$" + SYS_ID_SYM + "#]'");
+    map.put(TRUNCATE, "TRUNCATE TABLE [#$" + DB_SCHEMA_SYM + "#].[#$" + TABLE_NAME_SYM + "#]");
+    map.put(ALTER_COLUMN, "ALTER TABLE [#$" + DB_SCHEMA_SYM + "#].[#$" + TABLE_NAME_SYM + "#] ALTER COLUMN [#$columnName#] [#$columnType#]");
+    map.put(UNIQUE, "IDENTITY");
+    map.put(PRIMARY_KEY, "PRIMARY KEY");
+    map.put(NULLABLE, "NULL");
+    map.put(NOT_NULL, "NOT NULL");
+    map.put(CREATE_SCHEMA, "CREATE SCHEMA IF NOT EXISTS [#$" + DB_SCHEMA_SYM + "#] AUTHORIZATION [#$" + USERNAME_SYM + "#]");
 
     // Microsoft SQL Server Dialect
     map = new HashMap<String, String>();
-    TYPES.put( MSQL, map );
-    map.put( "STR", "VARCHAR(#)" );
-    map.put( "BOL", "BOOLEAN" );
-    map.put( "S8", "TINYINT" );
-    map.put( "U8", "TINYINT" );
-    map.put( "S16", "SMALLINT" );
-    map.put( "U16", "SMALLINT" );
-    map.put( "S32", "INTEGER" );
-    map.put( "U32", "INTEGER" );
-    map.put( "S64", "BIGINT" );
-    map.put( "U64", "BIGINT" );
-    map.put( "DBL", "DOUBLE" );
-    map.put( "DAT", "TIMESTAMP" );
-    map.put( "FLT", "REAL" );
-    map.put( DEFAULT, "VARCHAR(#)" );
+    TYPES.put(MSQL, map);
+    map.put("STR", "VARCHAR(#)");
+    map.put("BOL", "BOOLEAN");
+    map.put("S8", "TINYINT");
+    map.put("U8", "TINYINT");
+    map.put("S16", "SMALLINT");
+    map.put("U16", "SMALLINT");
+    map.put("S32", "INTEGER");
+    map.put("U32", "INTEGER");
+    map.put("S64", "BIGINT");
+    map.put("U64", "BIGINT");
+    map.put("DBL", "DOUBLE");
+    map.put("DAT", "TIMESTAMP");
+    map.put("FLT", "REAL");
+    map.put(DEFAULT, "VARCHAR(#)");
     map = new HashMap<String, String>();
-    SYNTAX.put( MSQL, map );
-    map.put( CREATE, "CREATE TABLE [#$" + DB_SCHEMA_SYM + "#].[#$" + TABLE_NAME_SYM + "#] ( [#$" + FIELD_DEF_SYM + "#] )" );
-    map.put( GRANT, "" );
-    map.put( INSERT, "INSERT INTO [#$" + DB_SCHEMA_SYM + "#].[#$" + TABLE_NAME_SYM + "#] ([#$" + FIELD_NAMES_SYM + "#]) VALUES ([#$" + FIELD_VALUES_SYM + "#])" );
-    map.put( UPDATE, "UPDATE [#$" + DB_SCHEMA_SYM + "#].[#$" + TABLE_NAME_SYM + "#] SET [#$" + FIELD_MAP_SYM + "#] WHERE SYSID='[#$" + SYS_ID_SYM + "#]'" );
-    map.put( DELETE, "DELETE FROM [#$" + DB_SCHEMA_SYM + "#].[#$" + TABLE_NAME_SYM + "#] WHERE SYSID='[#$" + SYS_ID_SYM + "#]'" );
-    map.put( TRUNCATE, "TRUNCATE TABLE [#$" + DB_SCHEMA_SYM + "#].[#$" + TABLE_NAME_SYM + "#]" );
-    map.put( ALTER_COLUMN, "ALTER TABLE [#$" + DB_SCHEMA_SYM + "#].[#$" + TABLE_NAME_SYM + "#] ALTER COLUMN [#$columnName#] [#$columnType#]" );
-    map.put( UNIQUE, "IDENTITY" );
-    map.put( PRIMARY_KEY, "PRIMARY KEY" );
-    map.put( NULLABLE, "NULL" );
-    map.put( NOT_NULL, "NOT NULL" );
-    map.put( CREATE_SCHEMA, "CREATE SCHEMA IF NOT EXISTS [#$" + DB_SCHEMA_SYM + "#] AUTHORIZATION [#$" + USERNAME_SYM + "#]" );
+    SYNTAX.put(MSQL, map);
+    map.put(CREATE, "CREATE TABLE [#$" + DB_SCHEMA_SYM + "#].[#$" + TABLE_NAME_SYM + "#] ( [#$" + FIELD_DEF_SYM + "#] )");
+    map.put(GRANT, "");
+    map.put(INSERT, "INSERT INTO [#$" + DB_SCHEMA_SYM + "#].[#$" + TABLE_NAME_SYM + "#] ([#$" + FIELD_NAMES_SYM + "#]) VALUES ([#$" + FIELD_VALUES_SYM + "#])");
+    map.put(UPDATE, "UPDATE [#$" + DB_SCHEMA_SYM + "#].[#$" + TABLE_NAME_SYM + "#] SET [#$" + FIELD_MAP_SYM + "#] WHERE SYSID='[#$" + SYS_ID_SYM + "#]'");
+    map.put(DELETE, "DELETE FROM [#$" + DB_SCHEMA_SYM + "#].[#$" + TABLE_NAME_SYM + "#] WHERE SYSID='[#$" + SYS_ID_SYM + "#]'");
+    map.put(TRUNCATE, "TRUNCATE TABLE [#$" + DB_SCHEMA_SYM + "#].[#$" + TABLE_NAME_SYM + "#]");
+    map.put(ALTER_COLUMN, "ALTER TABLE [#$" + DB_SCHEMA_SYM + "#].[#$" + TABLE_NAME_SYM + "#] ALTER COLUMN [#$columnName#] [#$columnType#]");
+    map.put(UNIQUE, "IDENTITY");
+    map.put(PRIMARY_KEY, "PRIMARY KEY");
+    map.put(NULLABLE, "NULL");
+    map.put(NOT_NULL, "NOT NULL");
+    map.put(CREATE_SCHEMA, "CREATE SCHEMA IF NOT EXISTS [#$" + DB_SCHEMA_SYM + "#] AUTHORIZATION [#$" + USERNAME_SYM + "#]");
 
   }
 
@@ -216,22 +216,22 @@ public class DatabaseDialect {
    * 
    * @return the command template or null if the database is not supported or the command is not recognized.
    */
-  public static String getSQL( String database, String command, SymbolTable symbols ) {
+  public static String getSQL(String database, String command, SymbolTable symbols) {
     // find the map of commands for this database
-    Map<String, String> map = SYNTAX.get( database );
+    Map<String, String> map = SYNTAX.get(database);
 
     // If this database is supported
-    if ( map != null ) {
+    if (map != null) {
       // lookup the requested command in this databases map of commands
-      String cmdstr = map.get( command );
+      String cmdstr = map.get(command);
 
-      if ( StringUtil.isNotBlank( cmdstr ) ) {
+      if (StringUtil.isNotBlank(cmdstr)) {
 
         // If we have a symbol table,
-        if ( symbols != null ) {
+        if (symbols != null) {
 
           // resolve the variables in the command string
-          Template tmplt = new Template( cmdstr, symbols );
+          Template tmplt = new Template(cmdstr, symbols);
           return tmplt.toString();
 
         } else {
@@ -268,10 +268,10 @@ public class DatabaseDialect {
    * @see coyote.commons.template.Template
    */
   @SuppressWarnings("unchecked")
-  public static String getCreate( String database, MetricSchema schema, SymbolTable symbols ) {
+  public static String getCreate(String database, MetricSchema schema, SymbolTable symbols) {
 
-    Map<String, String> typeMap = TYPES.get( database );
-    if ( typeMap != null ) {
+    Map<String, String> typeMap = TYPES.get(database);
+    if (typeMap != null) {
 
       StringBuffer b = new StringBuffer();
 
@@ -281,7 +281,7 @@ public class DatabaseDialect {
       //   }
       // }
 
-      for ( FieldMetrics metrics : schema.getMetrics() ) {
+      for (FieldMetrics metrics : schema.getMetrics()) {
 
         final String fieldname = metrics.getName();
         final String fieldtype = metrics.getType();
@@ -289,44 +289,44 @@ public class DatabaseDialect {
 
         // Log.debug( String.format( "SN: \"%s\",\"%s\",%d", fieldname, fieldtype, fieldlen ) );
 
-        b.append( fieldname );
-        b.append( " " );
+        b.append(fieldname);
+        b.append(" ");
 
         // lookup the database type to use for this field
         String type = null;
 
-        if ( StringUtil.isNotBlank( fieldtype ) )
-          type = typeMap.get( fieldtype.toUpperCase() );
+        if (StringUtil.isNotBlank(fieldtype))
+          type = typeMap.get(fieldtype.toUpperCase());
 
-        if ( StringUtil.isBlank( type ) ) {
-          Log.debug( LogMsg.createMsg( CDX.MSG, "Database.could_not_find_type", DatabaseDialect.class.getSimpleName(), fieldtype, type, typeMap.get( DEFAULT ), fieldname ) );
-          type = typeMap.get( DEFAULT );
+        if (StringUtil.isBlank(type)) {
+          Log.debug(LogMsg.createMsg(CDX.MSG, "Database.could_not_find_type", DatabaseDialect.class.getSimpleName(), fieldtype, type, typeMap.get(DEFAULT), fieldname));
+          type = typeMap.get(DEFAULT);
         }
 
         //Replace any required length tokens
-        if ( type.indexOf( '#' ) > -1 ) {
-          type = type.replace( "#", Long.toString( fieldlen ) );
+        if (type.indexOf('#') > -1) {
+          type = type.replace("#", Long.toString(fieldlen));
         }
 
         // place the field and type in the buffer 
-        b.append( type );
-        b.append( ", " );
+        b.append(type);
+        b.append(", ");
       }
 
       // trim off the last delimiter
-      b.delete( b.length() - 2, b.length() );
+      b.delete(b.length() - 2, b.length());
 
       // if there is a symbol table, place the field definitions in it
-      if ( symbols != null ) {
-        symbols.put( FIELD_DEF_SYM, b.toString() );
+      if (symbols != null) {
+        symbols.put(FIELD_DEF_SYM, b.toString());
       }
 
       // now have return the create command using the field definitions in the 
       // symbol table to fill out the command template
-      return getSQL( database, CREATE, symbols );
+      return getSQL(database, CREATE, symbols);
 
     } else {
-      Log.error( LogMsg.createMsg( CDX.MSG, "Could not find type definition for '{}' database", database ) );
+      Log.error(LogMsg.createMsg(CDX.MSG, "Could not find type definition for '{}' database", database));
     }
 
     return null;
@@ -347,81 +347,81 @@ public class DatabaseDialect {
    *         the table definition 
    */
   @SuppressWarnings("unchecked")
-  public static String getCreate( String database, TableDefinition tdef ) {
+  public static String getCreate(String database, TableDefinition tdef) {
     SymbolTable symbols = new SymbolTable();
-    symbols.put( DB_SCHEMA_SYM, tdef.getSchemaName() );
-    symbols.put( TABLE_NAME_SYM, tdef.getName() );
+    symbols.put(DB_SCHEMA_SYM, tdef.getSchemaName());
+    symbols.put(TABLE_NAME_SYM, tdef.getName());
 
-    Map<String, String> typeMap = TYPES.get( database );
-    Map<String, String> syntaxMap = SYNTAX.get( database );
+    Map<String, String> typeMap = TYPES.get(database);
+    Map<String, String> syntaxMap = SYNTAX.get(database);
 
-    if ( typeMap != null ) {
+    if (typeMap != null) {
       StringBuffer b = new StringBuffer();
 
-      for ( ColumnDefinition column : tdef.getColumns() ) {
+      for (ColumnDefinition column : tdef.getColumns()) {
 
         final String fieldname = column.getName();
         final String fieldtype = column.getType().getName();
         final long fieldlen = column.getLength();
 
-        b.append( fieldname );
-        b.append( " " );
+        b.append(fieldname);
+        b.append(" ");
 
         // lookup the database type to use for this field
         String type = null;
 
-        if ( StringUtil.isNotBlank( fieldtype ) )
-          type = typeMap.get( fieldtype.toUpperCase() );
+        if (StringUtil.isNotBlank(fieldtype))
+          type = typeMap.get(fieldtype.toUpperCase());
 
-        if ( StringUtil.isBlank( type ) ) {
-          Log.debug( LogMsg.createMsg( CDX.MSG, "Database.could_not_find_type", DatabaseDialect.class.getSimpleName(), fieldtype, type, typeMap.get( DEFAULT ), fieldname ) );
-          type = typeMap.get( DEFAULT );
+        if (StringUtil.isBlank(type)) {
+          Log.debug(LogMsg.createMsg(CDX.MSG, "Database.could_not_find_type", DatabaseDialect.class.getSimpleName(), fieldtype, type, typeMap.get(DEFAULT), fieldname));
+          type = typeMap.get(DEFAULT);
         }
 
         //Replace any required length tokens
-        if ( type.indexOf( '#' ) > -1 ) {
-          type = type.replace( "#", Long.toString( fieldlen ) );
+        if (type.indexOf('#') > -1) {
+          type = type.replace("#", Long.toString(fieldlen));
         }
 
         // place the field and type in the buffer 
-        b.append( type );
+        b.append(type);
 
-        if ( column.isUnique() ) {
-          if ( syntaxMap.containsKey( UNIQUE ) ) {
-            b.append( ' ' );
-            b.append( syntaxMap.get( UNIQUE ) );
+        if (column.isUnique()) {
+          if (syntaxMap.containsKey(UNIQUE)) {
+            b.append(' ');
+            b.append(syntaxMap.get(UNIQUE));
           }
         }
-        if ( column.isPrimaryKey() ) {
-          if ( syntaxMap.containsKey( PRIMARY_KEY ) ) {
-            b.append( ' ' );
-            b.append( syntaxMap.get( PRIMARY_KEY ) );
+        if (column.isPrimaryKey()) {
+          if (syntaxMap.containsKey(PRIMARY_KEY)) {
+            b.append(' ');
+            b.append(syntaxMap.get(PRIMARY_KEY));
           }
         }
-        if( column.isNullable()){
-          if ( syntaxMap.containsKey( NULLABLE ) ) {
-            b.append( ' ' );
-            b.append( syntaxMap.get( NULLABLE ) );
+        if (column.isNullable()) {
+          if (syntaxMap.containsKey(NULLABLE)) {
+            b.append(' ');
+            b.append(syntaxMap.get(NULLABLE));
           }
-        } else{
-          if ( syntaxMap.containsKey( NOT_NULL ) ) {
-            b.append( ' ' );
-            b.append( syntaxMap.get( NOT_NULL ) );
+        } else {
+          if (syntaxMap.containsKey(NOT_NULL)) {
+            b.append(' ');
+            b.append(syntaxMap.get(NOT_NULL));
           }
         }
 
-        b.append( ", " );
+        b.append(", ");
       }
 
       // trim off the last delimiter
-      b.delete( b.length() - 2, b.length() );
+      b.delete(b.length() - 2, b.length());
 
-      symbols.put( FIELD_DEF_SYM, b.toString() );
-      Log.debug( b.toString() );
-      return getSQL( database, CREATE, symbols );
+      symbols.put(FIELD_DEF_SYM, b.toString());
+      Log.debug(b.toString());
+      return getSQL(database, CREATE, symbols);
 
     } else {
-      Log.error( LogMsg.createMsg( CDX.MSG, "Could not find type definition for '{}' database", database ) );
+      Log.error(LogMsg.createMsg(CDX.MSG, "Could not find type definition for '{}' database", database));
     }
 
     return null;
@@ -464,38 +464,38 @@ public class DatabaseDialect {
    * 
    * @return an object which can be safely placed in a DataFrame field.
    */
-  public static Object resolveValue( Object value, int type ) {
+  public static Object resolveValue(Object value, int type) {
     Object retval = null;
 
-    if ( value != null ) {
-      switch ( type ) {
+    if (value != null) {
+      switch (type) {
         case 2:
         case 3:
-          retval = ( (java.math.BigDecimal)value ).doubleValue();
+          retval = ((java.math.BigDecimal)value).doubleValue();
           break;
         case 4:
-          retval = ( (Integer)value ).intValue();
+          retval = ((Integer)value).intValue();
           break;
         case 5:
-          retval = ( (Short)value ).shortValue();
+          retval = ((Short)value).shortValue();
           break;
         case 6:
-          retval = ( (Double)value ).doubleValue();
+          retval = ((Double)value).doubleValue();
           break;
         case 7:
-          retval = ( (Float)value ).floatValue();
+          retval = ((Float)value).floatValue();
           break;
         case 8:
-          retval = ( (Double)value ).doubleValue();
+          retval = ((Double)value).doubleValue();
           break;
         case 91:
-          retval = new Date( ( (java.sql.Date)value ).getTime() );
+          retval = new Date(((java.sql.Date)value).getTime());
           break;
         case 92:
-          retval = new Date( ( (java.sql.Time)value ).getTime() );
+          retval = new Date(((java.sql.Time)value).getTime());
           break;
         case 93:
-          retval = new Date( ( (java.sql.Timestamp)value ).getTime() );
+          retval = new Date(((java.sql.Timestamp)value).getTime());
           break;
         default:
           retval = value.toString();
@@ -510,11 +510,11 @@ public class DatabaseDialect {
 
 
   @SuppressWarnings("unchecked")
-  public static String getCreateSchema( String database, String schemaName, String owner ) {
+  public static String getCreateSchema(String database, String schemaName, String owner) {
     SymbolTable symbols = new SymbolTable();
-    symbols.put( DB_SCHEMA_SYM,schemaName );
-    symbols.put( USERNAME_SYM, owner );
-    return getSQL( database, CREATE_SCHEMA, symbols );
+    symbols.put(DB_SCHEMA_SYM, schemaName);
+    symbols.put(USERNAME_SYM, owner);
+    return getSQL(database, CREATE_SCHEMA, symbols);
   }
 
 }

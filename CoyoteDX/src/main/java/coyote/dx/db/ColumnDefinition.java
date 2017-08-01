@@ -9,10 +9,11 @@
  *   Stephan D. Cote 
  *      - Initial concept and implementation
  */
+
 package coyote.dx.db;
 
 /**
- * This holds details about a column in a table
+ * This holds details about a column in a table.
  */
 public class ColumnDefinition {
   private String name;
@@ -29,23 +30,21 @@ public class ColumnDefinition {
 
 
 
-
-
-  public ColumnDefinition( String name, ColumnType type ) {
-    this( name, type, type.getLength(), false, false, false, false, false, null, 0 );
+  public ColumnDefinition(String name, ColumnType type) {
+    this(name, type, type.getLength(), false, false, false, false, false, null, 0);
   }
 
 
 
 
-  public ColumnDefinition( String name, ColumnType type, int len ) {
-    this( name, type, len, false, false, false, false, false, null, 0 );
+  public ColumnDefinition(String name, ColumnType type, int len) {
+    this(name, type, len, false, false, false, false, false, null, 0);
   }
 
 
 
 
-  public ColumnDefinition( String name, ColumnType type, int len, boolean nullable, boolean ro, boolean req, boolean key, boolean unique, String remarks, int pos ) {
+  public ColumnDefinition(String name, ColumnType type, int len, boolean nullable, boolean ro, boolean req, boolean key, boolean unique, String remarks, int pos) {
     this.name = name;
     this.type = type;
     length = len;
@@ -71,7 +70,7 @@ public class ColumnDefinition {
 
 
 
-  public ColumnDefinition setName( String name ) {
+  public ColumnDefinition setName(String name) {
     this.name = name;
     return this;
   }
@@ -89,7 +88,7 @@ public class ColumnDefinition {
 
 
 
-  public ColumnDefinition setType( ColumnType type ) {
+  public ColumnDefinition setType(ColumnType type) {
     this.type = type;
     return this;
   }
@@ -107,7 +106,7 @@ public class ColumnDefinition {
 
 
 
-  public ColumnDefinition setLength( int length ) {
+  public ColumnDefinition setLength(int length) {
     this.length = length;
     return this;
   }
@@ -125,7 +124,7 @@ public class ColumnDefinition {
 
 
 
-  public ColumnDefinition setReadOnly( boolean readOnly ) {
+  public ColumnDefinition setReadOnly(boolean readOnly) {
     this.readOnly = readOnly;
     return this;
   }
@@ -143,7 +142,7 @@ public class ColumnDefinition {
 
 
 
-  public ColumnDefinition setMandatory( boolean mandatory ) {
+  public ColumnDefinition setMandatory(boolean mandatory) {
     this.mandatory = mandatory;
     return this;
   }
@@ -161,7 +160,7 @@ public class ColumnDefinition {
 
 
 
-  public ColumnDefinition setPrimaryKey( boolean primaryKey ) {
+  public ColumnDefinition setPrimaryKey(boolean primaryKey) {
     this.primaryKey = primaryKey;
     return this;
   }
@@ -179,7 +178,7 @@ public class ColumnDefinition {
 
 
 
-  public ColumnDefinition setUnique( boolean unique ) {
+  public ColumnDefinition setUnique(boolean unique) {
     this.unique = unique;
     return this;
   }
@@ -197,7 +196,7 @@ public class ColumnDefinition {
 
 
 
-  public ColumnDefinition setNullable( boolean nullable ) {
+  public ColumnDefinition setNullable(boolean nullable) {
     this.nullable = nullable;
     return this;
   }
@@ -215,7 +214,7 @@ public class ColumnDefinition {
 
 
 
-  public ColumnDefinition setRemarks( String remarks ) {
+  public ColumnDefinition setRemarks(String remarks) {
     this.remarks = remarks;
     return this;
   }
@@ -233,7 +232,7 @@ public class ColumnDefinition {
 
 
 
-  public ColumnDefinition setPosition( int position ) {
+  public ColumnDefinition setPosition(int position) {
     this.position = position;
     return this;
   }

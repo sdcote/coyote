@@ -9,6 +9,7 @@
  *   Stephan D. Cote 
  *      - Initial concept and implementation
  */
+
 package coyote.dx.db;
 
 import java.util.ArrayList;
@@ -35,11 +36,16 @@ public class MetricSchema {
 
 
 
-  public void sample( DataFrame frame ) {
-    if ( frame != null ) {
+  /**
+   * Take a sample.
+   * 
+   * @param frame DataFrame containing the fileds to sample.
+   */
+  public void sample(DataFrame frame) {
+    if (frame != null) {
       samples++;
-      for ( DataField field : frame.getFields() ) {
-        getMetric( field.getName() ).sample( field );
+      for (DataField field : frame.getFields()) {
+        getMetric(field.getName()).sample(field);
       } // for
     } // null
   }
@@ -57,20 +63,20 @@ public class MetricSchema {
    * 
    * @return a FieldMetric associated with the named field. Never returns null.
    */
-  public FieldMetrics getMetric( String name ) {
+  public FieldMetrics getMetric(String name) {
     FieldMetrics retval = null;
-    if ( name != null ) {
-      for ( FieldMetrics metric : metrics ) {
-        if ( name.equals( metric.getName() ) ) {
+    if (name != null) {
+      for (FieldMetrics metric : metrics) {
+        if (name.equals(metric.getName())) {
           retval = metric;
           break;
         }
       }
     }
 
-    if ( retval == null ) {
-      retval = new FieldMetrics( name );
-      metrics.add( retval );
+    if (retval == null) {
+      retval = new FieldMetrics(name);
+      metrics.add(retval);
     }
 
     return retval;

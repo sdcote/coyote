@@ -9,30 +9,31 @@
  *   Stephan D. Cote 
  *      - Initial concept and implementation
  */
+
 package coyote.dx.db;
 
 /**
- * 
+ * The supported data types for database columns.
  */
 public enum ColumnType {
-  /** String */
-  STRING( "STR", 0),
-  /**  */
-  BOOLEAN( "BOL", 1),
-  /**  */
-  BYTE( "S8", 8),
-  /**  */
-  SHORT( "S16", 16),
-  /**  */
-  INT( "S32", 32),
-  /**  */
-  LONG( "S64", 64),
-  /**  */
-  FLOAT( "FLT", 64),
-  /**  */
-  DOUBLE( "DBL", 64),
-  /**  */
-  DATE( "DAT", 64);
+  /** String. */
+  STRING("STR", 0),
+  /** . */
+  BOOLEAN("BOL", 1),
+  /** . */
+  BYTE("S8", 8),
+  /** . */
+  SHORT("S16", 16),
+  /** . */
+  INT("S32", 32),
+  /** . */
+  LONG("S64", 64),
+  /** . */
+  FLOAT("FLT", 64),
+  /** . */
+  DOUBLE("DBL", 64),
+  /** . */
+  DATE("DAT", 64);
 
   private String name;
   private int length;
@@ -40,7 +41,7 @@ public enum ColumnType {
 
 
 
-  private ColumnType( String s, int l ) {
+  private ColumnType(String s, int l) {
     name = s;
     length = l;
   }
@@ -59,10 +60,17 @@ public enum ColumnType {
 
 
 
-  public static ColumnType getColumnTypeByName( String name ) {
-    if ( name != null ) {
-      for ( ColumnType type : ColumnType.values() ) {
-        if ( name.equalsIgnoreCase( type.toString() ) ) {
+  /**
+   * Get the column type by name.
+   * 
+   * @param name name of the column to return
+   * 
+   * @return the column type with the given mane or null if not found.
+   */
+  public static ColumnType getColumnTypeByName(String name) {
+    if (name != null) {
+      for (ColumnType type : ColumnType.values()) {
+        if (name.equalsIgnoreCase(type.toString())) {
           return type;
         }
       }

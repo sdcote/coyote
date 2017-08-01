@@ -9,6 +9,7 @@
  *   Stephan D. Cote 
  *      - Initial concept and implementation
  */
+
 package coyote.dx.db;
 
 import java.util.ArrayList;
@@ -36,7 +37,7 @@ public class TableDefinition {
    * 
    * @param name The name of the database table this models
    */
-  public TableDefinition( String name ) {
+  public TableDefinition(String name) {
     tableName = name;
   }
 
@@ -51,15 +52,15 @@ public class TableDefinition {
    * 
    * @param col The column definition to add
    */
-  public void addColumn( ColumnDefinition col ) {
-    if ( col != null ) {
-      for ( int x = 0; x < columns.size(); x++ ) {
-        if ( columns.get( x ).getPosition() > col.getPosition() ) {
-          columns.add( x, col );
+  public void addColumn(ColumnDefinition col) {
+    if (col != null) {
+      for (int x = 0; x < columns.size(); x++) {
+        if (columns.get(x).getPosition() > col.getPosition()) {
+          columns.add(x, col);
           return;
         }
       }
-      columns.add( col );
+      columns.add(col);
     }
   }
 
@@ -73,8 +74,8 @@ public class TableDefinition {
    * @param type The data type of the column
    * @param len The maximum length of the data this column will hold 
    */
-  public void addColumn( String name, ColumnType type, int len ) {
-    columns.add( new ColumnDefinition( name, type, len ) );
+  public void addColumn(String name, ColumnType type, int len) {
+    columns.add(new ColumnDefinition(name, type, len));
   }
 
 
@@ -86,8 +87,8 @@ public class TableDefinition {
    * @param name The name of the column to add
    * @param type The data type of the column
    */
-  public void addColumn( String name, ColumnType type ) {
-    columns.add( new ColumnDefinition( name, type ) );
+  public void addColumn(String name, ColumnType type) {
+    columns.add(new ColumnDefinition(name, type));
   }
 
 
@@ -126,7 +127,7 @@ public class TableDefinition {
   /**
    * @param name the catalog name to set
    */
-  public void setCatalogName( String name ) {
+  public void setCatalogName(String name) {
     this.catalogName = name;
   }
 
@@ -146,7 +147,7 @@ public class TableDefinition {
   /**
    * @param name the schema name to set
    */
-  public void setSchemaName( String name ) {
+  public void setSchemaName(String name) {
     this.schemaName = name;
   }
 
@@ -159,24 +160,24 @@ public class TableDefinition {
   @Override
   public String toString() {
     StringBuffer b = new StringBuffer();
-    if ( catalogName != null ) {
-      b.append( catalogName );
-      b.append( '.' );
+    if (catalogName != null) {
+      b.append(catalogName);
+      b.append('.');
     }
-    if ( schemaName != null ) {
-      b.append( schemaName );
-      b.append( '.' );
+    if (schemaName != null) {
+      b.append(schemaName);
+      b.append('.');
     }
-    b.append( tableName );
-    b.append( "\r\n" );
-    for ( ColumnDefinition column : columns ) {
-      b.append( column.getName() );
-      b.append( ' ' );
-      b.append( column.getType().getName() );
-      b.append( '(' );
-      b.append( column.getLength() );
-      b.append( ')' );
-      b.append( "\r\n" );
+    b.append(tableName);
+    b.append("\r\n");
+    for (ColumnDefinition column : columns) {
+      b.append(column.getName());
+      b.append(' ');
+      b.append(column.getType().getName());
+      b.append('(');
+      b.append(column.getLength());
+      b.append(')');
+      b.append("\r\n");
     }
     return b.toString();
   }
@@ -193,9 +194,9 @@ public class TableDefinition {
    * 
    * @see #findColumn(String)
    */
-  public ColumnDefinition getColumn( String name ) {
-    for ( ColumnDefinition column : columns ) {
-      if ( column.getName().equals( name ) ) {
+  public ColumnDefinition getColumn(String name) {
+    for (ColumnDefinition column : columns) {
+      if (column.getName().equals(name)) {
         return column;
       }
     }
@@ -215,9 +216,9 @@ public class TableDefinition {
    * 
    * @see #getColumn(String)
    */
-  public ColumnDefinition findColumn( String name ) {
-    for ( ColumnDefinition column : columns ) {
-      if ( column.getName().equalsIgnoreCase( name ) ) {
+  public ColumnDefinition findColumn(String name) {
+    for (ColumnDefinition column : columns) {
+      if (column.getName().equalsIgnoreCase(name)) {
         return column;
       }
     }
@@ -240,7 +241,7 @@ public class TableDefinition {
   /**
    * @param name the name of the database product hosting this table (e.g. ORACLE, H2, etc.)
    */
-  public void setProductName( String name ) {
+  public void setProductName(String name) {
     productName = name;
   }
 
@@ -260,7 +261,7 @@ public class TableDefinition {
   /**
    * @param version the version of the database product hosting this table
    */
-  public void setProductVersion( String version ) {
+  public void setProductVersion(String version) {
     this.productVersion = version;
   }
 
@@ -280,7 +281,7 @@ public class TableDefinition {
   /**
    * @param version the major version number of the database product hosting this table
    */
-  public void setMajorVersion( int version ) {
+  public void setMajorVersion(int version) {
     this.majorVersion = version;
   }
 
@@ -300,7 +301,7 @@ public class TableDefinition {
   /**
    * @param version the minor version number of the database product hosting this table
    */
-  public void setMinorVersion( int version ) {
+  public void setMinorVersion(int version) {
     this.minorVersion = version;
   }
 
