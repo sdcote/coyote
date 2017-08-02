@@ -78,6 +78,11 @@ public class CheckFieldMethodTest {
 
     expression = "checkField(Target.fieldX, LT, 123)";
     assertTrue(evaluator.evaluateBoolean(expression));
+    
+
+    expression = "checkField(Target.LongField, LT, Working.DateField)";
+    assertTrue(evaluator.evaluateBoolean(expression));
+
 }
 
 
