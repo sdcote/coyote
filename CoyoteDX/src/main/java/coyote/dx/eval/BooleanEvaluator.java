@@ -71,8 +71,11 @@ public class BooleanEvaluator extends AbstractEvaluator<Boolean> {
   /** Checks if the named job failed to complete successfully */
   public static final Method JOB_FAILURE = new Method("jobFailure", 1);
 
+  /** Checks if the named field matches expected values */
+  public static final Method CHECK_FIELD = new Method("checkField", 3);
+
   /** The whole set of predefined functions */
-  private static final Method[] METHODS = new Method[]{MATCH, EMPTY, EXISTS, REGEX, EQUALS, JOB_SUCCESS, JOB_FAILURE};
+  private static final Method[] METHODS = new Method[]{MATCH, EMPTY, EXISTS, REGEX, EQUALS, JOB_SUCCESS, JOB_FAILURE, CHECK_FIELD};
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   // Constants
@@ -318,6 +321,11 @@ public class BooleanEvaluator extends AbstractEvaluator<Boolean> {
       final String arg1 = arguments.next();
       result = JobSuccessMethod.execute(transformContext, arg1);
     } else if (JOB_FAILURE.equals(method)) {
+      final String arg1 = arguments.next();
+      result = !JobSuccessMethod.execute(transformContext, arg1);
+    } else if (CHECK_FIELD.equals(method)) {
+      final String arg3 = arguments.next();
+      final String arg2 = arguments.next();
       final String arg1 = arguments.next();
       result = !JobSuccessMethod.execute(transformContext, arg1);
     } else {
