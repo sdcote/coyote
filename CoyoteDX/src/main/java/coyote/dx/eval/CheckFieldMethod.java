@@ -39,6 +39,15 @@ public class CheckFieldMethod extends AbstractBooleanMethod {
   /**
    * Resolve the named field in the context and determine if it satisfies the 
    * operator and comparison value.
+   * 
+   * <p>The expected value will determine what type conversions are performed. 
+   * If an expected value is a numeric, and the field is a date, then the date 
+   * will be converted to a numeric(long) for comparison. If the expected 
+   * value is a date and the field value is a numeric, the field value will be 
+   * converted to a date (if possible) for comparison.
+   * 
+   * <p>True is indicative but false return values are not as false is 
+   * returned even when conversions are not possible
    *
    * @param context The transform context in which to look for the job status
    * @param field name of the value to resolve in the context.
@@ -52,7 +61,9 @@ public class CheckFieldMethod extends AbstractBooleanMethod {
    */
   public static Boolean execute(TransformContext context, String field, String operator, String expected) throws IllegalArgumentException {
     String key = sanitize(field);
-    Object obj = context.resolveToValue(field);
+    Object fieldObject = context.resolveToValue(field);
+    Object expectedObject = context.resolveToValue(expected);
+    
 
     Operator op = Operator.getOperator(operator);
     if (Operator.EQ.equals(op)) {
