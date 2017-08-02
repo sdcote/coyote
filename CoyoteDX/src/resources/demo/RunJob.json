@@ -6,12 +6,12 @@
 		
 		"Task": {
 			"RunJob":{ "filename":"BitcoinPrice","name":"Price"},
-			"RunJob1":{ 
-				"condition": "jobSuccess(Price) && field(Price.Last, GT, 2790)",
+			"RunJob":{ 
+				"condition": "jobSuccess(Price) && check(Price.Last, GT, 2790)",
 				"filename":"sellBitcoin",
 				"fields" : { "Coins": 0.035, "Account": "12345", "Password": "53crEt" }
 			},
-			"RunJob2": { "condition": "jobFailure(Price)", "filename":"BitcoinCleanup"}
+			"RunJob": { "condition": "jobFailure(Price)", "filename":"BitcoinCleanup"}
 		}
 
 	}
