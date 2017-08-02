@@ -282,6 +282,53 @@ public class TransformContext extends OperationalContext {
 
 
 
+  /**
+   * Return the value of a data frame field currently set in the transaction
+   * context of this context.
+   *
+   * <p>Matching is case sensitive.
+   *
+   * <p>Naming Conventions:<ul>
+   * <li>Working.[field name] field in the working frame of the transaction
+   * context.
+   * <li>Source.[field name] field in the source frame of the transaction
+   * context.
+   * <li>Target.[field name] field in the target frame of the transaction
+   * context.
+   * <li>[field name] field in the working frame of the transaction</ul>
+   *
+   * @param token the name of the field, context or symbol value
+   *
+   * @return the object value of the named value in this context or null if not found.
+   */
+  public Object resolveFieldValue(final String token) {
+    Object retval = null;
+    if (token.startsWith(WORKING)) {
+      final String name = token.substring(WORKING.length());
+      if ((transactionContext != null) && (transactionContext.getWorkingFrame() != null)) {
+        retval = transactionContext.getWorkingFrame().getObject(name);
+      }
+    } else if (token.startsWith(SOURCE)) {
+      final String name = token.substring(SOURCE.length());
+      if ((transactionContext != null) && (transactionContext.getSourceFrame() != null)) {
+        retval = transactionContext.getSourceFrame().getObject(name);
+      }
+    } else if (token.startsWith(TARGET)) {
+      final String name = token.substring(TARGET.length());
+      if ((transactionContext != null) && (transactionContext.getTargetFrame() != null)) {
+        retval = transactionContext.getTargetFrame().getObject(name);
+      }
+    } else {
+      // assume a working frame field
+      if ((transactionContext != null) && (transactionContext.getWorkingFrame() != null)) {
+        retval = transactionContext.getWorkingFrame().getObject(token);
+      }
+    }
+    return retval;
+  }
+
+
+
 
   /**
    * Return the value of something in this transform context to a string value.
@@ -312,7 +359,46 @@ public class TransformContext extends OperationalContext {
    */
   public String resolveToString(final String token) {
     String retval = null;
-    final String value = resolveField(token);
+    Object obj = resolveToValue(token);
+    
+    if( obj!= null){
+      retval = obj.toString();
+    }
+    return retval;
+  }
+
+
+
+  /**
+   * Return the value of something in this transform context.
+   *
+   * <p>The token is scanned for a prefix to determine if it is a field name
+   * in one of the data frames in the transaction context. If not, the token
+   * is checked against object values in the context and the value of any 
+   * returned object in the context with that name is returned. Finally,
+   * if the context did not contain an object with a name matching the token,
+   * the symbol table is checked and any matching symbol is returned.
+   *
+   * <p>Matching is case sensitive.
+   *
+   * <p>Naming Conventions:<ul>
+   * <li>Working.[field name] field in the working frame of the transaction
+   * context.
+   * <li>Source.[field name] field in the source frame of the transaction
+   * context.
+   * <li>Target.[field name] field in the target frame of the transaction
+   * context.
+   * <li>[field name] field in the working frame of the transaction
+   * <li>[field name] context value
+   * <li>[field name] symbol value</ul>
+   *
+   * @param token the name of the field, context or symbol value
+   *
+   * @return the object value of the named value in this context or null if not found.
+   */
+  public Object resolveToValue(final String token) {
+    Object retval = null;
+    final Object value = resolveFieldValue(token);
     if (value != null) {
       retval = value;
     } else {
@@ -322,7 +408,7 @@ public class TransformContext extends OperationalContext {
       } else {
         if (symbols != null) {
           if (symbols.containsKey(token)) {
-            retval = symbols.getString(token);
+            retval = symbols.get(token);
           }
         }
       }
