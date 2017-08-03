@@ -7,6 +7,8 @@
  */
 package coyote.dx.eval;
 
+import java.util.Locale;
+
 import coyote.commons.NumberUtil;
 import coyote.dx.context.TransformContext;
 import coyote.loader.log.Log;
@@ -36,9 +38,17 @@ import coyote.loader.log.Log;
  * comparison. Numerics are not formatted in any way and will not contain
  * group separators.
  */
-public class CheckFieldMethod extends AbstractBooleanMethod {
+public final class CheckFieldMethod extends AbstractBooleanMethod {
 
   private static final String CLASS = CheckFieldMethod.class.getSimpleName();
+
+
+
+
+  private CheckFieldMethod() {
+    super();
+    // private constructor
+  }
 
 
 
@@ -96,10 +106,10 @@ public class CheckFieldMethod extends AbstractBooleanMethod {
     }
 
     try {
-      final Operator op = Operator.getOperator(operator);
-      switch (op) {
+      final Operator oper = Operator.getOperator(operator);
+      switch (oper) {
         case EQ:
-          return equals(fieldObject, expectedObject);
+          return equalTo(fieldObject, expectedObject);
         case EI:
           return equalsIgnoreCase(fieldObject, expectedObject);
         case LT:
@@ -137,11 +147,12 @@ public class CheckFieldMethod extends AbstractBooleanMethod {
    * @return -1, 0 or 1 if thisObject is less than, equal to or greater than 
    *         thatObject respectively
    * 
-   * @throws IllegalArgumentException when comparing to incompatible types of objects
+   * @throws IllegalArgumentException when comparing to incompatible types of 
+   *         objects
    */
   @SuppressWarnings({"unchecked", "rawtypes"})
   private static int compare(final Object thisObject, final Object thatObject) throws IllegalArgumentException {
-    if ((thisObject == null) && (thatObject == null)) {
+    if (thisObject == null && thatObject == null) {
       return 0;
     } else {
       if (thisObject == null) {
@@ -158,7 +169,7 @@ public class CheckFieldMethod extends AbstractBooleanMethod {
         } else {
           // here is where we bend over backwards...
           // if thatObject is numeric, then
-
+          Log.debug("Performing conversions");
         }
 
         throw new IllegalArgumentException("Object of type '" + thisObject.getClass() + "' cannot be compared to object of type '" + thatObject.getClass() + "'");
@@ -169,13 +180,12 @@ public class CheckFieldMethod extends AbstractBooleanMethod {
 
 
 
-  private static Boolean equals(final Object fieldObject, final Object expectedObject) {
+  private static Boolean equalTo(final Object fieldObject, final Object expectedObject) {
     boolean retval = true;
-    System.out.println("equals");
-    if ((fieldObject == null) && (expectedObject == null)) {
+    if (fieldObject == null && expectedObject == null) {
       retval = true;
     } else {
-      if ((fieldObject == null) || (expectedObject == null)) {
+      if (fieldObject == null || expectedObject == null) {
         retval = false;
       } else {
         if (fieldObject.getClass().equals(expectedObject.getClass())) {
@@ -193,11 +203,10 @@ public class CheckFieldMethod extends AbstractBooleanMethod {
 
   private static Boolean equalsIgnoreCase(final Object fieldObject, final Object expectedObject) {
     boolean retval = true;
-    System.out.println("equals, ignore case");
-    if ((fieldObject == null) && (expectedObject == null)) {
+    if (fieldObject == null && expectedObject == null) {
       retval = true;
     } else {
-      if ((fieldObject == null) || (expectedObject == null)) {
+      if (fieldObject == null || expectedObject == null) {
         retval = false;
       } else {
         retval = fieldObject.toString().equals(expectedObject.toString());
@@ -210,7 +219,6 @@ public class CheckFieldMethod extends AbstractBooleanMethod {
 
 
   private static Boolean greaterThan(final Object fieldObject, final Object expectedObject) {
-    System.out.println("greater than");
     return compare(fieldObject, expectedObject) > 0;
   }
 
@@ -218,7 +226,6 @@ public class CheckFieldMethod extends AbstractBooleanMethod {
 
 
   private static Boolean greaterThanEquals(final Object fieldObject, final Object expectedObject) {
-    System.out.println("greater than or equal");
     return compare(fieldObject, expectedObject) > -1;
   }
 
@@ -226,7 +233,6 @@ public class CheckFieldMethod extends AbstractBooleanMethod {
 
 
   private static Boolean lessThan(final Object fieldObject, final Object expectedObject) {
-    System.out.println("less than");
     return compare(fieldObject, expectedObject) < 0;
   }
 
@@ -234,7 +240,6 @@ public class CheckFieldMethod extends AbstractBooleanMethod {
 
 
   private static Boolean lessThanEquals(final Object fieldObject, final Object expectedObject) {
-    System.out.println("less than or equal");
     return compare(fieldObject, expectedObject) < 1;
   }
 
@@ -242,7 +247,6 @@ public class CheckFieldMethod extends AbstractBooleanMethod {
 
 
   private static Boolean notEqual(final Object fieldObject, final Object expectedObject) {
-    System.out.println("not equal");
     return compare(fieldObject, expectedObject) != 0;
   }
 
@@ -264,7 +268,7 @@ public class CheckFieldMethod extends AbstractBooleanMethod {
      */
     public static Operator getOperator(final String token) throws IllegalArgumentException {
       if (token != null) {
-        final String value = token.trim().toUpperCase();
+        final String value = token.trim().toUpperCase(Locale.getDefault());
         switch (value) {
           case "EQ":
           case "==":
