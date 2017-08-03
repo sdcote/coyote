@@ -205,7 +205,10 @@ public class RunJob extends AbstractTransformTask {
         if (StringUtil.isBlank(contextKey)) {
           contextKey = engine.getName();
         }
-
+        
+        // Set the engine's work directory to this task's job directory  
+        //engine.setWorkDirectory(getJobDirectory());
+        
         try {
           engine.run();
         } catch (final Throwable t) {
@@ -236,5 +239,8 @@ public class RunJob extends AbstractTransformTask {
       return;
     }
   }
+
+
+
 
 }

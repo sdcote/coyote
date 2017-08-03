@@ -4,13 +4,10 @@
  * This program and the accompanying materials are made available under the 
  * terms of the MIT License which accompanies this distribution, and is 
  * available at http://creativecommons.org/licenses/MIT/
- *
- * Contributors:
- *   Stephan D. Cote 
- *      - Initial concept and implementation
  */
 package coyote.dx.task;
 
+import java.io.File;
 import java.io.IOException;
 
 import coyote.commons.StringUtil;
@@ -55,8 +52,8 @@ public abstract class AbstractTransformTask extends AbstractConfigurableComponen
    *         execute.
    */
   public String getCondition() {
-    if ( configuration.containsIgnoreCase( ConfigTag.CONDITION ) ) {
-      return configuration.getString( ConfigTag.CONDITION );
+    if (configuration.containsIgnoreCase(ConfigTag.CONDITION)) {
+      return configuration.getString(ConfigTag.CONDITION);
     }
     return null;
   }
@@ -83,7 +80,7 @@ public abstract class AbstractTransformTask extends AbstractConfigurableComponen
    * 
    * @param flag true to abort the transform on error, false to just exit the task
    */
-  public void setHaltOnError( boolean flag ) {
+  public void setHaltOnError(boolean flag) {
     this.haltOnError = flag;
   }
 
@@ -94,13 +91,13 @@ public abstract class AbstractTransformTask extends AbstractConfigurableComponen
    * @see coyote.dx.AbstractConfigurableComponent#setConfiguration(coyote.loader.cfg.Config)
    */
   @Override
-  public void setConfiguration( Config cfg ) throws ConfigurationException {
-    super.setConfiguration( cfg );
+  public void setConfiguration(Config cfg) throws ConfigurationException {
+    super.setConfiguration(cfg);
 
     // If there is a halt on error flag, then set it, otherwise keep the 
     // default value of true    
-    if ( contains( ConfigTag.HALT_ON_ERROR ) ) {
-      setHaltOnError( getBoolean( getConfiguration().getFieldIgnoreCase( ConfigTag.HALT_ON_ERROR ).getName() ) );
+    if (contains(ConfigTag.HALT_ON_ERROR)) {
+      setHaltOnError(getBoolean(getConfiguration().getFieldIgnoreCase(ConfigTag.HALT_ON_ERROR).getName()));
     }
 
   }
@@ -112,17 +109,17 @@ public abstract class AbstractTransformTask extends AbstractConfigurableComponen
    * @see coyote.dx.Component#open(coyote.dx.context.TransformContext)
    */
   @Override
-  public void open( TransformContext context ) {
+  public void open(TransformContext context) {
     this.context = context;
-    evaluator.setContext( context );
+    evaluator.setContext(context);
 
     // Look for a conditional statement the task may use to control if it is 
     // to execute or not
-    if ( StringUtil.isNotBlank( getCondition() ) ) {
+    if (StringUtil.isNotBlank(getCondition())) {
       try {
-        evaluator.evaluateBoolean( getCondition() );
-      } catch ( final IllegalArgumentException e ) {
-        context.setError( "Invalid boolean expression in writer: " + e.getMessage() );
+        evaluator.evaluateBoolean(getCondition());
+      } catch (final IllegalArgumentException e) {
+        context.setError("Invalid boolean expression in writer: " + e.getMessage());
       }
     }
 
@@ -140,14 +137,14 @@ public abstract class AbstractTransformTask extends AbstractConfigurableComponen
   @Override
   public void execute() throws TaskException {
 
-    if ( isEnabled() ) {
-      if ( getCondition() != null ) {
+    if (isEnabled()) {
+      if (getCondition() != null) {
         try {
-          if ( evaluator.evaluateBoolean( getCondition() ) ) {
+          if (evaluator.evaluateBoolean(getCondition())) {
             performTask();
           }
-        } catch ( final IllegalArgumentException e ) {
-          Log.error( LogMsg.createMsg( CDX.MSG, "Task.boolean_evaluation_error", getCondition(), e.getMessage() ) );
+        } catch (final IllegalArgumentException e) {
+          Log.error(LogMsg.createMsg(CDX.MSG, "Task.boolean_evaluation_error", getCondition(), e.getMessage()));
         }
       } else {
         performTask();
@@ -196,20 +193,20 @@ public abstract class AbstractTransformTask extends AbstractConfigurableComponen
    * 
    * @return the resolved value of the argument. 
    */
-  protected String resolveArgument( String value ) {
+  protected String resolveArgument(String value) {
     String retval = null;
 
     // lookup the value in the transform context
-    String cval = context.getAsString( value );
+    String cval = context.getAsString(value);
 
     // If the lookup failed, just use the value
-    if ( StringUtil.isBlank( cval ) ) {
+    if (StringUtil.isBlank(cval)) {
       cval = value;
     }
 
     // in case it is a template, resolve it to the context's symbol table
-    if ( StringUtil.isNotBlank( cval ) ) {
-      retval = Template.resolve( cval, context.getSymbols() );
+    if (StringUtil.isNotBlank(cval)) {
+      retval = Template.resolve(cval, context.getSymbols());
     }
     return retval;
   }
@@ -222,5 +219,15 @@ public abstract class AbstractTransformTask extends AbstractConfigurableComponen
    */
   @Override
   public void close() throws IOException {}
+
+
+
+
+  /**
+   * @return the job directory for this task
+   */
+  protected File getJobDirectory() {
+    return null;
+  }
 
 }

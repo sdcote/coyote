@@ -27,7 +27,7 @@ public interface TransformEngine extends RunnableComponent {
   /**
    * @param object
    */
-  public void addListener( ContextListener object );
+  public void addListener(ContextListener object);
 
 
 
@@ -48,22 +48,22 @@ public interface TransformEngine extends RunnableComponent {
 
 
 
-  public void setContext( TransformContext context );
+  public void setContext(TransformContext context);
 
 
 
 
-  public void setMapper( FrameMapper mapper );
+  public void setMapper(FrameMapper mapper);
 
 
 
 
-  public void setReader( FrameReader reader );
+  public void setReader(FrameReader reader);
 
 
 
 
-  public void addWriter( FrameWriter writer );
+  public void addWriter(FrameWriter writer);
 
 
 
@@ -79,7 +79,7 @@ public interface TransformEngine extends RunnableComponent {
   /**
    * @param name the transform engine name to set
    */
-  public void setName( String name );
+  public void setName(String name);
 
 
 
@@ -102,7 +102,7 @@ public interface TransformEngine extends RunnableComponent {
    * 
    * @return the sequence in which it will be executed
    */
-  public int addPreProcessTask( TransformTask task );
+  public int addPreProcessTask(TransformTask task);
 
 
 
@@ -117,22 +117,22 @@ public interface TransformEngine extends RunnableComponent {
    * 
    * @return the sequence in which it will be executed
    */
-  public int addPostProcessTask( TransformTask task );
+  public int addPostProcessTask(TransformTask task);
 
 
 
 
-  public void addDatabase( Database database );
+  public void addDatabase(Database database);
 
 
 
 
-  public void addValidator( FrameValidator validator );
+  public void addValidator(FrameValidator validator);
 
 
 
 
-  public void addTransformer( FrameTransform transformer );
+  public void addTransformer(FrameTransform transformer);
 
 
 
@@ -164,7 +164,7 @@ public interface TransformEngine extends RunnableComponent {
    * 
    * @param params Shutdown arguments, can be null.  
    */
-  public void shutdown( DataFrame params );
+  public void shutdown(DataFrame params);
 
 
 
@@ -208,13 +208,27 @@ public interface TransformEngine extends RunnableComponent {
 
 
   /**
+   * This sets a common sharable location on the file system where the engine 
+   * can find data shared by other jobs.
+   * 
+   * <p>It is in this directory where the engin's data can be persisted 
+   * between runs.
+   * 
+   * @param dir the directory to be used as a sharable space on the file system
+   */
+  public void setWorkDirectory(File dir);
+
+
+
+
+  /**
    * This allows a component to be set which will initialize logging in the
    * engine in coordination with its life cycle and for loggers to use value in 
    * the engines transform context.
    * 
    * @param logmgr The logging manager to use for this engine. 
    */
-  public void setLogManager( LogManager logmgr );
+  public void setLogManager(LogManager logmgr);
 
 
 
@@ -240,7 +254,7 @@ public interface TransformEngine extends RunnableComponent {
    * 
    * @return the sequence in which it will be executed
    */
-  public int addFilter( FrameFilter filter );
+  public int addFilter(FrameFilter filter);
 
 
 
