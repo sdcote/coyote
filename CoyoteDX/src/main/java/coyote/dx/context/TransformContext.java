@@ -155,6 +155,7 @@ public class TransformContext extends OperationalContext {
    * currently set symbol table to resolve all the variables set in this
    * context.</p>
    */
+  @SuppressWarnings("unchecked")
   public void open() {
 
     // Increment the run count
@@ -165,14 +166,12 @@ public class TransformContext extends OperationalContext {
     if (configuration != null) {
       // fill the context with configuration data
       for (final DataField field : configuration.getFields()) {
-        if (!field.isFrame()) {
-          if (StringUtil.isNotBlank(field.getName()) && !field.isNull()) {
-            final String token = field.getStringValue();
-            final String value = Template.resolve(token, engine.getSymbolTable());
-            engine.getSymbolTable().put(field.getName(), value);
-            set(field.getName(), value);
-          } //name-value check
-        } // if frame
+        if (!field.isFrame() && StringUtil.isNotBlank(field.getName()) && !field.isNull()) {
+          final String token = field.getStringValue();
+          final String value = Template.resolve(token, engine.getSymbolTable());
+          engine.getSymbolTable().put(field.getName(), value);
+          set(field.getName(), value);
+        } //name-value check
       } // for
     }
 
@@ -282,6 +281,7 @@ public class TransformContext extends OperationalContext {
 
 
 
+
   /**
    * Return the value of a data frame field currently set in the transaction
    * context of this context.
@@ -360,12 +360,13 @@ public class TransformContext extends OperationalContext {
   public String resolveToString(final String token) {
     String retval = null;
     Object obj = resolveToValue(token);
-    
-    if( obj!= null){
+
+    if (obj != null) {
       retval = obj.toString();
     }
     return retval;
   }
+
 
 
 
@@ -406,10 +407,8 @@ public class TransformContext extends OperationalContext {
       if (obj != null) {
         retval = obj.toString();
       } else {
-        if (symbols != null) {
-          if (symbols.containsKey(token)) {
-            retval = symbols.get(token);
-          }
+        if (symbols != null && symbols.containsKey(token)) {
+          retval = symbols.get(token);
         }
       }
     }
@@ -454,7 +453,7 @@ public class TransformContext extends OperationalContext {
   /**
    * @return the engine to which this context is associated.
    */
-  protected TransformEngine getEngine() {
+  public TransformEngine getEngine() {
     return engine;
   }
 
