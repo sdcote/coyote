@@ -9,6 +9,7 @@ package coyote.dx.eval;
 
 import coyote.commons.NumberUtil;
 import coyote.dx.context.TransformContext;
+import coyote.loader.log.Log;
 
 
 /**
@@ -36,6 +37,11 @@ import coyote.dx.context.TransformContext;
  * group separators.
  */
 public class CheckFieldMethod extends AbstractBooleanMethod {
+
+  private static final String CLASS = CheckFieldMethod.class.getSimpleName();
+
+
+
 
   /**
    * Resolve the named field in the context and determine if it satisfies the
@@ -89,34 +95,96 @@ public class CheckFieldMethod extends AbstractBooleanMethod {
       }
     }
 
-    final Operator op = Operator.getOperator(operator);
-    switch (op) {
-      case EQ:
-        return equals(fieldObject, expectedObject);
-      case EI:
-        return equalsIgnoreCase(fieldObject, expectedObject);
-      case LT:
-        return lessThan(fieldObject, expectedObject);
-      case LE:
-        return lessThanEquals(fieldObject, expectedObject);
-      case GT:
-        return greaterThan(fieldObject, expectedObject);
-      case GE:
-        return greaterThanEquals(fieldObject, expectedObject);
-      case NE:
-        return notEqual(fieldObject, expectedObject);
-      default:
-        return false;
-     }
+    try {
+      final Operator op = Operator.getOperator(operator);
+      switch (op) {
+        case EQ:
+          return equals(fieldObject, expectedObject);
+        case EI:
+          return equalsIgnoreCase(fieldObject, expectedObject);
+        case LT:
+          return lessThan(fieldObject, expectedObject);
+        case LE:
+          return lessThanEquals(fieldObject, expectedObject);
+        case GT:
+          return greaterThan(fieldObject, expectedObject);
+        case GE:
+          return greaterThanEquals(fieldObject, expectedObject);
+        case NE:
+          return notEqual(fieldObject, expectedObject);
+        default:
+          return false;
+      }
+    } catch (Exception e) {
+      Log.notice(CLASS + ": " + e.getMessage());
+      return false;
+    }
 
   }
 
 
 
 
+  /**
+   * Crazy fun with comparisons.
+   *
+   * <p>Null references are less than not null. If both objects are null, they 
+   * are considered equal and zero is returned.
+   * 
+   * @param thisObject the object to compare
+   * @param thatObject the object against which to compare
+   * 
+   * @return -1, 0 or 1 if thisObject is less than, equal to or greater than 
+   *         thatObject respectively
+   * 
+   * @throws IllegalArgumentException when comparing to incompatible types of objects
+   */
+  @SuppressWarnings({"unchecked", "rawtypes"})
+  private static int compare(final Object thisObject, final Object thatObject) throws IllegalArgumentException {
+    if ((thisObject == null) && (thatObject == null)) {
+      return 0;
+    } else {
+      if (thisObject == null) {
+        return -1;
+      } else if (thatObject == null) {
+        return 1;
+      } else {
+        if (thisObject.getClass().equals(thatObject.getClass())) {
+          if (thisObject instanceof Comparable) {
+            return ((Comparable)thisObject).compareTo(thatObject);
+          } else {
+            throw new IllegalArgumentException("Object of type '" + thisObject.getClass() + "' cannot be compared to each other");
+          }
+        } else {
+          // here is where we bend over backwards...
+          // if thatObject is numeric, then
+
+        }
+
+        throw new IllegalArgumentException("Object of type '" + thisObject.getClass() + "' cannot be compared to object of type '" + thatObject.getClass() + "'");
+      }
+    }
+  }
+
+
+
+
   private static Boolean equals(final Object fieldObject, final Object expectedObject) {
-    final boolean retval = true;
+    boolean retval = true;
     System.out.println("equals");
+    if ((fieldObject == null) && (expectedObject == null)) {
+      retval = true;
+    } else {
+      if ((fieldObject == null) || (expectedObject == null)) {
+        retval = false;
+      } else {
+        if (fieldObject.getClass().equals(expectedObject.getClass())) {
+          retval = fieldObject.equals(expectedObject);
+        } else {
+          retval = false;
+        }
+      }
+    }
     return retval;
   }
 
@@ -124,8 +192,17 @@ public class CheckFieldMethod extends AbstractBooleanMethod {
 
 
   private static Boolean equalsIgnoreCase(final Object fieldObject, final Object expectedObject) {
-    final boolean retval = true;
+    boolean retval = true;
     System.out.println("equals, ignore case");
+    if ((fieldObject == null) && (expectedObject == null)) {
+      retval = true;
+    } else {
+      if ((fieldObject == null) || (expectedObject == null)) {
+        retval = false;
+      } else {
+        retval = fieldObject.toString().equals(expectedObject.toString());
+      }
+    }
     return retval;
   }
 
@@ -133,45 +210,40 @@ public class CheckFieldMethod extends AbstractBooleanMethod {
 
 
   private static Boolean greaterThan(final Object fieldObject, final Object expectedObject) {
-    final boolean retval = true;
     System.out.println("greater than");
-    return retval;
+    return compare(fieldObject, expectedObject) > 0;
   }
 
 
 
 
   private static Boolean greaterThanEquals(final Object fieldObject, final Object expectedObject) {
-    final boolean retval = true;
     System.out.println("greater than or equal");
-    return retval;
+    return compare(fieldObject, expectedObject) > -1;
   }
 
 
 
 
   private static Boolean lessThan(final Object fieldObject, final Object expectedObject) {
-    final boolean retval = true;
     System.out.println("less than");
-    return retval;
+    return compare(fieldObject, expectedObject) < 0;
   }
 
 
 
 
   private static Boolean lessThanEquals(final Object fieldObject, final Object expectedObject) {
-    final boolean retval = true;
     System.out.println("less than or equal");
-    return retval;
+    return compare(fieldObject, expectedObject) < 1;
   }
 
 
 
 
   private static Boolean notEqual(final Object fieldObject, final Object expectedObject) {
-    final boolean retval = true;
     System.out.println("not equal");
-    return retval;
+    return compare(fieldObject, expectedObject) != 0;
   }
 
   /**

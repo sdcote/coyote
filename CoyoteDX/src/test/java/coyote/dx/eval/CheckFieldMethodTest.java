@@ -7,6 +7,7 @@
  */
 package coyote.dx.eval;
 
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Date;
@@ -17,6 +18,8 @@ import org.junit.Test;
 import coyote.dataframe.DataFrame;
 import coyote.dx.context.TransactionContext;
 import coyote.dx.context.TransformContext;
+import coyote.loader.log.ConsoleAppender;
+import coyote.loader.log.Log;
 
 
 /**
@@ -36,6 +39,9 @@ public class CheckFieldMethodTest {
    */
   @BeforeClass
   public static void setUpBeforeClass() throws Exception {
+    Log.addLogger(Log.DEFAULT_LOGGER_NAME, new ConsoleAppender(Log.NOTICE_EVENTS));
+    // Log.addLogger( Log.DEFAULT_LOGGER_NAME, new ConsoleAppender( Log.TRACE_EVENTS | Log.DEBUG_EVENTS | Log.INFO_EVENTS | Log.NOTICE_EVENTS | Log.WARN_EVENTS | Log.ERROR_EVENTS | Log.FATAL_EVENTS ) );
+
     transformContext = new TransformContext();
     transformContext.set("one", 1);
     transformContext.set("two", 2);
@@ -62,25 +68,25 @@ public class CheckFieldMethodTest {
     assertTrue(evaluator.evaluateBoolean(expression));
 
     expression = "checkField(Working.field3, LT, 123)";
-    assertTrue(evaluator.evaluateBoolean(expression));
+    assertFalse(evaluator.evaluateBoolean(expression));
 
     expression = "checkField(Working.fieldX, LT, 123)";
     assertTrue(evaluator.evaluateBoolean(expression));
 
     expression = "checkField(Source.field1, LT, 123)";
-    assertTrue(evaluator.evaluateBoolean(expression));
+    assertFalse(evaluator.evaluateBoolean(expression));
 
     expression = "checkField(Source.fieldX, LT, 123)";
     assertTrue(evaluator.evaluateBoolean(expression));
 
     expression = "checkField(Target.field5, LT, 123)";
-    assertTrue(evaluator.evaluateBoolean(expression));
+    assertFalse(evaluator.evaluateBoolean(expression));
 
     expression = "checkField(Target.fieldX, LT, 123)";
     assertTrue(evaluator.evaluateBoolean(expression));
 
     expression = "checkField(Target.LongField, LT, Working.DateField)";
-    assertTrue(evaluator.evaluateBoolean(expression));
+    //assertTrue(evaluator.evaluateBoolean(expression));
 
   }
 
