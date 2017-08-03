@@ -16,7 +16,7 @@ import java.util.StringTokenizer;
 
 
 /**
- * 
+ * Various string utilities.
  */
 public class StringUtil {
 
@@ -36,16 +36,16 @@ public class StringUtil {
   public static final String NL = "\n";
 
   /** Platform specific line separator (default = CRLF) */
-  public static final String LINE_FEED = System.getProperty( "line.separator", "\r\n" );
+  public static final String LINE_FEED = System.getProperty("line.separator", "\r\n");
 
   /** Length of the platform specific LineFeed sequence */
   public static final int LINE_FEED_LEN = StringUtil.LINE_FEED.length();
 
   /** Platform specific path separator (default = "/") */
-  public static final String PATH_SEPARATOR = System.getProperty( "path.separator", "/" );
+  public static final String PATH_SEPARATOR = System.getProperty("path.separator", "/");
 
   /** Platform specific path separator (default = ":") */
-  public static final String FILE_SEPARATOR = System.getProperty( "file.separator", ":" );
+  public static final String FILE_SEPARATOR = System.getProperty("file.separator", ":");
 
   /**
    * An "XML Safe" string require thats certain strings (or more correctly,
@@ -58,10 +58,10 @@ public class StringUtil {
    * <li>&#39; - &amp;&#39;</li>
    * </ul>
    */
-  public static final String XML_ENTITYREFS[] = { "&", "&amp;", "<", "&lt;", ">", "&gt;", "\"", "&quot;", "'", "&apos;", "\n", "&#xa;", "\r", "&#xd;", "\t", "&#x9;" };
+  public static final String XML_ENTITYREFS[] = {"&", "&amp;", "<", "&lt;", ">", "&gt;", "\"", "&quot;", "'", "&apos;", "\n", "&#xa;", "\r", "&#xd;", "\t", "&#x9;"};
 
   /** Same as XML but there is no entity reference for an apostrophe. */
-  public static final String HTML_ENTITYREFS[] = { "&", "&amp;", "<", "&lt;", ">", "&gt;", "\"", "&quot;", "\n", "&#xa;", "\r", "&#xd;", "\t", "&#x9;" };
+  public static final String HTML_ENTITYREFS[] = {"&", "&amp;", "<", "&lt;", ">", "&gt;", "\"", "&quot;", "\n", "&#xa;", "\r", "&#xd;", "\t", "&#x9;"};
 
   /** CharEncodingISO Latin Alphabet No. 1, a.k.a. ISO-LATIN-1. */
   public static final String ISO_8859_1 = "ISO-8859-1";
@@ -94,15 +94,15 @@ public class StringUtil {
   /** Field ISO8859_1 */
   public static String ISO8859_1;
   static {
-    final String iso = System.getProperty( "ISO_8859_1" );
-    if ( iso != null ) {
+    final String iso = System.getProperty("ISO_8859_1");
+    if (iso != null) {
       StringUtil.ISO8859_1 = iso;
     } else {
       try {
-        new String( new byte[] { (byte)20 }, "ISO-8859-1" );
+        new String(new byte[]{(byte)20}, "ISO-8859-1");
 
         StringUtil.ISO8859_1 = "ISO-8859-1";
-      } catch ( final java.io.UnsupportedEncodingException e ) {
+      } catch (final java.io.UnsupportedEncodingException e) {
         StringUtil.ISO8859_1 = "ISO8859_1";
       }
     }
@@ -118,11 +118,11 @@ public class StringUtil {
    * 
    * @return true if this runtime supports this character set, false otherwise
    */
-  public static boolean checkCharacterSetName( String name ) {
+  public static boolean checkCharacterSetName(String name) {
     try {
-      new String( new byte[] { (byte)20 }, name );
+      new String(new byte[]{(byte)20}, name);
       return true;
-    } catch ( final java.io.UnsupportedEncodingException e ) {
+    } catch (final java.io.UnsupportedEncodingException e) {
       return false;
     }
 
@@ -140,12 +140,12 @@ public class StringUtil {
    * 
    * @return the bytes representing the encoded text or null if the text is null
    */
-  public static byte[] getBytes( String text ) {
+  public static byte[] getBytes(String text) {
     byte[] retval = null;
-    if ( text != null ) {
+    if (text != null) {
       try {
-        retval = text.getBytes( StringUtil.ISO8859_1 );
-      } catch ( final Exception ex ) {}
+        retval = text.getBytes(StringUtil.ISO8859_1);
+      } catch (final Exception ex) {}
     }
     return retval;
   }
@@ -160,11 +160,11 @@ public class StringUtil {
    * 
    * @return the decoded string or null if the passed data was null.
    */
-  public static String getString( byte[] bytes ) {
+  public static String getString(byte[] bytes) {
     String retval = null;
     try {
-      retval = new String( bytes, StringUtil.ISO8859_1 );
-    } catch ( UnsupportedEncodingException e ) {
+      retval = new String(bytes, StringUtil.ISO8859_1);
+    } catch (UnsupportedEncodingException e) {
       e.printStackTrace();
     }
     return retval;
@@ -179,14 +179,14 @@ public class StringUtil {
    * @param str string to search in. Return 0 if this is null.
    * @param sub string to search for. Return 0 if this is null.
    */
-  public static int countOccurrencesOf( String str, String sub ) {
-    if ( str == null || sub == null || str.length() == 0 || sub.length() == 0 ) {
+  public static int countOccurrencesOf(String str, String sub) {
+    if (str == null || sub == null || str.length() == 0 || sub.length() == 0) {
       return 0;
     }
     int count = 0;
     int pos = 0;
     int idx;
-    while ( ( idx = str.indexOf( sub, pos ) ) != -1 ) {
+    while ((idx = str.indexOf(sub, pos)) != -1) {
       ++count;
       pos = idx + sub.length();
     }
@@ -203,9 +203,9 @@ public class StringUtil {
    * 
    * @return An empty string if the original was null, else the original
    */
-  public static final String notNull( final String arg ) {
-    if ( arg == null ) {
-      return new String( "" );
+  public static final String notNull(final String arg) {
+    if (arg == null) {
+      return new String("");
     }
 
     return arg;
@@ -227,8 +227,8 @@ public class StringUtil {
    * 
    * @see #isBlank(String)
    */
-  public static boolean isNotBlank( String str ) {
-    return !StringUtil.isBlank( str );
+  public static boolean isNotBlank(String str) {
+    return !StringUtil.isBlank(str);
   }
 
 
@@ -243,8 +243,8 @@ public class StringUtil {
    * 
    * @see #isNotEmpty(String)
    */
-  public static boolean isEmpty( String str ) {
-    if ( str == null || str.length() == 0 ) {
+  public static boolean isEmpty(String str) {
+    if (str == null || str.length() == 0) {
       return true;
     }
     return false;
@@ -267,8 +267,8 @@ public class StringUtil {
    * 
    * @see #isEmpty(String)
    */
-  public static boolean isNotEmpty( String str ) {
-    return !StringUtil.isEmpty( str );
+  public static boolean isNotEmpty(String str) {
+    return !StringUtil.isEmpty(str);
   }
 
 
@@ -281,13 +281,13 @@ public class StringUtil {
    * 
    * @return {@code true} if the argument is empty or null or only whitespace
    */
-  public static boolean isBlank( String str ) {
+  public static boolean isBlank(String str) {
     int strLen;
-    if ( str == null || ( strLen = str.length() ) == 0 ) {
+    if (str == null || (strLen = str.length()) == 0) {
       return true;
     }
-    for ( int i = 0; i < strLen; i++ ) {
-      if ( ( Character.isWhitespace( str.charAt( i ) ) == false ) ) {
+    for (int i = 0; i < strLen; i++) {
+      if ((Character.isWhitespace(str.charAt(i)) == false)) {
         return false;
       }
     }
@@ -312,8 +312,8 @@ public class StringUtil {
    * @return a string representing the given number padded with zeros to the 
    *         requested length.
    */
-  public static String zeropad( final short num, final int size ) {
-    return StringUtil.zeropad( (long)num, size );
+  public static String zeropad(final short num, final int size) {
+    return StringUtil.zeropad((long)num, size);
   }
 
 
@@ -334,8 +334,8 @@ public class StringUtil {
    * @return a string representing the given number padded with zeros to the 
    *         requested length.
    */
-  public static String zeropad( final int num, final int size ) {
-    return StringUtil.zeropad( (long)num, size );
+  public static String zeropad(final int num, final int size) {
+    return StringUtil.zeropad((long)num, size);
   }
 
 
@@ -356,19 +356,19 @@ public class StringUtil {
    * @return a string representing the given number padded with zeros to the 
    *         requested length.
    */
-  public static String zeropad( final long num, final int size ) {
-    final String value = Long.toString( num );
+  public static String zeropad(final long num, final int size) {
+    final String value = Long.toString(num);
 
-    if ( value.length() >= size ) {
+    if (value.length() >= size) {
       return value;
     }
 
-    final StringBuffer buf = new StringBuffer( size );
-    for ( int indx = 0; indx++ < ( size - value.length() ); buf.append( '0' ) ) {
+    final StringBuffer buf = new StringBuffer(size);
+    for (int indx = 0; indx++ < (size - value.length()); buf.append('0')) {
       ;
     }
 
-    buf.append( value );
+    buf.append(value);
 
     return buf.toString();
   }
@@ -389,8 +389,8 @@ public class StringUtil {
    * 
    * @return {@code true} if the CharSequence is not null and has length
    */
-  public static boolean hasLength( CharSequence str ) {
-    return ( str != null && str.length() > 0 );
+  public static boolean hasLength(CharSequence str) {
+    return (str != null && str.length() > 0);
   }
 
 
@@ -406,8 +406,8 @@ public class StringUtil {
    * 
    * @return {@code true} if the String is not null and has length
    */
-  public static boolean hasLength( String str ) {
-    return hasLength( (CharSequence)str );
+  public static boolean hasLength(String str) {
+    return hasLength((CharSequence)str);
   }
 
 
@@ -431,13 +431,13 @@ public class StringUtil {
    * 
    * @return {@code true} if the CharSequence is not {@code null}, its length is greater than 0, and it does not contain whitespace only
    */
-  public static boolean hasText( CharSequence str ) {
-    if ( !hasLength( str ) ) {
+  public static boolean hasText(CharSequence str) {
+    if (!hasLength(str)) {
       return false;
     }
     int strLen = str.length();
-    for ( int i = 0; i < strLen; i++ ) {
-      if ( !Character.isWhitespace( str.charAt( i ) ) ) {
+    for (int i = 0; i < strLen; i++) {
+      if (!Character.isWhitespace(str.charAt(i))) {
         return true;
       }
     }
@@ -457,8 +457,8 @@ public class StringUtil {
    * 
    * @return {@code true} if the String is not {@code null}, its length is greater than 0, and it does not contain whitespace only
    */
-  public static boolean hasText( String str ) {
-    return hasText( (CharSequence)str );
+  public static boolean hasText(String str) {
+    return hasText((CharSequence)str);
   }
 
 
@@ -480,8 +480,8 @@ public class StringUtil {
    * 
    * @return A string of exactly the given length with the text aligned within as specified,
    */
-  public static String fixedLength( String text, int length, int alignment ) {
-    return fixedLength( text, length, alignment, ' ' );
+  public static String fixedLength(String text, int length, int alignment) {
+    return fixedLength(text, length, alignment, ' ');
   }
 
 
@@ -504,55 +504,55 @@ public class StringUtil {
    * 
    * @return A string of exactly the given length with the text aligned within as specified,
    */
-  public static String fixedLength( String text, int length, int alignment, char padChar ) {
+  public static String fixedLength(String text, int length, int alignment, char padChar) {
     int textLength = text.length();
     int padLength = length - textLength;
 
     StringBuffer b = new StringBuffer();
 
-    if ( alignment < 1 ) {
+    if (alignment < 1) {
       // left justification
-      if ( padLength > 0 ) {
-        b.append( text );
-        for ( int i = 0; i < padLength; i++ ) {
-          b.append( padChar );
+      if (padLength > 0) {
+        b.append(text);
+        for (int i = 0; i < padLength; i++) {
+          b.append(padChar);
         }
-      } else if ( padLength < 0 ) {
-        b.append( text.substring( 0, length ) );
+      } else if (padLength < 0) {
+        b.append(text.substring(0, length));
       } else {
-        b.append( text );
+        b.append(text);
       }
-    } else if ( alignment > 1 ) {
+    } else if (alignment > 1) {
       // right justification
-      if ( padLength > 0 ) {
-        for ( int i = 0; i < padLength; i++ ) {
-          b.append( padChar );
+      if (padLength > 0) {
+        for (int i = 0; i < padLength; i++) {
+          b.append(padChar);
         }
-        b.append( text );
-      } else if ( padLength < 0 ) {
-        b.append( text.substring( Math.abs( padLength ) ) );
+        b.append(text);
+      } else if (padLength < 0) {
+        b.append(text.substring(Math.abs(padLength)));
       } else {
-        b.append( text );
+        b.append(text);
       }
     } else {
       // centered alignment
-      if ( padLength > 0 ) {
+      if (padLength > 0) {
         int lpad = padLength / 2;
-        for ( int i = 0; i < lpad; i++ ) {
-          b.append( padChar );
+        for (int i = 0; i < lpad; i++) {
+          b.append(padChar);
         }
-        b.append( text );
-        while ( b.length() < length ) {
-          b.append( padChar );
+        b.append(text);
+        while (b.length() < length) {
+          b.append(padChar);
         }
-      } else if ( padLength < 0 ) {
+      } else if (padLength < 0) {
         int lpad = padLength / 2;
-        if ( Math.abs( padLength ) % 2 == 0 )
-          b.append( text.substring( Math.abs( lpad ), length + 1 ) );
+        if (Math.abs(padLength) % 2 == 0)
+          b.append(text.substring(Math.abs(lpad), length + 1));
         else
-          b.append( text.substring( Math.abs( lpad ), length ) );
+          b.append(text.substring(Math.abs(lpad), length));
       } else {
-        b.append( text );
+        b.append(text);
       }
     }
 
@@ -569,8 +569,8 @@ public class StringUtil {
    *
    * @return just the local portion of the class name (everything after the last '.'.
    */
-  public static String getLocalJavaName( String classname ) {
-    return tail( classname, '.' );
+  public static String getLocalJavaName(String classname) {
+    return tail(classname, '.');
   }
 
 
@@ -583,8 +583,8 @@ public class StringUtil {
    *
    * @return just the local portion of the file name (everything after the last '/'.
    */
-  public static String getLocalFileName( String file ) {
-    return tail( file, '/' );
+  public static String getLocalFileName(String file) {
+    return tail(file, '/');
   }
 
 
@@ -603,9 +603,9 @@ public class StringUtil {
    * @return the string after the last occurrence of the given character in the
    * given string
    */
-  public static String tail( String text, char ch ) {
-    int indx = text.lastIndexOf( ch );
-    return ( indx != -1 ) ? text.substring( indx + 1 ) : text;
+  public static String tail(String text, char ch) {
+    int indx = text.lastIndexOf(ch);
+    return (indx != -1) ? text.substring(indx + 1) : text;
   }
 
 
@@ -623,9 +623,9 @@ public class StringUtil {
    * @return the string before the last occurrence of the given character in
    * the given string.
    */
-  public static String head( final String text, final char ch ) {
-    final int indx = text.lastIndexOf( ch );
-    return ( indx != -1 ) ? text.substring( 0, indx ) : text;
+  public static String head(final String text, final char ch) {
+    final int indx = text.lastIndexOf(ch);
+    return (indx != -1) ? text.substring(0, indx) : text;
   }
 
 
@@ -646,13 +646,13 @@ public class StringUtil {
    * @return the value between the outside pairing of double-quotes or null if 
    *         no parings were found.
    */
-  public static String getQuotedValue( String text ) {
+  public static String getQuotedValue(String text) {
     String retval = null;
-    int start = text.indexOf( DOUBLE_QUOTE );
-    int end = text.lastIndexOf( DOUBLE_QUOTE );
+    int start = text.indexOf(DOUBLE_QUOTE);
+    int end = text.lastIndexOf(DOUBLE_QUOTE);
 
-    if ( start > -1 && end > start ) {
-      retval = text.substring( start + 1, end );
+    if (start > -1 && end > start) {
+      retval = text.substring(start + 1, end);
     }
 
     return retval;
@@ -668,8 +668,8 @@ public class StringUtil {
    * 
    * @return Restored string.
    */
-  public static final String StringToXML( final String string ) {
-    return StringUtil.tokenSubst( StringUtil.XML_ENTITYREFS, StringUtil.notNull( string ), true );
+  public static final String StringToXML(final String string) {
+    return StringUtil.tokenSubst(StringUtil.XML_ENTITYREFS, StringUtil.notNull(string), true);
   }
 
 
@@ -681,8 +681,8 @@ public class StringUtil {
    * @param string
    * @return Restored string.
    */
-  public static final String StringToHTML( final String string ) {
-    return StringUtil.tokenSubst( StringUtil.HTML_ENTITYREFS, StringUtil.notNull( string ), true );
+  public static final String StringToHTML(final String string) {
+    return StringUtil.tokenSubst(StringUtil.HTML_ENTITYREFS, StringUtil.notNull(string), true);
   }
 
 
@@ -706,43 +706,43 @@ public class StringUtil {
    * 
    * @return string with tokens replaced.
    */
-  public static final String tokenSubst( final String[] tokens, final String string, final boolean fromStart ) {
-    String temps = ( string == null ) ? "" : string;
+  public static final String tokenSubst(final String[] tokens, final String string, final boolean fromStart) {
+    String temps = (string == null) ? "" : string;
 
-    if ( temps.length() > 0 ) {
-      final int delta = ( fromStart ) ? 2 : -2;
-      int i_old = ( fromStart ) ? 0 : tokens.length - 1;
+    if (temps.length() > 0) {
+      final int delta = (fromStart) ? 2 : -2;
+      int i_old = (fromStart) ? 0 : tokens.length - 1;
       int i_new = i_old + delta / 2;
       final int num_to_do = tokens.length / 2;
       int cnt;
 
-      for ( cnt = 0; cnt < num_to_do; ++cnt ) {
+      for (cnt = 0; cnt < num_to_do; ++cnt) {
         StringBuffer buf = null;
         int last_pos = 0;
         final String tok_string = tokens[i_old];
         final int tok_len = tok_string.length();
-        int tok_pos = temps.indexOf( tok_string, last_pos );
+        int tok_pos = temps.indexOf(tok_string, last_pos);
 
-        while ( tok_pos >= 0 ) {
-          if ( buf == null ) {
+        while (tok_pos >= 0) {
+          if (buf == null) {
             buf = new StringBuffer();
           }
 
-          if ( last_pos != tok_pos ) {
-            buf.append( temps.substring( last_pos, tok_pos ) );
+          if (last_pos != tok_pos) {
+            buf.append(temps.substring(last_pos, tok_pos));
           }
 
-          buf.append( tokens[i_new] );
+          buf.append(tokens[i_new]);
 
           last_pos = tok_pos + tok_len;
-          tok_pos = temps.indexOf( tok_string, last_pos );
+          tok_pos = temps.indexOf(tok_string, last_pos);
         }
 
-        if ( ( last_pos < temps.length() ) && ( buf != null ) ) {
-          buf.append( temps.substring( last_pos ) );
+        if ((last_pos < temps.length()) && (buf != null)) {
+          buf.append(temps.substring(last_pos));
         }
 
-        if ( buf != null ) {
+        if (buf != null) {
           temps = buf.toString();
         }
 
@@ -766,12 +766,12 @@ public class StringUtil {
    * 
    * @return string with tokens replaced.
    */
-  public static final String charSubst( final char target, final char desired, final String string ) {
-    final StringBuffer buf = new StringBuffer( ( string == null ) ? "" : string );
+  public static final String charSubst(final char target, final char desired, final String string) {
+    final StringBuffer buf = new StringBuffer((string == null) ? "" : string);
 
-    for ( int indx = buf.length() - 1; indx >= 0; --indx ) {
-      if ( buf.charAt( indx ) == target ) {
-        buf.setCharAt( indx, desired );
+    for (int indx = buf.length() - 1; indx >= 0; --indx) {
+      if (buf.charAt(indx) == target) {
+        buf.setCharAt(indx, desired);
       }
     }
 
@@ -788,8 +788,8 @@ public class StringUtil {
    * 
    * @return XML String converted to an XML safe string.
    */
-  public static final String XMLToString( final String string ) {
-    return StringUtil.tokenSubst( StringUtil.XML_ENTITYREFS, string, false );
+  public static final String XMLToString(final String string) {
+    return StringUtil.tokenSubst(StringUtil.XML_ENTITYREFS, string, false);
   }
 
 
@@ -802,8 +802,8 @@ public class StringUtil {
    * 
    * @return a new string with HTML characters replaces with HTML entities.
    */
-  public static final String HTMLToString( final String string ) {
-    return StringUtil.replace( StringUtil.tokenSubst( StringUtil.XML_ENTITYREFS, string, false ), "&nbsp;", "" );
+  public static final String HTMLToString(final String string) {
+    return StringUtil.replace(StringUtil.tokenSubst(StringUtil.XML_ENTITYREFS, string, false), "&nbsp;", "");
   }
 
 
@@ -822,14 +822,14 @@ public class StringUtil {
    *         column index was greater than the number of tokens in the text. 
    *         This will never return null.
    */
-  public static String readColumn( final String text, final int col ) {
-    final StringTokenizer stringtokenizer = new StringTokenizer( text );
+  public static String readColumn(final String text, final int col) {
+    final StringTokenizer stringtokenizer = new StringTokenizer(text);
 
-    if ( stringtokenizer.countTokens() >= col ) {
-      for ( int indx = 1; indx <= col; indx++ ) {
+    if (stringtokenizer.countTokens() >= col) {
+      for (int indx = 1; indx <= col; indx++) {
         final String retval = stringtokenizer.nextToken();
 
-        if ( indx == col ) {
+        if (indx == col) {
           return retval;
         }
       }
@@ -851,24 +851,24 @@ public class StringUtil {
    * @return a string with all the occurrences of the target strings replaced
    *         with the desired strings
    */
-  public static final String replace( final String text, final String target, final String desired ) {
+  public static final String replace(final String text, final String target, final String desired) {
     int ch = 0;
-    int indx = text.indexOf( target, ch );
-    if ( indx == -1 ) {
+    int indx = text.indexOf(target, ch);
+    if (indx == -1) {
       return text;
     }
 
-    final StringBuffer buf = new StringBuffer( text.length() + desired.length() );
+    final StringBuffer buf = new StringBuffer(text.length() + desired.length());
     do {
-      buf.append( text.substring( ch, indx ) );
-      buf.append( desired );
+      buf.append(text.substring(ch, indx));
+      buf.append(desired);
 
       ch = indx + target.length();
     }
-    while ( ( indx = text.indexOf( target, ch ) ) != -1 );
+    while ((indx = text.indexOf(target, ch)) != -1);
 
-    if ( ch < text.length() ) {
-      buf.append( text.substring( ch, text.length() ) );
+    if (ch < text.length()) {
+      buf.append(text.substring(ch, text.length()));
     }
 
     return buf.toString();
@@ -885,24 +885,24 @@ public class StringUtil {
    * 
    * @return the {@code true} if any of the chars are found, {@code false} if no match or null input
    */
-  public static boolean containsAny( final CharSequence cs, final char[] searchChars ) {
-    if ( isEmpty( cs ) || isEmpty( searchChars ) ) {
+  public static boolean containsAny(final CharSequence cs, final char[] searchChars) {
+    if (isEmpty(cs) || isEmpty(searchChars)) {
       return false;
     }
     final int csLength = cs.length();
     final int searchLength = searchChars.length;
     final int csLast = csLength - 1;
     final int searchLast = searchLength - 1;
-    for ( int i = 0; i < csLength; i++ ) {
-      final char ch = cs.charAt( i );
-      for ( int j = 0; j < searchLength; j++ ) {
-        if ( searchChars[j] == ch ) {
-          if ( Character.isHighSurrogate( ch ) ) {
-            if ( j == searchLast ) {
+    for (int i = 0; i < csLength; i++) {
+      final char ch = cs.charAt(i);
+      for (int j = 0; j < searchLength; j++) {
+        if (searchChars[j] == ch) {
+          if (Character.isHighSurrogate(ch)) {
+            if (j == searchLast) {
               // missing low surrogate, fine, like String.indexOf(String)
               return true;
             }
-            if ( ( i < csLast ) && ( searchChars[j + 1] == cs.charAt( i + 1 ) ) ) {
+            if ((i < csLast) && (searchChars[j + 1] == cs.charAt(i + 1))) {
               return true;
             }
           } else {
@@ -926,11 +926,11 @@ public class StringUtil {
    * 
    * @return the {@code true} if any of the chars are found, {@code false} if no match or null input
    */
-  public static boolean containsAny( final CharSequence cs, final CharSequence searchChars ) {
-    if ( searchChars == null ) {
+  public static boolean containsAny(final CharSequence cs, final CharSequence searchChars) {
+    if (searchChars == null) {
       return false;
     }
-    return containsAny( cs, toCharArray( searchChars ) );
+    return containsAny(cs, toCharArray(searchChars));
   }
 
 
@@ -944,13 +944,13 @@ public class StringUtil {
    * 
    * @return the number of occurrences, 0 if either CharSequence is {@code null}
    */
-  public static int countMatches( final CharSequence str, final CharSequence sub ) {
-    if ( isEmpty( str ) || isEmpty( sub ) ) {
+  public static int countMatches(final CharSequence str, final CharSequence sub) {
+    if (isEmpty(str) || isEmpty(sub)) {
       return 0;
     }
     int count = 0;
     int idx = 0;
-    while ( ( idx = indexOf( str, sub, idx ) ) != -1 ) {
+    while ((idx = indexOf(str, sub, idx)) != -1) {
       count++;
       idx += sub.length();
     }
@@ -968,15 +968,15 @@ public class StringUtil {
    * 
    * @return true if equals any
    */
-  public static boolean equalsAny( final CharSequence cs, final CharSequence[] strs ) {
+  public static boolean equalsAny(final CharSequence cs, final CharSequence[] strs) {
     boolean eq = false;
-    if ( cs == null ) {
+    if (cs == null) {
       eq = strs == null;
     }
 
-    if ( strs != null ) {
-      for ( final CharSequence str : strs ) {
-        eq = eq || str.equals( cs );
+    if (strs != null) {
+      for (final CharSequence str : strs) {
+        eq = eq || str.equals(cs);
       }
     }
 
@@ -995,8 +995,8 @@ public class StringUtil {
    * 
    * @return the index where the search sequence was found
    */
-  private static int indexOf( final CharSequence cs, final CharSequence searchChar, final int start ) {
-    return cs.toString().indexOf( searchChar.toString(), start );
+  private static int indexOf(final CharSequence cs, final CharSequence searchChar, final int start) {
+    return cs.toString().indexOf(searchChar.toString(), start);
   }
 
 
@@ -1005,8 +1005,8 @@ public class StringUtil {
   /**
    * @param array
    */
-  private static boolean isEmpty( final char[] array ) {
-    return ( array == null ) || ( array.length == 0 );
+  private static boolean isEmpty(final char[] array) {
+    return (array == null) || (array.length == 0);
   }
 
 
@@ -1019,8 +1019,8 @@ public class StringUtil {
    * 
    * @return {@code true} if the CharSequence is empty or null
    */
-  public static boolean isEmpty( final CharSequence cs ) {
-    return ( cs == null ) || ( cs.length() == 0 );
+  public static boolean isEmpty(final CharSequence cs) {
+    return (cs == null) || (cs.length() == 0);
   }
 
 
@@ -1033,14 +1033,14 @@ public class StringUtil {
    * 
    * @return the resulting char array
    */
-  private static char[] toCharArray( final CharSequence cs ) {
-    if ( cs instanceof String ) {
-      return ( (String)cs ).toCharArray();
+  private static char[] toCharArray(final CharSequence cs) {
+    if (cs instanceof String) {
+      return ((String)cs).toCharArray();
     } else {
       final int sz = cs.length();
       final char[] array = new char[cs.length()];
-      for ( int i = 0; i < sz; i++ ) {
-        array[i] = cs.charAt( i );
+      for (int i = 0; i < sz; i++) {
+        array[i] = cs.charAt(i);
       }
       return array;
     }
@@ -1057,26 +1057,26 @@ public class StringUtil {
    * @return a copy of the given text string with no whitespace or null of the
    *         passed text was null.
    */
-  public static final String removeWhitespace( final String text ) {
+  public static final String removeWhitespace(final String text) {
     String retval = null;
-    if ( text != null ) {
+    if (text != null) {
       final char[] chars = new char[text.length()];
       int mrk = 0;
 
-      for ( int i = 0; i < text.length(); i++ ) {
-        final char c = text.charAt( i );
-        if ( !Character.isWhitespace( c ) ) {
+      for (int i = 0; i < text.length(); i++) {
+        final char c = text.charAt(i);
+        if (!Character.isWhitespace(c)) {
           chars[mrk++] = c;
         }
       }
 
-      if ( mrk > 0 ) {
+      if (mrk > 0) {
         final char[] data = new char[mrk];
-        for ( int i = 0; i < mrk; data[i] = chars[i++] ) {
+        for (int i = 0; i < mrk; data[i] = chars[i++]) {
           ;
         }
 
-        retval = new String( data );
+        retval = new String(data);
       } else {
         retval = new String();
       }
@@ -1091,8 +1091,42 @@ public class StringUtil {
   /**
    * @return null if string is null or empty
    */
-  public static String getNullIfEmpty( final String text ) {
-    return StringUtil.isBlank( text ) ? null : text.trim();
+  public static String getNullIfEmpty(final String text) {
+    return StringUtil.isBlank(text) ? null : text.trim();
+  }
+
+
+
+
+  /**
+   * Checks if the CharSequence contains only Unicode digits.
+   * 
+   * <p>A decimal point is not a Unicode digit and returns false.
+   *
+   * <p>{@code null} will return {@code false}. An empty CharSequence 
+   * (length()=0) will return {@code false}.
+   *
+   * <p>Note that the method does not allow for a leading sign, either 
+   * positive or negative. Also, if a String passes the numeric test, it may 
+   * still generate a NumberFormatException when parsed by Integer.parseInt or 
+   * Long.parseLong, e.g. if the value is outside the range for int or long 
+   * respectively.
+   *
+   * @param cs  the CharSequence to check, may be null
+   * 
+   * @return {@code true} if only contains digits, and is non-null
+   */
+  public static boolean isDigits(final CharSequence cs) {
+    if (isEmpty(cs)) {
+      return false;
+    }
+    final int sz = cs.length();
+    for (int i = 0; i < sz; i++) {
+      if (!Character.isDigit(cs.charAt(i))) {
+        return false;
+      }
+    }
+    return true;
   }
 
 }

@@ -153,4 +153,14 @@ public class StringUtilTest {
     assertEquals( result, expected );
   }
   
+  @Test
+  public void isDigits() {
+      assertFalse(StringUtil.isDigits(null));
+      assertFalse(StringUtil.isDigits(""));
+      assertTrue( StringUtil.isDigits("12345"));
+      assertFalse( StringUtil.isDigits("1234.5"));
+      assertFalse( StringUtil.isDigits("1ab"));
+      assertFalse( StringUtil.isDigits("abc"));
+  }
+
 }
