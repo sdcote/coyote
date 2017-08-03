@@ -38,11 +38,11 @@ public class NumberUtilTest {
 
   private void compareIsNumericWithParse(final String val, final boolean expected) {
     final boolean isValid = NumberUtil.isNumeric(val);
-    final boolean canCreate = checkParse(val);
-    if ((isValid == expected) && (canCreate == expected)) {
+    final boolean canParse = checkParse(val);
+    if ((isValid == expected) && (canParse == expected)) {
       return;
     }
-    fail("Expecting " + expected + " for isNumeric using \"" + val + "\" but got " + isValid + " and " + canCreate);
+    fail("Expecting " + expected + " for isNumeric using \"" + val + "\" but got " + isValid + " and parsable:" + canParse);
   }
 
 
@@ -295,6 +295,9 @@ public class NumberUtilTest {
 
   @Test
   public void testIsNumeric() {
+    assertTrue(NumberUtil.isNumeric("1"));
+    assertNotNull(NumberUtil.parse("1"));
+    // perform the above with one call below:
     compareIsNumericWithParse(" ", false);
     compareIsNumericWithParse(" 1111", false);
     compareIsNumericWithParse("", false);
@@ -544,8 +547,7 @@ public class NumberUtilTest {
 
 
   @Test(expected = NumberFormatException.class)
-  // Check that the code fails to parse a valid number when preceded by -- rather than -
-  public void testParseFailure1() {
+  public void doubleNegative() {
     NumberUtil.parse("--1.1E-700F");
   }
 
@@ -553,8 +555,7 @@ public class NumberUtilTest {
 
 
   @Test(expected = NumberFormatException.class)
-  // Check that the code fails to parse a valid number when both e and E are present (with decimal)
-  public void testParseFailure2() {
+  public void twoExponentsDecimal() {
     NumberUtil.parse("-1.1E+0-7e00");
   }
 
@@ -562,8 +563,7 @@ public class NumberUtilTest {
 
 
   @Test(expected = NumberFormatException.class)
-  // Check that the code fails to parse a valid number when both e and E are present (no decimal)
-  public void testParseFailure3() {
+  public void twoExponentsNoDecimal() {
     NumberUtil.parse("-11E+0-7e00");
   }
 
@@ -571,8 +571,7 @@ public class NumberUtilTest {
 
 
   @Test(expected = NumberFormatException.class)
-  // Check that the code fails to parse a valid number when both e and E are present (no decimal)
-  public void testParseFailure4() {
+  public void twoExponentsNoDecimal2() {
     NumberUtil.parse("1eE+00001");
   }
 
@@ -580,8 +579,7 @@ public class NumberUtilTest {
 
 
   @Test(expected = NumberFormatException.class)
-  // Check that the code fails to parse a valid number when there are multiple trailing 'f' characters
-  public void testParseFailure5() {
+  public void twoTrailingFs() {
     NumberUtil.parse("1234.5ff");
   }
 
@@ -589,8 +587,7 @@ public class NumberUtilTest {
 
 
   @Test(expected = NumberFormatException.class)
-  // Check that the code fails to parse a valid number when there are multiple trailing 'F' characters
-  public void testParseFailure6() {
+  public void twoTrailingFs2() {
     NumberUtil.parse("1234.5FF");
   }
 
@@ -598,8 +595,7 @@ public class NumberUtilTest {
 
 
   @Test(expected = NumberFormatException.class)
-  // Check that the code fails to parse a valid number when there are multiple trailing 'd' characters
-  public void testParseFailure7() {
+  public void twoTrailingDs() {
     NumberUtil.parse("1234.5dd");
   }
 
@@ -607,8 +603,7 @@ public class NumberUtilTest {
 
 
   @Test(expected = NumberFormatException.class)
-  // Check that the code fails to parse a valid number when there are multiple trailing 'D' characters
-  public void testParseFailure_8() {
+  public void twoTrailingDs2() {
     NumberUtil.parse("1234.5DD");
   }
 
@@ -617,20 +612,16 @@ public class NumberUtilTest {
 
   @Test
   public void parseMagnitude() {
-    // Test Float.MAX_VALUE, and same with +1 in final digit to check conversion changes to next Number type
     assertEquals(Float.valueOf(Float.MAX_VALUE), NumberUtil.parse("3.4028235e+38"));
-    assertEquals(Double.valueOf(3.4028236e+38), NumberUtil.parse("3.4028236e+38"));
+    assertEquals(Double.valueOf(3.4028236e+38), NumberUtil.parse("3.4028236e+38")); // +1, moves to Double
 
-    // Test Double.MAX_VALUE
     assertEquals(Double.valueOf(Double.MAX_VALUE), NumberUtil.parse("1.7976931348623157e+308"));
-    // Test with +2 in final digit (+1 does not cause roll-over to BigDecimal)
     assertEquals(new BigDecimal("1.7976931348623159e+308"), NumberUtil.parse("1.7976931348623159e+308"));
 
     assertEquals(Integer.valueOf(0x12345678), NumberUtil.parse("0x12345678"));
     assertEquals(Long.valueOf(0x123456789L), NumberUtil.parse("0x123456789"));
 
     assertEquals(Long.valueOf(0x7fffffffffffffffL), NumberUtil.parse("0x7fffffffffffffff"));
-    // Does not appear to be a way to parse a literal BigInteger of this magnitude
     assertEquals(new BigInteger("7fffffffffffffff0", 16), NumberUtil.parse("0x7fffffffffffffff0"));
 
     assertEquals(Long.valueOf(0x7fffffffffffffffL), NumberUtil.parse("#7fffffffffffffff"));
