@@ -40,7 +40,7 @@ public class CheckFieldMethodTest {
     transformContext.set("one", 1);
     transformContext.set("two", 2);
     transformContext.set("name", "Bob");
-    
+
     context = new TransactionContext(transformContext);
     context.setLastFrame(true);
     context.setSourceFrame(new DataFrame().set("field1", "value1").set("Field2", "Value2").set("BooleanField", true));
@@ -78,12 +78,11 @@ public class CheckFieldMethodTest {
 
     expression = "checkField(Target.fieldX, LT, 123)";
     assertTrue(evaluator.evaluateBoolean(expression));
-    
 
     expression = "checkField(Target.LongField, LT, Working.DateField)";
     assertTrue(evaluator.evaluateBoolean(expression));
 
-}
+  }
 
 
 
@@ -149,6 +148,17 @@ public class CheckFieldMethodTest {
     CheckFieldMethod.execute(transformContext, "two", CheckFieldMethod.Operator.GE.toString(), "2");
     CheckFieldMethod.execute(transformContext, "two", "GE", "3");
     CheckFieldMethod.execute(transformContext, "two", CheckFieldMethod.Operator.GE.toString(), "3");
+  }
+
+
+
+
+  @Test
+  public void notEqual() {
+    CheckFieldMethod.execute(transformContext, "name", "NE", "BOB");
+    CheckFieldMethod.execute(transformContext, "name", CheckFieldMethod.Operator.NE.toString(), "BOB");
+    CheckFieldMethod.execute(transformContext, "name", "NE", "Robert");
+    CheckFieldMethod.execute(transformContext, "name", CheckFieldMethod.Operator.NE.toString(), "Robert");
   }
 
 }
