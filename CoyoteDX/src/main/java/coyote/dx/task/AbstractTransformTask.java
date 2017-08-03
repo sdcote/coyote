@@ -48,6 +48,8 @@ public abstract class AbstractTransformTask extends AbstractConfigurableComponen
 
 
   /**
+   * Return the conditional expression from the configuration.
+   * 
    * @return the condition which must evaluate to true before the task is to 
    *         execute.
    */
@@ -62,9 +64,12 @@ public abstract class AbstractTransformTask extends AbstractConfigurableComponen
 
 
   /**
-   * @return true if the task is to generate an error and exit when an error 
-   *         occurs, false the task will just exit without setting the context 
-   *         to an error state and aborting the transform process.
+   * Determine if errors should cause the task processing to terminate.
+   * 
+   * @return true if the task is to generate an error (throw TaskException) 
+   *         and exit when an error occurs, false the task will just exit 
+   *         without setting the context to an error state and aborting the 
+   *         transform process.
    */
   public boolean haltOnError() {
     return haltOnError;
@@ -178,16 +183,16 @@ public abstract class AbstractTransformTask extends AbstractConfigurableComponen
    * Resolve the argument.
    * 
    * <p>This will try to retrieve the value from the transform context using 
-   * the given value as it may be a reference to a context property.</p>
+   * the given value as it may be a reference to a context property.
    * 
    * <p>If no value was found in the look-up, then the value is treated as a 
-   * literal and will be returned as the argument.</p>
+   * literal and will be returned as the argument.
    * 
    * <p>Regardless of whether or not the value was retrieved from the 
    * transform context as a reference value, the value is resolved as a 
    * template using the symbol table in the transform context. This allows for 
    * more dynamic values during the operation of the entire transformation 
-   * process.</p>
+   * process.
    * 
    * @param value the value to resolve (or use as a literal)
    * 
@@ -215,19 +220,45 @@ public abstract class AbstractTransformTask extends AbstractConfigurableComponen
 
 
   /**
+   * Close this task.
+   * 
    * @see java.io.Closeable#close()
    */
   @Override
-  public void close() throws IOException {}
+  public void close() throws IOException {
+    // subclass should override this to perform clean-up
+  }
 
 
 
 
   /**
+   * Accessor for this tasks job directory.
+   * 
    * @return the job directory for this task
    */
   protected File getJobDirectory() {
-    return null;
+    File retval = null;
+    if (context != null && context.getEngine() != null) {
+      retval = context.getEngine().getJobDirectory();
+    }
+    return retval;
+  }
+
+
+
+
+  /**
+   * Accessor for this tasks work directory.
+   * 
+   * @return the work directory for this task
+   */
+  protected File getWorkDirectory() {
+    File retval = null;
+    if (context != null && context.getEngine() != null) {
+      retval = context.getEngine().getWorkDirectory();
+    }
+    return retval;
   }
 
 }
