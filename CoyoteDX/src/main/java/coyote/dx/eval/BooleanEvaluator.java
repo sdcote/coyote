@@ -327,7 +327,7 @@ public class BooleanEvaluator extends AbstractEvaluator<Boolean> {
       final String arg3 = arguments.next();
       final String arg2 = arguments.next();
       final String arg1 = arguments.next();
-      result = !JobSuccessMethod.execute(transformContext, arg1);
+      result = CheckFieldMethod.execute(transformContext, arg1, arg2, arg3);
     } else {
       result = super.evaluate(method, arguments, evaluationContext);
     }
