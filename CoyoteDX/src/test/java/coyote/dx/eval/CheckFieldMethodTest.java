@@ -65,25 +65,28 @@ public class CheckFieldMethodTest {
   public void evaluatorCheck() {
     String expression;
 
-    expression = "checkField(Test, LT, 123)";
+    expression = "checkField(one, LT, 123)";
     assertTrue(evaluator.evaluateBoolean(expression));
 
-    expression = "checkField(Working.field3, LT, 123)";
-    assertFalse(evaluator.evaluateBoolean(expression));
-
-    expression = "checkField(Working.fieldX, LT, 123)";
+    expression = "checkField(one, <, 123)";
     assertTrue(evaluator.evaluateBoolean(expression));
 
-    expression = "checkField(Source.field1, LT, 123)";
+    expression = "checkField(Working.field3, LT, 123)"; // can't compare
     assertFalse(evaluator.evaluateBoolean(expression));
 
-    expression = "checkField(Source.fieldX, LT, 123)";
+    expression = "checkField(Working.fieldX, LT, 123)"; // null is < not null
     assertTrue(evaluator.evaluateBoolean(expression));
 
-    expression = "checkField(Target.field5, LT, 123)";
+    expression = "checkField(Source.field1, LT, 123)"; // can't compare
     assertFalse(evaluator.evaluateBoolean(expression));
 
-    expression = "checkField(Target.fieldX, LT, 123)";
+    expression = "checkField(Source.fieldX, LT, 123)"; // null is < not null
+    assertTrue(evaluator.evaluateBoolean(expression));
+
+    expression = "checkField(Target.field5, LT, 123)"; // can't compare
+    assertFalse(evaluator.evaluateBoolean(expression));
+
+    expression = "checkField(Target.fieldX, LT, 123)"; // null is < not null
     assertTrue(evaluator.evaluateBoolean(expression));
 
     expression = "checkField(Target.LongField, LT, Working.DateField)";
@@ -97,6 +100,7 @@ public class CheckFieldMethodTest {
   @Test
   public void equalTo() {
     assertTrue(CheckFieldMethod.execute(transformContext, "name", "EQ", "Bob"));
+    assertTrue(CheckFieldMethod.execute(transformContext, "name", "==", "Bob"));
     assertTrue(CheckFieldMethod.execute(transformContext, "name", CheckFieldMethod.Operator.EQ.toString(), "Bob"));
     assertFalse(CheckFieldMethod.execute(transformContext, "name", "EQ", "BoB"));
     assertFalse(CheckFieldMethod.execute(transformContext, "name", CheckFieldMethod.Operator.EQ.toString(), "BOB"));
@@ -122,10 +126,11 @@ public class CheckFieldMethodTest {
 
 
 
-  @Ignore
+  @Test
   public void lessThan() {
-    assertFalse(CheckFieldMethod.execute(transformContext, "one", "LT", "2"));
-    assertFalse(CheckFieldMethod.execute(transformContext, "one", CheckFieldMethod.Operator.LT.toString(), "2"));
+    assertTrue(CheckFieldMethod.execute(transformContext, "one", "LT", "2"));
+    assertTrue(CheckFieldMethod.execute(transformContext, "one", "<", "2"));
+    assertTrue(CheckFieldMethod.execute(transformContext, "one", CheckFieldMethod.Operator.LT.toString(), "2"));
   }
 
 
