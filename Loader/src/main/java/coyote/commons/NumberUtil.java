@@ -520,4 +520,49 @@ public class NumberUtil {
     return hasSign ? str.substring(1, stopPos) : str.substring(0, stopPos);
   }
 
+
+
+
+  /**
+   * Deal with infinite and NaN conditions in doubles and floats.
+   * 
+   * @param number the number to check
+   * 
+   * @return true if the number is an infinite value or Not a Number, false otherwise.
+   */
+  public static boolean isSpecial(Number number) {
+    boolean specialDouble = number instanceof Double && (Double.isNaN((Double)number) || Double.isInfinite((Double)number));
+    boolean specialFloat = number instanceof Float && (Float.isNaN((Float)number) || Float.isInfinite((Float)number));
+    return specialDouble || specialFloat;
+  }
+
+
+
+
+  /**
+   * Convert the given number object to a BigDecimal.
+   * 
+   * @param number the number to convert
+   * 
+   * @return a BigDecimal representation of the number
+   * 
+   * @throws IllegalArgumentException if the string representation of the number could not be parsed by BigDecimal
+   */
+  public static BigDecimal toBigDecimal(Number number) {
+    if (number instanceof BigDecimal)
+      return (BigDecimal)number;
+    if (number instanceof BigInteger)
+      return new BigDecimal((BigInteger)number);
+    if (number instanceof Byte || number instanceof Short || number instanceof Integer || number instanceof Long)
+      return new BigDecimal(number.longValue());
+    if (number instanceof Float || number instanceof Double)
+      return new BigDecimal(number.doubleValue());
+
+    try {
+      return new BigDecimal(number.toString());
+    } catch (final NumberFormatException e) {
+      throw new IllegalArgumentException("The given number (\"" + number + "\" of class " + number.getClass().getName() + ") does not have a parsable string representation", e);
+    }
+  }
+
 }
