@@ -293,7 +293,7 @@ public final class CheckFieldMethod extends AbstractBooleanMethod {
       if (fieldObject == null || expectedObject == null) {
         retval = false;
       } else {
-        retval = fieldObject.toString().equals(expectedObject.toString());
+        retval = fieldObject.toString().equalsIgnoreCase(expectedObject.toString());
       }
     }
     return retval;
