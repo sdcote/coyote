@@ -12,17 +12,17 @@ import java.util.List;
  */
 public class CSVWriter implements Closeable {
 
-  private final Writer _writer;
+  private final Writer writer;
 
-  private final PrintWriter _printwriter;
+  private final PrintWriter printWriter;
 
-  private final char _separator;
+  private final char separator;
 
-  private final char _quotechar;
+  private final char quoteChar;
 
-  private final char _escapechar;
+  private final char escapeChar;
 
-  private final String _linedelim;
+  private final String lineDelimiter;
 
   public static final int INITIAL_STRING_SIZE = 128;
 
@@ -129,12 +129,12 @@ public class CSVWriter implements Closeable {
    * @param lineEnd the line feed terminator to use
    */
   public CSVWriter( final Writer writer, final char separator, final char quotechar, final char escapechar, final String lineEnd ) {
-    this._writer = writer;
-    this._printwriter = new PrintWriter( writer );
-    this._separator = separator;
-    this._quotechar = quotechar;
-    this._escapechar = escapechar;
-    this._linedelim = lineEnd;
+    this.writer = writer;
+    this.printWriter = new PrintWriter( writer );
+    this.separator = separator;
+    this.quoteChar = quotechar;
+    this.escapeChar = escapechar;
+    this.lineDelimiter = lineEnd;
   }
 
 
@@ -168,23 +168,23 @@ public class CSVWriter implements Closeable {
     for ( int i = 0; i < nextLine.length; i++ ) {
 
       if ( i != 0 ) {
-        sb.append( _separator );
+        sb.append( separator );
       }
 
       final String nextElement = nextLine[i];
       if ( nextElement == null )
         continue;
-      if ( _quotechar != NO_QUOTE_CHARACTER )
-        sb.append( _quotechar );
+      if ( quoteChar != NO_QUOTE_CHARACTER )
+        sb.append( quoteChar );
 
       sb.append( stringContainsSpecialCharacters( nextElement ) ? processLine( nextElement ) : nextElement );
 
-      if ( _quotechar != NO_QUOTE_CHARACTER )
-        sb.append( _quotechar );
+      if ( quoteChar != NO_QUOTE_CHARACTER )
+        sb.append( quoteChar );
     }
 
-    sb.append( _linedelim );
-    _printwriter.write( sb.toString() );
+    sb.append( lineDelimiter );
+    printWriter.write( sb.toString() );
 
   }
 
@@ -196,7 +196,7 @@ public class CSVWriter implements Closeable {
    */
   public void flush() {
 
-    _printwriter.flush();
+    printWriter.flush();
 
   }
 
@@ -211,8 +211,8 @@ public class CSVWriter implements Closeable {
   @Override
   public void close() throws IOException {
     flush();
-    _printwriter.close();
-    _writer.close();
+    printWriter.close();
+    writer.close();
   }
 
 
@@ -222,14 +222,14 @@ public class CSVWriter implements Closeable {
    *  Checks to see if the there has been an error in the printstream. 
    */
   public boolean checkError() {
-    return _printwriter.checkError();
+    return printWriter.checkError();
   }
 
 
 
 
   private boolean stringContainsSpecialCharacters( final String line ) {
-    return ( line.indexOf( _quotechar ) != -1 ) || ( line.indexOf( _escapechar ) != -1 );
+    return ( line.indexOf( quoteChar ) != -1 ) || ( line.indexOf( escapeChar ) != -1 );
   }
 
 
@@ -239,10 +239,10 @@ public class CSVWriter implements Closeable {
     final StringBuilder sb = new StringBuilder( INITIAL_STRING_SIZE );
     for ( int j = 0; j < nextElement.length(); j++ ) {
       final char nextChar = nextElement.charAt( j );
-      if ( ( _escapechar != NO_ESCAPE_CHARACTER ) && ( nextChar == _quotechar ) ) {
-        sb.append( _escapechar ).append( nextChar );
-      } else if ( ( _escapechar != NO_ESCAPE_CHARACTER ) && ( nextChar == _escapechar ) ) {
-        sb.append( _escapechar ).append( nextChar );
+      if ( ( escapeChar != NO_ESCAPE_CHARACTER ) && ( nextChar == quoteChar ) ) {
+        sb.append( escapeChar ).append( nextChar );
+      } else if ( ( escapeChar != NO_ESCAPE_CHARACTER ) && ( nextChar == escapeChar ) ) {
+        sb.append( escapeChar ).append( nextChar );
       } else {
         sb.append( nextChar );
       }

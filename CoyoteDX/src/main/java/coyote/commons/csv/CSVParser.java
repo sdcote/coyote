@@ -10,18 +10,18 @@ import java.util.List;
  */
 public class CSVParser {
 
-  private final char _separator;
+  private final char separator;
 
-  private final char _quotechar;
+  private final char quotechar;
 
-  private final char _escape;
+  private final char escape;
 
-  private final boolean _usestrictquotes;
+  private final boolean useStrictQuotes;
 
-  private String _pending;
-  private boolean _isinfield = false;
+  private String pending;
+  private boolean isInField = false;
 
-  private final boolean _ignoreleadingwhitespace;
+  private final boolean ignoreLeadingWhitespace;
 
   /** The default separator to use if none is supplied to the constructor. */
   public static final char SEPARATOR = ',';
@@ -126,11 +126,11 @@ public class CSVParser {
     if ( separator == NULL_CHARACTER ) {
       throw new UnsupportedOperationException( "The separator character must be defined!" );
     }
-    this._separator = separator;
-    this._quotechar = quotechar;
-    this._escape = escape;
-    this._usestrictquotes = strictQuotes;
-    this._ignoreleadingwhitespace = ignoreLeadingWhiteSpace;
+    this.separator = separator;
+    this.quotechar = quotechar;
+    this.escape = escape;
+    this.useStrictQuotes = strictQuotes;
+    this.ignoreLeadingWhitespace = ignoreLeadingWhiteSpace;
   }
 
 
@@ -162,14 +162,14 @@ public class CSVParser {
    */
   private String[] parseLine( final String nextLine, final boolean multi ) throws ParseException {
 
-    if ( !multi && ( _pending != null ) ) {
-      _pending = null;
+    if ( !multi && ( pending != null ) ) {
+      pending = null;
     }
 
     if ( nextLine == null ) {
-      if ( _pending != null ) {
-        final String s = _pending;
-        _pending = null;
+      if ( pending != null ) {
+        final String s = pending;
+        pending = null;
         return new String[] { s };
       } else {
         return null;
@@ -179,28 +179,28 @@ public class CSVParser {
     final List<String> tokensOnThisLine = new ArrayList<String>();
     StringBuilder sb = new StringBuilder( INITIAL_READ_SIZE );
     boolean inQuotes = false;
-    if ( _pending != null ) {
-      sb.append( _pending );
-      _pending = null;
+    if ( pending != null ) {
+      sb.append( pending );
+      pending = null;
       inQuotes = true;
     }
     for ( int i = 0; i < nextLine.length(); i++ ) {
 
       final char c = nextLine.charAt( i );
-      if ( c == this._escape ) {
-        if ( isNextCharacterEscapable( nextLine, inQuotes || _isinfield, i ) ) {
+      if ( c == this.escape ) {
+        if ( isNextCharacterEscapable( nextLine, inQuotes || isInField, i ) ) {
           sb.append( nextLine.charAt( i + 1 ) );
           i++;
         }
-      } else if ( c == _quotechar ) {
-        if ( isNextCharacterEscapedQuote( nextLine, inQuotes || _isinfield, i ) ) {
+      } else if ( c == quotechar ) {
+        if ( isNextCharacterEscapedQuote( nextLine, inQuotes || isInField, i ) ) {
           sb.append( nextLine.charAt( i + 1 ) );
           i++;
         } else {
-          if ( !_usestrictquotes ) {
-            if ( ( i > 2 ) && ( nextLine.charAt( i - 1 ) != this._separator ) && ( nextLine.length() > ( i + 1 ) ) && ( nextLine.charAt( i + 1 ) != this._separator ) ) {
+          if ( !useStrictQuotes ) {
+            if ( ( i > 2 ) && ( nextLine.charAt( i - 1 ) != this.separator ) && ( nextLine.length() > ( i + 1 ) ) && ( nextLine.charAt( i + 1 ) != this.separator ) ) {
 
-              if ( _ignoreleadingwhitespace && ( sb.length() > 0 ) && isAllWhiteSpace( sb ) ) {
+              if ( ignoreLeadingWhitespace && ( sb.length() > 0 ) && isAllWhiteSpace( sb ) ) {
                 sb.setLength( 0 );
               } else {
                 sb.append( c );
@@ -211,15 +211,15 @@ public class CSVParser {
 
           inQuotes = !inQuotes;
         }
-        _isinfield = !_isinfield;
-      } else if ( ( c == _separator ) && !inQuotes ) {
+        isInField = !isInField;
+      } else if ( ( c == separator ) && !inQuotes ) {
         tokensOnThisLine.add( sb.toString() );
         sb.setLength( 0 );
-        _isinfield = false;
+        isInField = false;
       } else {
-        if ( !_usestrictquotes || inQuotes ) {
+        if ( !useStrictQuotes || inQuotes ) {
           sb.append( c );
-          _isinfield = true;
+          isInField = true;
         }
       }
     }
@@ -228,7 +228,7 @@ public class CSVParser {
       if ( multi ) {
 
         sb.append( "\n" );
-        _pending = sb.toString();
+        pending = sb.toString();
         sb = null;
       } else {
         throw new ParseException( "Un-terminated quoted field at end of CSV line", -1 );
@@ -254,7 +254,7 @@ public class CSVParser {
    * @return true if the following character is a quote
    */
   private boolean isNextCharacterEscapedQuote( final String nextLine, final boolean inQuotes, final int i ) {
-    return inQuotes && ( nextLine.length() > ( i + 1 ) ) && ( nextLine.charAt( i + 1 ) == _quotechar );
+    return inQuotes && ( nextLine.length() > ( i + 1 ) ) && ( nextLine.charAt( i + 1 ) == quotechar );
   }
 
 
@@ -270,7 +270,7 @@ public class CSVParser {
    * @return true if the following character is a quote
    */
   protected boolean isNextCharacterEscapable( final String nextLine, final boolean inQuotes, final int i ) {
-    return inQuotes && ( nextLine.length() > ( i + 1 ) ) && ( ( nextLine.charAt( i + 1 ) == _quotechar ) || ( nextLine.charAt( i + 1 ) == this._escape ) );
+    return inQuotes && ( nextLine.length() > ( i + 1 ) ) && ( ( nextLine.charAt( i + 1 ) == quotechar ) || ( nextLine.charAt( i + 1 ) == this.escape ) );
   }
 
 
@@ -280,7 +280,7 @@ public class CSVParser {
    * @return true if something was left over from last call(s)
    */
   boolean isPending() {
-    return _pending != null;
+    return pending != null;
   }
 
 

@@ -14,15 +14,15 @@ import java.util.List;
  */
 public class CSVReader implements Closeable {
 
-  private final BufferedReader _br;
+  private final BufferedReader bufferedReader;
 
-  private boolean _hasnext = true;
+  private boolean hasNext = true;
 
-  private final CSVParser _parser;
+  private final CSVParser csvParser;
 
-  private final int _linetoskip;
+  private final int lineToSkip;
 
-  private boolean _linesskipped;
+  private boolean linesSkipped;
 
   /** The default line to start reading. */
   public static final int LINES_TO_SKIP = 0;
@@ -160,9 +160,9 @@ public class CSVReader implements Closeable {
    * @param ignoreLeadingWhiteSpace it true, parser should ignore white space before a quote in a field
    */
   public CSVReader( final Reader reader, final char separator, final char quotechar, final char escape, final int line, final boolean strictQuotes, final boolean ignoreLeadingWhiteSpace ) {
-    this._br = new BufferedReader( reader );
-    this._parser = new CSVParser( separator, quotechar, escape, strictQuotes, ignoreLeadingWhiteSpace );
-    this._linetoskip = line;
+    this.bufferedReader = new BufferedReader( reader );
+    this.csvParser = new CSVParser( separator, quotechar, escape, strictQuotes, ignoreLeadingWhiteSpace );
+    this.lineToSkip = line;
   }
 
 
@@ -180,7 +180,7 @@ public class CSVReader implements Closeable {
   public List<String[]> readAll() throws IOException, ParseException {
 
     final List<String[]> allElements = new ArrayList<String[]>();
-    while ( _hasnext ) {
+    while ( hasNext ) {
       final String[] nextLineAsTokens = readNext();
       if ( nextLineAsTokens != null )
         allElements.add( nextLineAsTokens );
@@ -205,10 +205,10 @@ public class CSVReader implements Closeable {
     String[] result = null;
     do {
       final String nextLine = getNextLine();
-      if ( !_hasnext ) {
+      if ( !hasNext ) {
         return result; // should throw if still pending?
       }
-      final String[] r = _parser.parseLineMulti( nextLine );
+      final String[] r = csvParser.parseLineMulti( nextLine );
       if ( r.length > 0 ) {
         if ( result == null ) {
           result = r;
@@ -220,7 +220,7 @@ public class CSVReader implements Closeable {
         }
       }
     }
-    while ( _parser.isPending() );
+    while ( csvParser.isPending() );
     return result;
   }
 
@@ -235,18 +235,18 @@ public class CSVReader implements Closeable {
    * @throws IOException if the next line could not be read
    */
   private String getNextLine() throws IOException {
-    if ( !this._linesskipped ) {
-      for ( int i = 0; i < _linetoskip; i++ ) {
-        _br.readLine();
+    if ( !this.linesSkipped ) {
+      for ( int i = 0; i < lineToSkip; i++ ) {
+        bufferedReader.readLine();
       }
-      this._linesskipped = true;
+      this.linesSkipped = true;
     }
-    final String nextLine = _br.readLine();
+    final String nextLine = bufferedReader.readLine();
     if ( nextLine == null ) {
-      _hasnext = false;
+      hasNext = false;
     }
 
-    return _hasnext ? nextLine : null;
+    return hasNext ? nextLine : null;
   }
 
 
@@ -256,14 +256,14 @@ public class CSVReader implements Closeable {
    * This reads ahead and skips past any CR or LF characters.
    */
   public void consumeEmptyLines() {
-    if ( _br.markSupported() ) {
+    if ( bufferedReader.markSupported() ) {
       int character = 0;
       do {
         try {
-          _br.mark( 2 );
-          character = _br.read();
+          bufferedReader.mark( 2 );
+          character = bufferedReader.read();
           if ( character != 10 && character != 13 ) {
-            _br.reset();
+            bufferedReader.reset();
             break;
           }
         } catch ( IOException e ) {
@@ -284,7 +284,7 @@ public class CSVReader implements Closeable {
    */
   @Override
   public void close() throws IOException {
-    _br.close();
+    bufferedReader.close();
   }
 
 
@@ -296,7 +296,7 @@ public class CSVReader implements Closeable {
    * @return true if the are no more records to read, false otherwise
    */
   public boolean eof() {
-    return !_hasnext;
+    return !hasNext;
   }
 
 }
