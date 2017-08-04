@@ -115,7 +115,7 @@ public class CheckFieldMethodTest {
 
 
 
-  @Ignore
+  @Test
   public void equalToIgnoreCase() {
     assertTrue(CheckFieldMethod.execute(transformContext, "name", "EI", "BOB"));
     assertTrue(CheckFieldMethod.execute(transformContext, "name", CheckFieldMethod.Operator.EI.toString(), "BOB"));
@@ -136,47 +136,52 @@ public class CheckFieldMethodTest {
 
 
 
-  @Ignore
+  @Test
   public void lessThanEqualTo() {
-    CheckFieldMethod.execute(transformContext, "one", "LE", "2");
-    CheckFieldMethod.execute(transformContext, "one", CheckFieldMethod.Operator.LE.toString(), "2");
-    CheckFieldMethod.execute(transformContext, "two", "LE", "2");
-    CheckFieldMethod.execute(transformContext, "two", CheckFieldMethod.Operator.LE.toString(), "2");
+    assertTrue(CheckFieldMethod.execute(transformContext, "one", "LE", "2"));
+    assertTrue(CheckFieldMethod.execute(transformContext, "one", "<=", "2"));
+    assertTrue(CheckFieldMethod.execute(transformContext, "one", CheckFieldMethod.Operator.LE.toString(), "2"));
+    assertTrue(CheckFieldMethod.execute(transformContext, "two", "LE", "2"));
+    assertTrue(CheckFieldMethod.execute(transformContext, "two", CheckFieldMethod.Operator.LE.toString(), "2"));
   }
 
 
 
 
-  @Ignore
+  @Test
   public void greaterThan() {
-    CheckFieldMethod.execute(transformContext, "two", "GT", "1");
-    CheckFieldMethod.execute(transformContext, "two", CheckFieldMethod.Operator.GT.toString(), "1");
-    CheckFieldMethod.execute(transformContext, "one", "GT", "1");
-    CheckFieldMethod.execute(transformContext, "one", CheckFieldMethod.Operator.GT.toString(), "1");
+    assertTrue(CheckFieldMethod.execute(transformContext, "two", "GT", "1"));
+    assertTrue(CheckFieldMethod.execute(transformContext, "two", ">", "1"));
+    assertTrue(CheckFieldMethod.execute(transformContext, "two", CheckFieldMethod.Operator.GT.toString(), "1"));
+    assertFalse(CheckFieldMethod.execute(transformContext, "one", "GT", "1"));
+    assertFalse(CheckFieldMethod.execute(transformContext, "one", CheckFieldMethod.Operator.GT.toString(), "1"));
   }
 
 
 
 
-  @Ignore
+  @Test
   public void greaterThanEqualTo() {
-    CheckFieldMethod.execute(transformContext, "two", "GE", "1");
-    CheckFieldMethod.execute(transformContext, "two", CheckFieldMethod.Operator.GE.toString(), "1");
-    CheckFieldMethod.execute(transformContext, "two", "GE", "2");
-    CheckFieldMethod.execute(transformContext, "two", CheckFieldMethod.Operator.GE.toString(), "2");
-    CheckFieldMethod.execute(transformContext, "two", "GE", "3");
-    CheckFieldMethod.execute(transformContext, "two", CheckFieldMethod.Operator.GE.toString(), "3");
+    assertTrue(CheckFieldMethod.execute(transformContext, "two", "GE", "1"));
+    assertTrue(CheckFieldMethod.execute(transformContext, "two", ">=", "1"));
+    assertTrue(CheckFieldMethod.execute(transformContext, "two", CheckFieldMethod.Operator.GE.toString(), "1"));
+    assertTrue(CheckFieldMethod.execute(transformContext, "two", "GE", "2"));
+    assertTrue(CheckFieldMethod.execute(transformContext, "two", CheckFieldMethod.Operator.GE.toString(), "2"));
+    assertFalse(CheckFieldMethod.execute(transformContext, "two", "GE", "3"));
+    assertFalse(CheckFieldMethod.execute(transformContext, "two", CheckFieldMethod.Operator.GE.toString(), "3"));
   }
 
 
 
 
-  @Ignore
+  @Test
   public void notEqual() {
-    CheckFieldMethod.execute(transformContext, "name", "NE", "BOB");
-    CheckFieldMethod.execute(transformContext, "name", CheckFieldMethod.Operator.NE.toString(), "BOB");
-    CheckFieldMethod.execute(transformContext, "name", "NE", "Robert");
-    CheckFieldMethod.execute(transformContext, "name", CheckFieldMethod.Operator.NE.toString(), "Robert");
+    assertTrue(CheckFieldMethod.execute(transformContext, "name", "NE", "BOB"));
+    assertTrue(CheckFieldMethod.execute(transformContext, "name", "!=", "BOB"));
+    assertTrue(CheckFieldMethod.execute(transformContext, "name", CheckFieldMethod.Operator.NE.toString(), "BOB"));
+    assertTrue(CheckFieldMethod.execute(transformContext, "name", "NE", "Robert"));
+    assertTrue(CheckFieldMethod.execute(transformContext, "name", CheckFieldMethod.Operator.NE.toString(), "Robert"));
+    assertFalse(CheckFieldMethod.execute(transformContext, "name", "NE", "Bob"));
   }
 
 }
