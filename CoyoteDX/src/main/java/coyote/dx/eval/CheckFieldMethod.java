@@ -170,13 +170,18 @@ public final class CheckFieldMethod extends AbstractBooleanMethod {
         } else {
           if (thatObject instanceof String) {
             String thatString = (String)thatObject;
-            if (NumberUtil.isNumeric(thatString) || thatObject instanceof Boolean || thatObject instanceof Date) {
+            if (NumberUtil.isNumeric(thatString)) {
               return compareAsNumbers(thisObject, thatObject);
+            } else {
+              return thisObject.toString().compareTo(thatString);
             }
+          } else if (thatObject instanceof Number || thatObject instanceof Boolean || thatObject instanceof Date) {
+            return compareAsNumbers(thisObject, thatObject);
+          } else {
+            return thisObject.toString().compareTo(thatObject.toString());
           }
         }
       }
-      throw cannotCompare(thisObject, thatObject);
     }
   }
 
@@ -189,14 +194,16 @@ public final class CheckFieldMethod extends AbstractBooleanMethod {
    * @return
    */
   private static int compareAsNumbers(Object thisObject, Object thatObject) throws IllegalArgumentException {
+    int retval;
     Number thatNumber = convertToNumber(thatObject);
     Number thisNumber = convertToNumber(thisObject);
 
     if (NumberUtil.isSpecial(thisNumber) || NumberUtil.isSpecial(thatNumber)) {
-      return Double.compare(thisNumber.doubleValue(), thatNumber.doubleValue());
+      retval = Double.compare(thisNumber.doubleValue(), thatNumber.doubleValue());
     } else {
-      return NumberUtil.toBigDecimal(thisNumber).compareTo(NumberUtil.toBigDecimal(thatNumber));
+      retval = NumberUtil.toBigDecimal(thisNumber).compareTo(NumberUtil.toBigDecimal(thatNumber));
     }
+    return retval;
   }
 
 
@@ -226,7 +233,6 @@ public final class CheckFieldMethod extends AbstractBooleanMethod {
     } else if (object instanceof Boolean) {
       thatNumber = ((Boolean)object).booleanValue() ? 1 : 0;
     } else {
-      // last ditch effort
       try {
         thatNumber = NumberUtil.parse(object.toString());
       } catch (Exception e) {
@@ -264,7 +270,7 @@ public final class CheckFieldMethod extends AbstractBooleanMethod {
         if (fieldObject.getClass().equals(expectedObject.getClass())) {
           retval = fieldObject.equals(expectedObject);
         } else {
-          retval = false;
+          return compare(fieldObject, expectedObject) == 0;
         }
       }
     }

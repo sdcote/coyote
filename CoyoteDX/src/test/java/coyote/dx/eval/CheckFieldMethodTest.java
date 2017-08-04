@@ -51,7 +51,7 @@ public class CheckFieldMethodTest {
     context = new TransactionContext(transformContext);
     context.setLastFrame(true);
     context.setSourceFrame(new DataFrame().set("field1", "value1").set("Field2", "Value2").set("BooleanField", true).set("IntegerField", 123));
-    context.setWorkingFrame(new DataFrame().set("field3", "value3").set("Field4", "Value4").set("DateField", new Date()).set("DoubleValue", 123.1D));
+    context.setWorkingFrame(new DataFrame().set("field3", "value3").set("Field4", "Value4").set("DateField", new Date()).set("DoubleValue", 123.0D));
     context.setTargetFrame(new DataFrame().set("field5", "value5").set("Field6", "Value6").set("LongField", 123L).set("FloatField", 123.0F));
     transformContext.setTransaction(context);
 
@@ -94,14 +94,18 @@ public class CheckFieldMethodTest {
 
 
 
-  @Ignore
+  @Test
   public void equalTo() {
     assertTrue(CheckFieldMethod.execute(transformContext, "name", "EQ", "Bob"));
-    assertTrue(CheckFieldMethod.execute(transformContext, "name", CheckFieldMethod.Operator.EQ.toString(), "BOB"));
-    assertFalse(CheckFieldMethod.execute(transformContext, "name", "EQ", "Bob"));
+    assertTrue(CheckFieldMethod.execute(transformContext, "name", CheckFieldMethod.Operator.EQ.toString(), "Bob"));
+    assertFalse(CheckFieldMethod.execute(transformContext, "name", "EQ", "BoB"));
     assertFalse(CheckFieldMethod.execute(transformContext, "name", CheckFieldMethod.Operator.EQ.toString(), "BOB"));
     assertFalse(CheckFieldMethod.execute(transformContext, "name", "EQ", "Robert"));
     assertFalse(CheckFieldMethod.execute(transformContext, "name", CheckFieldMethod.Operator.EQ.toString(), "Robert"));
+    
+    assertTrue(CheckFieldMethod.execute(transformContext, "Source.IntegerField", "EQ", "123"));
+    assertTrue(CheckFieldMethod.execute(transformContext, "Source.IntegerField", "EQ", "Working.DoubleValue"));
+
   }
 
 
