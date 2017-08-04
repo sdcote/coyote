@@ -8,6 +8,21 @@ import java.math.BigInteger;
  * Parsing strings into numbers
  */
 public class NumberUtil {
+  /** string used multiple times in class. */
+  private static final String INVALID_NUMBER = " is not a valid number.";
+
+
+
+
+  /**
+   * Static utility class, no instances allowed.
+   */
+  private NumberUtil() {
+    super();
+  }
+
+
+
 
   /**
    * Checks whether the String a parsable number.
@@ -33,48 +48,48 @@ public class NumberUtil {
       return false;
     }
     final char[] chars = str.toCharArray();
-    int sz = chars.length;
-    boolean hasExponent = false;
-    boolean hasDecimalPoint = false;
-    boolean allowSigns = false;
-    boolean foundDigit = false;
+    int size = chars.length;
     final int start = chars[0] == '-' || chars[0] == '+' ? 1 : 0;
-    if (sz > start + 1 && chars[start] == '0') {
+    if (size > start + 1 && chars[start] == '0') {
       if (chars[start + 1] == 'x' || chars[start + 1] == 'X') {
-        int i = start + 2;
-        if (i == sz) {
+        int indx = start + 2;
+        if (indx == size) {
           return false;
         }
-        for (; i < chars.length; i++) {
-          if ((chars[i] < '0' || chars[i] > '9') && (chars[i] < 'a' || chars[i] > 'f') && (chars[i] < 'A' || chars[i] > 'F')) {
+        for (; indx < chars.length; indx++) {
+          if ((chars[indx] < '0' || chars[indx] > '9') && (chars[indx] < 'a' || chars[indx] > 'f') && (chars[indx] < 'A' || chars[indx] > 'F')) {
             return false;
           }
         }
         return true;
       } else if (Character.isDigit(chars[start + 1])) {
-        int i = start + 1;
-        for (; i < chars.length; i++) {
-          if (chars[i] < '0' || chars[i] > '7') {
+        int indx = start + 1;
+        for (; indx < chars.length; indx++) {
+          if (chars[indx] < '0' || chars[indx] > '7') {
             return false;
           }
         }
         return true;
       }
     }
-    sz--;
+    size--;
 
-    int i = start;
-    while (i < sz || i < sz + 1 && allowSigns && !foundDigit) {
-      if (chars[i] >= '0' && chars[i] <= '9') {
+    boolean hasExponent = false;
+    boolean hasDecimalPoint = false;
+    boolean allowSigns = false;
+    boolean foundDigit = false;
+    int indx = start;
+    while (indx < size || indx < size + 1 && allowSigns && !foundDigit) {
+      if (chars[indx] >= '0' && chars[indx] <= '9') {
         foundDigit = true;
         allowSigns = false;
 
-      } else if (chars[i] == '.') {
+      } else if (chars[indx] == '.') {
         if (hasDecimalPoint || hasExponent) {
           return false;
         }
         hasDecimalPoint = true;
-      } else if (chars[i] == 'e' || chars[i] == 'E') {
+      } else if (chars[indx] == 'e' || chars[indx] == 'E') {
         if (hasExponent) {
           return false;
         }
@@ -83,7 +98,7 @@ public class NumberUtil {
         }
         hasExponent = true;
         allowSigns = true;
-      } else if (chars[i] == '+' || chars[i] == '-') {
+      } else if (chars[indx] == '+' || chars[indx] == '-') {
         if (!allowSigns) {
           return false;
         }
@@ -92,25 +107,25 @@ public class NumberUtil {
       } else {
         return false;
       }
-      i++;
+      indx++;
     }
-    if (i < chars.length) {
-      if (chars[i] >= '0' && chars[i] <= '9') {
+    if (indx < chars.length) {
+      if (chars[indx] >= '0' && chars[indx] <= '9') {
         return true;
       }
-      if (chars[i] == 'e' || chars[i] == 'E') {
+      if (chars[indx] == 'e' || chars[indx] == 'E') {
         return false;
       }
-      if (chars[i] == '.') {
+      if (chars[indx] == '.') {
         if (hasDecimalPoint || hasExponent) {
           return false;
         }
         return foundDigit;
       }
-      if (!allowSigns && (chars[i] == 'd' || chars[i] == 'D' || chars[i] == 'f' || chars[i] == 'F')) {
+      if (!allowSigns && (chars[indx] == 'd' || chars[indx] == 'D' || chars[indx] == 'f' || chars[indx] == 'F')) {
         return foundDigit;
       }
-      if (chars[i] == 'l' || chars[i] == 'L') {
+      if (chars[indx] == 'l' || chars[indx] == 'L') {
         return foundDigit && !hasExponent && !hasDecimalPoint;
       }
       return false;
@@ -189,14 +204,13 @@ public class NumberUtil {
     final char lastChar = str.charAt(str.length() - 1);
     String mantissa;
     String decimal;
-    String exponent;
     final int decimalPosition = str.indexOf('.');
     final int exponentPosition = str.indexOf('e') + str.indexOf('E') + 1;
 
     if (decimalPosition > -1) {
       if (exponentPosition > -1) {
         if ((exponentPosition < decimalPosition) || (exponentPosition > str.length())) {
-          throw new NumberFormatException(str + " is not a valid number.");
+          throw new NumberFormatException(str + INVALID_NUMBER);
         }
         decimal = str.substring(decimalPosition + 1, exponentPosition);
       } else {
@@ -206,7 +220,7 @@ public class NumberUtil {
     } else {
       if (exponentPosition > -1) {
         if (exponentPosition > str.length()) {
-          throw new NumberFormatException(str + " is not a valid number.");
+          throw new NumberFormatException(str + INVALID_NUMBER);
         }
         mantissa = getMantissa(str, exponentPosition);
       } else {
@@ -214,6 +228,7 @@ public class NumberUtil {
       }
       decimal = null;
     }
+    String exponent;
     if (!Character.isDigit(lastChar) && (lastChar != '.')) {
       if ((exponentPosition > -1) && (exponentPosition < (str.length() - 1))) {
         exponent = str.substring(exponentPosition + 1, str.length() - 1);
@@ -233,13 +248,13 @@ public class NumberUtil {
             }
             return parseBigInteger(numeric);
           }
-          throw new NumberFormatException(str + " is not a valid number.");
+          throw new NumberFormatException(str + INVALID_NUMBER);
         case 'f':
         case 'F':
           try {
-            final Float f = NumberUtil.parseFloat(str);
-            if (!(f.isInfinite() || ((f.floatValue() == 0.0F) && !allZeros))) {
-              return f;
+            final Float floatValue = NumberUtil.parseFloat(str);
+            if (!(floatValue.isInfinite() || ((floatValue.floatValue() == 0.0F) && !allZeros))) {
+              return floatValue;
             }
 
           } catch (final NumberFormatException nfe) {
@@ -249,9 +264,9 @@ public class NumberUtil {
         case 'd':
         case 'D':
           try {
-            final Double d = NumberUtil.parseDouble(str);
-            if (!(d.isInfinite() || ((d.floatValue() == 0.0D) && !allZeros))) {
-              return d;
+            final Double doubleValue = NumberUtil.parseDouble(str);
+            if (!(doubleValue.isInfinite() || ((doubleValue.floatValue() == 0.0D) && !allZeros))) {
+              return doubleValue;
             }
           } catch (final NumberFormatException nfe) {
             // ignore the bad number
@@ -263,7 +278,7 @@ public class NumberUtil {
           }
           // fall-through
         default:
-          throw new NumberFormatException(str + " is not a valid number.");
+          throw new NumberFormatException(str + INVALID_NUMBER);
 
       }
     }
@@ -289,17 +304,17 @@ public class NumberUtil {
 
     final boolean allZeros = isAllZeros(mantissa) && isAllZeros(exponent);
     try {
-      final Float f = parseFloat(str);
-      final Double d = parseDouble(str);
-      if (!f.isInfinite() && !((f.floatValue() == 0.0F) && !allZeros) && f.toString().equals(d.toString())) {
-        return f;
+      final Float floatValue = parseFloat(str);
+      final Double doubleValue = parseDouble(str);
+      if (!floatValue.isInfinite() && !((floatValue.floatValue() == 0.0F) && !allZeros) && floatValue.toString().equals(doubleValue.toString())) {
+        return floatValue;
       }
-      if (!d.isInfinite() && !((d.doubleValue() == 0.0D) && !allZeros)) {
-        final BigDecimal b = parseBigDecimal(str);
-        if (b.compareTo(BigDecimal.valueOf(d.doubleValue())) == 0) {
-          return d;
+      if (!doubleValue.isInfinite() && !((doubleValue.doubleValue() == 0.0D) && !allZeros)) {
+        final BigDecimal bigDecimal = parseBigDecimal(str);
+        if (bigDecimal.compareTo(BigDecimal.valueOf(doubleValue.doubleValue())) == 0) {
+          return doubleValue;
         }
-        return b;
+        return bigDecimal;
       }
     } catch (final NumberFormatException nfe) {
       // ignore the bad number
@@ -329,7 +344,7 @@ public class NumberUtil {
       throw new NumberFormatException("A blank string is not a valid number");
     }
     if (str.trim().startsWith("--")) {
-      throw new NumberFormatException(str + " is not a valid number.");
+      throw new NumberFormatException(str + INVALID_NUMBER);
     }
     return new BigDecimal(str);
   }
@@ -531,8 +546,8 @@ public class NumberUtil {
    * @return true if the number is an infinite value or Not a Number, false otherwise.
    */
   public static boolean isSpecial(Number number) {
-    boolean specialDouble = number instanceof Double && (Double.isNaN((Double)number) || Double.isInfinite((Double)number));
-    boolean specialFloat = number instanceof Float && (Float.isNaN((Float)number) || Float.isInfinite((Float)number));
+    final boolean specialDouble = number instanceof Double && (Double.isNaN((Double)number) || Double.isInfinite((Double)number));
+    final boolean specialFloat = number instanceof Float && (Float.isNaN((Float)number) || Float.isInfinite((Float)number));
     return specialDouble || specialFloat;
   }
 
@@ -549,14 +564,18 @@ public class NumberUtil {
    * @throws IllegalArgumentException if the string representation of the number could not be parsed by BigDecimal
    */
   public static BigDecimal toBigDecimal(Number number) {
-    if (number instanceof BigDecimal)
+    if (number instanceof BigDecimal) {
       return (BigDecimal)number;
-    if (number instanceof BigInteger)
+    }
+    if (number instanceof BigInteger) {
       return new BigDecimal((BigInteger)number);
-    if (number instanceof Byte || number instanceof Short || number instanceof Integer || number instanceof Long)
+    }
+    if (number instanceof Byte || number instanceof Short || number instanceof Integer || number instanceof Long) {
       return new BigDecimal(number.longValue());
-    if (number instanceof Float || number instanceof Double)
+    }
+    if (number instanceof Float || number instanceof Double) {
       return new BigDecimal(number.doubleValue());
+    }
 
     try {
       return new BigDecimal(number.toString());
