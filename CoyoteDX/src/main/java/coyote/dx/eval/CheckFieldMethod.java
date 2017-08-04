@@ -7,6 +7,7 @@
  */
 package coyote.dx.eval;
 
+import java.util.Date;
 import java.util.Locale;
 
 import coyote.commons.NumberUtil;
@@ -164,17 +165,89 @@ public final class CheckFieldMethod extends AbstractBooleanMethod {
           if (thisObject instanceof Comparable) {
             return ((Comparable)thisObject).compareTo(thatObject);
           } else {
-            throw new IllegalArgumentException("Object of type '" + thisObject.getClass() + "' cannot be compared to each other");
+            throw new IllegalArgumentException("Objects of type '" + thisObject.getClass() + "' cannot be compared to each other");
           }
         } else {
-          // here is where we bend over backwards...
-          // if thatObject is numeric, then
-          Log.debug("Performing conversions");
+          if (thatObject instanceof String) {
+            String thatString = (String)thatObject;
+            if (NumberUtil.isNumeric(thatString) || thatObject instanceof Boolean || thatObject instanceof Date) {
+              return compareAsNumbers(thisObject, thatObject);
+            }
+          }
         }
+      }
+      throw cannotCompare(thisObject, thatObject);
+    }
+  }
 
-        throw new IllegalArgumentException("Object of type '" + thisObject.getClass() + "' cannot be compared to object of type '" + thatObject.getClass() + "'");
+
+
+
+  /**
+   * @param thisObject
+   * @param thatObject
+   * @return
+   */
+  private static int compareAsNumbers(Object thisObject, Object thatObject) throws IllegalArgumentException {
+    Number thatNumber = convertToNumber(thatObject);
+    Number thisNumber = convertToNumber(thisObject);
+
+    if (NumberUtil.isSpecial(thisNumber) || NumberUtil.isSpecial(thatNumber)) {
+      return Double.compare(thisNumber.doubleValue(), thatNumber.doubleValue());
+    } else {
+      return NumberUtil.toBigDecimal(thisNumber).compareTo(NumberUtil.toBigDecimal(thatNumber));
+    }
+  }
+
+
+
+
+  /**
+   * Attempt to convert the given object into a number.
+   * 
+   * @param object the object to convert
+   * 
+   * @return a Number which can be used in comparison
+   * 
+   * @throws IllegalArgumentException if the the object cannot be represented as a number
+   */
+  private static Number convertToNumber(Object object) throws IllegalArgumentException {
+    Number thatNumber;
+    if (object instanceof Number) {
+      thatNumber = (Number)object;
+    } else if (object instanceof String) {
+      if (NumberUtil.isNumeric((String)object)) {
+        thatNumber = NumberUtil.parse((String)object);
+      } else {
+        throw cannotConvertToNumber(object);
+      }
+    } else if (object instanceof Date) {
+      thatNumber = ((Date)object).getTime();
+    } else if (object instanceof Boolean) {
+      thatNumber = ((Boolean)object).booleanValue() ? 1 : 0;
+    } else {
+      // last ditch effort
+      try {
+        thatNumber = NumberUtil.parse(object.toString());
+      } catch (Exception e) {
+        throw cannotConvertToNumber(object);
       }
     }
+    return thatNumber;
+  }
+
+
+
+
+  private static IllegalArgumentException cannotConvertToNumber(Object object) {
+    return new IllegalArgumentException("Cannot use '" + (String)object + " in a numeric comparison");
+  }
+
+
+
+
+  private static IllegalArgumentException cannotCompare(Object thisObject, Object thatObject) {
+    return new IllegalArgumentException("Object of type '" + thisObject.getClass().getName() + "' cannot be compared to object of type '" + thatObject.getClass().getName() + "' (" + thisObject + " -> " + thatObject + ")");
   }
 
 
