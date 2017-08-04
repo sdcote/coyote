@@ -4,10 +4,6 @@
  * This program and the accompanying materials are made available under the 
  * terms of the MIT License which accompanies this distribution, and is 
  * available at http://creativecommons.org/licenses/MIT/
- *
- * Contributors:
- *   Stephan D. Cote 
- *      - Initial concept and implementation
  */
 package coyote.loader.log;
 
@@ -44,7 +40,7 @@ public class FileAppender extends AbstractLogger {
    * any events).
    */
   public FileAppender() {
-    super( 0 );
+    super(0);
   }
 
 
@@ -56,8 +52,8 @@ public class FileAppender extends AbstractLogger {
    *
    * @param file The file.
    */
-  public FileAppender( final File file ) {
-    this( file, 0, true );
+  public FileAppender(final File file) {
+    this(file, 0, true);
   }
 
 
@@ -71,8 +67,8 @@ public class FileAppender extends AbstractLogger {
    * @param file The file.
    * @param appendflag true to append data to the file, false to overwrite
    */
-  public FileAppender( final File file, final boolean appendflag ) {
-    this( file, 0, appendflag );
+  public FileAppender(final File file, final boolean appendflag) {
+    this(file, 0, appendflag);
   }
 
 
@@ -86,25 +82,25 @@ public class FileAppender extends AbstractLogger {
    * @param mask The initial mask value.
    * @param appendflag true to append data to the file, false to overwrite
    */
-  public FileAppender( final File file, final long mask, boolean appendflag ) {
-    super( mask );
+  public FileAppender(final File file, final long mask, boolean appendflag) {
+    super(mask);
     append = appendflag;
 
     try {
-      if ( log_writer == null ) {
+      if (log_writer == null) {
         targetFile = file;
-        log_writer = new OutputStreamWriter( new FileOutputStream( file.toString(), append ) );
+        log_writer = new OutputStreamWriter(new FileOutputStream(file.toString(), append));
 
         final byte[] header = getFormatter().initialize();
 
-        if ( header != null ) {
-          log_writer.write( new String( header ) );
+        if (header != null) {
+          log_writer.write(new String(header));
         }
 
         initialized = true;
       }
-    } catch ( final Exception e ) {
-      System.err.println( "Could not attach logger to file \"" + file.getAbsolutePath() + "\". Reason:\"" + e.getMessage() + "\"." );
+    } catch (final Exception e) {
+      System.err.println("Could not attach logger to file \"" + file.getAbsolutePath() + "\". Reason:\"" + e.getMessage() + "\".");
 
       log_writer = null;
     }
@@ -121,42 +117,41 @@ public class FileAppender extends AbstractLogger {
    * @param event The event.
    * @param cause The exception that caused the log entry. Can be null.
    */
-  public void append( final String category, final Object event, final Throwable cause ) {
-    if ( !targetFile.exists() ) {
+  public void append(final String category, final Object event, final Throwable cause) {
+    if (!targetFile.exists()) {
       try {
-        log_writer = new OutputStreamWriter( new FileOutputStream( targetFile.toString(), append ) );
+        log_writer = new OutputStreamWriter(new FileOutputStream(targetFile.toString(), append));
 
         final byte[] header = getFormatter().initialize();
 
-        if ( header != null ) {
-          log_writer.write( new String( header ) );
+        if (header != null) {
+          log_writer.write(new String(header));
         }
-      } catch ( final Exception ex ) {
-        System.err.println( "Could not recreate " + targetFile.getAbsolutePath() + " - " + ex.getMessage() );
-        if ( log_writer != null ) {
+      } catch (final Exception ex) {
+        System.err.println("Could not recreate " + targetFile.getAbsolutePath() + " - " + ex.getMessage());
+        if (log_writer != null) {
           try {
             log_writer.close();
-          } catch ( final Exception ignore ) {}
+          } catch (final Exception ignore) {}
         }
 
         log_writer = null;
       }
     }
 
-    if ( log_writer == null ) {
-      return;
-    }
+    if (log_writer != null) {
 
-    try {
-      synchronized( formatter ) {
-        log_writer.write( formatter.format( event, category, cause ) );
-        log_writer.flush();
+      try {
+        synchronized (formatter) {
+          log_writer.write(formatter.format(event, category, cause));
+          log_writer.flush();
+        }
+      } catch (final IOException ioe) {
+        // normal during shutdown sequences - but what about other times?
+        // maybe we should consider refactoring this
+      } catch (final Exception e) {
+        System.err.println(this.getClass().getName() + " formatting error: " + e + ":" + e.getMessage() + StringUtil.LINE_FEED + ExceptionUtil.stackTrace(e));
       }
-    } catch ( final IOException ioe ) {
-      // normal during shutdown sequences - but what about other times?
-      // maybe we should consider refactoring this
-    } catch ( final Exception e ) {
-      System.err.println( this.getClass().getName() + " formatting error: " + e + ":" + e.getMessage() + StringUtil.LINE_FEED + ExceptionUtil.stackTrace( e ) );
     }
   }
 
@@ -181,19 +176,19 @@ public class FileAppender extends AbstractLogger {
    * @see coyote.loader.log.AbstractLogger#initialize()
    */
   public void initialize() {
-    if ( !initialized ) {
+    if (!initialized) {
       // have the logger init the target and categories from properties for us
       super.initialize();
 
       // see if the configuration contains the append flag
-      if ( config.contains( FileAppender.APPEND_TAG ) ) {
+      if (config.contains(FileAppender.APPEND_TAG)) {
         try {
-          append = config.getAsBoolean( FileAppender.APPEND_TAG );
-        } catch ( DataFrameException ignore ) {}
+          append = config.getAsBoolean(FileAppender.APPEND_TAG);
+        } catch (DataFrameException ignore) {}
       }
 
       // check to see if we are enabled, if so, then prepare the log writer
-      if ( getMask() != 0 ) {
+      if (getMask() != 0) {
         prepareWriter();
       }
     }
@@ -209,7 +204,7 @@ public class FileAppender extends AbstractLogger {
   @Override
   public synchronized void enable() {
 
-    if ( log_writer == null ) {
+    if (log_writer == null) {
       prepareWriter();
     }
     super.enable();
@@ -220,12 +215,12 @@ public class FileAppender extends AbstractLogger {
 
   private void prepareWriter() {
     try {
-      if ( ( target != null ) && UriUtil.isFile( target ) ) {
+      if ((target != null) && UriUtil.isFile(target)) {
         // Make sure we have a complete path to the target file
-        File dest = new File( UriUtil.getFilePath( target ) );
+        File dest = new File(UriUtil.getFilePath(target));
 
-        if ( !dest.isAbsolute() ) {
-          dest = new File( System.getProperty( "user.dir" ), UriUtil.getFilePath( target ) );
+        if (!dest.isAbsolute()) {
+          dest = new File(System.getProperty("user.dir"), UriUtil.getFilePath(target));
         }
 
         dest.getParentFile().mkdirs();
@@ -233,20 +228,20 @@ public class FileAppender extends AbstractLogger {
         targetFile = dest;
 
         // Create the writer
-        log_writer = new OutputStreamWriter( new FileOutputStream( targetFile.toString(), append ) );
+        log_writer = new OutputStreamWriter(new FileOutputStream(targetFile.toString(), append));
 
         final byte[] header = getFormatter().initialize();
 
-        if ( header != null ) {
-          log_writer.write( new String( header ) );
+        if (header != null) {
+          log_writer.write(new String(header));
         }
 
         initialized = true;
       } else {
-        throw new Exception( "URI schema '" + target.getScheme() + "' does not specify a file" );
+        throw new Exception("URI schema '" + target.getScheme() + "' does not specify a file");
       }
-    } catch ( final Exception e ) {
-      System.err.println( "Log Initialization Error: " + getClass().getName() + " could not attach logger to target '" + target + "'. Reason: \"" + e.getMessage() + "\"." );
+    } catch (final Exception e) {
+      System.err.println("Log Initialization Error: " + getClass().getName() + " could not attach logger to target '" + target + "'. Reason: \"" + e.getMessage() + "\".");
       e.printStackTrace();
 
       log_writer = null;
@@ -265,7 +260,7 @@ public class FileAppender extends AbstractLogger {
    *
    * @param writer The new writer.
    */
-  public void setWriter( final Writer writer ) {
+  public void setWriter(final Writer writer) {
     log_writer = writer;
   }
 
@@ -281,13 +276,13 @@ public class FileAppender extends AbstractLogger {
     try {
       final byte[] footer = getFormatter().terminate();
 
-      if ( footer != null ) {
-        log_writer.write( new String( footer ) );
+      if (footer != null) {
+        log_writer.write(new String(footer));
       }
 
       log_writer.flush();
       log_writer.close();
-    } catch ( final Exception e ) {}
+    } catch (final Exception e) {}
     finally {
       initialized = false;
     }
@@ -309,7 +304,7 @@ public class FileAppender extends AbstractLogger {
   /**
    * @param flag true to append log entries to the file, false to overwrite the file
    */
-  public void setAppending( boolean flag ) {
+  public void setAppending(boolean flag) {
     append = flag;
   }
 }

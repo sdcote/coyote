@@ -4,10 +4,6 @@
  * This program and the accompanying materials are made available under the
  * terms of the MIT License which accompanies this distribution, and is
  * available at http://creativecommons.org/licenses/MIT/
- *
- * Contributors:
- *   Stephan D. Cote
- *      - Initial API and implementation
  */
 package coyote.commons;
 
@@ -45,7 +41,12 @@ public class ZipUtil {
 
 
 
-  private ZipUtil() {}
+  /**
+   * No instances.
+   */
+  private ZipUtil() {
+    super();
+  }
 
 
 
@@ -65,55 +66,54 @@ public class ZipUtil {
    * 
    * @throws IOException if problems occurred.
    */
-  private static void addEntries( final ZipOutputStream zos, final File topDir, final File currentFile, final Glob match, final Glob avoid ) throws IOException {
+  private static void addEntries(final ZipOutputStream zos, final File topDir, final File currentFile, final Glob match, final Glob avoid) throws IOException {
     int len;
     ZipEntry ze;
     final byte[] buf = new byte[STREAM_BUFFER_SIZE];
 
     // If we have a match Glob and it has no matching files, just return
-    if ( ( match != null ) && !hasMatchingFiles( currentFile, match ) ) {
-      return;
-    }
+    if (!((match != null) && !hasMatchingFiles(currentFile, match))) {
 
-    final String[] files = currentFile.list();
+      final String[] files = currentFile.list();
 
-    for ( int i = 0; i < files.length; ++i ) {
-      final File f = new File( currentFile, files[i] );
+      for (int i = 0; i < files.length; ++i) {
+        final File f = new File(currentFile, files[i]);
 
-      // If we have a Glob of files to avoid and it matches this file, skip it
-      if ( ( avoid != null ) && avoid.isFileMatched( files[i] ) ) {
-        continue;
-      }
-
-      // If we have a Glob of files to match and the file doesn't match,
-      // skip the file
-      if ( ( match != null ) && !match.isFileMatched( files[i] ) ) {
-        continue;
-      }
-
-      if ( f.isDirectory() ) {
-        // recurse into this directory
-        addEntries( zos, topDir, f, match, avoid );
-      } else {
-        FileInputStream ins = null;
-        try {
-          ins = new FileInputStream( f );
-
-          ze = new ZipEntry( getZipName( topDir, f ) );
-
-          ze.setTime( f.lastModified() );
-          ze.setMethod( ZipEntry.DEFLATED );
-          zos.putNextEntry( ze );
-
-          for ( ; ( len = ins.read( buf ) ) >= 0; ) {
-            zos.write( buf, 0, len );
-          }
-        } catch ( final IOException ignore ) {
-          throw ignore;
+        // If we have a Glob of files to avoid and it matches this file, skip it
+        if ((avoid != null) && avoid.isFileMatched(files[i])) {
+          continue;
         }
-        finally {
-          zos.closeEntry();
-          ins.close();
+
+        // If we have a Glob of files to match and the file doesn't match,
+        // skip the file
+        if ((match != null) && !match.isFileMatched(files[i])) {
+          continue;
+        }
+
+        if (f.isDirectory()) {
+          // recurse into this directory
+          addEntries(zos, topDir, f, match, avoid);
+        } else {
+          FileInputStream ins = null;
+          try {
+            ins = new FileInputStream(f);
+
+            ze = new ZipEntry(getZipName(topDir, f));
+
+            ze.setTime(f.lastModified());
+            ze.setMethod(ZipEntry.DEFLATED);
+            zos.putNextEntry(ze);
+
+            for (; (len = ins.read(buf)) >= 0;) {
+              zos.write(buf, 0, len);
+            }
+          } catch (final IOException ignore) {
+            throw ignore;
+          }
+          finally {
+            zos.closeEntry();
+            ins.close();
+          }
         }
       }
     }
@@ -137,13 +137,13 @@ public class ZipUtil {
    * @throws IOException if the CanonicalPath could not be retrieved for either
    *         argument
    */
-  private static String getZipName( final File topDir, final File file ) throws IOException {
+  private static String getZipName(final File topDir, final File file) throws IOException {
     final String path = file.getCanonicalPath();
     final String root = topDir.getCanonicalPath();
-    String relPath = path.substring( root.length() + 1 ).replace( File.separatorChar, '/' );
+    String relPath = path.substring(root.length() + 1).replace(File.separatorChar, '/');
 
-    if ( file.isDirectory() ) {
-      if ( !relPath.endsWith( "/" ) ) {
+    if (file.isDirectory()) {
+      if (!relPath.endsWith("/")) {
         relPath = relPath + "/";
       }
     }
@@ -154,25 +154,25 @@ public class ZipUtil {
 
 
 
-  private static boolean hasMatchingFiles( final File dir, final Glob glob ) {
-    if ( dir.isDirectory() ) {
+  private static boolean hasMatchingFiles(final File dir, final Glob glob) {
+    if (dir.isDirectory()) {
       final String[] files = dir.list();
 
-      for ( final String file : files ) {
-        final File f = new File( dir, file );
+      for (final String file : files) {
+        final File f = new File(dir, file);
 
-        if ( f.isDirectory() ) {
-          if ( hasMatchingFiles( f, glob ) ) {
+        if (f.isDirectory()) {
+          if (hasMatchingFiles(f, glob)) {
             return true;
           }
         } else {
-          if ( glob.isFileMatched( file ) ) {
+          if (glob.isFileMatched(file)) {
             return true;
           }
         }
       }
     } else {
-      if ( glob.isFileMatched( dir.getName() ) ) {
+      if (glob.isFileMatched(dir.getName())) {
         return true;
       }
     }
@@ -183,35 +183,35 @@ public class ZipUtil {
 
 
 
-  private static void inflaterInputStmToFileOutputStm( final InflaterInputStream stmIn, final FileOutputStream stmOut ) throws IOException {
+  private static void inflaterInputStmToFileOutputStm(final InflaterInputStream stmIn, final FileOutputStream stmOut) throws IOException {
     byte[] buffer = null;
     final int iBufferSize = STREAM_BUFFER_SIZE;
 
     boolean bKeepStreaming = true;
 
-    while ( bKeepStreaming ) {
+    while (bKeepStreaming) {
       buffer = new byte[iBufferSize];
 
-      final int iBytes = stmIn.read( buffer );
+      final int iBytes = stmIn.read(buffer);
 
-      if ( iBytes == -1 ) {
+      if (iBytes == -1) {
         bKeepStreaming = false;
       } else {
-        if ( iBytes < iBufferSize ) {
+        if (iBytes < iBufferSize) {
           bKeepStreaming = false;
 
           final byte[] tmp = new byte[iBytes];
 
-          for ( int i = 0; i < iBytes; i++ ) {
+          for (int i = 0; i < iBytes; i++) {
             tmp[i] = buffer[i];
           }
 
           buffer = tmp;
         }
 
-        stmOut.write( buffer );
+        stmOut.write(buffer);
 
-        if ( stmIn.available() == 1 ) {
+        if (stmIn.available() == 1) {
           bKeepStreaming = true;
         }
       }
@@ -226,16 +226,16 @@ public class ZipUtil {
    *
    * @param args First argument is the file to deflate
    */
-  public static void main( final String[] args ) {
+  public static void main(final String[] args) {
     try {
-      final File source = new File( args[0] );
-      final File target = new File( args[0] + ".zip" );
-      System.out.println( "Deflating file" );
-      deflateFileToFile( source, target );
-      System.out.println( "Inflating file." );
-      inflateFileToFile( target, new File( args[0] + ".unzip" ) );
-      System.out.println( "Done." );
-    } catch ( final Exception ex ) {
+      final File source = new File(args[0]);
+      final File target = new File(args[0] + ".zip");
+      System.out.println("Deflating file");
+      deflateFileToFile(source, target);
+      System.out.println("Inflating file.");
+      inflateFileToFile(target, new File(args[0] + ".unzip"));
+      System.out.println("Done.");
+    } catch (final Exception ex) {
       ex.printStackTrace();
     }
   }
@@ -243,11 +243,11 @@ public class ZipUtil {
 
 
 
-  private static byte[] readEntry( final ZipInputStream zis ) throws IOException {
+  private static byte[] readEntry(final ZipInputStream zis) throws IOException {
     byte[] retval = null;
 
     try {
-      retval = StreamUtil.readFully( zis );
+      retval = StreamUtil.readFully(zis);
     }
     finally {
       zis.closeEntry();
@@ -260,7 +260,7 @@ public class ZipUtil {
 
 
   /**
-   * Method saveFile
+   * Method saveFile.
    *
    * @param filename
    * @param name
@@ -268,63 +268,63 @@ public class ZipUtil {
    *
    * @throws IOException if problems were experienced.
    */
-  public static void saveFile( final String filename, final String name, final String target ) throws IOException {
+  public static void saveFile(final String filename, final String name, final String target) throws IOException {
     ZipInputStream zis = null;
     ZipOutputStream zos = null;
 
     try {
-      final File file = new File( filename );
+      final File file = new File(filename);
 
-      final File tmpFile = new File( TMP_FILENAME );
-      final FileOutputStream fileoutputstream = new FileOutputStream( tmpFile );
-      zos = new ZipOutputStream( fileoutputstream );
+      final File tmpFile = new File(TMP_FILENAME);
+      final FileOutputStream fileoutputstream = new FileOutputStream(tmpFile);
+      zos = new ZipOutputStream(fileoutputstream);
 
-      if ( file.exists() ) {
-        final FileInputStream fileinputstream = new FileInputStream( file );
-        zis = new ZipInputStream( fileinputstream );
+      if (file.exists()) {
+        final FileInputStream fileinputstream = new FileInputStream(file);
+        zis = new ZipInputStream(fileinputstream);
 
         do {
           ZipEntry zipentry;
 
-          if ( ( zipentry = zis.getNextEntry() ) == null ) {
+          if ((zipentry = zis.getNextEntry()) == null) {
             break;
           }
 
-          if ( !zipentry.getName().equals( name ) ) {
-            final byte[] data = readEntry( zis );
-            writeEntry( zos, zipentry.getName(), data );
+          if (!zipentry.getName().equals(name)) {
+            final byte[] data = readEntry(zis);
+            writeEntry(zos, zipentry.getName(), data);
           }
         }
-        while ( true );
+        while (true);
 
         zis.close();
         zis = null;
         file.delete();
       }
 
-      writeEntry( zos, name, target.getBytes() );
+      writeEntry(zos, name, target.getBytes());
       zos.close();
       zos = null;
 
-      final String s3 = filename.substring( 0, filename.length() - file.getName().length() );
-      final File file2 = new File( s3 );
+      final String s3 = filename.substring(0, filename.length() - file.getName().length());
+      final File file2 = new File(s3);
 
-      if ( !file2.exists() ) {
+      if (!file2.exists()) {
         file2.mkdirs();
       }
 
-      tmpFile.renameTo( file );
-    } catch ( final FileNotFoundException filenotfoundexception ) {
-      throw new IOException( filenotfoundexception.getMessage() );
-    } catch ( final IOException ioexception ) {
-      throw new IOException( ioexception.getMessage() );
+      tmpFile.renameTo(file);
+    } catch (final FileNotFoundException filenotfoundexception) {
+      throw new IOException(filenotfoundexception.getMessage());
+    } catch (final IOException ioexception) {
+      throw new IOException(ioexception.getMessage());
     }
     finally {
-      if ( zis != null ) {
+      if (zis != null) {
         zis.close();
       }
 
-      if ( zos != null ) {
+      if (zos != null) {
         zos.close();
       }
     }
@@ -342,29 +342,29 @@ public class ZipUtil {
    *
    * @throws IOException if problems occurred.
    */
-  public static byte[] unzipByteArray( final byte[] ary ) throws IOException {
+  public static byte[] unzipByteArray(final byte[] ary) throws IOException {
     byte[] retval = null;
 
-    final Inflater inflater = new Inflater( false );
-    inflater.setInput( ary );
+    final Inflater inflater = new Inflater(false);
+    inflater.setInput(ary);
 
     final ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
     try {
-      while ( !inflater.finished() ) {
+      while (!inflater.finished()) {
         final byte[] data = new byte[ZIP_BUFFER_SIZE];
-        final int count = inflater.inflate( data );
+        final int count = inflater.inflate(data);
 
-        if ( count == data.length ) {
-          baos.write( data );
+        if (count == data.length) {
+          baos.write(data);
         } else {
-          baos.write( data, 0, count );
+          baos.write(data, 0, count);
         }
       }
 
       retval = baos.toByteArray();
-    } catch ( final DataFormatException ex ) {
-      throw new IOException( "Attempting to unzip data that is not zipped." );
+    } catch (final DataFormatException ex) {
+      throw new IOException("Attempting to unzip data that is not zipped.");
     }
     finally {
       baos.close();
@@ -389,14 +389,14 @@ public class ZipUtil {
    *
    * @throws IOException if problems were experienced.
    */
-  public static void inflateFileToFile( final File source, final File target ) throws IOException {
-    final Inflater inflater = new Inflater( false );
-    final FileInputStream in = new FileInputStream( source );
-    final FileOutputStream out = new FileOutputStream( target );
-    final InflaterInputStream inflaterInputStream = new InflaterInputStream( in, inflater );
+  public static void inflateFileToFile(final File source, final File target) throws IOException {
+    final Inflater inflater = new Inflater(false);
+    final FileInputStream in = new FileInputStream(source);
+    final FileOutputStream out = new FileOutputStream(target);
+    final InflaterInputStream inflaterInputStream = new InflaterInputStream(in, inflater);
 
     try {
-      inflaterInputStmToFileOutputStm( inflaterInputStream, out );
+      inflaterInputStmToFileOutputStm(inflaterInputStream, out);
     }
     finally {
       out.flush();
@@ -409,10 +409,10 @@ public class ZipUtil {
 
 
 
-  private static void writeEntry( final ZipOutputStream zos, final String name, final byte[] data ) throws IOException {
-    final ZipEntry zipentry = new ZipEntry( name );
-    zos.putNextEntry( zipentry );
-    zos.write( data, 0, data.length );
+  private static void writeEntry(final ZipOutputStream zos, final String name, final byte[] data) throws IOException {
+    final ZipEntry zipentry = new ZipEntry(name);
+    zos.putNextEntry(zipentry);
+    zos.write(data, 0, data.length);
     zos.closeEntry();
   }
 
@@ -430,8 +430,8 @@ public class ZipUtil {
    *
    * @throws IOException if problems were experienced.
    */
-  public static void writeZipStream( final OutputStream os, final File dir ) throws IOException {
-    writeZipStream( os, dir, null, null );
+  public static void writeZipStream(final OutputStream os, final File dir) throws IOException {
+    writeZipStream(os, dir, null, null);
   }
 
 
@@ -452,24 +452,24 @@ public class ZipUtil {
    *
    * @throws IOException if problems were experienced.
    */
-  public static void writeZipStream( final OutputStream os, final File file, final Glob match, final Glob avoid ) throws IOException {
-    final ZipOutputStream zos = new ZipOutputStream( os );
+  public static void writeZipStream(final OutputStream os, final File file, final Glob match, final Glob avoid) throws IOException {
+    final ZipOutputStream zos = new ZipOutputStream(os);
 
-    zos.setLevel( Deflater.BEST_COMPRESSION );
-    zos.setMethod( ZipOutputStream.DEFLATED );
+    zos.setLevel(Deflater.BEST_COMPRESSION);
+    zos.setMethod(ZipOutputStream.DEFLATED);
 
-    if ( file.isDirectory() ) {
-      addEntries( zos, file, file, match, avoid );
+    if (file.isDirectory()) {
+      addEntries(zos, file, file, match, avoid);
     } else {
       final byte[] buf = new byte[STREAM_BUFFER_SIZE];
-      final FileInputStream ins = new FileInputStream( file );
-      final ZipEntry ze = new ZipEntry( getZipName( file.getParentFile(), file ) );
-      ze.setTime( file.lastModified() );
-      ze.setMethod( ZipEntry.DEFLATED );
-      zos.putNextEntry( ze );
+      final FileInputStream ins = new FileInputStream(file);
+      final ZipEntry ze = new ZipEntry(getZipName(file.getParentFile(), file));
+      ze.setTime(file.lastModified());
+      ze.setMethod(ZipEntry.DEFLATED);
+      zos.putNextEntry(ze);
 
-      for ( int len = 0; ( len = ins.read( buf ) ) >= 0; ) {
-        zos.write( buf, 0, len );
+      for (int len = 0; (len = ins.read(buf)) >= 0;) {
+        zos.write(buf, 0, len);
       }
 
       zos.closeEntry();
@@ -495,23 +495,23 @@ public class ZipUtil {
    *
    * @throws IOException if problems were experienced.
    */
-  public static byte[] deflateByteArray( final byte[] array ) throws IOException {
+  public static byte[] deflateByteArray(final byte[] array) throws IOException {
     byte[] retval = null;
-    final Deflater deflater = new Deflater( Deflater.DEFLATED, false );
-    deflater.setInput( array );
+    final Deflater deflater = new Deflater(Deflater.DEFLATED, false);
+    deflater.setInput(array);
     deflater.finish();
 
     final ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
     try {
-      while ( !deflater.finished() ) {
+      while (!deflater.finished()) {
         final byte[] data = new byte[ZIP_BUFFER_SIZE];
-        final int count = deflater.deflate( data );
+        final int count = deflater.deflate(data);
 
-        if ( count == data.length ) {
-          baos.write( data );
+        if (count == data.length) {
+          baos.write(data);
         } else {
-          baos.write( data, 0, count );
+          baos.write(data, 0, count);
         }
       }
 
@@ -545,19 +545,19 @@ public class ZipUtil {
    *
    * @throws IOException
    */
-  public static void deflateFileToFile( final File source, final File target ) throws IOException {
-    final FileOutputStream out = new FileOutputStream( target );
+  public static void deflateFileToFile(final File source, final File target) throws IOException {
+    final FileOutputStream out = new FileOutputStream(target);
 
-    if ( source.isDirectory() ) {
-      writeZipStream( out, source );
+    if (source.isDirectory()) {
+      writeZipStream(out, source);
     } else {
-      final Deflater deflater = new Deflater( Deflater.DEFLATED, false );
+      final Deflater deflater = new Deflater(Deflater.DEFLATED, false);
 
-      final FileInputStream in = new FileInputStream( source );
-      final DeflaterOutputStream stmDeflateOut = new DeflaterOutputStream( out, deflater );
+      final FileInputStream in = new FileInputStream(source);
+      final DeflaterOutputStream stmDeflateOut = new DeflaterOutputStream(out, deflater);
 
       try {
-        StreamUtil.inputStreamToOutputStream( in, stmDeflateOut );
+        StreamUtil.inputStreamToOutputStream(in, stmDeflateOut);
       }
       finally {
         stmDeflateOut.finish();
@@ -582,12 +582,12 @@ public class ZipUtil {
    * 
    * @throws IOException if problems occur
    */
-  public static void zip( final File source ) throws IOException {
-    final File target = new File( source.getAbsolutePath() + ZIP_SUFFIX );
-    if ( source.isDirectory() ) {
-      writeZipStream( new FileOutputStream( target ), source );
+  public static void zip(final File source) throws IOException {
+    final File target = new File(source.getAbsolutePath() + ZIP_SUFFIX);
+    if (source.isDirectory()) {
+      writeZipStream(new FileOutputStream(target), source);
     } else {
-      zipFile( source, target );
+      zipFile(source, target);
     }
   }
 
@@ -602,11 +602,11 @@ public class ZipUtil {
    * 
    * @throws IOException if problems occur
    */
-  public static void zip( final File source, final File target ) throws IOException {
-    if ( source.isDirectory() ) {
-      writeZipStream( new FileOutputStream( target ), source );
+  public static void zip(final File source, final File target) throws IOException {
+    if (source.isDirectory()) {
+      writeZipStream(new FileOutputStream(target), source);
     } else {
-      zipFile( source, target );
+      zipFile(source, target);
     }
   }
 
@@ -620,27 +620,27 @@ public class ZipUtil {
    *  
    * @throws IOException if there were problems decompressing the file
    */
-  public static void unzip( final File source ) throws IOException {
+  public static void unzip(final File source) throws IOException {
     String directoryName = source.getParent();
-    
-    if( source.getName().toLowerCase().endsWith( ZIP_SUFFIX )){
+
+    if (source.getName().toLowerCase().endsWith(ZIP_SUFFIX)) {
       String ap = source.getAbsolutePath();
-      
-      String tempName = new String( "" );
-      final StringTokenizer stk1 = new StringTokenizer( ap, "/\\" );
-      while ( stk1.hasMoreTokens() ) {
+
+      String tempName = new String("");
+      final StringTokenizer stk1 = new StringTokenizer(ap, "/\\");
+      while (stk1.hasMoreTokens()) {
         tempName = stk1.nextToken();
       }
-      
-      int indx = tempName.lastIndexOf( '.' );
-      if( indx>-1){
-        directoryName = tempName.substring( 0, indx );
+
+      int indx = tempName.lastIndexOf('.');
+      if (indx > -1) {
+        directoryName = tempName.substring(0, indx);
       }
 
-      directoryName = source.getParent().concat( File.separator ).concat( directoryName );
+      directoryName = source.getParent().concat(File.separator).concat(directoryName);
     }
-    
-    unzip( source, new File(directoryName));
+
+    unzip(source, new File(directoryName));
   }
 
 
@@ -653,19 +653,19 @@ public class ZipUtil {
    *  
    * @throws IOException if there were problems decompressing the file
    */
-  public static void unzip( final File source, final File destDir ) throws IOException {
+  public static void unzip(final File source, final File destDir) throws IOException {
     String destDirectory = destDir.getAbsolutePath();
-    if ( !destDir.exists() ) {
+    if (!destDir.exists()) {
       destDir.mkdir();
     }
-    try (ZipInputStream zipIn = new ZipInputStream( new FileInputStream( source ) )) {
+    try (ZipInputStream zipIn = new ZipInputStream(new FileInputStream(source))) {
       ZipEntry entry = zipIn.getNextEntry();
-      while ( entry != null ) {
+      while (entry != null) {
         String filePath = destDirectory + File.separator + entry.getName();
-        if ( !entry.isDirectory() ) {
-          extractFile( zipIn, filePath );
+        if (!entry.isDirectory()) {
+          extractFile(zipIn, filePath);
         } else {
-          File dir = new File( filePath );
+          File dir = new File(filePath);
           dir.mkdir();
         }
         zipIn.closeEntry();
@@ -685,12 +685,12 @@ public class ZipUtil {
    * 
    * @throws IOException
    */
-  private static void extractFile( ZipInputStream zipIn, String filePath ) throws IOException {
-    BufferedOutputStream bos = new BufferedOutputStream( new FileOutputStream( filePath ) );
+  private static void extractFile(ZipInputStream zipIn, String filePath) throws IOException {
+    BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(filePath));
     byte[] bytesIn = new byte[STREAM_BUFFER_SIZE];
     int read = 0;
-    while ( ( read = zipIn.read( bytesIn ) ) != -1 ) {
-      bos.write( bytesIn, 0, read );
+    while ((read = zipIn.read(bytesIn)) != -1) {
+      bos.write(bytesIn, 0, read);
     }
     bos.close();
   }
@@ -709,8 +709,8 @@ public class ZipUtil {
    *
    * @throws IOException if problems were experienced.
    */
-  public static void zipFile( final File source ) throws IOException {
-    zipFile( source, new File( source.getAbsolutePath() + ZIP_SUFFIX ) );
+  public static void zipFile(final File source) throws IOException {
+    zipFile(source, new File(source.getAbsolutePath() + ZIP_SUFFIX));
   }
 
 
@@ -728,39 +728,39 @@ public class ZipUtil {
    *
    * @throws IOException if problems were experienced.
    */
-  public static void zipFile( final File source, final File target ) throws IOException {
+  public static void zipFile(final File source, final File target) throws IOException {
     BufferedInputStream origin = null;
     ZipOutputStream out = null;
     try {
-      final FileOutputStream dest = new FileOutputStream( target );
-      out = new ZipOutputStream( new BufferedOutputStream( dest ) );
+      final FileOutputStream dest = new FileOutputStream(target);
+      out = new ZipOutputStream(new BufferedOutputStream(dest));
 
       final byte data[] = new byte[STREAM_BUFFER_SIZE];
 
-      final FileInputStream fi = new FileInputStream( source );
-      origin = new BufferedInputStream( fi, STREAM_BUFFER_SIZE );
+      final FileInputStream fi = new FileInputStream(source);
+      origin = new BufferedInputStream(fi, STREAM_BUFFER_SIZE);
 
-      final ZipEntry entry = new ZipEntry( source.getName() );
-      out.putNextEntry( entry );
+      final ZipEntry entry = new ZipEntry(source.getName());
+      out.putNextEntry(entry);
 
       int count;
-      while ( ( count = origin.read( data, 0, STREAM_BUFFER_SIZE ) ) != -1 ) {
-        out.write( data, 0, count );
+      while ((count = origin.read(data, 0, STREAM_BUFFER_SIZE)) != -1) {
+        out.write(data, 0, count);
       }
-    } catch ( final FileNotFoundException e ) {
-      throw new IOException( e.getMessage() );
+    } catch (final FileNotFoundException e) {
+      throw new IOException(e.getMessage());
     }
     finally {
       try {
-        if ( origin != null ) {
+        if (origin != null) {
           origin.close();
         }
-      } catch ( final IOException ignore ) {}
+      } catch (final IOException ignore) {}
       try {
-        if ( out != null ) {
+        if (out != null) {
           out.close();
         }
-      } catch ( final IOException ignore ) {}
+      } catch (final IOException ignore) {}
     }
   }
 

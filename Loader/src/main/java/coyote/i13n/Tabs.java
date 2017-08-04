@@ -52,7 +52,7 @@ public class Tabs {
   public static final String CLASS_TAG = "Tabs";
 
   /** Current version of the instrumentation package */
-  public static final Version VERSION = new Version( 3, 0, 0, Version.EXPERIMENTAL );
+  public static final Version VERSION = new Version(3, 0, 0, Version.EXPERIMENTAL);
 
   private static String FIXTUREID = new GUID().toString().toLowerCase();
   private static String FIXTUREGRP = null;
@@ -61,7 +61,7 @@ public class Tabs {
   private static File logDirectory;
   static boolean useudp = true;
   private static volatile boolean checkedClasspathAlready = false;
-  private static final String LF = System.getProperty( "line.separator" );
+  private static final String LF = System.getProperty("line.separator");
 
   /**
    * The name of the system property that contains the path to the home 
@@ -69,7 +69,7 @@ public class Tabs {
    */
   public static final String HOMEDIR_TAG = "tabs.home";
 
-  public static final String DEFAULT_HOME = new String( System.getProperty( "user.home" ) + System.getProperty( "file.separator" ) + Tabs.CLASS_TAG.toLowerCase() );
+  public static final String DEFAULT_HOME = new String(System.getProperty("user.home") + System.getProperty("file.separator") + Tabs.CLASS_TAG.toLowerCase());
 
   /** 
    * A map that holds component identifiers for components that desire their 
@@ -101,13 +101,13 @@ public class Tabs {
   private static boolean gaugesEnabled = false;
 
   /** Re-usable null gauge to save object creation and GC'n */
-  private static final Gauge NULL_GAUGE = new NullGauge( null );
+  private static final Gauge NULL_GAUGE = new NullGauge(null);
 
   /** Re-usable null ARM transaction to save object creation and GC'n */
-  private static final ArmTransaction NULL_ARM = new NullArm( null, null, null );
+  private static final ArmTransaction NULL_ARM = new NullArm(null, null, null);
 
   /** Re-usable null timer to save object creation and GC'n */
-  private static final Timer NULL_TIMER = new NullTimer( null );
+  private static final Timer NULL_TIMER = new NullTimer(null);
 
   /** The time this fixture started. */
   private static long startedTimestamp = 0;
@@ -130,14 +130,14 @@ public class Tabs {
 
     // Add a shutdown hook into the JVM to help us shut everything down nicely
     try {
-      Runtime.getRuntime().addShutdownHook( new Thread( "TabsHook" ) {
+      Runtime.getRuntime().addShutdownHook(new Thread("TabsHook") {
         public void run() {
-          shutdown( "Runtime termination" );
+          shutdown("Runtime termination");
         }
-      } );
-    } catch ( final java.lang.NoSuchMethodError nsme ) {
+      });
+    } catch (final java.lang.NoSuchMethodError nsme) {
       // Ignore
-    } catch ( final Throwable e ) {
+    } catch (final Throwable e) {
       // Ignore
     }
 
@@ -147,7 +147,7 @@ public class Tabs {
 
 
   public static synchronized Tabs getInstance() {
-    if ( Tabs.fixture == null ) {
+    if (Tabs.fixture == null) {
       // create the true singleton
       Tabs.fixture = new Tabs();
     }
@@ -171,34 +171,34 @@ public class Tabs {
    * not take too long in the callers thread of execution.</p>
    */
   public static void archiveLogs() {
-    final Thread archiver = new Thread( "TabsLogArchiver" ) {
+    final Thread archiver = new Thread("TabsLogArchiver") {
       public void run() {
         Calendar cal = GregorianCalendar.getInstance();
 
         // / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / /
         // Archive files older than 7 days
-        cal.add( Calendar.DATE, -7 );
+        cal.add(Calendar.DATE, -7);
 
         long cutoff = cal.getTimeInMillis();
         long lastAccessed = cutoff;
 
         String[] children = Tabs.logDirectory.list();
 
-        if ( children != null ) {
-          for ( int i = 0; i < children.length; i++ ) {
-            File source = new File( Tabs.logDirectory, children[i] );
-            lastAccessed = FileUtil.getFileAge( source );
+        if (children != null) {
+          for (int i = 0; i < children.length; i++) {
+            File source = new File(Tabs.logDirectory, children[i]);
+            lastAccessed = FileUtil.getFileAge(source);
 
-            if ( source.isFile() && ( lastAccessed <= cutoff ) ) {
-              if ( source.length() == 0 ) {
+            if (source.isFile() && (lastAccessed <= cutoff)) {
+              if (source.length() == 0) {
                 source.delete();
               } else {
-                if ( !source.getName().toLowerCase().endsWith( ".zip" ) ) {
+                if (!source.getName().toLowerCase().endsWith(".zip")) {
                   try {
-                    Tabs.zipFile( source );
+                    Tabs.zipFile(source);
                     source.delete();
-                  } catch ( Exception ex ) {
-                    Log.debug( "Could not archive file: '" + source.getAbsolutePath() + "' reason:" + ex.getMessage() + " - (This file will be archived later)" );
+                  } catch (Exception ex) {
+                    Log.debug("Could not archive file: '" + source.getAbsolutePath() + "' reason:" + ex.getMessage() + " - (This file will be archived later)");
                   }
                 } // not a zip file
               } // file has any data
@@ -209,27 +209,27 @@ public class Tabs {
         // / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / / /
         // Now go back 23 more days (30 total) and delete all old files and
         // directories based upon when they or their children were last modified.
-        cal.add( Calendar.DATE, -23 );
+        cal.add(Calendar.DATE, -23);
 
         cutoff = cal.getTimeInMillis();
 
-        if ( children != null ) {
-          for ( int i = 0; i < children.length; i++ ) {
-            File source = new File( Tabs.logDirectory, children[i] );
+        if (children != null) {
+          for (int i = 0; i < children.length; i++) {
+            File source = new File(Tabs.logDirectory, children[i]);
 
-            if ( source.exists() ) {
-              lastAccessed = FileUtil.getFileAge( source );
+            if (source.exists()) {
+              lastAccessed = FileUtil.getFileAge(source);
 
-              if ( ( lastAccessed <= cutoff ) && source.canWrite() ) {
+              if ((lastAccessed <= cutoff) && source.canWrite()) {
                 source.delete();
               }
             } // file exists
           } // for each child in the metric dir list
         } // if metric dir has children
-        Tabs.createEvent( null, null, "Tabs", "Log archiving completed", 0, 0, 0, "INFO" );
+        Tabs.createEvent(null, null, "Tabs", "Log archiving completed", 0, 0, 0, "INFO");
       }
     };
-    archiver.setDaemon( false );
+    archiver.setDaemon(false);
     archiver.start();
   }
 
@@ -250,8 +250,8 @@ public class Tabs {
    * 
    * @return The sequence number of the event created.
    */
-  public static long createEvent( final String appid, final String sysid, final String cmpid, final String msg, final int sv, final int maj, final int min, final String cat ) {
-    final AppEvent event = Tabs.eventList.createEvent( appid, sysid, cmpid, msg, sv, maj, min, cat );
+  public static long createEvent(final String appid, final String sysid, final String cmpid, final String msg, final int sv, final int maj, final int min, final String cat) {
+    final AppEvent event = Tabs.eventList.createEvent(appid, sysid, cmpid, msg, sv, maj, min, cat);
     // return Tabs.oamManager.sendEvent( event );
     return event.getSequence();
   }
@@ -270,8 +270,8 @@ public class Tabs {
    * 
    * @return The final value of the counter after the operation.
    */
-  public static long decrease( final String tag, final long value ) {
-    return Tabs.getCounter( tag ).decrease( value );
+  public static long decrease(final String tag, final long value) {
+    return Tabs.getCounter(tag).decrease(value);
   }
 
 
@@ -288,8 +288,8 @@ public class Tabs {
    * 
    * @return The final value of the counter after the operation.
    */
-  public static long decrement( final String tag ) {
-    return Tabs.getCounter( tag ).decrement();
+  public static long decrement(final String tag) {
+    return Tabs.getCounter(tag).decrement();
   }
 
 
@@ -299,15 +299,15 @@ public class Tabs {
    * Deactivate a particular class of Application Response Measurement calls 
    * from this point on.
    */
-  public static void disableArmClass( final String name ) {
-    synchronized( Tabs.armMasters ) {
+  public static void disableArmClass(final String name) {
+    synchronized (Tabs.armMasters) {
       // get an existing master ARM or create a new one
-      ArmMaster master = (ArmMaster)Tabs.armMasters.get( name );
-      if ( master == null ) {
-        master = new ArmMaster( name );
-        Tabs.armMasters.put( name, master );
+      ArmMaster master = (ArmMaster)Tabs.armMasters.get(name);
+      if (master == null) {
+        master = new ArmMaster(name);
+        Tabs.armMasters.put(name, master);
       }
-      master.setEnabled( false );
+      master.setEnabled(false);
     }
   }
 
@@ -327,15 +327,15 @@ public class Tabs {
    * 
    * @param tag The name of the timer to disable.
    */
-  public static void disableTimer( final String tag ) {
-    synchronized( Tabs.masterTimers ) {
+  public static void disableTimer(final String tag) {
+    synchronized (Tabs.masterTimers) {
       // get an existing master timer or create a new one
-      TimingMaster master = (TimingMaster)Tabs.masterTimers.get( tag );
-      if ( master == null ) {
-        master = new TimingMaster( tag );
-        Tabs.masterTimers.put( tag, master );
+      TimingMaster master = (TimingMaster)Tabs.masterTimers.get(tag);
+      if (master == null) {
+        master = new TimingMaster(tag);
+        Tabs.masterTimers.put(tag, master);
       }
-      master.setEnabled( false );
+      master.setEnabled(false);
     }
   }
 
@@ -345,8 +345,8 @@ public class Tabs {
   /**
    * Activate all Application Response Measurement calls from this point on.
    */
-  public static void enableArm( final boolean flag ) {
-    synchronized( Tabs.armMasters ) {
+  public static void enableArm(final boolean flag) {
+    synchronized (Tabs.armMasters) {
       Tabs.armEnabled = flag;
     }
   }
@@ -358,15 +358,15 @@ public class Tabs {
    * Activate a particular class of Application Response Measurement calls from 
    * this point on.
    */
-  public static void enableArmClass( final String name ) {
-    synchronized( Tabs.armMasters ) {
+  public static void enableArmClass(final String name) {
+    synchronized (Tabs.armMasters) {
       // get an existing master ARM or create a new one
-      ArmMaster master = (ArmMaster)Tabs.armMasters.get( name );
-      if ( master == null ) {
-        master = new ArmMaster( name );
-        Tabs.armMasters.put( name, master );
+      ArmMaster master = (ArmMaster)Tabs.armMasters.get(name);
+      if (master == null) {
+        master = new ArmMaster(name);
+        Tabs.armMasters.put(name, master);
       }
-      master.setEnabled( true );
+      master.setEnabled(true);
     }
   }
 
@@ -376,8 +376,8 @@ public class Tabs {
   /**
    * Activate all gauges calls from this point on.
    */
-  public static void enableGauges( final boolean flag ) {
-    synchronized( Tabs.gauges ) {
+  public static void enableGauges(final boolean flag) {
+    synchronized (Tabs.gauges) {
       Tabs.gaugesEnabled = flag;
     }
   }
@@ -393,15 +393,15 @@ public class Tabs {
    * 
    * @param tag The name of the timer to enable.
    */
-  public static void enableTimer( final String tag ) {
-    synchronized( Tabs.masterTimers ) {
+  public static void enableTimer(final String tag) {
+    synchronized (Tabs.masterTimers) {
       // get an existing master timer or create a new one
-      TimingMaster master = (TimingMaster)Tabs.masterTimers.get( tag );
-      if ( master == null ) {
-        master = new TimingMaster( tag );
-        Tabs.masterTimers.put( tag, master );
+      TimingMaster master = (TimingMaster)Tabs.masterTimers.get(tag);
+      if (master == null) {
+        master = new TimingMaster(tag);
+        Tabs.masterTimers.put(tag, master);
       }
-      master.setEnabled( true );
+      master.setEnabled(true);
     }
   }
 
@@ -416,8 +416,8 @@ public class Tabs {
    * timers are be retured each time a timer is requested. This keeps all code 
    * operational regardless of the runtime status of timing.</p>
    */
-  public static void enableTiming( final boolean flag ) {
-    synchronized( Tabs.masterTimers ) {
+  public static void enableTiming(final boolean flag) {
+    synchronized (Tabs.masterTimers) {
       Tabs.timingEnabled = flag;
     }
   }
@@ -430,8 +430,8 @@ public class Tabs {
    */
   public static Iterator getArmIterator() {
     final ArrayList list = new ArrayList();
-    synchronized( Tabs.armMasters ) {
-      for ( final Iterator it = Tabs.armMasters.values().iterator(); it.hasNext(); list.add( (ArmMaster)it.next() ) ) {
+    synchronized (Tabs.armMasters) {
+      for (final Iterator it = Tabs.armMasters.values().iterator(); it.hasNext(); list.add((ArmMaster)it.next())) {
         ;
       }
     }
@@ -467,7 +467,7 @@ public class Tabs {
    *         with this fixture.
    */
   public static String[] getComponentIds() {
-    synchronized( Tabs.componentMap ) {
+    synchronized (Tabs.componentMap) {
       // get the size of the map
       int x = Tabs.componentMap.size();
 
@@ -478,7 +478,7 @@ public class Tabs {
 
       // enumerate through the keys, placing them in the return value starting 
       // from the end of the array and working to the front
-      for ( final Iterator it = Tabs.componentMap.keySet().iterator(); it.hasNext(); retval[x--] = (String)it.next() ) {
+      for (final Iterator it = Tabs.componentMap.keySet().iterator(); it.hasNext(); retval[x--] = (String)it.next()) {
         ;
       }
 
@@ -492,11 +492,11 @@ public class Tabs {
 
   public static Iterator getComponentIterator() {
     final ArrayList cmpnts = new ArrayList();
-    synchronized( Tabs.componentMap ) {
-      for ( final Iterator it = Tabs.componentMap.values().iterator(); it.hasNext(); ) {
+    synchronized (Tabs.componentMap) {
+      for (final Iterator it = Tabs.componentMap.values().iterator(); it.hasNext();) {
         final Component cmpnt = (Component)it.next();
-        if ( cmpnt != null ) {
-          cmpnts.add( cmpnt );
+        if (cmpnt != null) {
+          cmpnts.add(cmpnt);
         } // if
       } // for
     } // sync
@@ -516,13 +516,13 @@ public class Tabs {
    * 
    * @return The counter with the given name.
    */
-  public static Counter getCounter( final String name ) {
+  public static Counter getCounter(final String name) {
     Counter counter = null;
-    synchronized( Tabs.counters ) {
-      counter = (Counter)Tabs.counters.get( name );
-      if ( counter == null ) {
-        counter = new Counter( name );
-        Tabs.counters.put( name, counter );
+    synchronized (Tabs.counters) {
+      counter = (Counter)Tabs.counters.get(name);
+      if (counter == null) {
+        counter = new Counter(name);
+        Tabs.counters.put(name, counter);
       }
     }
     return counter;
@@ -554,7 +554,7 @@ public class Tabs {
    */
   public static Iterator getCounterIterator() {
     final ArrayList list = new ArrayList();
-    for ( final Iterator it = Tabs.counters.values().iterator(); it.hasNext(); list.add( (Counter)it.next() ) ) {
+    for (final Iterator it = Tabs.counters.values().iterator(); it.hasNext(); list.add((Counter)it.next())) {
       ;
     }
     return list.iterator();
@@ -570,12 +570,12 @@ public class Tabs {
     final DataFrame retval = new DataFrame();
     //retval.setType( "Counters" );
 
-    synchronized( Tabs.counters ) {
-      for ( final Iterator it = Tabs.counters.entrySet().iterator(); it.hasNext(); ) {
-        final Counter cntr = (Counter)( (Map.Entry)it.next() ).getValue();
+    synchronized (Tabs.counters) {
+      for (final Iterator it = Tabs.counters.entrySet().iterator(); it.hasNext();) {
+        final Counter cntr = (Counter)((Map.Entry)it.next()).getValue();
         try {
-          retval.put( cntr.getName(), new Long( cntr.getValue() ) );
-        } catch ( final Exception ignore ) {}
+          retval.put(cntr.getName(), new Long(cntr.getValue()));
+        } catch (final Exception ignore) {}
       }
     }
     return retval;
@@ -660,7 +660,7 @@ public class Tabs {
    * @return Available Memory and Free Heap size added together.
    */
   public static long getFreeMemory() {
-    return Runtime.getRuntime().freeMemory() + ( Runtime.getRuntime().maxMemory() - Runtime.getRuntime().totalMemory() );
+    return Runtime.getRuntime().freeMemory() + (Runtime.getRuntime().maxMemory() - Runtime.getRuntime().totalMemory());
   }
 
 
@@ -675,7 +675,7 @@ public class Tabs {
    *         memory that has not yet been allocated to the heap.
    */
   public static float getFreeMemoryPercentage() {
-    return (float)( (float)Tabs.getFreeMemory() / (float)Tabs.getMaxHeapSize() );
+    return (float)((float)Tabs.getFreeMemory() / (float)Tabs.getMaxHeapSize());
   }
 
 
@@ -699,18 +699,18 @@ public class Tabs {
    * 
    * @throws IllegalArgumentException if the name of the gauge is null
    */
-  public static Gauge getGauge( final String name ) {
-    if ( name == null ) {
-      throw new IllegalArgumentException( "Gauge name is null" );
+  public static Gauge getGauge(final String name) {
+    if (name == null) {
+      throw new IllegalArgumentException("Gauge name is null");
     }
 
     Gauge retval = null;
-    if ( Tabs.gaugesEnabled ) {
-      synchronized( Tabs.gauges ) {
-        retval = (Gauge)Tabs.gauges.get( name );
-        if ( retval == null ) {
-          retval = new GaugeBase( name );
-          Tabs.gauges.put( name, (Gauge)retval );
+    if (Tabs.gaugesEnabled) {
+      synchronized (Tabs.gauges) {
+        retval = (Gauge)Tabs.gauges.get(name);
+        if (retval == null) {
+          retval = new GaugeBase(name);
+          Tabs.gauges.put(name, (Gauge)retval);
         }
       }
     } else {
@@ -729,8 +729,8 @@ public class Tabs {
    */
   public static Iterator getGaugeIterator() {
     final ArrayList list = new ArrayList();
-    synchronized( Tabs.gauges ) {
-      for ( final Iterator it = Tabs.gauges.values().iterator(); it.hasNext(); list.add( (Gauge)it.next() ) ) {
+    synchronized (Tabs.gauges) {
+      for (final Iterator it = Tabs.gauges.values().iterator(); it.hasNext(); list.add((Gauge)it.next())) {
         ;
       }
     }
@@ -759,7 +759,7 @@ public class Tabs {
    *         heap.
    */
   public static float getHeapPercentage() {
-    return (float)( 1 - ( (float)Tabs.getAvailableMemory() / (float)Tabs.getMaxHeapSize() ) ); // percent of max
+    return (float)(1 - ((float)Tabs.getAvailableMemory() / (float)Tabs.getMaxHeapSize())); // percent of max
   }
 
 
@@ -805,46 +805,46 @@ public class Tabs {
    * 
    * @return The class and line number throwing the exception.
    */
-  public static String getLocation( final Throwable t ) {
+  public static String getLocation(final Throwable t) {
     final StringBuffer buffer = new StringBuffer();
 
     final StackTraceElement[] stack = t.getStackTrace();
-    StackTraceElement elem = stack[( stack.length - 1 )];
+    StackTraceElement elem = stack[(stack.length - 1)];
 
-    buffer.append( elem.getClassName() );
-    buffer.append( "." );
-    buffer.append( elem.getMethodName() );
-    buffer.append( "(" );
+    buffer.append(elem.getClassName());
+    buffer.append(".");
+    buffer.append(elem.getMethodName());
+    buffer.append("(");
 
-    if ( elem.getLineNumber() < 0 ) {
-      buffer.append( "Native Method" );
+    if (elem.getLineNumber() < 0) {
+      buffer.append("Native Method");
     } else {
-      buffer.append( elem.getFileName() );
-      buffer.append( ":" );
-      buffer.append( elem.getLineNumber() );
+      buffer.append(elem.getFileName());
+      buffer.append(":");
+      buffer.append(elem.getLineNumber());
     }
-    buffer.append( ")" );
+    buffer.append(")");
 
-    if ( stack.length > 1 ) {
-      buffer.append( " - root cause: " );
+    if (stack.length > 1) {
+      buffer.append(" - root cause: ");
 
       elem = stack[0];
 
       // -- yes, duplicate code, but inline is still faster --
-      buffer.append( elem.getClassName() );
-      buffer.append( "." );
-      buffer.append( elem.getMethodName() );
-      buffer.append( "(" );
+      buffer.append(elem.getClassName());
+      buffer.append(".");
+      buffer.append(elem.getMethodName());
+      buffer.append("(");
 
-      if ( elem.getLineNumber() < 0 ) {
-        buffer.append( "Native Method" );
+      if (elem.getLineNumber() < 0) {
+        buffer.append("Native Method");
       } else {
-        buffer.append( elem.getFileName() );
-        buffer.append( ":" );
-        buffer.append( elem.getLineNumber() );
+        buffer.append(elem.getFileName());
+        buffer.append(":");
+        buffer.append(elem.getLineNumber());
       }
 
-      buffer.append( ")" );
+      buffer.append(")");
     }
     return buffer.toString();
   }
@@ -863,7 +863,7 @@ public class Tabs {
    */
   public static String getLogContents() {
     // TODO - perform file checks. What if the file is memory based?
-    return FileUtil.fileToString( UriUtil.getFile( Tabs.getLogTarget() ) );
+    return FileUtil.fileToString(UriUtil.getFile(Tabs.getLogTarget()));
   }
 
 
@@ -880,46 +880,46 @@ public class Tabs {
    * 
    * @return The tail portion of the current Tabs log file.
    */
-  public static String getLogContents( final int lines ) {
+  public static String getLogContents(final int lines) {
     // TODO - perform file checks. What if the file is memory based?
     final LinkedList entries = new LinkedList();
     int limit = lines;
 
-    if ( lines < 1 ) {
+    if (lines < 1) {
       limit = 20;
     }
 
-    final File file = UriUtil.getFile( Tabs.getLogTarget() );
+    final File file = UriUtil.getFile(Tabs.getLogTarget());
 
-    if ( file.exists() && file.canRead() ) {
+    if (file.exists() && file.canRead()) {
       FileInputStream fin = null;
       String logLine;
 
       try {
-        fin = new FileInputStream( file );
-        final BufferedReader myInput = new BufferedReader( new InputStreamReader( fin ) );
-        while ( ( logLine = myInput.readLine() ) != null ) {
-          entries.add( logLine );
-          if ( entries.size() > limit ) {
+        fin = new FileInputStream(file);
+        final BufferedReader myInput = new BufferedReader(new InputStreamReader(fin));
+        while ((logLine = myInput.readLine()) != null) {
+          entries.add(logLine);
+          if (entries.size() > limit) {
             entries.removeFirst();
           }
         }
-      } catch ( final Exception e ) {}
+      } catch (final Exception e) {}
       finally {
         try {
-          if ( fin != null ) {
+          if (fin != null) {
             fin.close();
           }
-        } catch ( final Exception ignore ) {}
+        } catch (final Exception ignore) {}
       }
     }
 
     final StringBuffer buffer = new StringBuffer();
 
-    while ( entries.size() > 0 ) {
-      buffer.append( (String)entries.removeFirst() );
-      if ( entries.size() > 0 ) {
-        buffer.append( Tabs.LF );
+    while (entries.size() > 0) {
+      buffer.append((String)entries.removeFirst());
+      if (entries.size() > 0) {
+        buffer.append(Tabs.LF);
       }
     }
 
@@ -1019,13 +1019,13 @@ public class Tabs {
    * 
    * @return The state with the given name.
    */
-  public static State getState( final String name ) {
+  public static State getState(final String name) {
     State state = null;
-    synchronized( Tabs.states ) {
-      state = (State)Tabs.states.get( name );
-      if ( state == null ) {
-        state = new State( name );
-        Tabs.states.put( name, state );
+    synchronized (Tabs.states) {
+      state = (State)Tabs.states.get(name);
+      if (state == null) {
+        state = new State(name);
+        Tabs.states.put(name, state);
       }
     }
     return state;
@@ -1057,7 +1057,7 @@ public class Tabs {
    */
   public static Iterator getStateIterator() {
     final ArrayList list = new ArrayList();
-    for ( final Iterator it = Tabs.states.values().iterator(); it.hasNext(); list.add( (State)it.next() ) ) {
+    for (final Iterator it = Tabs.states.values().iterator(); it.hasNext(); list.add((State)it.next())) {
       ;
     }
     return list.iterator();
@@ -1073,12 +1073,12 @@ public class Tabs {
     final DataFrame retval = new DataFrame();
     //retval.setType( "States" );
 
-    synchronized( Tabs.states ) {
-      for ( final Iterator it = Tabs.states.entrySet().iterator(); it.hasNext(); ) {
-        final State stayt = (State)( (Map.Entry)it.next() ).getValue();
+    synchronized (Tabs.states) {
+      for (final Iterator it = Tabs.states.entrySet().iterator(); it.hasNext();) {
+        final State stayt = (State)((Map.Entry)it.next()).getValue();
         try {
-          retval.put( stayt.getName(), stayt.getValue() );
-        } catch ( final Exception ignore ) {}
+          retval.put(stayt.getName(), stayt.getValue());
+        } catch (final Exception ignore) {}
       }
     }
 
@@ -1103,8 +1103,8 @@ public class Tabs {
    */
   public static Iterator getTimerIterator() {
     final ArrayList list = new ArrayList();
-    synchronized( Tabs.masterTimers ) {
-      for ( final Iterator it = Tabs.masterTimers.values().iterator(); it.hasNext(); list.add( (TimingMaster)it.next() ) ) {
+    synchronized (Tabs.masterTimers) {
+      for (final Iterator it = Tabs.masterTimers.values().iterator(); it.hasNext(); list.add((TimingMaster)it.next())) {
         ;
       }
     }
@@ -1122,9 +1122,9 @@ public class Tabs {
    * @return The master timer with the given name or null if that timer 
    *         does not exist.
    */
-  public static TimingMaster getTimerMaster( final String name ) {
-    synchronized( Tabs.masterTimers ) {
-      return (TimingMaster)Tabs.masterTimers.get( name );
+  public static TimingMaster getTimerMaster(final String name) {
+    synchronized (Tabs.masterTimers) {
+      return (TimingMaster)Tabs.masterTimers.get(name);
     }
   }
 
@@ -1135,9 +1135,9 @@ public class Tabs {
     final DataFrame retval = new DataFrame();
     //retval.setType( "Timers" );
 
-    synchronized( Tabs.masterTimers ) {
-      for ( final Iterator it = Tabs.masterTimers.entrySet().iterator(); it.hasNext(); ) {
-        final TimingMaster timer = (TimingMaster)( (Map.Entry)it.next() ).getValue();
+    synchronized (Tabs.masterTimers) {
+      for (final Iterator it = Tabs.masterTimers.entrySet().iterator(); it.hasNext();) {
+        final TimingMaster timer = (TimingMaster)((Map.Entry)it.next()).getValue();
         //TODO: retval.add( timer.toMessage() );
       }
     }
@@ -1159,7 +1159,7 @@ public class Tabs {
    * @return the time the fixture has been active in a reportable format.
    */
   public static String getUptimeString() {
-    return DateUtil.formatSignificantElapsedTime( ( System.currentTimeMillis() - Tabs.startedTimestamp ) / 1000 );
+    return DateUtil.formatSignificantElapsedTime((System.currentTimeMillis() - Tabs.startedTimestamp) / 1000);
   }
 
 
@@ -1199,7 +1199,7 @@ public class Tabs {
    * @return Total used memory percentage of maximum memory.
    */
   public static float getUsedMemoryPercentage() {
-    return (float)( 1 - ( (float)Tabs.getFreeMemory() / (float)Tabs.getMaxHeapSize() ) ); // percent of max
+    return (float)(1 - ((float)Tabs.getFreeMemory() / (float)Tabs.getMaxHeapSize())); // percent of max
   }
 
 
@@ -1227,8 +1227,8 @@ public class Tabs {
    * 
    * @return The final value of the counter after the operation.
    */
-  public static long increase( final String tag, final long value ) {
-    return Tabs.getCounter( tag ).increase( value );
+  public static long increase(final String tag, final long value) {
+    return Tabs.getCounter(tag).increase(value);
   }
 
 
@@ -1245,8 +1245,8 @@ public class Tabs {
    * 
    * @return The final value of the counter after the operation.
    */
-  public static long increment( final String tag ) {
-    return Tabs.getCounter( tag ).increment();
+  public static long increment(final String tag) {
+    return Tabs.getCounter(tag).increment();
   }
 
 
@@ -1263,8 +1263,8 @@ public class Tabs {
    * @return The identifier of the event created. This can later be used to 
    *         retrieve the event from the event list.  
    */
-  public static long process( final Throwable t ) {
-    return Tabs.process( t, null, null, null, null );
+  public static long process(final Throwable t) {
+    return Tabs.process(t, null, null, null, null);
   }
 
 
@@ -1282,8 +1282,8 @@ public class Tabs {
    * @return The identifier of the event created. This can later be used to 
    *         retrieve the event from the event list.  
    */
-  public static long process( final Throwable t, final String info ) {
-    return Tabs.process( t, info, null, null, null );
+  public static long process(final Throwable t, final String info) {
+    return Tabs.process(t, info, null, null, null);
   }
 
 
@@ -1304,96 +1304,96 @@ public class Tabs {
    * @return The identifier of the event created. This can later be used to 
    *         retrieve the event from the event list.  
    */
-  public static long process( final Throwable t, final String info, final String appId, final String sysId, final String cmpId ) {
+  public static long process(final Throwable t, final String info, final String appId, final String sysId, final String cmpId) {
     // create an event from the exception
-    final AppEvent event = Tabs.eventList.createEvent( appId, sysId, cmpId, info, AppEvent.WARNING, 0, 0, "EXCEPTION" );
+    final AppEvent event = Tabs.eventList.createEvent(appId, sysId, cmpId, info, AppEvent.WARNING, 0, 0, "EXCEPTION");
 
     final StringBuffer b = new StringBuffer();
-    if ( info != null ) {
-      b.append( info );
-      b.append( Tabs.LF );
+    if (info != null) {
+      b.append(info);
+      b.append(Tabs.LF);
     }
 
     // Some helpful information in tracking down the source of the exception
-    b.append( "EXCEPTION: " );
-    b.append( t.getClass().getName() );
+    b.append("EXCEPTION: ");
+    b.append(t.getClass().getName());
 
-    b.append( Tabs.LF );
-    b.append( "Message: " );
-    b.append( t.getMessage() );
+    b.append(Tabs.LF);
+    b.append("Message: ");
+    b.append(t.getMessage());
 
-    b.append( Tabs.LF );
-    b.append( "Location: " );
-    b.append( Tabs.getLocation( t ) );
+    b.append(Tabs.LF);
+    b.append("Location: ");
+    b.append(Tabs.getLocation(t));
 
-    b.append( Tabs.LF );
-    b.append( "EventID: " );
-    b.append( event.getSequence() );
+    b.append(Tabs.LF);
+    b.append("EventID: ");
+    b.append(event.getSequence());
 
-    b.append( Tabs.LF );
-    b.append( "RuntimeID: " );
-    b.append( Tabs.getId() );
+    b.append(Tabs.LF);
+    b.append("RuntimeID: ");
+    b.append(Tabs.getId());
 
-    b.append( Tabs.LF );
-    b.append( "Host: " );
-    b.append( Tabs.getHostname() );
-    b.append( "(" );
-    b.append( Tabs.getHostIpAddress().getHostAddress() );
-    b.append( ")" );
+    b.append(Tabs.LF);
+    b.append("Host: ");
+    b.append(Tabs.getHostname());
+    b.append("(");
+    b.append(Tabs.getHostIpAddress().getHostAddress());
+    b.append(")");
 
-    b.append( Tabs.LF );
-    b.append( "Runtime: Java " );
-    b.append( System.getProperty( "java.version" ) );
-    b.append( "(" );
-    b.append( System.getProperty( "java.vendor" ) );
-    b.append( ")" );
+    b.append(Tabs.LF);
+    b.append("Runtime: Java ");
+    b.append(System.getProperty("java.version"));
+    b.append("(");
+    b.append(System.getProperty("java.vendor"));
+    b.append(")");
 
-    b.append( Tabs.LF );
-    b.append( "Platform: " );
-    b.append( System.getProperty( "os.arch" ) );
-    b.append( " OS: " );
-    b.append( System.getProperty( "os.name" ) );
-    b.append( "(" );
-    b.append( System.getProperty( "os.version" ) );
-    b.append( ")" );
+    b.append(Tabs.LF);
+    b.append("Platform: ");
+    b.append(System.getProperty("os.arch"));
+    b.append(" OS: ");
+    b.append(System.getProperty("os.name"));
+    b.append("(");
+    b.append(System.getProperty("os.version"));
+    b.append(")");
 
-    b.append( Tabs.LF );
-    b.append( "Heap Memory: " );
-    b.append( Tabs.getMaxHeapSize() );
-    b.append( " bytes max, " );
-    b.append( Tabs.getCurrentHeapSize() );
-    b.append( " bytes (" );
-    b.append( Tabs.getHeapPercentage() * 100 );
-    b.append( "%) allocated" );
-    b.append( Tabs.LF );
-    b.append( "Free Memory: " );
-    b.append( Tabs.getFreeMemory() );
-    b.append( " bytes (" );
-    b.append( Tabs.getFreeMemoryPercentage() * 100 );
-    b.append( "%)" );
+    b.append(Tabs.LF);
+    b.append("Heap Memory: ");
+    b.append(Tabs.getMaxHeapSize());
+    b.append(" bytes max, ");
+    b.append(Tabs.getCurrentHeapSize());
+    b.append(" bytes (");
+    b.append(Tabs.getHeapPercentage() * 100);
+    b.append("%) allocated");
+    b.append(Tabs.LF);
+    b.append("Free Memory: ");
+    b.append(Tabs.getFreeMemory());
+    b.append(" bytes (");
+    b.append(Tabs.getFreeMemoryPercentage() * 100);
+    b.append("%)");
 
-    b.append( Tabs.LF );
-    b.append( "Thread: name='" );
-    b.append( Thread.currentThread().getName() );
-    b.append( "\' type=" );
-    if ( Thread.currentThread().isDaemon() ) {
-      b.append( "daemon, group='" );
+    b.append(Tabs.LF);
+    b.append("Thread: name='");
+    b.append(Thread.currentThread().getName());
+    b.append("\' type=");
+    if (Thread.currentThread().isDaemon()) {
+      b.append("daemon, group='");
     } else {
-      b.append( "user, group='" );
+      b.append("user, group='");
     }
 
-    b.append( Thread.currentThread().getThreadGroup().getName() );
-    b.append( "'" );
-    b.append( Tabs.LF );
-    b.append( "Thread Call Stack:" );
-    b.append( Tabs.LF );
-    b.append( ExceptionUtil.stackTrace( t ) );
+    b.append(Thread.currentThread().getThreadGroup().getName());
+    b.append("'");
+    b.append(Tabs.LF);
+    b.append("Thread Call Stack:");
+    b.append(Tabs.LF);
+    b.append(ExceptionUtil.stackTrace(t));
 
     // set the exception details in the event
-    event.setMessage( b.toString() );
+    event.setMessage(b.toString());
 
     // Exceptions should be logged
-    Log.warn( b.toString() );
+    Log.warn(b.toString());
 
     // final long retval = Tabs.oamManager.sendEvent( event );
     final long retval = event.getSequence();
@@ -1422,30 +1422,30 @@ public class Tabs {
    * 
    * @param cmpnt The component identifier to add
    */
-  public static void registerComponent( final Object cmpnt ) {
+  public static void registerComponent(final Object cmpnt) {
     String cmpntid = null;
-    if ( cmpnt != null ) {
-      if ( cmpnt instanceof String ) {
+    if (cmpnt != null) {
+      if (cmpnt instanceof String) {
         cmpntid = (String)cmpnt;
-        if ( cmpntid.length() > 0 ) {
-          synchronized( Tabs.componentMap ) {
-            if ( !Tabs.componentMap.containsKey( cmpntid ) ) {
-              Tabs.componentMap.put( cmpntid, null );
+        if (cmpntid.length() > 0) {
+          synchronized (Tabs.componentMap) {
+            if (!Tabs.componentMap.containsKey(cmpntid)) {
+              Tabs.componentMap.put(cmpntid, null);
             }
           }
         }
-      } else if ( cmpnt instanceof Component ) {
-        cmpntid = ( (Component)cmpnt ).getId();
-        if ( ( cmpntid != null ) && ( cmpntid.length() > 0 ) ) {
-          synchronized( Tabs.componentMap ) {
-            if ( Tabs.componentMap.containsKey( cmpntid ) ) {
+      } else if (cmpnt instanceof Component) {
+        cmpntid = ((Component)cmpnt).getId();
+        if ((cmpntid != null) && (cmpntid.length() > 0)) {
+          synchronized (Tabs.componentMap) {
+            if (Tabs.componentMap.containsKey(cmpntid)) {
               final Exception ex = new Exception();
               ex.fillInStackTrace();
 
-              Log.warn( "Overwriting existing named component '" + cmpntid + "' - Make sure component names are unique! Stacktrace:\r\n" + ExceptionUtil.stackTrace( ex ) );
+              Log.warn("Overwriting existing named component '" + cmpntid + "' - Make sure component names are unique! Stacktrace:\r\n" + ExceptionUtil.stackTrace(ex));
 
             }
-            Tabs.componentMap.put( cmpntid, (Component)cmpnt );
+            Tabs.componentMap.put(cmpntid, (Component)cmpnt);
           }
         }
       }
@@ -1455,12 +1455,12 @@ public class Tabs {
       // If all else fails, then just use the classname
       else {
         cmpntid = cmpnt.getClass().getName();
-        synchronized( Tabs.componentMap ) {
-          Tabs.componentMap.put( cmpntid, null );
+        synchronized (Tabs.componentMap) {
+          Tabs.componentMap.put(cmpntid, null);
         }
       }
     } else {
-      Log.error( "Can not register a NULL component" );
+      Log.error("Can not register a NULL component");
     }
 
   }
@@ -1477,10 +1477,10 @@ public class Tabs {
    * 
    * @param cmpntid The component identifier to remove
    */
-  public static void removeComponent( final String cmpntid ) {
-    if ( ( cmpntid != null ) && ( cmpntid.length() > 0 ) ) {
-      synchronized( Tabs.componentMap ) {
-        Tabs.componentMap.remove( cmpntid );
+  public static void removeComponent(final String cmpntid) {
+    if ((cmpntid != null) && (cmpntid.length() > 0)) {
+      synchronized (Tabs.componentMap) {
+        Tabs.componentMap.remove(cmpntid);
       }
     }
   }
@@ -1495,9 +1495,9 @@ public class Tabs {
    * 
    * @return The removed counter.
    */
-  public static Counter removeCounter( final String name ) {
-    synchronized( Tabs.counters ) {
-      return (Counter)Tabs.counters.remove( name );
+  public static Counter removeCounter(final String name) {
+    synchronized (Tabs.counters) {
+      return (Counter)Tabs.counters.remove(name);
     }
   }
 
@@ -1511,13 +1511,13 @@ public class Tabs {
    * 
    * @return The removed state.
    */
-  public static State removeState( final String name ) {
-    if ( name == null ) {
+  public static State removeState(final String name) {
+    if (name == null) {
       return null;
     }
 
-    synchronized( Tabs.states ) {
-      return (State)Tabs.states.remove( name );
+    synchronized (Tabs.states) {
+      return (State)Tabs.states.remove(name);
     }
   }
 
@@ -1539,10 +1539,10 @@ public class Tabs {
    *  
    * @return a counter containing the values of the counter prior to the reset.
    */
-  public static Counter resetCounter( final String name ) {
+  public static Counter resetCounter(final String name) {
     Counter retval = null;
-    synchronized( Tabs.counters ) {
-      retval = Tabs.getCounter( name ).reset();
+    synchronized (Tabs.counters) {
+      retval = Tabs.getCounter(name).reset();
     }
 
     return retval;
@@ -1556,9 +1556,9 @@ public class Tabs {
    * 
    * @param name The name of the gauge to clear out.
    */
-  public static void resetGauge( final String name ) {
-    if ( ( name != null ) && ( name.length() > 0 ) ) {
-      Tabs.getGauge( name ).reset();
+  public static void resetGauge(final String name) {
+    if ((name != null) && (name.length() > 0)) {
+      Tabs.getGauge(name).reset();
     }
   }
 
@@ -1570,7 +1570,7 @@ public class Tabs {
    * collection.
    */
   public static void resetTimers() {
-    synchronized( Tabs.masterTimers ) {
+    synchronized (Tabs.masterTimers) {
       Tabs.masterTimers.clear();
     }
   }
@@ -1583,8 +1583,8 @@ public class Tabs {
    * 
    * @param max The maximum number of events to keep.
    */
-  static void setMaxEvents( final int max ) {
-    EventList.setMaxEvents( max );
+  static void setMaxEvents(final int max) {
+    EventList.setMaxEvents(max);
   }
 
 
@@ -1597,8 +1597,8 @@ public class Tabs {
    * 
    * @param value The value to set in the state.
    */
-  public static void setState( final String name, final double value ) {
-    Tabs.getState( name ).set( value );
+  public static void setState(final String name, final double value) {
+    Tabs.getState(name).set(value);
   }
 
 
@@ -1611,8 +1611,8 @@ public class Tabs {
    * 
    * @param value The value to set in the state.
    */
-  public static void setState( final String name, final long value ) {
-    Tabs.getState( name ).set( value );
+  public static void setState(final String name, final long value) {
+    Tabs.getState(name).set(value);
   }
 
 
@@ -1625,15 +1625,13 @@ public class Tabs {
    * 
    * @param value The value to set in the state.
    */
-  public static void setState( final String name, final String value ) {
-    if ( ( name == null ) || ( name.length() == 0 ) ) {
-      return;
-    }
-
-    if ( value == null ) {
-      Tabs.removeState( name );
-    } else {
-      Tabs.getState( name ).set( value );
+  public static void setState(final String name, final String value) {
+    if ((name != null) && (name.length() != 0)) {
+      if (value == null) {
+        Tabs.removeState(name);
+      } else {
+        Tabs.getState(name).set(value);
+      }
     }
   }
 
@@ -1647,8 +1645,8 @@ public class Tabs {
    * 
    * @return A transaction to collect ARM data.
    */
-  public static ArmTransaction startArm( final String tag ) {
-    return Tabs.startArm( tag, null );
+  public static ArmTransaction startArm(final String tag) {
+    return Tabs.startArm(tag, null);
   }
 
 
@@ -1663,19 +1661,19 @@ public class Tabs {
    * 
    * @return A transaction to collect ARM data.
    */
-  public static ArmTransaction startArm( final String tag, final String crid ) {
+  public static ArmTransaction startArm(final String tag, final String crid) {
     ArmTransaction retval = null;
-    if ( Tabs.armEnabled ) {
-      synchronized( Tabs.armMasters ) {
+    if (Tabs.armEnabled) {
+      synchronized (Tabs.armMasters) {
         // get an existing ARM master or create a new one
-        ArmMaster master = (ArmMaster)Tabs.armMasters.get( tag );
-        if ( master == null ) {
-          master = new ArmMaster( tag );
-          Tabs.armMasters.put( tag, master );
+        ArmMaster master = (ArmMaster)Tabs.armMasters.get(tag);
+        if (master == null) {
+          master = new ArmMaster(tag);
+          Tabs.armMasters.put(tag, master);
         }
 
         // have the master ARM return a transaction instance
-        retval = master.createArm( tag, crid );
+        retval = master.createArm(tag, crid);
 
         //start the ARM transaction
         retval.start();
@@ -1701,15 +1699,15 @@ public class Tabs {
    * @return The timer instance that should be stopped when the interval is 
    *         completed.
    */
-  public static Timer startTimer( final String tag ) {
+  public static Timer startTimer(final String tag) {
     Timer retval = null;
-    if ( Tabs.timingEnabled ) {
-      synchronized( Tabs.masterTimers ) {
+    if (Tabs.timingEnabled) {
+      synchronized (Tabs.masterTimers) {
         // get an existing master timer or create a new one
-        TimingMaster master = (TimingMaster)Tabs.masterTimers.get( tag );
-        if ( master == null ) {
-          master = new TimingMaster( tag );
-          Tabs.masterTimers.put( tag, master );
+        TimingMaster master = (TimingMaster)Tabs.masterTimers.get(tag);
+        if (master == null) {
+          master = new TimingMaster(tag);
+          Tabs.masterTimers.put(tag, master);
         }
 
         // have the master timer return a timer instance
@@ -1736,9 +1734,9 @@ public class Tabs {
    * @param name The name of the gauge to update.
    * @param value The value with which to update the gauge.
    */
-  public static void updateGauge( final String name, final long value ) {
-    if ( ( name != null ) && ( name.length() > 0 ) ) {
-      Tabs.getGauge( name ).update( value );
+  public static void updateGauge(final String name, final long value) {
+    if ((name != null) && (name.length() > 0)) {
+      Tabs.getGauge(name).update(value);
     }
   }
 
@@ -1756,35 +1754,35 @@ public class Tabs {
    * 
    * @throws IOException If problems were experienced.
    */
-  private static void zipFile( final File source ) throws IOException {
+  private static void zipFile(final File source) throws IOException {
     BufferedInputStream origin = null;
     ZipOutputStream out = null;
     try {
-      final FileOutputStream dest = new FileOutputStream( source.getAbsolutePath() + ".zip" );
-      out = new ZipOutputStream( new BufferedOutputStream( dest ) );
+      final FileOutputStream dest = new FileOutputStream(source.getAbsolutePath() + ".zip");
+      out = new ZipOutputStream(new BufferedOutputStream(dest));
 
       final byte data[] = new byte[Tabs.STREAM_BUFFER_SIZE];
 
-      final FileInputStream fi = new FileInputStream( source );
-      origin = new BufferedInputStream( fi, Tabs.STREAM_BUFFER_SIZE );
+      final FileInputStream fi = new FileInputStream(source);
+      origin = new BufferedInputStream(fi, Tabs.STREAM_BUFFER_SIZE);
 
-      final ZipEntry entry = new ZipEntry( source.getName() );
-      out.putNextEntry( entry );
+      final ZipEntry entry = new ZipEntry(source.getName());
+      out.putNextEntry(entry);
 
       int count;
-      while ( ( count = origin.read( data, 0, Tabs.STREAM_BUFFER_SIZE ) ) != -1 ) {
-        out.write( data, 0, count );
+      while ((count = origin.read(data, 0, Tabs.STREAM_BUFFER_SIZE)) != -1) {
+        out.write(data, 0, count);
       }
-    } catch ( final FileNotFoundException e ) {
-      throw new IOException( e.getMessage() );
+    } catch (final FileNotFoundException e) {
+      throw new IOException(e.getMessage());
     }
     finally {
       try {
         origin.close();
-      } catch ( final IOException ignore ) {}
+      } catch (final IOException ignore) {}
       try {
         out.close();
-      } catch ( final IOException ignore ) {}
+      } catch (final IOException ignore) {}
     }
   }
 
@@ -1792,7 +1790,7 @@ public class Tabs {
 
 
   public void finalize() throws Throwable {
-    shutdown( "Finalization" );
+    shutdown("Finalization");
   }
 
 
@@ -1806,30 +1804,30 @@ public class Tabs {
     Tabs.primaryInterface = IpInterface.getPrimary();
 
     // Make sure we have a home directory we can use
-    if ( System.getProperty( Tabs.HOMEDIR_TAG ) == null ) {
-      System.setProperty( Tabs.HOMEDIR_TAG, Tabs.DEFAULT_HOME );
+    if (System.getProperty(Tabs.HOMEDIR_TAG) == null) {
+      System.setProperty(Tabs.HOMEDIR_TAG, Tabs.DEFAULT_HOME);
     } else {
       // Normalize the "." that sometimes is set in the SG_HOME property
-      if ( System.getProperty( Tabs.HOMEDIR_TAG ).trim().equals( "." ) ) {
-        System.setProperty( Tabs.HOMEDIR_TAG, Tabs.DEFAULT_HOME );
-      } else if ( System.getProperty( Tabs.HOMEDIR_TAG ).trim().length() == 0 ) {
+      if (System.getProperty(Tabs.HOMEDIR_TAG).trim().equals(".")) {
+        System.setProperty(Tabs.HOMEDIR_TAG, Tabs.DEFAULT_HOME);
+      } else if (System.getProperty(Tabs.HOMEDIR_TAG).trim().length() == 0) {
         // catch empty home property and just use the home directory
-        System.setProperty( Tabs.HOMEDIR_TAG, Tabs.DEFAULT_HOME );
+        System.setProperty(Tabs.HOMEDIR_TAG, Tabs.DEFAULT_HOME);
       }
     }
 
     // Remove all the relations and extra slashes from the home path
-    System.setProperty( Tabs.HOMEDIR_TAG, FileUtil.normalizePath( System.getProperty( Tabs.HOMEDIR_TAG ) ) );
+    System.setProperty(Tabs.HOMEDIR_TAG, FileUtil.normalizePath(System.getProperty(Tabs.HOMEDIR_TAG)));
 
     // Check for a configured Fixture Id
-    String prop = System.getProperty( Tabs.ID_TAG );
-    if ( prop != null ) {
+    String prop = System.getProperty(Tabs.ID_TAG);
+    if (prop != null) {
       Tabs.FIXTUREID = prop;
     }
 
     // Check for a configured Fixture Group
-    prop = System.getProperty( Tabs.GROUP_TAG );
-    if ( prop != null ) {
+    prop = System.getProperty(Tabs.GROUP_TAG);
+    if (prop != null) {
       Tabs.FIXTUREGRP = prop;
     }
   }
@@ -1840,5 +1838,5 @@ public class Tabs {
   /**
    * Called by the shutdown hook to make sure everything is closed properly.
    */
-  private void shutdown( final String msg ) {}
+  private void shutdown(final String msg) {}
 }

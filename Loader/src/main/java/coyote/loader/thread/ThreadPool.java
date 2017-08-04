@@ -4,10 +4,6 @@
  * This program and the accompanying materials are made available under the 
  * terms of the MIT License which accompanies this distribution, and is 
  * available at http://creativecommons.org/licenses/MIT/
- *
- * Contributors:
- *   Stephan D. Cote 
- *      - Initial concept and implementation
  */
 package coyote.loader.thread;
 
@@ -64,7 +60,7 @@ public class ThreadPool {
   /** Flag indication if we are running or not */
   private volatile boolean active = false;
 
-  /** This is the blocking job gueue we used to feed the workers */
+  /** This is the blocking job queue we used to feed the workers */
   private BlockingQueue jobqueue;
 
   /** This holds the references to threads that are idle */
@@ -90,7 +86,7 @@ public class ThreadPool {
 
   public static final String MAXWORKERS_TAG = "ThreadMaxWorkers";
 
-  private static final long THREAD = Log.getCode( "THREAD" );
+  private static final long THREAD = Log.getCode("THREAD");
 
 
 
@@ -99,7 +95,7 @@ public class ThreadPool {
    *
    */
   public ThreadPool() {
-    configuration.setName( "ThreadService" );
+    configuration.setName("ThreadService");
 
     pool_name = "Pool" + poolcount++;
   }
@@ -112,7 +108,7 @@ public class ThreadPool {
    *
    * @param name Pool name
    */
-  public ThreadPool( String name ) {
+  public ThreadPool(String name) {
     this();
 
     pool_name = name;
@@ -127,10 +123,10 @@ public class ThreadPool {
    * @param config
    * @throws IllegalArgumentException if the configuration is invalid
    */
-  public ThreadPool( Config config ) throws IllegalArgumentException {
+  public ThreadPool(Config config) throws IllegalArgumentException {
     this();
 
-    config( config );
+    config(config);
   }
 
 
@@ -143,40 +139,40 @@ public class ThreadPool {
    *
    * @throws IllegalArgumentException
    */
-  public void config( Config cfg ) throws IllegalArgumentException {
-    if ( cfg.getName() == null ) {
-      throw new IllegalArgumentException( "Configuration capsule did not contain a name" );
+  public void config(Config cfg) throws IllegalArgumentException {
+    if (cfg.getName() == null) {
+      throw new IllegalArgumentException("Configuration capsule did not contain a name");
     }
 
-    setName( cfg.getName() );
+    setName(cfg.getName());
 
     // Set the time a job should wait to get a job from the job queue
-    if ( cfg.contains( JOBWAIT_TAG ) ) {
+    if (cfg.contains(JOBWAIT_TAG)) {
       try {
-        setJobWaitTime( cfg.getAsInt( JOBWAIT_TAG ) );
-      } catch ( DataFrameException e ) {}
+        setJobWaitTime(cfg.getAsInt(JOBWAIT_TAG));
+      } catch (DataFrameException e) {}
     }
 
     // Set the time the threadpool will wait for all the threads to stop on
     // shutdown
-    if ( cfg.contains( STOPWAIT_TAG ) ) {
+    if (cfg.contains(STOPWAIT_TAG)) {
       try {
-        setStopWaitTime( cfg.getAsInt( STOPWAIT_TAG ) );
-      } catch ( DataFrameException e ) {}
+        setStopWaitTime(cfg.getAsInt(STOPWAIT_TAG));
+      } catch (DataFrameException e) {}
     }
 
     // Set the maximum number of workers to have active at any one time
-    if ( cfg.contains( MAXWORKERS_TAG ) ) {
+    if (cfg.contains(MAXWORKERS_TAG)) {
       try {
-        setMaxThreadCount( cfg.getAsInt( MAXWORKERS_TAG ) );
-      } catch ( DataFrameException e ) {}
+        setMaxThreadCount(cfg.getAsInt(MAXWORKERS_TAG));
+      } catch (DataFrameException e) {}
     }
 
     // Set the minimum number of workers to have active at any one time
-    if ( cfg.contains( MINWORKERS_TAG ) ) {
+    if (cfg.contains(MINWORKERS_TAG)) {
       try {
-        setMinThreadCount( cfg.getAsInt( MINWORKERS_TAG ) );
-      } catch ( DataFrameException e ) {}
+        setMinThreadCount(cfg.getAsInt(MINWORKERS_TAG));
+      } catch (DataFrameException e) {}
     }
   }
 
@@ -198,10 +194,10 @@ public class ThreadPool {
    *
    * @param name
    */
-  public void setName( String name ) {
+  public void setName(String name) {
     pool_name = name;
 
-    configuration.setName( name );
+    configuration.setName(name);
   }
 
 
@@ -213,7 +209,7 @@ public class ThreadPool {
    * @return True if start() has been called.
    */
   public boolean isStarted() {
-    return isRunning() && ( worker_set != null );
+    return isRunning() && (worker_set != null);
   }
 
 
@@ -224,8 +220,8 @@ public class ThreadPool {
    *
    * @param flag
    */
-  private void setRunning( boolean flag ) {
-    synchronized( pool_name ) {
+  private void setRunning(boolean flag) {
+    synchronized (pool_name) {
       active = flag;
     }
   }
@@ -237,7 +233,7 @@ public class ThreadPool {
    * @return whether or not the current thread is running.
    */
   public boolean isRunning() {
-    synchronized( pool_name ) {
+    synchronized (pool_name) {
       return active;
     }
   }
@@ -251,7 +247,7 @@ public class ThreadPool {
    * @return Number of threads
    */
   public int getThreadCount() {
-    if ( worker_set == null ) {
+    if (worker_set == null) {
       return 0;
     }
 
@@ -278,8 +274,8 @@ public class ThreadPool {
    *
    * @param min
    */
-  public void setMinThreadCount( int min ) {
-    configuration.put( MINWORKERS_TAG, new Integer( min ).toString() );
+  public void setMinThreadCount(int min) {
+    configuration.put(MINWORKERS_TAG, new Integer(min).toString());
     minimum_workers = min;
   }
 
@@ -303,15 +299,15 @@ public class ThreadPool {
    *
    * @param millis
    */
-  public void setIdleTimeout( long millis ) {
+  public void setIdleTimeout(long millis) {
     idle_timeout = millis;
 
-    synchronized( worker_set ) {
+    synchronized (worker_set) {
       Object[] worker = worker_set.toArray();
 
-      for ( int i = 0; i < worker.length; i++ ) {
+      for (int i = 0; i < worker.length; i++) {
         ThreadWorker tworker = (ThreadWorker)worker[i];
-        tworker.setIdleTimeout( millis );
+        tworker.setIdleTimeout(millis);
       }
     }
   }
@@ -337,8 +333,8 @@ public class ThreadPool {
    *
    * @param max
    */
-  public void setMaxThreadCount( int max ) {
-    configuration.put( MAXWORKERS_TAG, new Integer( max ).toString() );
+  public void setMaxThreadCount(int max) {
+    configuration.put(MAXWORKERS_TAG, new Integer(max).toString());
     maximum_workers = max;
   }
 
@@ -381,8 +377,8 @@ public class ThreadPool {
    *
    * @param millis
    */
-  public void setJobWaitTime( int millis ) {
-    configuration.put( JOBWAIT_TAG, new Integer( millis ).toString() );
+  public void setJobWaitTime(int millis) {
+    configuration.put(JOBWAIT_TAG, new Integer(millis).toString());
 
     job_wait_time = millis;
   }
@@ -419,8 +415,8 @@ public class ThreadPool {
    * @param millis Maximum wait time in milliseconds a ThreadPool waits for a
    *          job to complete after requesting a shutdown.
    */
-  public void setStopWaitTime( int millis ) {
-    configuration.put( STOPWAIT_TAG, new Integer( millis ).toString() );
+  public void setStopWaitTime(int millis) {
+    configuration.put(STOPWAIT_TAG, new Integer(millis).toString());
     shutdown_wait = millis;
   }
 
@@ -453,32 +449,31 @@ public class ThreadPool {
    * Construct the minimum number of threads.
    */
   synchronized public void start() {
-    if ( isRunning() ) {
-      Log.append( THREAD, "'" + pool_name + "' already started" );
+    if (!isRunning()) {
 
-      return;
+      Log.append(THREAD, "ThreadPool.start() Starting '" + pool_name + "' pool");
+
+      // Create a job queue with enough space for all our workers to have 5
+      // queued jobs each
+      jobqueue = new BlockingQueue(maximum_workers * 5);
+
+      // Create a set large enough to hold the maximum number of workers/2 +5
+      worker_set = new HashSet<ThreadWorker>(maximum_workers + maximum_workers / 2 + 5);
+
+      // Start the threads
+      for (int i = 0; i < minimum_workers; i++) {
+        newWorker();
+      }
+
+      // Give everything a chance to start
+      Thread.yield();
+
+      // Indicate we are open for business
+      setRunning(true);
+      Log.append(THREAD, "ThreadPool.start() returning with " + getThreadCount() + " workers running");
+    } else {
+      Log.append(THREAD, "'" + pool_name + "' already started");
     }
-
-    Log.append( THREAD, "ThreadPool.start() Starting '" + pool_name + "' pool" );
-
-    // Create a job queue with enough space for all our workers to have 5
-    // queued jobs each
-    jobqueue = new BlockingQueue( maximum_workers * 5 );
-
-    // Create a set large enough to hold the maximum number of workers/2 +5
-    worker_set = new HashSet<ThreadWorker>( maximum_workers + maximum_workers / 2 + 5 );
-
-    // Start the threads
-    for ( int i = 0; i < minimum_workers; i++ ) {
-      newWorker();
-    }
-
-    // Give everything a chance to start
-    Thread.yield();
-
-    // Indicate we are open for business
-    setRunning( true );
-    Log.append( THREAD, "ThreadPool.start() returning with " + getThreadCount() + " workers running" );
   }
 
 
@@ -497,7 +492,7 @@ public class ThreadPool {
   public int checkLoad() {
     // if the queue is not empty AND there is work to do AND there are no idle
     // workers to do it...
-    if ( ( jobqueue.size() > 0 ) && ( worker_set.size() < maximum_workers ) && ( idle_set.size() == 0 ) ) {
+    if ((jobqueue.size() > 0) && (worker_set.size() < maximum_workers) && (idle_set.size() == 0)) {
       // ...create a new worker for this pool
       newWorker();
     }
@@ -515,59 +510,58 @@ public class ThreadPool {
    * delay, they are stopped.</p>
    */
   synchronized public void stop() {
-    if ( Log.isLogging( THREAD ) ) {
-      Log.append( THREAD, "Stopping '" + pool_name + "' thread pool" );
+    if (Log.isLogging(THREAD)) {
+      Log.append(THREAD, "Stopping '" + pool_name + "' thread pool");
     }
 
-    if ( worker_set == null ) {
-      return;
-    }
+    if (worker_set != null) {
 
-    setRunning( false );
+      setRunning(false);
 
-    // Shutdown the workers
-    Object[] worker = worker_set.toArray();
+      // Shutdown the workers
+      Object[] worker = worker_set.toArray();
 
-    for ( int i = 0; i < worker.length; i++ ) {
-      ThreadWorker tworker = (ThreadWorker)worker[i];
-      tworker.shutdown();
-      tworker.join( 50 );
-    }
-
-    // wait a while for all threads to die
-    Thread.yield();
-
-    try {
-      long end_wait = System.currentTimeMillis() + shutdown_wait;
-
-      while ( ( worker_set.size() > 0 ) && ( end_wait > System.currentTimeMillis() ) ) {
-        Thread.yield();
+      for (int i = 0; i < worker.length; i++) {
+        ThreadWorker tworker = (ThreadWorker)worker[i];
+        tworker.shutdown();
+        tworker.join(50);
       }
 
-      // Warn about any still running
-      if ( worker_set.size() > 0 ) {
-        worker = worker_set.toArray();
+      // wait a while for all threads to die
+      Thread.yield();
 
-        for ( int i = 0; i < worker.length; i++ ) {
-          ThreadWorker tworker = (ThreadWorker)worker[i];
+      try {
+        long end_wait = System.currentTimeMillis() + shutdown_wait;
 
-          if ( tworker.current_thread.isAlive() ) {
-            tworker.shutdown();
-            Thread.yield();
+        while ((worker_set.size() > 0) && (end_wait > System.currentTimeMillis())) {
+          Thread.yield();
+        }
 
-            if ( tworker.current_thread.isAlive() ) {
-              if ( Log.isLogging( THREAD ) ) {
-                Log.append( THREAD, "Can't stop \"" + tworker.getThread().getName() + "\"" );
+        // Warn about any still running
+        if (worker_set.size() > 0) {
+          worker = worker_set.toArray();
+
+          for (int i = 0; i < worker.length; i++) {
+            ThreadWorker tworker = (ThreadWorker)worker[i];
+
+            if (tworker.current_thread.isAlive()) {
+              tworker.shutdown();
+              Thread.yield();
+
+              if (tworker.current_thread.isAlive()) {
+                if (Log.isLogging(THREAD)) {
+                  Log.append(THREAD, "Can't stop \"" + tworker.getThread().getName() + "\"");
+                }
               }
             }
           }
         }
       }
-    }
-    finally {
-      worker_set.clear();
+      finally {
+        worker_set.clear();
 
-      worker_set = null;
+        worker_set = null;
+      }
     }
   }
 
@@ -579,10 +573,10 @@ public class ThreadPool {
    */
   private synchronized void newWorker() {
     try {
-      new ThreadWorker( pool_name + ".wkr." + ( thread_identifier++ ) );
-    } catch ( Exception e ) {
-      if ( Log.isLogging( THREAD ) ) {
-        Log.append( THREAD, "ThreadPool.newWorker() exception: " + e.toString() );
+      new ThreadWorker(pool_name + ".wkr." + (thread_identifier++));
+    } catch (Exception e) {
+      if (Log.isLogging(THREAD)) {
+        Log.append(THREAD, "ThreadPool.newWorker() exception: " + e.toString());
       }
     }
   }
@@ -597,18 +591,18 @@ public class ThreadPool {
    * @exception java.lang.InterruptedException
    */
   final public void join() throws java.lang.InterruptedException {
-    while ( ( worker_set != null ) && ( worker_set.size() > 0 ) ) {
+    while ((worker_set != null) && (worker_set.size() > 0)) {
       ThreadWorker worker = null;
 
-      synchronized( this ) {
+      synchronized (this) {
         Iterator<ThreadWorker> iter = worker_set.iterator();
 
-        while ( iter.hasNext() ) {
+        while (iter.hasNext()) {
           worker = iter.next();
         }
       }
 
-      if ( worker != null ) {
+      if (worker != null) {
         worker.getThread().join();
       }
     }
@@ -634,8 +628,8 @@ public class ThreadPool {
    * @exception InterruptedException
    * @exception InterruptedIOException
    */
-  protected ThreadJob getJob( int millis ) throws InterruptedException, InterruptedIOException {
-    return (ThreadJob)jobqueue.get( millis );
+  protected ThreadJob getJob(int millis) throws InterruptedException, InterruptedIOException {
+    return (ThreadJob)jobqueue.get(millis);
   }
 
 
@@ -654,23 +648,23 @@ public class ThreadPool {
    *
    * @throws InterruptedException
    */
-  public void handle( ThreadJob job ) throws InterruptedException {
+  public void handle(ThreadJob job) throws InterruptedException {
     // If we are not running, we better get started
-    if ( !isRunning() ) {
+    if (!isRunning()) {
       start();
     }
 
-    if ( ( getThreadCount() == 0 ) && ( getMaxThreadCount() > 0 ) ) {
+    if ((getThreadCount() == 0) && (getMaxThreadCount() > 0)) {
       newWorker();
     }
 
     // if there is no job to do...
-    if ( job == null ) {
+    if (job == null) {
       // whine and complain
-      Log.warn( "ThreadPool.handle() received a null job" );
+      Log.warn("ThreadPool.handle() received a null job");
     } else {
       // otherwise, dunk it in the pool
-      jobqueue.put( job );
+      jobqueue.put(job);
     }
   }
 
@@ -683,12 +677,12 @@ public class ThreadPool {
    *
    * @param runnable - the runnable object
    */
-  public void run( Runnable runnable ) {
-    ThreadJob job = new ThreadJob( runnable );
+  public void run(Runnable runnable) {
+    ThreadJob job = new ThreadJob(runnable);
 
     try {
-      handle( job );
-    } catch ( InterruptedException ie ) {}
+      handle(job);
+    } catch (InterruptedException ie) {}
   }
 
 
@@ -700,7 +694,7 @@ public class ThreadPool {
    * @return An array of references to the threadworkers
    */
   Object[] getThreadWorkers() {
-    if ( worker_set != null ) {
+    if (worker_set != null) {
       return worker_set.toArray();
     }
 
@@ -740,10 +734,10 @@ public class ThreadPool {
      *
      * @param name
      */
-    public ThreadWorker( String name ) {
-      current_thread = new Thread( this );
+    public ThreadWorker(String name) {
+      current_thread = new Thread(this);
 
-      current_thread.setName( name );
+      current_thread.setName(name);
       current_thread.start();
     }
 
@@ -754,12 +748,12 @@ public class ThreadPool {
      * Request this object to shutdown.
      */
     public void shutdown() {
-      synchronized( mutex ) {
+      synchronized (mutex) {
         this.shutdown = true;
 
-        if ( current_thread != null ) {
+        if (current_thread != null) {
           // If there is a job running in our current thread tell it to shutdown
-          if ( current_job != null ) {
+          if (current_job != null) {
             // make sure it does not try to restart
             current_job.restart = false;
             current_job.shutdown = true;
@@ -785,10 +779,10 @@ public class ThreadPool {
      */
     public void initialize() {
       super.initialize();
-      worker_set.add( this );
+      worker_set.add(this);
 
-      if ( Log.isLogging( THREAD ) ) {
-        Log.append( THREAD, "[O] " + current_thread.getName() + " is initialized." );
+      if (Log.isLogging(THREAD)) {
+        Log.append(THREAD, "[O] " + current_thread.getName() + " is initialized.");
       }
     }
 
@@ -805,18 +799,18 @@ public class ThreadPool {
     public void terminate() {
       super.terminate();
 
-      if ( worker_set != null ) {
-        synchronized( worker_set ) {
-          worker_set.remove( this );
+      if (worker_set != null) {
+        synchronized (worker_set) {
+          worker_set.remove(this);
         }
       }
 
-      if ( Log.isLogging( Log.DEBUG_EVENTS ) ) {
+      if (Log.isLogging(Log.DEBUG_EVENTS)) {
         // Had to put this in because we were getting a null pointer exception
         // on some occasions Figure out why!
-        if ( ( current_thread != null ) && ( worker_set != null ) && ( idle_set != null ) ) {
-          if ( Log.isLogging( THREAD ) ) {
-            Log.append( THREAD, "[X] " + current_thread.getName() + " is terminated normally after running " + runs + " jobs. - Remaining workers=" + worker_set.size() + "  of which " + idle_set.size() + " are idle." );
+        if ((current_thread != null) && (worker_set != null) && (idle_set != null)) {
+          if (Log.isLogging(THREAD)) {
+            Log.append(THREAD, "[X] " + current_thread.getName() + " is terminated normally after running " + runs + " jobs. - Remaining workers=" + worker_set.size() + "  of which " + idle_set.size() + " are idle.");
           }
         }
       }
@@ -841,43 +835,43 @@ public class ThreadPool {
       // Try to get a job from the queue
       try {
         // set this thread in the idle/waiting set
-        synchronized( idle_set ) {
-          idle_set.add( current_thread );
+        synchronized (idle_set) {
+          idle_set.add(current_thread);
         }
 
         // Call getJob(timeout) and wait for a job to arrive
-        job = getJob( job_wait_time );
+        job = getJob(job_wait_time);
 
         // If no job, it means we timed out before a job arrived in the queue
-        if ( ( job == null ) && isRunning() ) {
-          if ( Log.isLogging( THREAD ) ) {
-            Log.append( THREAD, "Total workers=" + worker_set.size() + "  Minimum=" + minimum_workers + "  Idle workers=" + idle_set.size() + " jobqueue=" + jobqueue.size() + "/" + jobqueue.capacity() + " jobs waiting" );
+        if ((job == null) && isRunning()) {
+          if (Log.isLogging(THREAD)) {
+            Log.append(THREAD, "Total workers=" + worker_set.size() + "  Minimum=" + minimum_workers + "  Idle workers=" + idle_set.size() + " jobqueue=" + jobqueue.size() + "/" + jobqueue.capacity() + " jobs waiting");
           }
 
-          if ( ( worker_set.size() > minimum_workers ) && ( idle_set.size() > 0 ) ) {
+          if ((worker_set.size() > minimum_workers) && (idle_set.size() > 0)) {
             // Kill thread if it is in excess of the minimum.
-            if ( Log.isLogging( THREAD ) ) {
-              Log.append( THREAD, "Idle death: " + current_thread.getName() );
+            if (Log.isLogging(THREAD)) {
+              Log.append(THREAD, "Idle death: " + current_thread.getName());
             }
 
             this.shutdown();
           }
         }
-      } catch ( InterruptedException e ) {
+      } catch (InterruptedException e) {
         // Log.append(THREAD,"\""+current_thread.getName()+"\" ThreadWorker.doWork() exception "+e.toString()+" shutdown="+isShutdown());
-      } catch ( InterruptedIOException e ) {
-        if ( Log.isLogging( THREAD ) ) {
-          Log.append( THREAD, "\"" + current_thread.getName() + "\" ThreadWorker.doWork() exception " + e.toString() + " shutdown=" + isShutdown() );
+      } catch (InterruptedIOException e) {
+        if (Log.isLogging(THREAD)) {
+          Log.append(THREAD, "\"" + current_thread.getName() + "\" ThreadWorker.doWork() exception " + e.toString() + " shutdown=" + isShutdown());
         }
-      } catch ( Exception e ) {
-        Log.append( THREAD, "\"" + current_thread.getName() + "\" ThreadWorker.doWork() exception " + e.toString() + "-" + e.getMessage() );
+      } catch (Exception e) {
+        Log.append(THREAD, "\"" + current_thread.getName() + "\" ThreadWorker.doWork() exception " + e.toString() + "-" + e.getMessage());
       }
       finally {
-        synchronized( idle_set ) {
-          idle_set.remove( current_thread );
+        synchronized (idle_set) {
+          idle_set.remove(current_thread);
 
           // If not more threads accepting - start one
-          if ( ( idle_set.size() == 0 ) && isRunning() && ( job != null ) && ( worker_set.size() < maximum_workers ) ) {
+          if ((idle_set.size() == 0) && isRunning() && (job != null) && (worker_set.size() < maximum_workers)) {
             newWorker();
           }
 
@@ -886,15 +880,15 @@ public class ThreadPool {
       } // End of trying to get a job from the queue
 
       // handle the ThreadJob
-      if ( !isShutdown() && ( job != null ) ) {
+      if (!isShutdown() && (job != null)) {
         try {
           // Tag thread if debugging
-          Log.append( THREAD, this.getThread().getName() + " handling " + job + " - total runs=" + runs );
+          Log.append(THREAD, this.getThread().getName() + " handling " + job + " - total runs=" + runs);
 
           // If we got a job to do...
-          if ( job != null ) {
+          if (job != null) {
             // Let the other methods know about it
-            synchronized( mutex ) {
+            synchronized (mutex) {
               current_job = job;
             }
 
@@ -902,17 +896,17 @@ public class ThreadPool {
             current_job.run();
 
             // Now that we are done, remove the job from the global reference
-            synchronized( current_job ) {
+            synchronized (current_job) {
               current_job = null;
             }
 
             // Increment the run counter
             runs++;
           }
-        } catch ( Exception e ) {
+        } catch (Exception e) {
           java.io.ByteArrayOutputStream out = new java.io.ByteArrayOutputStream();
-          e.printStackTrace( new java.io.PrintWriter( out, true ) );
-          Log.error( "\"" + current_thread.getName() + "\" ThreadWorker.run() exception during run() call " + e.toString() + ":" + e.getMessage() + System.getProperty( "line.separator" ) + out.toString() );
+          e.printStackTrace(new java.io.PrintWriter(out, true));
+          Log.error("\"" + current_thread.getName() + "\" ThreadWorker.run() exception during run() call " + e.toString() + ":" + e.getMessage() + System.getProperty("line.separator") + out.toString());
         }
         finally {
           job = null;

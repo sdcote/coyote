@@ -234,55 +234,54 @@ public final class FileUtil {
    * @see #deleteDirectory(File)
    */
   public static void clearDir(final File dir, final boolean clrdir, final boolean clrsub) {
-    if (!dir.isDirectory()) {
-      return;
-    }
+    if (dir.isDirectory()) {
+      // TODO: Calling this with clrdir=true and clrsub=false will result in all
+      // files of the current directory being deleted with all the sub-directories
+      // being moved to the parent directory. The orphans of the current directory
+      // should not be lost in the clearing operation.
 
-    // TODO: Calling this with clrdir=true and clrsub=false will result in all
-    // files of the current directory being deleted with all the sub-directories
-    // being moved to the parent directory. The orphans of the current directory
-    // should not be lost in the clearing operation.
+      try {
+        // Get a list of all the children in the current directory
+        final String[] childlist = dir.list();
 
-    try {
-      // Get a list of all the children in the current directory
-      final String[] childlist = dir.list();
+        // For each child in the directory
+        for (final String element : childlist) {
+          // Create a new file reference
+          final File child = new File(dir, element);
 
-      // For each child in the directory
-      for (final String element : childlist) {
-        // Create a new file reference
-        final File child = new File(dir, element);
-
-        // If it exists ( which is should )
-        if (child.exists()) {
-          // If the child is a file...
-          if (child.isFile()) {
-            // ...delete the file
-            child.delete();
-          } else {
-            if (clrsub) {
-              // .. otherwise recursively call this method to
-              // delete the
-              // directory
-              FileUtil.clearDir(child, clrdir, clrsub);
+          // If it exists ( which is should )
+          if (child.exists()) {
+            // If the child is a file...
+            if (child.isFile()) {
+              // ...delete the file
+              child.delete();
             } else {
-              // Force the deletion of the children
-              FileUtil.clearDir(child, clrdir, true);
+              if (clrsub) {
+                // .. otherwise recursively call this method to
+                // delete the
+                // directory
+                FileUtil.clearDir(child, clrdir, clrsub);
+              } else {
+                // Force the deletion of the children
+                FileUtil.clearDir(child, clrdir, true);
 
-              // We need to make sure that moveFile will move
-              // directories
-              // before this call can be made:
-              // moveFile(child,dir.getParentFile());
+                // We need to make sure that moveFile will move
+                // directories
+                // before this call can be made:
+                // moveFile(child,dir.getParentFile());
+              }
             }
           }
         }
-      }
 
-      // After all the contents are deleted, is we are to delete the directory
-      if (clrdir) {
-        // ...delete the directory itself
-        dir.delete();
-      }
-    } catch (final Exception e) {}
+        // After all the contents are deleted, is we are to delete the directory
+        if (clrdir) {
+          // ...delete the directory itself
+          dir.delete();
+        }
+      } catch (final Exception e) {}
+
+    }
   }
 
 
@@ -321,11 +320,10 @@ public final class FileUtil {
    * @param closeables the closable objects to close
    */
   public static void close(final Closeable... closeables) {
-    if (closeables == null) {
-      return;
-    }
-    for (final Closeable closeable : closeables) {
-      close(closeable);
+    if (closeables != null) {
+      for (final Closeable closeable : closeables) {
+        close(closeable);
+      }
     }
   }
 

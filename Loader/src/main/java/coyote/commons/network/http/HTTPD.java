@@ -605,7 +605,7 @@ public abstract class HTTPD {
     myThread.setDaemon( daemon );
     myThread.setName( "HTTPD Listener" );
     myThread.start();
-    while ( !serverRunnable.hasBinded && ( serverRunnable.bindException == null ) ) {
+    while ( !serverRunnable.isBoundToPort && ( serverRunnable.bindException == null ) ) {
       try {
         Thread.sleep( 10L );
       } catch ( final Throwable e ) {

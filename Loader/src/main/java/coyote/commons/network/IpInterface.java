@@ -5,7 +5,6 @@
  * terms of the MIT License which accompanies this distribution, and is
  * available at http://creativecommons.org/licenses/MIT/
  */
-
 package coyote.commons.network;
 
 import java.io.BufferedReader;
@@ -1141,13 +1140,10 @@ public class IpInterface {
 
         while ((s = stream.readLine()) != null) {
           collected = (String[])addElement(collected, s);
-
           if (collected.length > collectedMax) {
             collected = (String[])removeElementAt(collected, 0);
           }
         }
-
-        return;
       } catch (final Exception exception) {
         System.out.println(exception);
       }

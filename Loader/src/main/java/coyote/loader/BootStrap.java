@@ -4,10 +4,6 @@
  * This program and the accompanying materials are made available under the 
  * terms of the MIT License which accompanies this distribution, and is 
  * available at http://creativecommons.org/licenses/MIT/
- *
- * Contributors:
- *   Stephan D. Cote 
- *      - Initial concept and implementation
  */
 package coyote.loader;
 
@@ -63,41 +59,40 @@ public class BootStrap extends AbstractLoader {
    * 
    * @param args the entire command line arguments to parse for encryption details
    */
-  private static void encrypt( String[] args ) {
+  private static void encrypt(String[] args) {
     String token = null;
-    String key = System.getProperty( ConfigTag.CIPHER_KEY, CipherUtil.getKey( CipherUtil.CIPHER_KEY ) );
-    String cipherName = System.getProperty( ConfigTag.CIPHER_NAME, CipherUtil.CIPHER_NAME );
-    if ( args.length < 2 ) {
-      System.err.println( "Nothing to encrypt" );
+    String key = System.getProperty(ConfigTag.CIPHER_KEY, CipherUtil.getKey(CipherUtil.CIPHER_KEY));
+    String cipherName = System.getProperty(ConfigTag.CIPHER_NAME, CipherUtil.CIPHER_NAME);
+    if (args.length < 2) {
+      System.err.println("Nothing to encrypt");
       return;
     } else {
       token = args[1];
-      if ( args.length > 2 ) {
+      if (args.length > 2) {
         String rawkey = args[2];
         // make sure is it base64 encoded or make it so
         try {
-          CipherUtil.decode( rawkey );
+          CipherUtil.decode(rawkey);
           key = rawkey;
-        } catch ( Exception e ) {
-          System.out.println( "User-specified key did not appear to be Base64 encoded, encoding it." );
-          key = CipherUtil.getKey( rawkey );
+        } catch (Exception e) {
+          System.out.println("User-specified key did not appear to be Base64 encoded, encoding it.");
+          key = CipherUtil.getKey(rawkey);
         }
 
-        if ( args.length > 3 ) {
+        if (args.length > 3) {
           cipherName = args[3];
         }
-
       }
     }
-    System.out.println( "Encrypting '" + token + "'" );
-    System.out.println( "with a key of '" + key + "'" );
-    System.out.println( "using a '" + cipherName + "' cipher" );
+    System.out.println("Encrypting '" + token + "'");
+    System.out.println("with a key of '" + key + "'");
+    System.out.println("using a '" + cipherName + "' cipher");
 
-    if ( CipherUtil.getCipher( cipherName ) != null ) {
-      String ciphertext = CipherUtil.encipher( token, cipherName, key );
-      System.out.println( ciphertext );
+    if (CipherUtil.getCipher(cipherName) != null) {
+      String ciphertext = CipherUtil.encipher(token, cipherName, key);
+      System.out.println(ciphertext);
     } else {
-      System.err.println( "Cipher '" + cipherName + "' is not supported" );
+      System.err.println("Cipher '" + cipherName + "' is not supported");
     }
 
   }
@@ -115,32 +110,32 @@ public class BootStrap extends AbstractLoader {
    * 
    * @param args The command line arguments passed to the main method
    */
-  private static void parseArgs( String[] args ) {
+  private static void parseArgs(String[] args) {
 
     // Get the URI to our configuration from either the command line or the system properties
-    if ( args != null && args.length > 0 ) {
+    if (args != null && args.length > 0) {
 
       // if the first argument is "encrypt" perform an encryption operation 
       // using the rest of the command line arguments
-      if ( ENCRYPT.equalsIgnoreCase( args[0] ) ) {
-        encrypt( args );
-        System.exit( 0 );
+      if (ENCRYPT.equalsIgnoreCase(args[0])) {
+        encrypt(args);
+        System.exit(0);
       } else {
         cfgLoc = args[0];
       }
     }
-    for ( int x = 0; x < args.length; x++ ) {
-      if ( DEBUG_ARG.equalsIgnoreCase( args[x] ) ) {
-        Log.startLogging( Log.DEBUG );
-      } else if ( INFO_ARG.equalsIgnoreCase( args[x] ) ) {
-        Log.startLogging( Log.INFO );
+    for (int x = 0; x < args.length; x++) {
+      if (DEBUG_ARG.equalsIgnoreCase(args[x])) {
+        Log.startLogging(Log.DEBUG);
+      } else if (INFO_ARG.equalsIgnoreCase(args[x])) {
+        Log.startLogging(Log.INFO);
       }
     }
 
     // Make sure we have a configuration 
-    if ( StringUtil.isBlank( cfgLoc ) ) {
-      System.err.println( LogMsg.createMsg( MSG, "Loader.error_no_config" ) );
-      System.exit( 8 );
+    if (StringUtil.isBlank(cfgLoc)) {
+      System.err.println(LogMsg.createMsg(MSG, "Loader.error_no_config"));
+      System.exit(8);
     }
 
   }
@@ -162,14 +157,14 @@ public class BootStrap extends AbstractLoader {
    */
   private static void readConfig() {
     try {
-      configuration = Config.read( cfgUri );
-      if ( StringUtil.isBlank( configuration.getName() ) ) {
-        configuration.setName( UriUtil.getBase( cfgUri ) );
+      configuration = Config.read(cfgUri);
+      if (StringUtil.isBlank(configuration.getName())) {
+        configuration.setName(UriUtil.getBase(cfgUri));
       }
-      System.setProperty( ConfigTag.CONFIG_URI, cfgUri.toString() );
-    } catch ( IOException | ConfigurationException e ) {
-      System.err.println( LogMsg.createMsg( MSG, "Loader.error_reading_configuration", cfgUri, e.getLocalizedMessage(), ExceptionUtil.stackTrace( e ) ) );
-      System.exit( 7 );
+      System.setProperty(ConfigTag.CONFIG_URI, cfgUri.toString());
+    } catch (IOException | ConfigurationException e) {
+      System.err.println(LogMsg.createMsg(MSG, "Loader.error_reading_configuration", cfgUri, e.getLocalizedMessage(), ExceptionUtil.stackTrace(e)));
+      System.exit(7);
     }
 
   }
@@ -189,40 +184,40 @@ public class BootStrap extends AbstractLoader {
    * @return a configured loader or null if there was no "CLASS" attribute in 
    *         the root of the configuration indicating was not found.
    */
-  private static Loader buildLoader( String[] args ) {
+  private static Loader buildLoader(String[] args) {
     Loader retval = null;
 
     String className = configuration.getClassName();
-    if ( StringUtil.isBlank( className ) ) {
+    if (StringUtil.isBlank(className)) {
       className = DefaultLoader.class.getName();
-      Log.info( LogMsg.createMsg( MSG, "Loader.using_default_loader", className ) );
+      Log.info(LogMsg.createMsg(MSG, "Loader.using_default_loader", className));
     }
 
-    if ( className != null && StringUtil.countOccurrencesOf( className, "." ) < 1 ) {
+    if (className != null && StringUtil.countOccurrencesOf(className, ".") < 1) {
       className = BootStrap.class.getPackage().getName() + "." + className;
     }
 
     try {
-      Class<?> clazz = Class.forName( className );
+      Class<?> clazz = Class.forName(className);
       Constructor<?> ctor = clazz.getConstructor();
       Object object = ctor.newInstance();
 
-      if ( object instanceof Loader ) {
+      if (object instanceof Loader) {
         retval = (Loader)object;
         try {
-          retval.setCommandLineArguments( args );
-          retval.configure( configuration );
-        } catch ( ConfigurationException e ) {
-          System.err.println( LogMsg.createMsg( MSG, "Loader.could_not_config_loader", object.getClass().getName(), e.getClass().getSimpleName(), e.getMessage() ) );
-          System.exit( 6 );
+          retval.setCommandLineArguments(args);
+          retval.configure(configuration);
+        } catch (ConfigurationException e) {
+          System.err.println(LogMsg.createMsg(MSG, "Loader.could_not_config_loader", object.getClass().getName(), e.getClass().getSimpleName(), e.getMessage()));
+          System.exit(6);
         }
       } else {
-        System.err.println( LogMsg.createMsg( MSG, "Loader.class_is_not_loader", className ) );
-        System.exit( 5 );
+        System.err.println(LogMsg.createMsg(MSG, "Loader.class_is_not_loader", className));
+        System.exit(5);
       }
-    } catch ( ClassNotFoundException | NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e ) {
-      System.err.println( LogMsg.createMsg( MSG, "Loader.instantiation_error", className, e.getClass().getName(), e.getMessage() ) );
-      System.exit( 4 );
+    } catch (ClassNotFoundException | NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+      System.err.println(LogMsg.createMsg(MSG, "Loader.instantiation_error", className, e.getClass().getName(), e.getMessage()));
+      System.exit(4);
     }
 
     return retval;
@@ -237,16 +232,16 @@ public class BootStrap extends AbstractLoader {
    * 
    * @param args command line arguments.
    */
-  public static void main( String[] args ) {
+  public static void main(String[] args) {
 
     // set the default logger
-    Log.addLogger( Log.DEFAULT_LOGGER_NAME, new ConsoleAppender( Log.WARN_EVENTS | Log.ERROR_EVENTS | Log.FATAL_EVENTS ) );
+    Log.addLogger(Log.DEFAULT_LOGGER_NAME, new ConsoleAppender(Log.WARN_EVENTS | Log.ERROR_EVENTS | Log.FATAL_EVENTS));
 
     // Parse the command line arguments
-    parseArgs( args );
+    parseArgs(args);
 
-    Log.info( "Verbose logging is enabled" );
-    Log.debug( "Debug logging is enabled" );
+    Log.info("Verbose logging is enabled");
+    Log.debug("Debug logging is enabled");
 
     // confirm the readability of app.home if it is set
     confirmAppHome();
@@ -261,33 +256,33 @@ public class BootStrap extends AbstractLoader {
     readConfig();
 
     // Create a loader from the configuration
-    Loader loader = buildLoader( args );
+    Loader loader = buildLoader(args);
 
     // If we have a loader
-    if ( loader != null ) {
+    if (loader != null) {
 
       // Register a shutdown method to terminate cleanly when the JVM exit
-      registerShutdownHook( loader );
+      registerShutdownHook(loader);
 
       // Name the loader based on its configuration URI
-      if ( loader.getName() == null ) {
-        loader.setName( getNameFromUri( cfgUri ) );
+      if (loader.getName() == null) {
+        loader.setName(getNameFromUri(cfgUri));
       }
 
       // Start the loader running in the current thread
       try {
         loader.start();
-      } catch ( Throwable t ) {
-        System.err.println( LogMsg.createMsg( MSG, "Loader.logic_error_from_loader", t.getLocalizedMessage(), ExceptionUtil.stackTrace( t ) ) );
-        System.exit( 3 );
+      } catch (Throwable t) {
+        System.err.println(LogMsg.createMsg(MSG, "Loader.logic_error_from_loader", t.getLocalizedMessage(), ExceptionUtil.stackTrace(t)));
+        System.exit(3);
       }
     } else {
-      System.err.println( LogMsg.createMsg( MSG, "Loader.no_loader_configured" ) );
-      System.exit( 2 );
+      System.err.println(LogMsg.createMsg(MSG, "Loader.no_loader_configured"));
+      System.exit(2);
     }
 
     // Normal termination
-    System.exit( 0 );
+    System.exit(0);
 
   }
 
@@ -299,8 +294,8 @@ public class BootStrap extends AbstractLoader {
    * @param uri the URI to query
    * @return the base of the URI
    */
-  private static String getNameFromUri( URI uri ) {
-    return UriUtil.getBase( uri );
+  private static String getNameFromUri(URI uri) {
+    return UriUtil.getBase(uri);
   }
 
 
@@ -311,110 +306,110 @@ public class BootStrap extends AbstractLoader {
    */
   private static void confirmConfigurationLocation() {
     // start building error messages for user feedback
-    StringBuffer errMsg = new StringBuffer( LogMsg.createMsg( MSG, "Loader.confirming_cfg_location", cfgLoc ) + StringUtil.CRLF );
+    StringBuffer errMsg = new StringBuffer(LogMsg.createMsg(MSG, "Loader.confirming_cfg_location", cfgLoc) + StringUtil.CRLF);
 
     // process the configuration location if it exists
-    if ( StringUtil.isNotBlank( cfgLoc ) ) {
+    if (StringUtil.isNotBlank(cfgLoc)) {
 
       // all configurations locations should be a URI
       try {
-        cfgUri = new URI( cfgLoc );
-      } catch ( URISyntaxException e ) {
+        cfgUri = new URI(cfgLoc);
+      } catch (URISyntaxException e) {
         // This can happen when the location is a filename
       }
 
       // if we could not create a URI from the location or its scheme is empty
-      if ( cfgUri == null || StringUtil.isBlank( cfgUri.getScheme() ) ) {
+      if (cfgUri == null || StringUtil.isBlank(cfgUri.getScheme())) {
 
         // try the location as a file
-        File localfile = new File( cfgLoc );
+        File localfile = new File(cfgLoc);
         // keep track of an alternative version of specifying the file
-        File alternativeFile = new File( cfgLoc + JSON_EXT );
+        File alternativeFile = new File(cfgLoc + JSON_EXT);
 
         // make sure a file object has been created
-        if ( localfile != null ) {
+        if (localfile != null) {
 
           // if the file is an absolute path or is relative and exists in the 
           // current working directory...
-          if ( localfile.exists() ) {
+          if (localfile.exists()) {
             // we are done, get the file location as a URI
-            cfgUri = FileUtil.getFileURI( localfile );
+            cfgUri = FileUtil.getFileURI(localfile);
           } else {
-            if ( !alternativeFile.exists() ) {
+            if (!alternativeFile.exists()) {
               alternativeFile = null;
             }
 
             // add the filename we checked unsuccessfully to the error message
-            errMsg.append( LogMsg.createMsg( MSG, "Loader.no_local_cfg_file", localfile.getAbsolutePath() ) + StringUtil.CRLF );
+            errMsg.append(LogMsg.createMsg(MSG, "Loader.no_local_cfg_file", localfile.getAbsolutePath()) + StringUtil.CRLF);
 
             // the file does not exist, so if it is a relative filename... 
-            if ( !localfile.isAbsolute() ) {
+            if (!localfile.isAbsolute()) {
 
               // see if there is a system property with a shared configuration directory
-              String path = System.getProperties().getProperty( APP_HOME );
+              String path = System.getProperties().getProperty(APP_HOME);
 
               // if there is a application home directory specified
-              if ( StringUtil.isNotBlank( path ) ) {
+              if (StringUtil.isNotBlank(path)) {
 
                 // remove all the relations and duplicate slashes
-                String appDir = FileUtil.normalizePath( path );
+                String appDir = FileUtil.normalizePath(path);
 
                 // create a file reference to that shared directory 
-                File homeDir = new File( appDir );
+                File homeDir = new File(appDir);
 
                 // create a reference to the configuration directory
-                File configDir = new File( homeDir, "cfg" );
+                File configDir = new File(homeDir, "cfg");
 
                 // make sure it exists
-                if ( configDir.exists() ) {
+                if (configDir.exists()) {
                   // make sure it is a directory
-                  if ( configDir.isDirectory() ) {
+                  if (configDir.isDirectory()) {
                     // make a file reference to expected file
-                    File cfgFile = new File( configDir, cfgLoc );
+                    File cfgFile = new File(configDir, cfgLoc);
                     // see if it exists
-                    if ( cfgFile.exists() ) {
+                    if (cfgFile.exists()) {
                       // Success - cfg was found in the shared config directory
-                      cfgUri = FileUtil.getFileURI( cfgFile );
+                      cfgUri = FileUtil.getFileURI(cfgFile);
                     } else {
                       // if an laternat was found in the local directory, use it
-                      if ( alternativeFile != null ) {
-                        cfgUri = FileUtil.getFileURI( alternativeFile );
+                      if (alternativeFile != null) {
+                        cfgUri = FileUtil.getFileURI(alternativeFile);
 
                       } else {
                         // try adding an extension to the file in the common cfg directory
-                        alternativeFile = new File( configDir, cfgLoc + JSON_EXT );
-                        if ( alternativeFile.exists() ) {
+                        alternativeFile = new File(configDir, cfgLoc + JSON_EXT);
+                        if (alternativeFile.exists()) {
                           // Success - cfg was found in the shared config directory with an added extension
-                          cfgUri = FileUtil.getFileURI( alternativeFile );
+                          cfgUri = FileUtil.getFileURI(alternativeFile);
                         } else {
                           // we tried the local and shared locations, report error
-                          errMsg.append( LogMsg.createMsg( MSG, "Loader.no_common_cfg_file", cfgFile.getAbsolutePath() ) + StringUtil.CRLF );
-                          errMsg.append( LogMsg.createMsg( MSG, "Loader.cfg_file_not_found", cfgLoc ) + StringUtil.CRLF );
-                          System.out.println( errMsg.toString() );
-                          System.exit( 9 );
+                          errMsg.append(LogMsg.createMsg(MSG, "Loader.no_common_cfg_file", cfgFile.getAbsolutePath()) + StringUtil.CRLF);
+                          errMsg.append(LogMsg.createMsg(MSG, "Loader.cfg_file_not_found", cfgLoc) + StringUtil.CRLF);
+                          System.out.println(errMsg.toString());
+                          System.exit(9);
                         }
                       }
                     }
                   } else {
                     // the specified config directory was not a directory
-                    errMsg.append( LogMsg.createMsg( MSG, "Loader.cfg_dir_is_not_directory", appDir ) + StringUtil.CRLF );
-                    System.out.println( errMsg.toString() );
-                    System.exit( 10 );
+                    errMsg.append(LogMsg.createMsg(MSG, "Loader.cfg_dir_is_not_directory", appDir) + StringUtil.CRLF);
+                    System.out.println(errMsg.toString());
+                    System.exit(10);
                   }
                 } else {
                   // the specified config directory does not exist
-                  errMsg.append( LogMsg.createMsg( MSG, "Loader.cfg_dir_does_not_exist", appDir ) + StringUtil.CRLF );
-                  System.out.println( errMsg.toString() );
-                  System.exit( 11 );
+                  errMsg.append(LogMsg.createMsg(MSG, "Loader.cfg_dir_does_not_exist", appDir) + StringUtil.CRLF);
+                  System.out.println(errMsg.toString());
+                  System.exit(11);
                 }
               } else {
-                if ( alternativeFile != null ) {
-                  cfgUri = FileUtil.getFileURI( alternativeFile );
+                if (alternativeFile != null) {
+                  cfgUri = FileUtil.getFileURI(alternativeFile);
                 } else {
                   // no shared config directory provided in system properties
-                  errMsg.append( LogMsg.createMsg( MSG, "Loader.cfg_dir_not_provided", APP_HOME ) + StringUtil.CRLF );
-                  System.out.println( errMsg.toString() );
-                  System.exit( 12 );
+                  errMsg.append(LogMsg.createMsg(MSG, "Loader.cfg_dir_not_provided", APP_HOME) + StringUtil.CRLF);
+                  System.out.println(errMsg.toString());
+                  System.exit(12);
                 }
               }
 
@@ -426,29 +421,29 @@ public class BootStrap extends AbstractLoader {
 
       } // cfguri is not valid
 
-      if ( cfgUri != null ) {
+      if (cfgUri != null) {
         // Now check to see if the CFG is readable (if it is a file)
-        if ( UriUtil.isFile( cfgUri ) ) {
-          File test = UriUtil.getFile( cfgUri );
-          if ( !test.exists() || !test.canRead() ) {
-            errMsg.append( LogMsg.createMsg( MSG, "Loader.cfg_file_not_readable", test.getAbsolutePath() ) + StringUtil.CRLF );
-            System.out.println( errMsg.toString() );
-            System.exit( 13 );
+        if (UriUtil.isFile(cfgUri)) {
+          File test = UriUtil.getFile(cfgUri);
+          if (!test.exists() || !test.canRead()) {
+            errMsg.append(LogMsg.createMsg(MSG, "Loader.cfg_file_not_readable", test.getAbsolutePath()) + StringUtil.CRLF);
+            System.out.println(errMsg.toString());
+            System.exit(13);
           }
-          Log.info( LogMsg.createMsg( MSG, "Loader.cfg_reading_from_file", test.getAbsolutePath() ) );
+          Log.info(LogMsg.createMsg(MSG, "Loader.cfg_reading_from_file", test.getAbsolutePath()));
         } else {
-          Log.info( LogMsg.createMsg( MSG, "Loader.cfg_reading_from_network" ) );
+          Log.info(LogMsg.createMsg(MSG, "Loader.cfg_reading_from_network"));
         }
       } else {
-        errMsg.append( LogMsg.createMsg( MSG, "Loader.cfg_file_not_found", cfgLoc ) + StringUtil.CRLF );
-        System.out.println( errMsg.toString() );
-        System.exit( 9 );
+        errMsg.append(LogMsg.createMsg(MSG, "Loader.cfg_file_not_found", cfgLoc) + StringUtil.CRLF);
+        System.out.println(errMsg.toString());
+        System.exit(9);
 
       }
 
     } else {
-      System.err.println( LogMsg.createMsg( MSG, "Loader.no_config_uri_defined" ) );
-      System.exit( 1 );
+      System.err.println(LogMsg.createMsg(MSG, "Loader.no_config_uri_defined"));
+      System.exit(1);
     }
 
   }

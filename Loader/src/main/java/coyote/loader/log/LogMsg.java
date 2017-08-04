@@ -4,10 +4,6 @@
  * This program and the accompanying materials are made available under the 
  * terms of the MIT License which accompanies this distribution, and is 
  * available at http://creativecommons.org/licenses/MIT/
- *
- * Contributors:
- *   Stephan D. Cote 
- *      - Initial concept and implementation
  */
 package coyote.loader.log;
 
@@ -63,7 +59,7 @@ public class LogMsg implements Serializable {
      *
      * @param bundleBaseName the bundle base name string
      */
-    public BundleBaseName( final String bundleBaseName ) {
+    public BundleBaseName(final String bundleBaseName) {
       bName = bundleBaseName;
     }
 
@@ -102,7 +98,7 @@ public class LogMsg implements Serializable {
    * This is probably OK; we can assume if we move over to another VM, we 
    * probably will want to go back to the original bundle name default.
    */
-  private static BundleBaseName bundleBasenameDefault = new BundleBaseName( "LogMsg" );
+  private static BundleBaseName bundleBasenameDefault = new BundleBaseName("LogMsg");
 
 
 
@@ -122,9 +118,9 @@ public class LogMsg implements Serializable {
    * @return if the message was logged, a non-<code>null</code> LogMsg object 
    *         is returned
    */
-  public static LogMsg createMsg( final BundleBaseName basename, final Locale locale, final String key, final Object[] args ) {
-    final LogMsg msg = new LogMsg( basename, locale );
-    msg.getMsg( key, args );
+  public static LogMsg createMsg(final BundleBaseName basename, final Locale locale, final String key, final Object[] args) {
+    final LogMsg msg = new LogMsg(basename, locale);
+    msg.getMsg(key, args);
     return msg;
   }
 
@@ -145,9 +141,9 @@ public class LogMsg implements Serializable {
    * @return if the message was logged, a non-<code>null</code> LogMsg object 
    *         is returned
    */
-  public static LogMsg createMsg( final BundleBaseName basename, final String key, final Object... args ) {
-    final LogMsg msg = new LogMsg( basename );
-    msg.getMsg( key, args );
+  public static LogMsg createMsg(final BundleBaseName basename, final String key, final Object... args) {
+    final LogMsg msg = new LogMsg(basename);
+    msg.getMsg(key, args);
     return msg;
   }
 
@@ -169,9 +165,9 @@ public class LogMsg implements Serializable {
    * @return if the message was logged, a non-<code>null</code> LogMsg object 
    *         is returned
    */
-  public static LogMsg createMsg( final Locale locale, final String key, final Object... args ) {
-    final LogMsg msg = new LogMsg( locale );
-    msg.getMsg( key, args );
+  public static LogMsg createMsg(final Locale locale, final String key, final Object... args) {
+    final LogMsg msg = new LogMsg(locale);
+    msg.getMsg(key, args);
     return msg;
   }
 
@@ -191,9 +187,9 @@ public class LogMsg implements Serializable {
    * @return if the message was logged, a non-<code>null</code> LogMsg object 
    *         is returned
    */
-  public static LogMsg createMsg( final String key ) {
+  public static LogMsg createMsg(final String key) {
     final LogMsg msg = new LogMsg();
-    msg.getMsg( key, new Object[] {} );
+    msg.getMsg(key, new Object[]{});
     return msg;
   }
 
@@ -214,9 +210,9 @@ public class LogMsg implements Serializable {
    * @return if the message was logged, a non-<code>null</code> LogMsg object 
    *         is returned
    */
-  public static LogMsg createMsg( final String key, final Object... args ) {
+  public static LogMsg createMsg(final String key, final Object... args) {
     final LogMsg msg = new LogMsg();
-    msg.getMsg( key, args );
+    msg.getMsg(key, args);
     return msg;
   }
 
@@ -237,8 +233,8 @@ public class LogMsg implements Serializable {
    * @return if the message was logged, a non-<code>null</code> LogMsg object 
    *         is returned
    */
-  public static LogMsg createMsg( final String key, final Object arg ) {
-    return createMsg( key, new Object[] { arg } );
+  public static LogMsg createMsg(final String key, final Object arg) {
+    return createMsg(key, new Object[]{arg});
   }
 
 
@@ -253,12 +249,12 @@ public class LogMsg implements Serializable {
    *
    * @throws Exception if failed to deserialize the object
    */
-  protected static Object deserialize( final byte[] serializedData ) throws Exception {
-    final ByteArrayInputStream byteStream = new ByteArrayInputStream( serializedData );
+  protected static Object deserialize(final byte[] serializedData) throws Exception {
+    final ByteArrayInputStream byteStream = new ByteArrayInputStream(serializedData);
     ObjectInputStream ois;
     Object retObject;
 
-    ois = new ObjectInputStream( byteStream );
+    ois = new ObjectInputStream(byteStream);
     retObject = ois.readObject();
     ois.close();
 
@@ -291,12 +287,12 @@ public class LogMsg implements Serializable {
    *
    * @throws Exception if failed to serialize the object
    */
-  protected static byte[] serialize( final Serializable object ) throws Exception {
+  protected static byte[] serialize(final Serializable object) throws Exception {
     final ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
     ObjectOutputStream oos;
 
-    oos = new ObjectOutputStream( byteStream );
-    oos.writeObject( object );
+    oos = new ObjectOutputStream(byteStream);
+    oos.writeObject(object);
     oos.close();
 
     return byteStream.toByteArray();
@@ -311,7 +307,7 @@ public class LogMsg implements Serializable {
    *
    * @param newDefault the new bundle base name default (e.g. "my.messages")
    */
-  public static void setBundleBaseNameDefault( final BundleBaseName newDefault ) {
+  public static void setBundleBaseNameDefault(final BundleBaseName newDefault) {
     LogMsg.bundleBasenameDefault = newDefault;
   }
 
@@ -367,7 +363,7 @@ public class LogMsg implements Serializable {
    * bundle.
    */
   public LogMsg() {
-    this( LogMsg.bundleBasenameDefault, Locale.getDefault() );
+    this(LogMsg.bundleBasenameDefault, Locale.getDefault());
   }
 
 
@@ -381,8 +377,8 @@ public class LogMsg implements Serializable {
    *
    * @see LogMsg#LogMsg(BundleBaseName, Locale)
    */
-  public LogMsg( final BundleBaseName basename ) {
-    this( basename, Locale.getDefault() );
+  public LogMsg(final BundleBaseName basename) {
+    this(basename, Locale.getDefault());
   }
 
 
@@ -396,12 +392,12 @@ public class LogMsg implements Serializable {
    * @param locale locale used to determine proper resource bundle to use, if 
    * <code>null</code> uses the default locale of the JVM.
    */
-  public LogMsg( BundleBaseName basename, Locale locale ) {
-    if ( basename == null ) {
+  public LogMsg(BundleBaseName basename, Locale locale) {
+    if (basename == null) {
       basename = LogMsg.bundleBasenameDefault;
     }
 
-    if ( locale == null ) {
+    if (locale == null) {
       locale = Locale.getDefault();
     }
 
@@ -412,8 +408,6 @@ public class LogMsg implements Serializable {
     lastMessage = null;
     lastKey = null;
     lastArgs = null;
-
-    return;
   }
 
 
@@ -427,8 +421,8 @@ public class LogMsg implements Serializable {
    *
    * @see LogMsg#LogMsg(BundleBaseName, Locale)
    */
-  public LogMsg( final Locale locale ) {
-    this( LogMsg.bundleBasenameDefault, locale );
+  public LogMsg(final Locale locale) {
+    this(LogMsg.bundleBasenameDefault, locale);
   }
 
 
@@ -461,18 +455,18 @@ public class LogMsg implements Serializable {
     // If bundle was not yet set, we've either never retreived a message or
     // we've been serialized to another VM or someone set a new locale. In 
     // either of these cases, we need to get the message again.
-    if ( bundle == null ) {
+    if (bundle == null) {
       // Note that if the last args is null, that means the deserialization of 
       // the args failed. In this case, we don't want to get the message since 
       // we've now lost some of the message data. We will rely on the last 
       // message that hopefully contains all the data, albeit in a different 
       // locale (but at least the data isn't lost).
-      if ( lastArgs != null ) {
+      if (lastArgs != null) {
         final String lastMessageBackup = lastMessage;
 
-        getMsg( lastKey, lastArgs );
+        getMsg(lastKey, lastArgs);
 
-        if ( getFailed ) {
+        if (getFailed) {
           lastMessage = lastMessageBackup;
         }
       }
@@ -511,7 +505,7 @@ public class LogMsg implements Serializable {
    *
    * @see java.text.MessageFormat
    */
-  public String getMsg( final String key, final Object[] args ) {
+  public String getMsg(final String key, final Object[] args) {
     String retval = null;
 
     // See if we can find the bundle that has our new locale's messages. If we 
@@ -523,15 +517,15 @@ public class LogMsg implements Serializable {
     // In either case, the args will be returned in the standard Java 
     // List.toString format.
     try {
-      if ( bundle == null ) {
+      if (bundle == null) {
         bundle = getResourceBundle();
       }
 
-      retval = bundle.getString( key );
+      retval = bundle.getString(key);
 
-      if ( args.length > 0 ) {
-        final MessageFormat mf = new MessageFormat( retval, locale );
-        retval = mf.format( args );
+      if (args.length > 0) {
+        final MessageFormat mf = new MessageFormat(retval, locale);
+        retval = mf.format(args);
       }
 
       // remember these in case we are asked to get the message again in a 
@@ -542,10 +536,10 @@ public class LogMsg implements Serializable {
 
       // everything is OK
       getFailed = false;
-    } catch ( final Exception e ) {
+    } catch (final Exception e) {
       getFailed = true;
 
-      if ( retval == null ) {
+      if (retval == null) {
         retval = key;
       }
 
@@ -574,7 +568,7 @@ public class LogMsg implements Serializable {
   protected ResourceBundle getResourceBundle() {
     final Locale locale = getLocale();
     final BundleBaseName basename = getBundleBaseName();
-    final ResourceBundle bundle = ResourceBundle.getBundle( basename.getBundleBaseName(), locale );
+    final ResourceBundle bundle = ResourceBundle.getBundle(basename.getBundleBaseName(), locale);
 
     return bundle;
   }
@@ -596,7 +590,7 @@ public class LogMsg implements Serializable {
    * @throws IOException
    * @throws ClassNotFoundException
    */
-  private void readObject( final java.io.ObjectInputStream in ) throws IOException, ClassNotFoundException {
+  private void readObject(final java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
     // set our transient fields
     bundle = null;
     getFailed = false;
@@ -610,18 +604,16 @@ public class LogMsg implements Serializable {
 
     final int argsLength = in.readInt();
 
-    if ( argsLength != -1 ) {
+    if (argsLength != -1) {
       final byte[] args = new byte[argsLength];
 
       try {
-        in.readFully( args );
-        lastArgs = (Object[])LogMsg.deserialize( args );
-      } catch ( final Exception e ) {
+        in.readFully(args);
+        lastArgs = (Object[])LogMsg.deserialize(args);
+      } catch (final Exception e) {
         lastArgs = null;
       }
     }
-
-    return;
   }
 
 
@@ -639,19 +631,17 @@ public class LogMsg implements Serializable {
    * @param locale the new locale to set, if <code>null</code>, the default 
    * locale will be set
    */
-  public void setLocale( Locale locale ) {
-    if ( locale == null ) {
+  public void setLocale(Locale locale) {
+    if (locale == null) {
       locale = Locale.getDefault();
     }
 
-    if ( !locale.equals( getLocale() ) ) {
+    if (!locale.equals(getLocale())) {
       this.locale = locale;
 
       // since the locale has changed the current bundle is no longer valid
       bundle = null;
     }
-
-    return;
   }
 
 
@@ -666,9 +656,6 @@ public class LogMsg implements Serializable {
     return getLastMessage();
   }
 
-
-
-
   //
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -676,6 +663,9 @@ public class LogMsg implements Serializable {
   // 
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+
+
 
   // 
 
@@ -692,11 +682,11 @@ public class LogMsg implements Serializable {
    *
    * @throws IOException
    */
-  private void writeObject( final java.io.ObjectOutputStream out ) throws IOException {
-    out.writeObject( bundleBaseName );
-    out.writeObject( locale );
-    out.writeObject( lastMessage );
-    out.writeObject( lastKey );
+  private void writeObject(final java.io.ObjectOutputStream out) throws IOException {
+    out.writeObject(bundleBaseName);
+    out.writeObject(locale);
+    out.writeObject(lastMessage);
+    out.writeObject(lastKey);
 
     byte[] args;
     int argsLength;
@@ -709,18 +699,17 @@ public class LogMsg implements Serializable {
       // in an indeterminate state. Since it is completely valid that some args 
       // may not be serializable, we have to take into account that we may not 
       // be able to serialize the args.
-      args = LogMsg.serialize( lastArgs );
+      args = LogMsg.serialize(lastArgs);
       argsLength = args.length;
-    } catch ( final Exception e ) {
+    } catch (final Exception e) {
       args = null;
       argsLength = -1;
     }
 
-    out.writeInt( argsLength );
-    if ( argsLength != -1 ) {
-      out.write( args );
+    out.writeInt(argsLength);
+    if (argsLength != -1) {
+      out.write(args);
     }
-
-    return;
   }
+
 }

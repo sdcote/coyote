@@ -122,25 +122,24 @@ public abstract class WebSocket {
 
 
   private void doClose(final CloseCode code, final String reason, final boolean initiatedByRemote) {
-    if (state == State.CLOSED) {
-      return;
-    }
-    if (in != null) {
-      try {
-        in.close();
-      } catch (final IOException e) {
-        WebSocketDaemon.LOG.log(Level.FINE, "close failed", e);
+    if (state != State.CLOSED) {
+      if (in != null) {
+        try {
+          in.close();
+        } catch (final IOException e) {
+          WebSocketDaemon.LOG.log(Level.FINE, "close failed", e);
+        }
       }
-    }
-    if (out != null) {
-      try {
-        out.close();
-      } catch (final IOException e) {
-        WebSocketDaemon.LOG.log(Level.FINE, "close failed", e);
+      if (out != null) {
+        try {
+          out.close();
+        } catch (final IOException e) {
+          WebSocketDaemon.LOG.log(Level.FINE, "close failed", e);
+        }
       }
+      state = State.CLOSED;
+      onClose(code, reason, initiatedByRemote);
     }
-    state = State.CLOSED;
-    onClose(code, reason, initiatedByRemote);
   }
 
 

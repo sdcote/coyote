@@ -4,10 +4,6 @@
  * This program and the accompanying materials are made available under the 
  * terms of the MIT License which accompanies this distribution, and is 
  * available at http://creativecommons.org/licenses/MIT/
- *
- * Contributors:
- *   Stephan D. Cote 
- *      - Initial concept and implementation
  */
 package coyote.loader.log;
 
@@ -45,7 +41,7 @@ public abstract class AbstractLogger implements Logger {
    *
    */
   public AbstractLogger() {
-    this( 0 );
+    this(0);
   }
 
 
@@ -54,7 +50,7 @@ public abstract class AbstractLogger implements Logger {
   /**
    * @param mask
    */
-  public AbstractLogger( final long mask ) {
+  public AbstractLogger(final long mask) {
     this.mask = mask;
     formatter = new DefaultFormatter();
     config = null;
@@ -78,8 +74,8 @@ public abstract class AbstractLogger implements Logger {
    * 
    * @param mask  The mask
    */
-  public void setMask( final long mask ) {
-    if ( !locked ) {
+  public void setMask(final long mask) {
+    if (!locked) {
       this.mask = mask;
 
       LogKernel.recalcMasks();
@@ -94,8 +90,8 @@ public abstract class AbstractLogger implements Logger {
    *
    * @param mask The mask
    */
-  public synchronized void addMask( final long mask ) {
-    if ( !locked ) {
+  public synchronized void addMask(final long mask) {
+    if (!locked) {
       this.mask |= mask;
 
       LogKernel.recalcMasks();
@@ -110,8 +106,8 @@ public abstract class AbstractLogger implements Logger {
    *
    * @param mask
    */
-  public synchronized void removeMask( long mask ) {
-    if ( !locked ) {
+  public synchronized void removeMask(long mask) {
+    if (!locked) {
       this.mask &= ~mask;
 
       LogKernel.recalcMasks();
@@ -126,8 +122,8 @@ public abstract class AbstractLogger implements Logger {
    *
    * @param category The category.
    */
-  public void startLogging( final String category ) {
-    addMask( Log.getCode( category ) );
+  public void startLogging(final String category) {
+    addMask(Log.getCode(category));
   }
 
 
@@ -138,8 +134,8 @@ public abstract class AbstractLogger implements Logger {
    *
    * @param category The category.
    */
-  public void stopLogging( final String category ) {
-    removeMask( Log.getCode( category ) );
+  public void stopLogging(final String category) {
+    removeMask(Log.getCode(category));
   }
 
 
@@ -153,14 +149,11 @@ public abstract class AbstractLogger implements Logger {
    * called.</p>
    */
   public synchronized void disable() {
-    if ( mask == 0 ) {
-      return;
+    if (mask != 0) {
+      disabledMask |= mask;
+      mask = 0;
+      LogKernel.recalcMasks();
     }
-
-    disabledMask |= mask;
-    mask = 0;
-
-    LogKernel.recalcMasks();
   }
 
 
@@ -175,14 +168,11 @@ public abstract class AbstractLogger implements Logger {
     // just fine and the enable() method is called before disable(), the enable
     // method would over-write the mask with all zeros, effectively disabling
     // the logger with no way to return the logger back to it original state!
-    if ( ( mask != 0 ) && ( disabledMask == 0 ) ) {
-      return;
+    if (mask == 0 && disabledMask != 0) {
+      mask |= disabledMask;
+      disabledMask = 0;
+      LogKernel.recalcMasks();
     }
-
-    mask |= disabledMask;
-    disabledMask = 0;
-
-    LogKernel.recalcMasks();
   }
 
 
@@ -193,7 +183,7 @@ public abstract class AbstractLogger implements Logger {
    * 
    * @param uri  The target for our log messages.
    */
-  public void setTarget( final URI uri ) {
+  public void setTarget(final URI uri) {
     target = uri;
   }
 
@@ -206,10 +196,10 @@ public abstract class AbstractLogger implements Logger {
    * @return  The target of our log messages.
    */
   public URI getTarget() {
-    if ( target == null ) {
+    if (target == null) {
       try {
-        target = new URI( config.getAsString( AbstractLogger.TARGET_TAG ) );
-      } catch ( final URISyntaxException e ) {}
+        target = new URI(config.getAsString(AbstractLogger.TARGET_TAG));
+      } catch (final URISyntaxException e) {}
     }
     return target;
   }
@@ -232,7 +222,7 @@ public abstract class AbstractLogger implements Logger {
    * 
    * @param cfg The configuration from which to read the logger configuration.
    */
-  public void setConfig( final Config cfg ) {
+  public void setConfig(final Config cfg) {
     this.config = cfg;
   }
 
@@ -280,7 +270,7 @@ public abstract class AbstractLogger implements Logger {
    * @param formatter The formatter this logger is to use.
    */
   @Override
-  public void setFormatter( final Formatter formatter ) {
+  public void setFormatter(final Formatter formatter) {
     this.formatter = formatter;
   }
 
@@ -291,27 +281,27 @@ public abstract class AbstractLogger implements Logger {
    * Initialize the logger
    */
   public void initialize() {
-    if ( config != null ) {
+    if (config != null) {
       // if the target is null, then check the properties object for the URI
-      if ( target == null ) {
+      if (target == null) {
         // target = UriUtil.parse( properties.getProperty( TARGET_TAG ) );
         try {
-          target = new URI( config.getString( Logger.TARGET_TAG ) );
-        } catch ( final Exception e ) {
-          System.err.println( "Invalid logger target URI (" + e.getMessage() + ") - '" + config.get( Logger.TARGET_TAG ) + "'" );
+          target = new URI(config.getString(Logger.TARGET_TAG));
+        } catch (final Exception e) {
+          System.err.println("Invalid logger target URI (" + e.getMessage() + ") - '" + config.get(Logger.TARGET_TAG) + "'");
         }
       }
 
       // Case insensitive search for categories to log
-      if ( config.getString( Logger.CATEGORY_TAG ) != null ) {
-        for ( final StringTokenizer st = new StringTokenizer( config.getString( Logger.CATEGORY_TAG ), Logger.CATEGORY_DELIMS ); st.hasMoreTokens(); startLogging( st.nextToken().toUpperCase() ) );
+      if (config.getString(Logger.CATEGORY_TAG) != null) {
+        for (final StringTokenizer st = new StringTokenizer(config.getString(Logger.CATEGORY_TAG), Logger.CATEGORY_DELIMS); st.hasMoreTokens(); startLogging(st.nextToken().toUpperCase()));
       }
     }
 
     // determine if this logger is disabled, if so set mask to 0
-    if ( config != null && config.getString( Logger.ENABLED_TAG ) != null ) {
-      String str = config.getString( Logger.ENABLED_TAG ).toLowerCase();
-      if ( "false".equals( str ) || "0".equals( str ) || "no".equals( str ) ) {
+    if (config != null && config.getString(Logger.ENABLED_TAG) != null) {
+      String str = config.getString(Logger.ENABLED_TAG).toLowerCase();
+      if ("false".equals(str) || "0".equals(str) || "no".equals(str)) {
         disable(); // set the mask to 0
       }
     }
@@ -334,7 +324,7 @@ public abstract class AbstractLogger implements Logger {
   /**
    * @see coyote.loader.log.Logger#setLocked(boolean)
    */
-  public void setLocked( final boolean flag ) {
+  public void setLocked(final boolean flag) {
     locked = flag;
   }
 
@@ -348,6 +338,6 @@ public abstract class AbstractLogger implements Logger {
    * @param event The event, which is often just a simple string.
    * @param cause The exception that caused the log entry. Can be null.
    */
-  public abstract void append( String category, Object event, Throwable cause );
+  public abstract void append(String category, Object event, Throwable cause);
 
 }

@@ -4,10 +4,6 @@
  * This program and the accompanying materials are made available under the
  * terms of the MIT License which accompanies this distribution, and is
  * available at http://creativecommons.org/licenses/MIT/
- *
- * Contributors:
- *   Stephan D. Cote
- *      - Initial concept and implementation
  */
 package coyote.i13n;
 
@@ -28,7 +24,7 @@ public class State extends Metric {
   public static final short OBJECT_TYPE = 1;
   public static final short DOUBLE_TYPE = 2;
   public static final short LONG_TYPE = 3;
-  short _type = 0;
+  protected short _type = 0;
 
   long lastUpdated = 0;
 
@@ -42,8 +38,8 @@ public class State extends Metric {
   /**
    * Create an empty state that can be set to any type initially.
    */
-  public State( final String name ) {
-    super( name );
+  public State(final String name) {
+    super(name);
   }
 
 
@@ -63,14 +59,14 @@ public class State extends Metric {
    * @return The value of this state metric as a string.
    */
   public String getStringValue() {
-    synchronized( _name ) {
-      switch ( _type ) {
+    synchronized (_name) {
+      switch (_type) {
         case OBJECT_TYPE:
           return _objectValue.toString();
         case LONG_TYPE:
-          return Long.toString( _longValue );
+          return Long.toString(_longValue);
         case DOUBLE_TYPE:
-          return Double.toString( _doubleValue );
+          return Double.toString(_doubleValue);
         default:
           return null;
       }
@@ -85,12 +81,12 @@ public class State extends Metric {
    *         returned as their respective wrapper types.
    */
   public Object getValue() {
-    synchronized( _name ) {
-      switch ( _type ) {
+    synchronized (_name) {
+      switch (_type) {
         case LONG_TYPE:
-          return new Long( _longValue );
+          return new Long(_longValue);
         case DOUBLE_TYPE:
-          return new Double( _doubleValue );
+          return new Double(_doubleValue);
         default:
           return _objectValue;
       }
@@ -108,16 +104,16 @@ public class State extends Metric {
    * @throws IllegalArgumentException if the existing data if of type LONG or
    *         OBJECT.
    */
-  public void set( final double val ) {
-    synchronized( _name ) {
+  public void set(final double val) {
+    synchronized (_name) {
       lastUpdated = System.currentTimeMillis();
 
-      if ( ( _type == State.UNKNOWN_TYPE ) || ( _type == State.DOUBLE_TYPE ) ) {
+      if ((_type == State.UNKNOWN_TYPE) || (_type == State.DOUBLE_TYPE)) {
         _type = State.DOUBLE_TYPE;
         _doubleValue = val;
         _updateCount++;
       } else {
-        throw new IllegalArgumentException( "State metric is not a double type" );
+        throw new IllegalArgumentException("State metric is not a double type");
       }
     }
   }
@@ -133,16 +129,16 @@ public class State extends Metric {
    * @throws IllegalArgumentException if the existing data if of type DOUBLE or
    *         OBJECT.
    */
-  public void set( final long val ) {
-    synchronized( _name ) {
+  public void set(final long val) {
+    synchronized (_name) {
       lastUpdated = System.currentTimeMillis();
 
-      if ( ( _type == State.UNKNOWN_TYPE ) || ( _type == State.LONG_TYPE ) ) {
+      if ((_type == State.UNKNOWN_TYPE) || (_type == State.LONG_TYPE)) {
         _type = State.LONG_TYPE;
         _longValue = val;
         _updateCount++;
       } else {
-        throw new IllegalArgumentException( "State metric is not a long type" );
+        throw new IllegalArgumentException("State metric is not a long type");
       }
     }
   }
@@ -158,20 +154,19 @@ public class State extends Metric {
    * @throws IllegalArgumentException if the existing data if of type LONG or
    *         DOUBLE.
    */
-  public void set( final Object val ) {
-    if ( val == null ) {
-      return;
-    }
+  public void set(final Object val) {
+    if (val != null) {
 
-    synchronized( _name ) {
-      lastUpdated = System.currentTimeMillis();
+      synchronized (_name) {
+        lastUpdated = System.currentTimeMillis();
 
-      if ( ( _type == State.UNKNOWN_TYPE ) || ( _type == State.OBJECT_TYPE ) ) {
-        _type = State.OBJECT_TYPE;
-        _objectValue = val;
-        _updateCount++;
-      } else {
-        throw new IllegalArgumentException( "State metric is not an object type" );
+        if ((_type == State.UNKNOWN_TYPE) || (_type == State.OBJECT_TYPE)) {
+          _type = State.OBJECT_TYPE;
+          _objectValue = val;
+          _updateCount++;
+        } else {
+          throw new IllegalArgumentException("State metric is not an object type");
+        }
       }
     }
   }
@@ -184,10 +179,10 @@ public class State extends Metric {
    */
   @Override
   public String toString() {
-    synchronized( _name ) {
-      final StringBuffer buff = new StringBuffer( _name );
-      buff.append( "=" );
-      buff.append( getStringValue() );
+    synchronized (_name) {
+      final StringBuffer buff = new StringBuffer(_name);
+      buff.append("=");
+      buff.append(getStringValue());
       return buff.toString();
     }
   }

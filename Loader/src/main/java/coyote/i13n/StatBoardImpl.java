@@ -4,10 +4,6 @@
  * This program and the accompanying materials are made available under the
  * terms of the MIT License which accompanies this distribution, and is
  * available at http://creativecommons.org/licenses/MIT/
- *
- * Contributors:
- *   Stephan D. Cote
- *      - Initial concept and implementation
  */
 package coyote.i13n;
 
@@ -37,13 +33,13 @@ public class StatBoardImpl implements StatBoard {
   private static String cachedLocalHostName = null;
 
   /** Re-usable null timer to save object creation and GC'n */
-  private static final Timer NULL_TIMER = new NullTimer( null );
+  private static final Timer NULL_TIMER = new NullTimer(null);
 
   /** Re-usable null ARM transaction to save object creation and GC'n */
-  private static final ArmTransaction NULL_ARM = new NullArm( null, null, null );
+  private static final ArmTransaction NULL_ARM = new NullArm(null, null, null);
 
   /** Re-usable null gauge to save object creation and GC'n */
-  private static final Gauge NULL_GAUGE = new NullGauge( null );
+  private static final Gauge NULL_GAUGE = new NullGauge(null);
 
   private String BOARDID = UUID.randomUUID().toString().toLowerCase();
 
@@ -99,8 +95,8 @@ public class StatBoardImpl implements StatBoard {
    * @return The final value of the counter after the operation.
    */
   @Override
-  public long decrease( final String name, final long value ) {
-    return getCounter( name ).decrease( value );
+  public long decrease(final String name, final long value) {
+    return getCounter(name).decrease(value);
   }
 
 
@@ -118,8 +114,8 @@ public class StatBoardImpl implements StatBoard {
    * @return The final value of the counter after the operation.
    */
   @Override
-  public long decrement( final String name ) {
-    return getCounter( name ).decrement();
+  public long decrement(final String name) {
+    return getCounter(name).decrement();
   }
 
 
@@ -130,15 +126,15 @@ public class StatBoardImpl implements StatBoard {
    * from this point on.
    */
   @Override
-  public void disableArmClass( final String name ) {
-    synchronized( armMasters ) {
+  public void disableArmClass(final String name) {
+    synchronized (armMasters) {
       // get an existing master ARM or create a new one
-      ArmMaster master = armMasters.get( name );
-      if ( master == null ) {
-        master = new ArmMaster( name );
-        armMasters.put( name, master );
+      ArmMaster master = armMasters.get(name);
+      if (master == null) {
+        master = new ArmMaster(name);
+        armMasters.put(name, master);
       }
-      master.setEnabled( false );
+      master.setEnabled(false);
     }
   }
 
@@ -159,15 +155,15 @@ public class StatBoardImpl implements StatBoard {
    * @param name The name of the timer to disable.
    */
   @Override
-  public void disableTimer( final String name ) {
-    synchronized( masterTimers ) {
+  public void disableTimer(final String name) {
+    synchronized (masterTimers) {
       // get an existing master timer or create a new one
-      TimingMaster master = masterTimers.get( name );
-      if ( master == null ) {
-        master = new TimingMaster( name );
-        masterTimers.put( name, master );
+      TimingMaster master = masterTimers.get(name);
+      if (master == null) {
+        master = new TimingMaster(name);
+        masterTimers.put(name, master);
       }
-      master.setEnabled( false );
+      master.setEnabled(false);
     }
   }
 
@@ -178,8 +174,8 @@ public class StatBoardImpl implements StatBoard {
    * Activate all Application Response Measurement calls from this point on.
    */
   @Override
-  public void enableArm( final boolean flag ) {
-    synchronized( armMasters ) {
+  public void enableArm(final boolean flag) {
+    synchronized (armMasters) {
       armEnabled = flag;
     }
   }
@@ -192,15 +188,15 @@ public class StatBoardImpl implements StatBoard {
    * this point on.
    */
   @Override
-  public void enableArmClass( final String name ) {
-    synchronized( armMasters ) {
+  public void enableArmClass(final String name) {
+    synchronized (armMasters) {
       // get an existing master ARM or create a new one
-      ArmMaster master = armMasters.get( name );
-      if ( master == null ) {
-        master = new ArmMaster( name );
-        armMasters.put( name, master );
+      ArmMaster master = armMasters.get(name);
+      if (master == null) {
+        master = new ArmMaster(name);
+        armMasters.put(name, master);
       }
-      master.setEnabled( true );
+      master.setEnabled(true);
     }
   }
 
@@ -211,8 +207,8 @@ public class StatBoardImpl implements StatBoard {
    * Activate all gauges calls from this point on.
    */
   @Override
-  public void enableGauges( final boolean flag ) {
-    synchronized( gauges ) {
+  public void enableGauges(final boolean flag) {
+    synchronized (gauges) {
       gaugesEnabled = flag;
     }
   }
@@ -229,15 +225,15 @@ public class StatBoardImpl implements StatBoard {
    * @param name The name of the timer to enable.
    */
   @Override
-  public void enableTimer( final String name ) {
-    synchronized( masterTimers ) {
+  public void enableTimer(final String name) {
+    synchronized (masterTimers) {
       // get an existing master timer or create a new one
-      TimingMaster master = masterTimers.get( name );
-      if ( master == null ) {
-        master = new TimingMaster( name );
-        masterTimers.put( name, master );
+      TimingMaster master = masterTimers.get(name);
+      if (master == null) {
+        master = new TimingMaster(name);
+        masterTimers.put(name, master);
       }
-      master.setEnabled( true );
+      master.setEnabled(true);
     }
   }
 
@@ -253,8 +249,8 @@ public class StatBoardImpl implements StatBoard {
    * operational regardless of the runtime status of timing.
    */
   @Override
-  public void enableTiming( final boolean flag ) {
-    synchronized( masterTimers ) {
+  public void enableTiming(final boolean flag) {
+    synchronized (masterTimers) {
       timingEnabled = flag;
     }
   }
@@ -268,8 +264,8 @@ public class StatBoardImpl implements StatBoard {
   @Override
   public Iterator<ArmMaster> getArmIterator() {
     final ArrayList<ArmMaster> list = new ArrayList<ArmMaster>();
-    synchronized( armMasters ) {
-      for ( final Iterator<ArmMaster> it = armMasters.values().iterator(); it.hasNext(); list.add( it.next() ) ) {
+    synchronized (armMasters) {
+      for (final Iterator<ArmMaster> it = armMasters.values().iterator(); it.hasNext(); list.add(it.next())) {
         ;
       }
     }
@@ -290,13 +286,13 @@ public class StatBoardImpl implements StatBoard {
    * @return The counter with the given name.
    */
   @Override
-  public Counter getCounter( final String name ) {
+  public Counter getCounter(final String name) {
     Counter counter = null;
-    synchronized( counters ) {
-      counter = counters.get( name );
-      if ( counter == null ) {
-        counter = new Counter( name );
-        counters.put( name, counter );
+    synchronized (counters) {
+      counter = counters.get(name);
+      if (counter == null) {
+        counter = new Counter(name);
+        counters.put(name, counter);
       }
     }
     return counter;
@@ -330,7 +326,7 @@ public class StatBoardImpl implements StatBoard {
   @Override
   public Iterator<Counter> getCounterIterator() {
     final ArrayList<Counter> list = new ArrayList<Counter>();
-    for ( final Iterator<Counter> it = counters.values().iterator(); it.hasNext(); list.add( it.next() ) ) {
+    for (final Iterator<Counter> it = counters.values().iterator(); it.hasNext(); list.add(it.next())) {
       ;
     }
     return list.iterator();
@@ -358,18 +354,18 @@ public class StatBoardImpl implements StatBoard {
    * @throws IllegalArgumentException if the name of the gauge is null
    */
   @Override
-  public Gauge getGauge( final String name ) {
-    if ( name == null ) {
-      throw new IllegalArgumentException( "Gauge name is null" );
+  public Gauge getGauge(final String name) {
+    if (name == null) {
+      throw new IllegalArgumentException("Gauge name is null");
     }
 
     Gauge retval = null;
-    if ( gaugesEnabled ) {
-      synchronized( gauges ) {
-        retval = gauges.get( name );
-        if ( retval == null ) {
-          retval = new GaugeBase( name );
-          gauges.put( name, retval );
+    if (gaugesEnabled) {
+      synchronized (gauges) {
+        retval = gauges.get(name);
+        if (retval == null) {
+          retval = new GaugeBase(name);
+          gauges.put(name, retval);
         }
       }
     } else {
@@ -400,8 +396,8 @@ public class StatBoardImpl implements StatBoard {
   @Override
   public Iterator<Gauge> getGaugeIterator() {
     final ArrayList<Gauge> list = new ArrayList<Gauge>();
-    synchronized( gauges ) {
-      for ( final Iterator<Gauge> it = gauges.values().iterator(); it.hasNext(); list.add( it.next() ) ) {
+    synchronized (gauges) {
+      for (final Iterator<Gauge> it = gauges.values().iterator(); it.hasNext(); list.add(it.next())) {
         ;
       }
     }
@@ -447,13 +443,13 @@ public class StatBoardImpl implements StatBoard {
    * @return The state with the given name.
    */
   @Override
-  public State getState( final String name ) {
+  public State getState(final String name) {
     State state = null;
-    synchronized( states ) {
-      state = states.get( name );
-      if ( state == null ) {
-        state = new State( name );
-        states.put( name, state );
+    synchronized (states) {
+      state = states.get(name);
+      if (state == null) {
+        state = new State(name);
+        states.put(name, state);
       }
     }
     return state;
@@ -487,7 +483,7 @@ public class StatBoardImpl implements StatBoard {
   @Override
   public Iterator<State> getStateIterator() {
     final ArrayList<State> list = new ArrayList<State>();
-    for ( final Iterator<State> it = states.values().iterator(); it.hasNext(); list.add( it.next() ) ) {
+    for (final Iterator<State> it = states.values().iterator(); it.hasNext(); list.add(it.next())) {
       ;
     }
     return list.iterator();
@@ -502,8 +498,8 @@ public class StatBoardImpl implements StatBoard {
   @Override
   public Iterator<TimingMaster> getTimerIterator() {
     final ArrayList<TimingMaster> list = new ArrayList<TimingMaster>();
-    synchronized( masterTimers ) {
-      for ( final Iterator<TimingMaster> it = masterTimers.values().iterator(); it.hasNext(); list.add( it.next() ) ) {
+    synchronized (masterTimers) {
+      for (final Iterator<TimingMaster> it = masterTimers.values().iterator(); it.hasNext(); list.add(it.next())) {
         ;
       }
     }
@@ -522,9 +518,9 @@ public class StatBoardImpl implements StatBoard {
    *         does not exist.
    */
   @Override
-  public TimingMaster getTimerMaster( final String name ) {
-    synchronized( masterTimers ) {
-      return masterTimers.get( name );
+  public TimingMaster getTimerMaster(final String name) {
+    synchronized (masterTimers) {
+      return masterTimers.get(name);
     }
   }
 
@@ -544,7 +540,7 @@ public class StatBoardImpl implements StatBoard {
    */
   @Override
   public String getUptimeString() {
-    return DateUtil.formatSignificantElapsedTime( ( System.currentTimeMillis() - startedTimestamp ) / 1000 );
+    return DateUtil.formatSignificantElapsedTime((System.currentTimeMillis() - startedTimestamp) / 1000);
   }
 
 
@@ -562,8 +558,8 @@ public class StatBoardImpl implements StatBoard {
    * @return The final value of the counter after the operation.
    */
   @Override
-  public long increase( final String name, final long value ) {
-    return getCounter( name ).increase( value );
+  public long increase(final String name, final long value) {
+    return getCounter(name).increase(value);
   }
 
 
@@ -581,8 +577,8 @@ public class StatBoardImpl implements StatBoard {
    * @return The final value of the counter after the operation.
    */
   @Override
-  public long increment( final String name ) {
-    return getCounter( name ).increment();
+  public long increment(final String name) {
+    return getCounter(name).increment();
   }
 
 
@@ -596,9 +592,9 @@ public class StatBoardImpl implements StatBoard {
    * @return The removed counter.
    */
   @Override
-  public Counter removeCounter( final String name ) {
-    synchronized( counters ) {
-      return counters.remove( name );
+  public Counter removeCounter(final String name) {
+    synchronized (counters) {
+      return counters.remove(name);
     }
   }
 
@@ -613,13 +609,13 @@ public class StatBoardImpl implements StatBoard {
    * @return The removed gauge.
    */
   @Override
-  public Gauge removeGauge( final String name ) {
-    if ( name == null ) {
+  public Gauge removeGauge(final String name) {
+    if (name == null) {
       return null;
     }
 
-    synchronized( gauges ) {
-      return gauges.remove( name );
+    synchronized (gauges) {
+      return gauges.remove(name);
     }
   }
 
@@ -634,13 +630,13 @@ public class StatBoardImpl implements StatBoard {
    * @return The removed state.
    */
   @Override
-  public State removeState( final String name ) {
-    if ( name == null ) {
+  public State removeState(final String name) {
+    if (name == null) {
       return null;
     }
 
-    synchronized( states ) {
-      return states.remove( name );
+    synchronized (states) {
+      return states.remove(name);
     }
   }
 
@@ -663,10 +659,10 @@ public class StatBoardImpl implements StatBoard {
    * @return a counter containing the values of the counter prior to the reset.
    */
   @Override
-  public Counter resetCounter( final String name ) {
+  public Counter resetCounter(final String name) {
     Counter retval = null;
-    synchronized( counters ) {
-      retval = getCounter( name ).reset();
+    synchronized (counters) {
+      retval = getCounter(name).reset();
     }
 
     return retval;
@@ -681,9 +677,9 @@ public class StatBoardImpl implements StatBoard {
    * @param name The name of the gauge to clear out.
    */
   @Override
-  public void resetGauge( final String name ) {
-    if ( ( name != null ) && ( name.length() > 0 ) ) {
-      getGauge( name ).reset();
+  public void resetGauge(final String name) {
+    if ((name != null) && (name.length() > 0)) {
+      getGauge(name).reset();
     }
   }
 
@@ -696,7 +692,7 @@ public class StatBoardImpl implements StatBoard {
    */
   @Override
   public void resetTimers() {
-    synchronized( masterTimers ) {
+    synchronized (masterTimers) {
       masterTimers.clear();
     }
   }
@@ -710,7 +706,7 @@ public class StatBoardImpl implements StatBoard {
    * @param id the unique identifier to set
    */
   @Override
-  public void setId( final String id ) {
+  public void setId(final String id) {
     BOARDID = id;
   }
 
@@ -725,8 +721,8 @@ public class StatBoardImpl implements StatBoard {
    * @param value The value to set in the state.
    */
   @Override
-  public void setState( final String name, final double value ) {
-    getState( name ).set( value );
+  public void setState(final String name, final double value) {
+    getState(name).set(value);
   }
 
 
@@ -740,8 +736,8 @@ public class StatBoardImpl implements StatBoard {
    * @param value The value to set in the state.
    */
   @Override
-  public void setState( final String name, final long value ) {
-    getState( name ).set( value );
+  public void setState(final String name, final long value) {
+    getState(name).set(value);
   }
 
 
@@ -755,15 +751,14 @@ public class StatBoardImpl implements StatBoard {
    * @param value The value to set in the state.
    */
   @Override
-  public void setState( final String name, final String value ) {
-    if ( ( name == null ) || ( name.length() == 0 ) ) {
-      return;
-    }
+  public void setState(final String name, final String value) {
+    if ((name != null) && (name.length() != 0)) {
 
-    if ( value == null ) {
-      removeState( name );
-    } else {
-      getState( name ).set( value );
+      if (value == null) {
+        removeState(name);
+      } else {
+        getState(name).set(value);
+      }
     }
   }
 
@@ -778,8 +773,8 @@ public class StatBoardImpl implements StatBoard {
    * @return A transaction to collect ARM data.
    */
   @Override
-  public ArmTransaction startArm( final String name ) {
-    return startArm( name, null );
+  public ArmTransaction startArm(final String name) {
+    return startArm(name, null);
   }
 
 
@@ -795,19 +790,19 @@ public class StatBoardImpl implements StatBoard {
    * @return A transaction to collect ARM data.
    */
   @Override
-  public ArmTransaction startArm( final String name, final String crid ) {
+  public ArmTransaction startArm(final String name, final String crid) {
     ArmTransaction retval = null;
-    if ( armEnabled ) {
-      synchronized( armMasters ) {
+    if (armEnabled) {
+      synchronized (armMasters) {
         // get an existing ARM master or create a new one
-        ArmMaster master = armMasters.get( name );
-        if ( master == null ) {
-          master = new ArmMaster( name );
-          armMasters.put( name, master );
+        ArmMaster master = armMasters.get(name);
+        if (master == null) {
+          master = new ArmMaster(name);
+          armMasters.put(name, master);
         }
 
         // have the master ARM return a transaction instance
-        retval = master.createArm( name, crid );
+        retval = master.createArm(name, crid);
 
         //start the ARM transaction
         retval.start();
@@ -834,15 +829,15 @@ public class StatBoardImpl implements StatBoard {
    *         completed.
    */
   @Override
-  public Timer startTimer( final String name ) {
+  public Timer startTimer(final String name) {
     Timer retval = null;
-    if ( timingEnabled ) {
-      synchronized( masterTimers ) {
+    if (timingEnabled) {
+      synchronized (masterTimers) {
         // get an existing master timer or create a new one
-        TimingMaster master = masterTimers.get( name );
-        if ( master == null ) {
-          master = new TimingMaster( name );
-          masterTimers.put( name, master );
+        TimingMaster master = masterTimers.get(name);
+        if (master == null) {
+          master = new TimingMaster(name);
+          masterTimers.put(name, master);
         }
 
         // have the master timer return a timer instance
@@ -870,9 +865,9 @@ public class StatBoardImpl implements StatBoard {
    * @param value The value with which to update the gauge.
    */
   @Override
-  public void updateGauge( final String name, final long value ) {
-    if ( ( name != null ) && ( name.length() > 0 ) ) {
-      getGauge( name ).update( value );
+  public void updateGauge(final String name, final long value) {
+    if ((name != null) && (name.length() > 0)) {
+      getGauge(name).update(value);
     }
   }
 
@@ -886,10 +881,10 @@ public class StatBoardImpl implements StatBoard {
    * @param version the version object
    */
   @Override
-  public void setVersion( String name, Version version ) {
-    synchronized( versions ) {
-      if ( name != null && version != null ) {
-        versions.put( name, version );
+  public void setVersion(String name, Version version) {
+    synchronized (versions) {
+      if (name != null && version != null) {
+        versions.put(name, version);
       }
     }
   }
@@ -978,7 +973,7 @@ public class StatBoardImpl implements StatBoard {
    */
   @Override
   public long getFreeMemory() {
-    return Runtime.getRuntime().freeMemory() + ( Runtime.getRuntime().maxMemory() - Runtime.getRuntime().totalMemory() );
+    return Runtime.getRuntime().freeMemory() + (Runtime.getRuntime().maxMemory() - Runtime.getRuntime().totalMemory());
   }
 
 
@@ -1027,7 +1022,7 @@ public class StatBoardImpl implements StatBoard {
    */
   @Override
   public float getHeapPercentage() {
-    return (float)( 1 - ( (float)getAvailableMemory() / (float)getMaxHeapSize() ) ); // percent of max
+    return (float)(1 - ((float)getAvailableMemory() / (float)getMaxHeapSize())); // percent of max
   }
 
 
@@ -1069,7 +1064,7 @@ public class StatBoardImpl implements StatBoard {
    */
   @Override
   public float getUsedMemoryPercentage() {
-    return (float)( 1 - ( (float)getFreeMemory() / (float)getMaxHeapSize() ) ); // percent of max
+    return (float)(1 - ((float)getFreeMemory() / (float)getMaxHeapSize())); // percent of max
   }
 
 
@@ -1085,7 +1080,7 @@ public class StatBoardImpl implements StatBoard {
    */
   @Override
   public float getFreeMemoryPercentage() {
-    return (float)( (float)getFreeMemory() / (float)getMaxHeapSize() );
+    return (float)((float)getFreeMemory() / (float)getMaxHeapSize());
   }
 
 
@@ -1097,9 +1092,9 @@ public class StatBoardImpl implements StatBoard {
   @Override
   public Map<String, String> getVersions() {
     final Map<String, String> retval = new HashMap<String, String>();
-    synchronized( versions ) {
-      for ( String key : versions.keySet() ) {
-        retval.put( key, versions.get( key ).toString() );
+    synchronized (versions) {
+      for (String key : versions.keySet()) {
+        retval.put(key, versions.get(key).toString());
       }
     }
     return retval;
@@ -1117,10 +1112,10 @@ public class StatBoardImpl implements StatBoard {
    *         could not be found or the name was null
    */
   @Override
-  public Version getVersion( String name ) {
-    if ( name != null ) {
-      synchronized( versions ) {
-        return versions.get( name );
+  public Version getVersion(String name) {
+    if (name != null) {
+      synchronized (versions) {
+        return versions.get(name);
       }
     }
     return null;
@@ -1177,28 +1172,28 @@ public class StatBoardImpl implements StatBoard {
    * result of JDK method {@code InetAddress.getLocalHost}.
    */
   private static InetAddress getLocalAddress() {
-    if ( localAddress != null ) {
+    if (localAddress != null) {
       return localAddress;
     }
 
     try {
       InetAddress candidateAddress = null;
-      for ( Enumeration<NetworkInterface> ifaces = NetworkInterface.getNetworkInterfaces(); ifaces.hasMoreElements(); ) {
+      for (Enumeration<NetworkInterface> ifaces = NetworkInterface.getNetworkInterfaces(); ifaces.hasMoreElements();) {
         NetworkInterface iface = ifaces.nextElement();
-        for ( Enumeration<InetAddress> inetAddrs = iface.getInetAddresses(); inetAddrs.hasMoreElements(); ) {
+        for (Enumeration<InetAddress> inetAddrs = iface.getInetAddresses(); inetAddrs.hasMoreElements();) {
           InetAddress inetAddr = inetAddrs.nextElement();
-          if ( !inetAddr.isLoopbackAddress() ) {
-            if ( inetAddr.isSiteLocalAddress() ) {
+          if (!inetAddr.isLoopbackAddress()) {
+            if (inetAddr.isSiteLocalAddress()) {
               // Found non-loopback site-local address. Cache and return it
               localAddress = inetAddr;
               return localAddress;
-            } else if ( candidateAddress == null ) {
+            } else if (candidateAddress == null) {
               candidateAddress = inetAddr;
             }
           }
         }
       }
-      if ( candidateAddress != null ) {
+      if (candidateAddress != null) {
         localAddress = candidateAddress;
         return localAddress;
       }
@@ -1208,21 +1203,21 @@ public class StatBoardImpl implements StatBoard {
       InetAddress inetAddr;
       try {
         // This helps insure that we do not get localhost (127.0.0.1)
-        inetAddr = InetAddress.getByName( InetAddress.getLocalHost().getHostName() );
-        if ( !inetAddr.isLoopbackAddress() && inetAddr.isSiteLocalAddress() ) {
+        inetAddr = InetAddress.getByName(InetAddress.getLocalHost().getHostName());
+        if (!inetAddr.isLoopbackAddress() && inetAddr.isSiteLocalAddress()) {
           localAddress = inetAddr;
           return localAddress;
         }
-      } catch ( UnknownHostException e ) {}
+      } catch (UnknownHostException e) {}
 
       // Fall back to returning whatever InetAddress.getLocalHost() returns...
       inetAddr = InetAddress.getLocalHost();
-      if ( inetAddr == null ) {
+      if (inetAddr == null) {
         throw new UnknownHostException();
       }
       localAddress = inetAddr;
       return localAddress;
-    } catch ( Exception e ) {}
+    } catch (Exception e) {}
     //failure. Well, at least we tried.
     return null;
   }
@@ -1236,11 +1231,11 @@ public class StatBoardImpl implements StatBoard {
    */
   public static String getLocalQualifiedHostName() {
     // Use the cached version of the hostname to save DNS lookups
-    if ( cachedLocalHostName != null ) {
+    if (cachedLocalHostName != null) {
       return cachedLocalHostName;
     }
 
-    cachedLocalHostName = getQualifiedHostName( getLocalAddress() );
+    cachedLocalHostName = getQualifiedHostName(getLocalAddress());
 
     return cachedLocalHostName;
   }
@@ -1259,15 +1254,15 @@ public class StatBoardImpl implements StatBoard {
    *         or if the return value was the dotted-quad representation of the
    *         host address.
    */
-  public static String getQualifiedHostName( InetAddress addr ) {
+  public static String getQualifiedHostName(InetAddress addr) {
     String name = null;
 
     try {
       name = addr.getCanonicalHostName();
 
-      if ( name != null ) {
+      if (name != null) {
         // Check for a return value of and address instead of a name
-        if ( Character.isDigit( name.charAt( 0 ) ) ) {
+        if (Character.isDigit(name.charAt(0))) {
           // Looks like an address, return null;
           return null;
         }
@@ -1275,7 +1270,7 @@ public class StatBoardImpl implements StatBoard {
         // normalize the case
         name = name.toLowerCase();
       }
-    } catch ( Exception ex ) {}
+    } catch (Exception ex) {}
 
     return name;
   }

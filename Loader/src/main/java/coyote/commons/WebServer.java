@@ -4,10 +4,6 @@
  * This program and the accompanying materials are made available under the 
  * terms of the MIT License which accompanies this distribution, and is 
  * available at http://creativecommons.org/licenses/MIT/
- *
- * Contributors:
- *   Stephan D. Cote 
- *      - Initial concept and implementation
  */
 package coyote.commons;
 
@@ -71,7 +67,7 @@ public class WebServer extends AbstractLoader {
   private HTTPD redirectServer = null;
 
   /** The version of this server. */
-  public static final Version VERSION = new Version( 0, 0, 3, Version.DEVELOPMENT );
+  public static final Version VERSION = new Version(0, 0, 3, Version.DEVELOPMENT);
 
   // the port on which this server listens, defaults to 80
   private static final String PORT = "Port";
@@ -101,44 +97,44 @@ public class WebServer extends AbstractLoader {
    * @see coyote.loader.AbstractLoader#configure(coyote.loader.cfg.Config)
    */
   @Override
-  public void configure( Config cfg ) throws ConfigurationException {
-    super.configure( cfg );
+  public void configure(Config cfg) throws ConfigurationException {
+    super.configure(cfg);
 
     // command line argument override all other configuration settings
-    parseArgs( getCommandLineArguments() );
+    parseArgs(getCommandLineArguments());
 
     int redirectport = 0;
 
     // we need to get the port first as part of the server constructor
     int port = DEFAULT_PORT; // set default
 
-    if ( cfg != null ) {
+    if (cfg != null) {
 
-      if ( cfg.containsIgnoreCase( PORT ) ) {
+      if (cfg.containsIgnoreCase(PORT)) {
         try {
-          port = cfg.getInt( PORT );
-          port = NetUtil.validatePort( port );
-          if ( port == 0 ) {
-            Log.error( "Configured port of " + port + " is not a valid port (out of range) - ignoring" );
+          port = cfg.getInt(PORT);
+          port = NetUtil.validatePort(port);
+          if (port == 0) {
+            Log.error("Configured port of " + port + " is not a valid port (out of range) - ignoring");
             port = DEFAULT_PORT;
           }
-        } catch ( NumberFormatException e ) {
+        } catch (NumberFormatException e) {
           port = DEFAULT_PORT;
-          Log.error( "Port configuration option was not a valid integer - ignoring" );
+          Log.error("Port configuration option was not a valid integer - ignoring");
         }
       }
 
-      if ( cfg.containsIgnoreCase( REDIRECT_PORT ) ) {
+      if (cfg.containsIgnoreCase(REDIRECT_PORT)) {
         try {
-          redirectport = cfg.getInt( REDIRECT_PORT );
-          redirectport = NetUtil.validatePort( redirectport );
-          if ( redirectport == 0 ) {
-            Log.error( "Configured port of " + redirectport + " is not a valid port (out of range) - ignoring" );
+          redirectport = cfg.getInt(REDIRECT_PORT);
+          redirectport = NetUtil.validatePort(redirectport);
+          if (redirectport == 0) {
+            Log.error("Configured port of " + redirectport + " is not a valid port (out of range) - ignoring");
             redirectport = 0;
           }
-        } catch ( NumberFormatException e ) {
+        } catch (NumberFormatException e) {
           redirectport = 0;
-          Log.error( "RedirectPort configuration option was not a valid integer - ignoring" );
+          Log.error("RedirectPort configuration option was not a valid integer - ignoring");
 
         }
 
@@ -146,91 +142,91 @@ public class WebServer extends AbstractLoader {
 
       boolean secureServer;
       try {
-        secureServer = cfg.getAsBoolean( SECURESERVER );
-      } catch ( DataFrameException e1 ) {
+        secureServer = cfg.getAsBoolean(SECURESERVER);
+      } catch (DataFrameException e1) {
         secureServer = false;
       }
 
       // If we have a valid bind port from the command line arguments, use it instead of configured port
-      if ( bindPort > 0 && bindPort != port ) {
-        Log.warn( "Command line argument of port " + bindPort + " overrides configuration port of " + port );
+      if (bindPort > 0 && bindPort != port) {
+        Log.warn("Command line argument of port " + bindPort + " overrides configuration port of " + port);
         port = bindPort;
       }
 
       // create a server with the default mappings
-      server = new HTTPDRouter( port );
+      server = new HTTPDRouter(port);
 
-      if ( port == 443 || secureServer ) {
+      if (port == 443 || secureServer) {
         try {
-          server.makeSecure( HTTPD.makeSSLSocketFactory( "/keystore.jks", "password".toCharArray() ), null );
-        } catch ( IOException e ) {
-          Log.error( "Could not make the server secure: " + e.getMessage() );
+          server.makeSecure(HTTPD.makeSSLSocketFactory("/keystore.jks", "password".toCharArray()), null);
+        } catch (IOException e) {
+          Log.error("Could not make the server secure: " + e.getMessage());
         }
       }
 
       // At this point the servers are up, but nothing is being served.
       // Configure security, and add handlers; in that order
 
-      if ( cfg != null ) {
-        Config sectn = cfg.getSection( GenericAuthProvider.AUTH_SECTION );
-        if ( sectn != null ) {
-          server.setAuthProvider( new GenericAuthProvider( sectn ) );
+      if (cfg != null) {
+        Config sectn = cfg.getSection(GenericAuthProvider.AUTH_SECTION);
+        if (sectn != null) {
+          server.setAuthProvider(new GenericAuthProvider(sectn));
         }
 
         // configure the IPACL with any found configuration data; 
         // localhost only access if no configuration data is found
-        server.configIpACL( cfg.getSection( ConfigTag.IPACL ) );
+        server.configIpACL(cfg.getSection(ConfigTag.IPACL));
 
         // Configure Denial of Service frequency tables
-        server.configDosTables( cfg.getSection( ConfigTag.FREQUENCY ) );
+        server.configDosTables(cfg.getSection(ConfigTag.FREQUENCY));
 
         // Add the default routes to ensure basic operation
         server.addDefaultRoutes();
 
         // remove the root handlers, the configuration will contain our handlers
-        server.removeRoute( "/" );
-        server.removeRoute( "/index.html" );
+        server.removeRoute("/");
+        server.removeRoute("/index.html");
 
-        List<Config> mapsections = cfg.getSections( MAPPINGS );
-        for ( Config section : mapsections ) {
-          for ( DataField field : section.getFields() ) {
-            if ( field.getName() != null && field.isFrame() ) {
-              loadMapping( field.getName(), new Config( (DataFrame)field.getObjectValue() ) );
+        List<Config> mapsections = cfg.getSections(MAPPINGS);
+        for (Config section : mapsections) {
+          for (DataField field : section.getFields()) {
+            if (field.getName() != null && field.isFrame()) {
+              loadMapping(field.getName(), new Config((DataFrame)field.getObjectValue()));
             }
           }
         }
 
         // configure the server to use our statistics board
-        server.setStatBoard( getStats() );
+        server.setStatBoard(getStats());
 
         // Configure the statistics board to enable collecting metrics
         try {
-          getStats().enableArm( cfg.getAsBoolean( ENABLE_ARM ) );
-        } catch ( DataFrameException e ) {
-          getStats().enableArm( false );
+          getStats().enableArm(cfg.getAsBoolean(ENABLE_ARM));
+        } catch (DataFrameException e) {
+          getStats().enableArm(false);
         }
         try {
-          getStats().enableGauges( cfg.getAsBoolean( ENABLE_GAUGES ) );
-        } catch ( DataFrameException e ) {
-          getStats().enableGauges( false );
+          getStats().enableGauges(cfg.getAsBoolean(ENABLE_GAUGES));
+        } catch (DataFrameException e) {
+          getStats().enableGauges(false);
         }
         try {
-          getStats().enableTiming( cfg.getAsBoolean( ENABLE_TIMING ) );
-        } catch ( DataFrameException e ) {
-          getStats().enableTiming( false );
+          getStats().enableTiming(cfg.getAsBoolean(ENABLE_TIMING));
+        } catch (DataFrameException e) {
+          getStats().enableTiming(false);
         }
 
         // Set our version in the stats board
-        getStats().setVersion( NAME, VERSION );
+        getStats().setVersion(NAME, VERSION);
 
-        if ( redirectport > 0 ) {
-          redirectServer = new RedirectServer( redirectport );
+        if (redirectport > 0) {
+          redirectServer = new RedirectServer(redirectport);
         }
 
-        Log.info( "Configured server with " + server.getMappings().size() + " mappings" );
+        Log.info("Configured server with " + server.getMappings().size() + " mappings");
       }
     } else {
-      Log.fatal( "No configuration passed to server" );
+      Log.fatal("No configuration passed to server");
     } // if there is a cfg
 
   }
@@ -241,19 +237,19 @@ public class WebServer extends AbstractLoader {
   /**
    * @param args
    */
-  private void parseArgs( String[] args ) {
-    if ( args != null && args.length > 0 ) {
-      for ( int x = 0; x < args.length; x++ ) {
-        if ( PORT_ARG.equalsIgnoreCase( args[x] ) ) {
+  private void parseArgs(String[] args) {
+    if (args != null && args.length > 0) {
+      for (int x = 0; x < args.length; x++) {
+        if (PORT_ARG.equalsIgnoreCase(args[x])) {
           try {
-            bindPort = Integer.parseInt( args[x + 1] );
-            Log.info( "Binding to port " + bindPort + " as specified on the command line" );
-            bindPort = NetUtil.validatePort( bindPort );
-            if ( bindPort == 0 ) {
-              Log.error( "Command line port argument '" + args[x + 1] + "' is not a valid port (out of range) - ignoring" );
+            bindPort = Integer.parseInt(args[x + 1]);
+            Log.info("Binding to port " + bindPort + " as specified on the command line");
+            bindPort = NetUtil.validatePort(bindPort);
+            if (bindPort == 0) {
+              Log.error("Command line port argument '" + args[x + 1] + "' is not a valid port (out of range) - ignoring");
             }
-          } catch ( NumberFormatException e ) {
-            Log.error( "Command line port argument '" + args[x + 1] + "' is not a valid integer - ignoring" );
+          } catch (NumberFormatException e) {
+            Log.error("Command line port argument '" + args[x + 1] + "' is not a valid integer - ignoring");
           }
         }
       }
@@ -271,41 +267,41 @@ public class WebServer extends AbstractLoader {
    * @param route the route regex to map in the router
    * @param config the configuration of the route handler with at least a class attribute
    */
-  private void loadMapping( String route, Config config ) {
+  private void loadMapping(String route, Config config) {
     // if we have a route
-    if ( StringUtil.isNotEmpty( route ) ) {
+    if (StringUtil.isNotEmpty(route)) {
       // pull out the class name
-      String className = config.getString( CLASS );
+      String className = config.getString(CLASS);
 
       // get the priority of the routing
       int priority = 0;
-      if ( config.contains( PRIORITY ) ) {
+      if (config.contains(PRIORITY)) {
         try {
-          priority = config.getAsInt( PRIORITY );
-        } catch ( DataFrameException e ) {
-          Log.warn( "Problems parsing mapping priority into a numeric value for rout '" + route + "' using default" );
+          priority = config.getAsInt(PRIORITY);
+        } catch (DataFrameException e) {
+          Log.warn("Problems parsing mapping priority into a numeric value for rout '" + route + "' using default");
         }
       }
 
       // If we found a class to map to the route
-      if ( StringUtil.isNotBlank( className ) ) {
+      if (StringUtil.isNotBlank(className)) {
         try {
           // load the class
-          Class<?> clazz = Class.forName( className );
-          Log.info( "Loading " + className + " to handle requests for '" + route + "'" );
-          if ( priority > 0 ) {
-            server.addRoute( route, priority, clazz, this, config );
+          Class<?> clazz = Class.forName(className);
+          Log.info("Loading " + className + " to handle requests for '" + route + "'");
+          if (priority > 0) {
+            server.addRoute(route, priority, clazz, this, config);
           } else {
-            server.addRoute( route, clazz, this, config );
+            server.addRoute(route, clazz, this, config);
           }
-        } catch ( Exception e ) {
-          Log.warn( "Problems adding route mapping '" + route + "', handler: " + className + " Reason:" + e.getClass().getSimpleName() );
+        } catch (Exception e) {
+          Log.warn("Problems adding route mapping '" + route + "', handler: " + className + " Reason:" + e.getClass().getSimpleName());
         }
       } else {
-        Log.warn( "No class defined in mapping for '" + route + "' - " + config );
+        Log.warn("No class defined in mapping for '" + route + "' - " + config);
       }
     } else {
-      Log.warn( "No route specified in mapping for " + config );
+      Log.warn("No route specified in mapping for " + config);
     }
   }
 
@@ -321,82 +317,80 @@ public class WebServer extends AbstractLoader {
   public void start() {
     // only start once, this is not foolproof as the active flag is set only
     // when the watchdog loop is entered
-    if ( isActive() ) {
-      return;
-    }
+    if (!isActive()) {
 
-    Log.info( "Running server with " + server.getMappings().size() + " mappings" );
-    try {
-      server.start( HTTPD.SOCKET_READ_TIMEOUT, false );
-    } catch ( IOException ioe ) {
-      Log.append( HTTPD.EVENT, "ERROR: Could not start server on port '" + server.getPort() + "' - " + ioe.getMessage() );
-      System.err.println( "Couldn't start server:\n" + ioe );
-      System.exit( 1 );
-    }
-
-    if ( redirectServer != null ) {
+      Log.info("Running server with " + server.getMappings().size() + " mappings");
       try {
-        redirectServer.start( HTTPD.SOCKET_READ_TIMEOUT, false );
-      } catch ( IOException ioe ) {
-        Log.append( HTTPD.EVENT, "ERROR: Could not start redirection server on port '" + redirectServer.getPort() + "' - " + ioe.getMessage() );
-        System.err.println( "Couldn't start redirection server:\n" + ioe );
+        server.start(HTTPD.SOCKET_READ_TIMEOUT, false);
+      } catch (IOException ioe) {
+        Log.append(HTTPD.EVENT, "ERROR: Could not start server on port '" + server.getPort() + "' - " + ioe.getMessage());
+        System.err.println("Couldn't start server:\n" + ioe);
+        System.exit(1);
       }
+
+      if (redirectServer != null) {
+        try {
+          redirectServer.start(HTTPD.SOCKET_READ_TIMEOUT, false);
+        } catch (IOException ioe) {
+          Log.append(HTTPD.EVENT, "ERROR: Could not start redirection server on port '" + redirectServer.getPort() + "' - " + ioe.getMessage());
+          System.err.println("Couldn't start redirection server:\n" + ioe);
+        }
+      }
+
+      // Save the name of the thread that is running this class
+      final String oldName = Thread.currentThread().getName();
+
+      // Rename this thread to the name of this class
+      Thread.currentThread().setName(NAME);
+
+      // very important to get park(millis) to operate
+      current_thread = Thread.currentThread();
+
+      // Parse through the configuration and initialize all the components
+      initComponents();
+
+      // if we have no components defined, install a wedge to keep the server open
+      if (components.size() == 0) {
+        Wedge wedge = new Wedge();
+        wedge.setLoader(this);
+        components.put(wedge, getConfig());
+        activate(wedge, getConfig());
+      }
+
+      Log.info(LogMsg.createMsg(MSG, "Loader.components_initialized"));
+
+      final StringBuffer b = new StringBuffer(NAME);
+      b.append(" v");
+      b.append(VERSION.toString());
+      b.append(" initialized - Loader:");
+      b.append(Loader.API_NAME);
+      b.append(" v");
+      b.append(Loader.API_VERSION);
+      b.append(" - Runtime: ");
+      b.append(System.getProperty("java.version"));
+      b.append(" (");
+      b.append(System.getProperty("java.vendor"));
+      b.append(")");
+      b.append(" - Platform: ");
+      b.append(System.getProperty("os.arch"));
+      b.append(" OS: ");
+      b.append(System.getProperty("os.name"));
+      b.append(" (");
+      b.append(System.getProperty("os.version"));
+      b.append(")");
+      Log.info(b);
+
+      // enter a loop performing watchdog and maintenance functions
+      watchdog();
+
+      // The watchdog loop has exited, so we are done processing
+      terminateComponents();
+
+      Log.info(LogMsg.createMsg(MSG, "Loader.terminated"));
+
+      // Rename the thread back to what it was called before we were being run
+      Thread.currentThread().setName(oldName);
     }
-
-    // Save the name of the thread that is running this class
-    final String oldName = Thread.currentThread().getName();
-
-    // Rename this thread to the name of this class
-    Thread.currentThread().setName( NAME );
-
-    // very important to get park(millis) to operate
-    current_thread = Thread.currentThread();
-
-    // Parse through the configuration and initialize all the components
-    initComponents();
-
-    // if we have no components defined, install a wedge to keep the server open
-    if ( components.size() == 0 ) {
-      Wedge wedge = new Wedge();
-      wedge.setLoader( this );
-      components.put( wedge, getConfig() );
-      activate( wedge, getConfig() );
-    }
-
-    Log.info( LogMsg.createMsg( MSG, "Loader.components_initialized" ) );
-
-    final StringBuffer b = new StringBuffer( NAME );
-    b.append( " v" );
-    b.append( VERSION.toString() );
-    b.append( " initialized - Loader:" );
-    b.append( Loader.API_NAME );
-    b.append( " v" );
-    b.append( Loader.API_VERSION );
-    b.append( " - Runtime: " );
-    b.append( System.getProperty( "java.version" ) );
-    b.append( " (" );
-    b.append( System.getProperty( "java.vendor" ) );
-    b.append( ")" );
-    b.append( " - Platform: " );
-    b.append( System.getProperty( "os.arch" ) );
-    b.append( " OS: " );
-    b.append( System.getProperty( "os.name" ) );
-    b.append( " (" );
-    b.append( System.getProperty( "os.version" ) );
-    b.append( ")" );
-    Log.info( b );
-
-    // enter a loop performing watchdog and maintenance functions
-    watchdog();
-
-    // The watchdog loop has exited, so we are done processing
-    terminateComponents();
-
-    Log.info( LogMsg.createMsg( MSG, "Loader.terminated" ) );
-
-    // Rename the thread back to what it was called before we were being run
-    Thread.currentThread().setName( oldName );
-
   }
 
 
@@ -420,10 +414,10 @@ public class WebServer extends AbstractLoader {
     super.shutdown();
 
     // shutdown the servers
-    if ( server != null ) {
+    if (server != null) {
       server.stop();
     }
-    if ( redirectServer != null ) {
+    if (redirectServer != null) {
       redirectServer.stop();
     }
   }
@@ -439,8 +433,8 @@ public class WebServer extends AbstractLoader {
    * 
    * @param address The address to ban from this server
    */
-  public synchronized void blacklist( IpAddress address ) {
-    blacklist( new IpNetwork( address, IpNetwork.HOSTMASK ) );
+  public synchronized void blacklist(IpAddress address) {
+    blacklist(new IpNetwork(address, IpNetwork.HOSTMASK));
   }
 
 
@@ -454,11 +448,11 @@ public class WebServer extends AbstractLoader {
    * 
    * @param network The address to ban from this server
    */
-  public synchronized void blacklist( IpNetwork network ) {
-    server.addToACL( network, false );
-    if ( Log.isLogging( Log.DEBUG_EVENTS ) ) {
-      Log.append( HTTPD.EVENT, "Blacklisted " + network.toString() );
-      Log.append( HTTPD.EVENT, "ACL: " + server.getIpAcl().toString() );
+  public synchronized void blacklist(IpNetwork network) {
+    server.addToACL(network, false);
+    if (Log.isLogging(Log.DEBUG_EVENTS)) {
+      Log.append(HTTPD.EVENT, "Blacklisted " + network.toString());
+      Log.append(HTTPD.EVENT, "ACL: " + server.getIpAcl().toString());
     }
   }
 
@@ -479,8 +473,8 @@ public class WebServer extends AbstractLoader {
 
     @Override
     public void initialize() {
-      setIdleWait( 5000 );
-      setIdle( true );
+      setIdleWait(5000);
+      setIdle(true);
     }
 
 
@@ -512,8 +506,8 @@ public class WebServer extends AbstractLoader {
 
 
 
-    public RedirectServer( int port ) {
-      super( port );
+    public RedirectServer(int port) {
+      super(port);
     }
 
 
@@ -529,11 +523,11 @@ public class WebServer extends AbstractLoader {
      * @return the value in the header or null if that header was not found in 
      *         the session.
      */
-    private String findRequestHeaderValue( String name, IHTTPSession session ) {
-      if ( StringUtil.isNotBlank( name ) && session != null && session.getRequestHeaders() != null ) {
+    private String findRequestHeaderValue(String name, IHTTPSession session) {
+      if (StringUtil.isNotBlank(name) && session != null && session.getRequestHeaders() != null) {
         final Set<Map.Entry<String, String>> entries = session.getRequestHeaders().entrySet();
-        for ( Map.Entry<String, String> header : entries ) {
-          if ( name.equalsIgnoreCase( header.getKey() ) )
+        for (Map.Entry<String, String> header : entries) {
+          if (name.equalsIgnoreCase(header.getKey()))
             return header.getValue();
         }
       }
@@ -550,21 +544,21 @@ public class WebServer extends AbstractLoader {
      * @see coyote.commons.network.http.HTTPD#serve(coyote.commons.network.http.IHTTPSession)
      */
     @Override
-    public Response serve( IHTTPSession session ) throws SecurityResponseException {
-      String host = findRequestHeaderValue( HTTP.HDR_HOST, session );
-      if ( StringUtil.isNotBlank( host ) ) {
+    public Response serve(IHTTPSession session) throws SecurityResponseException {
+      String host = findRequestHeaderValue(HTTP.HDR_HOST, session);
+      if (StringUtil.isNotBlank(host)) {
         String uri;
-        if ( server.getPort() == 443 ) {
+        if (server.getPort() == 443) {
           uri = HTTPS_SCHEME + host + session.getUri();
         } else {
           uri = HTTP_SCHEME + host + ":" + server.getPort() + session.getUri();
         }
-        Log.append( HTTPD.EVENT, "Redirecting to " + uri );
-        Response response = Response.createFixedLengthResponse( Status.REDIRECT, MimeType.HTML.getType(), "<html><body>Moved: <a href=\"" + uri + "\">" + uri + "</a></body></html>" );
-        response.addHeader( HTTP.HDR_LOCATION, uri );
+        Log.append(HTTPD.EVENT, "Redirecting to " + uri);
+        Response response = Response.createFixedLengthResponse(Status.REDIRECT, MimeType.HTML.getType(), "<html><body>Moved: <a href=\"" + uri + "\">" + uri + "</a></body></html>");
+        response.addHeader(HTTP.HDR_LOCATION, uri);
         return response;
       }
-      return super.serve( session );
+      return super.serve(session);
     }
 
   }
@@ -576,7 +570,7 @@ public class WebServer extends AbstractLoader {
    * @return the port on which this server is listening or 0 if the server is not running.
    */
   public int getPort() {
-    if ( server != null )
+    if (server != null)
       return server.getPort();
     else
       return 0;
@@ -595,20 +589,20 @@ public class WebServer extends AbstractLoader {
    * @param handler the handler class
    * @param initParams initialization parameters
    */
-  void addHandler( final String route, final Class<?> handler, final Object... initParams ) {
+  void addHandler(final String route, final Class<?> handler, final Object... initParams) {
     Object[] params;
-    if ( initParams != null ) {
+    if (initParams != null) {
       params = new Object[initParams.length + 2];
       params[0] = this;
       params[1] = new Config();
-      for ( int x = 0; x < initParams.length; x++ ) {
+      for (int x = 0; x < initParams.length; x++) {
         params[x + 2] = initParams[x];
       }
     } else {
-      params = new Object[] { this, new Config() };
+      params = new Object[]{this, new Config()};
     }
 
-    server.addRoute( route, 100, handler, params );
+    server.addRoute(route, 100, handler, params);
   }
 
 
@@ -621,19 +615,19 @@ public class WebServer extends AbstractLoader {
    */
   public Thread execute() {
     shutdown = false;
-    Thread serverThread = new Thread( new Runnable() {
+    Thread serverThread = new Thread(new Runnable() {
       @Override
       public void run() {
         start();
       }
-    } );
+    });
 
     // start the thread running, calling this server start()
     serverThread.start();
     try {
       Thread.yield();
-      Thread.sleep( 200 );
-    } catch ( InterruptedException e ) {}
+      Thread.sleep(200);
+    } catch (InterruptedException e) {}
     return serverThread;
   }
 
