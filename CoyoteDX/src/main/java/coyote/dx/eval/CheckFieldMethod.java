@@ -70,6 +70,11 @@ public final class CheckFieldMethod extends AbstractBooleanMethod {
    * <p>True is indicative but false return values are not as false is
    * returned even when conversions are not possible. If the field is missing,
    * the check may return false unless a check for null is being performed.
+   * 
+   * <p><strong>NOTE:</strong> Null values are less than not null values. Null 
+   * values equal other null values. This is by design as it is expected that 
+   * the exists() method will be used before comparisons in evaluations. 
+   * Always check for null values with exists() before performing comparisons.
    *
    * @param context The transform context in which to look for the job status
    * @param field name of the value to resolve in the context.
@@ -246,7 +251,7 @@ public final class CheckFieldMethod extends AbstractBooleanMethod {
 
 
   private static IllegalArgumentException cannotConvertToNumber(Object object) {
-    return new IllegalArgumentException("Cannot use '" + (String)object + " in a numeric comparison");
+    return new IllegalArgumentException("Cannot use '" + (String)object + "' in a numeric comparison");
   }
 
 
