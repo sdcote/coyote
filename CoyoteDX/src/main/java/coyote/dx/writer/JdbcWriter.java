@@ -4,10 +4,6 @@
  * This program and the accompanying materials are made available under the 
  * terms of the MIT License which accompanies this distribution, and is 
  * available at http://creativecommons.org/licenses/MIT/
- *
- * Contributors:
- *   Stephan D. Cote 
- *      - Initial concept and implementation
  */
 package coyote.dx.writer;
 
@@ -24,7 +20,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Types;
+import static java.sql.Types.*;
 import java.util.Date;
+
 
 import coyote.commons.JdbcUtil;
 import coyote.commons.StringUtil;
@@ -392,7 +390,7 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
           break;
         case DataField.UDEF:
           if (field.isNull()) {
-            pstmt.setNull(indx, java.sql.Types.VARCHAR);
+            pstmt.setNull(indx, VARCHAR);
           } else {
             pstmt.setString(indx, "");
           }
@@ -403,7 +401,7 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
         case DataField.STRING:
           Log.debug(LogMsg.createMsg(CDX.MSG, "Database.saving_field_as", getClass().getName(), field.getName(), indx, "String"));
           if (field.isNull()) {
-            pstmt.setNull(indx, java.sql.Types.VARCHAR);
+            pstmt.setNull(indx, VARCHAR);
           } else {
             pstmt.setString(indx, field.getStringValue());
           }
@@ -412,7 +410,7 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
         case DataField.U8:
           Log.debug(LogMsg.createMsg(CDX.MSG, "Database.saving_field_as", getClass().getName(), field.getName(), indx, "S8-byte"));
           if (field.isNull()) {
-            pstmt.setNull(indx, java.sql.Types.TINYINT);
+            pstmt.setNull(indx, TINYINT);
           } else {
             pstmt.setByte(indx, (byte)field.getObjectValue());
           }
@@ -421,7 +419,7 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
         case DataField.U16:
           Log.debug(LogMsg.createMsg(CDX.MSG, "Database.saving_field_as", getClass().getName(), field.getName(), indx, "S16-Short"));
           if (field.isNull()) {
-            pstmt.setNull(indx, java.sql.Types.SMALLINT);
+            pstmt.setNull(indx, SMALLINT);
           } else {
             pstmt.setShort(indx, (Short)field.getObjectValue());
           }
@@ -430,7 +428,7 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
         case DataField.U32:
           Log.debug(LogMsg.createMsg(CDX.MSG, "Database.saving_field_as", getClass().getName(), field.getName(), indx, "S32-Integer"));
           if (field.isNull()) {
-            pstmt.setNull(indx, java.sql.Types.INTEGER);
+            pstmt.setNull(indx, INTEGER);
           } else {
             pstmt.setInt(indx, (Integer)field.getObjectValue());
           }
@@ -439,7 +437,7 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
         case DataField.U64:
           Log.debug(LogMsg.createMsg(CDX.MSG, "Database.saving_field_as", getClass().getName(), field.getName(), indx, "S64-Long"));
           if (field.isNull()) {
-            pstmt.setNull(indx, java.sql.Types.BIGINT);
+            pstmt.setNull(indx, BIGINT);
           } else {
             pstmt.setLong(indx, (Integer)field.getObjectValue());
           }
@@ -447,7 +445,7 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
         case DataField.FLOAT:
           Log.debug(LogMsg.createMsg(CDX.MSG, "Database.saving_field_as", getClass().getName(), field.getName(), indx, "Float"));
           if (field.isNull()) {
-            pstmt.setNull(indx, java.sql.Types.FLOAT);
+            pstmt.setNull(indx, FLOAT);
           } else {
             pstmt.setFloat(indx, (Float)field.getObjectValue());
           }
@@ -455,7 +453,7 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
         case DataField.DOUBLE:
           Log.debug(LogMsg.createMsg(CDX.MSG, "Database.saving_field_as", getClass().getName(), field.getName(), indx, "Double"));
           if (field.isNull()) {
-            pstmt.setNull(indx, java.sql.Types.DOUBLE);
+            pstmt.setNull(indx, DOUBLE);
           } else {
             pstmt.setDouble(indx, (Double)field.getObjectValue());
           }
@@ -463,7 +461,7 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
         case DataField.BOOLEANTYPE:
           Log.debug(LogMsg.createMsg(CDX.MSG, "Database.saving_field_as", getClass().getName(), field.getName(), indx, "Boolean"));
           if (field.isNull()) {
-            pstmt.setNull(indx, java.sql.Types.BOOLEAN);
+            pstmt.setNull(indx, BOOLEAN);
           } else {
             pstmt.setBoolean(indx, (Boolean)field.getObjectValue());
           }
@@ -471,7 +469,7 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
         case DataField.DATE:
           Log.debug(LogMsg.createMsg(CDX.MSG, "Database.saving_field_as", getClass().getName(), field.getName(), indx, "Timestamp"));
           if (field.isNull()) {
-            pstmt.setNull(indx, java.sql.Types.TIMESTAMP);
+            pstmt.setNull(indx, TIMESTAMP);
           } else {
             final Object obj = field.getObjectValue();
             pstmt.setTimestamp(indx, JdbcUtil.getTimeStamp((Date)obj));
@@ -486,7 +484,7 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
           break;
         default:
           // Everything else is set to null
-          pstmt.setNull(indx, java.sql.Types.VARCHAR);
+          pstmt.setNull(indx, VARCHAR);
           break;
       }
     } catch (final SQLException e) {
