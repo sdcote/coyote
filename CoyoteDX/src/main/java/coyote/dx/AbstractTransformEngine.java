@@ -16,7 +16,6 @@ import java.util.Date;
 import java.util.List;
 
 import coyote.commons.ExceptionUtil;
-import coyote.commons.FileUtil;
 import coyote.commons.GUID;
 import coyote.commons.StringUtil;
 import coyote.commons.template.SymbolTable;
@@ -579,6 +578,50 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
   private void determineJobDirectory() {
     File jobDir;
 
+    if (getJobDirectory() == null) {
+
+      if (getWorkDirectory() == null) {
+        determineWorkDirectory();
+      }
+
+      // Use our name to setup a job directory
+      String name = getName();
+      if (StringUtil.isNotBlank(name)) {
+        // replace the illegal filename characters by only allowing simple names
+        String dirname = name.trim().replaceAll("[^a-zA-Z0-9.-]", "_");
+        jobDir = new File(getWorkDirectory(), dirname);
+
+        try {
+          jobDir.mkdirs();
+          setJobDirectory(jobDir);
+          setWorkDirectory(jobDir.getParentFile());
+          Log.debug(LogMsg.createMsg(CDX.MSG, "Engine.calculated_job_directory", jobDir.getAbsolutePath(), getName()));
+        } catch (final Exception e) {
+          Log.error(e.getMessage());
+        }
+      } else {
+        // unnamed jobs just use the current directory
+        jobDir = new File(System.getProperty("user.dir"));
+        setJobDirectory(jobDir);
+        setWorkDirectory(jobDir);
+      }
+    }
+  }
+
+
+
+
+  /**
+   * Determines the proper work directory for this job.
+   * 
+   * <p>This is normally the {@code wrk} directory under APP_HOME, but can be 
+   * located in the same directory as the configuration file particulary if 
+   * the file is located outside of the  {@code cfg} directory, also under 
+   * APP_HOME. 
+   */
+  private void determineWorkDirectory() {
+    File workDir;
+
     // Make sure we have a home directory
     if (StringUtil.isBlank(System.getProperty(Loader.APP_HOME))) {
       System.setProperty(Loader.APP_HOME, System.getProperty("user.dir"));
@@ -588,29 +631,15 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
     if (StringUtil.isBlank(System.getProperty(Job.APP_WORK))) {
       System.setProperty(Job.APP_WORK, System.getProperty(Loader.APP_HOME) + System.getProperty("file.separator") + "wrk");
     }
-
-    // Use our name to setup a job directory
-    String name = getName();
-    if (StringUtil.isNotBlank(name)) {
-      // replace the illegal filename characters by only allowing simple names
-      String dirname = name.trim().replaceAll("[^a-zA-Z0-9.-]", "_");
-      jobDir = new File(System.getProperty(Job.APP_WORK) + FileUtil.FILE_SEPARATOR + dirname);
-
-      try {
-        jobDir.mkdirs();
-        setJobDirectory(jobDir);
-        setWorkDirectory(jobDir.getParentFile());
-        Log.debug(LogMsg.createMsg(CDX.MSG, "Engine.calculated_job_directory", jobDir.getAbsolutePath(), jobDir.getParentFile()));
-
-      } catch (final Exception e) {
-        Log.error(e.getMessage());
-      }
-    } else {
-      // unnamed jobs just use the current directory
-      jobDir = new File(System.getProperty("user.dir"));
-      setJobDirectory(jobDir);
-      setWorkDirectory(jobDir);
+    workDir = new File(System.getProperty(Job.APP_WORK));
+    try {
+      workDir.mkdirs();
+      setWorkDirectory(workDir);
+      Log.debug(LogMsg.createMsg(CDX.MSG, "Engine.calculated_work_directory", workDir.getAbsolutePath(), getName()));
+    } catch (final Exception e) {
+      Log.error(e.getMessage());
     }
+
   }
 
 
@@ -724,7 +753,26 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
 
 
 
+  /**
+   * Close all the components.
+   */
   private void closeTooling() {
+    closeReader();
+    closeWriters();
+    closeMapper();
+    closeFilters();
+    closeValidators();
+    closeTransformers();
+    closeListeners();
+  }
+
+
+
+
+  /**
+   * Close the reader. 
+   */
+  private void closeReader() {
     if (reader != null) {
       try {
         reader.close();
@@ -732,7 +780,15 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
         Log.warn(LogMsg.createMsg(CDX.MSG, "Engine.problems_closing_reader", reader.getClass().getName(), e.getClass().getSimpleName(), e.getMessage()));
       }
     }
+  }
 
+
+
+
+  /**
+   * Close all the writers. 
+   */
+  private void closeWriters() {
     for (FrameWriter writer : writers) {
       try {
         writer.close();
@@ -740,7 +796,15 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
         Log.warn(LogMsg.createMsg(CDX.MSG, "Engine.problems_closing_writer", writer.getClass().getName(), e.getClass().getSimpleName(), e.getMessage()));
       }
     }
+  }
 
+
+
+
+  /**
+   * Close the mapper. 
+   */
+  private void closeMapper() {
     if (mapper != null) {
       try {
         mapper.close();
@@ -748,7 +812,15 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
         Log.warn(LogMsg.createMsg(CDX.MSG, "Engine.problems_closing_mapper", mapper.getClass().getName(), e.getClass().getSimpleName(), e.getMessage()));
       }
     }
+  }
 
+
+
+
+  /**
+   * Close all the filters. 
+   */
+  private void closeFilters() {
     for (FrameFilter filter : filters) {
       try {
         filter.close();
@@ -756,7 +828,15 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
         Log.warn(LogMsg.createMsg(CDX.MSG, "Engine.problems_closing_filter", filter.getClass().getName(), e.getClass().getSimpleName(), e.getMessage()));
       }
     }
+  }
 
+
+
+
+  /**
+   * Close all the validators. 
+   */
+  private void closeValidators() {
     for (FrameValidator validator : validators) {
       try {
         validator.close();
@@ -764,7 +844,15 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
         Log.warn(LogMsg.createMsg(CDX.MSG, "Engine.problems_closing_validator", validator.getClass().getName(), e.getClass().getSimpleName(), e.getMessage()));
       }
     }
+  }
 
+
+
+
+  /**
+   * close all the transformers. 
+   */
+  private void closeTransformers() {
     for (FrameTransform transformer : transformers) {
       try {
         transformer.close();
@@ -772,7 +860,15 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
         Log.warn(LogMsg.createMsg(CDX.MSG, "Engine.problems_closing_transformer", transformer.getClass().getName(), e.getClass().getSimpleName(), e.getMessage()));
       }
     }
+  }
 
+
+
+
+  /**
+   * Close all the listeners. 
+   */
+  private void closeListeners() {
     for (ContextListener listener : listeners) {
       try {
         listener.close();
@@ -780,7 +876,6 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
         Log.warn(LogMsg.createMsg(CDX.MSG, "Engine.problems_closing_listener", listener.getClass().getName(), e.getClass().getSimpleName(), e.getMessage()));
       }
     }
-
   }
 
 
@@ -1072,7 +1167,7 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
    */
   @Override
   public void shutdown() {
-
+    // not called
   }
 
 
@@ -1083,7 +1178,7 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
    */
   @Override
   public void shutdown(DataFrame params) {
-
+    // not called
   }
 
 
