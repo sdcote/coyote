@@ -36,7 +36,7 @@ import coyote.loader.log.LogMsg;
  * <p>The standard use case is a simple HTTP Get from some site. The filename 
  * will be that of the file and it will be placed in the Job Directory.
  * 
- * <p>If a file name is specified, the file will be named matching that 
+ * <p>If a target file is specified, the file will be named matching that 
  * filename argument. Otherwise, it will have the name name as it is 
  * specified on the URL. If the response contains the "Content-Disposition" 
  * header containing the filename, that filename will be used. This allows for 
@@ -56,18 +56,18 @@ public class WebGet extends AbstractFileTask {
    */
   @Override
   protected void performTask() throws TaskException {
-    final String source = getString( ConfigTag.SOURCE );
-    final String filename = getString( ConfigTag.FILE ); // optional
-    final String directory = getString( ConfigTag.DIRECTORY ); // optional
+    final String source = getString(ConfigTag.SOURCE);
+    final String target = getString(ConfigTag.TARGET); // optional
+    final String directory = getString(ConfigTag.DIRECTORY); // optional
 
     URL url = null;
     try {
-      url = new URL( source );
-    } catch ( MalformedURLException e ) {
-      final String msg = LogMsg.createMsg( CDX.MSG, "WebGet could not parse the URL: {0}", source ).toString();
-      Log.error( msg );
-      if ( haltOnError ) {
-        getContext().setError( msg );
+      url = new URL(source);
+    } catch (MalformedURLException e) {
+      final String msg = LogMsg.createMsg(CDX.MSG, "WebGet could not parse the URL: {0}", source).toString();
+      Log.error(msg);
+      if (haltOnError) {
+        getContext().setError(msg);
         return;
       }
     }
@@ -77,73 +77,73 @@ public class WebGet extends AbstractFileTask {
     try {
       httpConn = (HttpURLConnection)url.openConnection();
       responseCode = httpConn.getResponseCode();
-    } catch ( IOException e ) {
-      final String msg = LogMsg.createMsg( CDX.MSG, "WebGet could not connect to server: {0} - Reason: {1}", source, e.getMessage() ).toString();
-      if ( haltOnError ) {
-        throw new TaskException( msg );
+    } catch (IOException e) {
+      final String msg = LogMsg.createMsg(CDX.MSG, "WebGet could not connect to server: {0} - Reason: {1}", source, e.getMessage()).toString();
+      if (haltOnError) {
+        throw new TaskException(msg);
       } else {
-        Log.error( msg );
+        Log.error(msg);
         return;
       }
     }
 
-    if ( responseCode == HttpURLConnection.HTTP_OK ) {
+    if (responseCode == HttpURLConnection.HTTP_OK) {
 
       String fileName = "";
-      if ( StringUtil.isBlank( filename ) ) {
-        String disposition = httpConn.getHeaderField( HTTP.HDR_CONTENT_DISPOSITION );
+      if (StringUtil.isBlank(target)) {
+        String disposition = httpConn.getHeaderField(HTTP.HDR_CONTENT_DISPOSITION);
 
-        if ( disposition != null ) {
-          int index = disposition.indexOf( "filename=" );
-          if ( index > 0 ) {
-            fileName = disposition.substring( index + 10, disposition.length() - 1 );
+        if (disposition != null) {
+          int index = disposition.indexOf("filename=");
+          if (index > 0) {
+            fileName = disposition.substring(index + 10, disposition.length() - 1);
           }
         } else {
-          fileName = FileUtil.getFile( source );
+          fileName = FileUtil.getFile(source);
         }
       } else {
-        fileName = filename;
+        fileName = target;
       }
 
-      File targetFile = new File( fileName );
+      File targetFile = new File(fileName);
 
-      if ( !targetFile.isAbsolute() ) {
-        if ( StringUtil.isNotBlank( directory ) ) {
-          targetFile = new File( directory, fileName );
+      if (!targetFile.isAbsolute()) {
+        if (StringUtil.isNotBlank(directory)) {
+          targetFile = new File(directory, fileName);
         } else {
           // use the JobDir
-          targetFile = new File( getJobDir(), fileName );
+          targetFile = new File(getJobDir(), fileName);
         }
       }
 
-      Log.debug( "WebGet retrieving " + source + " to " + targetFile.getAbsolutePath() + ", Content Type: " + httpConn.getContentType() + ", Content Length: " + httpConn.getContentLength() );
+      Log.debug("WebGet retrieving " + source + " to " + targetFile.getAbsolutePath() + ", Content Type: " + httpConn.getContentType() + ", Content Length: " + httpConn.getContentLength());
 
       try {
         int bytesTotal = 0;
-        try (InputStream inputStream = httpConn.getInputStream(); FileOutputStream outputStream = new FileOutputStream( targetFile )) {
+        try (InputStream inputStream = httpConn.getInputStream(); FileOutputStream outputStream = new FileOutputStream(targetFile)) {
           int bytesRead = -1;
           byte[] buffer = new byte[STREAM_BUFFER_LENGTH];
-          while ( ( bytesRead = inputStream.read( buffer ) ) != -1 ) {
-            outputStream.write( buffer, 0, bytesRead );
+          while ((bytesRead = inputStream.read(buffer)) != -1) {
+            outputStream.write(buffer, 0, bytesRead);
             bytesTotal += bytesRead;
           }
         }
-        Log.debug( "Downloaded " + FileUtil.formatSizeBytes( bytesTotal ) + " from " + source + " to " + targetFile.getAbsolutePath() );
-      } catch ( IOException e ) {
-        final String msg = LogMsg.createMsg( CDX.MSG, "WebGet could not retrieve file from server: {0} - {1}", e.getClass().getSimpleName(), e.getMessage() ).toString();
-        if ( haltOnError ) {
-          throw new TaskException( msg );
+        Log.debug("Downloaded " + FileUtil.formatSizeBytes(bytesTotal) + " from " + source + " to " + targetFile.getAbsolutePath());
+      } catch (IOException e) {
+        final String msg = LogMsg.createMsg(CDX.MSG, "WebGet could not retrieve file from server: {0} - {1}", e.getClass().getSimpleName(), e.getMessage()).toString();
+        if (haltOnError) {
+          throw new TaskException(msg);
         } else {
-          Log.error( msg );
+          Log.error(msg);
           return;
         }
       }
     } else {
-      final String msg = LogMsg.createMsg( CDX.MSG, "WebGet could not retrieve file from server - Response: {0} for {1}", responseCode, source ).toString();
-      if ( haltOnError ) {
-        throw new TaskException( msg );
+      final String msg = LogMsg.createMsg(CDX.MSG, "WebGet could not retrieve file from server - Response: {0} for {1}", responseCode, source).toString();
+      if (haltOnError) {
+        throw new TaskException(msg);
       } else {
-        Log.error( msg );
+        Log.error(msg);
         return;
       }
     }
