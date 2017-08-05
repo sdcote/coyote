@@ -147,6 +147,10 @@ public abstract class AbstractTransformTask extends AbstractConfigurableComponen
         try {
           if (evaluator.evaluateBoolean(getCondition())) {
             performTask();
+          } else{
+            if( Log.isLogging(Log.DEBUG_EVENTS)){
+              Log.debug(LogMsg.createMsg(CDX.MSG, "Task.boolean_evaluation_false", getCondition()));
+            }
           }
         } catch (final IllegalArgumentException e) {
           Log.error(LogMsg.createMsg(CDX.MSG, "Task.boolean_evaluation_error", getCondition(), e.getMessage()));
