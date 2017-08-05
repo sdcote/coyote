@@ -7,6 +7,16 @@
  */
 package coyote.dx.writer;
 
+import static java.sql.Types.BIGINT;
+import static java.sql.Types.BOOLEAN;
+import static java.sql.Types.DOUBLE;
+import static java.sql.Types.FLOAT;
+import static java.sql.Types.INTEGER;
+import static java.sql.Types.SMALLINT;
+import static java.sql.Types.TIMESTAMP;
+import static java.sql.Types.TINYINT;
+import static java.sql.Types.VARCHAR;
+
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -20,9 +30,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Types;
-import static java.sql.Types.*;
 import java.util.Date;
-
 
 import coyote.commons.JdbcUtil;
 import coyote.commons.StringUtil;

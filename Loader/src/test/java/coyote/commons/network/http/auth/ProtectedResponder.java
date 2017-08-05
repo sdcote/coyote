@@ -14,7 +14,6 @@ package coyote.commons.network.http.auth;
 import java.util.Map;
 
 import coyote.commons.network.MimeType;
-import coyote.commons.network.http.HTTPD;
 import coyote.commons.network.http.IHTTPSession;
 import coyote.commons.network.http.IStatus;
 import coyote.commons.network.http.Response;

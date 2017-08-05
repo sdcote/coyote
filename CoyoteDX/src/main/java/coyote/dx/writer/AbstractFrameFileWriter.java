@@ -20,13 +20,11 @@ import java.net.URI;
 
 import coyote.commons.StringUtil;
 import coyote.commons.UriUtil;
-import coyote.dx.AbstractConfigurableComponent;
 import coyote.dx.CDX;
 import coyote.dx.ConfigTag;
 import coyote.dx.FrameWriter;
 import coyote.dx.Symbols;
 import coyote.dx.context.TransformContext;
-import coyote.dx.eval.Evaluator;
 import coyote.loader.log.Log;
 import coyote.loader.log.LogMsg;
 

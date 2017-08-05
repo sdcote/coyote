@@ -16,8 +16,6 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
-import coyote.dataframe.marshal.JSONMarshaler;
-
 
 /**
  * This class contains unit test for the ArrayType

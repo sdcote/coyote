@@ -10,8 +10,6 @@ import java.net.URISyntaxException;
 
 import org.junit.Test;
 
-import coyote.dx.ftp.RemoteSite;
-
 
 public class RemoteSiteTest {
 

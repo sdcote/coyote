@@ -23,7 +23,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import coyote.commons.FileUtil;
-import coyote.dataframe.DataFrame;
 import coyote.dx.AbstractTest;
 import coyote.dx.ConfigTag;
 import coyote.dx.TaskException;

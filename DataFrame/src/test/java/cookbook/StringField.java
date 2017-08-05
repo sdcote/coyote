@@ -11,8 +11,6 @@
  */
 package cookbook;
 
-import java.io.Console;
-
 import coyote.commons.ByteUtil;
 import coyote.dataframe.DataFrame;
 

@@ -12,7 +12,6 @@ package coyote.commons;
 
 import java.util.Map;
 
-import coyote.commons.WebServer;
 import coyote.commons.network.MimeType;
 import coyote.commons.network.http.IHTTPSession;
 import coyote.commons.network.http.IStatus;

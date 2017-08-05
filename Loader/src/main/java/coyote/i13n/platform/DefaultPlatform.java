@@ -14,7 +14,6 @@ package coyote.i13n.platform;
 import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.Locale;
 
 import coyote.i13n.Platform;

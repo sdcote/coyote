@@ -23,7 +23,6 @@ import coyote.dataframe.DataFrame;
 import coyote.dx.FrameFilter;
 import coyote.dx.context.TransactionContext;
 import coyote.dx.context.TransformContext;
-import coyote.dx.filter.Accept;
 
 
 /**

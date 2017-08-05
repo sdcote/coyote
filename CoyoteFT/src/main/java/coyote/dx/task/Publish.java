@@ -15,14 +15,14 @@ import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
 
+import coyote.commons.Assert;
+import coyote.commons.UriUtil;
 import coyote.dx.CFT;
 import coyote.dx.ConfigTag;
 import coyote.dx.TaskException;
 import coyote.dx.TransformTask;
 import coyote.dx.context.TransformContext;
 import coyote.dx.ftp.RemoteSite;
-import coyote.commons.Assert;
-import coyote.commons.UriUtil;
 import coyote.loader.cfg.ConfigurationException;
 import coyote.loader.log.Log;
 import coyote.loader.log.LogMsg;

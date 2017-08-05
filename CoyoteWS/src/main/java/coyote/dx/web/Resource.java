@@ -18,12 +18,12 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
+import coyote.commons.StringUtil;
 import coyote.dx.web.auth.AuthenticationException;
 import coyote.dx.web.auth.Authenticator;
 import coyote.dx.web.auth.NullAuthenticator;
 import coyote.dx.web.decorator.RequestDecorator;
 import coyote.dx.web.worker.ResourceWorker;
-import coyote.commons.StringUtil;
 
 
 /**

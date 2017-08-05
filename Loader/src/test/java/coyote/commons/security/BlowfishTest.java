@@ -23,9 +23,6 @@ import javax.crypto.spec.SecretKeySpec;
 import org.junit.AfterClass;
 import org.junit.Test;
 
-import coyote.commons.ByteUtil;
-import coyote.commons.CipherUtil;
-
 
 /**
  * 

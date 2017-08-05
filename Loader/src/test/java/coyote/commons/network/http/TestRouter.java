@@ -11,9 +11,9 @@ import coyote.commons.network.http.responder.DefaultResponder;
 import coyote.commons.network.http.responder.DefaultStreamResponder;
 import coyote.commons.network.http.responder.GeneralResponder;
 import coyote.commons.network.http.responder.HTTPDRouter;
-import coyote.commons.network.http.responder.StaticPageResponder;
 import coyote.commons.network.http.responder.Resource;
 import coyote.commons.network.http.responder.Responder;
+import coyote.commons.network.http.responder.StaticPageResponder;
 
 
 public class TestRouter extends HTTPDRouter {

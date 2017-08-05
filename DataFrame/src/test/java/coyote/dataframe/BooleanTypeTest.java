@@ -2,14 +2,11 @@ package coyote.dataframe;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
-
-import coyote.commons.ByteUtil;
 
 
 public class BooleanTypeTest

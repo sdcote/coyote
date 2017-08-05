@@ -11,8 +11,8 @@
  */
 package coyote.dx.web.auth;
 
-import coyote.dx.web.Resource;
 import coyote.dataframe.DataFrame;
+import coyote.dx.web.Resource;
 import coyote.loader.cfg.ConfigurationException;
 
 

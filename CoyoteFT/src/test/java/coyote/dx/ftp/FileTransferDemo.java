@@ -16,9 +16,6 @@ import java.net.UnknownHostException;
 import java.util.List;
 
 import coyote.commons.SystemPropertyUtil;
-import coyote.dx.ftp.FileTransferException;
-import coyote.dx.ftp.RemoteFile;
-import coyote.dx.ftp.RemoteSite;
 
 
 /**

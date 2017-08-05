@@ -1,7 +1,7 @@
 package coyote.commons.network.http;
 
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 

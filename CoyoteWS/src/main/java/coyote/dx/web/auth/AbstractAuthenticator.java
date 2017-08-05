@@ -11,13 +11,13 @@
  */
 package coyote.dx.web.auth;
 
-import coyote.dx.web.Resource;
 import coyote.commons.CipherUtil;
 import coyote.dataframe.DataField;
 import coyote.dataframe.DataFrame;
 import coyote.dataframe.DataFrameException;
 import coyote.dx.CWS;
 import coyote.dx.ConfigTag;
+import coyote.dx.web.Resource;
 import coyote.loader.Loader;
 import coyote.loader.cfg.ConfigurationException;
 

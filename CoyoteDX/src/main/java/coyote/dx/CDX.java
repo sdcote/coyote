@@ -13,8 +13,6 @@ package coyote.dx;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 
 import coyote.commons.StringUtil;
 import coyote.commons.Version;

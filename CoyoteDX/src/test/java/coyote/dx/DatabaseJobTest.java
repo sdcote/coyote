@@ -19,10 +19,6 @@ import static org.junit.Assert.fail;
 import java.io.IOException;
 import java.sql.Connection;
 
-import org.junit.Test;
-
-import coyote.dx.Database;
-import coyote.dx.TransformEngine;
 import coyote.dx.context.TransformContext;
 import coyote.loader.log.Log;
 
