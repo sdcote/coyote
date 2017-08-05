@@ -51,12 +51,14 @@ public class RunJobTest {
    * @throws java.lang.Exception
    */
   @AfterClass
-  public static void tearDownAfterClass() throws Exception {}
+  public static void tearDownAfterClass() throws Exception {
+    // cleanup the work directories
+  }
 
 
 
 
-  @Ignore
+  @Test
   public void execute() throws ConfigurationException, TaskException, IOException {
     final TransformContext context = new TransformContext();
 

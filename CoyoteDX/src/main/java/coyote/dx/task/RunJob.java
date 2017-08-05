@@ -110,7 +110,6 @@ public class RunJob extends AbstractTransformTask {
   private URI checkAppCfgDirectory(String cfgLoc, StringBuffer errMsg) throws TaskException {
     URI retval = null;
     final String path = System.getProperties().getProperty(Loader.APP_HOME);
-
     if (StringUtil.isNotBlank(path)) {
       final String appDir = FileUtil.normalizePath(path);
       final File homeDir = new File(appDir);
@@ -144,7 +143,39 @@ public class RunJob extends AbstractTransformTask {
 
 
   private URI checkWorkDirectory(String cfgLoc, StringBuffer errMsg) throws TaskException {
-    return null;
+    URI retval = null;
+    if(getContext()!=null && getContext().getEngine()!=null){
+    File wrkDir = getContext().getEngine().getWorkDirectory();
+    if( wrkDir != null){
+      if (wrkDir.exists()) {
+        if (wrkDir.isDirectory()) {
+          final File cfgFile = new File(wrkDir, cfgLoc);
+          final File alternativeFile = new File(wrkDir, cfgLoc + JSON_EXT);
+
+          if (cfgFile.exists()) {
+            retval = FileUtil.getFileURI(cfgFile);
+          } else {
+            if (alternativeFile.exists()) {
+              retval = FileUtil.getFileURI(alternativeFile);
+            } else {
+              errMsg.append(LogMsg.createMsg(CDX.MSG, "Task.runjob.no_work_dir_file", cfgFile.getAbsolutePath()) + StringUtil.CRLF);
+              errMsg.append(LogMsg.createMsg(CDX.MSG, "Task.runjob.cfg_file_not_found", cfgLoc) + StringUtil.CRLF);
+            }
+          }
+        } else {
+          errMsg.append(LogMsg.createMsg(CDX.MSG, "Task.runjob.wrk_dir_is_not_directory", wrkDir) + StringUtil.CRLF);
+        }
+      } else {
+        errMsg.append(LogMsg.createMsg(CDX.MSG, "Task.runjob.wrk_dir_does_not_exist", wrkDir) + StringUtil.CRLF);
+      }
+      
+    } else {
+      errMsg.append(LogMsg.createMsg(CDX.MSG, "Task.runjob.work_dir_not_set_in_engine") + StringUtil.CRLF);
+    }
+    } else {
+      errMsg.append(LogMsg.createMsg(CDX.MSG, "Task.runjob.no_reference_to_engine") + StringUtil.CRLF);
+    }
+    return retval;
   }
 
 
@@ -165,7 +196,20 @@ public class RunJob extends AbstractTransformTask {
 
 
   private URI checkCurrentDirectory(String cfgLoc, StringBuffer errMsg) throws TaskException {
-    return null;
+    URI retval = null;
+    File localfile = new File(cfgLoc);
+    File alternativeFile = new File(cfgLoc + JSON_EXT);
+    
+    if (localfile.exists()) {
+      retval = FileUtil.getFileURI(localfile);
+    } else {
+      if (alternativeFile.exists()) {
+        retval = FileUtil.getFileURI(alternativeFile);
+      }else{
+        errMsg.append(LogMsg.createMsg(CDX.MSG, "Task.runjob.no_local_cfg_file", localfile.getAbsolutePath()) + StringUtil.CRLF);
+      }
+    }
+    return retval;
   }
 
 
@@ -176,7 +220,6 @@ public class RunJob extends AbstractTransformTask {
    */
   @Override
   protected void performTask() throws TaskException {
-
     final String filename = getString(ConfigTag.FILE);
     Log.debug("Reading configuration file " + filename);
     final URI cfgUri = confirmConfigurationLocation(filename);
@@ -204,7 +247,7 @@ public class RunJob extends AbstractTransformTask {
         }
 
         // Set the engine's work directory to this task's job directory  
-        //engine.setWorkDirectory(getJobDirectory());
+        engine.setWorkDirectory(getJobDirectory());
 
         try {
           engine.run();

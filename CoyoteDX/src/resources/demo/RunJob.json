@@ -2,16 +2,17 @@
 	"Class" : "coyote.dx.Job",
 	"Job" : {
 		"Name" : "RunJob",
-		"Description": "Shows how to run jobs conditionally",
+		"Description" : "Shows how to run jobs conditionally",
 		
-		"Task": {
-			"RunJob":{ "filename":"BitcoinPrice","name":"Price"},
-			"RunJob":{ 
-				"condition": "jobSuccess(Price) && check(Price.Last, GT, 2790)",
-				"filename":"sellBitcoin",
+		"Task" : {
+			"RunJob" : { "filename":"BitcoinPrice","name":"Price" },
+			"LogContext" : { "category":"debug" },
+			"RunJob" : { 
+				"condition": "jobSuccess(Price) && checkField(Price.Last, GT, 2790)",
+				"filename" : "sellBitcoin",
 				"fields" : { "Coins": 0.035, "Account": "12345", "Password": "53crEt" }
 			},
-			"RunJob": { "condition": "jobFailure(Price)", "filename":"BitcoinCleanup"}
+			"RunJob" : { "condition": "jobFailure(Price)", "filename":"BitcoinCleanup" }
 		}
 
 	}
