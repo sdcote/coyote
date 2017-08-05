@@ -21,8 +21,14 @@ import coyote.loader.log.Log;
  * Context writers write their frames to a context variable.
  * 
  * <p>The writer will create an array of DataFrames in the context with a key 
- * of "ContextOutput". This filed can be overridden via the "target" 
+ * of "ContextOutput". This field can be overridden via the "target" 
  * configuration variable.
+ * 
+ * <p>This can be an expensive operation as it will rep,ace the existing array 
+ * with a new array one larger than the last, copying the contents of the 
+ * previous array and adding the current DataFrame to the last element. This 
+ * is best used for those jobs which only create one or a few output frames. 
+ * Anything larger and it may be more efficient to use the file system.
  */
 public class ContextWriter extends AbstractFrameWriter {
   public static final String DEFAULT_CONTEXT_FIELD = "ContextOutput";
@@ -35,11 +41,11 @@ public class ContextWriter extends AbstractFrameWriter {
    * @see coyote.dx.Component#open(coyote.dx.context.TransformContext)
    */
   @Override
-  public void open( TransformContext context ) {
-    super.open( context );
+  public void open(TransformContext context) {
+    super.open(context);
 
-    String fieldName = configuration.getString( "target" );
-    if ( StringUtil.isNotBlank( fieldName ) ) {
+    String fieldName = configuration.getString("target");
+    if (StringUtil.isNotBlank(fieldName)) {
       contextFieldName = fieldName.trim();
     }
   }
@@ -51,20 +57,20 @@ public class ContextWriter extends AbstractFrameWriter {
    * @see coyote.dx.writer.AbstractFrameWriter#write(coyote.dataframe.DataFrame)
    */
   @Override
-  public void write( DataFrame frame ) {
-    Object dataobj = getContext().get( contextFieldName );
-    if ( dataobj == null ) {
+  public void write(DataFrame frame) {
+    Object dataobj = getContext().get(contextFieldName);
+    if (dataobj == null) {
       DataFrame[] frames = new DataFrame[1];
       frames[0] = frame;
-      getContext().set( contextFieldName, frames );
-    } else if ( dataobj instanceof DataFrame[] ) {
+      getContext().set(contextFieldName, frames);
+    } else if (dataobj instanceof DataFrame[]) {
       DataFrame[] ary = (DataFrame[])dataobj;
       DataFrame[] frames = new DataFrame[ary.length + 1];
-      System.arraycopy( ary, 0, frames, 0, ary.length );
+      System.arraycopy(ary, 0, frames, 0, ary.length);
       frames[frames.length - 1] = frame;
-      getContext().set( contextFieldName, frames );
+      getContext().set(contextFieldName, frames);
     } else {
-      Log.error( "Write collision with existing object (" + dataobj.getClass().getName() + ") in " + contextFieldName );
+      Log.error("Write collision with existing object (" + dataobj.getClass().getName() + ") in " + contextFieldName);
     }
   }
 
