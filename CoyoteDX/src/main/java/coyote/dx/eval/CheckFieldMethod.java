@@ -257,13 +257,6 @@ public final class CheckFieldMethod extends AbstractBooleanMethod {
 
 
 
-  private static IllegalArgumentException cannotCompare(Object thisObject, Object thatObject) {
-    return new IllegalArgumentException("Object of type '" + thisObject.getClass().getName() + "' cannot be compared to object of type '" + thatObject.getClass().getName() + "' (" + thisObject + " -> " + thatObject + ")");
-  }
-
-
-
-
   private static Boolean equalTo(final Object fieldObject, final Object expectedObject) {
     boolean retval = true;
     if (fieldObject == null && expectedObject == null) {
