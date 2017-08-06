@@ -12,13 +12,14 @@
 package coyote.dx.task;
 
 import coyote.commons.StringUtil;
+import coyote.commons.template.Template;
 import coyote.dx.ConfigTag;
 import coyote.dx.TaskException;
 import coyote.loader.log.Log;
 
 
 /**
- * A task which generates a log entry
+ * A task which generates a log entry.
  */
 public class LogEntry extends AbstractTransformTask {
 
@@ -48,7 +49,8 @@ public class LogEntry extends AbstractTransformTask {
   @Override
   protected void performTask() throws TaskException {
 
-    String message = getMessage();
+    String message = Template.resolve( getMessage(), getContext().getSymbols() );
+
     if ( StringUtil.isNotBlank( message ) ) {
       String level = getCategory();
       if ( StringUtil.isNotBlank( level ) ) {
