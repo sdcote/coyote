@@ -25,7 +25,6 @@ public class ConfigTag {
 
   public static final String AUTO_ADJUST = "autoadjust";
   public static final String AUTO_CREATE = "autocreate";
-  /** Batch size ({@value}) configuration attribute. */
   public static final String BATCH = "batch";
   public static final String CLASS = "class";
   public static final String DRIVER = "driver";
@@ -52,7 +51,6 @@ public class ConfigTag {
   public static final String TRIM = "trim";
   public static final String TYPE = "type";
   public static final String IDENTITY = "identity";
-  /** User name ({@value}) configuration attribute. */
   public static final String USERNAME = "username";
   public static final String USE_SSL = "usessl";
   public static final String DATEFORMAT = "dateformat";
@@ -66,6 +64,7 @@ public class ConfigTag {
   public static final String PRESERVE = "preserve";
   public static final String DELETE = "delete";
   public static final String OVERWRITE = "overwrite";
+  public static final String REPLACE = "replace";
   public static final String KEEPDATE = "keepdate";
   public static final String RENAME = "rename";
   public static final String CHARACTER = "character";
@@ -137,7 +136,7 @@ public class ConfigTag {
 
   // Scheduler
 
-  public static final String SCHEDULE = "Schedule";
+  public static final String SCHEDULE = "schedule";
   public static final String MINUTES = "minutes";
   public static final String HOURS = "hours";
   public static final String DAYS = "days";
@@ -148,7 +147,7 @@ public class ConfigTag {
 
   // Manager
 
-  public static final String IPACL = "IpACL";
-  public static final String FREQUENCY = "Frequency";
+  public static final String IPACL = "ipacl";
+  public static final String FREQUENCY = "frequency";
   
 }
