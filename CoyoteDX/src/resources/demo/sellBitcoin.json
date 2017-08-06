@@ -1,0 +1,12 @@
+{
+	"Class" : "coyote.dx.Job",
+	"Job" : {
+		"Name":"SellBitCoin",
+		"Description":"Simple job run by RunJob.json to illustrate conditional job runs.",
+		
+		"Task" : {
+			"LogEntry": { "message":"SOLD BITCOINS at [#$DateTime#]", "category":"notice"}
+		}
+	}
+
+}
