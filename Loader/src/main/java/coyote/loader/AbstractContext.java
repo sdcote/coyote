@@ -4,10 +4,6 @@
  * This program and the accompanying materials are made available under the 
  * terms of the MIT License which accompanies this distribution, and is 
  * available at http://creativecommons.org/licenses/MIT/
- *
- * Contributors:
- *   Stephan D. Cote 
- *      - Initial concept and implementation
  */
 package coyote.loader;
 
@@ -52,8 +48,8 @@ public abstract class AbstractContext implements Context {
 
 
 
-  public AbstractContext( List<ContextListener> listeners ) {
-    setListeners( listeners );
+  public AbstractContext(List<ContextListener> listeners) {
+    setListeners(listeners);
   }
 
 
@@ -63,7 +59,7 @@ public abstract class AbstractContext implements Context {
    * @return the symbolTable for this context
    */
   public synchronized SymbolTable getSymbols() {
-    if ( symbols == null ) {
+    if (symbols == null) {
       symbols = new SymbolTable();
     }
     return symbols;
@@ -75,7 +71,7 @@ public abstract class AbstractContext implements Context {
   /**
    * @param symbols the symbols to set in this context
    */
-  public synchronized void setSymbols( SymbolTable symbols ) {
+  public synchronized void setSymbols(SymbolTable symbols) {
     this.symbols = symbols;
   }
 
@@ -89,8 +85,8 @@ public abstract class AbstractContext implements Context {
    * 
    * @return the object with that name or null if the named object is not found
    */
-  public Object get( String key ) {
-    return get( key, true );
+  public Object get(String key) {
+    return get(key, true);
   }
 
 
@@ -100,6 +96,9 @@ public abstract class AbstractContext implements Context {
    * Performs a search for a property with the given name taking case into 
    * account.
    * 
+   * <p>If this finds a key match and its value is null, it will continue 
+   * looking in case there is another key with a non-null value.
+   * 
    * @param key the key for which to search
    * @param usecase true to indicate case sensitive, false to perform a case 
    *        insensitive search.
@@ -107,21 +106,18 @@ public abstract class AbstractContext implements Context {
    * @return the value of the property, or null if the property was not found 
    *         with the given key of if the key was null or blank.
    */
-  public synchronized Object get( String key, boolean usecase ) {
-    if ( StringUtil.isNotBlank( key ) ) {
-      if ( usecase ) {
-        return properties.get( key );
+  public synchronized Object get(String key, boolean usecase) {
+    if (StringUtil.isNotBlank(key)) {
+      if (usecase) {
+        return properties.get(key);
       } else {
-        for ( Map.Entry<String, Object> entry : properties.entrySet() ) {
-          if ( key.equalsIgnoreCase( entry.getKey() ) ) {
-            if ( entry.getValue() != null ) {
-              return entry.getValue().toString();
-            }
-            // don't break; keep looking in case there is another non-null match
-          } // if match
-        } // for
-      } // else
-    } // key is not blank
+        for (Map.Entry<String, Object> entry : properties.entrySet()) {
+          if (key.equalsIgnoreCase(entry.getKey()) && entry.getValue() != null) {
+            return entry.getValue().toString();
+          }
+        }
+      }
+    }
     return null;
   }
 
@@ -140,9 +136,9 @@ public abstract class AbstractContext implements Context {
    * @return the string representation of the object with that name or null if 
    *         the named object is not found
    */
-  public String getAsString( String key ) {
-    Object retval = get( key );
-    if ( retval != null ) {
+  public String getAsString(String key) {
+    Object retval = get(key);
+    if (retval != null) {
       return retval.toString();
     }
     return null;
@@ -165,9 +161,9 @@ public abstract class AbstractContext implements Context {
    * @return the string representation of the object with that name or null if 
    *         the named object is not found
    */
-  public String getAsString( String key, boolean usecase ) {
-    Object retval = get( key, usecase );
-    if ( retval != null ) {
+  public String getAsString(String key, boolean usecase) {
+    Object retval = get(key, usecase);
+    if (retval != null) {
       return retval.toString();
     }
     return null;
@@ -182,12 +178,12 @@ public abstract class AbstractContext implements Context {
    * @param key the name of the object to place
    * @param value the object to place (null results in the object being removed)
    */
-  public synchronized void set( String key, Object value ) {
-    if ( key != null ) {
-      if ( value != null ) {
-        properties.put( key, value );
+  public synchronized void set(String key, Object value) {
+    if (key != null) {
+      if (value != null) {
+        properties.put(key, value);
       } else {
-        properties.remove( key );
+        properties.remove(key);
       }
     }
   }
@@ -195,7 +191,7 @@ public abstract class AbstractContext implements Context {
 
 
 
-  public synchronized void setError( boolean flag ) {
+  public synchronized void setError(boolean flag) {
     errorFlag = flag;
   }
 
@@ -207,7 +203,7 @@ public abstract class AbstractContext implements Context {
    * 
    * @param msg The message to place in the context.
    */
-  public synchronized void setError( String msg ) {
+  public synchronized void setError(String msg) {
     errorFlag = true;
     status = ERROR_STATUS;
     message = msg;
@@ -254,7 +250,7 @@ public abstract class AbstractContext implements Context {
    * 
    * @param status the status to set
    */
-  public synchronized void setStatus( String status ) {
+  public synchronized void setStatus(String status) {
     this.status = status;
   }
 
@@ -274,7 +270,7 @@ public abstract class AbstractContext implements Context {
   /**
    * @param message the message to set
    */
-  public synchronized void setMessage( String message ) {
+  public synchronized void setMessage(String message) {
     this.message = message;
   }
 
@@ -294,7 +290,7 @@ public abstract class AbstractContext implements Context {
   /**
    * @param startTime the startTime to set
    */
-  public synchronized void setStartTime( long startTime ) {
+  public synchronized void setStartTime(long startTime) {
     this.startTime = startTime;
   }
 
@@ -314,7 +310,7 @@ public abstract class AbstractContext implements Context {
   /**
    * @param endTime the endTime to set
    */
-  public synchronized void setEndTime( long endTime ) {
+  public synchronized void setEndTime(long endTime) {
     this.endTime = endTime;
   }
 
@@ -326,8 +322,8 @@ public abstract class AbstractContext implements Context {
    */
   public synchronized long getElapsed() {
 
-    if ( startTime != 0 ) {
-      if ( endTime != 0 ) {
+    if (startTime != 0) {
+      if (endTime != 0) {
         return endTime - startTime;
       } else {
         return System.currentTimeMillis() - startTime;
@@ -344,7 +340,7 @@ public abstract class AbstractContext implements Context {
    */
   public synchronized void start() {
     startTime = System.currentTimeMillis();
-    fireStart( this );
+    fireStart(this);
   }
 
 
@@ -355,30 +351,30 @@ public abstract class AbstractContext implements Context {
    */
   public synchronized void end() {
     endTime = System.currentTimeMillis();
-    fireEnd( this );
+    fireEnd(this);
   }
 
 
 
 
-  protected void fireStart( AbstractContext context ) {
-    if ( parent != null )
-      parent.fireStart( context );
+  protected void fireStart(AbstractContext context) {
+    if (parent != null)
+      parent.fireStart(context);
 
-    for ( ContextListener listener : listeners ) {
-      listener.onStart( context );
+    for (ContextListener listener : listeners) {
+      listener.onStart(context);
     }
   }
 
 
 
 
-  protected void fireEnd( AbstractContext context ) {
-    if ( parent != null )
-      parent.fireEnd( context );
+  protected void fireEnd(AbstractContext context) {
+    if (parent != null)
+      parent.fireEnd(context);
 
-    for ( ContextListener listener : listeners ) {
-      listener.onEnd( context );
+    for (ContextListener listener : listeners) {
+      listener.onEnd(context);
     }
   }
 
@@ -391,21 +387,21 @@ public abstract class AbstractContext implements Context {
    * 
    * @param event The event to send to context listeners - must not be null
    */
-  public void fireEvent( ContextEvent event ) {
-    Assert.notNull( event );
-    if ( parent != null )
-      parent.fireEvent( event );
+  public void fireEvent(ContextEvent event) {
+    Assert.notNull(event);
+    if (parent != null)
+      parent.fireEvent(event);
 
-    for ( ContextListener listener : listeners ) {
-      listener.onEvent( event );
+    for (ContextListener listener : listeners) {
+      listener.onEvent(event);
     }
   }
 
 
 
 
-  public synchronized void setListeners( List<ContextListener> listeners ) {
-    if ( listeners != null ) {
+  public synchronized void setListeners(List<ContextListener> listeners) {
+    if (listeners != null) {
       this.listeners = listeners;
     }
   }
@@ -413,12 +409,12 @@ public abstract class AbstractContext implements Context {
 
 
 
-  public synchronized void addListener( ContextListener listener ) {
-    if ( listener != null ) {
-      if ( listeners == null ) {
+  public synchronized void addListener(ContextListener listener) {
+    if (listener != null) {
+      if (listeners == null) {
         listeners = new ArrayList<ContextListener>();
       }
-      listeners.add( listener );
+      listeners.add(listener);
     }
   }
 
@@ -430,26 +426,26 @@ public abstract class AbstractContext implements Context {
    */
   @Override
   public String dump() {
-    StringBuffer b = new StringBuffer( "Context Properties:" );
-    b.append( StringUtil.LINE_FEED );
-    for ( String key : properties.keySet() ) {
-      b.append( "'" );
-      b.append( key );
-      b.append( "' = " );
-      Object value = properties.get( key );
-      if ( value != null )
-        b.append( value.toString() );
+    StringBuffer b = new StringBuffer("Context Properties:");
+    b.append(StringUtil.LINE_FEED);
+    for (String key : properties.keySet()) {
+      b.append("'");
+      b.append(key);
+      b.append("' = ");
+      Object value = properties.get(key);
+      if (value != null)
+        b.append(value.toString());
       else
-        b.append( "null" );
-      b.append( StringUtil.LINE_FEED );
+        b.append("null");
+      b.append(StringUtil.LINE_FEED);
     }
-    b.append( StringUtil.LINE_FEED );
-    if ( symbols != null ) {
-      b.append( "Symbol Table:" );
-      b.append( StringUtil.LINE_FEED );
-      b.append( symbols.dump() );
+    b.append(StringUtil.LINE_FEED);
+    if (symbols != null) {
+      b.append("Symbol Table:");
+      b.append(StringUtil.LINE_FEED);
+      b.append(symbols.dump());
     } else {
-      b.append( "No Symbol Table Found" );
+      b.append("No Symbol Table Found");
     }
     return b.toString();
   }
@@ -470,8 +466,8 @@ public abstract class AbstractContext implements Context {
   /**
    * @param context the parent context to set
    */
-  public void setParent( AbstractContext context ) {
-    if ( this != context ) {
+  public void setParent(AbstractContext context) {
+    if (this != context) {
       this.parent = context;
     }
   }
@@ -484,8 +480,8 @@ public abstract class AbstractContext implements Context {
    * 
    * @param map name name value pairs to merge.
    */
-  public void merge( HashMap<String, String> map ) {
-    getSymbols().merge( map );
+  public void merge(HashMap<String, String> map) {
+    getSymbols().merge(map);
   }
 
 
@@ -498,8 +494,8 @@ public abstract class AbstractContext implements Context {
    * @param value value of the symbol
    */
   @SuppressWarnings("unchecked")
-  public void addSymbol( String name, String value ) {
-    getSymbols().put( name, value );
+  public void addSymbol(String name, String value) {
+    getSymbols().put(name, value);
   }
 
 
@@ -509,8 +505,8 @@ public abstract class AbstractContext implements Context {
    * @see coyote.loader.Context#contains(java.lang.String)
    */
   @Override
-  public boolean contains( String key ) {
-    return properties.containsKey( key );
+  public boolean contains(String key) {
+    return properties.containsKey(key);
   }
 
 }
