@@ -64,7 +64,7 @@ public class WebGet extends AbstractFileTask {
     try {
       url = new URL(source);
     } catch (MalformedURLException e) {
-      final String msg = LogMsg.createMsg(CDX.MSG, "WebGet could not parse the URL: {0}", source).toString();
+      final String msg = LogMsg.createMsg(CDX.MSG, "Task.webget.could_not_parse_url", source).toString();
       Log.error(msg);
       if (haltOnError) {
         getContext().setError(msg);
@@ -78,7 +78,7 @@ public class WebGet extends AbstractFileTask {
       httpConn = (HttpURLConnection)url.openConnection();
       responseCode = httpConn.getResponseCode();
     } catch (IOException e) {
-      final String msg = LogMsg.createMsg(CDX.MSG, "WebGet could not connect to server: {0} - Reason: {1}", source, e.getMessage()).toString();
+      final String msg = LogMsg.createMsg(CDX.MSG, "Task.webget.could_not_connect", source, e.getMessage()).toString();
       if (haltOnError) {
         throw new TaskException(msg);
       } else {
@@ -130,7 +130,7 @@ public class WebGet extends AbstractFileTask {
         }
         Log.debug("Downloaded " + FileUtil.formatSizeBytes(bytesTotal) + " from " + source + " to " + targetFile.getAbsolutePath());
       } catch (IOException e) {
-        final String msg = LogMsg.createMsg(CDX.MSG, "WebGet could not retrieve file from server: {0} - {1}", e.getClass().getSimpleName(), e.getMessage()).toString();
+        final String msg = LogMsg.createMsg(CDX.MSG, "Task.webget.could_not_retrieve_file", e.getClass().getSimpleName(), e.getMessage()).toString();
         if (haltOnError) {
           throw new TaskException(msg);
         } else {
@@ -139,7 +139,7 @@ public class WebGet extends AbstractFileTask {
         }
       }
     } else {
-      final String msg = LogMsg.createMsg(CDX.MSG, "WebGet could not retrieve file from server - Response: {0} for {1}", responseCode, source).toString();
+      final String msg = LogMsg.createMsg(CDX.MSG, "Task.webget.could_not_retrieve_resource", responseCode, source).toString();
       if (haltOnError) {
         throw new TaskException(msg);
       } else {
