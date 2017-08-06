@@ -81,10 +81,14 @@ public class RunJobTest {
       // context with a default key of ContextOutput
       final Object object = ((Map)results).get(ContextWriter.DEFAULT_CONTEXT_FIELD);
       assertNotNull(object);
-      final DataFrame[] frames = (DataFrame[])object; // should be an array of frames
-      assertTrue(frames.length > 0);
 
-      final DataFrame frame = frames[0]; // get the first one
+      // If replace is not used, then the data will be in an array
+      //  final DataFrame[] frames = (DataFrame[])object; // should be an array of frames
+      //  assertTrue(frames.length > 0);
+      //  final DataFrame frame = frames[0]; // get the first one
+
+      // should be a single frame thanks to "replace" mode
+      final DataFrame frame = (DataFrame)object;
       assertNotNull(frame);
       System.out.println(frame);
 

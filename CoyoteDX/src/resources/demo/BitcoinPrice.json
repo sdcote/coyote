@@ -13,7 +13,7 @@
 
 		"Writer": { "class": "ConsoleWriter", "format": "json", "indent": true },
 
-		"Writer": { "class": "ContextWriter" }		
+		"Writer": { "class": "ContextWriter", "replace" : true }		
 
 	}
 }
