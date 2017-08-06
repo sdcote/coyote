@@ -15,6 +15,7 @@ import java.util.Map;
 import coyote.commons.StringUtil;
 import coyote.commons.template.Template;
 import coyote.dataframe.DataField;
+import coyote.dataframe.DataFrame;
 import coyote.dx.Database;
 import coyote.dx.Symbols;
 import coyote.dx.TransformEngine;
@@ -318,11 +319,6 @@ public class TransformContext extends OperationalContext {
       if ((transactionContext != null) && (transactionContext.getTargetFrame() != null)) {
         retval = transactionContext.getTargetFrame().getObject(name);
       }
-    } else {
-      // assume a working frame field
-      if ((transactionContext != null) && (transactionContext.getWorkingFrame() != null)) {
-        retval = transactionContext.getWorkingFrame().getObject(token);
-      }
     }
     return retval;
   }
@@ -399,18 +395,136 @@ public class TransformContext extends OperationalContext {
    */
   public Object resolveToValue(final String token) {
     Object retval = null;
-    final Object value = resolveFieldValue(token);
-    if (value != null) {
-      retval = value;
-    } else {
-      final Object obj = get(token);
-      if (obj != null) {
-        retval = obj.toString();
+    if (StringUtil.isNotEmpty(token)) {
+      final Object value = resolveFieldValue(token);
+      if (value != null) {
+        retval = value;
       } else {
-        if (symbols != null && symbols.containsKey(token)) {
-          retval = symbols.get(token);
+        final Object obj = searchForValue(token);
+        if (obj != null) {
+          retval = obj.toString();
+        } else {
+          if (symbols != null && symbols.containsKey(token)) {
+            retval = symbols.get(token);
+          }
         }
       }
+    }
+    return retval;
+  }
+
+
+
+
+  /**
+   * Performs a search of this context.
+   * 
+   * <p>This search supports hierarchical searches using a dotted notation. 
+   * Each fieldname is divided into separate tokens and used to search deeper 
+   * into the hierarchy.
+   * 
+   * <p>If a token does not result in finding a named value, the token is 
+   * rebuilt adding the remaining tokens in order and performing a search each 
+   * time a token is added. This allows for finding fields with dotted names.
+   * 
+   * @param fieldname
+   * @return
+   */
+  protected Object searchForValue(String fieldname) {
+    Object retval = null;
+    String[] tokens = fieldname.split("\\.");
+    if (tokens.length == 1) {
+      retval = get(fieldname);
+    } else {
+      int generation = 0;
+      String nameToCheck = tokens[generation];
+      while (generation < tokens.length) {
+        Object ancestor = get(nameToCheck);
+        if (ancestor != null) {
+          if (generation + 1 < tokens.length) {
+            if (ancestor instanceof DataFrame) {
+              return checkFrame((DataFrame)ancestor, tokens, generation);
+            } else if (ancestor instanceof Map) {
+              return checkMap((Map)ancestor, tokens, generation);
+            }
+          } else {
+            retval = ancestor;
+          }
+        } else {
+          if (generation + 1 < tokens.length) {
+             nameToCheck = nameToCheck.concat(".").concat(tokens[generation + 1]);
+          }
+        }
+        generation++;
+      }
+    }
+    return retval;
+  }
+
+
+
+
+  /**
+   * @param map the map to check
+   * @param tokens the list of tokens from the request
+   * @param level the pointer to how far into the token list we are
+   * 
+   * @return the value found or null if there is no matching value with that name.   
+   */
+  private Object checkMap(Map map, String[] tokens, int level) {
+    Object retval = null;
+    int generation = level + 1;
+    String nameToCheck = tokens[generation];
+    while (generation < tokens.length) {
+      Object value = map.get(nameToCheck);
+      if (value != null) {
+        if (generation + 1 < tokens.length) {
+          if (value instanceof DataFrame) {
+            return checkFrame((DataFrame)value, tokens, generation);
+          } else if (value instanceof Map) {
+            return checkMap((Map)value, tokens, generation);
+          }
+        } else {
+          retval = value;
+        }
+      } else {
+        nameToCheck = nameToCheck.concat(".").concat(tokens[generation + 1]);
+      }
+      generation++;
+    }
+    return retval;
+  }
+
+
+
+
+  /**
+   * @param frame the dataframe to check
+   * @param tokens the list of tokens from the request
+   * @param level the pointer to how far into the token list we are
+   * 
+   * @return the value found or null if there is no matching value with that name.
+   */
+  private Object checkFrame(DataFrame frame, String[] tokens, int level) {
+    Object retval = null;
+    int generation = level + 1;
+    String nameToCheck = tokens[generation];
+    while (generation < tokens.length) {
+      Object value = frame.getObject(nameToCheck);
+      if (value != null) {
+        if (generation + 1 < tokens.length) {
+          if (value instanceof DataFrame) {
+            return checkFrame((DataFrame)value, tokens, generation);
+          } else if (value instanceof Map) {
+            return checkMap((Map)value, tokens, generation);
+          }
+        } else {
+          retval = value;
+        }
+      } else {
+        nameToCheck = nameToCheck.concat(".").concat(tokens[generation + 1]);
+      }
+      generation++;
     }
     return retval;
   }

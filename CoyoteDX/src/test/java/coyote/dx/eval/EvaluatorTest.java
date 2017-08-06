@@ -186,11 +186,11 @@ public class EvaluatorTest {
       expression = "empty(Working.field1)";
       assertFalse(evaluator.evaluateBoolean(expression));
 
-      expression = "empty(\"field1\")"; // working assumed
-      assertFalse(evaluator.evaluateBoolean(expression));
+      expression = "empty(\"field1\")";
+      assertTrue(evaluator.evaluateBoolean(expression));
 
-      expression = "empty(field1)"; // working assumed
-      assertFalse(evaluator.evaluateBoolean(expression));
+      expression = "empty(field1)";
+      assertTrue(evaluator.evaluateBoolean(expression));
 
       expression = "empty(\"Working.Field1\")"; // case sensitive
       assertTrue(evaluator.evaluateBoolean(expression));
