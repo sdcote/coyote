@@ -452,7 +452,7 @@ public class TransformContext extends OperationalContext {
           }
         } else {
           if (generation + 1 < tokens.length) {
-             nameToCheck = nameToCheck.concat(".").concat(tokens[generation + 1]);
+            nameToCheck = nameToCheck.concat(".").concat(tokens[generation + 1]);
           }
         }
         generation++;
@@ -488,7 +488,9 @@ public class TransformContext extends OperationalContext {
           retval = value;
         }
       } else {
-        nameToCheck = nameToCheck.concat(".").concat(tokens[generation + 1]);
+        if (generation + 1 < tokens.length) {
+          nameToCheck = nameToCheck.concat(".").concat(tokens[generation + 1]);
+        }
       }
       generation++;
     }
@@ -522,7 +524,9 @@ public class TransformContext extends OperationalContext {
           retval = value;
         }
       } else {
-        nameToCheck = nameToCheck.concat(".").concat(tokens[generation + 1]);
+        if (generation + 1 < tokens.length) {
+          nameToCheck = nameToCheck.concat(".").concat(tokens[generation + 1]);
+        }
       }
       generation++;
     }
