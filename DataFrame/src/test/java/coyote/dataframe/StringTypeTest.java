@@ -16,8 +16,7 @@ import org.junit.Test;
  * 
  * @author Stephan D. Cote'
  */
-public class StringTypeTest
-{
+public class StringTypeTest {
   /** The data type under test. */
   static StringType datatype = null;
 
@@ -28,8 +27,7 @@ public class StringTypeTest
    * @throws java.lang.Exception
    */
   @BeforeClass
-  public static void setUpBeforeClass() throws Exception
-  {
+  public static void setUpBeforeClass() throws Exception {
     datatype = new StringType();
   }
 
@@ -40,8 +38,7 @@ public class StringTypeTest
    * @throws java.lang.Exception
    */
   @AfterClass
-  public static void tearDownAfterClass() throws Exception
-  {
+  public static void tearDownAfterClass() throws Exception {
     datatype = null;
   }
 
@@ -52,11 +49,10 @@ public class StringTypeTest
    * Test method for {@link coyote.dataframe.StringType#checkType(java.lang.Object)}.
    */
   @Test
-  public void testCheckType()
-  {
+  public void testCheckType() {
 
-    String data = new String( "abc" );
-    assertTrue( datatype.checkType( data ) );
+    String data = "abc";
+    assertTrue(datatype.checkType(data));
   }
 
 
@@ -66,15 +62,14 @@ public class StringTypeTest
    * Test method for {@link coyote.dataframe.StringType#decode(byte[])}.
    */
   @Test
-  public void testDecode()
-  {
+  public void testDecode() {
     byte[] data = new byte[3];
     data[0] = 97;
     data[1] = 98;
     data[2] = 99;
-    Object value = datatype.decode( data );
+    Object value = datatype.decode(data);
     assertTrue(value instanceof String);
-    assertTrue(((String)value).equals( "abc" ));
+    assertTrue(((String)value).equals("abc"));
   }
 
 
@@ -84,13 +79,12 @@ public class StringTypeTest
    * Test method for {@link coyote.dataframe.StringType#encode(java.lang.Object)}.
    */
   @Test
-  public void testEncode()
-  {
-    String data = new String( "abc" );
-    byte[] value = datatype.encode( data );
-    assertTrue( value[0] == 97);
-    assertTrue( value[1] == 98);
-    assertTrue( value[2] == 99);
+  public void testEncode() {
+    String data = new String("abc");
+    byte[] value = datatype.encode(data);
+    assertTrue(value[0] == 97);
+    assertTrue(value[1] == 98);
+    assertTrue(value[2] == 99);
     //System.out.println( ByteUtil.dump( value ) );
   }
 
@@ -101,9 +95,8 @@ public class StringTypeTest
    * Test method for {@link coyote.dataframe.StringType#isNumeric()}.
    */
   @Test
-  public void testIsNumeric()
-  {
-    assertFalse( datatype.isNumeric() );
+  public void testIsNumeric() {
+    assertFalse(datatype.isNumeric());
   }
 
 
@@ -113,9 +106,8 @@ public class StringTypeTest
    * Test method for {@link coyote.dataframe.StringType#getSize()}.
    */
   @Test
-  public void testGetSize()
-  {
-    assertTrue( datatype.getSize() == -1 );
+  public void testGetSize() {
+    assertTrue(datatype.getSize() == -1);
   }
 
 
@@ -125,9 +117,8 @@ public class StringTypeTest
    * Test method for {@link coyote.dataframe.StringType#getTypeName()}.
    */
   @Test
-  public void testGetTypeName()
-  {
-    assertTrue( datatype.getTypeName().equals( "STR" ) );
+  public void testGetTypeName() {
+    assertTrue(datatype.getTypeName().equals("STR"));
   }
 
 }
