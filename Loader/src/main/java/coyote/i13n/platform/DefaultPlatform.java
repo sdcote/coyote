@@ -19,105 +19,98 @@ import coyote.loader.log.Log;
 /**
  * The Platform class provides a variety of platform specific information in a 
  * standard manner. 
- * 
- * TODO - Ethernet MAC address 
- * TODO - Filesystem paths /root, c:, /var, etc. 
- * TODO - Diskspace stats for a path 
- * TODO - Interface traffic stats 
- * TODO - CPU stats 
- * TODO - Memory stats
  */
 public class DefaultPlatform implements Platform {
-  
-  private static InetAddress localAddress = null;
 
-  private static final String OS_NAME = System.getProperty( "os.name" ).toUpperCase( Locale.US );
-  private static final String OS_ARCH = System.getProperty( "os.arch" ).toUpperCase( Locale.US );
-  private static final String OS_VERSION = System.getProperty( "os.version" ).toUpperCase( Locale.US );
-  private static final String PATH_SEP = System.getProperty( "path.separator" );
-  private static final String FILE_SEP = System.getProperty( "file.separator" );
-  private static final String LINE_SEP = System.getProperty( "line.separator" );
-  private static final byte[] MTADR = { 0, 0, 0, 0 };
+  protected static InetAddress localAddress = null;
 
-  private static File tempDir;
+  protected static final String OS_NAME = System.getProperty("os.name").toUpperCase(Locale.US);
+  protected static final String OS_ARCH = System.getProperty("os.arch").toUpperCase(Locale.US);
+  protected static final String OS_VERSION = System.getProperty("os.version").toUpperCase(Locale.US);
+  protected static final String PATH_SEP = System.getProperty("path.separator");
+  protected static final String FILE_SEP = System.getProperty("file.separator");
+  protected static final String LINE_SEP = System.getProperty("line.separator");
+  protected static final byte[] MTADR = {0, 0, 0, 0};
+
+  protected static File tempDir;
 
   static File homeDir;
 
-  private static final String DEFAULT_HOME = System.getProperty( "user.home" );
+  protected static final String DEFAULT_HOME = System.getProperty("user.home");
 
-  private static int os = 0;
-  private static final int UNKNOWN = 0;
-  private static final int WINDOWS = 1;
-  private static final int SOLARIS = 2;
-  private static final int IRIX = 3;
-  private static final int MAC = 4;
-  private static final int HPUX = 5;
-  private static final int LINUX = 6;
+  protected static int os = 0;
+  protected static final int UNKNOWN = 0;
+  protected static final int WINDOWS = 1;
+  protected static final int SOLARIS = 2;
+  protected static final int IRIX = 3;
+  protected static final int MAC = 4;
+  protected static final int HPUX = 5;
+  protected static final int LINUX = 6;
 
   static {
-    System.out.println( DefaultPlatform.OS_NAME );
-    if ( DefaultPlatform.OS_NAME.startsWith( "WINDOWS" ) || DefaultPlatform.OS_NAME.startsWith( "WIN XP" ) ) {
+    System.out.println(DefaultPlatform.OS_NAME);
+    if (DefaultPlatform.OS_NAME.startsWith("WINDOWS") || DefaultPlatform.OS_NAME.startsWith("WIN XP")) {
       DefaultPlatform.os = DefaultPlatform.WINDOWS;
 
-      DefaultPlatform.tempDir = new File( DefaultPlatform.FILE_SEP + "Documents and Settings" + DefaultPlatform.FILE_SEP + "All Users" + DefaultPlatform.FILE_SEP + "Application Data" );
-      if ( !DefaultPlatform.tempDir.exists() ) {
+      DefaultPlatform.tempDir = new File(DefaultPlatform.FILE_SEP + "Documents and Settings" + DefaultPlatform.FILE_SEP + "All Users" + DefaultPlatform.FILE_SEP + "Application Data");
+      if (!DefaultPlatform.tempDir.exists()) {
 
-        DefaultPlatform.tempDir = new File( DefaultPlatform.FILE_SEP + "TEMP" );
-        if ( !DefaultPlatform.tempDir.exists() ) {
-          DefaultPlatform.tempDir = new File( DefaultPlatform.FILE_SEP + "WINNT" + DefaultPlatform.FILE_SEP + "TEMP" );
-          if ( !DefaultPlatform.tempDir.exists() ) {
-            DefaultPlatform.tempDir = new File( DefaultPlatform.FILE_SEP + "TEMP" );
+        DefaultPlatform.tempDir = new File(DefaultPlatform.FILE_SEP + "TEMP");
+        if (!DefaultPlatform.tempDir.exists()) {
+          DefaultPlatform.tempDir = new File(DefaultPlatform.FILE_SEP + "WINNT" + DefaultPlatform.FILE_SEP + "TEMP");
+          if (!DefaultPlatform.tempDir.exists()) {
+            DefaultPlatform.tempDir = new File(DefaultPlatform.FILE_SEP + "TEMP");
             DefaultPlatform.tempDir.mkdir();
           }
         }
       }
-    } else if ( DefaultPlatform.OS_NAME.equals( "SOLARIS" ) || DefaultPlatform.OS_NAME.equals( "SUNOS" ) ) {
+    } else if (DefaultPlatform.OS_NAME.equals("SOLARIS") || DefaultPlatform.OS_NAME.equals("SUNOS")) {
       DefaultPlatform.os = DefaultPlatform.SOLARIS;
-      DefaultPlatform.tempDir = new File( DefaultPlatform.FILE_SEP + "tmp" );
-      if ( !DefaultPlatform.tempDir.exists() ) {
-        DefaultPlatform.tempDir = new File( DefaultPlatform.FILE_SEP + "var" + DefaultPlatform.FILE_SEP + "tmp" );
-        if ( !DefaultPlatform.tempDir.exists() ) {
-          DefaultPlatform.tempDir = new File( DefaultPlatform.FILE_SEP + "usr" + DefaultPlatform.FILE_SEP + "tmp" );
+      DefaultPlatform.tempDir = new File(DefaultPlatform.FILE_SEP + "tmp");
+      if (!DefaultPlatform.tempDir.exists()) {
+        DefaultPlatform.tempDir = new File(DefaultPlatform.FILE_SEP + "var" + DefaultPlatform.FILE_SEP + "tmp");
+        if (!DefaultPlatform.tempDir.exists()) {
+          DefaultPlatform.tempDir = new File(DefaultPlatform.FILE_SEP + "usr" + DefaultPlatform.FILE_SEP + "tmp");
           DefaultPlatform.tempDir.mkdir();
         }
       }
-    } else if ( DefaultPlatform.OS_NAME.equals( "IRIX" ) ) {
+    } else if (DefaultPlatform.OS_NAME.equals("IRIX")) {
       DefaultPlatform.os = DefaultPlatform.IRIX;
-      DefaultPlatform.tempDir = new File( DefaultPlatform.FILE_SEP + "tmp" );
-      if ( !DefaultPlatform.tempDir.exists() ) {
+      DefaultPlatform.tempDir = new File(DefaultPlatform.FILE_SEP + "tmp");
+      if (!DefaultPlatform.tempDir.exists()) {
         DefaultPlatform.tempDir.mkdir();
       }
-    } else if ( DefaultPlatform.OS_NAME.equals( "MAC OS" ) || DefaultPlatform.OS_NAME.equals( "MACOS" ) ) {
+    } else if (DefaultPlatform.OS_NAME.equals("MAC OS") || DefaultPlatform.OS_NAME.equals("MACOS")) {
       DefaultPlatform.os = DefaultPlatform.MAC;
-      DefaultPlatform.tempDir = new File( DefaultPlatform.FILE_SEP + "tmp" );
-      if ( !DefaultPlatform.tempDir.exists() ) {
+      DefaultPlatform.tempDir = new File(DefaultPlatform.FILE_SEP + "tmp");
+      if (!DefaultPlatform.tempDir.exists()) {
         DefaultPlatform.tempDir.mkdir();
       }
-    } else if ( DefaultPlatform.OS_NAME.equals( "HP-UX" ) ) {
+    } else if (DefaultPlatform.OS_NAME.equals("HP-UX")) {
       DefaultPlatform.os = DefaultPlatform.HPUX;
-      DefaultPlatform.tempDir = new File( DefaultPlatform.FILE_SEP + "tmp" );
-      if ( !DefaultPlatform.tempDir.exists() ) {
-        DefaultPlatform.tempDir = new File( DefaultPlatform.FILE_SEP + "var" + DefaultPlatform.FILE_SEP + "tmp" );
-        if ( !DefaultPlatform.tempDir.exists() ) {
-          DefaultPlatform.tempDir = new File( DefaultPlatform.FILE_SEP + "usr" + DefaultPlatform.FILE_SEP + "tmp" );
+      DefaultPlatform.tempDir = new File(DefaultPlatform.FILE_SEP + "tmp");
+      if (!DefaultPlatform.tempDir.exists()) {
+        DefaultPlatform.tempDir = new File(DefaultPlatform.FILE_SEP + "var" + DefaultPlatform.FILE_SEP + "tmp");
+        if (!DefaultPlatform.tempDir.exists()) {
+          DefaultPlatform.tempDir = new File(DefaultPlatform.FILE_SEP + "usr" + DefaultPlatform.FILE_SEP + "tmp");
           DefaultPlatform.tempDir.mkdir();
         }
       }
-    } else if ( DefaultPlatform.OS_NAME.equals( "LINUX" ) ) {
+    } else if (DefaultPlatform.OS_NAME.equals("LINUX")) {
       DefaultPlatform.os = DefaultPlatform.LINUX;
-      DefaultPlatform.tempDir = new File( DefaultPlatform.FILE_SEP + "tmp" );
-      if ( !DefaultPlatform.tempDir.exists() ) {
-        DefaultPlatform.tempDir = new File( DefaultPlatform.FILE_SEP + "var" + DefaultPlatform.FILE_SEP + "tmp" );
-        if ( !DefaultPlatform.tempDir.exists() ) {
-          DefaultPlatform.tempDir = new File( DefaultPlatform.FILE_SEP + "usr" + DefaultPlatform.FILE_SEP + "tmp" );
+      DefaultPlatform.tempDir = new File(DefaultPlatform.FILE_SEP + "tmp");
+      if (!DefaultPlatform.tempDir.exists()) {
+        DefaultPlatform.tempDir = new File(DefaultPlatform.FILE_SEP + "var" + DefaultPlatform.FILE_SEP + "tmp");
+        if (!DefaultPlatform.tempDir.exists()) {
+          DefaultPlatform.tempDir = new File(DefaultPlatform.FILE_SEP + "usr" + DefaultPlatform.FILE_SEP + "tmp");
           DefaultPlatform.tempDir.mkdir();
         }
       }
     } else {
       DefaultPlatform.os = DefaultPlatform.UNKNOWN;
 
-      DefaultPlatform.tempDir = new File( DefaultPlatform.FILE_SEP + "tmp" );
-      if ( !DefaultPlatform.tempDir.exists() ) {
+      DefaultPlatform.tempDir = new File(DefaultPlatform.FILE_SEP + "tmp");
+      if (!DefaultPlatform.tempDir.exists()) {
         DefaultPlatform.tempDir.mkdir();
       }
     }
@@ -137,7 +130,7 @@ public class DefaultPlatform implements Platform {
    *         if the file could not be created for any reason.
    */
   static File createTempFile() {
-    return DefaultPlatform.createTempFile( DefaultPlatform.tempDir );
+    return DefaultPlatform.createTempFile(DefaultPlatform.tempDir);
   }
 
 
@@ -154,13 +147,13 @@ public class DefaultPlatform implements Platform {
    * @return A file reference that will be deleted when the VM exits, or null 
    *         if the file could not be created for any reason.
    */
-  static File createTempFile( final File dir ) {
+  static File createTempFile(final File dir) {
     try {
-      final File retval = File.createTempFile( "i13n + i13n.getId() + -", null, dir );
+      final File retval = File.createTempFile("i13n + i13n.getId() + -", null, dir);
       retval.deleteOnExit();
       return retval;
-    } catch ( final IOException e ) {
-      Log.error( "Could not create a temporary file in " + DefaultPlatform.tempDir + "' - " + e.getMessage() );
+    } catch (final IOException e) {
+      Log.error("Could not create a temporary file in " + DefaultPlatform.tempDir + "' - " + e.getMessage());
     }
 
     return null;
@@ -180,15 +173,10 @@ public class DefaultPlatform implements Platform {
 
 
   /**
-   * Private constructor to keep instances of this class from being created.
+   * Default constructor, should not be used.
    */
   public DefaultPlatform() {
     super();
   }
-
-
-
-
-
 
 }
