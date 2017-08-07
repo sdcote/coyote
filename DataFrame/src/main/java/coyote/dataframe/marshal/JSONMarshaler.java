@@ -41,13 +41,13 @@ public class JSONMarshaler {
    * 
    * @return Data frame containing the JSON represented data
    */
-  public static List<DataFrame> marshal( final String json ) throws MarshalException {
+  public static List<DataFrame> marshal(final String json) throws MarshalException {
     List<DataFrame> retval = null;
 
     try {
-      retval = new JsonFrameParser( json ).parse();
-    } catch ( final Exception e ) {
-      throw new MarshalException( "Could not marshal JSON to DataFrame: " + e.getMessage(), e );
+      retval = new JsonFrameParser(json).parse();
+    } catch (final Exception e) {
+      throw new MarshalException("Could not marshal JSON to DataFrame: " + e.getMessage(), e);
     }
 
     return retval;
@@ -63,8 +63,8 @@ public class JSONMarshaler {
    * 
    * @return A JSON formatted string which can be marshaled back into a frame
    */
-  public static String marshal( final DataFrame frame ) {
-    return write( frame, JsonWriterConfig.MINIMAL );
+  public static String marshal(final DataFrame frame) {
+    return write(frame, JsonWriterConfig.MINIMAL);
   }
 
 
@@ -77,8 +77,8 @@ public class JSONMarshaler {
    * 
    * @return A JSON formatted string which can be marshaled back into a frame
    */
-  public static String toFormattedString( final DataFrame frame ) {
-    return write( frame, JsonWriterConfig.FORMATTED );
+  public static String toFormattedString(final DataFrame frame) {
+    return write(frame, JsonWriterConfig.FORMATTED);
   }
 
 
@@ -90,17 +90,17 @@ public class JSONMarshaler {
    * 
    * @return the string containing the marshaled data 
    */
-  private static String write( final DataFrame frame, final JsonWriterConfig config ) {
+  private static String write(final DataFrame frame, final JsonWriterConfig config) {
 
     // create string writer
     final StringWriter sw = new StringWriter();
-    final BufferedWriter bw = new BufferedWriter( sw );
-    final JsonWriter writer = config.createWriter( bw );
+    final BufferedWriter bw = new BufferedWriter(sw);
+    final JsonWriter writer = config.createWriter(bw);
 
     try {
-      writeFrame( frame, writer );
+      writeFrame(frame, writer);
       bw.flush();
-    } catch ( IOException e ) {
+    } catch (IOException e) {
       return "[\"" + e.getMessage() + "\"]";
     }
     return sw.getBuffer().toString();
@@ -116,84 +116,81 @@ public class JSONMarshaler {
    * 
    * @throws IOException 
    */
-  private static void writeFrame( final DataFrame frame, final JsonWriter writer ) throws IOException {
+  private static void writeFrame(final DataFrame frame, final JsonWriter writer) throws IOException {
 
-    if ( frame == null || writer == null ) {
-      return;
-    }
+    if (frame != null && writer != null) {
+      if (frame.size() > 0) {
+        boolean isArray = frame.isArray();
+        if (isArray)
+          writer.writeArrayOpen();
+        else
+          writer.writeObjectOpen();
 
-    if ( frame.size() > 0 ) {
-      boolean isArray = frame.isArray();
-      if ( isArray )
-        writer.writeArrayOpen();
-      else
-        writer.writeObjectOpen();
+        DataField field = null;
+        for (int i = 0; i < frame.size(); i++) {
+          field = frame.getField(i);
 
-      DataField field = null;
-      for ( int i = 0; i < frame.size(); i++ ) {
-        field = frame.getField( i );
-
-        if ( !isArray ) {
-          if ( field.getName() != null ) {
-            writer.writeMemberName( field.getName() );
-          } else {
-            writer.writeString( "" );
+          if (!isArray) {
+            if (field.getName() != null) {
+              writer.writeMemberName(field.getName());
+            } else {
+              writer.writeString("");
+            }
+            writer.writeMemberSeparator();
           }
-          writer.writeMemberSeparator();
+
+          if (field.getType() == DataField.UDEF) {
+            writer.writeLiteral(NULL);
+          } else if (field.getType() == DataField.BOOLEANTYPE) {
+            if (TRUE.equalsIgnoreCase(field.getStringValue())) {
+              writer.writeLiteral(TRUE);
+            } else {
+              writer.writeLiteral(FALSE);
+            }
+          } else if (field.isNumeric()) {
+            writer.writeNumber(field.getStringValue());
+          } else if (field.isArray()) {
+            Object obj = field.getObjectValue();
+            if (obj instanceof DataFrame) {
+              writeFrame((DataFrame)obj, writer);
+            } else {
+              writer.writeArray(obj);
+            }
+          } else if (field.getType() == DataField.FRAMETYPE) {
+            DataFrame dfm = (DataFrame)field.getObjectValue();
+            if (dfm == null) {
+              writer.writeEmptyArray();
+            } else {
+              writeFrame(dfm, writer);
+            }
+          } else {
+            Object obj = field.getObjectValue();
+            if (obj != null) {
+              writer.writeString(obj.toString());
+            } else {
+              writer.writeLiteral(NULL);
+            }
+          }
+          if (i + 1 < frame.size()) {
+            writer.writeObjectSeparator();
+          }
         }
 
-        if ( field.getType() == DataField.UDEF ) {
-          writer.writeLiteral( NULL );
-        } else if ( field.getType() == DataField.BOOLEANTYPE ) {
-          if ( TRUE.equalsIgnoreCase( field.getStringValue() ) ) {
-            writer.writeLiteral( TRUE );
-          } else {
-            writer.writeLiteral( FALSE );
-          }
-        } else if ( field.isNumeric() ) {
-          writer.writeNumber( field.getStringValue() );
-        } else if ( field.isArray() ) {
-          Object obj = field.getObjectValue();
-          if ( obj instanceof DataFrame ) {
-            writeFrame( (DataFrame)obj, writer );
-          } else {
-            writer.writeArray( obj );
-          }
-        } else if ( field.getType() == DataField.FRAMETYPE ) {
-          DataFrame dfm = (DataFrame)field.getObjectValue();
-          if ( dfm == null ) {
-            writer.writeEmptyArray();
-          } else {
-            writeFrame( dfm, writer );
-          }
-        } else {
-          Object obj = field.getObjectValue();
-          if ( obj != null ) {
-            writer.writeString( obj.toString() );
-          } else {
-            writer.writeLiteral( NULL );
-          }
-        }
-        if ( i + 1 < frame.size() ) {
-          writer.writeObjectSeparator();
-        }
-      }
+        if (isArray)
+          writer.writeArrayClose();
+        else
+          writer.writeObjectClose();
 
-      if ( isArray )
-        writer.writeArrayClose();
-      else
-        writer.writeObjectClose();
-
-    } else {
-      if ( frame.isArrayBiased() ) {
-        writer.writeArrayOpen();
-        writer.writeArrayClose();
       } else {
-        writer.writeObjectOpen();
-        writer.writeObjectClose();
+        if (frame.isArrayBiased()) {
+          writer.writeArrayOpen();
+          writer.writeArrayClose();
+        } else {
+          writer.writeObjectOpen();
+          writer.writeObjectClose();
+        }
       }
     }
-
-    return;
   }
+
 }

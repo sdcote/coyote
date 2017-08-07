@@ -31,42 +31,42 @@ public class DataFieldTest {
     field = new DataField( nullval );
     field = new DataField( new Long( 0 ) );
 
-    field = new DataField( new String(), new String() );
+    field = new DataField( "", "" );
     new DataField( nulltag, nullval );
 
     field = new DataField( 0l );
-    field = new DataField( new String(), 0l );
+    field = new DataField( "", 0l );
     field = new DataField( nulltag, 0l );
 
     field = new DataField( 0 );
-    field = new DataField( new String(), 0 );
+    field = new DataField( "", 0 );
     field = new DataField( nulltag, 0 );
 
     field = new DataField( (short)0 );
-    field = new DataField( new String(), (short)0 );
+    field = new DataField( "", (short)0 );
     field = new DataField( nulltag, (short)0 );
 
     field = new DataField( new byte[0] );
-    field = new DataField( new String(), new byte[0] );
+    field = new DataField( "", new byte[0] );
     field = new DataField( nulltag, new byte[0] );
 
     field = new DataField( (byte[])null );
     field = new DataField( nulltag, (byte[])null );
 
     field = new DataField( 0f );
-    field = new DataField( new String(), 0f );
+    field = new DataField( "", 0f );
     field = new DataField( nulltag, 0f );
 
     field = new DataField( 0d );
-    field = new DataField( new String(), 0d );
+    field = new DataField( "", 0d );
     field = new DataField( nulltag, 0d );
 
     field = new DataField( true );
-    field = new DataField( new String(), true );
+    field = new DataField( "", true );
     field = new DataField( nulltag, true );
 
     field = new DataField( new Date() );
-    field = new DataField( new String(), new Date() );
+    field = new DataField( "", new Date() );
     field = new DataField( null, new Date() );
 
     try {
@@ -77,7 +77,7 @@ public class DataFieldTest {
       fail( e.getMessage() );
     }
     try {
-      field = new DataField( new String(), new URI( "" ) );
+      field = new DataField( "", new URI( "" ) );
     } catch ( IllegalArgumentException e ) {
       fail( e.getMessage() );
     } catch ( URISyntaxException e ) {

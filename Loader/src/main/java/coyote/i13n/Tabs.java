@@ -69,7 +69,7 @@ public class Tabs {
    */
   public static final String HOMEDIR_TAG = "tabs.home";
 
-  public static final String DEFAULT_HOME = new String(System.getProperty("user.home") + System.getProperty("file.separator") + Tabs.CLASS_TAG.toLowerCase());
+  public static final String DEFAULT_HOME = System.getProperty("user.home") + System.getProperty("file.separator") + Tabs.CLASS_TAG.toLowerCase();
 
   /** 
    * A map that holds component identifiers for components that desire their 

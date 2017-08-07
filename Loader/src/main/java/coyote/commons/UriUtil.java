@@ -4,10 +4,6 @@
  * This program and the accompanying materials are made available under the 
  * terms of the MIT License which accompanies this distribution, and is 
  * available at http://creativecommons.org/licenses/MIT/
- *
- * Contributors:
- *   Stephan D. Cote 
- *      - Initial concept and implementation
  */
 package coyote.commons;
 
@@ -1153,7 +1149,7 @@ public class UriUtil {
    */
   public static String getBase( final URI uri ) {
     if ( uri != null ) {
-      String tempName = new String( "" );
+      String tempName = "";
       final StringTokenizer stk1 = new StringTokenizer( uri.toString(), "/\\" );
 
       // Cruise through the string and eat up all the tokens before the last

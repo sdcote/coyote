@@ -4,10 +4,6 @@
  * This program and the accompanying materials are made available under the 
  * terms of the MIT License which accompanies this distribution, and is 
  * available at http://creativecommons.org/licenses/MIT/
- *
- * Contributors:
- *   Stephan D. Cote 
- *      - Initial concept and implementation
  */
 package coyote.commons;
 
@@ -205,7 +201,7 @@ public class StringUtil {
    */
   public static final String notNull(final String arg) {
     if (arg == null) {
-      return new String("");
+      return "";
     }
 
     return arg;
@@ -1078,7 +1074,7 @@ public class StringUtil {
 
         retval = new String(data);
       } else {
-        retval = new String();
+        retval = "";
       }
     }
 

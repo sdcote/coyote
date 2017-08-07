@@ -4,10 +4,6 @@
  * This program and the accompanying materials are made available under the 
  * terms of the MIT License which accompanies this distribution, and is 
  * available at http://creativecommons.org/licenses/MIT/
- *
- * Contributors:
- *   Stephan D. Cote 
- *      - Initial concept and implementation
  */
 package coyote.loader;
 
@@ -135,7 +131,7 @@ public class ResultCode {
       try {
         return (String)ResultCode.message.get( new Integer( code ) );
       } catch ( final Exception e ) {
-        return new String( "Message code " + code + " is unknown" );
+        return "Message code " + code + " is unknown";
       }
     }
 

@@ -4,10 +4,6 @@
  * This program and the accompanying materials are made available under the 
  * terms of the MIT License which accompanies this distribution, and is 
  * available at http://creativecommons.org/licenses/MIT/
- *
- * Contributors:
- *   Stephan D. Cote 
- *      - Initial concept and implementation
  */
 package coyote.dx;
 
@@ -32,7 +28,7 @@ public abstract class AbstractBatchLoader extends AbstractLoader {
   /**
    * If there is no specified directory in the HOMDIR system property, just use the current working directory
    */
-  public static final String DEFAULT_HOME = new String( System.getProperty( "user.dir" ) );
+  public static final String DEFAULT_HOME = System.getProperty( "user.dir" );
 
 
 

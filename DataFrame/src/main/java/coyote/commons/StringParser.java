@@ -4,10 +4,6 @@
  * This program and the accompanying materials are made available under the 
  * terms of the MIT License which accompanies this distribution, and is 
  * available at http://creativecommons.org/licenses/MIT/
- *
- * Contributors:
- *   Stephan D. Cote 
- *      - Initial API and implementation
  */
 package coyote.commons;
 
@@ -67,8 +63,8 @@ public class StringParser {
    *
    * @param string the string to parse
    */
-  public StringParser( String string ) {
-    this.reader = new SimpleReader( string );
+  public StringParser(String string) {
+    this.reader = new SimpleReader(string);
   }
 
 
@@ -79,7 +75,7 @@ public class StringParser {
    * 
    * @param reader the reader to read
    */
-  public StringParser( Reader reader ) {
+  public StringParser(Reader reader) {
     this.reader = reader;
   }
 
@@ -92,7 +88,7 @@ public class StringParser {
    * @param reader the reader to read
    * @param defaultDelimiters the token delimiters to use while parsing
    */
-  public StringParser( Reader reader, String defaultDelimiters ) {
+  public StringParser(Reader reader, String defaultDelimiters) {
     this.reader = reader;
     this.defaultDelimiters = defaultDelimiters;
   }
@@ -106,8 +102,8 @@ public class StringParser {
    * @param string the string to parse
    * @param defaultDelimiters the token delimiters to use while parsing
    */
-  public StringParser( String string, String defaultDelimiters ) {
-    this.reader = new SimpleReader( string );
+  public StringParser(String string, String defaultDelimiters) {
+    this.reader = new SimpleReader(string);
     this.defaultDelimiters = defaultDelimiters;
   }
 
@@ -124,7 +120,7 @@ public class StringParser {
   public boolean eof() throws IOException {
     // skipWhitespace();
 
-    return ( peek() == -1 );
+    return (peek() == -1);
   }
 
 
@@ -137,36 +133,35 @@ public class StringParser {
    * @throws IOException
    */
   public void skipWhitespace() throws IOException {
-    while ( true ) {
+    while (true) {
       // mark where we are in the reader allowing only to read 2 characters
-      reader.mark( 2 );
+      reader.mark(2);
 
       // Read the next character
       int ch = reader.read();
 
       // If the character is a whitespace...
-      if ( Character.isWhitespace( (char)ch ) ) {
+      if (Character.isWhitespace((char)ch)) {
         reader.reset();
         read();
       } else {
-        if ( ( ch == '/' ) && consumingCodeComments ) {
+        if ((ch == '/') && consumingCodeComments) {
           ch = reader.read();
 
           reader.reset();
 
-          if ( ch == '/' ) {
+          if (ch == '/') {
             readOneLineComment();
           } else {
-            if ( ch == '*' ) {
+            if (ch == '*') {
               readMultiLineComment();
             } else {
-              return;
+              break;
             }
           }
         } else {
           reader.reset();
-
-          return;
+          break;
         }
       }
     }
@@ -182,9 +177,9 @@ public class StringParser {
    *
    * @throws IOException if we exceed our data
    */
-  public void skip( int length ) throws IOException {
+  public void skip(int length) throws IOException {
     // Just read the requested number of characters in the buffer
-    for ( int i = 0; i < length; i++ ) {
+    for (int i = 0; i < length; i++) {
       read();
     }
   }
@@ -201,7 +196,7 @@ public class StringParser {
    */
   public int read() throws IOException {
     // If the last character we found was a newline character...
-    if ( lastChar == '\n' ) {
+    if (lastChar == '\n') {
       // ...increment the line counter...
       ++lineNumber;
 
@@ -225,7 +220,7 @@ public class StringParser {
     history[index] = ch;
 
     // If we reached the end of our window...
-    if ( ++index == history.length ) {
+    if (++index == history.length) {
       // ...go to the beginning of the window
       index = 0;
     }
@@ -245,7 +240,7 @@ public class StringParser {
    * @throws IOException if we exceed our data
    */
   public int peek() throws IOException {
-    reader.mark( 1 );
+    reader.mark(1);
 
     int next = reader.read();
     reader.reset();
@@ -266,13 +261,13 @@ public class StringParser {
   public String peekToken() throws IOException {
 
     // mark our position; readAheadLimit does not matter to our simple reader 
-    reader.mark( 1 );
+    reader.mark(1);
 
     // move past any whitespace
     skipWhitespace();
 
     // read to the next delimiter
-    String retval = readToDelimiter( defaultDelimiters );
+    String retval = readToDelimiter(defaultDelimiters);
 
     // reset the reader
     reader.reset();
@@ -311,15 +306,15 @@ public class StringParser {
    *
    * @throws IOException
    */
-  public String peek( int length ) throws IOException {
+  public String peek(int length) throws IOException {
     int[] array = new int[length];
-    peek( array );
+    peek(array);
 
     StringBuffer buffer = new StringBuffer();
 
-    for ( int i = 0; i < length; i++ ) {
-      if ( array[i] != -1 ) {
-        buffer.append( (char)array[i] );
+    for (int i = 0; i < length; i++) {
+      if (array[i] != -1) {
+        buffer.append((char)array[i]);
       } else {
         break;
       }
@@ -340,19 +335,19 @@ public class StringParser {
    *
    * @throws IOException if we exceed our data
    */
-  public String peekToChar( char stop ) throws IOException {
-    reader.mark( Integer.MAX_VALUE );
+  public String peekToChar(char stop) throws IOException {
+    reader.mark(Integer.MAX_VALUE);
 
     StringBuffer buffer = new StringBuffer();
 
-    while ( true ) {
+    while (true) {
       int c = reader.read();
 
-      if ( ( c == -1 ) || ( c == stop ) ) {
+      if ((c == -1) || (c == stop)) {
         break;
       }
 
-      buffer.append( (char)c );
+      buffer.append((char)c);
     }
 
     reader.reset();
@@ -372,10 +367,10 @@ public class StringParser {
    *
    * @throws IOException
    */
-  public void peek( int[] buffer ) throws IOException {
-    reader.mark( buffer.length );
+  public void peek(int[] buffer) throws IOException {
+    reader.mark(buffer.length);
 
-    for ( int i = 0; i < buffer.length; i++ ) {
+    for (int i = 0; i < buffer.length; i++) {
       buffer[i] = reader.read();
     }
 
@@ -395,8 +390,8 @@ public class StringParser {
    * @throws IOException If the stream does not support mark(), or if some 
    *         other I/O error occurs
    */
-  public void mark( int readAheadLimit ) throws IOException {
-    reader.mark( readAheadLimit );
+  public void mark(int readAheadLimit) throws IOException {
+    reader.mark(readAheadLimit);
   }
 
 
@@ -435,38 +430,38 @@ public class StringParser {
     StringBuffer buffer = new StringBuffer();
 
     // append our pointers
-    buffer.append( "line " ).append( lineNumber ).append( ", char " ).append( charNumber );
-    buffer.append( ": ..." );
+    buffer.append("line ").append(lineNumber).append(", char ").append(charNumber);
+    buffer.append(": ...");
 
     // Create the history window
     StringBuffer line = new StringBuffer();
     int count = 0;
     int start = index;
 
-    while ( count++ < charNumber ) {
-      if ( start-- == 0 ) {
+    while (count++ < charNumber) {
+      if (start-- == 0) {
         start = BUFFER_SIZE - 1; // go back one
       }
 
-      if ( ( history[start] == '\n' ) || ( start == index ) ) {
+      if ((history[start] == '\n') || (start == index)) {
         break;
       }
 
-      line.append( (char)history[start] );
+      line.append((char)history[start]);
     }
 
-    buffer.append( line.reverse() );
+    buffer.append(line.reverse());
 
-    buffer.append( " next char: " );
+    buffer.append(" next char: ");
 
     try {
-      if ( !eof() ) {
-        buffer.append( "'" + (char)peek() + "'" );
+      if (!eof()) {
+        buffer.append("'" + (char)peek() + "'");
       } else {
-        buffer.append( "EOF" );
+        buffer.append("EOF");
       }
-    } catch ( IOException ioe ) {
-      buffer.append( "ERROR: " + ioe.getMessage() );
+    } catch (IOException ioe) {
+      buffer.append("ERROR: " + ioe.getMessage());
     }
 
     return buffer.toString();
@@ -491,9 +486,9 @@ public class StringParser {
     int ch = read();
 
     // If we are at the end of the file...
-    if ( ch == -1 ) {
+    if (ch == -1) {
       // Throw an exception
-      throw new IOException( "unexpected EOF" );
+      throw new IOException("unexpected EOF");
     }
 
     // return the character
@@ -532,26 +527,26 @@ public class StringParser {
    *
    * @throws IOException
    */
-  public String readTo( int stop ) throws IOException {
+  public String readTo(int stop) throws IOException {
     StringBuffer retval = new StringBuffer();
 
     // Keep reading until...
-    while ( true ) {
+    while (true) {
       int c = read();
 
       // If we reached the end of the reader (EOF) before finding the expected
       // character...
-      if ( c == -1 ) {
+      if (c == -1) {
         // ...complain
-        throw new IOException( "Could not find stop char " + stop + "('" + (char)stop + "') before EOF" );
+        throw new IOException("Could not find stop char " + stop + "('" + (char)stop + "') before EOF");
       } else {
         // If we found the stop character...
-        if ( c == stop ) {
+        if (c == stop) {
           // ... break out of the loop, we are done
           break;
         } else {
           // ...otherwise append the read character to the return buffer
-          retval.append( (char)c );
+          retval.append((char)c);
         }
       }
     }
@@ -572,7 +567,7 @@ public class StringParser {
    */
   public String readToken() throws IOException {
     skipWhitespace();
-    return readToDelimiter( defaultDelimiters );
+    return readToDelimiter(defaultDelimiters);
   }
 
 
@@ -586,11 +581,11 @@ public class StringParser {
    * 
    * @throws IOException if the read token does not match what is expected
    */
-  public void readToken( String expected ) throws IOException {
+  public void readToken(String expected) throws IOException {
     String got = readToken();
 
-    if ( !expected.equals( got ) ) {
-      throw new IOException( "expected \"" + expected + "\", got \"" + got + "\"" );
+    if (!expected.equals(got)) {
+      throw new IOException("expected \"" + expected + "\", got \"" + got + "\"");
     }
   }
 
@@ -610,32 +605,32 @@ public class StringParser {
    *
    * @throws IOException
    */
-  public String readToDelimiter( String delimiters ) throws IOException {
+  public String readToDelimiter(String delimiters) throws IOException {
 
     StringBuffer buffer = new StringBuffer();
 
-    while ( true ) {
+    while (true) {
       int next = peek();
 
       // if we are at the end of the string, return the buffer
-      if ( next == -1 ) {
-        if ( buffer.length() <= 0 ) {
-          throw new IOException( "unexpected EOF" );
+      if (next == -1) {
+        if (buffer.length() <= 0) {
+          throw new IOException("unexpected EOF");
         }
         read();
         return buffer.toString();
       }
 
       // if the next character is one of the delimiters return the buffer
-      if ( delimiters.indexOf( next ) != -1 ) {
-        if ( buffer.length() == 0 ) {
-          buffer.append( (char)read() );
+      if (delimiters.indexOf(next) != -1) {
+        if (buffer.length() == 0) {
+          buffer.append((char)read());
         }
         return buffer.toString();
       }
 
       // read the next character into the buffer
-      buffer.append( (char)read() );
+      buffer.append((char)read());
     }
   }
 
@@ -656,19 +651,19 @@ public class StringParser {
    *
    * @throws IOException if the EOF is unexpectedly reached during peeks
    */
-  public String readToPattern( String pattern ) throws IOException {
+  public String readToPattern(String pattern) throws IOException {
     StringBuffer buffer = new StringBuffer();
 
-    int ch = pattern.charAt( 0 );
+    int ch = pattern.charAt(0);
     int length = pattern.length();
 
-    while ( true ) {
+    while (true) {
       int next = peek();
 
       // Check for eof
-      if ( next == -1 ) {
+      if (next == -1) {
         // we are done, return what we have found so far
-        if ( buffer.length() > 0 ) {
+        if (buffer.length() > 0) {
           return buffer.toString();
         }
 
@@ -676,10 +671,10 @@ public class StringParser {
       }
 
       // If the character matches the first character of the stop pattern...
-      if ( next == ch ) {
+      if (next == ch) {
         // ...if the string is only one character in length, then we are done
-        if ( length == 1 ) {
-          if ( buffer.length() > 0 ) {
+        if (length == 1) {
+          if (buffer.length() > 0) {
             return buffer.toString();
           }
 
@@ -688,13 +683,13 @@ public class StringParser {
           // ...otherwise see if the rest of the stop pattern is a match by
           // peeking into the reader
           int[] peekBuffer = new int[length];
-          peek( peekBuffer );
+          peek(peekBuffer);
 
           boolean match = true;
 
-          for ( int i = 1; i < length; i++ ) {
+          for (int i = 1; i < length; i++) {
             // If any of the characters do not match...
-            if ( peekBuffer[i] != pattern.charAt( i ) ) {
+            if (peekBuffer[i] != pattern.charAt(i)) {
               // flag a failed match
               match = false;
 
@@ -704,10 +699,10 @@ public class StringParser {
           }
 
           // if we went through the entire peek buffer and match is still true
-          if ( match ) {
+          if (match) {
             // return what we have placed in our buffer so far, leaving the
             // reader placed just before the stop pattern
-            if ( buffer.length() > 0 ) {
+            if (buffer.length() > 0) {
               return buffer.toString();
             }
 
@@ -717,7 +712,7 @@ public class StringParser {
       }
 
       // move on
-      buffer.append( (char)read() );
+      buffer.append((char)read());
     } // while(true);
   }
 
@@ -740,7 +735,7 @@ public class StringParser {
    * @param flag true to set the parser to consume/ignore comments, false to 
    *        treat them as retrievable tokens
    */
-  public void setConsumingCodeComments( boolean flag ) {
+  public void setConsumingCodeComments(boolean flag) {
     consumingCodeComments = flag;
   }
 
@@ -753,7 +748,7 @@ public class StringParser {
    * @return The comment, or an empty string (not null) if no comment was found.
    */
   public String getComment() {
-    return ( ( comment == null ) ? "" : comment.toString() );
+    return ((comment == null) ? "" : comment.toString());
   }
 
 
@@ -775,15 +770,15 @@ public class StringParser {
    * @throws IOException If EOF is encountered before a new line character.
    */
   private void readOneLineComment() throws IOException {
-    if ( comment == null ) {
+    if (comment == null) {
       comment = new StringBuffer();
     } else {
-      if ( comment.length() > 0 ) {
-        comment.append( "\r\n" );
+      if (comment.length() > 0) {
+        comment.append("\r\n");
       }
     }
 
-    comment.append( readToPattern( "\n" ) );
+    comment.append(readToPattern("\n"));
   }
 
 
@@ -796,27 +791,27 @@ public class StringParser {
    * @throws IOException if no comment termination is before EOF.
    */
   private void readMultiLineComment() throws IOException {
-    if ( comment == null ) {
+    if (comment == null) {
       comment = new StringBuffer();
     } else {
-      if ( comment.length() > 0 ) {
-        comment.append( "\r\n" );
+      if (comment.length() > 0) {
+        comment.append("\r\n");
       }
     }
 
-    while ( true ) {
+    while (true) {
       int ch = read();
 
-      if ( ch == -1 ) {
-        throw new IOException( "missing */ on comment" );
+      if (ch == -1) {
+        throw new IOException("missing */ on comment");
       }
 
-      comment.append( (char)ch );
+      comment.append((char)ch);
 
-      if ( ( ch == '*' ) && ( peek() == '/' ) ) {
+      if ((ch == '*') && (peek() == '/')) {
         ch = read();
 
-        comment.append( (char)ch );
+        comment.append((char)ch);
 
         break;
       }

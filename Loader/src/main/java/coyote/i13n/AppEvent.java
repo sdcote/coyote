@@ -4,10 +4,6 @@
  * This program and the accompanying materials are made available under the
  * terms of the MIT License which accompanies this distribution, and is
  * available at http://creativecommons.org/licenses/MIT/
- *
- * Contributors:
- *   Stephan D. Cote
- *      - Initial concept and implementation
  */
 package coyote.i13n;
 
@@ -371,6 +367,6 @@ public class AppEvent {
 
   @Override
   public String toString() {
-    return new String( "Event[" + _cls + "|" + _appId + "|" + _sysId + "|" + _cmpId + "]:" + _seq + ":" + _sev + ":" + ":" + _maj + "." + _min + ":" + _time + ":" + _msg );
+    return "Event[" + _cls + "|" + _appId + "|" + _sysId + "|" + _cmpId + "]:" + _seq + ":" + _sev + ":" + ":" + _maj + "." + _min + ":" + _time + ":" + _msg;
   }
 }

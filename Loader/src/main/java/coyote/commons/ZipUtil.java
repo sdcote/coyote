@@ -626,7 +626,7 @@ public class ZipUtil {
     if (source.getName().toLowerCase().endsWith(ZIP_SUFFIX)) {
       String ap = source.getAbsolutePath();
 
-      String tempName = new String("");
+      String tempName = "";
       final StringTokenizer stk1 = new StringTokenizer(ap, "/\\");
       while (stk1.hasMoreTokens()) {
         tempName = stk1.nextToken();

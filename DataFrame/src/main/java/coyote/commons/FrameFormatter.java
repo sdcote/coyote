@@ -1,3 +1,10 @@
+/*
+ * Copyright (c) 2003 Stephan D. Cote' - All rights reserved.
+ * 
+ * This program and the accompanying materials are made available under the 
+ * terms of the MIT License which accompanies this distribution, and is 
+ * available at http://creativecommons.org/licenses/MIT/
+ */
 package coyote.commons;
 
 import java.util.Arrays;
@@ -18,6 +25,8 @@ public class FrameFormatter {
 
   /** Prefix of a field name when no name if found */
   private static final String FIELDNAME = "field";
+  
+  private static final String EMPTY_PADDING = "";
 
   // These dictate how characters are escaped into XML @see toEscaped(String)
   private final static String ESCAPE_CHARS = "<>&\"\'";
@@ -112,7 +121,7 @@ public class FrameFormatter {
       padding = new String( pad );
       nextindent = indent + 2;
     } else {
-      padding = new String( "" );
+      padding = EMPTY_PADDING;
     }
 
     final StringBuffer buffer = new StringBuffer();
@@ -164,8 +173,8 @@ public class FrameFormatter {
    */
   private static String toIndentedXML( final DataFrame frame, String name, final int indent, int increment ) {
 
-    String padding = new String( "" ); // padding(indent) for our markup
-    String fieldpadding = new String( "" ); // padding for our fields
+    String padding = EMPTY_PADDING; // padding(indent) for our markup
+    String fieldpadding = EMPTY_PADDING; // padding for our fields
     int nextindent = -1; // what the next, recursive indent value should be
 
     // if we are indenting

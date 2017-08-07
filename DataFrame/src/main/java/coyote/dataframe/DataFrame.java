@@ -5,10 +5,6 @@
  * This program and the accompanying materials are made available under the 
  * terms of the MIT License which accompanies this distribution, and is 
  * available at http://creativecommons.org/licenses/MIT/
- *
- * Contributors:
- *   Stephan D. Cote 
- *      - Initial API and implementation
  */
 package coyote.dataframe;
 
@@ -1189,11 +1185,11 @@ public class DataFrame implements Cloneable {
             lastfield = field;
         }
       } catch ( final EOFException eof ) {
-        return new String( "CHECK: Data underflow for field, offset:" + offset + " LastField:" + lastfield + "\r\n" + ByteUtil.dump( data ) );
+        return "CHECK: Data underflow for field, offset:" + offset + " LastField:" + lastfield + "\r\n" + ByteUtil.dump( data );
       } catch ( final IOException ioe ) {
-        return new String( "CHECK: " + ioe.getMessage() + ", offset:" + offset + " LastField:" + lastfield + "\r\n" + ByteUtil.dump( data ) );
+        return "CHECK: " + ioe.getMessage() + ", offset:" + offset + " LastField:" + lastfield + "\r\n" + ByteUtil.dump( data );
       } catch ( final DecodeException de ) {
-        return new String( "CHECK: " + de.getMessage() + ", offset:" + offset + " LastField:" + lastfield + "\r\n" + ByteUtil.dump( data ) );
+        return "CHECK: " + de.getMessage() + ", offset:" + offset + " LastField:" + lastfield + "\r\n" + ByteUtil.dump( data );
       }
     }
     return null;

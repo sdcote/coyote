@@ -42,14 +42,14 @@ public class JsonFrameParser {
 
 
 
-  public JsonFrameParser( final Reader reader ) {
-    this( reader, DEFAULT_BUFFER_SIZE );
+  public JsonFrameParser(final Reader reader) {
+    this(reader, DEFAULT_BUFFER_SIZE);
   }
 
 
 
 
-  public JsonFrameParser( final Reader reader, final int buffersize ) {
+  public JsonFrameParser(final Reader reader, final int buffersize) {
     this.reader = reader;
     buffer = new char[buffersize];
     line = 1;
@@ -59,8 +59,8 @@ public class JsonFrameParser {
 
 
 
-  public JsonFrameParser( final String string ) {
-    this( new StringReader( string ), Math.max( MIN_BUFFER_SIZE, Math.min( DEFAULT_BUFFER_SIZE, string.length() ) ) );
+  public JsonFrameParser(final String string) {
+    this(new StringReader(string), Math.max(MIN_BUFFER_SIZE, Math.min(DEFAULT_BUFFER_SIZE, string.length())));
   }
 
 
@@ -78,12 +78,12 @@ public class JsonFrameParser {
   private String endCapture() {
     final int end = current == -1 ? index : index - 1;
     String captured;
-    if ( captureBuffer.length() > 0 ) {
-      captureBuffer.append( buffer, captureStart, end - captureStart );
+    if (captureBuffer.length() > 0) {
+      captureBuffer.append(buffer, captureStart, end - captureStart);
       captured = captureBuffer.toString();
-      captureBuffer.setLength( 0 );
+      captureBuffer.setLength(0);
     } else {
-      captured = new String( buffer, captureStart, end - captureStart );
+      captured = new String(buffer, captureStart, end - captureStart);
     }
     captureStart = -1;
     return captured;
@@ -99,28 +99,28 @@ public class JsonFrameParser {
    * 
    * @return a parse exception with the given message.
    */
-  private ParseException error( final String message ) {
+  private ParseException error(final String message) {
     final int absIndex = bufferOffset + index;
     final int column = absIndex - lineOffset;
     final int offset = isEndOfText() ? absIndex : absIndex - 1;
-    return new ParseException( message, offset, line, column, current );
+    return new ParseException(message, offset, line, column, current);
   }
 
 
 
 
-  private ParseException expected( final String expected ) {
-    if ( isEndOfText() ) {
-      return error( "Unexpected end of input" );
+  private ParseException expected(final String expected) {
+    if (isEndOfText()) {
+      return error("Unexpected end of input");
     }
-    return error( "Expected " + expected );
+    return error("Expected " + expected);
   }
 
 
 
 
   private boolean isDigit() {
-    return ( current >= '0' ) && ( current <= '9' );
+    return (current >= '0') && (current <= '9');
   }
 
 
@@ -134,14 +134,14 @@ public class JsonFrameParser {
 
 
   private boolean isHexDigit() {
-    return ( ( current >= '0' ) && ( current <= '9' ) ) || ( ( current >= 'a' ) && ( current <= 'f' ) ) || ( ( current >= 'A' ) && ( current <= 'F' ) );
+    return ((current >= '0') && (current <= '9')) || ((current >= 'a') && (current <= 'f')) || ((current >= 'A') && (current <= 'F'));
   }
 
 
 
 
   private boolean isWhiteSpace() {
-    return ( current == ' ' ) || ( current == '\t' ) || ( current == '\n' ) || ( current == '\r' || ( current == '\b' ) || ( current == '\f' ) );
+    return (current == ' ') || (current == '\t') || (current == '\n') || (current == '\r' || (current == '\b') || (current == '\f'));
   }
 
 
@@ -162,13 +162,13 @@ public class JsonFrameParser {
     read();
     skipWhiteSpace();
 
-    while ( ( current == '{' ) || ( current == '[' ) ) {
-      retval.add( readRootValue() );
+    while ((current == '{') || (current == '[')) {
+      retval.add(readRootValue());
       skipWhiteSpace();
     }
 
-    if ( !isEndOfText() ) {
-      throw error( "Unexpected character" );
+    if (!isEndOfText()) {
+      throw error("Unexpected character");
     }
     return retval;
 
@@ -179,7 +179,7 @@ public class JsonFrameParser {
 
   private void pauseCapture() {
     final int end = current == -1 ? index : index - 1;
-    captureBuffer.append( buffer, captureStart, end - captureStart );
+    captureBuffer.append(buffer, captureStart, end - captureStart);
     captureStart = -1;
   }
 
@@ -187,24 +187,25 @@ public class JsonFrameParser {
 
 
   private void read() throws IOException {
-    if ( index == fill ) {
-      if ( captureStart != -1 ) {
-        captureBuffer.append( buffer, captureStart, fill - captureStart );
+    if (index == fill) {
+      if (captureStart != -1) {
+        captureBuffer.append(buffer, captureStart, fill - captureStart);
         captureStart = 0;
       }
       bufferOffset += fill;
-      fill = reader.read( buffer, 0, buffer.length );
+      fill = reader.read(buffer, 0, buffer.length);
       index = 0;
-      if ( fill == -1 ) {
+      if (fill == -1) {
         current = -1;
-        return;
       }
     }
-    if ( current == '\n' ) {
-      line++;
-      lineOffset = bufferOffset + index;
+    if (current > -1) {
+      if (current == '\n') {
+        line++;
+        lineOffset = bufferOffset + index;
+      }
+      current = buffer[index++];
     }
-    current = buffer[index++];
   }
 
 
@@ -213,20 +214,20 @@ public class JsonFrameParser {
   private DataFrame readArray() throws IOException {
     read();
     final DataFrame array = new DataFrame();
-    array.setArrayBias( true );
+    array.setArrayBias(true);
     skipWhiteSpace();
-    if ( readChar( ']' ) ) {
+    if (readChar(']')) {
       return array;
     }
     do {
       skipWhiteSpace();
-      final DataField field = readFieldValue( null );
-      array.add( field );
+      final DataField field = readFieldValue(null);
+      array.add(field);
       skipWhiteSpace();
     }
-    while ( readChar( ',' ) );
-    if ( !readChar( ']' ) ) {
-      throw expected( "',' or ']'" );
+    while (readChar(','));
+    if (!readChar(']')) {
+      throw expected("',' or ']'");
     }
     return array;
   }
@@ -234,8 +235,8 @@ public class JsonFrameParser {
 
 
 
-  private boolean readChar( final char ch ) throws IOException {
-    if ( current != ch ) {
+  private boolean readChar(final char ch) throws IOException {
+    if (current != ch) {
       return false;
     }
     read();
@@ -246,7 +247,7 @@ public class JsonFrameParser {
 
 
   private boolean readDigit() throws IOException {
-    if ( !isDigit() ) {
+    if (!isDigit()) {
       return false;
     }
     read();
@@ -258,40 +259,40 @@ public class JsonFrameParser {
 
   private void readEscape() throws IOException {
     read();
-    switch ( current ) {
+    switch (current) {
       case '"':
       case '/':
       case '\\':
-        captureBuffer.append( (char)current );
+        captureBuffer.append((char)current);
         break;
       case 'b':
-        captureBuffer.append( '\b' );
+        captureBuffer.append('\b');
         break;
       case 'f':
-        captureBuffer.append( '\f' );
+        captureBuffer.append('\f');
         break;
       case 'n':
-        captureBuffer.append( '\n' );
+        captureBuffer.append('\n');
         break;
       case 'r':
-        captureBuffer.append( '\r' );
+        captureBuffer.append('\r');
         break;
       case 't':
-        captureBuffer.append( '\t' );
+        captureBuffer.append('\t');
         break;
       case 'u':
         final char[] hexChars = new char[4];
-        for ( int i = 0; i < 4; i++ ) {
+        for (int i = 0; i < 4; i++) {
           read();
-          if ( !isHexDigit() ) {
-            throw expected( "hexadecimal digit" );
+          if (!isHexDigit()) {
+            throw expected("hexadecimal digit");
           }
           hexChars[i] = (char)current;
         }
-        captureBuffer.append( (char)Integer.parseInt( new String( hexChars ), 16 ) );
+        captureBuffer.append((char)Integer.parseInt(new String(hexChars), 16));
         break;
       default:
-        throw expected( "valid escape sequence" );
+        throw expected("valid escape sequence");
     }
     read();
   }
@@ -300,16 +301,16 @@ public class JsonFrameParser {
 
 
   private boolean readExponent() throws IOException {
-    if ( !readChar( 'e' ) && !readChar( 'E' ) ) {
+    if (!readChar('e') && !readChar('E')) {
       return false;
     }
-    if ( !readChar( '+' ) ) {
-      readChar( '-' );
+    if (!readChar('+')) {
+      readChar('-');
     }
-    if ( !readDigit() ) {
-      throw expected( "digit" );
+    if (!readDigit()) {
+      throw expected("digit");
     }
-    while ( readDigit() ) {}
+    while (readDigit()) {}
     return true;
   }
 
@@ -318,33 +319,33 @@ public class JsonFrameParser {
 
   private Boolean readFalse() throws IOException {
     read();
-    readRequiredChar( 'a' );
-    readRequiredChar( 'l' );
-    readRequiredChar( 's' );
-    readRequiredChar( 'e' );
+    readRequiredChar('a');
+    readRequiredChar('l');
+    readRequiredChar('s');
+    readRequiredChar('e');
     return Boolean.FALSE;
   }
 
 
 
 
-  private DataField readFieldValue( final String name ) throws IOException {
-    switch ( current ) {
+  private DataField readFieldValue(final String name) throws IOException {
+    switch (current) {
       case 'n':
-        return new DataField( name, readNull() );
+        return new DataField(name, readNull());
       case 't':
-        return new DataField( name, readTrue() );
+        return new DataField(name, readTrue());
       case 'f':
-        return new DataField( name, readFalse() );
+        return new DataField(name, readFalse());
       case '"':
-        return new DataField( name, readString() );
+        return new DataField(name, readString());
       case '[':
-        return new DataField( name, readArray() );
+        return new DataField(name, readArray());
       case '{':
-        return new DataField( name, readObject() );
+        return new DataField(name, readObject());
       case ']':
       case ',':
-        return new DataField( name, null );
+        return new DataField(name, null);
       case '-':
       case '0':
       case '1':
@@ -356,9 +357,9 @@ public class JsonFrameParser {
       case '7':
       case '8':
       case '9':
-        return new DataField( name, readNumber() );
+        return new DataField(name, readNumber());
       default:
-        throw expected( "value" );
+        throw expected("value");
     }
   }
 
@@ -366,13 +367,13 @@ public class JsonFrameParser {
 
 
   private boolean readFraction() throws IOException {
-    if ( !readChar( '.' ) ) {
+    if (!readChar('.')) {
       return false;
     }
-    if ( !readDigit() ) {
-      throw expected( "digit" );
+    if (!readDigit()) {
+      throw expected("digit");
     }
-    while ( readDigit() ) {}
+    while (readDigit()) {}
     return true;
   }
 
@@ -387,8 +388,8 @@ public class JsonFrameParser {
    * @throws IOException if not quoted
    */
   private String readName() throws IOException {
-    if ( current != '"' ) {
-      throw expected( "name" );
+    if (current != '"') {
+      throw expected("name");
     }
     return readStringInternal();
   }
@@ -398,9 +399,9 @@ public class JsonFrameParser {
 
   private Object readNull() throws IOException {
     read();
-    readRequiredChar( 'u' );
-    readRequiredChar( 'l' );
-    readRequiredChar( 'l' );
+    readRequiredChar('u');
+    readRequiredChar('l');
+    readRequiredChar('l');
     return null;
   }
 
@@ -409,29 +410,29 @@ public class JsonFrameParser {
 
   private Object readNumber() throws IOException {
     startCapture();
-    readChar( '-' );
+    readChar('-');
     final int firstDigit = current;
-    if ( !readDigit() ) {
-      throw expected( "digit" );
+    if (!readDigit()) {
+      throw expected("digit");
     }
-    if ( firstDigit != '0' ) {
-      while ( readDigit() ) {}
+    if (firstDigit != '0') {
+      while (readDigit()) {}
     }
     final boolean isFraction = readFraction();
     readExponent();
 
     final String value = endCapture();
     // TODO: support more types like exponents
-    if ( isFraction ) {
+    if (isFraction) {
       try {
-        return Double.parseDouble( value );
-      } catch ( final NumberFormatException e ) {
+        return Double.parseDouble(value);
+      } catch (final NumberFormatException e) {
         // Ignore...just return the string if all else fails
       }
     } else {
       try {
-        return Long.parseLong( value );
-      } catch ( final NumberFormatException e ) {
+        return Long.parseLong(value);
+      } catch (final NumberFormatException e) {
         // Ignore...just return the string if all else fails
       }
     }
@@ -452,7 +453,7 @@ public class JsonFrameParser {
     read();
     final DataFrame object = new DataFrame();
     skipWhiteSpace();
-    if ( readChar( '}' ) ) {
+    if (readChar('}')) {
       return object; // return an empty frame
     }
 
@@ -461,18 +462,18 @@ public class JsonFrameParser {
       skipWhiteSpace();
       final String name = readName();
       skipWhiteSpace();
-      if ( !readChar( ':' ) ) {
-        throw expected( "':'" );
+      if (!readChar(':')) {
+        throw expected("':'");
       }
       // next, read the value for this named field
       skipWhiteSpace();
-      final DataField value = readFieldValue( name );
-      object.add( value );
+      final DataField value = readFieldValue(name);
+      object.add(value);
       skipWhiteSpace();
     }
-    while ( readChar( ',' ) );
-    if ( !readChar( '}' ) ) {
-      throw expected( "',' or '}'" );
+    while (readChar(','));
+    if (!readChar('}')) {
+      throw expected("',' or '}'");
     }
     return object;
   }
@@ -480,9 +481,9 @@ public class JsonFrameParser {
 
 
 
-  private void readRequiredChar( final char ch ) throws IOException {
-    if ( !readChar( ch ) ) {
-      throw expected( "'" + ch + "'" );
+  private void readRequiredChar(final char ch) throws IOException {
+    if (!readChar(ch)) {
+      throw expected("'" + ch + "'");
     }
   }
 
@@ -490,15 +491,15 @@ public class JsonFrameParser {
 
 
   private DataFrame readRootValue() throws IOException {
-    switch ( current ) {
+    switch (current) {
       case 'n':
-        return new DataFrame( new DataField( readNull() ) );
+        return new DataFrame(new DataField(readNull()));
       case 't':
-        return new DataFrame( new DataField( readTrue() ) );
+        return new DataFrame(new DataField(readTrue()));
       case 'f':
-        return new DataFrame( new DataField( readFalse() ) );
+        return new DataFrame(new DataField(readFalse()));
       case '"':
-        return new DataFrame( new DataField( readString() ) );
+        return new DataFrame(new DataField(readString()));
       case '[':
         return readArray();
       case '{':
@@ -514,9 +515,9 @@ public class JsonFrameParser {
       case '7':
       case '8':
       case '9':
-        return new DataFrame( new DataField( readNumber() ) );
+        return new DataFrame(new DataField(readNumber()));
       default:
-        throw expected( "value" );
+        throw expected("value");
     }
   }
 
@@ -533,13 +534,13 @@ public class JsonFrameParser {
   private String readStringInternal() throws IOException {
     read();
     startCapture();
-    while ( current != '"' ) {
-      if ( current == '\\' ) {
+    while (current != '"') {
+      if (current == '\\') {
         pauseCapture();
         readEscape();
         startCapture();
-      } else if ( current < 0x20 ) {
-        throw expected( "valid string character" );
+      } else if (current < 0x20) {
+        throw expected("valid string character");
       } else {
         read();
       }
@@ -554,9 +555,9 @@ public class JsonFrameParser {
 
   private Boolean readTrue() throws IOException {
     read();
-    readRequiredChar( 'r' );
-    readRequiredChar( 'u' );
-    readRequiredChar( 'e' );
+    readRequiredChar('r');
+    readRequiredChar('u');
+    readRequiredChar('e');
     return Boolean.TRUE;
   }
 
@@ -569,7 +570,7 @@ public class JsonFrameParser {
    * @throws IOException
    */
   private void skipWhiteSpace() throws IOException {
-    while ( isWhiteSpace() ) {
+    while (isWhiteSpace()) {
       read();
     }
   }
@@ -578,7 +579,7 @@ public class JsonFrameParser {
 
 
   private void startCapture() {
-    if ( captureBuffer == null ) {
+    if (captureBuffer == null) {
       captureBuffer = new StringBuilder();
     }
     captureStart = index - 1;

@@ -4,10 +4,6 @@
  * This program and the accompanying materials are made available under the 
  * terms of the MIT License which accompanies this distribution, and is 
  * available at http://creativecommons.org/licenses/MIT/
- *
- * Contributors:
- *   Stephan D. Cote 
- *      - Initial concept and implementation
  */
 package coyote.i13n.platform;
 
@@ -47,7 +43,7 @@ public class DefaultPlatform implements Platform {
 
   static File homeDir;
 
-  private static final String DEFAULT_HOME = new String( System.getProperty( "user.home" ) );
+  private static final String DEFAULT_HOME = System.getProperty( "user.home" );
 
   private static int os = 0;
   private static final int UNKNOWN = 0;

@@ -291,7 +291,7 @@ private static final int PORT = 7428;
           responseMsg = e.getMessage();
         }
 
-        return Response.createFixedLengthResponse( responseMsg.toString() );
+        return Response.createFixedLengthResponse( responseMsg );
       }
     };
     server.start( HTTPD.SOCKET_READ_TIMEOUT, false );

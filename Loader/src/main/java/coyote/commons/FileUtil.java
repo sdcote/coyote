@@ -1202,7 +1202,7 @@ public final class FileUtil {
    * @return The base file name
    */
   public static String getBase(final String fileName) {
-    String tempName = new String("");
+    String tempName = "";
     final StringTokenizer stk1 = new StringTokenizer(fileName, "/\\");
 
     while (stk1.hasMoreTokens()) {
@@ -1282,7 +1282,7 @@ public final class FileUtil {
     if (stk.hasMoreTokens()) {
       return stk.nextToken();
     } else {
-      return new String("");
+      return "";
     }
   }
 
@@ -1301,7 +1301,7 @@ public final class FileUtil {
    *         string ends with a file separator ( forward or back slash)
    */
   public static String getFile(final String filename) {
-    String tmp = new String(filename);
+    String tmp = filename;
     tmp = tmp.replace('\\', '/');
 
     final int i = tmp.lastIndexOf('/');
@@ -1982,7 +1982,7 @@ public final class FileUtil {
   public static void main(final String[] args) {
     System.out.println("FileUtil Test");
 
-    String command = new String("");
+    String command = "";
     final BufferedReader ds = new BufferedReader(new InputStreamReader(System.in));
 
     try {
