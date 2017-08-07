@@ -4,10 +4,6 @@
  * This program and the accompanying materials are made available under the 
  * terms of the MIT License which accompanies this distribution, and is 
  * available at http://creativecommons.org/licenses/MIT/
- *
- * Contributors:
- *   Stephan D. Cote 
- *      - Initial concept and implementation
  */
 package coyote.dx.transform;
 
@@ -49,8 +45,8 @@ public abstract class AbstractFrameTransform extends AbstractConfigurableCompone
    * @see coyote.dx.Component#open(coyote.dx.context.TransformContext)
    */
   @Override
-  public void open( final TransformContext context ) {
-    super.setContext( context );
+  public void open(final TransformContext context) {
+    super.setContext(context);
 
   }
 
@@ -66,8 +62,8 @@ public abstract class AbstractFrameTransform extends AbstractConfigurableCompone
    * 
    * @return the resolved value of the argument. 
    */
-  protected String resolveArgument( final String value ) {
-    return context.resolveArgument( value );
+  protected String resolveArgument(final String value) {
+    return context.resolveArgument(value);
   }
 
 }

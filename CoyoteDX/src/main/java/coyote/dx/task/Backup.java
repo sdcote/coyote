@@ -4,10 +4,6 @@
  * This program and the accompanying materials are made available under the 
  * terms of the MIT License which accompanies this distribution, and is 
  * available at http://creativecommons.org/licenses/MIT/
- *
- * Contributors:
- *   Stephan D. Cote 
- *      - Initial concept and implementation
  */
 package coyote.dx.task;
 
@@ -43,8 +39,8 @@ public class Backup extends AbstractFileTask {
 
 
   public String getFilename() {
-    if ( configuration.containsIgnoreCase( ConfigTag.FILE ) ) {
-      return configuration.getString( ConfigTag.FILE );
+    if (configuration.containsIgnoreCase(ConfigTag.FILE)) {
+      return configuration.getString(ConfigTag.FILE);
     }
     return null;
   }
@@ -53,8 +49,8 @@ public class Backup extends AbstractFileTask {
 
 
   public int getLimit() {
-    if ( configuration.containsIgnoreCase( ConfigTag.LIMIT ) ) {
-      return configuration.getInt( ConfigTag.LIMIT );
+    if (configuration.containsIgnoreCase(ConfigTag.LIMIT)) {
+      return configuration.getInt(ConfigTag.LIMIT);
     }
     return DEFAULT_LIMIT;
   }
@@ -68,12 +64,12 @@ public class Backup extends AbstractFileTask {
   @Override
   protected void performTask() throws TaskException {
     String filename = getFilename();
-    if ( StringUtil.isNotBlank( filename ) ) {
-      File file = new File( filename );
+    if (StringUtil.isNotBlank(filename)) {
+      File file = new File(filename);
       try {
-        FileUtil.createGenerationalBackup( file, getLimit() );
-      } catch ( IOException e ) {
-        throw new TaskException( "Could not backup file: " + e.getMessage(), e );
+        FileUtil.createGenerationalBackup(file, getLimit());
+      } catch (IOException e) {
+        throw new TaskException("Could not backup file: " + e.getMessage(), e);
       }
     }
   }

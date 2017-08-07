@@ -4,10 +4,6 @@
  * This program and the accompanying materials are made available under the 
  * terms of the MIT License which accompanies this distribution, and is 
  * available at http://creativecommons.org/licenses/MIT/
- *
- * Contributors:
- *   Stephan D. Cote 
- *      - Initial concept and implementation
  */
 package coyote.dx.validate;
 
@@ -48,14 +44,14 @@ public abstract class AbstractValidator extends AbstractConfigurableComponent im
 
 
   @Override
-  public void open( TransformContext context ) {}
+  public void open(TransformContext context) {}
 
 
 
 
   public boolean haltOnFail() {
-    if ( configuration.containsIgnoreCase( ConfigTag.HALT_ON_FAIL ) ) {
-      return configuration.getBoolean( ConfigTag.HALT_ON_FAIL );
+    if (configuration.containsIgnoreCase(ConfigTag.HALT_ON_FAIL)) {
+      return configuration.getBoolean(ConfigTag.HALT_ON_FAIL);
     }
     return false;
   }
@@ -78,10 +74,10 @@ public abstract class AbstractValidator extends AbstractConfigurableComponent im
    * @param field
    * @param message
    */
-  protected void fail( TransactionContext context, String field, String message ) {
-    context.fireValidationFailed( this, message );
-    if ( haltOnFail() ) {
-      context.setError( message );
+  protected void fail(TransactionContext context, String field, String message) {
+    context.fireValidationFailed(this, message);
+    if (haltOnFail()) {
+      context.setError(message);
     }
   }
 
@@ -96,11 +92,11 @@ public abstract class AbstractValidator extends AbstractConfigurableComponent im
    * @param context
    * @param field
    */
-  protected void fail( TransactionContext context, String field ) {
-    if ( StringUtil.isNotBlank( description ) ) {
-      fail( context, field, description );
+  protected void fail(TransactionContext context, String field) {
+    if (StringUtil.isNotBlank(description)) {
+      fail(context, field, description);
     } else {
-      fail( context, field, getClass() + " validation of " + field + " failed" );
+      fail(context, field, getClass() + " validation of " + field + " failed");
     }
   }
 
@@ -111,29 +107,29 @@ public abstract class AbstractValidator extends AbstractConfigurableComponent im
   * @see coyote.dx.AbstractConfigurableComponent#setConfiguration(coyote.loader.cfg.Config)
   */
   @Override
-  public void setConfiguration( Config cfg ) throws ConfigurationException {
+  public void setConfiguration(Config cfg) throws ConfigurationException {
     configuration = cfg;
 
     // All validators need to know which fields to validate
-    if ( cfg.contains( ConfigTag.FIELD ) ) {
-      fieldName = cfg.getAsString( ConfigTag.FIELD );
+    if (cfg.contains(ConfigTag.FIELD)) {
+      fieldName = cfg.getAsString(ConfigTag.FIELD);
     } else {
-      throw new ConfigurationException( "Missing required '" + ConfigTag.FIELD + "' attribute" );
+      throw new ConfigurationException("Missing required '" + ConfigTag.FIELD + "' attribute");
     }
 
-    if ( cfg.contains( ConfigTag.DESCRIPTION ) ) {
-      description = cfg.getAsString( ConfigTag.DESCRIPTION );
+    if (cfg.contains(ConfigTag.DESCRIPTION)) {
+      description = cfg.getAsString(ConfigTag.DESCRIPTION);
     }
 
     // Check if we are to thrown a context error if validation fails
-    if ( cfg.containsIgnoreCase( ConfigTag.HALT_ON_FAIL ) ) {
+    if (cfg.containsIgnoreCase(ConfigTag.HALT_ON_FAIL)) {
       try {
-        cfg.getBoolean( ConfigTag.HALT_ON_FAIL );
-      } catch ( Exception e ) {
-        Log.info( LogMsg.createMsg( CDX.MSG, "Task.Header flag not valid " + e.getMessage() ) );
+        cfg.getBoolean(ConfigTag.HALT_ON_FAIL);
+      } catch (Exception e) {
+        Log.info(LogMsg.createMsg(CDX.MSG, "Task.Header flag not valid " + e.getMessage()));
       }
     } else {
-      Log.debug( LogMsg.createMsg( CDX.MSG, "Task.No halt config" ) );
+      Log.debug(LogMsg.createMsg(CDX.MSG, "Task.No halt config"));
     }
   }
 

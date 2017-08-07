@@ -4,10 +4,6 @@
  * This program and the accompanying materials are made available under the 
  * terms of the MIT License which accompanies this distribution, and is 
  * available at http://creativecommons.org/licenses/MIT/
- *
- * Contributors:
- *   Stephan D. Cote 
- *      - Initial concept and implementation
  */
 package coyote.dx.context;
 
@@ -50,36 +46,36 @@ public abstract class PersistentContext extends TransformContext {
 
   @SuppressWarnings("unchecked")
   protected void setPreviousRunDate() {
-    Object value = get( Symbols.PREVIOUS_RUN_DATETIME );
+    Object value = get(Symbols.PREVIOUS_RUN_DATETIME);
 
-    if ( value != null ) {
+    if (value != null) {
 
       // clear it from the context to reduce confusion
-      set( Symbols.PREVIOUS_RUN_DATETIME, null );
+      set(Symbols.PREVIOUS_RUN_DATETIME, null);
 
       try {
         Date prevrun = null;
-        if ( value instanceof Date ) {
+        if (value instanceof Date) {
           prevrun = (Date)value;
         } else {
-          prevrun = DateUtil.parse( value.toString() );
+          prevrun = DateUtil.parse(value.toString());
         }
 
-        if ( prevrun != null ) {
+        if (prevrun != null) {
           // Set the previous run date
-          set( Symbols.PREVIOUS_RUN_DATE, prevrun );
+          set(Symbols.PREVIOUS_RUN_DATE, prevrun);
 
           // set the new value in the symbol table
-          if ( this.symbols != null ) {
-            symbols.put( Symbols.PREVIOUS_RUN_DATE, new SimpleDateFormat( CDX.DEFAULT_DATE_FORMAT ).format( prevrun ) );
-            symbols.put( Symbols.PREVIOUS_RUN_TIME, new SimpleDateFormat( CDX.DEFAULT_TIME_FORMAT ).format( prevrun ) );
-            symbols.put( Symbols.PREVIOUS_RUN_DATETIME, new SimpleDateFormat( CDX.DEFAULT_DATETIME_FORMAT ).format( prevrun ) );
+          if (this.symbols != null) {
+            symbols.put(Symbols.PREVIOUS_RUN_DATE, new SimpleDateFormat(CDX.DEFAULT_DATE_FORMAT).format(prevrun));
+            symbols.put(Symbols.PREVIOUS_RUN_TIME, new SimpleDateFormat(CDX.DEFAULT_TIME_FORMAT).format(prevrun));
+            symbols.put(Symbols.PREVIOUS_RUN_DATETIME, new SimpleDateFormat(CDX.DEFAULT_DATETIME_FORMAT).format(prevrun));
           }
         } else {
-          Log.warn( LogMsg.createMsg( CDX.MSG, "Context.previous_run_date_parsing_error", value, "Unknown Format", "Ignored" ) );
+          Log.warn(LogMsg.createMsg(CDX.MSG, "Context.previous_run_date_parsing_error", value, "Unknown Format", "Ignored"));
         }
-      } catch ( Exception e ) {
-        Log.warn( LogMsg.createMsg( CDX.MSG, "Context.previous_run_date_parsing_error", value, e.getClass().getSimpleName(), e.getMessage() ) );
+      } catch (Exception e) {
+        Log.warn(LogMsg.createMsg(CDX.MSG, "Context.previous_run_date_parsing_error", value, e.getClass().getSimpleName(), e.getMessage()));
       }
     }
   }
@@ -93,19 +89,19 @@ public abstract class PersistentContext extends TransformContext {
   protected void incrementRunCount() {
 
     // Get the current value
-    Object value = get( Symbols.RUN_COUNT );
+    Object value = get(Symbols.RUN_COUNT);
 
-    if ( value != null ) {
+    if (value != null) {
       // if a number...
-      if ( value instanceof Number ) {
+      if (value instanceof Number) {
         // set it
-        runcount = ( (Number)value ).longValue();
+        runcount = ((Number)value).longValue();
       } else {
         // try parsing it as a string
         try {
-          runcount = Long.parseLong( value.toString() );
-        } catch ( NumberFormatException e ) {
-          Log.warn( "Could not parse '" + Symbols.RUN_COUNT + "'  value [" + value.toString() + "] into a number " );
+          runcount = Long.parseLong(value.toString());
+        } catch (NumberFormatException e) {
+          Log.warn("Could not parse '" + Symbols.RUN_COUNT + "'  value [" + value.toString() + "] into a number ");
         } // try
       } // numeric check
     } // !null
@@ -113,14 +109,14 @@ public abstract class PersistentContext extends TransformContext {
     // increment the counter
     runcount++;
 
-    set( Symbols.RUN_COUNT, runcount );
+    set(Symbols.RUN_COUNT, runcount);
 
     // set the new value in the symbol table
-    if ( this.symbols != null ) {
-      symbols.put( Symbols.RUN_COUNT, runcount );
+    if (this.symbols != null) {
+      symbols.put(Symbols.RUN_COUNT, runcount);
     }
 
-    Log.debug( "Runcount is " + runcount );
+    Log.debug("Runcount is " + runcount);
   }
 
 }

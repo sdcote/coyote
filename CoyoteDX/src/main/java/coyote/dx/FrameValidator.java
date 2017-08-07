@@ -4,10 +4,6 @@
  * This program and the accompanying materials are made available under the 
  * terms of the MIT License which accompanies this distribution, and is 
  * available at http://creativecommons.org/licenses/MIT/
- *
- * Contributors:
- *   Stephan D. Cote 
- *      - Initial concept and implementation
  */
 package coyote.dx;
 
@@ -45,7 +41,7 @@ public interface FrameValidator extends ConfigurableComponent {
    * @throws ValidationException to place the transaction context in error and 
    *         halt processing of the record.
    */
-  boolean process( TransactionContext context ) throws ValidationException;
+  boolean process(TransactionContext context) throws ValidationException;
 
 
 

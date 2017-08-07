@@ -4,10 +4,6 @@
  * This program and the accompanying materials are made available under the 
  * terms of the MIT License which accompanies this distribution, and is 
  * available at http://creativecommons.org/licenses/MIT/
- *
- * Contributors:
- *   Stephan D. Cote 
- *      - Initial concept and implementation
  */
 package coyote.dx.task;
 
@@ -47,49 +43,49 @@ public class SaveContextValue extends AbstractFileTask {
   protected void performTask() throws TaskException {
 
     // get the actual configuration attribute, not a fully resolved value
-    final String source = getConfiguration().getString( ConfigTag.SOURCE );
+    final String source = getConfiguration().getString(ConfigTag.SOURCE);
 
-    if ( StringUtil.isNotEmpty( source ) ) {
+    if (StringUtil.isNotEmpty(source)) {
       final String target = getTargetOrFile();
 
-      if ( StringUtil.isNotBlank( target ) ) {
-        Log.debug( "Using a filename of '" + target + "'" );;
+      if (StringUtil.isNotBlank(target)) {
+        Log.debug("Using a filename of '" + target + "'");;
 
-        final File file = getAbsoluteFile( target );
-        Log.debug( "Using absolute filename of '" + file.getAbsolutePath() + "'" );
+        final File file = getAbsoluteFile(target);
+        Log.debug("Using absolute filename of '" + file.getAbsolutePath() + "'");
 
-        String contextVariable = getContext().getAsString( source );
-        if ( StringUtil.isNotEmpty( contextVariable ) ) {
-          
-          String resolvedValue = Template.resolve( contextVariable, getContext().getSymbols() );
-          
-          if ( FileUtil.stringToFile( resolvedValue, file.getAbsolutePath() ) ) {
-            Log.debug( "Wrote context variable '" + source + "' ( " + resolvedValue.length() + "chars) to " + file.getAbsolutePath() );
+        String contextVariable = getContext().getAsString(source);
+        if (StringUtil.isNotEmpty(contextVariable)) {
+
+          String resolvedValue = Template.resolve(contextVariable, getContext().getSymbols());
+
+          if (FileUtil.stringToFile(resolvedValue, file.getAbsolutePath())) {
+            Log.debug("Wrote context variable '" + source + "' ( " + resolvedValue.length() + "chars) to " + file.getAbsolutePath());
           } else {
-            final String msg = LogMsg.createMsg( CDX.MSG, "%s failed: Write failed to %s (%s)", getClass().getSimpleName(), target, file.getAbsolutePath() ).toString();
-            if ( haltOnError ) {
-              throw new TaskException( msg );
+            final String msg = LogMsg.createMsg(CDX.MSG, "%s failed: Write failed to %s (%s)", getClass().getSimpleName(), target, file.getAbsolutePath()).toString();
+            if (haltOnError) {
+              throw new TaskException(msg);
             } else {
-              Log.error( msg );
+              Log.error(msg);
               return;
             }
           }
         } else {
-          final String msg = LogMsg.createMsg( CDX.MSG, "%s failed: Context did not contain a value for '%s'", getClass().getSimpleName(), source ).toString();
-          if ( haltOnError ) {
-            throw new TaskException( msg );
+          final String msg = LogMsg.createMsg(CDX.MSG, "%s failed: Context did not contain a value for '%s'", getClass().getSimpleName(), source).toString();
+          if (haltOnError) {
+            throw new TaskException(msg);
           } else {
-            Log.error( msg );
+            Log.error(msg);
             return;
           }
         }
       }
     } else {
-      final String msg = LogMsg.createMsg( CDX.MSG, "%s failed: No source (context key) configured", getClass().getSimpleName() ).toString();
-      if ( haltOnError ) {
-        throw new TaskException( msg );
+      final String msg = LogMsg.createMsg(CDX.MSG, "%s failed: No source (context key) configured", getClass().getSimpleName()).toString();
+      if (haltOnError) {
+        throw new TaskException(msg);
       } else {
-        Log.error( msg );
+        Log.error(msg);
         return;
       }
     }

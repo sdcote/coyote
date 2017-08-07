@@ -4,10 +4,6 @@
  * This program and the accompanying materials are made available under the 
  * terms of the MIT License which accompanies this distribution, and is 
  * available at http://creativecommons.org/licenses/MIT/
- *
- * Contributors:
- *   Stephan D. Cote 
- *      - Initial concept and implementation
  */
 package coyote.dx.context;
 
@@ -16,17 +12,18 @@ import coyote.dx.FrameReader;
 import coyote.dx.FrameValidator;
 import coyote.dx.FrameWriter;
 
+
 /**
  * Listens to the operational context an performs actions on different events.
  */
 public interface ContextListener extends ConfigurableComponent {
 
-  void onEnd( OperationalContext context );
+  void onEnd(OperationalContext context);
 
 
 
 
-  void onStart( OperationalContext context );
+  void onStart(OperationalContext context);
 
 
 
@@ -37,7 +34,7 @@ public interface ContextListener extends ConfigurableComponent {
    * @param context the transaction context
    * @param writer the writer which just called to write a frame
    */
-  void onWrite( TransactionContext context, FrameWriter writer );
+  void onWrite(TransactionContext context, FrameWriter writer);
 
 
 
@@ -48,12 +45,12 @@ public interface ContextListener extends ConfigurableComponent {
    * @param context the transaction context
    * @param reader the reader doing the reading
    */
-  void onRead( TransactionContext context, FrameReader reader );
+  void onRead(TransactionContext context, FrameReader reader);
 
 
 
 
-  void onError( OperationalContext context );
+  void onError(OperationalContext context);
 
 
 
@@ -70,7 +67,7 @@ public interface ContextListener extends ConfigurableComponent {
    * 
    * @see #onFrameValidationFailed(TransactionContext)
    */
-  void onValidationFailed( OperationalContext context, FrameValidator validator, String msg );
+  void onValidationFailed(OperationalContext context, FrameValidator validator, String msg);
 
 
 
@@ -87,6 +84,6 @@ public interface ContextListener extends ConfigurableComponent {
    * 
    * @see #onValidationFailed(OperationalContext, FrameValidator, String)
    */
-  void onFrameValidationFailed( TransactionContext context );
+  void onFrameValidationFailed(TransactionContext context);
 
 }

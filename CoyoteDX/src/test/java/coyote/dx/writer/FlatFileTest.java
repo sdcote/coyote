@@ -4,10 +4,6 @@
  * This program and the accompanying materials are made available under the 
  * terms of the MIT License which accompanies this distribution, and is 
  * available at http://creativecommons.org/licenses/MIT/
- *
- * Contributors:
- *   Stephan D. Cote 
- *      - Initial concept and implementation
  */
 package coyote.dx.writer;
 
@@ -32,21 +28,21 @@ public class FlatFileTest extends AbstractTest {
   public void test() {
 
     // load the configuration from the class path
-    TransformEngine engine = loadEngine( "ffwritertest" );
-    assertNotNull( engine );
+    TransformEngine engine = loadEngine("ffwritertest");
+    assertNotNull(engine);
 
     try {
       engine.run();
-    } catch ( Exception e ) {
+    } catch (Exception e) {
       e.printStackTrace();
-      Log.error( e.getMessage() );
-      fail( e.getMessage() );
+      Log.error(e.getMessage());
+      fail(e.getMessage());
     }
     try {
       engine.close();
-    } catch ( IOException e ) {
+    } catch (IOException e) {
       e.printStackTrace();
-      Log.error( e.getMessage() );
+      Log.error(e.getMessage());
     }
 
   }

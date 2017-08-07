@@ -4,10 +4,6 @@
  * This program and the accompanying materials are made available under the 
  * terms of the MIT License which accompanies this distribution, and is 
  * available at http://creativecommons.org/licenses/MIT/
- *
- * Contributors:
- *   Stephan D. Cote 
- *      - Initial concept and implementation
  */
 package coyote.dx.task;
 
@@ -24,8 +20,8 @@ import coyote.loader.log.Log;
 public class LogEntry extends AbstractTransformTask {
 
   public String getMessage() {
-    if ( configuration.containsIgnoreCase( ConfigTag.MESSAGE ) ) {
-      return configuration.getString( ConfigTag.MESSAGE );
+    if (configuration.containsIgnoreCase(ConfigTag.MESSAGE)) {
+      return configuration.getString(ConfigTag.MESSAGE);
     }
     return null;
   }
@@ -34,8 +30,8 @@ public class LogEntry extends AbstractTransformTask {
 
 
   public String getCategory() {
-    if ( configuration.containsIgnoreCase( ConfigTag.CATEGORY ) ) {
-      return configuration.getString( ConfigTag.CATEGORY );
+    if (configuration.containsIgnoreCase(ConfigTag.CATEGORY)) {
+      return configuration.getString(ConfigTag.CATEGORY);
     }
     return null;
   }
@@ -49,28 +45,28 @@ public class LogEntry extends AbstractTransformTask {
   @Override
   protected void performTask() throws TaskException {
 
-    String message = Template.resolve( getMessage(), getContext().getSymbols() );
+    String message = Template.resolve(getMessage(), getContext().getSymbols());
 
-    if ( StringUtil.isNotBlank( message ) ) {
+    if (StringUtil.isNotBlank(message)) {
       String level = getCategory();
-      if ( StringUtil.isNotBlank( level ) ) {
-        if ( "info".equalsIgnoreCase( level ) ) {
-          Log.info( message );
-        } else if ( "notice".equalsIgnoreCase( level ) ) {
-          Log.notice( message );
-        } else if ( "debug".equalsIgnoreCase( level ) ) {
-          Log.debug( message );
-        } else if ( "warn".equalsIgnoreCase( level ) ) {
-          Log.warn( message );
-        } else if ( "error".equalsIgnoreCase( level ) ) {
-          Log.error( message );
-        } else if ( "trace".equalsIgnoreCase( level ) ) {
-          Log.trace( message );
+      if (StringUtil.isNotBlank(level)) {
+        if ("info".equalsIgnoreCase(level)) {
+          Log.info(message);
+        } else if ("notice".equalsIgnoreCase(level)) {
+          Log.notice(message);
+        } else if ("debug".equalsIgnoreCase(level)) {
+          Log.debug(message);
+        } else if ("warn".equalsIgnoreCase(level)) {
+          Log.warn(message);
+        } else if ("error".equalsIgnoreCase(level)) {
+          Log.error(message);
+        } else if ("trace".equalsIgnoreCase(level)) {
+          Log.trace(message);
         } else {
-          Log.info( message );
+          Log.info(message);
         }
       } else {
-        Log.info( message );
+        Log.info(message);
       }
     }
 

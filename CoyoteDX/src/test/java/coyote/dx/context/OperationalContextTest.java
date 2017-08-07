@@ -4,10 +4,6 @@
  * This program and the accompanying materials are made available under the 
  * terms of the MIT License which accompanies this distribution, and is 
  * available at http://creativecommons.org/licenses/MIT/
- *
- * Contributors:
- *   Stephan D. Cote 
- *      - Initial concept and implementation
  */
 package coyote.dx.context;
 
@@ -28,11 +24,11 @@ public class OperationalContextTest {
   public void contextMerge() {
     String key = "Now";
     OperationalContext source = new TransformContext();
-    source.set( key, new Date() );
+    source.set(key, new Date());
     OperationalContext target = new TransformContext();
-    assertNull( target.get( key ) );
-    target.merge( source );
-    assertNotNull( target.get( key ) );
+    assertNull(target.get(key));
+    target.merge(source);
+    assertNotNull(target.get(key));
   }
 
 }

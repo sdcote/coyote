@@ -4,10 +4,6 @@
  * This program and the accompanying materials are made available under the 
  * terms of the MIT License which accompanies this distribution, and is 
  * available at http://creativecommons.org/licenses/MIT/
- *
- * Contributors:
- *   Stephan D. Cote 
- *      - Initial concept and implementation
  */
 package coyote.dx.reader;
 
@@ -72,46 +68,46 @@ public class CSVReader extends AbstractFrameReader implements FrameReader, Confi
    * @see coyote.dx.AbstractConfigurableComponent#setConfiguration(coyote.loader.cfg.Config)
    */
   @Override
-  public void setConfiguration( Config cfg ) throws ConfigurationException {
-    super.setConfiguration( cfg );
+  public void setConfiguration(Config cfg) throws ConfigurationException {
+    super.setConfiguration(cfg);
 
     // Check if we are to load all the data into memory and read from there
-    if ( cfg.contains( ConfigTag.PRELOAD ) ) {
+    if (cfg.contains(ConfigTag.PRELOAD)) {
       try {
-        preload = cfg.getAsBoolean( ConfigTag.PRELOAD );
-      } catch ( DataFrameException e ) {
-        Log.info( "Preload not valid " + e.getMessage() );
+        preload = cfg.getAsBoolean(ConfigTag.PRELOAD);
+      } catch (DataFrameException e) {
+        Log.info("Preload not valid " + e.getMessage());
         preload = false;
       }
     }
-    Log.debug( LogMsg.createMsg( CDX.MSG, "Reader.preload_is", preload ) );
+    Log.debug(LogMsg.createMsg(CDX.MSG, "Reader.preload_is", preload));
 
     // Check if we are to treat the first line as the header names
-    if ( cfg.contains( ConfigTag.HEADER ) ) {
+    if (cfg.contains(ConfigTag.HEADER)) {
       try {
-        hasHeader = cfg.getAsBoolean( ConfigTag.HEADER );
-      } catch ( DataFrameException e ) {
-        Log.info( "Header flag not valid " + e.getMessage() );
+        hasHeader = cfg.getAsBoolean(ConfigTag.HEADER);
+      } catch (DataFrameException e) {
+        Log.info("Header flag not valid " + e.getMessage());
         hasHeader = false;
       }
     } else {
-      Log.debug( "No header config" );
+      Log.debug("No header config");
     }
-    Log.debug( LogMsg.createMsg( CDX.MSG, "Reader.header_flag_is", hasHeader ) );
+    Log.debug(LogMsg.createMsg(CDX.MSG, "Reader.header_flag_is", hasHeader));
 
     // Check if we are to use a different separator than the default ',' (comma)
-    if ( cfg.contains( ConfigTag.CHARACTER ) ) {
-      String value = cfg.getAsString( ConfigTag.HEADER );
+    if (cfg.contains(ConfigTag.CHARACTER)) {
+      String value = cfg.getAsString(ConfigTag.HEADER);
 
-      if ( StringUtil.isNotEmpty( value ) ) {
-        SEPARATOR = value.charAt( 0 );
+      if (StringUtil.isNotEmpty(value)) {
+        SEPARATOR = value.charAt(0);
       } else {
-        Log.info( "Character value not valid " );
+        Log.info("Character value not valid ");
       }
     } else {
-      Log.debug( "No separator config" );
+      Log.debug("No separator config");
     }
-    Log.debug( LogMsg.createMsg( CDX.MSG, "Reader.separator_character_is", SEPARATOR, (int)SEPARATOR ) );
+    Log.debug(LogMsg.createMsg(CDX.MSG, "Reader.separator_character_is", SEPARATOR, (int)SEPARATOR));
 
     // TODO: support a different separator character including "/t"
 
@@ -124,35 +120,35 @@ public class CSVReader extends AbstractFrameReader implements FrameReader, Confi
    * @see coyote.dx.FrameReader#read(coyote.dx.context.TransactionContext)
    */
   @Override
-  public DataFrame read( TransactionContext context ) {
+  public DataFrame read(TransactionContext context) {
     DataFrame retval = null;
     try {
 
       // sometimes there are blank lines in data, keep reading until data is 
       // returned or EOF
-      while ( !eof() ) {
+      while (!eof()) {
         String[] data = reader.readNext();
 
         // Deal with empty lines which may be in the file
         reader.consumeEmptyLines();
 
-        if ( data != null ) {
+        if (data != null) {
           retval = new DataFrame();
-          for ( int x = 0; x < data.length; x++ ) {
-            retval.add( x < header.length ? header[x] : new String( "COL" + x ), data[x] );
+          for (int x = 0; x < data.length; x++) {
+            retval.add(x < header.length ? header[x] : new String("COL" + x), data[x]);
           }
           break;
         }
       }
-    } catch ( IOException | ParseException e ) {
-      context.setError( e.getMessage() );
+    } catch (IOException | ParseException e) {
+      context.setError(e.getMessage());
     }
 
     // TODO: consume empty lines: sometimes CSV files have empty lines at the end of the file...we should consume them
 
     // Support the concept of last frame    
-    if ( reader.eof() ) {
-      context.setLastFrame( true );
+    if (reader.eof()) {
+      context.setLastFrame(true);
     }
 
     return retval;
@@ -177,7 +173,7 @@ public class CSVReader extends AbstractFrameReader implements FrameReader, Confi
    */
   @Override
   public void close() throws IOException {
-    if ( reader != null ) {
+    if (reader != null) {
       reader.close();
     }
   }
@@ -189,60 +185,60 @@ public class CSVReader extends AbstractFrameReader implements FrameReader, Confi
    * @see coyote.dx.Component#open(coyote.dx.context.TransformContext)
    */
   @Override
-  public void open( TransformContext context ) {
+  public void open(TransformContext context) {
     super.context = context;
 
     // check for a source in our configuration, if not there use the transform 
     // context as it may have been set by a previous operation
-    String source = super.getString( ConfigTag.SOURCE );
-    Log.debug( LogMsg.createMsg( CDX.MSG, "Reader.configured_source_is", source ) );
-    if ( StringUtil.isNotBlank( source ) ) {
+    String source = super.getString(ConfigTag.SOURCE);
+    Log.debug(LogMsg.createMsg(CDX.MSG, "Reader.configured_source_is", source));
+    if (StringUtil.isNotBlank(source)) {
 
       File sourceFile = null;
-      URI uri = UriUtil.parse( source );
-      if ( uri != null ) {
-        sourceFile = UriUtil.getFile( uri );
-        if ( sourceFile == null ) {
-          if ( uri.getScheme() == null ) {
+      URI uri = UriUtil.parse(source);
+      if (uri != null) {
+        sourceFile = UriUtil.getFile(uri);
+        if (sourceFile == null) {
+          if (uri.getScheme() == null) {
             // Assume a file if there is no scheme
-            Log.debug( "Source URI did not contain a scheme, assuming a filename" );
-            sourceFile = new File( source );
+            Log.debug("Source URI did not contain a scheme, assuming a filename");
+            sourceFile = new File(source);
           } else {
-            Log.warn( LogMsg.createMsg( CDX.MSG, "Reader.source_is_not_file", source ) );
+            Log.warn(LogMsg.createMsg(CDX.MSG, "Reader.source_is_not_file", source));
           }
         }
       } else {
-        Log.debug( "Source could not be parsed into a URI, assuming a filename" );
-        sourceFile = new File( source );
+        Log.debug("Source could not be parsed into a URI, assuming a filename");
+        sourceFile = new File(source);
       }
-      if ( sourceFile != null ) {
-        Log.debug( "Using a source file of " + sourceFile.getAbsolutePath() );
+      if (sourceFile != null) {
+        Log.debug("Using a source file of " + sourceFile.getAbsolutePath());
       } else {
-        Log.error( "Using a source file of NULL_REF" );
+        Log.error("Using a source file of NULL_REF");
       }
       // if not absolute, use the current job directory
-      if ( !sourceFile.isAbsolute() ) {
-        sourceFile = new File( context.getSymbols().getString( Symbols.JOB_DIRECTORY ), sourceFile.getPath() );
+      if (!sourceFile.isAbsolute()) {
+        sourceFile = new File(context.getSymbols().getString(Symbols.JOB_DIRECTORY), sourceFile.getPath());
       }
-      Log.debug( "Using an absolute source file of " + sourceFile.getAbsolutePath() );
+      Log.debug("Using an absolute source file of " + sourceFile.getAbsolutePath());
 
       // Basic checks
-      if ( sourceFile.exists() && sourceFile.canRead() ) {
+      if (sourceFile.exists() && sourceFile.canRead()) {
         try {
-          reader = new coyote.commons.csv.CSVReader( new FileReader( sourceFile ), SEPARATOR );
-          if ( hasHeader ) {
+          reader = new coyote.commons.csv.CSVReader(new FileReader(sourceFile), SEPARATOR);
+          if (hasHeader) {
             header = reader.readNext();
           }
-        } catch ( Exception e ) {
-          Log.error( "Could not create reader: " + e.getMessage() );
-          context.setError( e.getMessage() );
+        } catch (Exception e) {
+          Log.error("Could not create reader: " + e.getMessage());
+          context.setError(e.getMessage());
         }
       } else {
-        context.setError( LogMsg.createMsg( CDX.MSG, "Reader.could_not_read_from_source", getClass().getName(), sourceFile.getAbsolutePath() ).toString() );
+        context.setError(LogMsg.createMsg(CDX.MSG, "Reader.could_not_read_from_source", getClass().getName(), sourceFile.getAbsolutePath()).toString());
       }
     } else {
-      Log.error( "No source specified" );
-      context.setError( getClass().getName() + " could not determine source" );
+      Log.error("No source specified");
+      context.setError(getClass().getName() + " could not determine source");
     }
 
   }
@@ -255,8 +251,8 @@ public class CSVReader extends AbstractFrameReader implements FrameReader, Confi
    */
   public boolean isPreload() {
     try {
-      return configuration.getAsBoolean( ConfigTag.PRELOAD );
-    } catch ( DataFrameException e ) {
+      return configuration.getAsBoolean(ConfigTag.PRELOAD);
+    } catch (DataFrameException e) {
       return false;
     }
   }
@@ -273,8 +269,8 @@ public class CSVReader extends AbstractFrameReader implements FrameReader, Confi
    * 
    * @param flag true to read the entire data set into memory before returning the first record, false reads data from the source on each call to the {@code read()} method. 
    */
-  public void setPreload( boolean flag ) {
-    configuration.put( ConfigTag.PRELOAD, flag );
+  public void setPreload(boolean flag) {
+    configuration.put(ConfigTag.PRELOAD, flag);
   }
 
 
@@ -285,8 +281,8 @@ public class CSVReader extends AbstractFrameReader implements FrameReader, Confi
    */
   public boolean isUsingHeader() {
     try {
-      return configuration.getAsBoolean( ConfigTag.HEADER );
-    } catch ( DataFrameException e ) {
+      return configuration.getAsBoolean(ConfigTag.HEADER);
+    } catch (DataFrameException e) {
       return false;
     }
   }
@@ -299,8 +295,8 @@ public class CSVReader extends AbstractFrameReader implements FrameReader, Confi
    * 
    * @param flag true to set the read to process the first line(s) as a header, false to treat the first line as the first record.
    */
-  public void setHeaderFlag( boolean flag ) {
-    configuration.put( ConfigTag.HEADER, flag );
+  public void setHeaderFlag(boolean flag) {
+    configuration.put(ConfigTag.HEADER, flag);
   }
 
 
@@ -310,7 +306,7 @@ public class CSVReader extends AbstractFrameReader implements FrameReader, Confi
    * @return the URI representing the source from which data is to be read
    */
   public String getSource() {
-    return configuration.getAsString( ConfigTag.SOURCE );
+    return configuration.getAsString(ConfigTag.SOURCE);
   }
 
 
@@ -321,8 +317,8 @@ public class CSVReader extends AbstractFrameReader implements FrameReader, Confi
    * 
    * @param value The URI from which data is to be read.
    */
-  public void setSource( String value ) {
-    configuration.put( ConfigTag.SOURCE, value );
+  public void setSource(String value) {
+    configuration.put(ConfigTag.SOURCE, value);
   }
 
 }

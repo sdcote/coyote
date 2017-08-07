@@ -4,10 +4,6 @@
  * This program and the accompanying materials are made available under the 
  * terms of the MIT License which accompanies this distribution, and is 
  * available at http://creativecommons.org/licenses/MIT/
- *
- * Contributors:
- *   Stephan D. Cote 
- *      - Initial concept and implementation
  */
 package coyote.dx;
 
@@ -30,29 +26,29 @@ public class ContextTest extends AbstractTest {
   public void test() {
 
     // load the configuration from the class path
-    TransformEngine engine = loadEngine( "contexttest" );
-    assertNotNull( engine );
+    TransformEngine engine = loadEngine("contexttest");
+    assertNotNull(engine);
 
     TransformContext context = engine.getContext();
-    assertNotNull( context );
+    assertNotNull(context);
 
     SymbolTable symbols = engine.getSymbolTable();
-    assertNotNull( symbols );
+    assertNotNull(symbols);
 
     // run the engine so the context get opened and initialized
     try {
       engine.run();
-    } catch ( Exception ignore ) {}
+    } catch (Exception ignore) {}
 
-    String filename = context.getAsString( "filename" );
-    assertNotNull( filename );
-    Log.debug( filename );
+    String filename = context.getAsString("filename");
+    assertNotNull(filename);
+    Log.debug(filename);
 
-    Log.debug( context.dump() );
+    Log.debug(context.dump());
 
     try {
       engine.close();
-    } catch ( IOException e ) {
+    } catch (IOException e) {
       // TODO Auto-generated catch block
       e.printStackTrace();
     }

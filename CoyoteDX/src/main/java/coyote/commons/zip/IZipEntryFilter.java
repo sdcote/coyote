@@ -4,10 +4,6 @@
  * This program and the accompanying materials are made available under the 
  * terms of the MIT License which accompanies this distribution, and is 
  * available at http://creativecommons.org/licenses/MIT/
- *
- * Contributors:
- *   Stephan D. Cote 
- *      - Initial concept and implementation
  */
 package coyote.commons.zip;
 
@@ -26,5 +22,5 @@ public interface IZipEntryFilter {
    * @param name name of the entry to check
    * @return true if the entry is accepted, false otherwise
    */
-  boolean accept( String name );
+  boolean accept(String name);
 }

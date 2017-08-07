@@ -4,10 +4,6 @@
  * This program and the accompanying materials are made available under the 
  * terms of the MIT License which accompanies this distribution, and is 
  * available at http://creativecommons.org/licenses/MIT/
- *
- * Contributors:
- *   Stephan D. Cote 
- *      - Initial concept and implementation
  */
 package coyote.dx.mapper;
 
@@ -27,35 +23,35 @@ public class DefaultFrameMapper extends AbstractFrameMapper implements FrameMapp
    * @see coyote.dx.FrameMapper#process(coyote.dx.context.TransactionContext)
    */
   @Override
-  public void process( TransactionContext context ) throws MappingException {
+  public void process(TransactionContext context) throws MappingException {
 
-    if ( fields.size() > 0 ) {
+    if (fields.size() > 0) {
       // for each frame in the list (insertion order)
-      for ( SourceToTarget mapping : fields ) {
+      for (SourceToTarget mapping : fields) {
 
         DataField targetField;
 
-        if ( context.getWorkingFrame().contains( mapping.getSourceName() ) ) {
+        if (context.getWorkingFrame().contains(mapping.getSourceName())) {
 
           // clone the named field from the working frame
-          targetField = (DataField)context.getWorkingFrame().getField( mapping.getSourceName() ).clone();
+          targetField = (DataField)context.getWorkingFrame().getField(mapping.getSourceName()).clone();
 
           // re-name the field to that of the target frame
-          targetField.setName( mapping.getTargetName() );
+          targetField.setName(mapping.getTargetName());
 
         } else {
           // apparently there is no working field named with the source name. 
           // This is normal, the value could just be missing for this record 
           // only. Create a new null frame with the desired name
-          targetField = new DataField( mapping.getTargetName(), null );
+          targetField = new DataField(mapping.getTargetName(), null);
         }
 
         // place the mapped field in the target data frame for writing 
-        context.getTargetFrame().getFields().add( targetField );
+        context.getTargetFrame().getFields().add(targetField);
       }
     } else {
       // if no field map, just perform a straight clone of the working frame
-      context.setTargetFrame( (DataFrame)context.getWorkingFrame().clone() );
+      context.setTargetFrame((DataFrame)context.getWorkingFrame().clone());
     }
 
   }

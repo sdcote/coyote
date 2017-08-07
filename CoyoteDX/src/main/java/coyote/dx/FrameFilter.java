@@ -4,10 +4,6 @@
  * This program and the accompanying materials are made available under the 
  * terms of the MIT License which accompanies this distribution, and is 
  * available at http://creativecommons.org/licenses/MIT/
- *
- * Contributors:
- *   Stephan D. Cote 
- *      - Initial concept and implementation
  */
 package coyote.dx;
 
@@ -46,6 +42,6 @@ public interface FrameFilter extends ConfigurableComponent {
    * 
    * @return true to continue processing remaining filters, false to skip any remaining filters (early exit). 
    */
-  public boolean process( TransactionContext context );
+  public boolean process(TransactionContext context);
 
 }

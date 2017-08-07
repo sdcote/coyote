@@ -4,10 +4,6 @@
  * This program and the accompanying materials are made available under the
  * terms of the MIT License which accompanies this distribution, and is
  * available at http://creativecommons.org/licenses/MIT/
- *
- * Contributors:
- *   Stephan D. Cote
- *      - Initial concept and implementation
  */
 package coyote.dx.context;
 
@@ -96,26 +92,26 @@ public class DatabaseContext extends PersistentContext {
   @Override
   public void close() {
     final DataFrame frame = new DataFrame();
-    for ( final String key : properties.keySet() ) {
+    for (final String key : properties.keySet()) {
       try {
-        frame.add( key, properties.get( key ) );
-      } catch ( final Exception e ) {
-        Log.debug( "Cannot persist property '" + key + "' - " + e.getMessage() );
+        frame.add(key, properties.get(key));
+      } catch (final Exception e) {
+        Log.debug("Cannot persist property '" + key + "' - " + e.getMessage());
       }
     }
 
-    frame.put( Symbols.RUN_COUNT, runcount );
+    frame.put(Symbols.RUN_COUNT, runcount);
 
-    final Object rundate = get( Symbols.DATETIME );
-    if ( rundate != null ) {
-      if ( rundate instanceof Date ) {
-        frame.put( Symbols.PREVIOUS_RUN_DATETIME, rundate );
+    final Object rundate = get(Symbols.DATETIME);
+    if (rundate != null) {
+      if (rundate instanceof Date) {
+        frame.put(Symbols.PREVIOUS_RUN_DATETIME, rundate);
       } else {
-        Log.warn( LogMsg.createMsg( CDX.MSG, "Context.run_date_reset", rundate ) );
+        Log.warn(LogMsg.createMsg(CDX.MSG, "Context.run_date_reset", rundate));
       }
     }
 
-    upsertFields( connection, TABLE_NAME, frame );
+    upsertFields(connection, TABLE_NAME, frame);
 
     super.close();
   }
@@ -132,36 +128,36 @@ public class DatabaseContext extends PersistentContext {
    */
   private void createTables() {
 
-    String sql = DatabaseDialect.getCreateSchema( databaseProduct, SCHEMA_NAME, database.getUsername() );
-    Log.debug( "Creating table in database..." );
+    String sql = DatabaseDialect.getCreateSchema(databaseProduct, SCHEMA_NAME, database.getUsername());
+    Log.debug("Creating table in database...");
     try (Statement stmt = connection.createStatement()) {
-      stmt.executeUpdate( sql );
-      Log.debug( "Schema created." );
-    } catch ( final SQLException e ) {
-      Log.error( "Schema creation failed!" );
+      stmt.executeUpdate(sql);
+      Log.debug("Schema created.");
+    } catch (final SQLException e) {
+      Log.error("Schema creation failed!");
       e.printStackTrace();
     }
 
-    final TableDefinition tdef = new TableDefinition( TABLE_NAME );
-    tdef.setSchemaName( SCHEMA_NAME );
-    tdef.addColumn( new ColumnDefinition( "SysId", ColumnType.STRING ).setLength( 36 ).setPrimaryKey( true ) );
-    tdef.addColumn( new ColumnDefinition( "Job", ColumnType.STRING ).setLength( 64 ) );
-    tdef.addColumn( new ColumnDefinition( "Name", ColumnType.STRING ).setLength( 64 ) );
-    tdef.addColumn( new ColumnDefinition( "Value", ColumnType.STRING ).setLength( 255 ).setNullable( true ) );
-    tdef.addColumn( new ColumnDefinition( "Type", ColumnType.SHORT ).setNullable( true ) );
-    tdef.addColumn( new ColumnDefinition( "CreatedBy", ColumnType.STRING ).setLength( 32 ) );
-    tdef.addColumn( new ColumnDefinition( "CreatedOn", ColumnType.DATE ) );
-    tdef.addColumn( new ColumnDefinition( "ModifiedBy", ColumnType.STRING ).setLength( 32 ) );
-    tdef.addColumn( new ColumnDefinition( "ModifiedOn", ColumnType.DATE ) );
+    final TableDefinition tdef = new TableDefinition(TABLE_NAME);
+    tdef.setSchemaName(SCHEMA_NAME);
+    tdef.addColumn(new ColumnDefinition("SysId", ColumnType.STRING).setLength(36).setPrimaryKey(true));
+    tdef.addColumn(new ColumnDefinition("Job", ColumnType.STRING).setLength(64));
+    tdef.addColumn(new ColumnDefinition("Name", ColumnType.STRING).setLength(64));
+    tdef.addColumn(new ColumnDefinition("Value", ColumnType.STRING).setLength(255).setNullable(true));
+    tdef.addColumn(new ColumnDefinition("Type", ColumnType.SHORT).setNullable(true));
+    tdef.addColumn(new ColumnDefinition("CreatedBy", ColumnType.STRING).setLength(32));
+    tdef.addColumn(new ColumnDefinition("CreatedOn", ColumnType.DATE));
+    tdef.addColumn(new ColumnDefinition("ModifiedBy", ColumnType.STRING).setLength(32));
+    tdef.addColumn(new ColumnDefinition("ModifiedOn", ColumnType.DATE));
 
-    sql = DatabaseDialect.getCreate( databaseProduct, tdef );
+    sql = DatabaseDialect.getCreate(databaseProduct, tdef);
 
-    Log.debug( "Creating table in database..." );
+    Log.debug("Creating table in database...");
     try (Statement stmt = connection.createStatement()) {
-      stmt.executeUpdate( sql );
-      Log.debug( "Table created." );
-    } catch ( final SQLException e ) {
-      Log.error( "Table creation failed!" );
+      stmt.executeUpdate(sql);
+      Log.debug("Table created.");
+    } catch (final SQLException e) {
+      Log.error("Table creation failed!");
       e.printStackTrace();
     }
   }
@@ -175,11 +171,11 @@ public class DatabaseContext extends PersistentContext {
    */
   private void determineIdentity() {
     identity = getIdentity();
-    if ( identity == null ) {
-      if ( StringUtil.isNotBlank( database.getUsername() ) ) {
+    if (identity == null) {
+      if (StringUtil.isNotBlank(database.getUsername())) {
         identity = database.getUsername();
-      } else if ( StringUtil.isNotBlank( database.getConnectedUser( connection ) ) ) {
-        identity = database.getConnectedUser( connection );
+      } else if (StringUtil.isNotBlank(database.getConnectedUser(connection))) {
+        identity = database.getConnectedUser(connection);
       } else {
         identity = this.getClass().getSimpleName();
       }
@@ -190,36 +186,36 @@ public class DatabaseContext extends PersistentContext {
 
 
   public String getIdentity() {
-    return configuration.getString( ConfigTag.IDENTITY );
+    return configuration.getString(ConfigTag.IDENTITY);
   }
 
 
 
 
   @SuppressWarnings("unchecked")
-  private void insertField( final DataField field, final SymbolTable sqlsymbols ) {
-    sqlsymbols.put( DatabaseDialect.FIELD_NAMES_SYM, "SysId, Job, Name, Value, Type, CreatedBy, CreatedOn, ModifiedBy, ModifiedOn" );
-    sqlsymbols.put( DatabaseDialect.FIELD_VALUES_SYM, "?, ?, ?, ?, ?, ?, ?, ?, ?" );
-    final String sql = DatabaseDialect.getSQL( databaseProduct, DatabaseDialect.INSERT, sqlsymbols );
-    if ( sql != null ) {
+  private void insertField(final DataField field, final SymbolTable sqlsymbols) {
+    sqlsymbols.put(DatabaseDialect.FIELD_NAMES_SYM, "SysId, Job, Name, Value, Type, CreatedBy, CreatedOn, ModifiedBy, ModifiedOn");
+    sqlsymbols.put(DatabaseDialect.FIELD_VALUES_SYM, "?, ?, ?, ?, ?, ?, ?, ?, ?");
+    final String sql = DatabaseDialect.getSQL(databaseProduct, DatabaseDialect.INSERT, sqlsymbols);
+    if (sql != null) {
       try {
-        final PreparedStatement preparedStatement = connection.prepareStatement( sql );
-        preparedStatement.setString( 1, UUID.randomUUID().toString() );
-        preparedStatement.setString( 2, getEngine().getName() );
-        preparedStatement.setString( 3, field.getName() );
-        preparedStatement.setString( 4, field.getStringValue() );
-        preparedStatement.setInt( 5, field.getType() );
-        preparedStatement.setString( 6, identity );
-        preparedStatement.setTimestamp( 7, new java.sql.Timestamp( new Date().getTime() ) );
-        preparedStatement.setString( 8, identity );
-        preparedStatement.setTimestamp( 9, new java.sql.Timestamp( new Date().getTime() ) );
+        final PreparedStatement preparedStatement = connection.prepareStatement(sql);
+        preparedStatement.setString(1, UUID.randomUUID().toString());
+        preparedStatement.setString(2, getEngine().getName());
+        preparedStatement.setString(3, field.getName());
+        preparedStatement.setString(4, field.getStringValue());
+        preparedStatement.setInt(5, field.getType());
+        preparedStatement.setString(6, identity);
+        preparedStatement.setTimestamp(7, new java.sql.Timestamp(new Date().getTime()));
+        preparedStatement.setString(8, identity);
+        preparedStatement.setTimestamp(9, new java.sql.Timestamp(new Date().getTime()));
         preparedStatement.executeUpdate();
-      } catch ( final SQLException e ) {
-        Log.fatal( ExceptionUtil.toString( e ) );
-        Log.debug( ExceptionUtil.stackTrace( e ) );
+      } catch (final SQLException e) {
+        Log.fatal(ExceptionUtil.toString(e));
+        Log.debug(ExceptionUtil.stackTrace(e));
       }
     } else {
-      Log.error( "Cannot support " + databaseProduct + " database product" );
+      Log.error("Cannot support " + databaseProduct + " database product");
     }
   }
 
@@ -227,7 +223,7 @@ public class DatabaseContext extends PersistentContext {
 
 
   private boolean isAutoCreate() {
-    return configuration.getBoolean( ConfigTag.AUTO_CREATE );
+    return configuration.getBoolean(ConfigTag.AUTO_CREATE);
   }
 
 
@@ -243,61 +239,61 @@ public class DatabaseContext extends PersistentContext {
   @Override
   public void open() {
 
-    if ( configuration != null ) {
+    if (configuration != null) {
 
       String name = null;
 
       // TODO: Optionally get database from context e.g. "database":"Oracle5"
 
-      if ( getEngine() == null ) {
-        Log.fatal( "Context is not connected to a transform engine!" );
-        setError( "No engine set in context" );
+      if (getEngine() == null) {
+        Log.fatal("Context is not connected to a transform engine!");
+        setError("No engine set in context");
         return;
       } else {
         name = getEngine().getName();
       }
 
-      if ( StringUtil.isNotBlank( name ) ) {
+      if (StringUtil.isNotBlank(name)) {
         database = new Database();
         try {
-          database.setConfiguration( configuration );
-          database.open( null );
+          database.setConfiguration(configuration);
+          database.open(null);
           connection = database.getConnection();
 
           try {
-            if ( !connection.isValid( 10 ) ) {
-              Log.fatal( "Database connection is not valid" );
-              setError( "Database connection is not valid" );
+            if (!connection.isValid(10)) {
+              Log.fatal("Database connection is not valid");
+              setError("Database connection is not valid");
               return;
             }
-            databaseProduct = database.getProductName( connection );
-            Log.debug( "Context is using a " + databaseProduct + " database" );
-          } catch ( final SQLException e ) {
-            Log.fatal( "Database connection is not valid" );
-            setError( "Database connection is not valid" );
+            databaseProduct = database.getProductName(connection);
+            Log.debug("Context is using a " + databaseProduct + " database");
+          } catch (final SQLException e) {
+            Log.fatal("Database connection is not valid");
+            setError("Database connection is not valid");
             return;
           }
 
           determineIdentity();
           verifyTables();
-          readfields( name );
+          readfields(name);
           incrementRunCount();
           setPreviousRunDate();
           updateSymbols();
-        } catch ( final ConfigurationException e ) {
+        } catch (final ConfigurationException e) {
           e.printStackTrace();
         }
 
         // Any fields defined in the configuration override values in the data store
-        final Config section = configuration.getSection( ConfigTag.FIELDS );
-        if ( section != null ) {
-          for ( final DataField field : section.getFields() ) {
-            if ( !field.isFrame() ) {
-              if ( StringUtil.isNotBlank( field.getName() ) && !field.isNull() ) {
+        final Config section = configuration.getSection(ConfigTag.FIELDS);
+        if (section != null) {
+          for (final DataField field : section.getFields()) {
+            if (!field.isFrame()) {
+              if (StringUtil.isNotBlank(field.getName()) && !field.isNull()) {
                 final String token = field.getStringValue();
-                final String value = Template.resolve( token, engine.getSymbolTable() );
-                engine.getSymbolTable().put( field.getName(), value );
-                set( field.getName(), value );
+                final String value = Template.resolve(token, engine.getSymbolTable());
+                engine.getSymbolTable().put(field.getName(), value);
+                set(field.getName(), value);
               }
             }
           }
@@ -315,9 +311,9 @@ public class DatabaseContext extends PersistentContext {
    */
   @SuppressWarnings("unchecked")
   private void updateSymbols() {
-    if ( symbols != null ) {
-      for ( final String key : properties.keySet() ) {
-        symbols.put( key, properties.get( key ) );
+    if (symbols != null) {
+      for (final String key : properties.keySet()) {
+        symbols.put(key, properties.get(key));
       }
     }
   }
@@ -330,25 +326,25 @@ public class DatabaseContext extends PersistentContext {
    *
    * @param name the name of the context (i.e. job name) to query.
    */
-  private void readfields( final String name ) {
-    Log.debug( "Reading fields for context '" + name + "' on " + databaseProduct );
-    existingFields = DatabaseUtil.readAllRecords( connection, "select * from " + SCHEMA_NAME + "." + TABLE_NAME + " where Job = '" + name + "'" );
-    for ( final DataFrame frame : existingFields.getRows() ) {
-      Log.debug( "Read in context variable:" + frame.toString() );
-      final DataField keyField = frame.getFieldIgnoreCase( "Name" );
-      if ( ( keyField != null ) && StringUtil.isNotBlank( keyField.getStringValue() ) ) {
-        final DataField valueField = frame.getFieldIgnoreCase( "Value" );
-        if ( ( valueField != null ) && valueField.isNotNull() ) {
-          final DataField typeField = frame.getFieldIgnoreCase( "Type" );
-          if ( ( typeField != null ) && typeField.isNotNull() ) {
-            final Object contextValue = DataField.parse( valueField.getStringValue(), (short)typeField.getObjectValue() );
-            if ( contextValue != null ) {
-              set( keyField.getStringValue(), contextValue );
+  private void readfields(final String name) {
+    Log.debug("Reading fields for context '" + name + "' on " + databaseProduct);
+    existingFields = DatabaseUtil.readAllRecords(connection, "select * from " + SCHEMA_NAME + "." + TABLE_NAME + " where Job = '" + name + "'");
+    for (final DataFrame frame : existingFields.getRows()) {
+      Log.debug("Read in context variable:" + frame.toString());
+      final DataField keyField = frame.getFieldIgnoreCase("Name");
+      if ((keyField != null) && StringUtil.isNotBlank(keyField.getStringValue())) {
+        final DataField valueField = frame.getFieldIgnoreCase("Value");
+        if ((valueField != null) && valueField.isNotNull()) {
+          final DataField typeField = frame.getFieldIgnoreCase("Type");
+          if ((typeField != null) && typeField.isNotNull()) {
+            final Object contextValue = DataField.parse(valueField.getStringValue(), (short)typeField.getObjectValue());
+            if (contextValue != null) {
+              set(keyField.getStringValue(), contextValue);
             } else {
-              set( keyField.getStringValue(), valueField.getStringValue() );
+              set(keyField.getStringValue(), valueField.getStringValue());
             }
           } else {
-            set( keyField.getStringValue(), valueField.getStringValue() );
+            set(keyField.getStringValue(), valueField.getStringValue());
           }
         }
       }
@@ -359,57 +355,57 @@ public class DatabaseContext extends PersistentContext {
 
 
   @SuppressWarnings("unchecked")
-  private void upsertFields( final Connection conn, final String tableName, final DataFrame frame ) {
+  private void upsertFields(final Connection conn, final String tableName, final DataFrame frame) {
     final SymbolTable sqlsymbols = new SymbolTable();
-    sqlsymbols.put( DatabaseDialect.DB_SCHEMA_SYM, SCHEMA_NAME );
-    sqlsymbols.put( DatabaseDialect.TABLE_NAME_SYM, TABLE_NAME );
+    sqlsymbols.put(DatabaseDialect.DB_SCHEMA_SYM, SCHEMA_NAME);
+    sqlsymbols.put(DatabaseDialect.TABLE_NAME_SYM, TABLE_NAME);
 
     String sql = null;
 
-    for ( final DataField field : frame.getFields() ) {
-      final DataFrame existingFrame = existingFields.getFrameByColumnValue( "Name", field.getName() );
-      if ( existingFrame != null ) {
-        final DataField sysIdField = existingFrame.getFieldIgnoreCase( "SysId" );
-        if ( sysIdField != null ) {
+    for (final DataField field : frame.getFields()) {
+      final DataFrame existingFrame = existingFields.getFrameByColumnValue("Name", field.getName());
+      if (existingFrame != null) {
+        final DataField sysIdField = existingFrame.getFieldIgnoreCase("SysId");
+        if (sysIdField != null) {
           String existingValue = null;
-          final DataField valueField = existingFrame.getFieldIgnoreCase( "Value" );
-          if ( valueField != null ) {
+          final DataField valueField = existingFrame.getFieldIgnoreCase("Value");
+          if (valueField != null) {
             existingValue = valueField.getStringValue();
           }
           // Only update if the value is different
-          if ( !field.getStringValue().equals( existingValue ) ) {
-            Log.debug( "Field:" + field.getName() + " was '" + existingValue + "' and now is '" + field.getStringValue() + "'" );
+          if (!field.getStringValue().equals(existingValue)) {
+            Log.debug("Field:" + field.getName() + " was '" + existingValue + "' and now is '" + field.getStringValue() + "'");
 
-            sqlsymbols.put( DatabaseDialect.FIELD_MAP_SYM, "Value=?, Type=?, ModifiedBy=?, ModifiedOn=?" );
-            sqlsymbols.put( DatabaseDialect.SYS_ID_SYM, sysIdField.getStringValue() );
-            sql = DatabaseDialect.getSQL( databaseProduct, DatabaseDialect.UPDATE, sqlsymbols );
+            sqlsymbols.put(DatabaseDialect.FIELD_MAP_SYM, "Value=?, Type=?, ModifiedBy=?, ModifiedOn=?");
+            sqlsymbols.put(DatabaseDialect.SYS_ID_SYM, sysIdField.getStringValue());
+            sql = DatabaseDialect.getSQL(databaseProduct, DatabaseDialect.UPDATE, sqlsymbols);
 
-            if ( sql != null ) {
+            if (sql != null) {
               try {
-                final PreparedStatement preparedStatement = conn.prepareStatement( sql );
-                if ( field.getType() == DataField.DATE ) {
-                  preparedStatement.setString( 1, new SimpleDateFormat( CDX.DEFAULT_DATETIME_FORMAT ).format( (Date)field.getObjectValue() ) );
+                final PreparedStatement preparedStatement = conn.prepareStatement(sql);
+                if (field.getType() == DataField.DATE) {
+                  preparedStatement.setString(1, new SimpleDateFormat(CDX.DEFAULT_DATETIME_FORMAT).format((Date)field.getObjectValue()));
                 } else {
-                  preparedStatement.setString( 1, field.getStringValue() );
+                  preparedStatement.setString(1, field.getStringValue());
                 }
-                preparedStatement.setInt( 2, field.getType() );
-                preparedStatement.setString( 3, identity );
-                preparedStatement.setTimestamp( 4, new java.sql.Timestamp( new Date().getTime() ) );
+                preparedStatement.setInt(2, field.getType());
+                preparedStatement.setString(3, identity);
+                preparedStatement.setTimestamp(4, new java.sql.Timestamp(new Date().getTime()));
                 preparedStatement.executeUpdate();
-              } catch ( final SQLException e ) {
-                Log.fatal( ExceptionUtil.toString( e ) );
+              } catch (final SQLException e) {
+                Log.fatal(ExceptionUtil.toString(e));
               }
             } else {
-              Log.error( "Cannot support " + databaseProduct + " database product" );
+              Log.error("Cannot support " + databaseProduct + " database product");
             }
 
           }
         } else {
-          Log.error( "Existing field does not contain a sysid: " + existingFrame.toString() );
-          insertField( field, sqlsymbols );
+          Log.error("Existing field does not contain a sysid: " + existingFrame.toString());
+          insertField(field, sqlsymbols);
         }
       } else {
-        insertField( field, sqlsymbols );
+        insertField(field, sqlsymbols);
       }
     }
   }
@@ -421,8 +417,8 @@ public class DatabaseContext extends PersistentContext {
    * Make sure the tables exist.
    */
   private void verifyTables() {
-    if ( !DatabaseUtil.tableExists( connection, TABLE_NAME ) ) {
-      if ( isAutoCreate() ) {
+    if (!DatabaseUtil.tableExists(connection, TABLE_NAME)) {
+      if (isAutoCreate()) {
         createTables();
       }
     }

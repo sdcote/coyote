@@ -4,10 +4,6 @@
  * This program and the accompanying materials are made available under the 
  * terms of the MIT License which accompanies this distribution, and is 
  * available at http://creativecommons.org/licenses/MIT/
- *
- * Contributors:
- *   Stephan D. Cote 
- *      - Initial concept and implementation
  */
 package coyote.dx.validate;
 
@@ -65,7 +61,7 @@ public class Pattern extends AbstractValidator implements FrameValidator {
   /**
    * @param flag the avoid to set
    */
-  public void setAvoid( boolean flag ) {
+  public void setAvoid(boolean flag) {
     this.avoid = flag;
   }
 
@@ -95,7 +91,7 @@ public class Pattern extends AbstractValidator implements FrameValidator {
   /**
    * @param pattern the Regular Expression pattern to set for matching or avoiding
    */
-  public void setRegEx( String pattern ) {
+  public void setRegEx(String pattern) {
     regularExpression = pattern;
   }
 
@@ -106,19 +102,19 @@ public class Pattern extends AbstractValidator implements FrameValidator {
    * @see coyote.dx.validate.AbstractValidator#setConfiguration(coyote.loader.cfg.Config)
    */
   @Override
-  public void setConfiguration( Config cfg ) throws ConfigurationException {
+  public void setConfiguration(Config cfg) throws ConfigurationException {
     // perform base class configuration first
-    super.setConfiguration( cfg );
+    super.setConfiguration(cfg);
 
     //
-    if ( cfg.contains( ConfigTag.AVOID ) ) {
-      setAvoid( true );
-      setRegEx( cfg.getAsString( ConfigTag.AVOID ) );
-    } else if ( cfg.contains( ConfigTag.MATCH ) ) {
-      setAvoid( false );
-      setRegEx( cfg.getAsString( ConfigTag.MATCH ) );
+    if (cfg.contains(ConfigTag.AVOID)) {
+      setAvoid(true);
+      setRegEx(cfg.getAsString(ConfigTag.AVOID));
+    } else if (cfg.contains(ConfigTag.MATCH)) {
+      setAvoid(false);
+      setRegEx(cfg.getAsString(ConfigTag.MATCH));
     } else {
-      throw new ConfigurationException( "Pattern validator must contain either '" + ConfigTag.MATCH + "' or '" + ConfigTag.AVOID + "' attribute" );
+      throw new ConfigurationException("Pattern validator must contain either '" + ConfigTag.MATCH + "' or '" + ConfigTag.AVOID + "' attribute");
 
     }
 
@@ -131,9 +127,9 @@ public class Pattern extends AbstractValidator implements FrameValidator {
    * @see coyote.dx.validate.AbstractValidator#open(coyote.dx.context.TransformContext)
    */
   @Override
-  public void open( TransformContext context ) {
-    fieldPattern = java.util.regex.Pattern.compile( getFieldName() );
-    valuePattern = java.util.regex.Pattern.compile( getValueRegEx() );
+  public void open(TransformContext context) {
+    fieldPattern = java.util.regex.Pattern.compile(getFieldName());
+    valuePattern = java.util.regex.Pattern.compile(getValueRegEx());
   }
 
 
@@ -143,32 +139,32 @@ public class Pattern extends AbstractValidator implements FrameValidator {
    * @see coyote.dx.FrameValidator#process(coyote.dx.context.TransactionContext)
    */
   @Override
-  public boolean process( TransactionContext context ) throws ValidationException {
+  public boolean process(TransactionContext context) throws ValidationException {
     boolean retval = true;
     //get the working frame of the given context
     DataFrame frame = context.getWorkingFrame();
 
     // If we have a frame...
-    if ( frame != null ) {
+    if (frame != null) {
 
       String value = null;
-      for ( DataField field : frame.getFields() ) {
-        if ( field.getName() != null && fieldPattern.matcher( field.getName() ).matches() ) {
+      for (DataField field : frame.getFields()) {
+        if (field.getName() != null && fieldPattern.matcher(field.getName()).matches()) {
 
           // get the string value of the field
           value = field.getStringValue();
 
-          if ( isAvoiding() ) {
+          if (isAvoiding()) {
             // we are avoiding a match so if there is a match, log a failure
-            if ( valuePattern.matcher( value ).matches() ) {
-              fail( context, fieldName );
+            if (valuePattern.matcher(value).matches()) {
+              fail(context, fieldName);
               retval = false;
             }
           } else {
             // we are not avoiding (i.e requiring) a match so log a failure if 
             // it does not match
-            if ( !valuePattern.matcher( value ).matches() ) {
-              fail( context, fieldName );
+            if (!valuePattern.matcher(value).matches()) {
+              fail(context, fieldName);
               retval = false;
             }
           } // avoiding?
@@ -179,7 +175,7 @@ public class Pattern extends AbstractValidator implements FrameValidator {
 
     } else {
       // fail && error
-      context.setError( "There is no working frame" );
+      context.setError("There is no working frame");
       retval = false;
     }
 

@@ -4,10 +4,6 @@
  * This program and the accompanying materials are made available under the 
  * terms of the MIT License which accompanies this distribution, and is 
  * available at http://creativecommons.org/licenses/MIT/
- *
- * Contributors:
- *   Stephan D. Cote 
- *      - Initial concept and implementation
  */
 package coyote.dx.validate;
 
@@ -35,63 +31,63 @@ public class NotNullTest extends AbstractTest {
   public void test() {
 
     String cfgData = "{ \"field\" : \"model\",  \"desc\" : \"Model cannot be empty\" }";
-    Config configuration = parseConfiguration( cfgData );
+    Config configuration = parseConfiguration(cfgData);
 
     // create the component to test
     FrameValidator validator = new NotNull();
 
     // Configure it
     try {
-      validator.setConfiguration( configuration );
-    } catch ( ConfigurationException e ) {
+      validator.setConfiguration(configuration);
+    } catch (ConfigurationException e) {
       e.printStackTrace();
-      fail( e.getMessage() );
+      fail(e.getMessage());
     }
 
     // open (initialize) the component 
-    validator.open( getTransformContext() );
+    validator.open(getTransformContext());
 
     // Create a transaction context
     TransactionContext context = createTransactionContext();
 
     // Populate it with test data
     DataFrame sourceFrame = new DataFrame();
-    sourceFrame.put( "model", "PT4500" );
+    sourceFrame.put("model", "PT4500");
 
-    context.setSourceFrame( sourceFrame );
+    context.setSourceFrame(sourceFrame);
 
     try {
-      boolean result = validator.process( context );
-      assertTrue( result );
-    } catch ( ValidationException e ) {
+      boolean result = validator.process(context);
+      assertTrue(result);
+    } catch (ValidationException e) {
       e.printStackTrace();
-      fail( e.getMessage() );
+      fail(e.getMessage());
     }
 
     context = createTransactionContext();
     sourceFrame = new DataFrame();
-    sourceFrame.put( "model", " " );
-    context.setSourceFrame( sourceFrame );
+    sourceFrame.put("model", " ");
+    context.setSourceFrame(sourceFrame);
 
     try {
-      boolean result = validator.process( context );
-      assertTrue( result );
-    } catch ( ValidationException e ) {
+      boolean result = validator.process(context);
+      assertTrue(result);
+    } catch (ValidationException e) {
       e.printStackTrace();
-      fail( e.getMessage() );
+      fail(e.getMessage());
     }
 
     context = createTransactionContext();
     sourceFrame = new DataFrame();
-    sourceFrame.put( "model", null );
-    context.setSourceFrame( sourceFrame );
+    sourceFrame.put("model", null);
+    context.setSourceFrame(sourceFrame);
 
     try {
-      boolean result = validator.process( context );
-      assertFalse( result );
-    } catch ( ValidationException e ) {
+      boolean result = validator.process(context);
+      assertFalse(result);
+    } catch (ValidationException e) {
       e.printStackTrace();
-      fail( e.getMessage() );
+      fail(e.getMessage());
     }
 
   }

@@ -4,10 +4,6 @@
  * This program and the accompanying materials are made available under the 
  * terms of the MIT License which accompanies this distribution, and is 
  * available at http://creativecommons.org/licenses/MIT/
- *
- * Contributors:
- *   Stephan D. Cote 
- *      - Initial concept and implementation
  */
 package coyote.dx;
 
@@ -30,7 +26,7 @@ public abstract class AbstractConfigurableComponent implements ConfigurableCompo
 
   protected Config configuration = new Config();
   protected TransformContext context = null;
-  
+
   // All components are enabled unless specifically configured otherwise
   protected boolean enabled = true;
 
@@ -41,12 +37,12 @@ public abstract class AbstractConfigurableComponent implements ConfigurableCompo
    * @see coyote.dx.ConfigurableComponent#setConfiguration(coyote.loader.cfg.Config)
    */
   @Override
-  public void setConfiguration( Config cfg ) throws ConfigurationException {
+  public void setConfiguration(Config cfg) throws ConfigurationException {
     configuration = cfg;
 
     // if there is an enabled flag, set it; otherwise default to true
-    if ( containsIgnoreCase( ConfigTag.ENABLED ) ) {
-      setEnabled( getBoolean( getConfiguration().getFieldIgnoreCase( ConfigTag.ENABLED ).getName() ) );
+    if (containsIgnoreCase(ConfigTag.ENABLED)) {
+      setEnabled(getBoolean(getConfiguration().getFieldIgnoreCase(ConfigTag.ENABLED).getName()));
     }
 
   }
@@ -95,14 +91,14 @@ public abstract class AbstractConfigurableComponent implements ConfigurableCompo
    * configuration of transform context or if either instance was not a 
    * DataFrame.
    */
-  protected DataFrame getFrame( String key ) {
+  protected DataFrame getFrame(String key) {
     DataFrame value = null;
     try {
-      value = getConfiguration().getAsFrame( key );
-    } catch ( DataFrameException ignore ) {}
-    if ( value == null ) {
-      Object obj = context.get( key );
-      if ( obj != null && obj instanceof DataFrame ) {
+      value = getConfiguration().getAsFrame(key);
+    } catch (DataFrameException ignore) {}
+    if (value == null) {
+      Object obj = context.get(key);
+      if (obj != null && obj instanceof DataFrame) {
         value = (DataFrame)obj;
       }
     }
@@ -155,35 +151,35 @@ public abstract class AbstractConfigurableComponent implements ConfigurableCompo
    *         key is null, or the configuration value with that name could not 
    *         be found in either the configuration of transform context.
    */
-  public String getString( String key ) {
+  public String getString(String key) {
     String value = null;
 
     // Perform a case insensitive search for the value with the given key
-    value = getConfiguration().getString( key );
+    value = getConfiguration().getString(key);
 
-    if ( context != null ) {
+    if (context != null) {
       // See if there is a match in the context for reference resolution
-      if ( value != null ) {
+      if (value != null) {
         // perform a case sensitive search for the value in the context
-        String cval = context.getAsString( value, true );
+        String cval = context.getAsString(value, true);
 
         // if an exact match was found in the context...
-        if ( cval != null ) {
+        if (cval != null) {
           // ...resolve the value as a template
-          return Template.preProcess( cval, context.getSymbols() );
+          return Template.preProcess(cval, context.getSymbols());
         }
       }
 
-      if ( value == null ) {
+      if (value == null) {
         // perform a case insensitive search in the context
-        value = context.getAsString( key, false );
+        value = context.getAsString(key, false);
       }
-      String retval = Template.preProcess( value, context.getSymbols() );
+      String retval = Template.preProcess(value, context.getSymbols());
 
       // Only log if the value changed
-      if ( Log.isLogging( Log.DEBUG_EVENTS ) ) {
-        if ( retval != null && !retval.equals( value ) ) {
-          Log.debug( LogMsg.createMsg( CDX.MSG, "Component.resolved_value", value, retval ) );
+      if (Log.isLogging(Log.DEBUG_EVENTS)) {
+        if (retval != null && !retval.equals(value)) {
+          Log.debug(LogMsg.createMsg(CDX.MSG, "Component.resolved_value", value, retval));
         }
       }
 
@@ -211,13 +207,13 @@ public abstract class AbstractConfigurableComponent implements ConfigurableCompo
    * @return the decrypted value of the named configuration attribute or null 
    *         if it does not exist in the configuration or the context.
    */
-  public String getEncryptedString( String key ) {
+  public String getEncryptedString(String key) {
     String retval = null;
 
     // retrieve what we will assume is cipher text, base64 encoded bytes
-    String cipherText = getString( key );
-    if ( StringUtil.isNotBlank( cipherText ) ) {
-      retval = CipherUtil.decryptString( cipherText );
+    String cipherText = getString(key);
+    if (StringUtil.isNotBlank(cipherText)) {
+      retval = CipherUtil.decryptString(cipherText);
     }
 
     // return either null or the results of our decryption
@@ -241,10 +237,10 @@ public abstract class AbstractConfigurableComponent implements ConfigurableCompo
    * 
    * @return the value of the named property as a boolean or false if it was not found.
    */
-  public boolean getBoolean( String name ) {
-    String value = getString( name );
-    if ( StringUtil.isNotBlank( value ) ) {
-      return ( "true".equalsIgnoreCase( value ) || "yes".equalsIgnoreCase( value ) || "1".equalsIgnoreCase( value ) || "y".equalsIgnoreCase( value ) || "t".equalsIgnoreCase( value ) );
+  public boolean getBoolean(String name) {
+    String value = getString(name);
+    if (StringUtil.isNotBlank(value)) {
+      return ("true".equalsIgnoreCase(value) || "yes".equalsIgnoreCase(value) || "1".equalsIgnoreCase(value) || "y".equalsIgnoreCase(value) || "t".equalsIgnoreCase(value));
     }
     return false;
   }
@@ -257,12 +253,12 @@ public abstract class AbstractConfigurableComponent implements ConfigurableCompo
    * 
    * @return the value of the named property as an integer or 0 if it was not found.
    */
-  public int getInteger( String name ) {
-    String value = getString( name );
-    if ( StringUtil.isNotBlank( value ) ) {
+  public int getInteger(String name) {
+    String value = getString(name);
+    if (StringUtil.isNotBlank(value)) {
       try {
-        return Integer.parseInt( value );
-      } catch ( NumberFormatException ignore ) {}
+        return Integer.parseInt(value);
+      } catch (NumberFormatException ignore) {}
       return 0;
     }
 
@@ -285,7 +281,7 @@ public abstract class AbstractConfigurableComponent implements ConfigurableCompo
   /**
    * @param flag true to enable this task, false to prevent it from being executed.
    */
-  public void setEnabled( boolean flag ) {
+  public void setEnabled(boolean flag) {
     this.enabled = flag;
   }
 
@@ -303,8 +299,8 @@ public abstract class AbstractConfigurableComponent implements ConfigurableCompo
    * 
    * @see #containsIgnoreCase(String)
    */
-  public boolean contains( String name ) {
-    return configuration.contains( name );
+  public boolean contains(String name) {
+    return configuration.contains(name);
   }
 
 
@@ -322,8 +318,8 @@ public abstract class AbstractConfigurableComponent implements ConfigurableCompo
    * @see #contains(String)
    */
 
-  public boolean containsIgnoreCase( String name ) {
-    return configuration.containsIgnoreCase( name );
+  public boolean containsIgnoreCase(String name) {
+    return configuration.containsIgnoreCase(name);
   }
 
 
@@ -332,7 +328,7 @@ public abstract class AbstractConfigurableComponent implements ConfigurableCompo
   /**
    * @param context the transform context to set
    */
-  public void setContext( TransformContext context ) {
+  public void setContext(TransformContext context) {
     this.context = context;
   }
 

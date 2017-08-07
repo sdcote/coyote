@@ -4,10 +4,6 @@
  * This program and the accompanying materials are made available under the 
  * terms of the MIT License which accompanies this distribution, and is 
  * available at http://creativecommons.org/licenses/MIT/
- *
- * Contributors:
- *   Stephan D. Cote 
- *      - Initial concept and implementation
  */
 package coyote.dx.http.responder;
 
@@ -38,40 +34,40 @@ public abstract class AbstractBatchResponder extends DefaultResponder implements
 
 
   @Override
-  public Response delete( Resource resource, Map<String, String> urlParams, IHTTPSession session ) {
-    return Response.createFixedLengthResponse( getStatus(), getMimeType(), getText() );
+  public Response delete(Resource resource, Map<String, String> urlParams, IHTTPSession session) {
+    return Response.createFixedLengthResponse(getStatus(), getMimeType(), getText());
   }
 
 
 
 
   @Override
-  public Response get( Resource resource, Map<String, String> urlParams, IHTTPSession session ) {
-    return Response.createFixedLengthResponse( getStatus(), getMimeType(), getText() );
+  public Response get(Resource resource, Map<String, String> urlParams, IHTTPSession session) {
+    return Response.createFixedLengthResponse(getStatus(), getMimeType(), getText());
   }
 
 
 
 
   @Override
-  public Response other( String method, Resource resource, Map<String, String> urlParams, IHTTPSession session ) {
-    return Response.createFixedLengthResponse( getStatus(), getMimeType(), getText() );
+  public Response other(String method, Resource resource, Map<String, String> urlParams, IHTTPSession session) {
+    return Response.createFixedLengthResponse(getStatus(), getMimeType(), getText());
   }
 
 
 
 
   @Override
-  public Response post( Resource resource, Map<String, String> urlParams, IHTTPSession session ) {
-    return Response.createFixedLengthResponse( getStatus(), getMimeType(), getText() );
+  public Response post(Resource resource, Map<String, String> urlParams, IHTTPSession session) {
+    return Response.createFixedLengthResponse(getStatus(), getMimeType(), getText());
   }
 
 
 
 
   @Override
-  public Response put( Resource resource, Map<String, String> urlParams, IHTTPSession session ) {
-    return Response.createFixedLengthResponse( getStatus(), getMimeType(), getText() );
+  public Response put(Resource resource, Map<String, String> urlParams, IHTTPSession session) {
+    return Response.createFixedLengthResponse(getStatus(), getMimeType(), getText());
   }
 
 
@@ -87,7 +83,7 @@ public abstract class AbstractBatchResponder extends DefaultResponder implements
 
   @Override
   public String getText() {
-    return JSONMarshaler.marshal( results );
+    return JSONMarshaler.marshal(results);
   }
 
 

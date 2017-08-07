@@ -4,10 +4,6 @@
  * This program and the accompanying materials are made available under the 
  * terms of the MIT License which accompanies this distribution, and is 
  * available at http://creativecommons.org/licenses/MIT/
- *
- * Contributors:
- *   Stephan D. Cote 
- *      - Initial concept and implementation
  */
 package coyote.dx;
 
@@ -51,8 +47,8 @@ public class LogManager extends AbstractConfigurableComponent implements Configu
    * @see coyote.dx.AbstractConfigurableComponent#setConfiguration(coyote.loader.cfg.Config)
    */
   @Override
-  public void setConfiguration( Config cfg ) throws ConfigurationException {
-    super.setConfiguration( cfg );
+  public void setConfiguration(Config cfg) throws ConfigurationException {
+    super.setConfiguration(cfg);
 
     // TODO we should probably perform some validation checks here to ensure logging operates as expected when the engine runs.
   }
@@ -61,38 +57,38 @@ public class LogManager extends AbstractConfigurableComponent implements Configu
 
 
   @Override
-  public void open( TransformContext context ) {
-    setContext( context );
+  public void open(TransformContext context) {
+    setContext(context);
 
-    if ( getConfiguration() != null && getConfiguration().getFieldCount() > 0 ) {
-      Log.debug( LogMsg.createMsg( CDX.MSG, "LogManager.initializing" ) );
+    if (getConfiguration() != null && getConfiguration().getFieldCount() > 0) {
+      Log.debug(LogMsg.createMsg(CDX.MSG, "LogManager.initializing"));
       // Remove all the loggers since we will be adding our own and possibly 
       // duplicating loggers resulting in duplicate messages (e.g. the same 
       // message to the console multiple times) 
       Log.removeAllLoggers();
 
       // Find the loggers
-      for ( DataField field : getConfiguration().getFields() ) {
+      for (DataField field : getConfiguration().getFields()) {
 
-        if ( field.isFrame() ) {
+        if (field.isFrame()) {
           DataFrame cfgFrame = (DataFrame)field.getObjectValue();
-          if ( StringUtil.isNotBlank( field.getName() ) ) {
-            if ( field.isFrame() ) {
-              configLogger( field.getName(), cfgFrame );
+          if (StringUtil.isNotBlank(field.getName())) {
+            if (field.isFrame()) {
+              configLogger(field.getName(), cfgFrame);
             } else {
-              System.err.println( LogMsg.createMsg( CDX.MSG, "EngineFactory.invalid_logger_configuration_section" ) );
+              System.err.println(LogMsg.createMsg(CDX.MSG, "EngineFactory.invalid_logger_configuration_section"));
             }
           } else {
-            System.err.println( LogMsg.createMsg( CDX.MSG, "EngineFactory.no_logger_classname", cfgFrame.toString() ) );
+            System.err.println(LogMsg.createMsg(CDX.MSG, "EngineFactory.no_logger_classname", cfgFrame.toString()));
           }
         } else {
-          System.err.println( LogMsg.createMsg( CDX.MSG, "EngineFactory.invalid_logger_configuration_section" ) );
+          System.err.println(LogMsg.createMsg(CDX.MSG, "EngineFactory.invalid_logger_configuration_section"));
         }
 
       }
 
     } else {
-      Log.debug( LogMsg.createMsg( CDX.MSG, "LogManager.no_config" ) );
+      Log.debug(LogMsg.createMsg(CDX.MSG, "LogManager.no_config"));
     }
 
   }
@@ -106,93 +102,93 @@ public class LogManager extends AbstractConfigurableComponent implements Configu
 
 
 
-  private void configLogger( String className, DataFrame frame ) {
+  private void configLogger(String className, DataFrame frame) {
 
     // Make sure the class is fully qualified 
-    if ( className != null && StringUtil.countOccurrencesOf( className, "." ) < 1 ) {
+    if (className != null && StringUtil.countOccurrencesOf(className, ".") < 1) {
       className = LOGGER_PKG + "." + className;
-      frame.put( ConfigTag.CLASS, className );
+      frame.put(ConfigTag.CLASS, className);
     } else {
-      System.err.println( "No logger Class: " + frame.toString() );
+      System.err.println("No logger Class: " + frame.toString());
     }
 
-    String loggerName = frame.getAsString( ConfigTag.NAME );
+    String loggerName = frame.getAsString(ConfigTag.NAME);
 
     // It is necessary to name loggers, but if not configured, generate a name
-    if ( StringUtil.isBlank( loggerName ) ) {
+    if (StringUtil.isBlank(loggerName)) {
       loggerName = UUID.randomUUID().toString();
     }
 
     // All loggers must have a name
-    if ( StringUtil.isNotBlank( loggerName ) ) {
+    if (StringUtil.isNotBlank(loggerName)) {
 
       Config cfg = new Config();
 
       // populate the logger config, replacing strings with template values
-      for ( DataField field : frame.getFields() ) {
-        if ( field.getType() == DataField.STRING ) {
-          String cval = getString( field.getStringValue() );
-          if ( StringUtil.isBlank( cval ) ) {
-            cval = Template.resolve( field.getStringValue(), getContext().getSymbols() );
+      for (DataField field : frame.getFields()) {
+        if (field.getType() == DataField.STRING) {
+          String cval = getString(field.getStringValue());
+          if (StringUtil.isBlank(cval)) {
+            cval = Template.resolve(field.getStringValue(), getContext().getSymbols());
           }
 
           // treat targets a little differently
-          if ( ConfigTag.TARGET.equalsIgnoreCase( field.getName() ) ) {
+          if (ConfigTag.TARGET.equalsIgnoreCase(field.getName())) {
 
             // the targets for loggers MUST be a URI
-            if ( !( "stdout".equalsIgnoreCase( cval ) || "stderr".equalsIgnoreCase( cval ) ) ) {
-              URI testTarget = UriUtil.parse( cval );
+            if (!("stdout".equalsIgnoreCase(cval) || "stderr".equalsIgnoreCase(cval))) {
+              URI testTarget = UriUtil.parse(cval);
 
-              if ( testTarget != null ) {
-                if ( testTarget.getScheme() == null ) {
+              if (testTarget != null) {
+                if (testTarget.getScheme() == null) {
                   cval = "file://" + cval;
                 }
               }
             }
 
             // make sure the URI is valid
-            URI testUri = UriUtil.parse( cval );
-            if ( testUri != null ) {
-              if ( UriUtil.isFile( testUri ) ) {
-                File logfile = UriUtil.getFile( testUri );
+            URI testUri = UriUtil.parse(cval);
+            if (testUri != null) {
+              if (UriUtil.isFile(testUri)) {
+                File logfile = UriUtil.getFile(testUri);
 
                 // make it absolute to our job directory
-                if ( !logfile.isAbsolute() ) {
-                  if ( getContext() != null && getContext().getSymbols() != null ) {
-                    File jobdir = new File( getContext().getSymbols().getString( Symbols.JOB_DIRECTORY ) );
-                    logfile = new File( jobdir, logfile.getPath() );
-                    testUri = FileUtil.getFileURI( logfile );
+                if (!logfile.isAbsolute()) {
+                  if (getContext() != null && getContext().getSymbols() != null) {
+                    File jobdir = new File(getContext().getSymbols().getString(Symbols.JOB_DIRECTORY));
+                    logfile = new File(jobdir, logfile.getPath());
+                    testUri = FileUtil.getFileURI(logfile);
                     cval = testUri.toString();
                   }
                 }
               }
 
             } else {
-              System.out.println( "Bad target URI '" + cval + "'" );
+              System.out.println("Bad target URI '" + cval + "'");
             }
 
-          } else if ( ConfigTag.CATEGORIES.equalsIgnoreCase( field.getName() ) ) {
+          } else if (ConfigTag.CATEGORIES.equalsIgnoreCase(field.getName())) {
             // Categories should be normalized to upper case
             cval = cval.toUpperCase();
           }
 
-          cfg.add( field.getName(), cval );
+          cfg.add(field.getName(), cval);
         } else {
-          cfg.add( field );
+          cfg.add(field);
         }
 
       }
 
-      Logger logger = createLogger( cfg );
+      Logger logger = createLogger(cfg);
 
-      if ( logger != null ) {
+      if (logger != null) {
         try {
-          Log.addLogger( loggerName, logger );
-        } catch ( Exception e ) {
-          System.out.println( LogMsg.createMsg( CDX.MSG, "LogManager.Could not add configured logger", loggerName, logger.getClass(), e.getMessage() ) );
+          Log.addLogger(loggerName, logger);
+        } catch (Exception e) {
+          System.out.println(LogMsg.createMsg(CDX.MSG, "LogManager.Could not add configured logger", loggerName, logger.getClass(), e.getMessage()));
         }
       } else {
-        System.err.println( LogMsg.createMsg( CDX.MSG, "LogManager.Could not create an instance of the specified logger" ) );
+        System.err.println(LogMsg.createMsg(CDX.MSG, "LogManager.Could not create an instance of the specified logger"));
       }
     }
   }
@@ -200,32 +196,32 @@ public class LogManager extends AbstractConfigurableComponent implements Configu
 
 
 
-  private static Logger createLogger( Config cfg ) {
+  private static Logger createLogger(Config cfg) {
     Logger retval = null;
-    if ( cfg != null ) {
-      if ( cfg.contains( ConfigTag.CLASS ) ) {
-        String className = cfg.getAsString( ConfigTag.CLASS );
+    if (cfg != null) {
+      if (cfg.contains(ConfigTag.CLASS)) {
+        String className = cfg.getAsString(ConfigTag.CLASS);
 
         try {
-          Class<?> clazz = Class.forName( className );
+          Class<?> clazz = Class.forName(className);
           Constructor<?> ctor = clazz.getConstructor();
           Object object = ctor.newInstance();
 
-          if ( object instanceof Logger ) {
+          if (object instanceof Logger) {
             retval = (Logger)object;
             try {
-              retval.setConfig( cfg );
-            } catch ( Exception e ) {
-              Log.error( LogMsg.createMsg( CDX.MSG, "EngineFactory.could_not_configure_logger {} - {} : {}", object.getClass().getName(), e.getClass().getSimpleName(), e.getMessage() ) );
+              retval.setConfig(cfg);
+            } catch (Exception e) {
+              Log.error(LogMsg.createMsg(CDX.MSG, "EngineFactory.could_not_configure_logger {} - {} : {}", object.getClass().getName(), e.getClass().getSimpleName(), e.getMessage()));
             }
           } else {
-            Log.warn( LogMsg.createMsg( CDX.MSG, "EngineFactory.instance_is_not_a_logger of {} is not configurable", className ) );
+            Log.warn(LogMsg.createMsg(CDX.MSG, "EngineFactory.instance_is_not_a_logger of {} is not configurable", className));
           }
-        } catch ( ClassNotFoundException | NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e ) {
-          Log.error( LogMsg.createMsg( CDX.MSG, "EngineFactory.Could not instantiate {} reason: {} - {}", className, e.getClass().getName(), e.getMessage() ) );
+        } catch (ClassNotFoundException | NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+          Log.error(LogMsg.createMsg(CDX.MSG, "EngineFactory.Could not instantiate {} reason: {} - {}", className, e.getClass().getName(), e.getMessage()));
         }
       } else {
-        Log.error( LogMsg.createMsg( CDX.MSG, "EngineFactory.Configuration frame did not contain a class name" ) );
+        Log.error(LogMsg.createMsg(CDX.MSG, "EngineFactory.Configuration frame did not contain a class name"));
       }
     }
 

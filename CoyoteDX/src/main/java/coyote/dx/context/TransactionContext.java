@@ -4,10 +4,6 @@
  * This program and the accompanying materials are made available under the 
  * terms of the MIT License which accompanies this distribution, and is 
  * available at http://creativecommons.org/licenses/MIT/
- *
- * Contributors:
- *   Stephan D. Cote 
- *      - Initial concept and implementation
  */
 package coyote.dx.context;
 
@@ -31,7 +27,7 @@ public class TransactionContext extends OperationalContext {
 
 
 
-  public TransactionContext( TransformContext context ) {
+  public TransactionContext(TransformContext context) {
     this.parent = context;
   }
 
@@ -57,7 +53,7 @@ public class TransactionContext extends OperationalContext {
    * 
    * @param sourceFrame the sourceFrame to set
    */
-  public void setSourceFrame( DataFrame sourceFrame ) {
+  public void setSourceFrame(DataFrame sourceFrame) {
     this.sourceFrame = sourceFrame;
     this.workingFrame = (DataFrame)sourceFrame.clone();
   }
@@ -78,7 +74,7 @@ public class TransactionContext extends OperationalContext {
   /**
    * @param targetFrame the targetFrame to set
    */
-  public void setTargetFrame( DataFrame targetFrame ) {
+  public void setTargetFrame(DataFrame targetFrame) {
     this.targetFrame = targetFrame;
   }
 
@@ -98,7 +94,7 @@ public class TransactionContext extends OperationalContext {
   /**
    * @param workingFrame the workingFrame to set
    */
-  public void setWorkingFrame( DataFrame workingFrame ) {
+  public void setWorkingFrame(DataFrame workingFrame) {
     this.workingFrame = workingFrame;
   }
 
@@ -118,7 +114,7 @@ public class TransactionContext extends OperationalContext {
   /**
    * @param isLast true if this is the last frame in the stream
    */
-  public void setLastFrame( boolean isLast ) {
+  public void setLastFrame(boolean isLast) {
     lastFrame = isLast;
   }
 

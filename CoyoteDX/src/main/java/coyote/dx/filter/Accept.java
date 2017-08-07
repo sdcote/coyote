@@ -4,10 +4,6 @@
  * This program and the accompanying materials are made available under the 
  * terms of the MIT License which accompanies this distribution, and is 
  * available at http://creativecommons.org/licenses/MIT/
- *
- * Contributors:
- *   Stephan D. Cote 
- *      - Initial concept and implementation
  */
 package coyote.dx.filter;
 
@@ -29,8 +25,8 @@ public class Accept extends AbstractFrameFilter implements FrameFilter {
 
 
 
-  public Accept( String condition ) {
-    super( condition );
+  public Accept(String condition) {
+    super(condition);
   }
 
 
@@ -40,24 +36,24 @@ public class Accept extends AbstractFrameFilter implements FrameFilter {
    * @see coyote.dx.FrameFilter#process(coyote.dx.context.TransactionContext)
    */
   @Override
-  public boolean process( TransactionContext context ) {
+  public boolean process(TransactionContext context) {
 
     // If there is a conditional expression
-    if ( expression != null ) {
+    if (expression != null) {
 
       try {
         // if the condition evaluates to true
-        if ( evaluator.evaluateBoolean( expression ) ) {
+        if (evaluator.evaluateBoolean(expression)) {
 
-          if ( Log.isLogging( Log.DEBUG_EVENTS ) )
-            Log.debug( "Accepted frame " + context.getRow() );
+          if (Log.isLogging(Log.DEBUG_EVENTS))
+            Log.debug("Accepted frame " + context.getRow());
 
           // signal that other filters should not run
           return false;
 
         }
-      } catch ( IllegalArgumentException e ) {
-        Log.warn( LogMsg.createMsg( CDX.MSG, "Filter.accept_boolean_evaluation_error", e.getMessage() ) );
+      } catch (IllegalArgumentException e) {
+        Log.warn(LogMsg.createMsg(CDX.MSG, "Filter.accept_boolean_evaluation_error", e.getMessage()));
       }
     }
 

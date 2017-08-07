@@ -4,10 +4,6 @@
  * This program and the accompanying materials are made available under the 
  * terms of the MIT License which accompanies this distribution, and is 
  * available at http://creativecommons.org/licenses/MIT/
- *
- * Contributors:
- *   Stephan D. Cote 
- *      - Initial concept and implementation
  */
 package coyote.dx.reader;
 
@@ -25,7 +21,7 @@ public class NullReader extends AbstractFrameReader {
    * @see coyote.dx.FrameReader#read(coyote.dx.context.TransactionContext)
    */
   @Override
-  public DataFrame read( TransactionContext context ) {
+  public DataFrame read(TransactionContext context) {
     return null;
   }
 
@@ -47,6 +43,6 @@ public class NullReader extends AbstractFrameReader {
    * @see coyote.dx.Component#open(coyote.dx.context.TransformContext)
    */
   @Override
-  public void open( TransformContext context ) {}
+  public void open(TransformContext context) {}
 
 }

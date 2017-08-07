@@ -4,10 +4,6 @@
  * This program and the accompanying materials are made available under the 
  * terms of the MIT License which accompanies this distribution, and is 
  * available at http://creativecommons.org/licenses/MIT/
- *
- * Contributors:
- *   Stephan D. Cote 
- *      - Initial concept and implementation
  */
 package coyote.dx;
 
@@ -34,6 +30,6 @@ public interface FrameMapper extends ConfigurableComponent {
    *        
    * @throws MappingException if the fields in the working frames do not exist.
    */
-  void process( TransactionContext context ) throws MappingException;
+  void process(TransactionContext context) throws MappingException;
 
 }

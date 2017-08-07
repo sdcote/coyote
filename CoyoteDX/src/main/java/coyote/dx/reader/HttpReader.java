@@ -4,10 +4,6 @@
  * This program and the accompanying materials are made available under the 
  * terms of the MIT License which accompanies this distribution, and is 
  * available at http://creativecommons.org/licenses/MIT/
- *
- * Contributors:
- *   Stephan D. Cote 
- *      - Initial concept and implementation
  */
 package coyote.dx.reader;
 
@@ -59,8 +55,8 @@ public class HttpReader extends AbstractFrameReader implements FrameReader {
    * @see coyote.dx.AbstractConfigurableComponent#setConfiguration(coyote.loader.cfg.Config)
    */
   @Override
-  public void setConfiguration( Config cfg ) throws ConfigurationException {
-    super.setConfiguration( cfg );
+  public void setConfiguration(Config cfg) throws ConfigurationException {
+    super.setConfiguration(cfg);
   }
 
 
@@ -70,14 +66,14 @@ public class HttpReader extends AbstractFrameReader implements FrameReader {
    * @see coyote.dx.reader.AbstractFrameReader#open(coyote.dx.context.TransformContext)
    */
   @Override
-  public void open( TransformContext context ) {
-    open( context );
+  public void open(TransformContext context) {
+    open(context);
 
     // Start the web server 
     try {
-      listener = new HttpListener( port, cfg, this );
-    } catch ( IOException e ) {
-      getContext().setError( "Could not start HTTP reader: " + e.getMessage() );
+      listener = new HttpListener(port, cfg, this);
+    } catch (IOException e) {
+      getContext().setError("Could not start HTTP reader: " + e.getMessage());
       e.printStackTrace();
       return;
     }
@@ -87,14 +83,14 @@ public class HttpReader extends AbstractFrameReader implements FrameReader {
 
 
   @Override
-  public DataFrame read( TransactionContext context ) {
+  public DataFrame read(TransactionContext context) {
     DataFrame retval = queue.poll();
 
-    if ( retval == null ) {
+    if (retval == null) {
       // wait a short time before returning a null frame to keep the job from running hot
       try {
-        Thread.sleep( 1000 );
-      } catch ( InterruptedException ignore ) {}
+        Thread.sleep(1000);
+      } catch (InterruptedException ignore) {}
     }
 
     return retval;
@@ -118,40 +114,40 @@ public class HttpReader extends AbstractFrameReader implements FrameReader {
      * 
      * @param reader the reader that services our requests
      */
-    public HttpListener( int port, Config cfg, HttpReader reader ) throws IOException {
-      super( port );
+    public HttpListener(int port, Config cfg, HttpReader reader) throws IOException {
+      super(port);
 
       boolean secureServer;
       try {
-        secureServer = cfg.getAsBoolean( "SecureServer" );
-      } catch ( DataFrameException e1 ) {
+        secureServer = cfg.getAsBoolean("SecureServer");
+      } catch (DataFrameException e1) {
         secureServer = false;
       }
 
-      if ( port == 443 || secureServer ) {
+      if (port == 443 || secureServer) {
         try {
-          makeSecure( HTTPD.makeSSLSocketFactory( "/keystore.jks", "password".toCharArray() ), null );
-        } catch ( IOException e ) {
-          Log.error( "Could not make the server secure: " + e.getMessage() );
+          makeSecure(HTTPD.makeSSLSocketFactory("/keystore.jks", "password".toCharArray()), null);
+        } catch (IOException e) {
+          Log.error("Could not make the server secure: " + e.getMessage());
         }
       }
 
-      if ( reader == null )
-        throw new IllegalArgumentException( "Cannot create HttpManager without a service reference" );
+      if (reader == null)
+        throw new IllegalArgumentException("Cannot create HttpManager without a service reference");
 
-      if ( cfg != null ) {
+      if (cfg != null) {
         DataFrame authConfig = null;
-        for ( DataField field : cfg.getFields() ) {
-          if ( GenericAuthProvider.AUTH_SECTION.equalsIgnoreCase( field.getName() ) && field.isFrame() ) {
-            setAuthProvider( new GenericAuthProvider( new Config( (DataFrame)field.getObjectValue() ) ) );
+        for (DataField field : cfg.getFields()) {
+          if (GenericAuthProvider.AUTH_SECTION.equalsIgnoreCase(field.getName()) && field.isFrame()) {
+            setAuthProvider(new GenericAuthProvider(new Config((DataFrame)field.getObjectValue())));
           }
         }
-        configIpACL( cfg.getSection( ConfigTag.IPACL ) );
-        configDosTables( cfg.getSection( ConfigTag.FREQUENCY ) );
+        configIpACL(cfg.getSection(ConfigTag.IPACL));
+        configDosTables(cfg.getSection(ConfigTag.FREQUENCY));
       }
 
       addDefaultRoutes();
-      addRoute( "/api", RequestHandler.class ); // TODO: get from configuration
+      addRoute("/api", RequestHandler.class); // TODO: get from configuration
     }
   }
 

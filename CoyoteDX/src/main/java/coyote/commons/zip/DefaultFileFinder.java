@@ -4,10 +4,6 @@
  * This program and the accompanying materials are made available under the 
  * terms of the MIT License which accompanies this distribution, and is 
  * available at http://creativecommons.org/licenses/MIT/
- *
- * Contributors:
- *   Stephan D. Cote 
- *      - Initial concept and implementation
  */
 package coyote.commons.zip;
 
@@ -32,7 +28,7 @@ public class DefaultFileFinder implements IFileFinder {
    * Constructor DefaultFileFinder
    */
   public DefaultFileFinder() {
-    this( false );
+    this(false);
   }
 
 
@@ -43,7 +39,7 @@ public class DefaultFileFinder implements IFileFinder {
    * 
    * @param includeDirs
    */
-  public DefaultFileFinder( final boolean includeDirs ) {
+  public DefaultFileFinder(final boolean includeDirs) {
     this.includeDirs = includeDirs;
   }
 
@@ -57,8 +53,8 @@ public class DefaultFileFinder implements IFileFinder {
    * @param fileList
    */
   @Override
-  public void accumulateFiles( final File src, final Collection fileList ) {
-    accumulateFiles( src, fileList, null );
+  public void accumulateFiles(final File src, final Collection fileList) {
+    accumulateFiles(src, fileList, null);
   }
 
 
@@ -72,30 +68,30 @@ public class DefaultFileFinder implements IFileFinder {
    * @param filter
    */
   @Override
-  public void accumulateFiles( final File src, final Collection fileList, final FilenameFilter filter ) {
-    if ( src.isDirectory() && src.canRead() ) {
-      if ( includeDirs ) {
-        fileList.add( getPath( src ) );
+  public void accumulateFiles(final File src, final Collection fileList, final FilenameFilter filter) {
+    if (src.isDirectory() && src.canRead()) {
+      if (includeDirs) {
+        fileList.add(getPath(src));
       }
 
       String[] children = null;
 
-      if ( filter != null ) {
-        children = src.list( filter );
+      if (filter != null) {
+        children = src.list(filter);
       } else {
         children = src.list();
       }
 
       File child = null;
 
-      for ( final String element : children ) {
-        child = new File( src, element );
+      for (final String element : children) {
+        child = new File(src, element);
 
-        if ( includeDirs || !child.isDirectory() ) {
-          fileList.add( getPath( child ) );
+        if (includeDirs || !child.isDirectory()) {
+          fileList.add(getPath(child));
         }
 
-        accumulateFiles( child, fileList, filter );
+        accumulateFiles(child, fileList, filter);
       }
     }
   }
@@ -110,12 +106,12 @@ public class DefaultFileFinder implements IFileFinder {
    * 
    * @return the path to the file
    */
-  protected String getPath( final File f ) {
+  protected String getPath(final File f) {
     final String absPath = f.getAbsolutePath();
 
-    if ( baseDir != null ) {
-      if ( absPath.startsWith( baseAbsPath ) ) {
-        return absPath.substring( pathStart );
+    if (baseDir != null) {
+      if (absPath.startsWith(baseAbsPath)) {
+        return absPath.substring(pathStart);
       }
     }
 
@@ -131,7 +127,7 @@ public class DefaultFileFinder implements IFileFinder {
    * @param baseDir
    */
   @Override
-  public void setBaseDirectory( final File baseDir ) {
+  public void setBaseDirectory(final File baseDir) {
     this.baseDir = baseDir;
     // since these are invariant, record the absolute path of the base and the
     // start of the relative path for any file located under that path

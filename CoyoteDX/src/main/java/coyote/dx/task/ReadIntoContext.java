@@ -4,10 +4,6 @@
  * This program and the accompanying materials are made available under the
  * terms of the MIT License which accompanies this distribution, and is
  * available at http://creativecommons.org/licenses/MIT/
- *
- * Contributors:
- *   Stephan D. Cote
- *      - Initial concept and implementation
  */
 package coyote.dx.task;
 
@@ -53,13 +49,13 @@ public class ReadIntoContext extends AbstractFileTask {
    *         value. If there is no delimiter, the first element will be the
    *         entire string and the second element will be null.
    */
-  private String[] divide( final String line, final String delimiter ) {
+  private String[] divide(final String line, final String delimiter) {
     final String[] retval = new String[2];
-    final int indx = line.indexOf( delimiter );
-    if ( indx != -1 ) {
-      retval[0] = line.substring( 0, indx );
-      if ( indx < line.length() ) {
-        retval[1] = line.substring( indx+1, line.length() );
+    final int indx = line.indexOf(delimiter);
+    if (indx != -1) {
+      retval[0] = line.substring(0, indx);
+      if (indx < line.length()) {
+        retval[1] = line.substring(indx + 1, line.length());
       }
     } else {
       retval[0] = line;
@@ -75,8 +71,8 @@ public class ReadIntoContext extends AbstractFileTask {
    *         value if no delimiter configuration attribute is found.
    */
   private String getDelimiter() {
-    final String separator = getString( ConfigTag.DELIMITER );
-    if ( StringUtil.isNotBlank( separator ) ) {
+    final String separator = getString(ConfigTag.DELIMITER);
+    if (StringUtil.isNotBlank(separator)) {
       return separator;
     }
     return DEFAULT_DELIMITER;
@@ -92,51 +88,51 @@ public class ReadIntoContext extends AbstractFileTask {
   protected void performTask() throws TaskException {
     final String delimiter = getDelimiter();
     final String source = getSourceOrFile();
-    if ( StringUtil.isNotBlank( source ) ) {
-      Log.debug( "Using a filename of '" + source + "'" );;
-      final File file = getExistingFile( source );
-      Log.debug( "Using absolute filename of '" + file.getAbsolutePath() + "'" );;
+    if (StringUtil.isNotBlank(source)) {
+      Log.debug("Using a filename of '" + source + "'");;
+      final File file = getExistingFile(source);
+      Log.debug("Using absolute filename of '" + file.getAbsolutePath() + "'");;
 
-      if ( file.exists() ) {
-        if ( file.canRead() ) {
-          if ( file.length() > 0 ) {
-            final String[] lines = FileUtil.textToArray( file );
-            for ( final String line : lines ) {
-              final String[] kvp = divide( line, delimiter );
-              if ( StringUtil.isNotEmpty( kvp[1] ) ) {
-                getContext().set( kvp[0], kvp[1] );
-                Log.debug( "Recording '" + kvp[0] + "' in contex as '" + kvp[1] + "'" );
+      if (file.exists()) {
+        if (file.canRead()) {
+          if (file.length() > 0) {
+            final String[] lines = FileUtil.textToArray(file);
+            for (final String line : lines) {
+              final String[] kvp = divide(line, delimiter);
+              if (StringUtil.isNotEmpty(kvp[1])) {
+                getContext().set(kvp[0], kvp[1]);
+                Log.debug("Recording '" + kvp[0] + "' in contex as '" + kvp[1] + "'");
               } else {
-                Log.warn( "No delimiter for line: '" + line + "'" );
+                Log.warn("No delimiter for line: '" + line + "'");
               }
             }
           } else {
-            Log.warn( LogMsg.createMsg( CDX.MSG, "%s did not read any data from %s - empty file (%s)", getClass().getSimpleName(), source, file.getAbsolutePath() ) );
+            Log.warn(LogMsg.createMsg(CDX.MSG, "%s did not read any data from %s - empty file (%s)", getClass().getSimpleName(), source, file.getAbsolutePath()));
           }
         } else {
-          final String msg = LogMsg.createMsg( CDX.MSG, "Task.failed_file_cannot_be_read", getClass().getSimpleName(), source, file.getAbsolutePath() ).toString();
-          if ( haltOnError ) {
-            throw new TaskException( msg );
+          final String msg = LogMsg.createMsg(CDX.MSG, "Task.failed_file_cannot_be_read", getClass().getSimpleName(), source, file.getAbsolutePath()).toString();
+          if (haltOnError) {
+            throw new TaskException(msg);
           } else {
-            Log.error( msg );
+            Log.error(msg);
             return;
           }
         }
       } else {
-        final String msg = LogMsg.createMsg( CDX.MSG, "Task.failed_file_does_not_exist", getClass().getSimpleName(), source, file.getAbsolutePath() ).toString();
-        if ( haltOnError ) {
-          throw new TaskException( msg );
+        final String msg = LogMsg.createMsg(CDX.MSG, "Task.failed_file_does_not_exist", getClass().getSimpleName(), source, file.getAbsolutePath()).toString();
+        if (haltOnError) {
+          throw new TaskException(msg);
         } else {
-          Log.error( msg );
+          Log.error(msg);
           return;
         }
       }
     } else {
-      final String msg = LogMsg.createMsg( CDX.MSG, "%s failed: No data in %s configuration attribute", getClass().getSimpleName(), ConfigTag.SOURCE ).toString();
-      if ( haltOnError ) {
-        throw new TaskException( msg );
+      final String msg = LogMsg.createMsg(CDX.MSG, "%s failed: No data in %s configuration attribute", getClass().getSimpleName(), ConfigTag.SOURCE).toString();
+      if (haltOnError) {
+        throw new TaskException(msg);
       } else {
-        Log.error( msg );
+        Log.error(msg);
         return;
       }
     }

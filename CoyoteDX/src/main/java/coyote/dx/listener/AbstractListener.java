@@ -4,10 +4,6 @@
  * This program and the accompanying materials are made available under the 
  * terms of the MIT License which accompanies this distribution, and is 
  * available at http://creativecommons.org/licenses/MIT/
- *
- * Contributors:
- *   Stephan D. Cote 
- *      - Initial concept and implementation
  */
 package coyote.dx.listener;
 
@@ -33,7 +29,7 @@ public abstract class AbstractListener extends AbstractConfigurableComponent imp
    * @see coyote.dx.context.ContextListener#onError(coyote.dx.context.OperationalContext)
    */
   @Override
-  public void onError( OperationalContext context ) {
+  public void onError(OperationalContext context) {
     // listeners should override this method to recieve error notifications
   }
 
@@ -44,7 +40,7 @@ public abstract class AbstractListener extends AbstractConfigurableComponent imp
    * @see coyote.dx.context.ContextListener#onEnd(coyote.dx.context.OperationalContext)
    */
   @Override
-  public void onEnd( OperationalContext context ) {
+  public void onEnd(OperationalContext context) {
     // listeners should override this method to perform processing when the transform or context ends
   }
 
@@ -55,7 +51,7 @@ public abstract class AbstractListener extends AbstractConfigurableComponent imp
    * @see coyote.dx.context.ContextListener#onStart(coyote.dx.context.OperationalContext)
    */
   @Override
-  public void onStart( OperationalContext context ) {
+  public void onStart(OperationalContext context) {
     // listeners should override this method to perform processing before the transform or transaction starts
   }
 
@@ -66,7 +62,7 @@ public abstract class AbstractListener extends AbstractConfigurableComponent imp
    * @see coyote.dx.context.ContextListener#onRead(coyote.dx.context.TransactionContext, coyote.dx.FrameReader)
    */
   @Override
-  public void onRead( TransactionContext context, FrameReader reader ) {
+  public void onRead(TransactionContext context, FrameReader reader) {
     // listeners should override this method to perform processing related to reads
   }
 
@@ -77,7 +73,7 @@ public abstract class AbstractListener extends AbstractConfigurableComponent imp
    * @see coyote.dx.context.ContextListener#onWrite(coyote.dx.context.TransactionContext, coyote.dx.FrameWriter)
    */
   @Override
-  public void onWrite( TransactionContext context, FrameWriter writer ) {
+  public void onWrite(TransactionContext context, FrameWriter writer) {
     // listeners should override this method to perform processing related to write
   }
 
@@ -88,7 +84,7 @@ public abstract class AbstractListener extends AbstractConfigurableComponent imp
    * @see coyote.dx.context.ContextListener#onValidationFailed(coyote.dx.context.OperationalContext, coyote.dx.FrameValidator, java.lang.String)
    */
   @Override
-  public void onValidationFailed( OperationalContext context, FrameValidator validator, String msg ) {
+  public void onValidationFailed(OperationalContext context, FrameValidator validator, String msg) {
     // listeners should override this method to perform processing when a field fails validations
   }
 
@@ -99,7 +95,7 @@ public abstract class AbstractListener extends AbstractConfigurableComponent imp
    * @see coyote.dx.Component#open(coyote.dx.context.TransformContext)
    */
   @Override
-  public void open( TransformContext context ) {
+  public void open(TransformContext context) {
     super.context = context;
   }
 
@@ -121,7 +117,7 @@ public abstract class AbstractListener extends AbstractConfigurableComponent imp
    * @see coyote.dx.context.ContextListener#onFrameValidationFailed(coyote.dx.context.TransactionContext)
    */
   @Override
-  public void onFrameValidationFailed( TransactionContext context ) {
+  public void onFrameValidationFailed(TransactionContext context) {
     // override this method to perform processing when the entire frame fails validation
   }
 

@@ -4,10 +4,6 @@
  * This program and the accompanying materials are made available under the 
  * terms of the MIT License which accompanies this distribution, and is 
  * available at http://creativecommons.org/licenses/MIT/
- *
- * Contributors:
- *   Stephan D. Cote 
- *      - Initial concept and implementation
  */
 package coyote.dx.writer;
 
@@ -36,21 +32,21 @@ public abstract class AbstractFrameWriter extends AbstractConfigurableComponent 
    * @see coyote.dx.Component#open(coyote.dx.context.TransformContext)
    */
   @Override
-  public void open( TransformContext context ) {
+  public void open(TransformContext context) {
     super.context = context;
 
-    evaluator.setContext( context );
-    
+    evaluator.setContext(context);
+
     // Look for a conditional statement the writer may use to control if it is 
     // to write the record or not
-    expression = getConfiguration().getString( ConfigTag.CONDITION );
-    if ( StringUtil.isNotBlank( expression ) ) {
+    expression = getConfiguration().getString(ConfigTag.CONDITION);
+    if (StringUtil.isNotBlank(expression)) {
       expression = expression.trim();
 
       try {
-        evaluator.evaluateBoolean( expression );
-      } catch ( final IllegalArgumentException e ) {
-        context.setError( "Invalid boolean expression in writer: " + e.getMessage() );
+        evaluator.evaluateBoolean(expression);
+      } catch (final IllegalArgumentException e) {
+        context.setError("Invalid boolean expression in writer: " + e.getMessage());
       }
     }
 
@@ -63,7 +59,7 @@ public abstract class AbstractFrameWriter extends AbstractConfigurableComponent 
    * @return the target URI to which the writer will write
    */
   public String getTarget() {
-    return configuration.getAsString( ConfigTag.TARGET );
+    return configuration.getAsString(ConfigTag.TARGET);
   }
 
 
@@ -74,8 +70,8 @@ public abstract class AbstractFrameWriter extends AbstractConfigurableComponent 
    * 
    * @param value the URI to where the writer should write its data
    */
-  public void setTarget( final String value ) {
-    configuration.put( ConfigTag.TARGET, value );
+  public void setTarget(final String value) {
+    configuration.put(ConfigTag.TARGET, value);
   }
 
 
@@ -94,6 +90,6 @@ public abstract class AbstractFrameWriter extends AbstractConfigurableComponent 
    * @see coyote.dx.FrameWriter#write(coyote.dataframe.DataFrame)
    */
   @Override
-  public void write( DataFrame frame ) {}
+  public void write(DataFrame frame) {}
 
 }

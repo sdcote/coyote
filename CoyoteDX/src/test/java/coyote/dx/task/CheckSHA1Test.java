@@ -4,10 +4,6 @@
  * This program and the accompanying materials are made available under the 
  * terms of the MIT License which accompanies this distribution, and is 
  * available at http://creativecommons.org/licenses/MIT/
- *
- * Contributors:
- *   Stephan D. Cote 
- *      - Initial concept and implementation
  */
 package coyote.dx.task;
 
@@ -42,7 +38,7 @@ public class CheckSHA1Test {
 
   @BeforeClass
   public static void setUpBeforeClass() throws Exception {
-    Log.addLogger( Log.DEFAULT_LOGGER_NAME, new ConsoleAppender( Log.TRACE_EVENTS | Log.DEBUG_EVENTS | Log.INFO_EVENTS | Log.WARN_EVENTS | Log.ERROR_EVENTS | Log.FATAL_EVENTS ) );
+    Log.addLogger(Log.DEFAULT_LOGGER_NAME, new ConsoleAppender(Log.TRACE_EVENTS | Log.DEBUG_EVENTS | Log.INFO_EVENTS | Log.WARN_EVENTS | Log.ERROR_EVENTS | Log.FATAL_EVENTS));
   }
 
 
@@ -51,29 +47,29 @@ public class CheckSHA1Test {
   @Test
   public void simpleCheck() throws ConfigurationException, TaskException, IOException {
 
-    String testFile = new File( FileUtil.getCurrentWorkingDirectory(), "src/test/resources/coyote.jpg" ).getAbsolutePath();
+    String testFile = new File(FileUtil.getCurrentWorkingDirectory(), "src/test/resources/coyote.jpg").getAbsolutePath();
     String expected = "c0fd19e55c56737e9d90e77d2e58f56db6b6876d";
-    context.set( "Checksum", expected );
+    context.set("Checksum", expected);
 
     Config cfg = new Config();
-    cfg.put( ConfigTag.FILE, testFile );
-    cfg.put( ConfigTag.CONTEXT, "Checksum" );
-    System.out.println( cfg );
+    cfg.put(ConfigTag.FILE, testFile);
+    cfg.put(ConfigTag.CONTEXT, "Checksum");
+    System.out.println(cfg);
 
     String checksumFile = null;
     try (CheckSHA1 task = new CheckSHA1()) {
-      task.setConfiguration( cfg );
-      task.open( context );
+      task.setConfiguration(cfg);
+      task.open(context);
       task.execute();
-      assertFalse( context.getErrorMessage(), context.isInError() );
+      assertFalse(context.getErrorMessage(), context.isInError());
       checksumFile = testFile + task.getFileExtension();
     }
 
-    File file = new File( checksumFile );
+    File file = new File(checksumFile);
     try {
-      assertNotNull( context.get( checksumFile ) );
-      String retrievedChecksum = context.get( checksumFile ).toString();
-      assertEquals( expected, retrievedChecksum );
+      assertNotNull(context.get(checksumFile));
+      String retrievedChecksum = context.get(checksumFile).toString();
+      assertEquals(expected, retrievedChecksum);
     }
     finally {
       file.delete();

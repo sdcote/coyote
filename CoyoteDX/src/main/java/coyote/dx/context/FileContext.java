@@ -4,10 +4,6 @@
  * This program and the accompanying materials are made available under the 
  * terms of the MIT License which accompanies this distribution, and is 
  * available at http://creativecommons.org/licenses/MIT/
- *
- * Contributors:
- *   Stephan D. Cote 
- *      - Initial concept and implementation
  */
 package coyote.dx.context;
 
@@ -65,21 +61,21 @@ public class FileContext extends PersistentContext {
   @Override
   public void open() {
 
-    contextFile = new File( engine.getJobDirectory(), FILENAME );
-    Log.debug( "Reading context from " + contextFile.getAbsolutePath() );
-    String contents = FileUtil.fileToString( contextFile );
+    contextFile = new File(engine.getJobDirectory(), FILENAME);
+    Log.debug("Reading context from " + contextFile.getAbsolutePath());
+    String contents = FileUtil.fileToString(contextFile);
 
     // fill the context with data previously persisted to the file (if any)
-    if ( StringUtil.isNotBlank( contents ) ) {
+    if (StringUtil.isNotBlank(contents)) {
       try {
-        List<DataFrame> frames = JSONMarshaler.marshal( contents );
-        if ( frames.get( 0 ) != null ) {
-          for ( DataField field : frames.get( 0 ).getFields() ) {
-            set( field.getName(), field.getObjectValue() );
+        List<DataFrame> frames = JSONMarshaler.marshal(contents);
+        if (frames.get(0) != null) {
+          for (DataField field : frames.get(0).getFields()) {
+            set(field.getName(), field.getObjectValue());
           }
         }
-      } catch ( MarshalException e ) {
-        Log.warn( "Could not load context: " + e.getClass().getSimpleName() + " - " + e.getMessage() );
+      } catch (MarshalException e) {
+        Log.warn("Could not load context: " + e.getClass().getSimpleName() + " - " + e.getMessage());
       }
     }
 
@@ -105,31 +101,31 @@ public class FileContext extends PersistentContext {
     DataFrame frame = new DataFrame();
 
     // Add each property in the context to the frame
-    for ( String key : properties.keySet() ) {
+    for (String key : properties.keySet()) {
       try {
-        frame.add( key, properties.get( key ) );
-      } catch ( Exception e ) {
-        Log.debug( "Cannot persist property '" + key + "' - " + e.getMessage() );
+        frame.add(key, properties.get(key));
+      } catch (Exception e) {
+        Log.debug("Cannot persist property '" + key + "' - " + e.getMessage());
       }
     }
 
     // add the current value of the run counter
-    frame.put( Symbols.RUN_COUNT, runcount );
+    frame.put(Symbols.RUN_COUNT, runcount);
 
     // Save the current run date
-    Object rundate = get( Symbols.DATETIME );
-    if ( rundate != null ) {
+    Object rundate = get(Symbols.DATETIME);
+    if (rundate != null) {
       // it should be a date reference
-      if ( rundate instanceof Date ) {
+      if (rundate instanceof Date) {
         // format it in the default format
-        frame.put( Symbols.PREVIOUS_RUN_DATETIME, new SimpleDateFormat( CDX.DEFAULT_DATETIME_FORMAT ).format( (Date)rundate ) );
+        frame.put(Symbols.PREVIOUS_RUN_DATETIME, new SimpleDateFormat(CDX.DEFAULT_DATETIME_FORMAT).format((Date)rundate));
       } else {
-        Log.warn( LogMsg.createMsg( CDX.MSG, "Context.run_date_reset", rundate ) );
+        Log.warn(LogMsg.createMsg(CDX.MSG, "Context.run_date_reset", rundate));
       }
     }
 
     // write the context to disk using JSON 
-    FileUtil.stringToFile( JSONMarshaler.toFormattedString( frame ), contextFile.getAbsolutePath() );
+    FileUtil.stringToFile(JSONMarshaler.toFormattedString(frame), contextFile.getAbsolutePath());
 
   }
 }

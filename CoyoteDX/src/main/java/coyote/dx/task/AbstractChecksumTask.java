@@ -4,10 +4,6 @@
  * This program and the accompanying materials are made available under the
  * terms of the MIT License which accompanies this distribution, and is
  * available at http://creativecommons.org/licenses/MIT/
- *
- * Contributors:
- *   Stephan D. Cote
- *      - Initial concept and implementation
  */
 package coyote.dx.task;
 
@@ -48,10 +44,10 @@ public abstract class AbstractChecksumTask extends AbstractFileTask {
 
 
 
-  protected static String getCRC32Checksum( final File file ) {
+  protected static String getCRC32Checksum(final File file) {
     try {
-      return getChecksum( file, new CRC32() );
-    } catch ( final IOException e ) {
+      return getChecksum(file, new CRC32());
+    } catch (final IOException e) {
       return null;
     }
   }
@@ -59,10 +55,10 @@ public abstract class AbstractChecksumTask extends AbstractFileTask {
 
 
 
-  protected static String getAdler32Checksum( final File file ) {
+  protected static String getAdler32Checksum(final File file) {
     try {
-      return getChecksum( file, new Adler32() );
-    } catch ( final IOException e ) {
+      return getChecksum(file, new Adler32());
+    } catch (final IOException e) {
       return null;
     }
   }
@@ -70,14 +66,14 @@ public abstract class AbstractChecksumTask extends AbstractFileTask {
 
 
 
-  private static String getChecksum( final File file, final Checksum algorithm ) throws IOException {
+  private static String getChecksum(final File file, final Checksum algorithm) throws IOException {
     long checksum = 0;
-    try (InputStream fis = new FileInputStream( file ); CheckedInputStream cis = new CheckedInputStream( fis, algorithm )) {
+    try (InputStream fis = new FileInputStream(file); CheckedInputStream cis = new CheckedInputStream(fis, algorithm)) {
       final byte[] buffer = new byte[STREAM_BUFFER_LENGTH];
-      while ( cis.read( buffer ) >= 0 ) {}
+      while (cis.read(buffer) >= 0) {}
       checksum = cis.getChecksum().getValue();
     }
-    return Long.toHexString( checksum );
+    return Long.toHexString(checksum);
   }
 
 
@@ -114,118 +110,118 @@ public abstract class AbstractChecksumTask extends AbstractFileTask {
     String expectedChecksum = null;
 
     // Retrieve the checksum from a context variable
-    final String contextKey = getConfiguration().getString( ConfigTag.CONTEXT );
-    if ( StringUtil.isNotBlank( contextKey ) ) {
-      expectedChecksum = getString( contextKey );
+    final String contextKey = getConfiguration().getString(ConfigTag.CONTEXT);
+    if (StringUtil.isNotBlank(contextKey)) {
+      expectedChecksum = getString(contextKey);
     }
 
-    if ( StringUtil.isNotBlank( source ) ) {
-      final File file = getAbsoluteFile( source );
-      if ( file.exists() ) {
-        if ( file.canRead() ) {
-          if ( file.length() > 0 ) {
+    if (StringUtil.isNotBlank(source)) {
+      final File file = getAbsoluteFile(source);
+      if (file.exists()) {
+        if (file.canRead()) {
+          if (file.length() > 0) {
             String checksum = null;
             try {
-              checksum = getChecksum( file, getChecksum() );
-              Log.debug( LogMsg.createMsg( CDX.MSG, "Checksum.results", file.getAbsolutePath(), ALGORITHM, checksum ) );
+              checksum = getChecksum(file, getChecksum());
+              Log.debug(LogMsg.createMsg(CDX.MSG, "Checksum.results", file.getAbsolutePath(), ALGORITHM, checksum));
 
               final String checksumFilename = file.getAbsolutePath() + CHECKSUM_EXTENSION;
-              final File checksumFile = new File( checksumFilename );
+              final File checksumFile = new File(checksumFilename);
 
-              if ( StringUtil.isNotBlank( expectedChecksum ) ) {
-                if ( checksum.equalsIgnoreCase( expectedChecksum.trim() ) ) {
-                  Log.info( LogMsg.createMsg( CDX.MSG, "Checksum.verified", ALGORITHM, file.getAbsolutePath() ) );
-                  getContext().set( checksumFilename, checksum );
+              if (StringUtil.isNotBlank(expectedChecksum)) {
+                if (checksum.equalsIgnoreCase(expectedChecksum.trim())) {
+                  Log.info(LogMsg.createMsg(CDX.MSG, "Checksum.verified", ALGORITHM, file.getAbsolutePath()));
+                  getContext().set(checksumFilename, checksum);
                 } else {
-                  final String msg = LogMsg.createMsg( CDX.MSG, "Checksum.verification_failed", ALGORITHM, source, file.getAbsolutePath() ).toString();
-                  if ( haltOnError ) {
-                    throw new TaskException( msg );
+                  final String msg = LogMsg.createMsg(CDX.MSG, "Checksum.verification_failed", ALGORITHM, source, file.getAbsolutePath()).toString();
+                  if (haltOnError) {
+                    throw new TaskException(msg);
                   } else {
-                    Log.error( msg );
+                    Log.error(msg);
                     return;
                   }
                 }
               } else {
-                if ( checksumFile.exists() ) {
-                  if ( checksumFile.canRead() ) {
-                    final String expected = FileUtil.fileToString( checksumFile );
-                    if ( StringUtil.isNotBlank( expected ) ) {
-                      if ( checksum.equalsIgnoreCase( expected.trim() ) ) {
-                        Log.info( LogMsg.createMsg( CDX.MSG, "Checksum.verified", ALGORITHM, file.getAbsolutePath() ) );
-                        getContext().set( checksumFilename, checksum );
+                if (checksumFile.exists()) {
+                  if (checksumFile.canRead()) {
+                    final String expected = FileUtil.fileToString(checksumFile);
+                    if (StringUtil.isNotBlank(expected)) {
+                      if (checksum.equalsIgnoreCase(expected.trim())) {
+                        Log.info(LogMsg.createMsg(CDX.MSG, "Checksum.verified", ALGORITHM, file.getAbsolutePath()));
+                        getContext().set(checksumFilename, checksum);
                       } else {
-                        final String msg = LogMsg.createMsg( CDX.MSG, "Checksum.verification_failed", ALGORITHM, source, file.getAbsolutePath() ).toString();
-                        if ( haltOnError ) {
-                          throw new TaskException( msg );
+                        final String msg = LogMsg.createMsg(CDX.MSG, "Checksum.verification_failed", ALGORITHM, source, file.getAbsolutePath()).toString();
+                        if (haltOnError) {
+                          throw new TaskException(msg);
                         } else {
-                          Log.error( msg );
+                          Log.error(msg);
                           return;
                         }
                       }
                     } else {
-                      final String msg = LogMsg.createMsg( CDX.MSG, "Checksum.blank_digest_data", ALGORITHM, source, file.getAbsolutePath() ).toString();
-                      if ( haltOnError ) {
-                        throw new TaskException( msg );
+                      final String msg = LogMsg.createMsg(CDX.MSG, "Checksum.blank_digest_data", ALGORITHM, source, file.getAbsolutePath()).toString();
+                      if (haltOnError) {
+                        throw new TaskException(msg);
                       } else {
-                        Log.error( msg );
+                        Log.error(msg);
                         return;
                       }
                     }
                   } else {
-                    final String msg = LogMsg.createMsg( CDX.MSG, "Checksum.could_not_read_digest_file", ALGORITHM, source, file.getAbsolutePath() ).toString();
-                    if ( haltOnError ) {
-                      throw new TaskException( msg );
+                    final String msg = LogMsg.createMsg(CDX.MSG, "Checksum.could_not_read_digest_file", ALGORITHM, source, file.getAbsolutePath()).toString();
+                    if (haltOnError) {
+                      throw new TaskException(msg);
                     } else {
-                      Log.error( msg );
+                      Log.error(msg);
                       return;
                     }
                   }
                 } else {
-                  Log.warn( LogMsg.createMsg( CDX.MSG, "Checksum.no_digest_data", ALGORITHM, file.getAbsolutePath() ) );
+                  Log.warn(LogMsg.createMsg(CDX.MSG, "Checksum.no_digest_data", ALGORITHM, file.getAbsolutePath()));
                 }
               }
-            } catch ( final IOException e ) {
-              final String msg = LogMsg.createMsg( CDX.MSG, "Checksum.calculation_error", ALGORITHM, e.getMessage(), source, file.getAbsolutePath() ).toString();
-              if ( haltOnError ) {
-                throw new TaskException( msg );
+            } catch (final IOException e) {
+              final String msg = LogMsg.createMsg(CDX.MSG, "Checksum.calculation_error", ALGORITHM, e.getMessage(), source, file.getAbsolutePath()).toString();
+              if (haltOnError) {
+                throw new TaskException(msg);
               } else {
-                Log.error( msg );
+                Log.error(msg);
                 return;
               }
             }
           } else {
-            final String msg = LogMsg.createMsg( CDX.MSG, "Checksum.empty_source_file", ALGORITHM, source, file.getAbsolutePath() ).toString();
-            if ( haltOnError ) {
-              throw new TaskException( msg );
+            final String msg = LogMsg.createMsg(CDX.MSG, "Checksum.empty_source_file", ALGORITHM, source, file.getAbsolutePath()).toString();
+            if (haltOnError) {
+              throw new TaskException(msg);
             } else {
-              Log.error( msg );
+              Log.error(msg);
               return;
             }
           }
         } else {
-          final String msg = LogMsg.createMsg( CDX.MSG, "Checksum.source_could_not_be_read", ALGORITHM, source, file.getAbsolutePath() ).toString();
-          if ( haltOnError ) {
-            throw new TaskException( msg );
+          final String msg = LogMsg.createMsg(CDX.MSG, "Checksum.source_could_not_be_read", ALGORITHM, source, file.getAbsolutePath()).toString();
+          if (haltOnError) {
+            throw new TaskException(msg);
           } else {
-            Log.error( msg );
+            Log.error(msg);
             return;
           }
         }
       } else {
-        final String msg = LogMsg.createMsg( CDX.MSG, "Checksum.source_does_not_exist", ALGORITHM, source, file.getAbsolutePath() ).toString();
-        if ( haltOnError ) {
-          throw new TaskException( msg );
+        final String msg = LogMsg.createMsg(CDX.MSG, "Checksum.source_does_not_exist", ALGORITHM, source, file.getAbsolutePath()).toString();
+        if (haltOnError) {
+          throw new TaskException(msg);
         } else {
-          Log.error( msg );
+          Log.error(msg);
           return;
         }
       }
     } else {
-      final String msg = LogMsg.createMsg( CDX.MSG, "Checksum.configuration_error", getClass().getSimpleName(), ConfigTag.SOURCE ).toString();
-      if ( haltOnError ) {
-        throw new TaskException( msg );
+      final String msg = LogMsg.createMsg(CDX.MSG, "Checksum.configuration_error", getClass().getSimpleName(), ConfigTag.SOURCE).toString();
+      if (haltOnError) {
+        throw new TaskException(msg);
       } else {
-        Log.error( msg );
+        Log.error(msg);
         return;
       }
     }

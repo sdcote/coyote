@@ -4,10 +4,6 @@
  * This program and the accompanying materials are made available under the 
  * terms of the MIT License which accompanies this distribution, and is 
  * available at http://creativecommons.org/licenses/MIT/
- *
- * Contributors:
- *   Stephan D. Cote 
- *      - Initial concept and implementation
  */
 package coyote.dx;
 
@@ -38,9 +34,9 @@ public class TemplateAccess {
   /**
    * @param context
    */
-  public TemplateAccess( TransformContext context ) {
-    if ( context == null )
-      throw new IllegalArgumentException( "Cannot create TemplateAccess without a context" );
+  public TemplateAccess(TransformContext context) {
+    if (context == null)
+      throw new IllegalArgumentException("Cannot create TemplateAccess without a context");
 
     this.context = context;
   }
@@ -55,10 +51,10 @@ public class TemplateAccess {
    * 
    * @return the string value of that field, or null if it is not found
    */
-  public String working( String fieldname ) {
+  public String working(String fieldname) {
     String retval = null;
-    if ( StringUtil.isNotBlank( fieldname ) && context.getTransaction() != null && context.getTransaction().getWorkingFrame() != null ) {
-      retval = context.getTransaction().getWorkingFrame().getAsString( fieldname );
+    if (StringUtil.isNotBlank(fieldname) && context.getTransaction() != null && context.getTransaction().getWorkingFrame() != null) {
+      retval = context.getTransaction().getWorkingFrame().getAsString(fieldname);
     }
     return retval;
   }
@@ -73,10 +69,10 @@ public class TemplateAccess {
    * 
    * @return the string value of that field, or null if it is not found
    */
-  public String source( String fieldname ) {
+  public String source(String fieldname) {
     String retval = null;
-    if ( StringUtil.isNotBlank( fieldname ) && context.getTransaction() != null && context.getTransaction().getSourceFrame() != null ) {
-      retval = context.getTransaction().getSourceFrame().getAsString( fieldname );
+    if (StringUtil.isNotBlank(fieldname) && context.getTransaction() != null && context.getTransaction().getSourceFrame() != null) {
+      retval = context.getTransaction().getSourceFrame().getAsString(fieldname);
     }
     return retval;
   }

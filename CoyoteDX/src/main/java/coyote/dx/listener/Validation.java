@@ -4,10 +4,6 @@
  * This program and the accompanying materials are made available under the 
  * terms of the MIT License which accompanies this distribution, and is 
  * available at http://creativecommons.org/licenses/MIT/
- *
- * Contributors:
- *   Stephan D. Cote 
- *      - Initial concept and implementation
  */
 package coyote.dx.listener;
 
@@ -36,8 +32,8 @@ public class Validation extends FileRecorder {
    * @see coyote.dx.listener.ContextRecorder#setConfiguration(coyote.loader.cfg.Config)
    */
   @Override
-  public void setConfiguration( Config cfg ) throws ConfigurationException {
-    super.setConfiguration( cfg );
+  public void setConfiguration(Config cfg) throws ConfigurationException {
+    super.setConfiguration(cfg);
 
     // check for any other options to set here...like format, whether to include the error message...
 
@@ -50,47 +46,47 @@ public class Validation extends FileRecorder {
    * @see coyote.dx.listener.AbstractListener#onValidationFailed(coyote.dx.context.OperationalContext, coyote.dx.FrameValidator, java.lang.String)
    */
   @Override
-  public void onValidationFailed( OperationalContext context, FrameValidator validator, String errorMessage ) {
+  public void onValidationFailed(OperationalContext context, FrameValidator validator, String errorMessage) {
 
     StringBuffer b = new StringBuffer();
-    b.append( validator.getFieldName() );
-    b.append( " did not pass '" );
-    b.append( validator.getClass().getSimpleName() );
-    b.append( "' check: " );
-    b.append( validator.getDescription() );
-    validationErrors.add( b.toString() );
+    b.append(validator.getFieldName());
+    b.append(" did not pass '");
+    b.append(validator.getClass().getSimpleName());
+    b.append("' check: ");
+    b.append(validator.getDescription());
+    validationErrors.add(b.toString());
   }
 
 
 
 
-  public void onFrameValidationFailed( TransactionContext context ) {
+  public void onFrameValidationFailed(TransactionContext context) {
 
     // write the record out with the errors
 
     StringBuffer b = new StringBuffer();
 
-    b.append( context.getRow() );
-    b.append( ": " );
+    b.append(context.getRow());
+    b.append(": ");
 
     // show the frame which failed validation
-    b.append( context.getWorkingFrame().toString() );
-    b.append( ": " );
+    b.append(context.getWorkingFrame().toString());
+    b.append(": ");
 
     // Show the validation errors
-    for ( int x = 0; x < validationErrors.size(); x++ ) {
-      b.append( validationErrors.get( x ) );
-      if ( x + 1 < validationErrors.size() ) {
-        b.append( ", " );
+    for (int x = 0; x < validationErrors.size(); x++) {
+      b.append(validationErrors.get(x));
+      if (x + 1 < validationErrors.size()) {
+        b.append(", ");
       }
     }
-    b.append( StringUtil.LINE_FEED );
+    b.append(StringUtil.LINE_FEED);
 
     // clear out the collected errors
     validationErrors.clear();
 
     // write out the validation failure
-    write( b.toString() );
+    write(b.toString());
 
   }
 

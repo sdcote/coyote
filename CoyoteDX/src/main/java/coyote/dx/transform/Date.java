@@ -4,10 +4,6 @@
  * This program and the accompanying materials are made available under the 
  * terms of the MIT License which accompanies this distribution, and is 
  * available at http://creativecommons.org/licenses/MIT/
- *
- * Contributors:
- *   Stephan D. Cote 
- *      - Initial concept and implementation
  */
 package coyote.dx.transform;
 
@@ -29,8 +25,7 @@ public class Date extends AbstractFieldTransform implements FrameTransform {
    * @see coyote.dx.FrameTransform#process(coyote.dataframe.DataFrame)
    */
   @Override
-  public DataFrame process( final DataFrame frame ) throws TransformException {
-    // TODO Auto-generated method stub
+  public DataFrame process(final DataFrame frame) throws TransformException {
     return null;
   }
 

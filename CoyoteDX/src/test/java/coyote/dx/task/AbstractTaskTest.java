@@ -4,10 +4,6 @@
  * This program and the accompanying materials are made available under the 
  * terms of the MIT License which accompanies this distribution, and is 
  * available at http://creativecommons.org/licenses/MIT/
- *
- * Contributors:
- *   Stephan D. Cote 
- *      - Initial concept and implementation
  */
 package coyote.dx.task;
 
@@ -47,7 +43,7 @@ public class AbstractTaskTest extends AbstractTest {
    */
   @BeforeClass
   public static void setUpBeforeClass() throws Exception {
-    Log.addLogger( Log.DEFAULT_LOGGER_NAME, new ConsoleAppender( Log.TRACE_EVENTS | Log.DEBUG_EVENTS | Log.INFO_EVENTS | Log.WARN_EVENTS | Log.ERROR_EVENTS | Log.FATAL_EVENTS ) );
+    Log.addLogger(Log.DEFAULT_LOGGER_NAME, new ConsoleAppender(Log.TRACE_EVENTS | Log.DEBUG_EVENTS | Log.INFO_EVENTS | Log.WARN_EVENTS | Log.ERROR_EVENTS | Log.FATAL_EVENTS));
   }
 
 
@@ -70,82 +66,82 @@ public class AbstractTaskTest extends AbstractTest {
   public void contitionalTask() {
 
     Config cfg = new Config();
-    cfg.put( ConfigTag.HALT_ON_ERROR, false );
-    cfg.put( ConfigTag.ENABLED, false );
-    cfg.put( ConfigTag.CONDITION, "" ); // should generate an error log event
+    cfg.put(ConfigTag.HALT_ON_ERROR, false);
+    cfg.put(ConfigTag.ENABLED, false);
+    cfg.put(ConfigTag.CONDITION, ""); // should generate an error log event
     //System.out.println( cfg );
 
     try (MockTask task = new MockTask()) {
-      task.setConfiguration( cfg );
-      task.open( context );
+      task.setConfiguration(cfg);
+      task.open(context);
       task.execute();
 
-      assertFalse( task.executed() );
-      assertFalse( task.isEnabled() );
-      assertFalse( task.haltOnError() );
-    } catch ( ConfigurationException | TaskException | IOException e ) {
-      fail( e.getMessage() );
+      assertFalse(task.executed());
+      assertFalse(task.isEnabled());
+      assertFalse(task.haltOnError());
+    } catch (ConfigurationException | TaskException | IOException e) {
+      fail(e.getMessage());
     }
 
-    cfg.put( ConfigTag.CONDITION, "contextError" );
+    cfg.put(ConfigTag.CONDITION, "contextError");
     try (MockTask task = new MockTask()) {
-      task.setConfiguration( cfg );
-      task.open( context );
+      task.setConfiguration(cfg);
+      task.open(context);
       task.execute();
-      assertFalse( task.executed() );
-    } catch ( ConfigurationException | TaskException | IOException e ) {
-      fail( e.getMessage() );
+      assertFalse(task.executed());
+    } catch (ConfigurationException | TaskException | IOException e) {
+      fail(e.getMessage());
     }
 
-    cfg.put( ConfigTag.CONDITION, "! contextError" );
+    cfg.put(ConfigTag.CONDITION, "! contextError");
     try (MockTask task = new MockTask()) {
-      task.setConfiguration( cfg );
-      task.open( context );
+      task.setConfiguration(cfg);
+      task.open(context);
       task.execute();
-      assertFalse( task.executed() );// still not enabled
-    } catch ( ConfigurationException | TaskException | IOException e ) {
-      fail( e.getMessage() );
+      assertFalse(task.executed());// still not enabled
+    } catch (ConfigurationException | TaskException | IOException e) {
+      fail(e.getMessage());
     }
 
-    cfg.put( ConfigTag.ENABLED, true );
-    cfg.put( ConfigTag.CONDITION, "! contextError" );
+    cfg.put(ConfigTag.ENABLED, true);
+    cfg.put(ConfigTag.CONDITION, "! contextError");
     try (MockTask task = new MockTask()) {
-      task.setConfiguration( cfg );
-      task.open( context );
+      task.setConfiguration(cfg);
+      task.open(context);
       task.execute();
-      assertTrue( task.executed() );
-    } catch ( ConfigurationException | TaskException | IOException e ) {
-      fail( e.getMessage() );
+      assertTrue(task.executed());
+    } catch (ConfigurationException | TaskException | IOException e) {
+      fail(e.getMessage());
     }
 
-    cfg.put( ConfigTag.CONDITION, "contextError" );
+    cfg.put(ConfigTag.CONDITION, "contextError");
     try (MockTask task = new MockTask()) {
-      task.setConfiguration( cfg );
-      task.open( context );
+      task.setConfiguration(cfg);
+      task.open(context);
       task.execute();
-      assertFalse( task.executed() ); // enabled, but no error
-    } catch ( ConfigurationException | TaskException | IOException e ) {
-      fail( e.getMessage() );
+      assertFalse(task.executed()); // enabled, but no error
+    } catch (ConfigurationException | TaskException | IOException e) {
+      fail(e.getMessage());
     }
 
-    context.setError( true );
+    context.setError(true);
     try (MockTask task = new MockTask()) {
-      task.setConfiguration( cfg );
-      task.open( context );
+      task.setConfiguration(cfg);
+      task.open(context);
       task.execute();
-      assertTrue( task.executed() ); // enabled, and context is in error
-    } catch ( ConfigurationException | TaskException | IOException e ) {
-      fail( e.getMessage() );
+      assertTrue(task.executed()); // enabled, and context is in error
+    } catch (ConfigurationException | TaskException | IOException e) {
+      fail(e.getMessage());
     }
 
-    cfg.put( ConfigTag.CONDITION, "! contextError" );
+    cfg.put(ConfigTag.CONDITION, "! contextError");
     try (MockTask task = new MockTask()) {
-      task.setConfiguration( cfg );
-      task.open( context );
+      task.setConfiguration(cfg);
+      task.open(context);
       task.execute();
-      assertFalse( task.executed() ); // enabled, but context is in error
-    } catch ( ConfigurationException | TaskException | IOException e ) {
-      fail( e.getMessage() );
+      assertFalse(task.executed()); // enabled, but context is in error
+    } catch (ConfigurationException | TaskException | IOException e) {
+      fail(e.getMessage());
     }
 
   }

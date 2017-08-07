@@ -4,10 +4,6 @@
  * This program and the accompanying materials are made available under the 
  * terms of the MIT License which accompanies this distribution, and is 
  * available at http://creativecommons.org/licenses/MIT/
- *
- * Contributors:
- *   Stephan D. Cote 
- *      - Initial concept and implementation
  */
 package coyote.commons.zip;
 
@@ -21,14 +17,14 @@ import java.io.FilenameFilter;
 public class AllFilesFilenameFilter implements FilenameFilter {
 
   /**
-   * Method accept
+   * Check if the filter should accept the file.
    * 
-   * @param dir
-   * @param name
+   * @param dir the directory 
+   * @param name the name of the file
    * @return true always
    */
   @Override
-  public boolean accept( final File dir, final String name ) {
+  public boolean accept(final File dir, final String name) {
     return true;
   }
 }

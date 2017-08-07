@@ -4,10 +4,6 @@
  * This program and the accompanying materials are made available under the 
  * terms of the MIT License which accompanies this distribution, and is 
  * available at http://creativecommons.org/licenses/MIT/
- *
- * Contributors:
- *   Stephan D. Cote 
- *      - Initial concept and implementation
  */
 package coyote.dx.task;
 
@@ -53,34 +49,34 @@ public class Archive extends AbstractFileTask {
   @Override
   protected void performTask() throws TaskException {
 
-    final String source = getString( ConfigTag.SOURCE );
-    final String target = getString( ConfigTag.TARGET );
+    final String source = getString(ConfigTag.SOURCE);
+    final String target = getString(ConfigTag.TARGET);
 
-    final String pattern = getString( ConfigTag.PATTERN );
-    boolean overwrite = getBoolean( ConfigTag.OVERWRITE );
+    final String pattern = getString(ConfigTag.PATTERN);
+    boolean overwrite = getBoolean(ConfigTag.OVERWRITE);
 
-    if ( StringUtil.isNotBlank( source ) ) {
-      File sourceFile = new File( source );
-      if ( sourceFile.exists() ) {
+    if (StringUtil.isNotBlank(source)) {
+      File sourceFile = new File(source);
+      if (sourceFile.exists()) {
         File targetFile;
 
-        if ( StringUtil.isNotBlank( target ) ) {
-          targetFile = new File( target );
+        if (StringUtil.isNotBlank(target)) {
+          targetFile = new File(target);
         } else {
-          targetFile = new File( sourceFile.getAbsolutePath() + SUFFIX );
+          targetFile = new File(sourceFile.getAbsolutePath() + SUFFIX);
         }
 
-        Log.debug( "Archiving " + sourceFile.getAbsolutePath() + " to " + targetFile.getAbsolutePath() );
+        Log.debug("Archiving " + sourceFile.getAbsolutePath() + " to " + targetFile.getAbsolutePath());
         try {
-          ZipUtil.zip( sourceFile, targetFile );
-        } catch ( IOException e ) {
-          throw new TaskException( "Could not archive file: " + e.getMessage(), e );
+          ZipUtil.zip(sourceFile, targetFile);
+        } catch (IOException e) {
+          throw new TaskException("Could not archive file: " + e.getMessage(), e);
         }
       } else {
-        throw new TaskException( "Source does not exist: " + sourceFile.getAbsolutePath() );
+        throw new TaskException("Source does not exist: " + sourceFile.getAbsolutePath());
       }
     } else {
-      throw new TaskException( "No soure specified" );
+      throw new TaskException("No soure specified");
     }
   }
 }

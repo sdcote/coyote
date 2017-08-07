@@ -4,10 +4,6 @@
  * This program and the accompanying materials are made available under the 
  * terms of the MIT License which accompanies this distribution, and is 
  * available at http://creativecommons.org/licenses/MIT/
- *
- * Contributors:
- *   Stephan D. Cote 
- *      - Initial concept and implementation
  */
 package coyote.dx.task;
 
@@ -36,8 +32,8 @@ import coyote.dx.TaskException;
 public class Touch extends AbstractFileTask {
 
   public String getFilename() {
-    if ( configuration.containsIgnoreCase( ConfigTag.FILE ) ) {
-      return configuration.getString( ConfigTag.FILE );
+    if (configuration.containsIgnoreCase(ConfigTag.FILE)) {
+      return configuration.getString(ConfigTag.FILE);
     }
     return null;
   }
@@ -51,9 +47,9 @@ public class Touch extends AbstractFileTask {
   @Override
   protected void performTask() throws TaskException {
     String filename = getFilename();
-    if ( StringUtil.isNotBlank( filename ) ) {
-      File file = new File( filename );
-      FileUtil.touch( file );
+    if (StringUtil.isNotBlank(filename)) {
+      File file = new File(filename);
+      FileUtil.touch(file);
     }
   }
 

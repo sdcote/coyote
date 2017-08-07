@@ -4,10 +4,6 @@
  * This program and the accompanying materials are made available under the 
  * terms of the MIT License which accompanies this distribution, and is 
  * available at http://creativecommons.org/licenses/MIT/
- *
- * Contributors:
- *   Stephan D. Cote 
- *      - Initial concept and implementation
  */
 package coyote.dx;
 
@@ -50,81 +46,81 @@ public class ScheduledBatchJob extends ScheduledJob implements ManagedComponent 
    * @see coyote.loader.component.ManagedComponent#setConfiguration(coyote.loader.cfg.Config)
    */
   @Override
-  public void setConfiguration( Config config ) {
+  public void setConfiguration(Config config) {
     configuration = config;
 
-    if ( configuration != null ) {
-      Log.debug( config.toFormattedString() );
+    if (configuration != null) {
+      Log.debug(config.toFormattedString());
 
       // have the Engine Factory create a transformation engine based on the
       // configuration 
-      engine = TransformEngineFactory.getInstance( config );
+      engine = TransformEngineFactory.getInstance(config);
 
-      if ( StringUtil.isBlank( engine.getName() ) ) {
-        Log.trace( LogMsg.createMsg( CDX.MSG, "Job.unnamed_engine_configured" ) );
+      if (StringUtil.isBlank(engine.getName())) {
+        Log.trace(LogMsg.createMsg(CDX.MSG, "Job.unnamed_engine_configured"));
         name = GUID.randomGUID().toString();
       } else {
-        Log.trace( LogMsg.createMsg( CDX.MSG, "Job.engine_configured", engine.getName() ) );
-        super.setName( engine.getName() );
+        Log.trace(LogMsg.createMsg(CDX.MSG, "Job.engine_configured", engine.getName()));
+        super.setName(engine.getName());
       }
     } else {
-      Log.fatal( LogMsg.createMsg( CDX.MSG, "Job.no_job_section" ) );
+      Log.fatal(LogMsg.createMsg(CDX.MSG, "Job.no_job_section"));
     }
 
     // Setup the schedule - 
-    List<Config> cfgs = config.getSections( ConfigTag.SCHEDULE );
-    if ( cfgs.size() > 0 ) {
-      Config scheduleCfg = cfgs.get( 0 );
+    List<Config> cfgs = config.getSections(ConfigTag.SCHEDULE);
+    if (cfgs.size() > 0) {
+      Config scheduleCfg = cfgs.get(0);
       cronentry = new CronEntry();
 
       // go through each in order, this allows the user to determine how 
       // attributes are applied by processing them in order they appear and 
       // overwriting previous attributes.
-      for ( DataField field : scheduleCfg.getFields() ) {
-        if ( ConfigTag.PATTERN.equalsIgnoreCase( field.getName() ) ) {
+      for (DataField field : scheduleCfg.getFields()) {
+        if (ConfigTag.PATTERN.equalsIgnoreCase(field.getName())) {
           try {
-            cronentry = CronEntry.parse( field.getStringValue() );
-          } catch ( ParseException e ) {
-            Log.error( LogMsg.createMsg( CDX.MSG, "Job.schedule_patterm_parse_error", e.getMessage() ) );
+            cronentry = CronEntry.parse(field.getStringValue());
+          } catch (ParseException e) {
+            Log.error(LogMsg.createMsg(CDX.MSG, "Job.schedule_patterm_parse_error", e.getMessage()));
           }
-        } else if ( ConfigTag.MINUTES.equalsIgnoreCase( field.getName() ) ) {
-          cronentry.setMinutePattern( field.getStringValue() );
-        } else if ( ConfigTag.HOURS.equalsIgnoreCase( field.getName() ) ) {
-          cronentry.setHourPattern( field.getStringValue() );
-        } else if ( ConfigTag.MONTHS.equalsIgnoreCase( field.getName() ) ) {
-          cronentry.setMonthPattern( field.getStringValue() );
-        } else if ( ConfigTag.DAYS.equalsIgnoreCase( field.getName() ) ) {
-          cronentry.setDayPattern( field.getStringValue() );
-        } else if ( ConfigTag.DAYS_OF_WEEK.equalsIgnoreCase( field.getName() ) ) {
-          cronentry.setDayOfWeekPattern( field.getStringValue() );
-        } else if ( ConfigTag.MILLIS.equalsIgnoreCase( field.getName() ) ) {
+        } else if (ConfigTag.MINUTES.equalsIgnoreCase(field.getName())) {
+          cronentry.setMinutePattern(field.getStringValue());
+        } else if (ConfigTag.HOURS.equalsIgnoreCase(field.getName())) {
+          cronentry.setHourPattern(field.getStringValue());
+        } else if (ConfigTag.MONTHS.equalsIgnoreCase(field.getName())) {
+          cronentry.setMonthPattern(field.getStringValue());
+        } else if (ConfigTag.DAYS.equalsIgnoreCase(field.getName())) {
+          cronentry.setDayPattern(field.getStringValue());
+        } else if (ConfigTag.DAYS_OF_WEEK.equalsIgnoreCase(field.getName())) {
+          cronentry.setDayOfWeekPattern(field.getStringValue());
+        } else if (ConfigTag.MILLIS.equalsIgnoreCase(field.getName())) {
           long millis = 0;
           try {
-            millis = Long.parseLong( field.getStringValue() );
-            setExecutionInterval( millis );
-          } catch ( NumberFormatException e ) {
-            Log.error( LogMsg.createMsg( CDX.MSG, "Job.schedule_interval_parse_error", e.getMessage() ) );
+            millis = Long.parseLong(field.getStringValue());
+            setExecutionInterval(millis);
+          } catch (NumberFormatException e) {
+            Log.error(LogMsg.createMsg(CDX.MSG, "Job.schedule_interval_parse_error", e.getMessage()));
           }
         }
       }
 
-      if ( cronentry != null ) {
+      if (cronentry != null) {
 
         // Repeat according to the schedule
-        setRepeatable( true );
-        setExecutionTime( cronentry.getNextTime() );
+        setRepeatable(true);
+        setExecutionTime(cronentry.getNextTime());
 
-        if ( Log.isLogging( Log.DEBUG_EVENTS ) ) {
-          Log.debug( cronentry.toString() );
+        if (Log.isLogging(Log.DEBUG_EVENTS)) {
+          Log.debug(cronentry.toString());
         }
       } else {
-        Log.error( LogMsg.createMsg( CDX.MSG, "Job.schedule_no_cron_entry", getExecutionInterval() ) );
+        Log.error(LogMsg.createMsg(CDX.MSG, "Job.schedule_no_cron_entry", getExecutionInterval()));
 
         // No schedule, no repeat
-        setRepeatable( false );
+        setRepeatable(false);
 
         // run one second in the future to give initialization time to settle
-        setExecutionTime( System.currentTimeMillis() + 1000 );
+        setExecutionTime(System.currentTimeMillis() + 1000);
       }
 
     }
@@ -139,7 +135,7 @@ public class ScheduledBatchJob extends ScheduledJob implements ManagedComponent 
    */
   @Override
   public long getExecutionInterval() {
-    if ( cronentry != null ) {
+    if (cronentry != null) {
       return cronentry.getNextInterval();
     } else {
       return super.getExecutionInterval();
@@ -169,7 +165,7 @@ public class ScheduledBatchJob extends ScheduledJob implements ManagedComponent 
    */
   @Override
   public void initialize() {
-    setActiveFlag( true );
+    setActiveFlag(true);
   }
 
 
@@ -181,13 +177,13 @@ public class ScheduledBatchJob extends ScheduledJob implements ManagedComponent 
   @Override
   public void doWork() {
 
-    if ( engine != null ) {
-      Log.trace( LogMsg.createMsg( CDX.MSG, "Job.running", getName(), engine.getName() ) );
+    if (engine != null) {
+      Log.trace(LogMsg.createMsg(CDX.MSG, "Job.running", getName(), engine.getName()));
 
       // this sets our execution time to the exact millisecond based on when 
       // this job ACTUALLY ran. This is to ensure slow running jobs don't cause
       // execution delays 
-      setExecutionTime( cronentry.getNextTime() );
+      setExecutionTime(cronentry.getNextTime());
 
       // run the transformation
       // Note that depending on the configuration, this could be placed in the 
@@ -195,23 +191,23 @@ public class ScheduledBatchJob extends ScheduledJob implements ManagedComponent 
       // transform engines could be run in the thread pool of the super-class.
       try {
         engine.run();
-      } catch ( final Exception e ) {
-        Log.fatal( LogMsg.createMsg( CDX.MSG, "Job.exception_running_engine", e.getClass().getSimpleName(), e.getMessage(), getName(), engine.getName() ) );
-        Log.fatal( ExceptionUtil.toString( e ) );
+      } catch (final Exception e) {
+        Log.fatal(LogMsg.createMsg(CDX.MSG, "Job.exception_running_engine", e.getClass().getSimpleName(), e.getMessage(), getName(), engine.getName()));
+        Log.fatal(ExceptionUtil.toString(e));
 
         // If we blowup, set the active flag false, so the service will remove 
         // us from the scheduler. We will be reloaded if our reload flag is set
-        setActiveFlag( false );
+        setActiveFlag(false);
       }
       finally {
         try {
           engine.close();
-        } catch ( final IOException ignore ) {}
-        Log.trace( LogMsg.createMsg( CDX.MSG, "Job.completed", getName(), engine.getName() ) );
+        } catch (final IOException ignore) {}
+        Log.trace(LogMsg.createMsg(CDX.MSG, "Job.completed", getName(), engine.getName()));
       } // try-catch-finally
 
     } else {
-      Log.fatal( LogMsg.createMsg( CDX.MSG, "Job.no_engine" ) );
+      Log.fatal(LogMsg.createMsg(CDX.MSG, "Job.no_engine"));
     }
 
     // break out of our doWork loop and go inactive
@@ -294,7 +290,7 @@ public class ScheduledBatchJob extends ScheduledJob implements ManagedComponent 
 
 
   @Override
-  public void setLoader( Loader loader ) {}
+  public void setLoader(Loader loader) {}
 
 
 
@@ -306,20 +302,20 @@ public class ScheduledBatchJob extends ScheduledJob implements ManagedComponent 
 
 
   @Override
-  public void setId( String id ) {}
+  public void setId(String id) {}
 
 
 
 
   @Override
-  public void setStartTime( long millis ) {}
+  public void setStartTime(long millis) {}
 
 
 
 
   @Override
-  public void shutdown( DataFrame params ) {
-    if( engine != null){
+  public void shutdown(DataFrame params) {
+    if (engine != null) {
       engine.shutdown();
     }
   }
@@ -336,7 +332,7 @@ public class ScheduledBatchJob extends ScheduledJob implements ManagedComponent 
 
 
   @Override
-  public void setContext( Context context ) {
+  public void setContext(Context context) {
     this.context = context;
   }
 

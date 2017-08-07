@@ -4,10 +4,6 @@
  * This program and the accompanying materials are made available under the 
  * terms of the MIT License which accompanies this distribution, and is 
  * available at http://creativecommons.org/licenses/MIT/
- *
- * Contributors:
- *   Stephan D. Cote 
- *      - Initial concept and implementation
  */
 package coyote.dx.validate;
 
@@ -33,27 +29,27 @@ public class NotNull extends AbstractValidator implements FrameValidator {
    * @see coyote.dx.FrameValidator#process(coyote.dx.context.TransactionContext)
    */
   @Override
-  public boolean process( TransactionContext context ) throws ValidationException {
+  public boolean process(TransactionContext context) throws ValidationException {
 
     // get the field from the working frame of the given context
     DataFrame frame = context.getWorkingFrame();
 
-    if ( frame != null ) {
-      DataField field = frame.getField( fieldName );
-      if ( field != null ) {
+    if (frame != null) {
+      DataField field = frame.getField(fieldName);
+      if (field != null) {
 
-        if ( field.isNull() ) {
-          fail( context, fieldName );
+        if (field.isNull()) {
+          fail(context, fieldName);
           return false;
         }
       } else {
         // if the field does not exist, it is effectively null - no value
-        fail( context, fieldName );
+        fail(context, fieldName);
         return false;
       }
     } else {
       // fail && error
-      context.setError( "There is no working frame" );
+      context.setError("There is no working frame");
       return false;
     }
 

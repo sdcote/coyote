@@ -4,10 +4,6 @@
  * This program and the accompanying materials are made available under the 
  * terms of the MIT License which accompanies this distribution, and is 
  * available at http://creativecommons.org/licenses/MIT/
- *
- * Contributors:
- *   Stephan D. Cote 
- *      - Initial concept and implementation
  */
 package coyote.commons.zip;
 
@@ -30,7 +26,7 @@ public interface IFileFinder {
    * @param src
    * @param fileList
    */
-  void accumulateFiles( File src, Collection fileList );
+  void accumulateFiles(File src, Collection fileList);
 
 
 
@@ -42,7 +38,7 @@ public interface IFileFinder {
    * @param fileList
    * @param filter
    */
-  void accumulateFiles( File src, Collection fileList, FilenameFilter filter );
+  void accumulateFiles(File src, Collection fileList, FilenameFilter filter);
 
 
 
@@ -52,5 +48,5 @@ public interface IFileFinder {
    * 
    * @param baseDir
    */
-  void setBaseDirectory( File baseDir );
+  void setBaseDirectory(File baseDir);
 }

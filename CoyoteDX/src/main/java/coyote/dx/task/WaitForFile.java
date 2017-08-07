@@ -4,10 +4,6 @@
  * This program and the accompanying materials are made available under the 
  * terms of the MIT License which accompanies this distribution, and is 
  * available at http://creativecommons.org/licenses/MIT/
- *
- * Contributors:
- *   Stephan D. Cote 
- *      - Initial concept and implementation
  */
 package coyote.dx.task;
 
@@ -81,53 +77,53 @@ public class WaitForFile extends AbstractFileTask {
 
     File directoryToWatch = null;
 
-    final String directory = getString( ConfigTag.DIRECTORY );
-    final String pattern = getString( ConfigTag.FILE );
+    final String directory = getString(ConfigTag.DIRECTORY);
+    final String pattern = getString(ConfigTag.FILE);
 
     // Determine our watch directory
-    if ( StringUtil.isNotBlank( directory ) ) {
-      directoryToWatch = new File( directory );
-      if ( !directoryToWatch.isDirectory() ) {
-        getContext().setError( "Configured directory is not valid: " + directoryToWatch.getAbsolutePath() );
+    if (StringUtil.isNotBlank(directory)) {
+      directoryToWatch = new File(directory);
+      if (!directoryToWatch.isDirectory()) {
+        getContext().setError("Configured directory is not valid: " + directoryToWatch.getAbsolutePath());
         return;
       }
     } else {
-      Log.debug( "No directory specified in configuration, using filename pattern" );
-      String parent = FileUtil.getPath( pattern );
-      if ( StringUtil.isNotBlank( parent ) ) {
-        directoryToWatch = new File( parent );
-        if ( !directoryToWatch.isDirectory() ) {
-          getContext().setError( "Parent directory of filename is not valid: '" + parent + "' (" + directoryToWatch.getAbsolutePath() + ")" );
+      Log.debug("No directory specified in configuration, using filename pattern");
+      String parent = FileUtil.getPath(pattern);
+      if (StringUtil.isNotBlank(parent)) {
+        directoryToWatch = new File(parent);
+        if (!directoryToWatch.isDirectory()) {
+          getContext().setError("Parent directory of filename is not valid: '" + parent + "' (" + directoryToWatch.getAbsolutePath() + ")");
           return;
         }
       } else {
-        Log.debug( "No directory specified in filename, using current working directory" );
+        Log.debug("No directory specified in filename, using current working directory");
         directoryToWatch = FileUtil.getCurrentWorkingDirectory();
       }
     }
 
-    if ( !directoryToWatch.exists() ) {
-      getContext().setError( "Configured directory does not exist: " + directoryToWatch.getAbsolutePath() );
+    if (!directoryToWatch.exists()) {
+      getContext().setError("Configured directory does not exist: " + directoryToWatch.getAbsolutePath());
       return;
     }
-    if ( !directoryToWatch.canRead() ) {
-      getContext().setError( "Configured directory is not readable: " + directoryToWatch.getAbsolutePath() );
+    if (!directoryToWatch.canRead()) {
+      getContext().setError("Configured directory is not readable: " + directoryToWatch.getAbsolutePath());
       return;
     }
 
-    String base = FileUtil.getFile( pattern );
-    globber = new Glob( base );
+    String base = FileUtil.getFile(pattern);
+    globber = new Glob(base);
 
-    if ( directoryToWatch.exists() ) {
+    if (directoryToWatch.exists()) {
       // First get a list of all the files in the directory and look for matches
       File[] files = directoryToWatch.listFiles();
 
-      if ( files != null ) {
-        for ( File file : files ) {
-          Log.debug( "Checking " + file.getName() + " against " + globber );
-          if ( globber.isFileMatched( file.getName() ) ) {
-            Log.debug( "Found a matching file :" + file.getAbsolutePath() );
-            waitForAvailable( file );
+      if (files != null) {
+        for (File file : files) {
+          Log.debug("Checking " + file.getName() + " against " + globber);
+          if (globber.isFileMatched(file.getName())) {
+            Log.debug("Found a matching file :" + file.getAbsolutePath());
+            waitForAvailable(file);
             return;
           }
         }
@@ -138,35 +134,35 @@ public class WaitForFile extends AbstractFileTask {
       try {
         watchService = FileSystems.getDefault().newWatchService();
 
-        Path path = Paths.get( directoryToWatch.getAbsolutePath() );
-        Log.debug( "Watching " + path.getFileName() );
-        path.register( watchService, StandardWatchEventKinds.ENTRY_CREATE );
+        Path path = Paths.get(directoryToWatch.getAbsolutePath());
+        Log.debug("Watching " + path.getFileName());
+        path.register(watchService, StandardWatchEventKinds.ENTRY_CREATE);
         WatchKey key;
         try {
-          while ( ( key = watchService.take() ) != null ) {
-            for ( WatchEvent<?> event : key.pollEvents() ) {
+          while ((key = watchService.take()) != null) {
+            for (WatchEvent<?> event : key.pollEvents()) {
               String filename = event.context().toString();
-              Log.trace( event.kind() + ": " + filename );
-              if ( StandardWatchEventKinds.ENTRY_CREATE.equals( event.kind() ) ) {
-                if ( globber.isFileMatched( filename ) ) {
-                  File matchedFile = new File( filename );
-                  Log.debug( "Found " + matchedFile.getAbsolutePath() );
-                  waitForAvailable( matchedFile );
+              Log.trace(event.kind() + ": " + filename);
+              if (StandardWatchEventKinds.ENTRY_CREATE.equals(event.kind())) {
+                if (globber.isFileMatched(filename)) {
+                  File matchedFile = new File(filename);
+                  Log.debug("Found " + matchedFile.getAbsolutePath());
+                  waitForAvailable(matchedFile);
                   return;
                 }
               }
             }
             key.reset();
           }
-        } catch ( InterruptedException e ) {
-          getContext().setError( "Interrupted while waiting for file" );
+        } catch (InterruptedException e) {
+          getContext().setError("Interrupted while waiting for file");
           return;
         }
-      } catch ( IOException e ) {
-        throw new TaskException( "Problems monitoring directory: " + directoryToWatch.getAbsolutePath(), e );
+      } catch (IOException e) {
+        throw new TaskException("Problems monitoring directory: " + directoryToWatch.getAbsolutePath(), e);
       }
     } else {
-      throw new TaskException( "Invalid directory to watch: " + directoryToWatch.getAbsolutePath() );
+      throw new TaskException("Invalid directory to watch: " + directoryToWatch.getAbsolutePath());
     }
 
   }
@@ -182,19 +178,19 @@ public class WaitForFile extends AbstractFileTask {
    * 
    * @param file the file to check
    */
-  private void waitForAvailable( File file ) {
-    if ( isLocked( file ) ) {
-      Log.debug( "Waiting for file to become available for processing" );
-      while ( isLocked( file ) ) {
+  private void waitForAvailable(File file) {
+    if (isLocked(file)) {
+      Log.debug("Waiting for file to become available for processing");
+      while (isLocked(file)) {
         try {
-          Thread.sleep( WAIT_TIME );
-        } catch ( InterruptedException ignore ) {
-          getContext().setError( "Interrupted while waiting for file to be available" );
+          Thread.sleep(WAIT_TIME);
+        } catch (InterruptedException ignore) {
+          getContext().setError("Interrupted while waiting for file to be available");
           return;
         }
       }
     }
-    Log.debug( "File ready for processing: " + file.getAbsolutePath() );
+    Log.debug("File ready for processing: " + file.getAbsolutePath());
   }
 
 
@@ -216,26 +212,26 @@ public class WaitForFile extends AbstractFileTask {
    *         by another process or an error occurred in trying to obtain a 
    *         lock on the file indicating a logical lock on the file.
    */
-  private boolean isLocked( File file ) {
-    if ( file == null || !file.exists() ) {
+  private boolean isLocked(File file) {
+    if (file == null || !file.exists()) {
       return false;
     }
 
-    try (FileChannel channel = new RandomAccessFile( file, "rw" ).getChannel()) {
+    try (FileChannel channel = new RandomAccessFile(file, "rw").getChannel()) {
       FileLock lock = null;
       try {
         lock = channel.tryLock();
         return false;
-      } catch ( OverlappingFileLockException inner ) {
+      } catch (OverlappingFileLockException inner) {
         inner.printStackTrace();
         return true;
       }
       finally {
-        if ( lock != null ) {
+        if (lock != null) {
           lock.release();
         }
       }
-    } catch ( Exception e ) {
+    } catch (Exception e) {
       return true;
     }
 
@@ -250,18 +246,18 @@ public class WaitForFile extends AbstractFileTask {
    * @throws IOException
    * @throws InterruptedException
    */
-  public static void main( String[] args ) throws IOException, InterruptedException {
+  public static void main(String[] args) throws IOException, InterruptedException {
     WatchService watchService = FileSystems.getDefault().newWatchService();
 
-    Path path = Paths.get( System.getProperty( "user.dir" ) );
-    System.out.println( "Watching " + path.getFileName() );
+    Path path = Paths.get(System.getProperty("user.dir"));
+    System.out.println("Watching " + path.getFileName());
 
-    path.register( watchService, StandardWatchEventKinds.ENTRY_CREATE, StandardWatchEventKinds.ENTRY_DELETE, StandardWatchEventKinds.ENTRY_MODIFY );
+    path.register(watchService, StandardWatchEventKinds.ENTRY_CREATE, StandardWatchEventKinds.ENTRY_DELETE, StandardWatchEventKinds.ENTRY_MODIFY);
 
     WatchKey key;
-    while ( ( key = watchService.take() ) != null ) {
-      for ( WatchEvent<?> event : key.pollEvents() ) {
-        System.out.println( "Event kind:" + event.kind() + ". File affected: " + event.context() + "." );
+    while ((key = watchService.take()) != null) {
+      for (WatchEvent<?> event : key.pollEvents()) {
+        System.out.println("Event kind:" + event.kind() + ". File affected: " + event.context() + ".");
       }
       key.reset();
     }

@@ -4,10 +4,6 @@
  * This program and the accompanying materials are made available under the 
  * terms of the MIT License which accompanies this distribution, and is 
  * available at http://creativecommons.org/licenses/MIT/
- *
- * Contributors:
- *   Stephan D. Cote 
- *      - Initial concept and implementation
  */
 package coyote.dx;
 
@@ -58,8 +54,8 @@ public class Service extends AbstractBatchLoader implements Loader {
    * @see coyote.loader.AbstractLoader#configure(coyote.loader.cfg.Config)
    */
   @Override
-  public void configure( Config cfg ) throws ConfigurationException {
-    super.configure( cfg );
+  public void configure(Config cfg) throws ConfigurationException {
+    super.configure(cfg);
 
     // calculate and normalize the appropriate value for "app.home"
     determineHomeDirectory();
@@ -68,7 +64,7 @@ public class Service extends AbstractBatchLoader implements Loader {
     determineWorkDirectory();
 
     // Start the management API with any found config section
-    startManager( cfg.getSection( "Manager" ) );
+    startManager(cfg.getSection("Manager"));
 
   }
 
@@ -87,68 +83,68 @@ public class Service extends AbstractBatchLoader implements Loader {
    * 
    * @param cfg The configuration for the manager (may be null)
    */
-  private void startManager( Config cfg ) {
+  private void startManager(Config cfg) {
 
     // look for the Static Manager Binder in the classpath
     try {
-      Class<?> clazz = Class.forName( BINDERCLASS );
+      Class<?> clazz = Class.forName(BINDERCLASS);
       Constructor<?> ctor = clazz.getConstructor();
       Object object = ctor.newInstance();
 
-      Log.debug( LogMsg.createMsg( CDX.MSG, "Service.found_binding_for_manager", BINDERCLASS ) );
+      Log.debug(LogMsg.createMsg(CDX.MSG, "Service.found_binding_for_manager", BINDERCLASS));
 
-      if ( object instanceof ManagerFactoryBinder ) {
+      if (object instanceof ManagerFactoryBinder) {
         try {
-          server = ( (ManagerFactoryBinder)object ).createManager( cfg, this );
-          if ( server != null ) {
-            Log.debug( LogMsg.createMsg( CDX.MSG, "Service.user_specified_manager", server.getClass() ) );
+          server = ((ManagerFactoryBinder)object).createManager(cfg, this);
+          if (server != null) {
+            Log.debug(LogMsg.createMsg(CDX.MSG, "Service.user_specified_manager", server.getClass()));
           } else {
-            Log.error( LogMsg.createMsg( CDX.MSG, "Service.binder_returned_null_manager" ) );
+            Log.error(LogMsg.createMsg(CDX.MSG, "Service.binder_returned_null_manager"));
           }
-        } catch ( ConfigurationException e ) {
-          Log.error( LogMsg.createMsg( CDX.MSG, "Service.manager_configuration_error", e.getClass().getSimpleName(), e.getMessage() ) );
+        } catch (ConfigurationException e) {
+          Log.error(LogMsg.createMsg(CDX.MSG, "Service.manager_configuration_error", e.getClass().getSimpleName(), e.getMessage()));
           server = null;
         }
       } else {
-        Log.warn( LogMsg.createMsg( CDX.MSG, "Service.binder_not_managerfactorybinder" ) );
+        Log.warn(LogMsg.createMsg(CDX.MSG, "Service.binder_not_managerfactorybinder"));
       }
-    } catch ( ClassNotFoundException | NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e ) {
-      Log.debug( LogMsg.createMsg( CDX.MSG, "Service.binder_class_load_error", BINDERCLASS, e.getClass().getName(), e.getMessage() ) );
+    } catch (ClassNotFoundException | NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+      Log.debug(LogMsg.createMsg(CDX.MSG, "Service.binder_class_load_error", BINDERCLASS, e.getClass().getName(), e.getMessage()));
     }
 
     // If we did not find a manager on the class path, use our own
-    if ( server == null ) {
-      Log.debug( LogMsg.createMsg( CDX.MSG, "Service.no_binder_class_found" ) );
+    if (server == null) {
+      Log.debug(LogMsg.createMsg(CDX.MSG, "Service.no_binder_class_found"));
       try {
         int port = DEFAULT_PORT;
 
         // we need to get the port first as part of the server constructor
-        if ( cfg != null ) {
-          for ( DataField field : cfg.getFields() ) {
-            if ( ConfigTag.PORT.equalsIgnoreCase( field.getName() ) ) {
+        if (cfg != null) {
+          for (DataField field : cfg.getFields()) {
+            if (ConfigTag.PORT.equalsIgnoreCase(field.getName())) {
               try {
-                port = Integer.parseInt( field.getStringValue() );
-              } catch ( NumberFormatException e ) {
+                port = Integer.parseInt(field.getStringValue());
+              } catch (NumberFormatException e) {
                 port = DEFAULT_PORT;
-                Log.error( "Port configuration option was not a valid integer, using default" );
+                Log.error("Port configuration option was not a valid integer, using default");
               }
             }
           }
         }
-        server = new DefaultHttpManager( port, cfg, this );
-      } catch ( IOException e ) {
-        Log.append( HTTPD.EVENT, "ERROR: Could not create server on port '" + server.getPort() + "' - " + e.getMessage() );
-        System.err.println( "Couldn't create server:\n" + e );
-        System.exit( 23 );
+        server = new DefaultHttpManager(port, cfg, this);
+      } catch (IOException e) {
+        Log.append(HTTPD.EVENT, "ERROR: Could not create server on port '" + server.getPort() + "' - " + e.getMessage());
+        System.err.println("Couldn't create server:\n" + e);
+        System.exit(23);
       }
     }
 
     try {
-      server.start( HTTPD.SOCKET_READ_TIMEOUT, false );
-    } catch ( IOException ioe ) {
-      Log.append( HTTPD.EVENT, "ERROR: Could not start server on port '" + server.getPort() + "' - " + ioe.getMessage() );
-      System.err.println( "Couldn't start server:\n" + ioe );
-      System.exit( 22 );
+      server.start(HTTPD.SOCKET_READ_TIMEOUT, false);
+    } catch (IOException ioe) {
+      Log.append(HTTPD.EVENT, "ERROR: Could not start server on port '" + server.getPort() + "' - " + ioe.getMessage());
+      System.err.println("Couldn't start server:\n" + ioe);
+      System.exit(22);
     }
   }
 
@@ -173,39 +169,39 @@ public class Service extends AbstractBatchLoader implements Loader {
     super.initComponents();
 
     // Now load "Jobs" sections representing individual transform engines
-    for ( Config section : configuration.getSections( ConfigTag.JOB ) ) {
+    for (Config section : configuration.getSections(ConfigTag.JOB)) {
 
       // make sure the Job configuration has the appropriate wrapper class
-      section.setClassName( ScheduledBatchJob.class.getName() );
+      section.setClassName(ScheduledBatchJob.class.getName());
 
       // create a component from the section
-      loadComponent( section );
+      loadComponent(section);
     }
 
-    Log.debug( "Loaded " + super.components.size() + " components" );
-    Log.append( Log.getCode( "SCHEDULER" ), "Initialized Scheduler:\r\n" + getScheduler().dump() );
+    Log.debug("Loaded " + super.components.size() + " components");
+    Log.append(Log.getCode("SCHEDULER"), "Initialized Scheduler:\r\n" + getScheduler().dump());
 
     // for all the loaded components find the ones representing Jobs and run them in the scheduler.
-    synchronized( components ) {
-      for ( final Iterator<Object> it = components.keySet().iterator(); it.hasNext(); ) {
+    synchronized (components) {
+      for (final Iterator<Object> it = components.keySet().iterator(); it.hasNext();) {
         final Object cmpnt = it.next();
-        if ( cmpnt instanceof ScheduledBatchJob ) {
+        if (cmpnt instanceof ScheduledBatchJob) {
 
-          TransformEngine engine = ( (ScheduledBatchJob)cmpnt ).getEngine();
-          if ( engine != null ) {
+          TransformEngine engine = ((ScheduledBatchJob)cmpnt).getEngine();
+          if (engine != null) {
 
             // make sure the job engine has the command line arguments
-            for ( int x = 0; x < commandLineArguments.length; x++ ) {
-              engine.getSymbolTable().put( Symbols.COMMAND_LINE_ARG_PREFIX + x, commandLineArguments[x] );
+            for (int x = 0; x < commandLineArguments.length; x++) {
+              engine.getSymbolTable().put(Symbols.COMMAND_LINE_ARG_PREFIX + x, commandLineArguments[x]);
             }
 
             // schedule the component for execution; some may remain running indefinitely
-            getScheduler().schedule( (ScheduledBatchJob)cmpnt );
+            getScheduler().schedule((ScheduledBatchJob)cmpnt);
           }
         }
       }
     }
-    Log.append( Log.getCode( "SCHEDULER" ), "Initialized Scheduled Jobs:\r\n" + getScheduler().dump() );
+    Log.append(Log.getCode("SCHEDULER"), "Initialized Scheduled Jobs:\r\n" + getScheduler().dump());
   }
 
 
@@ -220,7 +216,7 @@ public class Service extends AbstractBatchLoader implements Loader {
   public void start() {
     // only start once, this is not foolproof as the active flag is set only when 
     // the watchdog loop is entered
-    if ( isActive() ) {
+    if (isActive()) {
       return;
     }
 
@@ -228,7 +224,7 @@ public class Service extends AbstractBatchLoader implements Loader {
     final String oldName = Thread.currentThread().getName();
 
     // Rename this thread to the name of this class
-    Thread.currentThread().setName( CLASS );
+    Thread.currentThread().setName(CLASS);
 
     // very important to get park(millis) to operate
     current_thread = Thread.currentThread();
@@ -236,23 +232,23 @@ public class Service extends AbstractBatchLoader implements Loader {
     // Parse through the configuration and initialize all the components
     initComponents();
 
-    Log.info( LogMsg.createMsg( MSG, "Loader.components_initialized" ) );
+    Log.info(LogMsg.createMsg(MSG, "Loader.components_initialized"));
 
     // By this time all loggers (including the catch-all logger) should be open
-    final StringBuffer b = new StringBuffer( CLASS );
-    b.append( " initialized - Runtime: " );
-    b.append( System.getProperty( "java.version" ) );
-    b.append( " (" );
-    b.append( System.getProperty( "java.vendor" ) );
-    b.append( ")" );
-    b.append( " - Platform: " );
-    b.append( System.getProperty( "os.arch" ) );
-    b.append( " OS: " );
-    b.append( System.getProperty( "os.name" ) );
-    b.append( " (" );
-    b.append( System.getProperty( "os.version" ) );
-    b.append( ")" );
-    Log.info( b );
+    final StringBuffer b = new StringBuffer(CLASS);
+    b.append(" initialized - Runtime: ");
+    b.append(System.getProperty("java.version"));
+    b.append(" (");
+    b.append(System.getProperty("java.vendor"));
+    b.append(")");
+    b.append(" - Platform: ");
+    b.append(System.getProperty("os.arch"));
+    b.append(" OS: ");
+    b.append(System.getProperty("os.name"));
+    b.append(" (");
+    b.append(System.getProperty("os.version"));
+    b.append(")");
+    Log.info(b);
 
     // enter a loop performing watchdog and maintenance functions
     watchdog();
@@ -260,10 +256,10 @@ public class Service extends AbstractBatchLoader implements Loader {
     // The watchdog loop has exited, so we are done processing
     terminateComponents();
 
-    Log.info( LogMsg.createMsg( MSG, "Loader.terminated" ) );
+    Log.info(LogMsg.createMsg(MSG, "Loader.terminated"));
 
     // Rename the thread back to what it was called before we were being run
-    Thread.currentThread().setName( oldName );
+    Thread.currentThread().setName(oldName);
 
   }
 
@@ -289,16 +285,16 @@ public class Service extends AbstractBatchLoader implements Loader {
     super.shutdown();
 
     // shutdown the scheduler
-    if( scheduler != null){
+    if (scheduler != null) {
       scheduler.shutdown();
     }
 
     // Stop the HTTPManager
-    if ( server != null ) {
+    if (server != null) {
       server.stop();
     }
 
-    Log.info( LogMsg.createMsg( MSG, "Loader.shutdown" ) );
+    Log.info(LogMsg.createMsg(MSG, "Loader.shutdown"));
   }
 
 

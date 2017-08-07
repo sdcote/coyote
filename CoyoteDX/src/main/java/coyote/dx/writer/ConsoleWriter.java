@@ -4,10 +4,6 @@
  * This program and the accompanying materials are made available under the 
  * terms of the MIT License which accompanies this distribution, and is 
  * available at http://creativecommons.org/licenses/MIT/
- *
- * Contributors:
- *   Stephan D. Cote 
- *      - Initial concept and implementation
  */
 package coyote.dx.writer;
 
@@ -38,8 +34,8 @@ public class ConsoleWriter extends AbstractFrameWriter {
 
 
   public String getFormat() {
-    if ( configuration.containsIgnoreCase( ConfigTag.FORMAT ) ) {
-      return configuration.getString( ConfigTag.FORMAT );
+    if (configuration.containsIgnoreCase(ConfigTag.FORMAT)) {
+      return configuration.getString(ConfigTag.FORMAT);
     }
     return NO_FORMAT;
   }
@@ -48,8 +44,8 @@ public class ConsoleWriter extends AbstractFrameWriter {
 
 
   public String getMessage() {
-    if ( configuration.containsIgnoreCase( ConfigTag.MESSAGE ) ) {
-      return configuration.getString( ConfigTag.MESSAGE );
+    if (configuration.containsIgnoreCase(ConfigTag.MESSAGE)) {
+      return configuration.getString(ConfigTag.MESSAGE);
     }
     return null;
   }
@@ -58,8 +54,8 @@ public class ConsoleWriter extends AbstractFrameWriter {
 
 
   private boolean isIndented() {
-    if ( configuration.containsIgnoreCase( ConfigTag.INDENT ) ) {
-      return configuration.getBoolean( ConfigTag.INDENT );
+    if (configuration.containsIgnoreCase(ConfigTag.INDENT)) {
+      return configuration.getBoolean(ConfigTag.INDENT);
     }
     return false;
   }
@@ -71,34 +67,34 @@ public class ConsoleWriter extends AbstractFrameWriter {
    * @see coyote.dx.writer.AbstractFrameWriter#write(coyote.dataframe.DataFrame)
    */
   @Override
-  public void write( DataFrame frame ) {
-    if ( !NO_FORMAT.equalsIgnoreCase( getFormat() ) ) {
-      if ( isIndented() ) {
-        if ( JSON_FORMAT.equalsIgnoreCase( getFormat() ) ) {
-          System.out.println( JSONMarshaler.toFormattedString( frame ) );
-        } else if ( XML_FORMAT.equalsIgnoreCase( getFormat() ) ) {
-          System.out.println( XMLMarshaler.toFormattedString( frame ) );
-        } else if ( CSV_FORMAT.equalsIgnoreCase( getFormat() ) ) {
-          System.out.println( CSVMarshaler.marshal( frame ) );
+  public void write(DataFrame frame) {
+    if (!NO_FORMAT.equalsIgnoreCase(getFormat())) {
+      if (isIndented()) {
+        if (JSON_FORMAT.equalsIgnoreCase(getFormat())) {
+          System.out.println(JSONMarshaler.toFormattedString(frame));
+        } else if (XML_FORMAT.equalsIgnoreCase(getFormat())) {
+          System.out.println(XMLMarshaler.toFormattedString(frame));
+        } else if (CSV_FORMAT.equalsIgnoreCase(getFormat())) {
+          System.out.println(CSVMarshaler.marshal(frame));
         } else {
-          System.out.println( "Don't know how to format data into '" + getFormat() + "'" );
+          System.out.println("Don't know how to format data into '" + getFormat() + "'");
         }
       } else {
-        if ( JSON_FORMAT.equalsIgnoreCase( getFormat() ) ) {
-          System.out.println( JSONMarshaler.marshal( frame ) );
-        } else if ( XML_FORMAT.equalsIgnoreCase( getFormat() ) ) {
-          System.out.println( XMLMarshaler.marshal( frame ) );
-        } else if ( CSV_FORMAT.equalsIgnoreCase( getFormat() ) ) {
-          System.out.println( CSVMarshaler.marshal( frame ) );
+        if (JSON_FORMAT.equalsIgnoreCase(getFormat())) {
+          System.out.println(JSONMarshaler.marshal(frame));
+        } else if (XML_FORMAT.equalsIgnoreCase(getFormat())) {
+          System.out.println(XMLMarshaler.marshal(frame));
+        } else if (CSV_FORMAT.equalsIgnoreCase(getFormat())) {
+          System.out.println(CSVMarshaler.marshal(frame));
         } else {
-          System.out.println( "Don't know how to format data into '" + getFormat() + "'" );
+          System.out.println("Don't know how to format data into '" + getFormat() + "'");
         }
       }
     }
 
-    if ( StringUtil.isNotEmpty( getMessage() ) ) {
-      String message = Template.resolve( getMessage(), getContext().getSymbols() );
-      System.out.println( message );
+    if (StringUtil.isNotEmpty(getMessage())) {
+      String message = Template.resolve(getMessage(), getContext().getSymbols());
+      System.out.println(message);
     }
 
   }

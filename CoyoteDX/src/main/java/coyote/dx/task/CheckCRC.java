@@ -4,10 +4,6 @@
  * This program and the accompanying materials are made available under the
  * terms of the MIT License which accompanies this distribution, and is
  * available at http://creativecommons.org/licenses/MIT/
- *
- * Contributors:
- *   Stephan D. Cote
- *      - Initial concept and implementation
  */
 package coyote.dx.task;
 
@@ -35,8 +31,8 @@ public class CheckCRC extends AbstractChecksumTask {
    *
    * @return the checksum of the file or "0" if there were errors
    */
-  public static String checksum( final File file ) {
-    return getCRC32Checksum( file );
+  public static String checksum(final File file) {
+    return getCRC32Checksum(file);
   }
 
 

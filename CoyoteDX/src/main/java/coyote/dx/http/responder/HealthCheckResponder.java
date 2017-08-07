@@ -4,10 +4,6 @@
  * This program and the accompanying materials are made available under the 
  * terms of the MIT License which accompanies this distribution, and is 
  * available at http://creativecommons.org/licenses/MIT/
- *
- * Contributors:
- *   Stephan D. Cote 
- *      - Initial concept and implementation
  */
 package coyote.dx.http.responder;
 
@@ -28,8 +24,8 @@ import coyote.commons.network.http.responder.Responder;
 public class HealthCheckResponder extends AbstractBatchResponder implements Responder {
 
   @Override
-  public Response get( Resource resource, Map<String, String> urlParams, IHTTPSession session ) {
-    return Response.createFixedLengthResponse( getStatus(), getMimeType(), "UP" );
+  public Response get(Resource resource, Map<String, String> urlParams, IHTTPSession session) {
+    return Response.createFixedLengthResponse(getStatus(), getMimeType(), "UP");
   }
 
 }

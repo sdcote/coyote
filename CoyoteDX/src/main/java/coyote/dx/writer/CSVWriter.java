@@ -4,10 +4,6 @@
  * This program and the accompanying materials are made available under the 
  * terms of the MIT License which accompanies this distribution, and is 
  * available at http://creativecommons.org/licenses/MIT/
- *
- * Contributors:
- *   Stephan D. Cote 
- *      - Initial concept and implementation
  */
 package coyote.dx.writer;
 
@@ -81,7 +77,7 @@ public class CSVWriter extends AbstractFrameFileWriter implements FrameWriter, C
 
   private static final String DEFAULT_DATE_FORMAT = "yyyy/MM/dd HH:mm:ss";
 
-  SimpleDateFormat DATEFORMAT = new SimpleDateFormat( DEFAULT_DATE_FORMAT );
+  SimpleDateFormat DATEFORMAT = new SimpleDateFormat(DEFAULT_DATE_FORMAT);
 
   private boolean writeHeaders = true;
 
@@ -101,32 +97,32 @@ public class CSVWriter extends AbstractFrameFileWriter implements FrameWriter, C
    * 
    * @return a string builder with the data representing the processed line.
    */
-  private static StringBuilder processToken( final String token ) {
-    final StringBuilder sb = new StringBuilder( INITIAL_STRING_SIZE );
+  private static StringBuilder processToken(final String token) {
+    final StringBuilder sb = new StringBuilder(INITIAL_STRING_SIZE);
 
     // determine if we are to surround the token in quotes
-    final boolean surroundToken = tokenContainsSpecialCharacters( token );
+    final boolean surroundToken = tokenContainsSpecialCharacters(token);
 
     // start the quoted string
-    if ( surroundToken ) {
-      sb.append( QUOTE_CHARACTER );
+    if (surroundToken) {
+      sb.append(QUOTE_CHARACTER);
     }
 
     // now make sure we escape characters in the quoted string appropriately
-    for ( int indx = 0; indx < token.length(); indx++ ) {
-      final char nextChar = token.charAt( indx );
-      if ( ( ESCAPE_CHARACTER != NO_ESCAPE_CHARACTER ) && ( nextChar == QUOTE_CHARACTER ) ) {
-        sb.append( ESCAPE_CHARACTER ).append( nextChar );
-      } else if ( ( ESCAPE_CHARACTER != NO_ESCAPE_CHARACTER ) && ( nextChar == ESCAPE_CHARACTER ) ) {
-        sb.append( ESCAPE_CHARACTER ).append( nextChar );
+    for (int indx = 0; indx < token.length(); indx++) {
+      final char nextChar = token.charAt(indx);
+      if ((ESCAPE_CHARACTER != NO_ESCAPE_CHARACTER) && (nextChar == QUOTE_CHARACTER)) {
+        sb.append(ESCAPE_CHARACTER).append(nextChar);
+      } else if ((ESCAPE_CHARACTER != NO_ESCAPE_CHARACTER) && (nextChar == ESCAPE_CHARACTER)) {
+        sb.append(ESCAPE_CHARACTER).append(nextChar);
       } else {
-        sb.append( nextChar );
+        sb.append(nextChar);
       }
     }
 
     // end the quoted string
-    if ( surroundToken ) {
-      sb.append( QUOTE_CHARACTER );
+    if (surroundToken) {
+      sb.append(QUOTE_CHARACTER);
     }
 
     return sb;
@@ -142,8 +138,8 @@ public class CSVWriter extends AbstractFrameFileWriter implements FrameWriter, C
    * 
    * @return true if the token contains special characters and needs to be surrounded in quotes, false otherwise
    */
-  private static boolean tokenContainsSpecialCharacters( final String token ) {
-    return ( token.indexOf( QUOTE_CHARACTER ) != -1 ) || ( token.indexOf( separator ) != -1 ) || ( token.indexOf( ESCAPE_CHARACTER ) != -1 ) || ( token.contains( "\n" ) ) || ( token.contains( "\r" ) );
+  private static boolean tokenContainsSpecialCharacters(final String token) {
+    return (token.indexOf(QUOTE_CHARACTER) != -1) || (token.indexOf(separator) != -1) || (token.indexOf(ESCAPE_CHARACTER) != -1) || (token.contains("\n")) || (token.contains("\r"));
   }
 
 
@@ -154,8 +150,8 @@ public class CSVWriter extends AbstractFrameFileWriter implements FrameWriter, C
    */
   public boolean isUsingHeader() {
     try {
-      return configuration.getAsBoolean( ConfigTag.HEADER );
-    } catch ( final DataFrameException e ) {
+      return configuration.getAsBoolean(ConfigTag.HEADER);
+    } catch (final DataFrameException e) {
       return false;
     }
   }
@@ -167,43 +163,43 @@ public class CSVWriter extends AbstractFrameFileWriter implements FrameWriter, C
    * @see coyote.dx.writer.AbstractFrameFileWriter#open(coyote.dx.context.TransformContext)
    */
   @Override
-  public void open( final TransformContext context ) {
+  public void open(final TransformContext context) {
     // open the super class first
-    super.open( context );
+    super.open(context);
 
     // Now setup our field definitions if they exist
-    final DataFrame fieldcfg = getFrame( ConfigTag.FIELDS );
+    final DataFrame fieldcfg = getFrame(ConfigTag.FIELDS);
 
-    if ( fieldcfg != null ) {
+    if (fieldcfg != null) {
       boolean trim = false;// flag to trim values
       String format = null;
 
-      for ( final DataField field : fieldcfg.getFields() ) {
+      for (final DataField field : fieldcfg.getFields()) {
         try {
           final DataFrame fielddef = (DataFrame)field.getObjectValue();
 
           // if the field definition is empty "{}" the it will be null
-          if ( fielddef != null ) {
+          if (fielddef != null) {
 
             // determine if values should be trimmed for this field
             try {
-              trim = fielddef.getAsBoolean( ConfigTag.TRIM );
-            } catch ( final Exception e ) {
+              trim = fielddef.getAsBoolean(ConfigTag.TRIM);
+            } catch (final Exception e) {
               trim = false;
             }
 
             // extract the format string (if any)
-            format = fielddef.getAsString( ConfigTag.FORMAT );
+            format = fielddef.getAsString(ConfigTag.FORMAT);
           } else {
             // apparently an empty body 
             trim = false;
             format = null;
           }
 
-          fields.add( new FieldDefinition( field.getName(), format, trim ) );
+          fields.add(new FieldDefinition(field.getName(), format, trim));
 
-        } catch ( final Exception e ) {
-          context.setError( "Problems loading field definition '" + field.getName() + "' - " + e.getClass().getSimpleName() + " : " + e.getMessage() );
+        } catch (final Exception e) {
+          context.setError("Problems loading field definition '" + field.getName() + "' - " + e.getClass().getSimpleName() + " : " + e.getMessage());
           return;
         }
       }
@@ -218,34 +214,34 @@ public class CSVWriter extends AbstractFrameFileWriter implements FrameWriter, C
    * @see coyote.dx.AbstractConfigurableComponent#setConfiguration(coyote.loader.cfg.Config)
    */
   @Override
-  public void setConfiguration( final Config cfg ) throws ConfigurationException {
-    super.setConfiguration( cfg );
+  public void setConfiguration(final Config cfg) throws ConfigurationException {
+    super.setConfiguration(cfg);
 
     // Check if we are to treat the first line as the header names
-    if ( cfg.contains( ConfigTag.HEADER ) ) {
+    if (cfg.contains(ConfigTag.HEADER)) {
       try {
-        writeHeaders = cfg.getAsBoolean( ConfigTag.HEADER );
-      } catch ( final DataFrameException e ) {
-        Log.info( LogMsg.createMsg( CDX.MSG, "Writer.header_flag_is_not_valid " + cfg.getAsString( ConfigTag.HEADER ) ) );
+        writeHeaders = cfg.getAsBoolean(ConfigTag.HEADER);
+      } catch (final DataFrameException e) {
+        Log.info(LogMsg.createMsg(CDX.MSG, "Writer.header_flag_is_not_valid " + cfg.getAsString(ConfigTag.HEADER)));
         writeHeaders = false;
       }
     } else {
-      Log.debug( "No header config" );
+      Log.debug("No header config");
     }
-    Log.debug( LogMsg.createMsg( CDX.MSG, "Writer.header_flag_is_set_as", writeHeaders ) );
+    Log.debug(LogMsg.createMsg(CDX.MSG, "Writer.header_flag_is_set_as", writeHeaders));
 
     // Check to see if a different date format is to be used
-    if ( cfg.contains( ConfigTag.DATEFORMAT ) ) {
+    if (cfg.contains(ConfigTag.DATEFORMAT)) {
       try {
-        DATEFORMAT = new SimpleDateFormat( cfg.getAsString( ConfigTag.DATEFORMAT ) );
-      } catch ( final Exception e ) {
-        Log.warn( LogMsg.createMsg( CDX.MSG, "Writer.date_format_pattern_is_not_valid", cfg.getAsString( ConfigTag.DATEFORMAT ), e.getMessage() ) );
-        DATEFORMAT = new SimpleDateFormat( DEFAULT_DATE_FORMAT );
+        DATEFORMAT = new SimpleDateFormat(cfg.getAsString(ConfigTag.DATEFORMAT));
+      } catch (final Exception e) {
+        Log.warn(LogMsg.createMsg(CDX.MSG, "Writer.date_format_pattern_is_not_valid", cfg.getAsString(ConfigTag.DATEFORMAT), e.getMessage()));
+        DATEFORMAT = new SimpleDateFormat(DEFAULT_DATE_FORMAT);
       }
     } else {
-      Log.debug( LogMsg.createMsg( CDX.MSG, "Writer.using_default_date_format", DATEFORMAT.toPattern() ) );
+      Log.debug(LogMsg.createMsg(CDX.MSG, "Writer.using_default_date_format", DATEFORMAT.toPattern()));
     }
-    Log.debug( LogMsg.createMsg( CDX.MSG, "Writer.date_format_pattern_set_as", DATEFORMAT.toPattern() ) );
+    Log.debug(LogMsg.createMsg(CDX.MSG, "Writer.date_format_pattern_set_as", DATEFORMAT.toPattern()));
 
     // TODO: support a different separator character including "/t"
   }
@@ -258,8 +254,8 @@ public class CSVWriter extends AbstractFrameFileWriter implements FrameWriter, C
    * 
    * @param flag true to instruct the writer to write a header before the first line of data, false to skip writing the header.
    */
-  public void setHeaderFlag( final boolean flag ) {
-    configuration.put( ConfigTag.HEADER, flag );
+  public void setHeaderFlag(final boolean flag) {
+    configuration.put(ConfigTag.HEADER, flag);
   }
 
 
@@ -269,22 +265,22 @@ public class CSVWriter extends AbstractFrameFileWriter implements FrameWriter, C
    * @see coyote.dx.writer.AbstractFrameFileWriter#write(coyote.dataframe.DataFrame)
    */
   @Override
-  public void write( final DataFrame frame ) {
+  public void write(final DataFrame frame) {
 
     // If there is a conditional expression
-    if ( expression != null ) {
+    if (expression != null) {
 
       try {
         // if the condition evaluates to true...
-        if ( evaluator.evaluateBoolean( expression ) ) {
-          writeFrame( frame );
+        if (evaluator.evaluateBoolean(expression)) {
+          writeFrame(frame);
         }
-      } catch ( final IllegalArgumentException e ) {
-        Log.warn( LogMsg.createMsg( CDX.MSG, "Writer.boolean_evaluation_error", expression, e.getMessage() ) );
+      } catch (final IllegalArgumentException e) {
+        Log.warn(LogMsg.createMsg(CDX.MSG, "Writer.boolean_evaluation_error", expression, e.getMessage()));
       }
     } else {
       // Unconditionally writing frame
-      writeFrame( frame );
+      writeFrame(frame);
     }
 
   }
@@ -297,25 +293,25 @@ public class CSVWriter extends AbstractFrameFileWriter implements FrameWriter, C
    * 
    * @param frame the frame to be written
    */
-  private void writeFrame( final DataFrame frame ) {
+  private void writeFrame(final DataFrame frame) {
     // The first frame sets the columns and column order
-    if ( rowNumber == 0 ) {
+    if (rowNumber == 0) {
 
       // If we have no field definitions, create a set
-      if ( fields.size() < 1 ) {
+      if (fields.size() < 1) {
         String format = null;
 
-        for ( final DataField field : frame.getFields() ) {
+        for (final DataField field : frame.getFields()) {
 
-          if ( field.getType() == DataField.DATE ) {
+          if (field.getType() == DataField.DATE) {
             format = DEFAULT_DATE_FORMAT;
           } else {
             format = null;
           }
-          fields.add( new FieldDefinition( field.getName(), field.getTypeName(), format, false ) );
+          fields.add(new FieldDefinition(field.getName(), field.getTypeName(), format, false));
         }
       }
-      if ( isUsingHeader() ) {
+      if (isUsingHeader()) {
         writeHeader();
       }
     }
@@ -324,7 +320,7 @@ public class CSVWriter extends AbstractFrameFileWriter implements FrameWriter, C
     rowNumber++;
 
     // write the frame
-    writeRow( frame );
+    writeRow(frame);
 
   }
 
@@ -336,15 +332,15 @@ public class CSVWriter extends AbstractFrameFileWriter implements FrameWriter, C
    */
   private void writeHeader() {
     final StringBuilder retval = new StringBuilder();
-    if ( fields.size() > 0 ) {
-      for ( final FieldDefinition def : fields ) {
-        retval.append( def.getName() );
-        retval.append( separator );
+    if (fields.size() > 0) {
+      for (final FieldDefinition def : fields) {
+        retval.append(def.getName());
+        retval.append(separator);
       }
-      retval.deleteCharAt( retval.length() - 1 );// remove last separator
+      retval.deleteCharAt(retval.length() - 1);// remove last separator
     }
-    retval.append( LINE_DELIMITER );
-    printwriter.write( retval.toString() );
+    retval.append(LINE_DELIMITER);
+    printwriter.write(retval.toString());
 
   }
 
@@ -356,33 +352,33 @@ public class CSVWriter extends AbstractFrameFileWriter implements FrameWriter, C
    * 
    * @param frame the row of data to write.
    */
-  private void writeRow( final DataFrame frame ) {
+  private void writeRow(final DataFrame frame) {
 
     String token = null;
     final StringBuilder retval = new StringBuilder();
 
     // for each of the columns in that row
-    for ( final FieldDefinition def : fields ) {
+    for (final FieldDefinition def : fields) {
       // the named value for that row
-      final DataField field = frame.getField( def.getName() );
+      final DataField field = frame.getField(def.getName());
 
-      if ( ( field != null ) && !field.isNull() ) {
+      if ((field != null) && !field.isNull()) {
         try {
 
           // if there is a formatter for this field, format the value
-          if ( def.hasFormatter() ) {
-            token = def.getFormattedValue( field );
+          if (def.hasFormatter()) {
+            token = def.getFormattedValue(field);
           } else {
             token = field.getStringValue();
           }
 
           // if the value is to be trimmed, remove leading and trailing spaces
-          if ( def.isTrimming() ) {
+          if (def.isTrimming()) {
             token = token.trim();
           }
 
-        } catch ( final Exception e ) {
-          Log.error( LogMsg.createMsg( CDX.MSG, "Writer.Problems writing {%s} - field {%s}", def.getName(), field.toString() ) );
+        } catch (final Exception e) {
+          Log.error(LogMsg.createMsg(CDX.MSG, "Writer.Problems writing {%s} - field {%s}", def.getName(), field.toString()));
           token = "";
         }
       } else {
@@ -391,15 +387,15 @@ public class CSVWriter extends AbstractFrameFileWriter implements FrameWriter, C
       }
 
       // escape any special characters otherwise just use the token as is
-      retval.append( tokenContainsSpecialCharacters( token ) ? processToken( token ) : token );
-      retval.append( separator );
+      retval.append(tokenContainsSpecialCharacters(token) ? processToken(token) : token);
+      retval.append(separator);
     }
-    if ( retval.length() > 0 ) {
-      retval.deleteCharAt( retval.length() - 1 );// remove last comma
+    if (retval.length() > 0) {
+      retval.deleteCharAt(retval.length() - 1);// remove last comma
     }
 
-    retval.append( LINE_DELIMITER );
-    printwriter.write( retval.toString() );
+    retval.append(LINE_DELIMITER);
+    printwriter.write(retval.toString());
     printwriter.flush();
 
   }

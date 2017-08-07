@@ -4,10 +4,6 @@
  * This program and the accompanying materials are made available under the 
  * terms of the MIT License which accompanies this distribution, and is 
  * available at http://creativecommons.org/licenses/MIT/
- *
- * Contributors:
- *   Stephan D. Cote 
- *      - Initial concept and implementation
  */
 package coyote.dx;
 
@@ -19,6 +15,6 @@ import coyote.dataframe.DataFrame;
  */
 public interface FrameWriter extends ConfigurableComponent {
 
-  public void write( DataFrame frame );
+  public void write(DataFrame frame);
 
 }

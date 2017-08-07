@@ -4,10 +4,6 @@
  * This program and the accompanying materials are made available under the 
  * terms of the MIT License which accompanies this distribution, and is 
  * available at http://creativecommons.org/licenses/MIT/
- *
- * Contributors:
- *   Stephan D. Cote 
- *      - Initial concept and implementation
  */
 package coyote.dx.task;
 
@@ -16,6 +12,7 @@ package coyote.dx.task;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
 
 /**
  * 
@@ -42,7 +39,7 @@ public class DeleteTaskTest {
 
   @Test
   public void test() {
-//    fail( "Not yet implemented" ); // TODO
+    //    fail( "Not yet implemented" ); // TODO
   }
 
 }

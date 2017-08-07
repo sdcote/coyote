@@ -4,10 +4,6 @@
  * This program and the accompanying materials are made available under the 
  * terms of the MIT License which accompanies this distribution, and is 
  * available at http://creativecommons.org/licenses/MIT/
- *
- * Contributors:
- *   Stephan D. Cote 
- *      - Initial concept and implementation
  */
 package coyote.dx.task;
 
@@ -51,10 +47,10 @@ public class WebGetTest extends AbstractTest {
    */
   @BeforeClass
   public static void setUpBeforeClass() throws Exception {
-    context.setSymbols( symbols );
-    testDir = new File( FileUtil.getCurrentWorkingDirectory(), "testdir" );
-    context.getSymbols().put( Symbols.JOB_DIRECTORY, testDir.getAbsolutePath() );
-    Log.addLogger( Log.DEFAULT_LOGGER_NAME, new ConsoleAppender( Log.TRACE_EVENTS | Log.DEBUG_EVENTS | Log.INFO_EVENTS | Log.WARN_EVENTS | Log.ERROR_EVENTS | Log.FATAL_EVENTS ) );
+    context.setSymbols(symbols);
+    testDir = new File(FileUtil.getCurrentWorkingDirectory(), "testdir");
+    context.getSymbols().put(Symbols.JOB_DIRECTORY, testDir.getAbsolutePath());
+    Log.addLogger(Log.DEFAULT_LOGGER_NAME, new ConsoleAppender(Log.TRACE_EVENTS | Log.DEBUG_EVENTS | Log.INFO_EVENTS | Log.WARN_EVENTS | Log.ERROR_EVENTS | Log.FATAL_EVENTS));
   }
 
 
@@ -65,7 +61,7 @@ public class WebGetTest extends AbstractTest {
    */
   @AfterClass
   public static void tearDownAfterClass() throws Exception {
-    deleteWorkDirectory( testDir );
+    deleteWorkDirectory(testDir);
   }
 
 
@@ -73,36 +69,36 @@ public class WebGetTest extends AbstractTest {
 
   @Test
   public void primaryUseCase() throws ConfigurationException, IOException, TaskException {
-    resetDirectory( testDir );
+    resetDirectory(testDir);
 
     Config cfg = new Config();
-    cfg.put( ConfigTag.SOURCE, "http://mirrors.ibiblio.org/apache//commons/pool/binaries/commons-pool2-2.4.2-bin.tar.gz" );
+    cfg.put(ConfigTag.SOURCE, "http://mirrors.ibiblio.org/apache//commons/pool/binaries/commons-pool2-2.4.2-bin.tar.gz");
 
     try (WebGet task = new WebGet()) {
-      task.setConfiguration( cfg );
-      task.open( context );
+      task.setConfiguration(cfg);
+      task.open(context);
       task.execute();
-      assertFalse( context.getErrorMessage(), context.isInError() );
+      assertFalse(context.getErrorMessage(), context.isInError());
     }
 
-    cfg.put( ConfigTag.SOURCE, "https://www.apache.org/dist/commons/pool/binaries/commons-pool2-2.4.2-bin.tar.gz.md5" );
+    cfg.put(ConfigTag.SOURCE, "https://www.apache.org/dist/commons/pool/binaries/commons-pool2-2.4.2-bin.tar.gz.md5");
     try (WebGet task = new WebGet()) {
-      task.setConfiguration( cfg );
-      task.open( context );
+      task.setConfiguration(cfg);
+      task.open(context);
       task.execute();
-      assertFalse( context.getErrorMessage(), context.isInError() );
+      assertFalse(context.getErrorMessage(), context.isInError());
     }
 
-    String testFile = new File( testDir, "commons-pool2-2.4.2-bin.tar.gz" ).getAbsolutePath();
+    String testFile = new File(testDir, "commons-pool2-2.4.2-bin.tar.gz").getAbsolutePath();
 
     cfg = new Config();
-    cfg.put( ConfigTag.FILE, testFile );
+    cfg.put(ConfigTag.FILE, testFile);
 
     try (CheckMD5 task = new CheckMD5()) {
-      task.setConfiguration( cfg );
-      task.open( context );
+      task.setConfiguration(cfg);
+      task.open(context);
       task.execute();
-      assertFalse( context.getErrorMessage(), context.isInError() );
+      assertFalse(context.getErrorMessage(), context.isInError());
     }
 
   }

@@ -4,14 +4,9 @@
  * This program and the accompanying materials are made available under the 
  * terms of the MIT License which accompanies this distribution, and is 
  * available at http://creativecommons.org/licenses/MIT/
- *
- * Contributors:
- *   Stephan D. Cote 
- *      - Initial concept and implementation
  */
 package coyote.dx.filter;
 
-//import static org.junit.Assert.*;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -41,20 +36,20 @@ public class RejectTest {
 
     // Create simple transformation context
     transformContext = new TransformContext();
-    transformContext.set( "string", "Nylon" );
+    transformContext.set("string", "Nylon");
 
     // create a transaction context within the transformation context  
-    context = new TransactionContext( transformContext );
-    context.setLastFrame( true );
+    context = new TransactionContext(transformContext);
+    context.setLastFrame(true);
 
     DataFrame workingFrame = new DataFrame();
-    workingFrame.add( "Record Type", "PO" );
-    workingFrame.add( "PO ID", "12345" );
-    workingFrame.add( "Description", "Test purchase order." );
-    context.setWorkingFrame( workingFrame );
+    workingFrame.add("Record Type", "PO");
+    workingFrame.add("PO ID", "12345");
+    workingFrame.add("Description", "Test purchase order.");
+    context.setWorkingFrame(workingFrame);
     // Mimic the transform engine and place a reference to the transaction 
     // context in the transform context
-    transformContext.setTransaction( context );
+    transformContext.setTransaction(context);
 
   }
 
@@ -65,9 +60,9 @@ public class RejectTest {
   public void testSetContext() {
 
     Reject filter = new Reject();
-    filter.setContext( transformContext );
+    filter.setContext(transformContext);
 
-    filter.process( context );
+    filter.process(context);
   }
 
 
@@ -77,9 +72,9 @@ public class RejectTest {
   public void testRejectContext() {
 
     FrameFilter filter = new Reject();
-    filter.open( transformContext );
+    filter.open(transformContext);
 
-    assertTrue( filter.process( context ) );
+    assertTrue(filter.process(context));
 
   }
 
@@ -89,9 +84,9 @@ public class RejectTest {
   public void testProcessContext() {
 
     FrameFilter filter = new Reject();
-    filter.open( transformContext );
-    assertTrue( filter.process( context ) );
-    assertFalse( filter.process( context ) );
+    filter.open(transformContext);
+    assertTrue(filter.process(context));
+    assertFalse(filter.process(context));
 
   }
 

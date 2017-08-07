@@ -4,10 +4,6 @@
  * This program and the accompanying materials are made available under the 
  * terms of the MIT License which accompanies this distribution, and is 
  * available at http://creativecommons.org/licenses/MIT/
- *
- * Contributors:
- *   Stephan D. Cote 
- *      - Initial concept and implementation
  */
 package coyote.dx;
 
@@ -79,7 +75,6 @@ public class ConfigTag {
   public static final String DELIMITER = "Delimiter";
   public static final String SELECTOR = "Selector";
 
-
   // Networking proxy tags used by several components
   public static final String PROXY = "proxy";
   public static final String PROXY_HOST = "proxyHost";
@@ -149,5 +144,5 @@ public class ConfigTag {
 
   public static final String IPACL = "ipacl";
   public static final String FREQUENCY = "frequency";
-  
+
 }

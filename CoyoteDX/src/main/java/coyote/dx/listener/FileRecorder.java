@@ -4,10 +4,6 @@
  * This program and the accompanying materials are made available under the 
  * terms of the MIT License which accompanies this distribution, and is 
  * available at http://creativecommons.org/licenses/MIT/
- *
- * Contributors:
- *   Stephan D. Cote 
- *      - Initial concept and implementation
  */
 package coyote.dx.listener;
 
@@ -48,39 +44,39 @@ public abstract class FileRecorder extends ContextRecorder {
    * @see coyote.dx.listener.AbstractListener#open(coyote.dx.context.TransformContext)
    */
   @Override
-  public void open( TransformContext context ) {
-    super.open( context );
+  public void open(TransformContext context) {
+    super.open(context);
 
-    String target = getString( ConfigTag.TARGET );
+    String target = getString(ConfigTag.TARGET);
 
     // get our configuration data
-    setTarget( target );
-    Log.debug( LogMsg.createMsg( CDX.MSG, "DX.listener_validating_target", getTarget() ) );
+    setTarget(target);
+    Log.debug(LogMsg.createMsg(CDX.MSG, "DX.listener_validating_target", getTarget()));
 
-    if ( StringUtil.isNotBlank( getTarget() ) ) {
+    if (StringUtil.isNotBlank(getTarget())) {
 
       target = getTarget().trim();
 
       // Try to parse the target as a URI, failures result in a null
-      if ( UriUtil.parse( target ) == null ) {
+      if (UriUtil.parse(target) == null) {
         // Windows systems often have a drive letter in fully qualified filenames
-        if ( target.charAt( 1 ) == ':' ) {
+        if (target.charAt(1) == ':') {
           // convert it to a file URI
-          File f = new File( target );
+          File f = new File(target);
           URI u = f.toURI();
-          setTarget( u.toString() );
+          setTarget(u.toString());
         }
       }
 
       try {
-        URI uri = new URI( getTarget() );
+        URI uri = new URI(getTarget());
 
         // Make sure we have a complete path to the target file
-        File dest = new File( UriUtil.getFilePath( uri ) );
+        File dest = new File(UriUtil.getFilePath(uri));
 
         // if not absolute, use the current working directory
-        if ( !dest.isAbsolute() ) {
-          dest = new File( context.getSymbols().getString( Symbols.JOB_DIRECTORY ), UriUtil.getFilePath( uri ) );
+        if (!dest.isAbsolute()) {
+          dest = new File(context.getSymbols().getString(Symbols.JOB_DIRECTORY), UriUtil.getFilePath(uri));
         }
 
         // make any directories as necessary
@@ -88,23 +84,23 @@ public abstract class FileRecorder extends ContextRecorder {
 
         // 
         targetFile = dest;
-        Log.debug( LogMsg.createMsg( CDX.MSG, "DX.listener_using_target", targetFile.toString() ) );
+        Log.debug(LogMsg.createMsg(CDX.MSG, "DX.listener_using_target", targetFile.toString()));
 
         // Create the writer
-        log_writer = new OutputStreamWriter( new FileOutputStream( targetFile.toString(), false ) );
+        log_writer = new OutputStreamWriter(new FileOutputStream(targetFile.toString(), false));
 
-      } catch ( final URISyntaxException e ) {
-        context.setError( "Invalid target URI (" + e.getMessage() + ") - '" + getTarget() + "'" );
-      } catch ( FileNotFoundException e ) {
-        context.setError( "Could not write to target URI (" + e.getMessage() + ") - '" + getTarget() + "'" );
-      } catch ( Exception e ) {
-        context.setError( "Processing exception (" + e.getMessage() + ") during open " );
+      } catch (final URISyntaxException e) {
+        context.setError("Invalid target URI (" + e.getMessage() + ") - '" + getTarget() + "'");
+      } catch (FileNotFoundException e) {
+        context.setError("Could not write to target URI (" + e.getMessage() + ") - '" + getTarget() + "'");
+      } catch (Exception e) {
+        context.setError("Processing exception (" + e.getMessage() + ") during open ");
         e.printStackTrace();
       }
 
     } else {
-      Log.error( "No target specified" );
-      context.setError( getClass().getName() + " could not determine 'target' for recording events" );
+      Log.error("No target specified");
+      context.setError(getClass().getName() + " could not determine 'target' for recording events");
     }
 
   }
@@ -112,19 +108,19 @@ public abstract class FileRecorder extends ContextRecorder {
 
 
 
-  protected void write( String text ) {
+  protected void write(String text) {
 
-    if ( targetFile != null && !targetFile.exists() ) {
+    if (targetFile != null && !targetFile.exists()) {
       try {
-        log_writer = new OutputStreamWriter( new FileOutputStream( targetFile.toString(), false ) );
+        log_writer = new OutputStreamWriter(new FileOutputStream(targetFile.toString(), false));
         //final byte[] header = getFormatter().initialize();
         //if ( header != null ) { log_writer.write( new String( header ) ); }
-      } catch ( final Exception ex ) {
-        System.err.println( "Could not recreate " + targetFile.getAbsolutePath() + " - " + ex.getMessage() );
-        if ( log_writer != null ) {
+      } catch (final Exception ex) {
+        System.err.println("Could not recreate " + targetFile.getAbsolutePath() + " - " + ex.getMessage());
+        if (log_writer != null) {
           try {
             log_writer.close();
-          } catch ( final Exception ignore ) {}
+          } catch (final Exception ignore) {}
           finally {
             log_writer = null;
           }
@@ -132,15 +128,15 @@ public abstract class FileRecorder extends ContextRecorder {
       }
     }
 
-    if ( log_writer == null ) {
+    if (log_writer == null) {
       return;
     }
 
     try {
-      log_writer.write( text );
+      log_writer.write(text);
       log_writer.flush();
-    } catch ( final IOException ioe ) {} catch ( final Exception e ) {
-      context.setError( this.getClass().getName() + " context logging error: " + e + ":" + e.getMessage() );
+    } catch (final IOException ioe) {} catch (final Exception e) {
+      context.setError(this.getClass().getName() + " context logging error: " + e + ":" + e.getMessage());
     }
   }
 
@@ -153,10 +149,10 @@ public abstract class FileRecorder extends ContextRecorder {
   @Override
   public void close() throws IOException {
 
-    if ( log_writer != null ) {
+    if (log_writer != null) {
       try {
         log_writer.close();
-      } catch ( final Exception ignore ) {}
+      } catch (final Exception ignore) {}
       finally {
         log_writer = null;
       }

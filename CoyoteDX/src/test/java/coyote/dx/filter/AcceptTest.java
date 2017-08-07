@@ -4,10 +4,6 @@
  * This program and the accompanying materials are made available under the 
  * terms of the MIT License which accompanies this distribution, and is 
  * available at http://creativecommons.org/licenses/MIT/
- *
- * Contributors:
- *   Stephan D. Cote 
- *      - Initial concept and implementation
  */
 package coyote.dx.filter;
 
@@ -43,21 +39,21 @@ public class AcceptTest {
 
     // Create simple transformation context
     transformContext = new TransformContext();
-    transformContext.set( "string", "Nylon" );
+    transformContext.set("string", "Nylon");
 
     // create a transaction context within the transformation context  
-    context = new TransactionContext( transformContext );
-    context.setLastFrame( true );
+    context = new TransactionContext(transformContext);
+    context.setLastFrame(true);
 
     DataFrame workingFrame = new DataFrame();
-    workingFrame.add( "Record Type", "PO" );
-    workingFrame.add( "PO ID", "12345" );
-    workingFrame.add( "Description", "Test purchase order." );
-    context.setWorkingFrame( workingFrame );
+    workingFrame.add("Record Type", "PO");
+    workingFrame.add("PO ID", "12345");
+    workingFrame.add("Description", "Test purchase order.");
+    context.setWorkingFrame(workingFrame);
 
     // Mimic the transform engine and place a reference to the transaction 
     // context in the transform context
-    transformContext.setTransaction( context );
+    transformContext.setTransaction(context);
 
   }
 
@@ -68,9 +64,9 @@ public class AcceptTest {
   public void testSetContext() {
 
     Accept filter = new Accept();
-    filter.open( transformContext );
+    filter.open(transformContext);
 
-    filter.process( context );
+    filter.process(context);
   }
 
 
@@ -78,14 +74,14 @@ public class AcceptTest {
 
   //@Test
   public void testAcceptConstructor() {
-    Accept filter = new Accept( "match( Working.Record Type , PO )" );
-    filter.open( transformContext );
+    Accept filter = new Accept("match( Working.Record Type , PO )");
+    filter.open(transformContext);
 
     // this should fire and return false: do not process other filters
-    assertFalse( filter.process( context ) );
+    assertFalse(filter.process(context));
 
     // The 
-    assertNotNull( context.getWorkingFrame() );
+    assertNotNull(context.getWorkingFrame());
 
   }
 
@@ -96,14 +92,14 @@ public class AcceptTest {
   public void testAcceptContext() {
     Accept filter = new Accept();
     String expression = "match( Working.Record Type , PO )";
-    filter.setCondition( expression );
-    filter.open( transformContext );
+    filter.setCondition(expression);
+    filter.open(transformContext);
 
     // this should fire and return false: do not process other filters
-    assertFalse( filter.process( context ) );
+    assertFalse(filter.process(context));
 
     // The 
-    assertNotNull( context.getWorkingFrame() );
+    assertNotNull(context.getWorkingFrame());
 
   }
 
@@ -113,8 +109,8 @@ public class AcceptTest {
   public void testProcessContext() {
 
     FrameFilter filter = new Accept();
-    assertTrue( filter.process( context ) );
-    assertFalse( filter.process( context ) );
+    assertTrue(filter.process(context));
+    assertFalse(filter.process(context));
 
   }
 

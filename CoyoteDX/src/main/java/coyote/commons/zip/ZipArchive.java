@@ -4,10 +4,6 @@
  * This program and the accompanying materials are made available under the 
  * terms of the MIT License which accompanies this distribution, and is 
  * available at http://creativecommons.org/licenses/MIT/
- *
- * Contributors:
- *   Stephan D. Cote 
- *      - Initial concept and implementation
  */
 package coyote.commons.zip;
 
@@ -68,31 +64,31 @@ public class ZipArchive {
    * 
    * @throws IOException
    */
-  private static void copyFile( final File srcFile, final File destFile ) throws IOException {
+  private static void copyFile(final File srcFile, final File destFile) throws IOException {
     FileInputStream fin = null;
     FileOutputStream fout = null;
 
     try {
-      fin = new FileInputStream( srcFile );
+      fin = new FileInputStream(srcFile);
 
-      final BufferedInputStream bin = new BufferedInputStream( fin );
-      fout = new FileOutputStream( destFile );
+      final BufferedInputStream bin = new BufferedInputStream(fin);
+      fout = new FileOutputStream(destFile);
 
-      final BufferedOutputStream bout = new BufferedOutputStream( fout );
-      StreamUtil.copy( bin, bout );
+      final BufferedOutputStream bout = new BufferedOutputStream(fout);
+      StreamUtil.copy(bin, bout);
     }
     finally {
       try {
-        if ( fin != null ) {
+        if (fin != null) {
           fin.close();
         }
-      } catch ( final IOException e ) {}
+      } catch (final IOException e) {}
 
       try {
-        if ( fout != null ) {
+        if (fout != null) {
           fout.close();
         }
-      } catch ( final IOException e ) {}
+      } catch (final IOException e) {}
     }
   }
 
@@ -106,8 +102,8 @@ public class ZipArchive {
    * 
    * @return .
    */
-  private static final String getLocalFileName( final String zipPath ) {
-    return zipPath.replace( '/', File.separatorChar );
+  private static final String getLocalFileName(final String zipPath) {
+    return zipPath.replace('/', File.separatorChar);
   }
 
 
@@ -122,15 +118,15 @@ public class ZipArchive {
    * 
    * @return .
    */
-  private static final String getZipName( final File baseDir, final File srcFile ) {
+  private static final String getZipName(final File baseDir, final File srcFile) {
     String baseAbsPath = baseDir.getAbsolutePath();
 
-    if ( !baseAbsPath.endsWith( File.separator ) ) {
+    if (!baseAbsPath.endsWith(File.separator)) {
       baseAbsPath += File.separatorChar;
     }
 
     final String srcAbsPath = srcFile.getAbsolutePath();
-    return srcAbsPath.substring( baseAbsPath.length() ).replace( File.separatorChar, '/' );
+    return srcAbsPath.substring(baseAbsPath.length()).replace(File.separatorChar, '/');
   }
 
   private URL archiveURL;
@@ -151,11 +147,11 @@ public class ZipArchive {
    * @param archiveFile
    * @throws IOException
    */
-  public ZipArchive( final File archiveFile ) throws IOException {
+  public ZipArchive(final File archiveFile) throws IOException {
     this.archiveFile = archiveFile;
 
-    if ( archiveFile.exists() ) {
-      zipFile = new ZipFile( archiveFile );
+    if (archiveFile.exists()) {
+      zipFile = new ZipFile(archiveFile);
     }
   }
 
@@ -172,13 +168,13 @@ public class ZipArchive {
    * 
    * @throws IOException
    */
-  public ZipArchive( final URL url ) throws IOException {
-    archiveFile = UriUtil.getFile( url );
-    setArchiveURL( url );
-    archiveFile = downloadZip( url );
+  public ZipArchive(final URL url) throws IOException {
+    archiveFile = UriUtil.getFile(url);
+    setArchiveURL(url);
+    archiveFile = downloadZip(url);
 
-    if ( archiveFile.exists() ) {
-      zipFile = new ZipFile( archiveFile );
+    if (archiveFile.exists()) {
+      zipFile = new ZipFile(archiveFile);
     }
   }
 
@@ -193,17 +189,17 @@ public class ZipArchive {
    * 
    * @throws IOException
    */
-  public void addEntry( final String entryName, final byte[] data ) throws IOException {
-    if ( addMap == null ) {
+  public void addEntry(final String entryName, final byte[] data) throws IOException {
+    if (addMap == null) {
       addMap = new HashMap<String, byte[]>();
     }
 
-    addMap.put( entryName, data );
+    addMap.put(entryName, data);
 
     // if we were slated to remove the entry earlier, we have to dequeue the
     // entry now, else it will not get flushed later
-    if ( ( removeMap != null ) && removeMap.containsKey( entryName ) ) {
-      removeMap.remove( entryName );
+    if ((removeMap != null) && removeMap.containsKey(entryName)) {
+      removeMap.remove(entryName);
     }
   }
 
@@ -219,18 +215,18 @@ public class ZipArchive {
    * 
    * @throws IOException
    */
-  private void addEntryToZip( final ZipOutputStream zos, final String name, final byte[] data ) throws IOException {
+  private void addEntryToZip(final ZipOutputStream zos, final String name, final byte[] data) throws IOException {
     // get the CRC32 value
     final CRC32 crc = new CRC32();
-    crc.update( data );
+    crc.update(data);
 
     // create a new ZipEntry and set its CRC
-    final ZipEntry ze = new ZipEntry( name );
-    ze.setSize( data.length );
-    ze.setCrc( crc.getValue() );
+    final ZipEntry ze = new ZipEntry(name);
+    ze.setSize(data.length);
+    ze.setCrc(crc.getValue());
     // write the data
-    zos.putNextEntry( ze );
-    zos.write( data, 0, data.length );
+    zos.putNextEntry(ze);
+    zos.write(data, 0, data.length);
   }
 
 
@@ -245,8 +241,8 @@ public class ZipArchive {
    * 
    * @see #addFiles(File, FilenameFilter)
    */
-  public void addFiles( final File baseDir ) throws IOException {
-    addFiles( baseDir, new AllFilesFilenameFilter() );
+  public void addFiles(final File baseDir) throws IOException {
+    addFiles(baseDir, new AllFilesFilenameFilter());
   }
 
 
@@ -262,8 +258,8 @@ public class ZipArchive {
    * 
    * @throws IOException
    */
-  public void addFiles( final File baseDir, final FilenameFilter filter ) throws IOException {
-    addFiles( baseDir, null, filter );
+  public void addFiles(final File baseDir, final FilenameFilter filter) throws IOException {
+    addFiles(baseDir, null, filter);
   }
 
 
@@ -283,19 +279,19 @@ public class ZipArchive {
    * 
    * @throws IOException
    */
-  public void addFiles( final File baseDir, final String archiveBasePath, final FilenameFilter filter ) throws IOException {
+  public void addFiles(final File baseDir, final String archiveBasePath, final FilenameFilter filter) throws IOException {
     final List<String> fileList = new ArrayList<String>();
 
-    fileFinder.accumulateFiles( baseDir, fileList, filter );
+    fileFinder.accumulateFiles(baseDir, fileList, filter);
 
-    for ( int ii = 0; ii < fileList.size(); ii++ ) {
-      final File addFile = new File( fileList.get( ii ).toString() );
-      final FileInputStream fis = new FileInputStream( addFile );
+    for (int ii = 0; ii < fileList.size(); ii++) {
+      final File addFile = new File(fileList.get(ii).toString());
+      final FileInputStream fis = new FileInputStream(addFile);
 
-      if ( archiveBasePath != null ) {
-        addEntry( archiveBasePath + "/" + getZipName( baseDir, addFile ), StreamUtil.loadBytes( fis ) );
+      if (archiveBasePath != null) {
+        addEntry(archiveBasePath + "/" + getZipName(baseDir, addFile), StreamUtil.loadBytes(fis));
       } else {
-        addEntry( getZipName( baseDir, addFile ), StreamUtil.loadBytes( fis ) );
+        addEntry(getZipName(baseDir, addFile), StreamUtil.loadBytes(fis));
       }
     }
   }
@@ -313,15 +309,15 @@ public class ZipArchive {
    * 
    * @throws IOException
    */
-  private File downloadZip( final URL archiveURL ) throws IOException {
+  private File downloadZip(final URL archiveURL) throws IOException {
     // we're going to create a temporary file for this session so we can
     // download the ZIP and access it as a random access file (ZipFile)
-    final File tmp = File.createTempFile( "cmdjar", null );
+    final File tmp = File.createTempFile("cmdjar", null);
     tmp.deleteOnExit();
 
-    final FileOutputStream out = new FileOutputStream( tmp );
+    final FileOutputStream out = new FileOutputStream(tmp);
     final InputStream in = archiveURL.openStream();
-    out.write( StreamUtil.loadBytes( in ) );
+    out.write(StreamUtil.loadBytes(in));
     out.flush();
 
     return tmp;
@@ -376,8 +372,8 @@ public class ZipArchive {
    * @param baseDir
    * @throws IOException
    */
-  public void extractTo( final File baseDir ) throws IOException {
-    extractTo( baseDir, new AllZipEntryFilter() );
+  public void extractTo(final File baseDir) throws IOException {
+    extractTo(baseDir, new AllZipEntryFilter());
   }
 
 
@@ -391,16 +387,16 @@ public class ZipArchive {
    * 
    * @throws IOException
    */
-  public void extractTo( final File baseDir, final IZipEntryFilter filter ) throws IOException {
+  public void extractTo(final File baseDir, final IZipEntryFilter filter) throws IOException {
     flush();
 
     final Enumeration<? extends ZipEntry> entries = zipFile.entries();
 
-    while ( entries.hasMoreElements() ) {
+    while (entries.hasMoreElements()) {
       final ZipEntry ze = entries.nextElement();
 
-      if ( filter.accept( ze.getName() ) ) {
-        writeEntryTo( baseDir, ze );
+      if (filter.accept(ze.getName())) {
+        writeEntryTo(baseDir, ze);
       }
     }
   }
@@ -416,9 +412,9 @@ public class ZipArchive {
    * 
    * @throws IOException
    */
-  public void extractTo( final File baseDir, final String entryName ) throws IOException {
+  public void extractTo(final File baseDir, final String entryName) throws IOException {
     flush();
-    writeEntryTo( baseDir, zipFile.getEntry( entryName ) );
+    writeEntryTo(baseDir, zipFile.getEntry(entryName));
   }
 
 
@@ -430,13 +426,13 @@ public class ZipArchive {
    * @throws IOException
    */
   public void flush() throws IOException {
-    if ( ( addMap != null ) || ( removeMap != null ) ) {
+    if ((addMap != null) || (removeMap != null)) {
       // so we're not doing these checks again and again inside tight loops
-      if ( removeMap == null ) {
+      if (removeMap == null) {
         removeMap = new HashMap<String, Boolean>();
       }
 
-      if ( addMap == null ) {
+      if (addMap == null) {
         addMap = new HashMap<String, byte[]>();
       }
 
@@ -444,23 +440,23 @@ public class ZipArchive {
       // file, copy the existing entries in (minus those on our removeMap or
       // addMap) and then add those stored just in the addMap, and finally
       // overwrite the old ZipFile with our temporary one
-      final File tmpFile = File.createTempFile( "ZipArchive", null );
-      final FileOutputStream fos = new FileOutputStream( tmpFile );
-      final BufferedOutputStream bos = new BufferedOutputStream( fos );
-      final ZipOutputStream zos = new ZipOutputStream( bos );
+      final File tmpFile = File.createTempFile("ZipArchive", null);
+      final FileOutputStream fos = new FileOutputStream(tmpFile);
+      final BufferedOutputStream bos = new BufferedOutputStream(fos);
+      final ZipOutputStream zos = new ZipOutputStream(bos);
 
       // handle writing the old entries that haven't changed; we don't have to
       // do this for a brand new ZIP
-      if ( zipFile != null ) {
+      if (zipFile != null) {
         final Enumeration<? extends ZipEntry> entries = zipFile.entries();
 
-        while ( entries.hasMoreElements() ) {
+        while (entries.hasMoreElements()) {
           final ZipEntry ze = entries.nextElement();
 
-          if ( !removeMap.containsKey( ze.getName() ) && !addMap.containsKey( ze.getName() ) ) {
-            final byte[] data = StreamUtil.loadBytes( zipFile.getInputStream( ze ) );
-            zos.putNextEntry( ze );
-            zos.write( data, 0, data.length );
+          if (!removeMap.containsKey(ze.getName()) && !addMap.containsKey(ze.getName())) {
+            final byte[] data = StreamUtil.loadBytes(zipFile.getInputStream(ze));
+            zos.putNextEntry(ze);
+            zos.write(data, 0, data.length);
           }
         }
       }
@@ -468,9 +464,9 @@ public class ZipArchive {
       // handle writing the new entries that are just in memory
       final Iterator<String> addEntries = addMap.keySet().iterator();
 
-      while ( addEntries.hasNext() ) {
+      while (addEntries.hasNext()) {
         final String entryName = addEntries.next();
-        addEntryToZip( zos, entryName, addMap.get( entryName ) );
+        addEntryToZip(zos, entryName, addMap.get(entryName));
       }
 
       zos.finish();
@@ -480,31 +476,31 @@ public class ZipArchive {
 
       // now we can overwrite the old ZipFile and re-open it with the new data
       // we just added
-      if ( zipFile != null ) {
+      if (zipFile != null) {
         zipFile.close();
       }
 
-      if ( archiveFile.exists() ) {
-        if ( archiveFile.canWrite() ) {
-          if ( !archiveFile.delete() ) {
+      if (archiveFile.exists()) {
+        if (archiveFile.canWrite()) {
+          if (!archiveFile.delete()) {
             //throw new IOException( "unable to delete old ZIP file '" + archiveFile + "'" );
           }
         } else {
-          System.out.println( "Archive NOT Writable!" );
+          System.out.println("Archive NOT Writable!");
         }
       }
 
       // if rename fails, we have to try copying the file first before we give
       // up, because renameTo() will not work across different file systems
-      if ( !tmpFile.renameTo( archiveFile ) ) {
+      if (!tmpFile.renameTo(archiveFile)) {
         try {
-          copyFile( tmpFile, archiveFile );
-        } catch ( final IOException e ) {
-          throw new IOException( "unable to rename temporary ZIP file '" + tmpFile + "' to '" + archiveFile + "'" );
+          copyFile(tmpFile, archiveFile);
+        } catch (final IOException e) {
+          throw new IOException("unable to rename temporary ZIP file '" + tmpFile + "' to '" + archiveFile + "'");
         }
       }
 
-      zipFile = new ZipFile( archiveFile );
+      zipFile = new ZipFile(archiveFile);
 
       // destroy the old add/remove maps to free up memory
       addMap = null;
@@ -534,41 +530,41 @@ public class ZipArchive {
    * 
    * @throws IOException
    */
-  public byte[] getEntry( final String entryName ) throws IOException {
+  public byte[] getEntry(final String entryName) throws IOException {
     // first check to see if there's a cache of not-yet-flushed added entries
     // and if the entry's there
-    if ( ( addMap != null ) && ( addMap.containsKey( entryName ) ) ) {
-      return addMap.get( entryName );
+    if ((addMap != null) && (addMap.containsKey(entryName))) {
+      return addMap.get(entryName);
     } else {
       // ...otherwise go read directly from the local ZipFile
-      if ( ( removeMap != null ) && removeMap.containsKey( entryName ) ) {
-        throw new IOException( "zip entry not found: " + entryName );
+      if ((removeMap != null) && removeMap.containsKey(entryName)) {
+        throw new IOException("zip entry not found: " + entryName);
       }
 
       // if we get here, we have to consult the ZipFile...which may not exists
       // if this is a newly-created file. But there's also a chance we were
       // handed a bum archiveFile, so we should check here--maybe need a
       // OPEN_READ_WRITE, OPEN_CREATE flag set
-      if ( zipFile == null ) {
-        throw new IOException( "File not found: " + archiveFile );
+      if (zipFile == null) {
+        throw new IOException("File not found: " + archiveFile);
       }
 
-      final ZipEntry ze = zipFile.getEntry( entryName );
+      final ZipEntry ze = zipFile.getEntry(entryName);
 
-      if ( ze == null ) {
-        throw new IOException( "zip entry not found: " + entryName );
+      if (ze == null) {
+        throw new IOException("zip entry not found: " + entryName);
       }
 
-      final InputStream in = zipFile.getInputStream( ze );
+      final InputStream in = zipFile.getInputStream(ze);
 
       try {
-        return StreamUtil.loadBytes( in );
+        return StreamUtil.loadBytes(in);
       }
       finally {
-        if ( in != null ) {
+        if (in != null) {
           try {
             in.close();
-          } catch ( final IOException e ) {}
+          } catch (final IOException e) {}
         }
       }
     }
@@ -587,16 +583,16 @@ public class ZipArchive {
    *  
    * @throws IOException
    */
-  public byte[] removeEntry( final String entryName ) throws IOException {
-    final byte[] entryData = getEntry( entryName );
+  public byte[] removeEntry(final String entryName) throws IOException {
+    final byte[] entryData = getEntry(entryName);
 
     // if we're removing an entry that was just in cache and never got flushed,
     // we can safely just remove it from memory; otherwise we add it to our
     // "to-remove" list for consultatation on the next flush
-    if ( ( addMap != null ) && ( addMap.containsKey( entryName ) ) ) {
-      addMap.remove( entryName );
+    if ((addMap != null) && (addMap.containsKey(entryName))) {
+      addMap.remove(entryName);
     } else {
-      removeMap.put( entryName, Boolean.TRUE );
+      removeMap.put(entryName, Boolean.TRUE);
     }
 
     return entryData;
@@ -608,7 +604,7 @@ public class ZipArchive {
   /**
    * @param archiveURL the archiveURL to set
    */
-  public void setArchiveURL( final URL archiveURL ) {
+  public void setArchiveURL(final URL archiveURL) {
     this.archiveURL = archiveURL;
   }
 
@@ -624,14 +620,14 @@ public class ZipArchive {
    * 
    * @throws IOException
    */
-  private void writeEntryTo( final File baseDir, final ZipEntry ze ) throws IOException {
-    final File out = new File( baseDir, getLocalFileName( ze.getName() ) );
+  private void writeEntryTo(final File baseDir, final ZipEntry ze) throws IOException {
+    final File out = new File(baseDir, getLocalFileName(ze.getName()));
     out.getParentFile().mkdirs();
 
-    if ( !ze.isDirectory() ) {
-      final FileOutputStream fos = new FileOutputStream( out );
-      final BufferedOutputStream bos = new BufferedOutputStream( fos );
-      StreamUtil.copy( zipFile.getInputStream( ze ), fos );
+    if (!ze.isDirectory()) {
+      final FileOutputStream fos = new FileOutputStream(out);
+      final BufferedOutputStream bos = new BufferedOutputStream(fos);
+      StreamUtil.copy(zipFile.getInputStream(ze), fos);
       bos.close();
     }
   }

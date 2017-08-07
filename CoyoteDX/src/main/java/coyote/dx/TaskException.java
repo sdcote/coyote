@@ -4,10 +4,6 @@
  * This program and the accompanying materials are made available under the 
  * terms of the MIT License which accompanies this distribution, and is 
  * available at http://creativecommons.org/licenses/MIT/
- *
- * Contributors:
- *   Stephan D. Cote 
- *      - Initial concept and implementation
  */
 package coyote.dx;
 
@@ -28,29 +24,29 @@ public class TaskException extends Exception {
 
 
 
-  public TaskException( String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace ) {
-    super( message, cause, enableSuppression, writableStackTrace );
+  public TaskException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+    super(message, cause, enableSuppression, writableStackTrace);
   }
 
 
 
 
-  public TaskException( String message, Throwable cause ) {
-    super( message, cause );
+  public TaskException(String message, Throwable cause) {
+    super(message, cause);
   }
 
 
 
 
-  public TaskException( String message ) {
-    super( message );
+  public TaskException(String message) {
+    super(message);
   }
 
 
 
 
-  public TaskException( Throwable cause ) {
-    super( cause );
+  public TaskException(Throwable cause) {
+    super(cause);
   }
 
 }

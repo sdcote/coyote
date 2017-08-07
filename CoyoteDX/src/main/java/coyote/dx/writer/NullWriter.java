@@ -4,10 +4,6 @@
  * This program and the accompanying materials are made available under the 
  * terms of the MIT License which accompanies this distribution, and is 
  * available at http://creativecommons.org/licenses/MIT/
- *
- * Contributors:
- *   Stephan D. Cote 
- *      - Initial concept and implementation
  */
 package coyote.dx.writer;
 
@@ -24,7 +20,7 @@ public class NullWriter extends AbstractFrameWriter {
    * @see coyote.dx.FrameWriter#write(coyote.dataframe.DataFrame)
    */
   @Override
-  public void write( DataFrame frame ) {}
+  public void write(DataFrame frame) {}
 
 
 
@@ -33,6 +29,6 @@ public class NullWriter extends AbstractFrameWriter {
    * @see coyote.dx.writer.AbstractFrameWriter#open(coyote.dx.context.TransformContext)
    */
   @Override
-  public void open( TransformContext context ) {}
+  public void open(TransformContext context) {}
 
 }

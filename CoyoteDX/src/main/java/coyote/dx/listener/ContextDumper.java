@@ -4,10 +4,6 @@
  * This program and the accompanying materials are made available under the 
  * terms of the MIT License which accompanies this distribution, and is 
  * available at http://creativecommons.org/licenses/MIT/
- *
- * Contributors:
- *   Stephan D. Cote 
- *      - Initial concept and implementation
  */
 package coyote.dx.listener;
 
@@ -29,19 +25,19 @@ public class ContextDumper extends FileRecorder {
    * @see coyote.dx.listener.AbstractListener#onStart(coyote.dx.context.OperationalContext)
    */
   @Override
-  public void onStart( OperationalContext context ) {
-    if ( context instanceof TransformContext ) {
-      StringBuffer b = new StringBuffer( "Context at beginning of Transformation:" );
-      b.append( StringUtil.LINE_FEED );
-      b.append( context.dump() );
-      b.append( StringUtil.LINE_FEED );
-      b.append( "Symbol Table:" );
-      b.append( StringUtil.LINE_FEED );
-      b.append( context.getSymbols().dump() );
-      b.append( StringUtil.LINE_FEED );
-      b.append( "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -" );
-      b.append( StringUtil.LINE_FEED );
-      write( b.toString() );
+  public void onStart(OperationalContext context) {
+    if (context instanceof TransformContext) {
+      StringBuffer b = new StringBuffer("Context at beginning of Transformation:");
+      b.append(StringUtil.LINE_FEED);
+      b.append(context.dump());
+      b.append(StringUtil.LINE_FEED);
+      b.append("Symbol Table:");
+      b.append(StringUtil.LINE_FEED);
+      b.append(context.getSymbols().dump());
+      b.append(StringUtil.LINE_FEED);
+      b.append("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -");
+      b.append(StringUtil.LINE_FEED);
+      write(b.toString());
     }
   }
 
@@ -52,19 +48,19 @@ public class ContextDumper extends FileRecorder {
    * @see coyote.dx.listener.AbstractListener#onEnd(coyote.dx.context.OperationalContext)
    */
   @Override
-  public void onEnd( OperationalContext context ) {
-    if ( context instanceof TransformContext ) {
-      StringBuffer b = new StringBuffer( "Context at end of Transformation:" );
-      b.append( StringUtil.LINE_FEED );
-      b.append( context.dump() );
-      b.append( StringUtil.LINE_FEED );
-      b.append( "Symbol Table:" );
-      b.append( StringUtil.LINE_FEED );
-      b.append( context.getSymbols().dump() );
-      b.append( StringUtil.LINE_FEED );
-      b.append( "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -" );
-      b.append( StringUtil.LINE_FEED );
-      write( b.toString() );
+  public void onEnd(OperationalContext context) {
+    if (context instanceof TransformContext) {
+      StringBuffer b = new StringBuffer("Context at end of Transformation:");
+      b.append(StringUtil.LINE_FEED);
+      b.append(context.dump());
+      b.append(StringUtil.LINE_FEED);
+      b.append("Symbol Table:");
+      b.append(StringUtil.LINE_FEED);
+      b.append(context.getSymbols().dump());
+      b.append(StringUtil.LINE_FEED);
+      b.append("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -");
+      b.append(StringUtil.LINE_FEED);
+      write(b.toString());
     }
   }
 

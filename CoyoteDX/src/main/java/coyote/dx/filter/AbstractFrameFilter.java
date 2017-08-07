@@ -4,10 +4,6 @@
  * This program and the accompanying materials are made available under the 
  * terms of the MIT License which accompanies this distribution, and is 
  * available at http://creativecommons.org/licenses/MIT/
- *
- * Contributors:
- *   Stephan D. Cote 
- *      - Initial concept and implementation
  */
 package coyote.dx.filter;
 
@@ -54,7 +50,7 @@ public abstract class AbstractFrameFilter extends AbstractConfigurableComponent 
    * 
    * @param condition the conditional expression which must be met for this filter to fire
    */
-  public AbstractFrameFilter( String condition ) {
+  public AbstractFrameFilter(String condition) {
     expression = condition;
   }
 
@@ -65,17 +61,17 @@ public abstract class AbstractFrameFilter extends AbstractConfigurableComponent 
    * @see coyote.dx.Component#open(coyote.dx.context.TransformContext)
    */
   @Override
-  public void open( TransformContext context ) {
-    evaluator.setContext( context );
+  public void open(TransformContext context) {
+    evaluator.setContext(context);
 
-    String token = getConfiguration().getString( ConfigTag.CONDITION );
-    if ( StringUtil.isNotBlank( token ) ) {
+    String token = getConfiguration().getString(ConfigTag.CONDITION);
+    if (StringUtil.isNotBlank(token)) {
       expression = token.trim();
 
       try {
-        evaluator.evaluateBoolean( expression );
-      } catch ( IllegalArgumentException e ) {
-        context.setError( "Invalid boolean exception in Reject filter: " + e.getMessage() );
+        evaluator.evaluateBoolean(expression);
+      } catch (IllegalArgumentException e) {
+        context.setError("Invalid boolean exception in Reject filter: " + e.getMessage());
       }
     }
 
@@ -108,7 +104,7 @@ public abstract class AbstractFrameFilter extends AbstractConfigurableComponent 
   /**
    * @param condition the conditional expression which must be met for this filter to fire
    */
-  public void setCondition( String condition ) {
+  public void setCondition(String condition) {
     expression = condition;
   }
 
@@ -119,7 +115,7 @@ public abstract class AbstractFrameFilter extends AbstractConfigurableComponent 
    * @see coyote.dx.FrameFilter#process(coyote.dx.context.TransactionContext)
    */
   @Override
-  public boolean process( TransactionContext context ) {
+  public boolean process(TransactionContext context) {
     return false;
   }
 

@@ -4,10 +4,6 @@
  * This program and the accompanying materials are made available under the 
  * terms of the MIT License which accompanies this distribution, and is 
  * available at http://creativecommons.org/licenses/MIT/
- *
- * Contributors:
- *   Stephan D. Cote 
- *      - Initial concept and implementation
  */
 package coyote.dx.task;
 
@@ -34,46 +30,46 @@ public class Unzip extends AbstractFileTask {
   @Override
   protected void performTask() throws TaskException {
     final String source = getSourceOrFile();
-    if ( StringUtil.isNotBlank( source ) ) {
-      Log.debug( getClass().getSimpleName() + " using a filename of '" + source + "'" );;
-      final File file = getExistingFile( source );
-      Log.debug( getClass().getSimpleName() + " using absolute filename of '" + file.getAbsolutePath() + "'" );;
+    if (StringUtil.isNotBlank(source)) {
+      Log.debug(getClass().getSimpleName() + " using a filename of '" + source + "'");;
+      final File file = getExistingFile(source);
+      Log.debug(getClass().getSimpleName() + " using absolute filename of '" + file.getAbsolutePath() + "'");;
 
-      if ( file.exists() ) {
-        if ( file.canRead() ) {
-          if ( file.length() > 0 ) {
+      if (file.exists()) {
+        if (file.canRead()) {
+          if (file.length() > 0) {
             try {
-              ZipUtil.unzip( file, getDirectory() );
-            } catch ( IOException e ) {
-              throw new TaskException( "Could not unzip file: " + e.getMessage(), e );
+              ZipUtil.unzip(file, getDirectory());
+            } catch (IOException e) {
+              throw new TaskException("Could not unzip file: " + e.getMessage(), e);
             }
           } else {
-            Log.warn( LogMsg.createMsg( CDX.MSG, "%s did not read any data from %s - empty file (%s)", getClass().getSimpleName(), source, file.getAbsolutePath() ) );
+            Log.warn(LogMsg.createMsg(CDX.MSG, "%s did not read any data from %s - empty file (%s)", getClass().getSimpleName(), source, file.getAbsolutePath()));
           }
         } else {
-          final String msg = LogMsg.createMsg( CDX.MSG, "Task.failed_file_cannot_be_read", getClass().getSimpleName(), source, file.getAbsolutePath() ).toString();
-          if ( haltOnError ) {
-            throw new TaskException( msg );
+          final String msg = LogMsg.createMsg(CDX.MSG, "Task.failed_file_cannot_be_read", getClass().getSimpleName(), source, file.getAbsolutePath()).toString();
+          if (haltOnError) {
+            throw new TaskException(msg);
           } else {
-            Log.error( msg );
+            Log.error(msg);
             return;
           }
         }
       } else {
-        final String msg = LogMsg.createMsg( CDX.MSG, "Task.failed_file_does_not_exist", getClass().getSimpleName(), source, file.getAbsolutePath() ).toString();
-        if ( haltOnError ) {
-          throw new TaskException( msg );
+        final String msg = LogMsg.createMsg(CDX.MSG, "Task.failed_file_does_not_exist", getClass().getSimpleName(), source, file.getAbsolutePath()).toString();
+        if (haltOnError) {
+          throw new TaskException(msg);
         } else {
-          Log.error( msg );
+          Log.error(msg);
           return;
         }
       }
     } else {
-      final String msg = LogMsg.createMsg( CDX.MSG, "%s failed: No data in %s configuration attribute", getClass().getSimpleName(), ConfigTag.SOURCE ).toString();
-      if ( haltOnError ) {
-        throw new TaskException( msg );
+      final String msg = LogMsg.createMsg(CDX.MSG, "%s failed: No data in %s configuration attribute", getClass().getSimpleName(), ConfigTag.SOURCE).toString();
+      if (haltOnError) {
+        throw new TaskException(msg);
       } else {
-        Log.error( msg );
+        Log.error(msg);
         return;
       }
     }
@@ -86,15 +82,15 @@ public class Unzip extends AbstractFileTask {
    * @return the target directory for the unzipped files
    */
   private File getDirectory() {
-    String directory = getString( ConfigTag.DIRECTORY );
-    if ( StringUtil.isNotBlank( directory ) ) {
-      File retval = new File( directory );
-      if ( !retval.isAbsolute() ) {
-        retval = new File( getJobDir(), directory );
+    String directory = getString(ConfigTag.DIRECTORY);
+    if (StringUtil.isNotBlank(directory)) {
+      File retval = new File(directory);
+      if (!retval.isAbsolute()) {
+        retval = new File(getJobDir(), directory);
       }
       return retval;
     } else {
-      return new File( getJobDir() );
+      return new File(getJobDir());
     }
   }
 

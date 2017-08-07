@@ -4,10 +4,6 @@
  * This program and the accompanying materials are made available under the 
  * terms of the MIT License which accompanies this distribution, and is 
  * available at http://creativecommons.org/licenses/MIT/
- *
- * Contributors:
- *   Stephan D. Cote 
- *      - Initial concept and implementation
  */
 package coyote.dx.transform;
 
@@ -78,8 +74,8 @@ public class Set extends AbstractFieldTransform implements FrameTransform {
    * @see coyote.dx.transform.AbstractFrameTransform#open(coyote.dx.context.TransformContext)
    */
   @Override
-  public void open( final TransformContext context ) {
-    super.open( context );
+  public void open(final TransformContext context) {
+    super.open(context);
 
     // the value may be a string, boolean or numeric - match the type
     // TODO getConfiguration().getFieldIgnoreCase( ConfigTag.VALUE );
@@ -90,17 +86,17 @@ public class Set extends AbstractFieldTransform implements FrameTransform {
     // the type of the data to set in the field...any of the data frame types
     // TODO getConfiguration().getFieldIgnoreCase( ConfigTag.TYPE );
 
-    String token = getConfiguration().getString( ConfigTag.VALUE );
-    if ( token == null ) {
-      Log.warn( LogMsg.createMsg( CDX.MSG, "Transform.Set_setting_null_to_field", fieldName ) );
+    String token = getConfiguration().getString(ConfigTag.VALUE);
+    if (token == null) {
+      Log.warn(LogMsg.createMsg(CDX.MSG, "Transform.Set_setting_null_to_field", fieldName));
     } else {
       fieldValue = token;
     }
 
-    if ( StringUtil.isNotBlank( getExpression() ) ) {
-      token = getConfiguration().getString( ConfigTag.DEFAULT );
-      if ( token == null ) {
-        Log.warn( LogMsg.createMsg( CDX.MSG, "Transform.Set_setting_null_by_default", fieldName ) );
+    if (StringUtil.isNotBlank(getExpression())) {
+      token = getConfiguration().getString(ConfigTag.DEFAULT);
+      if (token == null) {
+        Log.warn(LogMsg.createMsg(CDX.MSG, "Transform.Set_setting_null_by_default", fieldName));
       } else {
         defaultValue = token;
       }
@@ -115,31 +111,31 @@ public class Set extends AbstractFieldTransform implements FrameTransform {
    * @see coyote.dx.FrameTransform#process(coyote.dataframe.DataFrame)
    */
   @Override
-  public DataFrame process( final DataFrame frame ) throws TransformException {
+  public DataFrame process(final DataFrame frame) throws TransformException {
 
     // If there is a conditional expression
-    if ( getExpression() != null ) {
+    if (getExpression() != null) {
 
       try {
         // if the condition evaluates to true
-        if ( evaluator.evaluateBoolean( getExpression() ) ) {
+        if (evaluator.evaluateBoolean(getExpression())) {
 
-          frame.put( getFieldName(), resolveArgument( fieldValue ) );
+          frame.put(getFieldName(), resolveArgument(fieldValue));
 
         } else {
           // if there is a default value,
-          if ( defaultValue != null ) {
+          if (defaultValue != null) {
             // set it
-            frame.put( getFieldName(), resolveArgument( defaultValue ) );
+            frame.put(getFieldName(), resolveArgument(defaultValue));
           }
         }
-      } catch ( final IllegalArgumentException e ) {
-        Log.warn( LogMsg.createMsg( CDX.MSG, "Transform.Set_boolean_evaluation_error", e.getMessage() ) );
+      } catch (final IllegalArgumentException e) {
+        Log.warn(LogMsg.createMsg(CDX.MSG, "Transform.Set_boolean_evaluation_error", e.getMessage()));
       }
 
     } else {
       // unconditionally set the value
-      frame.put( getFieldName(), resolveArgument( fieldValue ) );
+      frame.put(getFieldName(), resolveArgument(fieldValue));
     }
 
     return frame;

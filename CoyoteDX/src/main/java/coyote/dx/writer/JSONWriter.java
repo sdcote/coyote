@@ -4,10 +4,6 @@
  * This program and the accompanying materials are made available under the 
  * terms of the MIT License which accompanies this distribution, and is 
  * available at http://creativecommons.org/licenses/MIT/
- *
- * Contributors:
- *   Stephan D. Cote 
- *      - Initial concept and implementation
  */
 package coyote.dx.writer;
 
@@ -30,22 +26,22 @@ public class JSONWriter extends AbstractFrameFileWriter implements FrameWriter, 
    * @see coyote.dx.writer.AbstractFrameFileWriter#write(coyote.dataframe.DataFrame)
    */
   @Override
-  public void write( final DataFrame frame ) {
+  public void write(final DataFrame frame) {
 
     // If there is a conditional expression
-    if ( expression != null ) {
+    if (expression != null) {
 
       try {
         // if the condition evaluates to true...
-        if ( evaluator.evaluateBoolean( expression ) ) {
-          writeFrame( frame );
+        if (evaluator.evaluateBoolean(expression)) {
+          writeFrame(frame);
         }
-      } catch ( final IllegalArgumentException e ) {
-        Log.warn( LogMsg.createMsg( CDX.MSG, "Writer.boolean_evaluation_error", expression, e.getMessage() ) );
+      } catch (final IllegalArgumentException e) {
+        Log.warn(LogMsg.createMsg(CDX.MSG, "Writer.boolean_evaluation_error", expression, e.getMessage()));
       }
     } else {
       // Unconditionally writing frame
-      writeFrame( frame );
+      writeFrame(frame);
     }
 
   }
@@ -58,10 +54,10 @@ public class JSONWriter extends AbstractFrameFileWriter implements FrameWriter, 
    * 
    * @param frame the frame to be written
    */
-  private void writeFrame( final DataFrame frame ) {
+  private void writeFrame(final DataFrame frame) {
 
-    printwriter.write( frame.toString() );
-    printwriter.write( StringUtil.LINE_FEED );
+    printwriter.write(frame.toString());
+    printwriter.write(StringUtil.LINE_FEED);
     printwriter.flush();
 
     // Increment the row number

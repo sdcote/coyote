@@ -4,10 +4,6 @@
  * This program and the accompanying materials are made available under the
  * terms of the MIT License which accompanies this distribution, and is
  * available at http://creativecommons.org/licenses/MIT/
- *
- * Contributors:
- *   Stephan D. Cote
- *      - Initial concept and implementation
  */
 package coyote.dx.task;
 
@@ -36,10 +32,10 @@ public class CheckSHA256 extends AbstractDigestTask {
    *
    * @return the digest of the file or "" if there were errors
    */
-  public static String digest( final File file ) {
+  public static String digest(final File file) {
     try {
-      return digest( file, MessageDigest.getInstance( "SHA-256" ) );
-    } catch ( NoSuchAlgorithmException | IOException e ) {
+      return digest(file, MessageDigest.getInstance("SHA-256"));
+    } catch (NoSuchAlgorithmException | IOException e) {
       return "";
     }
   }
@@ -58,8 +54,8 @@ public class CheckSHA256 extends AbstractDigestTask {
   @Override
   MessageDigest getDigest() {
     try {
-      return MessageDigest.getInstance( ALGORITHM );
-    } catch ( final NoSuchAlgorithmException ignore ) {}
+      return MessageDigest.getInstance(ALGORITHM);
+    } catch (final NoSuchAlgorithmException ignore) {}
     return null;
   }
 

@@ -4,10 +4,6 @@
  * This program and the accompanying materials are made available under the
  * terms of the MIT License which accompanies this distribution, and is
  * available at http://creativecommons.org/licenses/MIT/
- *
- * Contributors:
- *   Stephan D. Cote
- *      - Initial concept and implementation
  */
 package coyote.dx.task;
 
@@ -76,118 +72,118 @@ public abstract class AbstractDigestTask extends AbstractFileTask {
     String expectedDigest = null;
 
     // Retrieve the digest from a context variable
-    final String contextKey = getConfiguration().getString( ConfigTag.CONTEXT );
-    if ( StringUtil.isNotBlank( contextKey ) ) {
-      expectedDigest = getString( contextKey );
+    final String contextKey = getConfiguration().getString(ConfigTag.CONTEXT);
+    if (StringUtil.isNotBlank(contextKey)) {
+      expectedDigest = getString(contextKey);
     }
 
-    if ( StringUtil.isNotBlank( source ) ) {
-      final File file = getAbsoluteFile( source );
-      if ( file.exists() ) {
-        if ( file.canRead() ) {
-          if ( file.length() > 0 ) {
+    if (StringUtil.isNotBlank(source)) {
+      final File file = getAbsoluteFile(source);
+      if (file.exists()) {
+        if (file.canRead()) {
+          if (file.length() > 0) {
             String digest = null;
             try {
-              digest = digest( file, getDigest() );
-              Log.debug( LogMsg.createMsg( CDX.MSG, "Digest.results", file.getAbsolutePath(), ALGORITHM, digest ) );
+              digest = digest(file, getDigest());
+              Log.debug(LogMsg.createMsg(CDX.MSG, "Digest.results", file.getAbsolutePath(), ALGORITHM, digest));
 
               final String digestFilename = file.getAbsolutePath() + CHECKSUM_EXTENSION;
-              final File digestFile = new File( digestFilename );
+              final File digestFile = new File(digestFilename);
 
-              if ( StringUtil.isNotBlank( expectedDigest ) ) {
-                if ( digest.equalsIgnoreCase( expectedDigest.trim() ) ) {
-                  Log.info( LogMsg.createMsg( CDX.MSG, "Digest.verified", ALGORITHM, file.getAbsolutePath() ) );
-                  getContext().set( digestFilename, digest );
+              if (StringUtil.isNotBlank(expectedDigest)) {
+                if (digest.equalsIgnoreCase(expectedDigest.trim())) {
+                  Log.info(LogMsg.createMsg(CDX.MSG, "Digest.verified", ALGORITHM, file.getAbsolutePath()));
+                  getContext().set(digestFilename, digest);
                 } else {
-                  final String msg = LogMsg.createMsg( CDX.MSG, "Digest.verification_failed", ALGORITHM, source, file.getAbsolutePath() ).toString();
-                  if ( haltOnError ) {
-                    throw new TaskException( msg );
+                  final String msg = LogMsg.createMsg(CDX.MSG, "Digest.verification_failed", ALGORITHM, source, file.getAbsolutePath()).toString();
+                  if (haltOnError) {
+                    throw new TaskException(msg);
                   } else {
-                    Log.error( msg );
+                    Log.error(msg);
                     return;
                   }
                 }
               } else {
-                if ( digestFile.exists() ) {
-                  if ( digestFile.canRead() ) {
-                    final String expected = FileUtil.fileToString( digestFile );
-                    if ( StringUtil.isNotBlank( expected ) ) {
-                      if ( digest.equalsIgnoreCase( expected.trim() ) ) {
-                        Log.info( LogMsg.createMsg( CDX.MSG, "Digest.verified", ALGORITHM, file.getAbsolutePath() ) );
-                        getContext().set( digestFilename, digest );
+                if (digestFile.exists()) {
+                  if (digestFile.canRead()) {
+                    final String expected = FileUtil.fileToString(digestFile);
+                    if (StringUtil.isNotBlank(expected)) {
+                      if (digest.equalsIgnoreCase(expected.trim())) {
+                        Log.info(LogMsg.createMsg(CDX.MSG, "Digest.verified", ALGORITHM, file.getAbsolutePath()));
+                        getContext().set(digestFilename, digest);
                       } else {
-                        final String msg = LogMsg.createMsg( CDX.MSG, "Digest.verification_failed", ALGORITHM, source, file.getAbsolutePath() ).toString();
-                        if ( haltOnError ) {
-                          throw new TaskException( msg );
+                        final String msg = LogMsg.createMsg(CDX.MSG, "Digest.verification_failed", ALGORITHM, source, file.getAbsolutePath()).toString();
+                        if (haltOnError) {
+                          throw new TaskException(msg);
                         } else {
-                          Log.error( msg );
+                          Log.error(msg);
                           return;
                         }
                       }
                     } else {
-                      final String msg = LogMsg.createMsg( CDX.MSG, "Digest.blank_digest_data", ALGORITHM, source, file.getAbsolutePath() ).toString();
-                      if ( haltOnError ) {
-                        throw new TaskException( msg );
+                      final String msg = LogMsg.createMsg(CDX.MSG, "Digest.blank_digest_data", ALGORITHM, source, file.getAbsolutePath()).toString();
+                      if (haltOnError) {
+                        throw new TaskException(msg);
                       } else {
-                        Log.error( msg );
+                        Log.error(msg);
                         return;
                       }
                     }
                   } else {
-                    final String msg = LogMsg.createMsg( CDX.MSG, "Digest.could_not_read_digest_file", ALGORITHM, source, file.getAbsolutePath() ).toString();
-                    if ( haltOnError ) {
-                      throw new TaskException( msg );
+                    final String msg = LogMsg.createMsg(CDX.MSG, "Digest.could_not_read_digest_file", ALGORITHM, source, file.getAbsolutePath()).toString();
+                    if (haltOnError) {
+                      throw new TaskException(msg);
                     } else {
-                      Log.error( msg );
+                      Log.error(msg);
                       return;
                     }
                   }
                 } else {
-                  Log.warn( LogMsg.createMsg( CDX.MSG, "Digest.no_digest_data", ALGORITHM, file.getAbsolutePath() ) );
+                  Log.warn(LogMsg.createMsg(CDX.MSG, "Digest.no_digest_data", ALGORITHM, file.getAbsolutePath()));
                 }
               }
-            } catch ( final IOException e ) {
-              final String msg = LogMsg.createMsg( CDX.MSG, "Digest.calculation_error", ALGORITHM, e.getMessage(), source, file.getAbsolutePath() ).toString();
-              if ( haltOnError ) {
-                throw new TaskException( msg );
+            } catch (final IOException e) {
+              final String msg = LogMsg.createMsg(CDX.MSG, "Digest.calculation_error", ALGORITHM, e.getMessage(), source, file.getAbsolutePath()).toString();
+              if (haltOnError) {
+                throw new TaskException(msg);
               } else {
-                Log.error( msg );
+                Log.error(msg);
                 return;
               }
             }
           } else {
-            final String msg = LogMsg.createMsg( CDX.MSG, "Digest.empty_source_file", ALGORITHM, source, file.getAbsolutePath() ).toString();
-            if ( haltOnError ) {
-              throw new TaskException( msg );
+            final String msg = LogMsg.createMsg(CDX.MSG, "Digest.empty_source_file", ALGORITHM, source, file.getAbsolutePath()).toString();
+            if (haltOnError) {
+              throw new TaskException(msg);
             } else {
-              Log.error( msg );
+              Log.error(msg);
               return;
             }
           }
         } else {
-          final String msg = LogMsg.createMsg( CDX.MSG, "Digest.source_could_not_be_read", ALGORITHM, source, file.getAbsolutePath() ).toString();
-          if ( haltOnError ) {
-            throw new TaskException( msg );
+          final String msg = LogMsg.createMsg(CDX.MSG, "Digest.source_could_not_be_read", ALGORITHM, source, file.getAbsolutePath()).toString();
+          if (haltOnError) {
+            throw new TaskException(msg);
           } else {
-            Log.error( msg );
+            Log.error(msg);
             return;
           }
         }
       } else {
-        final String msg = LogMsg.createMsg( CDX.MSG, "Digest.source_does_not_exist", ALGORITHM, source, file.getAbsolutePath() ).toString();
-        if ( haltOnError ) {
-          throw new TaskException( msg );
+        final String msg = LogMsg.createMsg(CDX.MSG, "Digest.source_does_not_exist", ALGORITHM, source, file.getAbsolutePath()).toString();
+        if (haltOnError) {
+          throw new TaskException(msg);
         } else {
-          Log.error( msg );
+          Log.error(msg);
           return;
         }
       }
     } else {
-      final String msg = LogMsg.createMsg( CDX.MSG, "Digest.configuration_error", getClass().getSimpleName(), ConfigTag.SOURCE ).toString();
-      if ( haltOnError ) {
-        throw new TaskException( msg );
+      final String msg = LogMsg.createMsg(CDX.MSG, "Digest.configuration_error", getClass().getSimpleName(), ConfigTag.SOURCE).toString();
+      if (haltOnError) {
+        throw new TaskException(msg);
       } else {
-        Log.error( msg );
+        Log.error(msg);
         return;
       }
     }
@@ -206,15 +202,15 @@ public abstract class AbstractDigestTask extends AbstractFileTask {
    *
    * @throws IOException if there were problems reading the given file
    */
-  protected static String digest( final File file, final MessageDigest md ) throws IOException {
-    try (InputStream fis = new FileInputStream( file )) {
+  protected static String digest(final File file, final MessageDigest md) throws IOException {
+    try (InputStream fis = new FileInputStream(file)) {
       final byte[] buffer = new byte[STREAM_BUFFER_LENGTH];
-      int read = fis.read( buffer, 0, STREAM_BUFFER_LENGTH );
-      while ( read > -1 ) {
-        md.update( buffer, 0, read );
-        read = fis.read( buffer, 0, STREAM_BUFFER_LENGTH );
+      int read = fis.read(buffer, 0, STREAM_BUFFER_LENGTH);
+      while (read > -1) {
+        md.update(buffer, 0, read);
+        read = fis.read(buffer, 0, STREAM_BUFFER_LENGTH);
       }
-      return ByteUtil.bytesToHex( md.digest(), "" ).toLowerCase();
+      return ByteUtil.bytesToHex(md.digest(), "").toLowerCase();
     }
   }
 

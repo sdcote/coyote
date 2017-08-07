@@ -4,10 +4,6 @@
  * This program and the accompanying materials are made available under the 
  * terms of the MIT License which accompanies this distribution, and is 
  * available at http://creativecommons.org/licenses/MIT/
- *
- * Contributors:
- *   Stephan D. Cote 
- *      - Initial concept and implementation
  */
 package coyote.dx.reader;
 
@@ -58,85 +54,85 @@ public class JdbcReader extends AbstractFrameReader {
    * @see coyote.dx.Component#open(coyote.dx.context.TransformContext)
    */
   @Override
-  public void open( TransformContext context ) {
+  public void open(TransformContext context) {
     super.context = context;
 
     // check for a source it might be a 
-    String source = getString( ConfigTag.SOURCE );
-    Log.debug( LogMsg.createMsg( CDX.MSG, "Reader.using a source of {%s}", source ) );
-    if ( StringUtil.isNotBlank( source ) ) {
+    String source = getString(ConfigTag.SOURCE);
+    Log.debug(LogMsg.createMsg(CDX.MSG, "Reader.using a source of {%s}", source));
+    if (StringUtil.isNotBlank(source)) {
 
       // first see if it is a named database in the context
-      Database db = context.getDatabase( source );
+      Database db = context.getDatabase(source);
 
-      if ( db != null ) {
-        Log.debug( LogMsg.createMsg( CDX.MSG, "Reader.We have a shared database definition! {%s}", db.toString() ) );
+      if (db != null) {
+        Log.debug(LogMsg.createMsg(CDX.MSG, "Reader.We have a shared database definition! {%s}", db.toString()));
         connection = db.getConnection();
       } else {
 
         // configure a connection ourselves
 
-        String library = getString( ConfigTag.LIBRARY );
-        Log.debug( LogMsg.createMsg( CDX.MSG, "Reader.Using a driver JAR of {%s}", library ) );
+        String library = getString(ConfigTag.LIBRARY);
+        Log.debug(LogMsg.createMsg(CDX.MSG, "Reader.Using a driver JAR of {%s}", library));
 
-        String driver = getString( ConfigTag.DRIVER );
-        Log.debug( LogMsg.createMsg( CDX.MSG, "Reader.Using a driver of {%s}", driver ) );
+        String driver = getString(ConfigTag.DRIVER);
+        Log.debug(LogMsg.createMsg(CDX.MSG, "Reader.Using a driver of {%s}", driver));
 
         // get our configuration data
-        String target = getString( ConfigTag.TARGET );
-        Log.debug( LogMsg.createMsg( CDX.MSG, "Reader.Using a target of {%s}", target ) );
+        String target = getString(ConfigTag.TARGET);
+        Log.debug(LogMsg.createMsg(CDX.MSG, "Reader.Using a target of {%s}", target));
 
-        String username = getString( ConfigTag.USERNAME );
-        Log.debug( LogMsg.createMsg( CDX.MSG, "Reader.Using a user of {%s}", username ) );
+        String username = getString(ConfigTag.USERNAME);
+        Log.debug(LogMsg.createMsg(CDX.MSG, "Reader.Using a user of {%s}", username));
 
-        String password = getString( ConfigTag.PASSWORD );
-        Log.debug( LogMsg.createMsg( CDX.MSG, "Reader.Using a password with a length of {%s}", StringUtil.isBlank( password ) ? 0 : password.length() ) );
+        String password = getString(ConfigTag.PASSWORD);
+        Log.debug(LogMsg.createMsg(CDX.MSG, "Reader.Using a password with a length of {%s}", StringUtil.isBlank(password) ? 0 : password.length()));
 
         // get the connection to the database
         try {
-          URL u = new URL( library );
-          URLClassLoader ucl = new URLClassLoader( new URL[] { u } );
-          Driver dvr = (Driver)Class.forName( driver, true, ucl ).newInstance();
-          DriverManager.registerDriver( new DriverDelegate( dvr ) );
+          URL u = new URL(library);
+          URLClassLoader ucl = new URLClassLoader(new URL[]{u});
+          Driver dvr = (Driver)Class.forName(driver, true, ucl).newInstance();
+          DriverManager.registerDriver(new DriverDelegate(dvr));
 
-          connection = DriverManager.getConnection( target, username, password );
+          connection = DriverManager.getConnection(target, username, password);
 
-          if ( connection != null ) {
-            Log.debug( LogMsg.createMsg( CDX.MSG, "Reader.Connected to {%s}", target ) );
+          if (connection != null) {
+            Log.debug(LogMsg.createMsg(CDX.MSG, "Reader.Connected to {%s}", target));
           }
-        } catch ( InstantiationException | IllegalAccessException | ClassNotFoundException | SQLException | MalformedURLException e ) {
-          Log.error( "Could not connect to database: " + e.getClass().getSimpleName() + " - " + e.getMessage() );
+        } catch (InstantiationException | IllegalAccessException | ClassNotFoundException | SQLException | MalformedURLException e) {
+          Log.error("Could not connect to database: " + e.getClass().getSimpleName() + " - " + e.getMessage());
         }
       }
 
-      String query = getString( ConfigTag.QUERY );
-      Log.debug( LogMsg.createMsg( CDX.MSG, "Reader.Using a query of '{%s}'", query ) );
+      String query = getString(ConfigTag.QUERY);
+      Log.debug(LogMsg.createMsg(CDX.MSG, "Reader.Using a query of '{%s}'", query));
 
-      if ( connection != null ) {
+      if (connection != null) {
 
         try {
-          Statement statement = connection.createStatement( ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY );
-          result = statement.executeQuery( query );
+          Statement statement = connection.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY);
+          result = statement.executeQuery(query);
 
           rsmd = result.getMetaData();
 
           columnCount = rsmd.getColumnCount();
 
-          if ( result.isBeforeFirst() ) {
+          if (result.isBeforeFirst()) {
             EOF = false;
           }
 
-        } catch ( SQLException e ) {
-          String msg = String.format( "Error querying database: '%s' - query = '%s'", e.getMessage().trim(), query );
+        } catch (SQLException e) {
+          String msg = String.format("Error querying database: '%s' - query = '%s'", e.getMessage().trim(), query);
           //Log.error( msg );
-          context.setError( getClass().getName() + " " + msg );
+          context.setError(getClass().getName() + " " + msg);
         }
 
       }
 
     } else {
-      Log.error( "No source specified" );
-      context.setError( getClass().getName() + " could not determine source" );
+      Log.error("No source specified");
+      context.setError(getClass().getName() + " could not determine source");
     }
 
   }
@@ -148,29 +144,29 @@ public class JdbcReader extends AbstractFrameReader {
    * @see coyote.dx.FrameReader#read(coyote.dx.context.TransactionContext)
    */
   @Override
-  public DataFrame read( TransactionContext context ) {
+  public DataFrame read(TransactionContext context) {
     DataFrame retval = null;
 
-    if ( result != null ) {
+    if (result != null) {
       try {
-        if ( result.next() ) {
+        if (result.next()) {
           retval = new DataFrame();
 
           // Set EOF if this is the last record
           EOF = result.isLast();
 
           // add each of the fields to the dataframe
-          for ( int i = 1; i <= columnCount; i++ ) {
+          for (int i = 1; i <= columnCount; i++) {
             // Log.info( rsmd.getColumnName( i ) + " - '" + result.getString( i ) + "' (" + rsmd.getColumnType( i ) + ")" );
-            retval.add( rsmd.getColumnName( i ), DatabaseDialect.resolveValue( result.getObject( i ), rsmd.getColumnType( i ) ) );
+            retval.add(rsmd.getColumnName(i), DatabaseDialect.resolveValue(result.getObject(i), rsmd.getColumnType(i)));
           }
 
         } else {
-          Log.error( "Read past EOF" );
+          Log.error("Read past EOF");
           EOF = true;
           return retval;
         }
-      } catch ( SQLException e ) {
+      } catch (SQLException e) {
         e.printStackTrace();
         EOF = true;
       }
@@ -183,10 +179,6 @@ public class JdbcReader extends AbstractFrameReader {
     return retval;
   }
 
-
-
-
- 
 
 
 
@@ -207,10 +199,10 @@ public class JdbcReader extends AbstractFrameReader {
   @Override
   public void close() throws IOException {
 
-    if ( result != null ) {
+    if (result != null) {
       try {
         result.close();
-      } catch ( SQLException ignore ) {}
+      } catch (SQLException ignore) {}
     }
 
     super.close();

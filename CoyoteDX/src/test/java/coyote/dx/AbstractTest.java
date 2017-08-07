@@ -4,10 +4,6 @@
  * This program and the accompanying materials are made available under the 
  * terms of the MIT License which accompanies this distribution, and is 
  * available at http://creativecommons.org/licenses/MIT/
- *
- * Contributors:
- *   Stephan D. Cote 
- *      - Initial concept and implementation
  */
 package coyote.dx;
 
@@ -43,16 +39,16 @@ public class AbstractTest {
    * 
    * @return the first configuration frame found in the data.
    */
-  protected Config parseConfiguration( String cfgData ) {
-    List<DataFrame> cfglist = JSONMarshaler.marshal( cfgData );
-    return new Config( cfglist.get( 0 ) );
+  protected Config parseConfiguration(String cfgData) {
+    List<DataFrame> cfglist = JSONMarshaler.marshal(cfgData);
+    return new Config(cfglist.get(0));
   }
 
 
 
 
   protected TransactionContext createTransactionContext() {
-    return new TransactionContext( transformContext );
+    return new TransactionContext(transformContext);
   }
 
 
@@ -78,29 +74,29 @@ public class AbstractTest {
    * 
    * @return The transform engine configured with the requested configuration
    */
-  protected TransformEngine loadEngine( String name ) {
+  protected TransformEngine loadEngine(String name) {
     TransformEngine engine = null;
 
     // load named system properties
-    SystemPropertyUtil.load( name.toLowerCase() );
+    SystemPropertyUtil.load(name.toLowerCase());
 
     // now read the named configuration file
     StringBuffer b = new StringBuffer();
     try {
-      BufferedReader reader = new BufferedReader( new InputStreamReader( AbstractTest.class.getClassLoader().getResourceAsStream( name + ".json" ) ) );
+      BufferedReader reader = new BufferedReader(new InputStreamReader(AbstractTest.class.getClassLoader().getResourceAsStream(name + ".json")));
       String line;
-      while ( ( line = reader.readLine() ) != null ) {
-        b.append( line );
+      while ((line = reader.readLine()) != null) {
+        b.append(line);
       }
-    } catch ( FileNotFoundException e ) {
+    } catch (FileNotFoundException e) {
       e.printStackTrace();
-    } catch ( IOException e ) {
+    } catch (IOException e) {
       e.printStackTrace();
     }
     String cfgFile = b.toString();
 
     // create an engine out of the file
-    engine = TransformEngineFactory.getInstance( cfgFile );
+    engine = TransformEngineFactory.getInstance(cfgFile);
 
     // return the configured engine
     return engine;
@@ -109,29 +105,29 @@ public class AbstractTest {
 
 
 
-  protected static void deleteWorkDirectory( File dir ) {
-    FileUtil.deleteDirectory( dir );
+  protected static void deleteWorkDirectory(File dir) {
+    FileUtil.deleteDirectory(dir);
   }
 
 
 
 
-  protected static void makeWorkDirectory( File dir ) throws Exception {
-    if ( dir != null && !dir.exists() ) {
-      FileUtil.makeDirectory( dir );
+  protected static void makeWorkDirectory(File dir) throws Exception {
+    if (dir != null && !dir.exists()) {
+      FileUtil.makeDirectory(dir);
     }
   }
 
 
 
 
-  protected static void resetDirectory( File testDir ) {
+  protected static void resetDirectory(File testDir) {
     try {
-      deleteWorkDirectory( testDir );
-      if ( !testDir.exists() ) {
-        makeWorkDirectory( testDir );
+      deleteWorkDirectory(testDir);
+      if (!testDir.exists()) {
+        makeWorkDirectory(testDir);
       }
-    } catch ( Exception ignore ) {}
+    } catch (Exception ignore) {}
   }
 
 
@@ -141,14 +137,14 @@ public class AbstractTest {
    * Run and close the given engine.
    * @param engine to run and close
    */
-  protected void turnOver( TransformEngine engine ) {
+  protected void turnOver(TransformEngine engine) {
     try {
       engine.run();
     }
     finally {
       try {
         engine.close();
-      } catch ( Exception ignore ) {}
+      } catch (Exception ignore) {}
     }
   }
 }

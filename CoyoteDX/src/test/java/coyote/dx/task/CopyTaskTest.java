@@ -4,10 +4,6 @@
  * This program and the accompanying materials are made available under the 
  * terms of the MIT License which accompanies this distribution, and is 
  * available at http://creativecommons.org/licenses/MIT/
- *
- * Contributors:
- *   Stephan D. Cote 
- *      - Initial concept and implementation
  */
 package coyote.dx.task;
 
@@ -50,8 +46,8 @@ public class CopyTaskTest extends AbstractTest {
    */
   @BeforeClass
   public static void setUpBeforeClass() throws Exception {
-    testDir = new File( FileUtil.getCurrentWorkingDirectory(), "testdir" );
-    Log.addLogger( Log.DEFAULT_LOGGER_NAME, new ConsoleAppender( Log.TRACE_EVENTS | Log.DEBUG_EVENTS | Log.INFO_EVENTS | Log.WARN_EVENTS | Log.ERROR_EVENTS | Log.FATAL_EVENTS ) );
+    testDir = new File(FileUtil.getCurrentWorkingDirectory(), "testdir");
+    Log.addLogger(Log.DEFAULT_LOGGER_NAME, new ConsoleAppender(Log.TRACE_EVENTS | Log.DEBUG_EVENTS | Log.INFO_EVENTS | Log.WARN_EVENTS | Log.ERROR_EVENTS | Log.FATAL_EVENTS));
   }
 
 
@@ -63,13 +59,8 @@ public class CopyTaskTest extends AbstractTest {
   @AfterClass
   public static void tearDownAfterClass() throws Exception {
     // clean up the work directory
-    deleteWorkDirectory( testDir );
+    deleteWorkDirectory(testDir);
   }
-
-
-
-
-
 
 
 
@@ -83,46 +74,46 @@ public class CopyTaskTest extends AbstractTest {
     resetDirectory(testDir);
 
     Config cfg = new Config();
-    cfg.put( ConfigTag.FROMDIR, new File( FileUtil.getCurrentWorkingDirectory(), "src" ).getAbsolutePath() );
-    cfg.put( ConfigTag.TODIR, testDir.getAbsolutePath() );
-    cfg.put( ConfigTag.PATTERN, ".*\\.(java)$" );
-    cfg.put( ConfigTag.HALT_ON_ERROR, false );
-    cfg.put( ConfigTag.RECURSE, true );
-    cfg.put( ConfigTag.PRESERVE, true );
-    System.out.println( cfg );
+    cfg.put(ConfigTag.FROMDIR, new File(FileUtil.getCurrentWorkingDirectory(), "src").getAbsolutePath());
+    cfg.put(ConfigTag.TODIR, testDir.getAbsolutePath());
+    cfg.put(ConfigTag.PATTERN, ".*\\.(java)$");
+    cfg.put(ConfigTag.HALT_ON_ERROR, false);
+    cfg.put(ConfigTag.RECURSE, true);
+    cfg.put(ConfigTag.PRESERVE, true);
+    System.out.println(cfg);
 
     try (Copy task = new Copy()) {
 
       // configure the task
-      task.setConfiguration( cfg );
+      task.setConfiguration(cfg);
 
       // initialize it within an operational context
-      task.open( context );
+      task.open(context);
 
       // execute the task within the context it was opened
       task.execute();
 
-      assertTrue( testDir.exists() );
-      assertTrue( testDir.isDirectory() );
-      File main = new File( testDir, "main" );
-      assertTrue( main.exists() );
-      assertTrue( main.isDirectory() );
-      File java = new File( main, "java" );
-      assertTrue( java.exists() );
-      assertTrue( java.isDirectory() );
-      File coyote = new File( java, "coyote" );
-      assertTrue( coyote.exists() );
-      assertTrue( coyote.isDirectory() );
-      File dx = new File( coyote, "dx" );
-      assertTrue( dx.exists() );
-      assertTrue( dx.isDirectory() );
+      assertTrue(testDir.exists());
+      assertTrue(testDir.isDirectory());
+      File main = new File(testDir, "main");
+      assertTrue(main.exists());
+      assertTrue(main.isDirectory());
+      File java = new File(main, "java");
+      assertTrue(java.exists());
+      assertTrue(java.isDirectory());
+      File coyote = new File(java, "coyote");
+      assertTrue(coyote.exists());
+      assertTrue(coyote.isDirectory());
+      File dx = new File(coyote, "dx");
+      assertTrue(dx.exists());
+      assertTrue(dx.isDirectory());
 
-      File job = new File( dx, "Job.java" );
-      assertTrue( job.exists() );
-      assertTrue( job.isFile() );
+      File job = new File(dx, "Job.java");
+      assertTrue(job.exists());
+      assertTrue(job.isFile());
 
-    } catch ( ConfigurationException | TaskException | IOException e ) {
-      fail( e.getMessage() );
+    } catch (ConfigurationException | TaskException | IOException e) {
+      fail(e.getMessage());
     }
 
   }
@@ -139,36 +130,36 @@ public class CopyTaskTest extends AbstractTest {
     resetDirectory(testDir);
 
     Config cfg = new Config();
-    cfg.put( ConfigTag.FROMDIR, new File( FileUtil.getCurrentWorkingDirectory(), "src" ).getAbsolutePath() );
-    cfg.put( ConfigTag.TODIR, testDir.getAbsolutePath() );
-    cfg.put( ConfigTag.PATTERN, ".*\\.(java)$" );
-    cfg.put( ConfigTag.HALT_ON_ERROR, false );
-    cfg.put( ConfigTag.RECURSE, true );
-    System.out.println( cfg );
+    cfg.put(ConfigTag.FROMDIR, new File(FileUtil.getCurrentWorkingDirectory(), "src").getAbsolutePath());
+    cfg.put(ConfigTag.TODIR, testDir.getAbsolutePath());
+    cfg.put(ConfigTag.PATTERN, ".*\\.(java)$");
+    cfg.put(ConfigTag.HALT_ON_ERROR, false);
+    cfg.put(ConfigTag.RECURSE, true);
+    System.out.println(cfg);
 
     try (Copy task = new Copy()) {
 
       // configure the task
-      task.setConfiguration( cfg );
+      task.setConfiguration(cfg);
 
       // initialize it within an operational context
-      task.open( context );
+      task.open(context);
 
       // execute the task within the context it was opened
       task.execute();
 
-      assertTrue( testDir.exists() );
-      assertTrue( testDir.isDirectory() );
+      assertTrue(testDir.exists());
+      assertTrue(testDir.isDirectory());
 
-      File info = new File( testDir, "package-info.java" );
-      assertTrue( info.exists() );
-      assertTrue( info.isFile() );
+      File info = new File(testDir, "package-info.java");
+      assertTrue(info.exists());
+      assertTrue(info.isFile());
 
-      File info1 = new File( testDir, "package-info.1.java" );
-      assertTrue( info1.exists() );
+      File info1 = new File(testDir, "package-info.1.java");
+      assertTrue(info1.exists());
 
-    } catch ( ConfigurationException | TaskException | IOException e ) {
-      fail( e.getMessage() );
+    } catch (ConfigurationException | TaskException | IOException e) {
+      fail(e.getMessage());
     }
 
   }

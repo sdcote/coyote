@@ -4,10 +4,6 @@
  * This program and the accompanying materials are made available under the 
  * terms of the MIT License which accompanies this distribution, and is 
  * available at http://creativecommons.org/licenses/MIT/
- *
- * Contributors:
- *   Stephan D. Cote 
- *      - Initial concept and implementation
  */
 package coyote.dx.transform;
 
@@ -36,31 +32,31 @@ public abstract class AbstractFieldTransform extends AbstractFrameTransform impl
    * @see coyote.dx.Component#open(coyote.dx.context.TransformContext)
    */
   @Override
-  public void open( final TransformContext context ) {
-    super.setContext( context );
+  public void open(final TransformContext context) {
+    super.setContext(context);
 
     // set the transform context in the evaluator so it can resolve variables
-    evaluator.setContext( context );
+    evaluator.setContext(context);
 
     // get the name of the field to transform
-    String token = getConfiguration().getString( ConfigTag.NAME );
+    String token = getConfiguration().getString(ConfigTag.NAME);
 
-    if ( StringUtil.isBlank( token ) ) {
-      context.setError( "Set transform must contain a field name" );
+    if (StringUtil.isBlank(token)) {
+      context.setError("Set transform must contain a field name");
     } else {
       fieldName = token.trim();
     }
 
     // Look for a conditional statement the transform may use to control if it
     // processes or not
-    token = getConfiguration().getString( ConfigTag.CONDITION );
-    if ( StringUtil.isNotBlank( token ) ) {
+    token = getConfiguration().getString(ConfigTag.CONDITION);
+    if (StringUtil.isNotBlank(token)) {
       expression = token.trim();
 
       try {
-        evaluator.evaluateBoolean( expression );
-      } catch ( final IllegalArgumentException e ) {
-        context.setError( "Invalid boolean expression in transform: " + e.getMessage() );
+        evaluator.evaluateBoolean(expression);
+      } catch (final IllegalArgumentException e) {
+        context.setError("Invalid boolean expression in transform: " + e.getMessage());
       }
     }
 
@@ -82,7 +78,7 @@ public abstract class AbstractFieldTransform extends AbstractFrameTransform impl
   /**
    * @param fieldName the name of the field being transformed
    */
-  protected void setFieldName( String fieldName ) {
+  protected void setFieldName(String fieldName) {
     this.fieldName = fieldName;
   }
 
@@ -102,7 +98,7 @@ public abstract class AbstractFieldTransform extends AbstractFrameTransform impl
   /**
    * @param evaluator the evaluator for this transform
    */
-  protected void setEvaluator( Evaluator evaluator ) {
+  protected void setEvaluator(Evaluator evaluator) {
     this.evaluator = evaluator;
   }
 
@@ -122,7 +118,7 @@ public abstract class AbstractFieldTransform extends AbstractFrameTransform impl
   /**
    * @param expression the boolean expression to use in determining if the transform should occur
    */
-  protected void setExpression( String expression ) {
+  protected void setExpression(String expression) {
     this.expression = expression;
   }
 

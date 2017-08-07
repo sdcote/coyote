@@ -4,10 +4,6 @@
  * This program and the accompanying materials are made available under the 
  * terms of the MIT License which accompanies this distribution, and is 
  * available at http://creativecommons.org/licenses/MIT/
- *
- * Contributors:
- *   Stephan D. Cote 
- *      - Initial concept and implementation
  */
 package coyote.dx;
 
@@ -30,13 +26,13 @@ public class TransformContextTest {
   @Test
   public void testGetStringBoolean() {
     TransformContext context = new TransformContext();
-    context.set( "MyString", "w00t!" );
+    context.set("MyString", "w00t!");
 
-    assertNotNull( context.get( "mystring", false ) );
-    assertNull( context.get( "mystring", true ) );
-    assertNotNull( context.get( "MyString", true ) );
-    assertNull( context.get( "yourstring", false ) );
-    assertNull( context.get( "yourstring", true ) );
+    assertNotNull(context.get("mystring", false));
+    assertNull(context.get("mystring", true));
+    assertNotNull(context.get("MyString", true));
+    assertNull(context.get("yourstring", false));
+    assertNull(context.get("yourstring", true));
 
   }
 

@@ -4,10 +4,6 @@
  * This program and the accompanying materials are made available under the 
  * terms of the MIT License which accompanies this distribution, and is 
  * available at http://creativecommons.org/licenses/MIT/
- *
- * Contributors:
- *   Stephan D. Cote 
- *      - Initial concept and implementation
  */
 package coyote.commons.jdbc;
 
@@ -30,22 +26,22 @@ public class DriverDelegate implements Driver {
 
 
 
-  public DriverDelegate( Driver d ) {
+  public DriverDelegate(Driver d) {
     this.driver = d;
   }
 
 
 
 
-  public boolean acceptsURL( String u ) throws SQLException {
-    return this.driver.acceptsURL( u );
+  public boolean acceptsURL(String u) throws SQLException {
+    return this.driver.acceptsURL(u);
   }
 
 
 
 
-  public Connection connect( String u, Properties p ) throws SQLException {
-    return this.driver.connect( u, p );
+  public Connection connect(String u, Properties p) throws SQLException {
+    return this.driver.connect(u, p);
   }
 
 
@@ -65,8 +61,8 @@ public class DriverDelegate implements Driver {
 
 
 
-  public DriverPropertyInfo[] getPropertyInfo( String u, Properties p ) throws SQLException {
-    return this.driver.getPropertyInfo( u, p );
+  public DriverPropertyInfo[] getPropertyInfo(String u, Properties p) throws SQLException {
+    return this.driver.getPropertyInfo(u, p);
   }
 
 

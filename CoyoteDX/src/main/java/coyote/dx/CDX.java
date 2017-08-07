@@ -4,10 +4,6 @@
  * This program and the accompanying materials are made available under the 
  * terms of the MIT License which accompanies this distribution, and is 
  * available at http://creativecommons.org/licenses/MIT/
- *
- * Contributors:
- *   Stephan D. Cote 
- *      - Initial concept and implementation
  */
 package coyote.dx;
 
@@ -29,7 +25,7 @@ import coyote.loader.log.LogMsg.BundleBaseName;
  */
 public class CDX {
 
-  public static final Version VERSION = new Version( 0, 7, 1, Version.EXPERIMENTAL );
+  public static final Version VERSION = new Version(0, 7, 1, Version.EXPERIMENTAL);
   public static final String NAME = "CDX";
   public static final String DEFAULT_DATETIME_FORMAT = "yyyy-MM-dd HH:mm:ss.SSSX";
   public static final String DEFAULT_DATE_FORMAT = "yyyy-MM-dd";
@@ -37,7 +33,7 @@ public class CDX {
 
   public static final BundleBaseName MSG;
   static {
-    MSG = new BundleBaseName( "CdxMsg" );
+    MSG = new BundleBaseName("CdxMsg");
   }
 
 
@@ -53,33 +49,33 @@ public class CDX {
    * 
    * @return a configured component
    */
-  public static Object createComponent( String className, DataFrame cfg ) {
+  public static Object createComponent(String className, DataFrame cfg) {
     Object retval = null;
-    if ( StringUtil.isNotBlank( className ) ) {
+    if (StringUtil.isNotBlank(className)) {
 
       try {
-        Class<?> clazz = Class.forName( className );
+        Class<?> clazz = Class.forName(className);
         Constructor<?> ctor = clazz.getConstructor();
         Object object = ctor.newInstance();
 
-        if ( cfg != null ) {
-          if ( object instanceof ConfigurableComponent ) {
+        if (cfg != null) {
+          if (object instanceof ConfigurableComponent) {
             try {
-              ( (ConfigurableComponent)object ).setConfiguration( new Config( cfg ) );
-            } catch ( ConfigurationException e ) {
-              Log.error( LogMsg.createMsg( CDX.MSG, "DX.configuration_error", object.getClass().getName(), e.getClass().getSimpleName(), e.getMessage() ) );
+              ((ConfigurableComponent)object).setConfiguration(new Config(cfg));
+            } catch (ConfigurationException e) {
+              Log.error(LogMsg.createMsg(CDX.MSG, "DX.configuration_error", object.getClass().getName(), e.getClass().getSimpleName(), e.getMessage()));
             }
           } else {
-            Log.warn( LogMsg.createMsg( CDX.MSG, "DX.instance_not_configurable", className ) );
+            Log.warn(LogMsg.createMsg(CDX.MSG, "DX.instance_not_configurable", className));
           }
         }
 
         retval = object;
-      } catch ( ClassNotFoundException | NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e ) {
-        Log.error( LogMsg.createMsg( CDX.MSG, "DX.instantiation_error", className, e.getClass().getName(), e.getMessage() ) );
+      } catch (ClassNotFoundException | NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+        Log.error(LogMsg.createMsg(CDX.MSG, "DX.instantiation_error", className, e.getClass().getName(), e.getMessage()));
       }
     } else {
-      Log.error( LogMsg.createMsg( CDX.MSG, "DX.config_frame_did_not_contain_a_class" ) );
+      Log.error(LogMsg.createMsg(CDX.MSG, "DX.config_frame_did_not_contain_a_class"));
     }
 
     return retval;
@@ -97,32 +93,32 @@ public class CDX {
    * 
    * @return a configured component
    */
-  public static Object createComponent( DataFrame cfg ) {
+  public static Object createComponent(DataFrame cfg) {
     Object retval = null;
-    if ( cfg != null ) {
-      if ( cfg.contains( ConfigTag.CLASS ) ) {
-        String className = cfg.getAsString( ConfigTag.CLASS );
+    if (cfg != null) {
+      if (cfg.contains(ConfigTag.CLASS)) {
+        String className = cfg.getAsString(ConfigTag.CLASS);
 
         try {
-          Class<?> clazz = Class.forName( className );
+          Class<?> clazz = Class.forName(className);
           Constructor<?> ctor = clazz.getConstructor();
           Object object = ctor.newInstance();
 
-          if ( object instanceof ConfigurableComponent ) {
+          if (object instanceof ConfigurableComponent) {
             try {
-              ( (ConfigurableComponent)object ).setConfiguration( new Config( cfg ) );
-            } catch ( ConfigurationException e ) {
-              Log.error( LogMsg.createMsg( CDX.MSG, "DX.configuration_error", object.getClass().getName(), e.getClass().getSimpleName(), e.getMessage() ) );
+              ((ConfigurableComponent)object).setConfiguration(new Config(cfg));
+            } catch (ConfigurationException e) {
+              Log.error(LogMsg.createMsg(CDX.MSG, "DX.configuration_error", object.getClass().getName(), e.getClass().getSimpleName(), e.getMessage()));
             }
           } else {
-            Log.warn( LogMsg.createMsg( CDX.MSG, "DX.instance_not_configurable", className ) );
+            Log.warn(LogMsg.createMsg(CDX.MSG, "DX.instance_not_configurable", className));
           }
           retval = object;
-        } catch ( ClassNotFoundException | NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e ) {
-          Log.error( LogMsg.createMsg( CDX.MSG, "DX.instantiation_error", className, e.getClass().getName(), e.getMessage() ) );
+        } catch (ClassNotFoundException | NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+          Log.error(LogMsg.createMsg(CDX.MSG, "DX.instantiation_error", className, e.getClass().getName(), e.getMessage()));
         }
       } else {
-        Log.error( LogMsg.createMsg( CDX.MSG, "DX.config_frame_did_not_contain_a_class" ) );
+        Log.error(LogMsg.createMsg(CDX.MSG, "DX.config_frame_did_not_contain_a_class"));
       }
     }
 

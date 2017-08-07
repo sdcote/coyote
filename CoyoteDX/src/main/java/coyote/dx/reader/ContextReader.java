@@ -4,10 +4,6 @@
  * This program and the accompanying materials are made available under the 
  * terms of the MIT License which accompanies this distribution, and is 
  * available at http://creativecommons.org/licenses/MIT/
- *
- * Contributors:
- *   Stephan D. Cote 
- *      - Initial concept and implementation
  */
 package coyote.dx.reader;
 
@@ -50,14 +46,14 @@ public class ContextReader extends AbstractFrameReader {
    * @see coyote.dx.FrameReader#read(coyote.dx.context.TransactionContext)
    */
   @Override
-  public DataFrame read( TransactionContext context ) {
+  public DataFrame read(TransactionContext context) {
     DataFrame retval = null;
-    if ( counter < frames.length ) {
+    if (counter < frames.length) {
       retval = frames[counter];
     }
     counter++;
-    if ( counter == frames.length ) {
-      context.setLastFrame( true );
+    if (counter == frames.length) {
+      context.setLastFrame(true);
     }
     return retval;
   }
@@ -80,29 +76,29 @@ public class ContextReader extends AbstractFrameReader {
    * @see coyote.dx.Component#open(coyote.dx.context.TransformContext)
    */
   @Override
-  public void open( TransformContext context ) {
-    super.open( context );
+  public void open(TransformContext context) {
+    super.open(context);
 
-    String fieldName = configuration.getString( "source" );
-    if ( StringUtil.isNotBlank( fieldName ) ) {
+    String fieldName = configuration.getString("source");
+    if (StringUtil.isNotBlank(fieldName)) {
       contextFieldName = fieldName.trim();
     }
 
-    Object dataobj = getContext().get( contextFieldName );
-    if ( dataobj instanceof DataFrame ) {
+    Object dataobj = getContext().get(contextFieldName);
+    if (dataobj instanceof DataFrame) {
       frames = new DataFrame[1];
       frames[0] = (DataFrame)dataobj;
-    } else if ( dataobj instanceof DataFrame[] ) {
+    } else if (dataobj instanceof DataFrame[]) {
       frames = (DataFrame[])dataobj;
-    } else if ( dataobj instanceof List ) {
+    } else if (dataobj instanceof List) {
       List list = (List)dataobj;
       frames = new DataFrame[list.size()];
-      for ( int x = 0; x < list.size(); x++ ) {
-        Object frm = list.get( x );
-        if ( frm instanceof DataFrame ) {
+      for (int x = 0; x < list.size(); x++) {
+        Object frm = list.get(x);
+        if (frm instanceof DataFrame) {
           frames[x] = (DataFrame)frm;
         } else {
-          Log.warn( "Context Reader found " + frm.getClass().getName() + " in element " + x + " of data list - Skipping. Expect a null frame to be read." );
+          Log.warn("Context Reader found " + frm.getClass().getName() + " in element " + x + " of data list - Skipping. Expect a null frame to be read.");
         }
       }
 
