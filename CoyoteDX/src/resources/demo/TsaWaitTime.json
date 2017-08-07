@@ -1,0 +1,15 @@
+{
+	"Class": "coyote.dx.Job",
+	"Job": {
+		"Name": "TSA Wait Time",
+
+		"Preprocess": {
+			"WebGet": { "source": "https://apps.tsa.dhs.gov/MyTSAWebService/GetTSOWaitTimes.ashx?ap=CMH&output=json", "target":"waittime" }
+		},
+
+		"Reader": { "class": "JSONReader", "source": "waittime" },
+
+		"Writer": { "class": "ConsoleWriter", "format": "json", "indent": true }
+
+	}
+}
