@@ -13,8 +13,6 @@ import org.junit.Test;
 
 /**
  * This class models...StringTypeTest
- * 
- * @author Stephan D. Cote'
  */
 public class StringTypeTest {
   /** The data type under test. */
@@ -80,7 +78,7 @@ public class StringTypeTest {
    */
   @Test
   public void testEncode() {
-    String data = new String("abc");
+    String data = "abc";
     byte[] value = datatype.encode(data);
     assertTrue(value[0] == 97);
     assertTrue(value[1] == 98);
