@@ -50,17 +50,17 @@ public class LogEntry extends AbstractTransformTask {
     if (StringUtil.isNotBlank(message)) {
       String level = getCategory();
       if (StringUtil.isNotBlank(level)) {
-        if ("info".equalsIgnoreCase(level)) {
+        if (StringUtil.equalsIgnoreCase("info", level)) {
           Log.info(message);
-        } else if ("notice".equalsIgnoreCase(level)) {
+        } else if (StringUtil.equalsIgnoreCase("notice", level)) {
           Log.notice(message);
-        } else if ("debug".equalsIgnoreCase(level)) {
+        } else if (StringUtil.equalsIgnoreCase("debug", level)) {
           Log.debug(message);
-        } else if ("warn".equalsIgnoreCase(level)) {
+        } else if (StringUtil.equalsIgnoreCase("warn", level)) {
           Log.warn(message);
-        } else if ("error".equalsIgnoreCase(level)) {
+        } else if (StringUtil.equalsIgnoreCase("error", level)) {
           Log.error(message);
-        } else if ("trace".equalsIgnoreCase(level)) {
+        } else if (StringUtil.equalsIgnoreCase("trace", level)) {
           Log.trace(message);
         } else {
           Log.info(message);

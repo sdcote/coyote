@@ -114,7 +114,7 @@ public abstract class OperationalContext {
         return properties.get(key);
       } else {
         for (Map.Entry<String, Object> entry : properties.entrySet()) {
-          if (key.equalsIgnoreCase(entry.getKey()) && entry.getValue() != null) {
+          if (StringUtil.equalsIgnoreCase(key, entry.getKey()) && entry.getValue() != null) {
             return entry.getValue().toString();
           } // if match and value not null else keep looking
         } // for

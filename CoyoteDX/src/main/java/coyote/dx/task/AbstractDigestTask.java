@@ -91,7 +91,7 @@ public abstract class AbstractDigestTask extends AbstractFileTask {
               final File digestFile = new File(digestFilename);
 
               if (StringUtil.isNotBlank(expectedDigest)) {
-                if (digest.equalsIgnoreCase(expectedDigest.trim())) {
+                if (StringUtil.equalsIgnoreCase(digest, expectedDigest.trim())) {
                   Log.info(LogMsg.createMsg(CDX.MSG, "Digest.verified", ALGORITHM, file.getAbsolutePath()));
                   getContext().set(digestFilename, digest);
                 } else {
@@ -108,7 +108,7 @@ public abstract class AbstractDigestTask extends AbstractFileTask {
                   if (digestFile.canRead()) {
                     final String expected = FileUtil.fileToString(digestFile);
                     if (StringUtil.isNotBlank(expected)) {
-                      if (digest.equalsIgnoreCase(expected.trim())) {
+                      if (StringUtil.equalsIgnoreCase(digest, expected.trim())) {
                         Log.info(LogMsg.createMsg(CDX.MSG, "Digest.verified", ALGORITHM, file.getAbsolutePath()));
                         getContext().set(digestFilename, digest);
                       } else {

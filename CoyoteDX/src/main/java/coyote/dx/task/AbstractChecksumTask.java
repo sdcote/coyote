@@ -129,7 +129,7 @@ public abstract class AbstractChecksumTask extends AbstractFileTask {
               final File checksumFile = new File(checksumFilename);
 
               if (StringUtil.isNotBlank(expectedChecksum)) {
-                if (checksum.equalsIgnoreCase(expectedChecksum.trim())) {
+                if (StringUtil.equalsIgnoreCase(checksum, expectedChecksum.trim())) {
                   Log.info(LogMsg.createMsg(CDX.MSG, "Checksum.verified", ALGORITHM, file.getAbsolutePath()));
                   getContext().set(checksumFilename, checksum);
                 } else {
@@ -146,7 +146,7 @@ public abstract class AbstractChecksumTask extends AbstractFileTask {
                   if (checksumFile.canRead()) {
                     final String expected = FileUtil.fileToString(checksumFile);
                     if (StringUtil.isNotBlank(expected)) {
-                      if (checksum.equalsIgnoreCase(expected.trim())) {
+                      if (StringUtil.equalsIgnoreCase(checksum, expected.trim())) {
                         Log.info(LogMsg.createMsg(CDX.MSG, "Checksum.verified", ALGORITHM, file.getAbsolutePath()));
                         getContext().set(checksumFilename, checksum);
                       } else {

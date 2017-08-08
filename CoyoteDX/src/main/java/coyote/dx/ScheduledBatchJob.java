@@ -77,23 +77,23 @@ public class ScheduledBatchJob extends ScheduledJob implements ManagedComponent 
       // attributes are applied by processing them in order they appear and 
       // overwriting previous attributes.
       for (DataField field : scheduleCfg.getFields()) {
-        if (ConfigTag.PATTERN.equalsIgnoreCase(field.getName())) {
+        if (StringUtil.equalsIgnoreCase(ConfigTag.PATTERN, field.getName())) {
           try {
             cronentry = CronEntry.parse(field.getStringValue());
           } catch (ParseException e) {
             Log.error(LogMsg.createMsg(CDX.MSG, "Job.schedule_patterm_parse_error", e.getMessage()));
           }
-        } else if (ConfigTag.MINUTES.equalsIgnoreCase(field.getName())) {
+        } else if (StringUtil.equalsIgnoreCase(ConfigTag.MINUTES, field.getName())) {
           cronentry.setMinutePattern(field.getStringValue());
-        } else if (ConfigTag.HOURS.equalsIgnoreCase(field.getName())) {
+        } else if (StringUtil.equalsIgnoreCase(ConfigTag.HOURS, field.getName())) {
           cronentry.setHourPattern(field.getStringValue());
-        } else if (ConfigTag.MONTHS.equalsIgnoreCase(field.getName())) {
+        } else if (StringUtil.equalsIgnoreCase(ConfigTag.MONTHS, field.getName())) {
           cronentry.setMonthPattern(field.getStringValue());
-        } else if (ConfigTag.DAYS.equalsIgnoreCase(field.getName())) {
+        } else if (StringUtil.equalsIgnoreCase(ConfigTag.DAYS, field.getName())) {
           cronentry.setDayPattern(field.getStringValue());
-        } else if (ConfigTag.DAYS_OF_WEEK.equalsIgnoreCase(field.getName())) {
+        } else if (StringUtil.equalsIgnoreCase(ConfigTag.DAYS_OF_WEEK, field.getName())) {
           cronentry.setDayOfWeekPattern(field.getStringValue());
-        } else if (ConfigTag.MILLIS.equalsIgnoreCase(field.getName())) {
+        } else if (StringUtil.equalsIgnoreCase(ConfigTag.MILLIS, field.getName())) {
           long millis = 0;
           try {
             millis = Long.parseLong(field.getStringValue());

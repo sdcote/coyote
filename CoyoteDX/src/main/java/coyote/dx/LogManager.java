@@ -133,10 +133,10 @@ public class LogManager extends AbstractConfigurableComponent implements Configu
           }
 
           // treat targets a little differently
-          if (ConfigTag.TARGET.equalsIgnoreCase(field.getName())) {
+          if (StringUtil.equalsIgnoreCase(ConfigTag.TARGET, field.getName())) {
 
             // the targets for loggers MUST be a URI
-            if (!("stdout".equalsIgnoreCase(cval) || "stderr".equalsIgnoreCase(cval))) {
+            if (!(StringUtil.equalsIgnoreCase("stdout", cval) || StringUtil.equalsIgnoreCase("stderr", cval))) {
               URI testTarget = UriUtil.parse(cval);
 
               if (testTarget != null) {
@@ -167,7 +167,7 @@ public class LogManager extends AbstractConfigurableComponent implements Configu
               System.out.println("Bad target URI '" + cval + "'");
             }
 
-          } else if (ConfigTag.CATEGORIES.equalsIgnoreCase(field.getName())) {
+          } else if (StringUtil.equalsIgnoreCase(ConfigTag.CATEGORIES, field.getName())) {
             // Categories should be normalized to upper case
             cval = cval.toUpperCase();
           }

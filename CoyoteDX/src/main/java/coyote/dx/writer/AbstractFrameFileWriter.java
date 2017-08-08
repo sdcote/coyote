@@ -91,9 +91,9 @@ public abstract class AbstractFrameFileWriter extends AbstractFrameWriter implem
         File targetFile = null;
 
         // Check to see if it is STDOUT or STDERR
-        if (STDOUT.equalsIgnoreCase(target)) {
+        if (StringUtil.equalsIgnoreCase(STDOUT,target)) {
           printwriter = new PrintWriter(System.out);
-        } else if (STDERR.equalsIgnoreCase(target)) {
+        } else if (StringUtil.equalsIgnoreCase(STDERR,target)) {
           printwriter = new PrintWriter(System.err);
         } else if (uri != null) {
           if (UriUtil.isFile(uri)) {

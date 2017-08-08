@@ -50,7 +50,7 @@ public class DatabaseUtil {
         rs = meta.getTables(null, null, "%", null);
         while (rs.next()) {
           String table = rs.getString("TABLE_NAME");
-          if (tablename.equalsIgnoreCase(table)) {
+          if (StringUtil.equalsIgnoreCase(tablename, table)) {
             retval = true;
             break;
           }
@@ -102,7 +102,7 @@ public class DatabaseUtil {
         // get all the tables so we can perform a case insensitive search
         rs = meta.getTables(null, null, "%", null);
         while (rs.next()) {
-          if (tablename.equalsIgnoreCase(rs.getString("TABLE_NAME"))) {
+          if (StringUtil.equalsIgnoreCase(tablename, rs.getString("TABLE_NAME"))) {
             tableSchemaName = rs.getString("TABLE_NAME");
             break;
           }

@@ -12,6 +12,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Iterator;
 
+import coyote.commons.StringUtil;
 import coyote.commons.network.http.HTTPD;
 import coyote.dataframe.DataField;
 import coyote.dx.http.DefaultHttpManager;
@@ -121,7 +122,7 @@ public class Service extends AbstractBatchLoader implements Loader {
         // we need to get the port first as part of the server constructor
         if (cfg != null) {
           for (DataField field : cfg.getFields()) {
-            if (ConfigTag.PORT.equalsIgnoreCase(field.getName())) {
+            if (StringUtil.equalsIgnoreCase(ConfigTag.PORT, field.getName())) {
               try {
                 port = Integer.parseInt(field.getStringValue());
               } catch (NumberFormatException e) {

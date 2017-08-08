@@ -7,6 +7,9 @@
  */
 package coyote.dx.db;
 
+import coyote.commons.StringUtil;
+
+
 /**
  * The supported data types for database columns.
  */
@@ -47,7 +50,7 @@ public enum ColumnType {
     ColumnType retval = null;
     if (name != null) {
       for (final ColumnType type : ColumnType.values()) {
-        if (name.equalsIgnoreCase(type.toString())) {
+        if (StringUtil.equalsIgnoreCase(name, type.toString())) {
           retval = type;
           break;
         }

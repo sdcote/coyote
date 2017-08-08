@@ -766,7 +766,7 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
         // get all the tables so we can perform a case insensitive search
         rs = meta.getTables(null, null, "%", null);
         while (rs.next()) {
-          if (tablename.equalsIgnoreCase(rs.getString("TABLE_NAME"))) {
+          if (StringUtil.equalsIgnoreCase(tablename,rs.getString("TABLE_NAME"))) {
             tableSchemaName = rs.getString("TABLE_NAME");
             break;
           }
@@ -932,7 +932,7 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
         // get all the tables so we can perform a case insensitive search
         rs = meta.getTables(null, null, "%", null);
         while (rs.next()) {
-          if (tablename.equalsIgnoreCase(rs.getString("TABLE_NAME"))) {
+          if (StringUtil.equalsIgnoreCase(tablename,rs.getString("TABLE_NAME"))) {
             retval = true;
           }
         }

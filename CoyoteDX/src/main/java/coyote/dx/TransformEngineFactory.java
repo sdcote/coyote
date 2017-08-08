@@ -128,67 +128,67 @@ public class TransformEngineFactory {
 
       for (DataField field : frame.getFields()) {
 
-        if (ConfigTag.READER.equalsIgnoreCase(field.getName())) {
+        if (StringUtil.equalsIgnoreCase(ConfigTag.READER, field.getName())) {
           if (field.isFrame()) {
             configReader((DataFrame)field.getObjectValue(), retval);
           } else {
             Log.error("Invalid reader configuration section");
           }
-        } else if (ConfigTag.FILTERS.equalsIgnoreCase(field.getName())) {
+        } else if (StringUtil.equalsIgnoreCase(ConfigTag.FILTERS, field.getName())) {
           if (field.isFrame()) {
             configFilters((DataFrame)field.getObjectValue(), retval);
           } else {
             Log.error("Invalid filters configuration section");
           }
-        } else if (ConfigTag.MAPPER.equalsIgnoreCase(field.getName())) {
+        } else if (StringUtil.equalsIgnoreCase(ConfigTag.MAPPER, field.getName())) {
           if (field.isFrame()) {
             configMapper((DataFrame)field.getObjectValue(), retval);
           } else {
             Log.error("Invalid mapper configuration section");
           }
-        } else if (ConfigTag.WRITER.equalsIgnoreCase(field.getName())) {
+        } else if (StringUtil.equalsIgnoreCase(ConfigTag.WRITER, field.getName())) {
           if (field.isFrame()) {
             configWriter((DataFrame)field.getObjectValue(), retval);
           } else {
             Log.error("Invalid writer configuration section");
           }
-        } else if (ConfigTag.DATABASE.equalsIgnoreCase(field.getName())) {
+        } else if (StringUtil.equalsIgnoreCase(ConfigTag.DATABASE, field.getName())) {
           if (field.isFrame()) {
             configDatabases((DataFrame)field.getObjectValue(), retval);
           } else {
             Log.error("Invalid database configuration section");
           }
-        } else if (ConfigTag.VALIDATE.equalsIgnoreCase(field.getName())) {
+        } else if (StringUtil.equalsIgnoreCase(ConfigTag.VALIDATE, field.getName())) {
           if (field.isFrame()) {
             configValidation((DataFrame)field.getObjectValue(), retval);
           } else {
             Log.error("Invalid pre-process configuration section");
           }
-        } else if (ConfigTag.TRANSFORM.equalsIgnoreCase(field.getName())) {
+        } else if (StringUtil.equalsIgnoreCase(ConfigTag.TRANSFORM, field.getName())) {
           if (field.isFrame()) {
             configTransformer((DataFrame)field.getObjectValue(), retval);
           } else {
             Log.error("Invalid pre-process configuration section");
           }
-        } else if (ConfigTag.PREPROCESS.equalsIgnoreCase(field.getName()) || ConfigTag.TASKS.equalsIgnoreCase(field.getName())) {
+        } else if (StringUtil.equalsIgnoreCase(ConfigTag.PREPROCESS, field.getName()) || StringUtil.equalsIgnoreCase(ConfigTag.TASKS, field.getName())) {
           if (field.isFrame()) {
             configPreProcess((DataFrame)field.getObjectValue(), retval);
           } else {
             Log.error("Invalid pre-process configuration section");
           }
-        } else if (ConfigTag.POSTPROCESS.equalsIgnoreCase(field.getName())) {
+        } else if (StringUtil.equalsIgnoreCase(ConfigTag.POSTPROCESS, field.getName())) {
           if (field.isFrame()) {
             configPostProcess((DataFrame)field.getObjectValue(), retval);
           } else {
             Log.error("Invalid post-process configuration section");
           }
-        } else if (ConfigTag.CONTEXT.equalsIgnoreCase(field.getName())) {
+        } else if (StringUtil.equalsIgnoreCase(ConfigTag.CONTEXT, field.getName())) {
           if (field.isFrame()) {
             configContext(new Config((DataFrame)field.getObjectValue()), retval);
           } else {
             Log.error("Invalid context configuration section");
           }
-        } else if (ConfigTag.LISTENER.equalsIgnoreCase(field.getName())) {
+        } else if (StringUtil.equalsIgnoreCase(ConfigTag.LISTENER, field.getName())) {
           if (field.isFrame()) {
             DataFrame cfgFrame = (DataFrame)field.getObjectValue();
             if (cfgFrame != null) {
@@ -208,13 +208,13 @@ public class TransformEngineFactory {
           } else {
             Log.error("Invalid listener configuration section");
           }
-        } else if (ConfigTag.NAME.equalsIgnoreCase(field.getName())) {
+        } else if (StringUtil.equalsIgnoreCase(ConfigTag.NAME, field.getName())) {
           if (field.isFrame()) {
             Log.error("Invalid Name value - expecting simple type (string)");
           } else {
             retval.setName(field.getStringValue());
           }
-        } else if (ConfigTag.SCHEDULE.equalsIgnoreCase(field.getName())) {
+        } else if (StringUtil.equalsIgnoreCase(ConfigTag.SCHEDULE, field.getName())) {
           if (!field.isFrame()) {
             Log.error("Invalid Schedule section - expecting complex type");
           }
@@ -650,7 +650,7 @@ public class TransformEngineFactory {
   private static String findString(String name, DataFrame frame) {
     if (name != null) {
       for (DataField field : frame.getFields()) {
-        if (name.equalsIgnoreCase(field.getName())) {
+        if (StringUtil.equalsIgnoreCase(name, field.getName())) {
           return field.getStringValue();
         }
       }

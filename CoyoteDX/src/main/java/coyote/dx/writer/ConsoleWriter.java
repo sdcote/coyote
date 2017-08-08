@@ -68,23 +68,23 @@ public class ConsoleWriter extends AbstractFrameWriter {
    */
   @Override
   public void write(DataFrame frame) {
-    if (!NO_FORMAT.equalsIgnoreCase(getFormat())) {
+    if (!StringUtil.equalsIgnoreCase(NO_FORMAT, getFormat())) {
       if (isIndented()) {
-        if (JSON_FORMAT.equalsIgnoreCase(getFormat())) {
+        if (StringUtil.equalsIgnoreCase(JSON_FORMAT, getFormat())) {
           System.out.println(JSONMarshaler.toFormattedString(frame));
-        } else if (XML_FORMAT.equalsIgnoreCase(getFormat())) {
+        } else if (StringUtil.equalsIgnoreCase(XML_FORMAT, getFormat())) {
           System.out.println(XMLMarshaler.toFormattedString(frame));
-        } else if (CSV_FORMAT.equalsIgnoreCase(getFormat())) {
+        } else if (StringUtil.equalsIgnoreCase(CSV_FORMAT, getFormat())) {
           System.out.println(CSVMarshaler.marshal(frame));
         } else {
           System.out.println("Don't know how to format data into '" + getFormat() + "'");
         }
       } else {
-        if (JSON_FORMAT.equalsIgnoreCase(getFormat())) {
+        if (StringUtil.equalsIgnoreCase(JSON_FORMAT, getFormat())) {
           System.out.println(JSONMarshaler.marshal(frame));
-        } else if (XML_FORMAT.equalsIgnoreCase(getFormat())) {
+        } else if (StringUtil.equalsIgnoreCase(XML_FORMAT, getFormat())) {
           System.out.println(XMLMarshaler.marshal(frame));
-        } else if (CSV_FORMAT.equalsIgnoreCase(getFormat())) {
+        } else if (StringUtil.equalsIgnoreCase(CSV_FORMAT, getFormat())) {
           System.out.println(CSVMarshaler.marshal(frame));
         } else {
           System.out.println("Don't know how to format data into '" + getFormat() + "'");

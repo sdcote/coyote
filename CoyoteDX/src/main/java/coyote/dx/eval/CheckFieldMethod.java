@@ -11,6 +11,7 @@ import java.util.Date;
 import java.util.Locale;
 
 import coyote.commons.NumberUtil;
+import coyote.commons.StringUtil;
 import coyote.dx.context.TransformContext;
 import coyote.loader.log.Log;
 
@@ -286,7 +287,7 @@ public final class CheckFieldMethod extends AbstractBooleanMethod {
       if (fieldObject == null || expectedObject == null) {
         retval = false;
       } else {
-        retval = fieldObject.toString().equalsIgnoreCase(expectedObject.toString());
+        retval = StringUtil.equalsIgnoreCase(fieldObject.toString(),expectedObject.toString());
       }
     }
     return retval;

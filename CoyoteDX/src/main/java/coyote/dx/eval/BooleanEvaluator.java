@@ -373,7 +373,7 @@ public class BooleanEvaluator extends AbstractEvaluator<Boolean> {
    */
   @Override
   protected Boolean toValue(final String literal, final Object evaluationContext) {
-    if (LITERAL_TRUE.equalsIgnoreCase(literal) || LITERAL_FALSE.equalsIgnoreCase(literal)) {
+    if (StringUtil.equalsIgnoreCase(LITERAL_TRUE, literal) || StringUtil.equalsIgnoreCase(LITERAL_FALSE, literal)) {
       return Boolean.valueOf(literal);
     } else {
       throw new IllegalArgumentException("'" + literal + "' is not a valid boolean literal");

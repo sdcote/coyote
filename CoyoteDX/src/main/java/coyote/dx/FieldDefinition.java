@@ -92,35 +92,35 @@ public class FieldDefinition {
     if (StringUtil.isBlank(type)) {
       this.type = DataField.STRING;
     } else {
-      if (type.equalsIgnoreCase("STRING") || type.equalsIgnoreCase("STR")) {
+      if (StringUtil.equalsIgnoreCase(type, "STRING") || StringUtil.equalsIgnoreCase(type, "STR")) {
         this.type = DataField.STRING;
-      } else if (type.equalsIgnoreCase("S8")) {
+      } else if (StringUtil.equalsIgnoreCase(type, "S8")) {
         this.type = DataField.S8;
-      } else if (type.equalsIgnoreCase("U8")) {
+      } else if (StringUtil.equalsIgnoreCase(type, "U8")) {
         this.type = DataField.U8;
-      } else if (type.equalsIgnoreCase("SHORT") || type.equalsIgnoreCase("S16")) {
+      } else if (StringUtil.equalsIgnoreCase(type, "SHORT") || StringUtil.equalsIgnoreCase(type, "S16")) {
         this.type = DataField.S16;
-      } else if (type.equalsIgnoreCase("U16")) {
+      } else if (StringUtil.equalsIgnoreCase(type, "U16")) {
         this.type = DataField.U16;
-      } else if (type.equalsIgnoreCase("INTEGER") || type.equalsIgnoreCase("INT") || type.equalsIgnoreCase("S32")) {
+      } else if (StringUtil.equalsIgnoreCase(type, "INTEGER") || StringUtil.equalsIgnoreCase(type, "INT") || StringUtil.equalsIgnoreCase(type, "S32")) {
         this.type = DataField.S32;
-      } else if (type.equalsIgnoreCase("U32")) {
+      } else if (StringUtil.equalsIgnoreCase(type, "U32")) {
         this.type = DataField.U32;
-      } else if (type.equalsIgnoreCase("LONG") || type.equalsIgnoreCase("S64")) {
+      } else if (StringUtil.equalsIgnoreCase(type, "LONG") || StringUtil.equalsIgnoreCase(type, "S64")) {
         this.type = DataField.S64;
-      } else if (type.equalsIgnoreCase("U64")) {
+      } else if (StringUtil.equalsIgnoreCase(type, "U64")) {
         this.type = DataField.U64;
-      } else if (type.equalsIgnoreCase("FLOAT") || type.equalsIgnoreCase("FLT")) {
+      } else if (StringUtil.equalsIgnoreCase(type, "FLOAT") || StringUtil.equalsIgnoreCase(type, "FLT")) {
         this.type = DataField.FLOAT;
-      } else if (type.equalsIgnoreCase("DOUBLE") || type.equalsIgnoreCase("DBL")) {
+      } else if (StringUtil.equalsIgnoreCase(type, "DOUBLE") || StringUtil.equalsIgnoreCase(type, "DBL")) {
         this.type = DataField.DOUBLE;
-      } else if (type.equalsIgnoreCase("BOOLEAN") || type.equalsIgnoreCase("BOL")) {
+      } else if (StringUtil.equalsIgnoreCase(type, "BOOLEAN") || StringUtil.equalsIgnoreCase(type, "BOL")) {
         this.type = DataField.BOOLEANTYPE;
-      } else if (type.equalsIgnoreCase("DATE") || type.equalsIgnoreCase("DAT")) {
+      } else if (StringUtil.equalsIgnoreCase(type, "DATE") || StringUtil.equalsIgnoreCase(type, "DAT")) {
         this.type = DataField.DATE;
-      } else if (type.equalsIgnoreCase("URI")) {
+      } else if (StringUtil.equalsIgnoreCase(type, "URI")) {
         this.type = DataField.URI;
-      } else if (type.equalsIgnoreCase("UDEF")) {
+      } else if (StringUtil.equalsIgnoreCase(type, "UDEF")) {
         this.type = DataField.UDEF;
       } else {
         throw new IllegalArgumentException("unsupported type specification: '" + type + "'");

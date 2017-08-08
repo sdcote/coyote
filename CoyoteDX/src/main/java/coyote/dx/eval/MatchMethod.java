@@ -10,12 +10,11 @@ package coyote.dx.eval;
 import coyote.commons.StringUtil;
 import coyote.dx.context.TransformContext;
 
+
 /**
  * Compares to (context) strings
  */
 public class MatchMethod extends AbstractBooleanMethod {
-  
-
 
   /**
    * Perform a case insensitive match between the two arguments.
@@ -29,7 +28,7 @@ public class MatchMethod extends AbstractBooleanMethod {
    * 
    * @return true if a arguments match, false otherwise
    */
-  public static boolean execute(TransformContext context,String arg1, String arg2) {
+  public static boolean execute(TransformContext context, String arg1, String arg2) {
     if (context != null) {
       String value = context.resolveToString(arg1);
       if (value == null) {
@@ -46,7 +45,7 @@ public class MatchMethod extends AbstractBooleanMethod {
         }
       }
 
-      if (value.equalsIgnoreCase(test)) {
+      if (StringUtil.equalsIgnoreCase(value, test)) {
         return true;
       }
     } else {
@@ -54,6 +53,5 @@ public class MatchMethod extends AbstractBooleanMethod {
     }
     return false;
   }
-
 
 }

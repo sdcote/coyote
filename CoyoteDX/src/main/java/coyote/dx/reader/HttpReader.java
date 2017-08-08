@@ -10,6 +10,7 @@ package coyote.dx.reader;
 import java.io.IOException;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+import coyote.commons.StringUtil;
 import coyote.commons.network.http.HTTPD;
 import coyote.commons.network.http.auth.GenericAuthProvider;
 import coyote.commons.network.http.responder.HTTPDRouter;
@@ -138,7 +139,7 @@ public class HttpReader extends AbstractFrameReader implements FrameReader {
       if (cfg != null) {
         DataFrame authConfig = null;
         for (DataField field : cfg.getFields()) {
-          if (GenericAuthProvider.AUTH_SECTION.equalsIgnoreCase(field.getName()) && field.isFrame()) {
+          if (StringUtil.equalsIgnoreCase(GenericAuthProvider.AUTH_SECTION, field.getName()) && field.isFrame()) {
             setAuthProvider(new GenericAuthProvider(new Config((DataFrame)field.getObjectValue())));
           }
         }

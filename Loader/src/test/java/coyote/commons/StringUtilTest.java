@@ -185,35 +185,47 @@ public class StringUtilTest {
     assertTrue(StringUtil.equalsIgnoreCase("abcd", "abcD"));
   }
 
+
+
+
   @Test
-  public void testIsEmpty(){
+  public void testIsEmpty() {
     assertTrue(StringUtil.isEmpty(null));
     assertTrue(StringUtil.isEmpty(""));
     assertFalse(StringUtil.isEmpty(" "));
     assertFalse(StringUtil.isEmpty("foo"));
     assertFalse(StringUtil.isEmpty("  foo  "));
   }
-  
+
+
+
+
   @Test
-  public void testIsNotEmpty(){
+  public void testIsNotEmpty() {
     assertFalse(StringUtil.isNotEmpty(null));
     assertFalse(StringUtil.isNotEmpty(""));
     assertTrue(StringUtil.isNotEmpty(" "));
     assertTrue(StringUtil.isNotEmpty("foo"));
     assertTrue(StringUtil.isNotEmpty("  foo  "));
   }
-  
+
+
+
+
   @Test
-  public void testIsBlank(){
+  public void testIsBlank() {
     assertTrue(StringUtil.isBlank(null));
     assertTrue(StringUtil.isBlank(""));
     assertTrue(StringUtil.isBlank(" "));
     assertFalse(StringUtil.isBlank("foo"));
     assertFalse(StringUtil.isBlank("  foo  "));
   }
-  
+
+
+
+
   @Test
-  public void testIsNotBlank(){
+  public void testIsNotBlank() {
     assertFalse(StringUtil.isNotBlank(null));
     assertFalse(StringUtil.isNotBlank(""));
     assertFalse(StringUtil.isNotBlank(" "));

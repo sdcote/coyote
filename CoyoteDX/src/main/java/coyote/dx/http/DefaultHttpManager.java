@@ -9,6 +9,7 @@ package coyote.dx.http;
 
 import java.io.IOException;
 
+import coyote.commons.StringUtil;
 import coyote.commons.network.http.HTTPD;
 import coyote.commons.network.http.auth.GenericAuthProvider;
 import coyote.commons.network.http.responder.HTTPDRouter;
@@ -67,7 +68,7 @@ public class DefaultHttpManager extends HTTPDRouter implements HttpManager {
       // Setup auth provider from configuration - No configuration results in deny-all operation
       DataFrame authConfig = null;
       for (DataField field : cfg.getFields()) {
-        if (GenericAuthProvider.AUTH_SECTION.equalsIgnoreCase(field.getName()) && field.isFrame()) {
+        if (StringUtil.equalsIgnoreCase(GenericAuthProvider.AUTH_SECTION, field.getName()) && field.isFrame()) {
           setAuthProvider(new GenericAuthProvider(new Config((DataFrame)field.getObjectValue())));
         }
       }

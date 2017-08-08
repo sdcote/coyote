@@ -240,7 +240,7 @@ public abstract class AbstractConfigurableComponent implements ConfigurableCompo
   public boolean getBoolean(String name) {
     String value = getString(name);
     if (StringUtil.isNotBlank(value)) {
-      return ("true".equalsIgnoreCase(value) || "yes".equalsIgnoreCase(value) || "1".equalsIgnoreCase(value) || "y".equalsIgnoreCase(value) || "t".equalsIgnoreCase(value));
+      return (StringUtil.equalsIgnoreCase("true", value) || StringUtil.equalsIgnoreCase("yes", value) || StringUtil.equalsIgnoreCase("1", value) || StringUtil.equalsIgnoreCase("y", value) || StringUtil.equalsIgnoreCase("t", value));
     }
     return false;
   }

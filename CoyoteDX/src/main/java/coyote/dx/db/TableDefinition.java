@@ -10,6 +10,8 @@ package coyote.dx.db;
 import java.util.ArrayList;
 import java.util.List;
 
+import coyote.commons.StringUtil;
+
 
 /**
  * This models a (database) table definition.
@@ -101,7 +103,7 @@ public class TableDefinition {
    */
   public ColumnDefinition findColumn(final String name) {
     for (final ColumnDefinition column : columns) {
-      if (column.getName().equalsIgnoreCase(name)) {
+      if (StringUtil.equalsIgnoreCase(column.getName(), name)) {
         return column;
       }
     }
