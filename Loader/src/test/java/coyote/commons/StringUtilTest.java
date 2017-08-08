@@ -4,10 +4,6 @@
  * This program and the accompanying materials are made available under the 
  * terms of the MIT License which accompanies this distribution, and is 
  * available at http://creativecommons.org/licenses/MIT/
- *
- * Contributors:
- *   Stephan D. Cote 
- *      - Initial concept and implementation
  */
 package coyote.commons;
 
@@ -26,6 +22,12 @@ import org.junit.Test;
  */
 public class StringUtilTest {
 
+  private static final String BAR = "bar";
+  private static final String FOO = "foo";
+
+
+
+
   @Test
   public void fixedLengthTest() {
     String text = "Coyote";
@@ -35,56 +37,56 @@ public class StringUtilTest {
     int RIGHT = 2;
 
     // Alignment Tests = = = = = =
-    field = StringUtil.fixedLength( text, 10, LEFT, '*' );
+    field = StringUtil.fixedLength(text, 10, LEFT, '*');
     //System.out.println( field );
-    assertTrue( field.length() == 10 );
-    assertEquals( field, "Coyote****" );
+    assertTrue(field.length() == 10);
+    assertEquals(field, "Coyote****");
 
-    field = StringUtil.fixedLength( text, 10, CENTER, '*' );
-    assertTrue( field.length() == 10 );
-    assertEquals( field, "**Coyote**" );
+    field = StringUtil.fixedLength(text, 10, CENTER, '*');
+    assertTrue(field.length() == 10);
+    assertEquals(field, "**Coyote**");
 
-    field = StringUtil.fixedLength( text, 10, RIGHT, '*' );
-    assertTrue( field.length() == 10 );
-    assertEquals( field, "****Coyote" );
+    field = StringUtil.fixedLength(text, 10, RIGHT, '*');
+    assertTrue(field.length() == 10);
+    assertEquals(field, "****Coyote");
 
     // Size Match Tests = = = = = 
-    field = StringUtil.fixedLength( text, 6, LEFT, '*' );
-    assertTrue( field.length() == 6 );
-    assertEquals( field, "Coyote" );
+    field = StringUtil.fixedLength(text, 6, LEFT, '*');
+    assertTrue(field.length() == 6);
+    assertEquals(field, "Coyote");
 
-    field = StringUtil.fixedLength( text, 6, CENTER, '*' );
-    assertTrue( field.length() == 6 );
-    assertEquals( field, "Coyote" );
+    field = StringUtil.fixedLength(text, 6, CENTER, '*');
+    assertTrue(field.length() == 6);
+    assertEquals(field, "Coyote");
 
-    field = StringUtil.fixedLength( text, 6, RIGHT, '*' );
-    assertTrue( field.length() == 6 );
-    assertEquals( field, "Coyote" );
+    field = StringUtil.fixedLength(text, 6, RIGHT, '*');
+    assertTrue(field.length() == 6);
+    assertEquals(field, "Coyote");
 
     // Truncation Tests = = = = =
-    field = StringUtil.fixedLength( text, 5, LEFT, '*' );
-    assertTrue( field.length() == 5 );
-    assertEquals( field, "Coyot" );
+    field = StringUtil.fixedLength(text, 5, LEFT, '*');
+    assertTrue(field.length() == 5);
+    assertEquals(field, "Coyot");
 
-    field = StringUtil.fixedLength( text, 5, CENTER, '*' );
-    assertTrue( field.length() == 5 );
-    assertEquals( field, "Coyot" );
+    field = StringUtil.fixedLength(text, 5, CENTER, '*');
+    assertTrue(field.length() == 5);
+    assertEquals(field, "Coyot");
 
-    field = StringUtil.fixedLength( text, 5, RIGHT, '*' );
-    assertTrue( field.length() == 5 );
-    assertEquals( field, "oyote" );
+    field = StringUtil.fixedLength(text, 5, RIGHT, '*');
+    assertTrue(field.length() == 5);
+    assertEquals(field, "oyote");
 
-    field = StringUtil.fixedLength( text, 4, LEFT, '*' );
-    assertTrue( field.length() == 4 );
-    assertEquals( field, "Coyo" );
+    field = StringUtil.fixedLength(text, 4, LEFT, '*');
+    assertTrue(field.length() == 4);
+    assertEquals(field, "Coyo");
 
-    field = StringUtil.fixedLength( text, 4, CENTER, '*' );
-    assertTrue( field.length() == 4 );
-    assertEquals( field, "oyot" );
+    field = StringUtil.fixedLength(text, 4, CENTER, '*');
+    assertTrue(field.length() == 4);
+    assertEquals(field, "oyot");
 
-    field = StringUtil.fixedLength( text, 4, RIGHT, '*' );
-    assertTrue( field.length() == 4 );
-    assertEquals( field, "yote" );
+    field = StringUtil.fixedLength(text, 4, RIGHT, '*');
+    assertTrue(field.length() == 4);
+    assertEquals(field, "yote");
   }
 
 
@@ -92,9 +94,9 @@ public class StringUtilTest {
 
   @Test
   public void empty() {
-    assertTrue( StringUtil.isEmpty( "" ) );
-    assertTrue( StringUtil.isEmpty( null ) );
-    assertFalse( StringUtil.isEmpty( " " ) );
+    assertTrue(StringUtil.isEmpty(""));
+    assertTrue(StringUtil.isEmpty(null));
+    assertFalse(StringUtil.isEmpty(" "));
   }
 
 
@@ -102,9 +104,9 @@ public class StringUtilTest {
 
   @Test
   public void notEmpty() {
-    assertFalse( StringUtil.isNotEmpty( "" ) );
-    assertFalse( StringUtil.isNotEmpty( null ) );
-    assertTrue( StringUtil.isNotEmpty( " " ) );
+    assertFalse(StringUtil.isNotEmpty(""));
+    assertFalse(StringUtil.isNotEmpty(null));
+    assertTrue(StringUtil.isNotEmpty(" "));
   }
 
 
@@ -115,52 +117,107 @@ public class StringUtilTest {
 
     String text = "";
     String expected = null;
-    String result = StringUtil.getQuotedValue( text );
+    String result = StringUtil.getQuotedValue(text);
     //System.out.println( "EMPTY>" + result + "<" );
-    assertNull( result );
+    assertNull(result);
 
     text = "\"";
-    result = StringUtil.getQuotedValue( text );
+    result = StringUtil.getQuotedValue(text);
     //System.out.println( "ONE>" + result + "<" );
-    assertNull( result );
+    assertNull(result);
 
     text = "\"\"";
     expected = "";
-    result = StringUtil.getQuotedValue( text );
+    result = StringUtil.getQuotedValue(text);
     //System.out.println( "TWO>" + result + "<" );
-    assertNotNull( result );
-    assertEquals( result, expected );
+    assertNotNull(result);
+    assertEquals(result, expected);
 
     text = "\"123\"";
     expected = "123";
-    result = StringUtil.getQuotedValue( text );
+    result = StringUtil.getQuotedValue(text);
     //System.out.println( "123>" + result + "<" );
-    assertNotNull( result );
-    assertEquals( result, expected );
+    assertNotNull(result);
+    assertEquals(result, expected);
 
-    text =  "  \"ABC\"   ";
+    text = "  \"ABC\"   ";
     expected = "ABC";
-    result = StringUtil.getQuotedValue( text );
+    result = StringUtil.getQuotedValue(text);
     //System.out.println( "SPACED>" + result+ "<" );
-    assertNotNull( result );
-    assertEquals( result, expected );
-    
-    text =  "  \"\"A\"\"B\"\"C\"\"   ";
+    assertNotNull(result);
+    assertEquals(result, expected);
+
+    text = "  \"\"A\"\"B\"\"C\"\"   ";
     expected = "\"A\"\"B\"\"C\"";
-    result = StringUtil.getQuotedValue( text );
+    result = StringUtil.getQuotedValue(text);
     //System.out.println( "INCLOSED>" + result + "<" );
-    assertNotNull( result );
-    assertEquals( result, expected );
+    assertNotNull(result);
+    assertEquals(result, expected);
+  }
+
+
+
+
+  @Test
+  public void isDigits() {
+    assertFalse(StringUtil.isDigits(null));
+    assertFalse(StringUtil.isDigits(""));
+    assertTrue(StringUtil.isDigits("12345"));
+    assertFalse(StringUtil.isDigits("1234.5"));
+    assertFalse(StringUtil.isDigits("1ab"));
+    assertFalse(StringUtil.isDigits("abc"));
+  }
+
+
+
+
+  @Test
+  public void testEqualsIgnoreCase() {
+    assertTrue(StringUtil.equalsIgnoreCase(null, null));
+    assertTrue(StringUtil.equalsIgnoreCase(FOO, FOO));
+    assertTrue(StringUtil.equalsIgnoreCase(FOO, new String(new char[]{'f', 'o', 'o'})));
+    assertTrue(StringUtil.equalsIgnoreCase(FOO, new String(new char[]{'f', 'O', 'O'})));
+    assertFalse(StringUtil.equalsIgnoreCase(FOO, BAR));
+    assertFalse(StringUtil.equalsIgnoreCase(FOO, null));
+    assertFalse(StringUtil.equalsIgnoreCase(null, FOO));
+    assertTrue(StringUtil.equalsIgnoreCase("", ""));
+    assertFalse(StringUtil.equalsIgnoreCase("abcd", "abcd "));
+    assertTrue(StringUtil.equalsIgnoreCase("abcd", "abcD"));
+  }
+
+  @Test
+  public void testIsEmpty(){
+    assertTrue(StringUtil.isEmpty(null));
+    assertTrue(StringUtil.isEmpty(""));
+    assertFalse(StringUtil.isEmpty(" "));
+    assertFalse(StringUtil.isEmpty("foo"));
+    assertFalse(StringUtil.isEmpty("  foo  "));
   }
   
   @Test
-  public void isDigits() {
-      assertFalse(StringUtil.isDigits(null));
-      assertFalse(StringUtil.isDigits(""));
-      assertTrue( StringUtil.isDigits("12345"));
-      assertFalse( StringUtil.isDigits("1234.5"));
-      assertFalse( StringUtil.isDigits("1ab"));
-      assertFalse( StringUtil.isDigits("abc"));
+  public void testIsNotEmpty(){
+    assertFalse(StringUtil.isNotEmpty(null));
+    assertFalse(StringUtil.isNotEmpty(""));
+    assertTrue(StringUtil.isNotEmpty(" "));
+    assertTrue(StringUtil.isNotEmpty("foo"));
+    assertTrue(StringUtil.isNotEmpty("  foo  "));
   }
-
+  
+  @Test
+  public void testIsBlank(){
+    assertTrue(StringUtil.isBlank(null));
+    assertTrue(StringUtil.isBlank(""));
+    assertTrue(StringUtil.isBlank(" "));
+    assertFalse(StringUtil.isBlank("foo"));
+    assertFalse(StringUtil.isBlank("  foo  "));
+  }
+  
+  @Test
+  public void testIsNotBlank(){
+    assertFalse(StringUtil.isNotBlank(null));
+    assertFalse(StringUtil.isNotBlank(""));
+    assertFalse(StringUtil.isNotBlank(" "));
+    assertTrue(StringUtil.isNotBlank("foo"));
+    assertTrue(StringUtil.isNotBlank("  foo  "));
+  }
 }
