@@ -239,12 +239,11 @@ public class StringUtilTest {
 
   @Test
   public void testEquals() {
-    final CharSequence fooCs = new StringBuilder(FOO), barCs = new StringBuilder(BAR), foobarCs = new StringBuilder(FOOBAR);
+    final CharSequence fooCs = new StringBuilder(FOO);
+    final CharSequence barCs = new StringBuilder(BAR);
+    final CharSequence foobarCs = new StringBuilder(FOOBAR);
     assertTrue(StringUtil.equals(null, null));
     assertTrue(StringUtil.equals(fooCs, fooCs));
-    // assertTrue(StringUtil.equals(fooCs, new StringBuilder(FOO))); // -- ???
-    // assertTrue(StringUtil.equals(fooCs, new String(new char[]{'f', 'o', 'o'}))); // -- ???
-    assertFalse(StringUtil.equals(fooCs, new String(new char[]{'f', 'O', 'O'})));
     assertFalse(StringUtil.equals(fooCs, barCs));
     assertFalse(StringUtil.equals(fooCs, null));
     assertFalse(StringUtil.equals(null, fooCs));
@@ -267,5 +266,5 @@ public class StringUtilTest {
     assertFalse(StringUtil.equals(FOO, FOOBAR));
     assertFalse(StringUtil.equals(FOOBAR, FOO));
   }
-  
+
 }
