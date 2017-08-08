@@ -1158,4 +1158,36 @@ public class StringUtil {
     return retval;
   }
 
+
+
+
+  /**
+   * A null-tolerant version of the Java String method of the same name.
+   * 
+   * <p>This method will accept null values, returning true if both values are 
+   * null and false if one is and the other is not.
+   * 
+   * @param source the source of the check
+   * @param target the string against which to check
+   * 
+   * @return true if source and target are equal, false otherwise.
+   */
+  public static boolean equals(CharSequence source, CharSequence target) {
+    boolean retval;
+    if (source == null) {
+      if (target == null) {
+        retval = true;
+      } else {
+        retval = false;
+      }
+    } else {
+      if (target == null) {
+        retval = false;
+      } else {
+        retval = source.equals(target);
+      }
+    }
+    return retval;
+  }
+
 }

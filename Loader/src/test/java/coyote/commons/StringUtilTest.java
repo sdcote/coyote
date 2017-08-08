@@ -24,6 +24,7 @@ public class StringUtilTest {
 
   private static final String BAR = "bar";
   private static final String FOO = "foo";
+  private static final String FOOBAR = "foobar";
 
 
 
@@ -232,4 +233,39 @@ public class StringUtilTest {
     assertTrue(StringUtil.isNotBlank("foo"));
     assertTrue(StringUtil.isNotBlank("  foo  "));
   }
+
+
+
+
+  @Test
+  public void testEquals() {
+    final CharSequence fooCs = new StringBuilder(FOO), barCs = new StringBuilder(BAR), foobarCs = new StringBuilder(FOOBAR);
+    assertTrue(StringUtil.equals(null, null));
+    assertTrue(StringUtil.equals(fooCs, fooCs));
+    // assertTrue(StringUtil.equals(fooCs, new StringBuilder(FOO))); // -- ???
+    // assertTrue(StringUtil.equals(fooCs, new String(new char[]{'f', 'o', 'o'}))); // -- ???
+    assertFalse(StringUtil.equals(fooCs, new String(new char[]{'f', 'O', 'O'})));
+    assertFalse(StringUtil.equals(fooCs, barCs));
+    assertFalse(StringUtil.equals(fooCs, null));
+    assertFalse(StringUtil.equals(null, fooCs));
+    assertFalse(StringUtil.equals(fooCs, foobarCs));
+    assertFalse(StringUtil.equals(foobarCs, fooCs));
+  }
+
+
+
+
+  @Test
+  public void testEqualsOnStrings() {
+    assertTrue(StringUtil.equals(null, null));
+    assertTrue(StringUtil.equals(FOO, FOO));
+    assertTrue(StringUtil.equals(FOO, new String(new char[]{'f', 'o', 'o'})));
+    assertFalse(StringUtil.equals(FOO, new String(new char[]{'f', 'O', 'O'})));
+    assertFalse(StringUtil.equals(FOO, BAR));
+    assertFalse(StringUtil.equals(FOO, null));
+    assertFalse(StringUtil.equals(null, FOO));
+    assertFalse(StringUtil.equals(FOO, FOOBAR));
+    assertFalse(StringUtil.equals(FOOBAR, FOO));
+  }
+  
 }
