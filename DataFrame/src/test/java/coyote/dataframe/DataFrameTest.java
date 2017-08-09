@@ -557,27 +557,15 @@ public class DataFrameTest {
     DataFrame frame = new DataFrame();
     frame.add("1", true);
     frame.add("2", "true");
-    frame.add("3", "yes");
-    frame.add("4", 1);
-    frame.add("5", 1L);
-    frame.add("6", 1D);
-    frame.add("7", 1F);
-    frame.add("8", (short)1);
-    frame.add("9", date);
+    frame.add("3", (short)1);
+    frame.add("4", date);
 
-    assertTrue(frame.getFieldCount() == 9);
+    assertTrue(frame.getFieldCount() == 4);
     assertNotNull(frame.getObject(0));
     assertNotNull(frame.getObject("1"));
     assertNotNull(frame.getObject("2"));
-    assertNotNull(frame.getObject("3"));
-    assertNotNull(frame.getObject("4"));
-    assertNotNull(frame.getObject("5"));
-    assertNotNull(frame.getObject("6"));
-    assertNotNull(frame.getObject("7"));
-    assertNotNull(frame.getObject("8"));
-    assertNotNull(frame.getObject("9"));
     assertNull(frame.getObject("foo"));
-    assertNull(frame.getObject(10));
+    assertNull(frame.getObject(5));
   }
 
 
@@ -843,7 +831,7 @@ public class DataFrameTest {
     frame.put((Object)"beta", new Integer("123"));
     assertTrue(frame.getFieldCount() == 2);
     try {
-      frame.put((Object)new Boolean(true), new Integer("123"));
+      frame.put((Object)new Integer("123"), new Integer("123"));
       fail("Should generate a DataFrame exception");
     } catch (Exception e) {
       // expected
