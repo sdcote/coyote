@@ -1711,14 +1711,4 @@ public class DataFrame implements Cloneable {
     return this;
   }
 
-  /**
-   * @see java.util.Map#putAll(java.util.Map)
-   */
-  //public void putAll( Map m ) {}
-
-  /**
-   * @see java.util.Map#entrySet()
-   */
-  //public Set entrySet() { return null; }
-
 }
