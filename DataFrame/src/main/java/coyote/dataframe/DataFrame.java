@@ -71,7 +71,9 @@ public class DataFrame implements Cloneable {
   /**
    * Construct an empty frame.
    */
-  public DataFrame() {}
+  public DataFrame() {
+    // empty frame
+  }
 
 
 
@@ -81,8 +83,9 @@ public class DataFrame implements Cloneable {
    * 
    * @param field the field to place in this frame 
    */
-  public DataFrame( DataField field ) {
-    fields.add( field );
+  public DataFrame(DataField field) {
+    fields.add(field);
+    modified = false;
   }
 
 
@@ -93,27 +96,28 @@ public class DataFrame implements Cloneable {
    *
    * @param data The byte array from which to construct the frame.
    */
-  public DataFrame( final byte[] data ) {
-    if ( data != null ) {
+  public DataFrame(final byte[] data) {
+    if (data != null) {
       int loc = 0;
       int ploc = 0;
       try {
-        final ByteArrayInputStream bais = new ByteArrayInputStream( data );
-        final DataInputStream in = new DataInputStream( bais );
+        final ByteArrayInputStream bais = new ByteArrayInputStream(data);
+        final DataInputStream in = new DataInputStream(bais);
 
-        while ( in.available() > 0 ) {
+        while (in.available() > 0) {
           ploc = loc;
           loc = data.length - in.available();
-          add( new DataField( in ) );
+          add(new DataField(in));
         }
-      } catch ( final EOFException eof ) {
-        throw new DecodeException( "Data underflow adding field", eof, loc, ploc, ( fields.size() + 1 ), ( fields.size() > 0 ) ? fields.get( fields.size() - 1 ) : null );
-      } catch ( final IOException ioe ) {
-        throw new DecodeException( "Problems decoding field", ioe, loc, ploc, ( fields.size() + 1 ), ( fields.size() > 0 ) ? fields.get( fields.size() - 1 ) : null );
-      } catch ( final DecodeException de ) {
-        throw new DecodeException( "DF:" + de.getMessage(), de.getCause(), loc, ploc, de.getFieldIndex(), de.getField() );
+      } catch (final EOFException eof) {
+        throw new DecodeException("Data underflow adding field", eof, loc, ploc, (fields.size() + 1), (fields.size() > 0) ? fields.get(fields.size() - 1) : null);
+      } catch (final IOException ioe) {
+        throw new DecodeException("Problems decoding field", ioe, loc, ploc, (fields.size() + 1), (fields.size() > 0) ? fields.get(fields.size() - 1) : null);
+      } catch (final DecodeException de) {
+        throw new DecodeException("DF:" + de.getMessage(), de.getCause(), loc, ploc, de.getFieldIndex(), de.getField());
       }
     }
+    modified = false;
   }
 
 
@@ -129,11 +133,11 @@ public class DataFrame implements Cloneable {
    *
    * @see #getFieldIgnoreCase(String)
    */
-  public DataField getField( final String name ) {
-    for ( int i = 0; i < fields.size(); i++ ) {
-      final DataField field = fields.get( i );
+  public DataField getField(final String name) {
+    for (int i = 0; i < fields.size(); i++) {
+      final DataField field = fields.get(i);
 
-      if ( ( field.getName() != null ) && field.getName().equals( name ) ) {
+      if ((field.getName() != null) && field.getName().equals(name)) {
         return field;
       }
     }
@@ -155,10 +159,10 @@ public class DataFrame implements Cloneable {
    * 
    * @see #getField(String)
    */
-  public DataField getFieldIgnoreCase( final String name ) {
-    for ( int i = 0; i < fields.size(); i++ ) {
-      final DataField field = fields.get( i );
-      if ( ( field.getName() != null ) && field.getName().equalsIgnoreCase( name ) ) {
+  public DataField getFieldIgnoreCase(final String name) {
+    for (int i = 0; i < fields.size(); i++) {
+      final DataField field = fields.get(i);
+      if ((field.getName() != null) && field.getName().equalsIgnoreCase(name)) {
         return field;
       }
     }
@@ -183,10 +187,10 @@ public class DataFrame implements Cloneable {
    * 
    * @see #containsIgnoreCase(String)
    */
-  public boolean contains( final String name ) {
-    for ( int i = 0; i < fields.size(); i++ ) {
-      final DataField field = fields.get( i );
-      if ( ( field.getName() != null ) && field.getName().equals( name ) ) {
+  public boolean contains(final String name) {
+    for (int i = 0; i < fields.size(); i++) {
+      final DataField field = fields.get(i);
+      if ((field.getName() != null) && field.getName().equals(name)) {
         return true;
       }
     }
@@ -207,10 +211,10 @@ public class DataFrame implements Cloneable {
    * 
    * @see #contains(String)
    */
-  public boolean containsIgnoreCase( final String name ) {
-    for ( int i = 0; i < fields.size(); i++ ) {
-      final DataField field = fields.get( i );
-      if ( ( field.getName() != null ) && field.getName().equalsIgnoreCase( name ) ) {
+  public boolean containsIgnoreCase(final String name) {
+    for (int i = 0; i < fields.size(); i++) {
+      final DataField field = fields.get(i);
+      if ((field.getName() != null) && field.getName().equalsIgnoreCase(name)) {
         return true;
       }
     }
@@ -228,9 +232,9 @@ public class DataFrame implements Cloneable {
    * @return The indexed occurrence of an frame Field or null if the index is 
    *         out of range or less than zero.
    */
-  public DataField getField( final int indx ) {
-    if ( ( indx < fields.size() ) && ( indx > -1 ) ) {
-      return fields.get( indx );
+  public DataField getField(final int indx) {
+    if ((indx < fields.size()) && (indx > -1)) {
+      return fields.get(indx);
     }
 
     return null;
@@ -257,9 +261,9 @@ public class DataFrame implements Cloneable {
    * @return The string value of the first field with the given name or null if 
    *         the field could not be found.
    */
-  public String getAsString( final String name ) {
-    final Object val = getObject( name );
-    if ( val != null ) {
+  public String getAsString(final String name) {
+    final Object val = getObject(name);
+    if (val != null) {
       return val.toString();
     }
     return null;
@@ -268,21 +272,21 @@ public class DataFrame implements Cloneable {
 
 
 
-  private Date asDate( Object val ) throws DataFrameException {
-    if ( val != null ) {
-      if ( val instanceof Date ) {
-        return ( (Date)val );
-      } else if ( val instanceof Long ) {
+  private Date asDate(Object val) throws DataFrameException {
+    if (val != null) {
+      if (val instanceof Date) {
+        return ((Date)val);
+      } else if (val instanceof Long) {
         try {
-          return new Date( Long.parseLong( val.toString() ) );
-        } catch ( Exception e ) {
-          throw new DataFrameException( "Could not convert long type'" + val.getClass().getSimpleName() + "' to a date" );
+          return new Date(Long.parseLong(val.toString()));
+        } catch (Exception e) {
+          throw new DataFrameException("Could not convert long type'" + val.getClass().getSimpleName() + "' to a date");
         }
       } else {
-        throw new DataFrameException( "Could not convert type'" + val.getClass().getSimpleName() + "' to a date" );
+        throw new DataFrameException("Could not convert type'" + val.getClass().getSimpleName() + "' to a date");
       }
     }
-    throw new DataFrameException( "Value could not be found" );
+    throw new DataFrameException("Value could not be found");
   }
 
 
@@ -298,42 +302,42 @@ public class DataFrame implements Cloneable {
    * @throws DataFrameException if the object was null or not able to be parsed 
    *         into a long value
    */
-  protected boolean asBoolean( Object val ) throws DataFrameException {
-    if ( val != null ) {
-      if ( val instanceof Boolean ) {
-        return ( (Boolean)val ).booleanValue();
-      } else if ( val instanceof String ) {
-        String str = ( (String)val ).toLowerCase();
-        if ( "true".equals( str ) || "1".equals( str ) || "yes".equals( str ) ) {
+  protected boolean asBoolean(Object val) throws DataFrameException {
+    if (val != null) {
+      if (val instanceof Boolean) {
+        return ((Boolean)val).booleanValue();
+      } else if (val instanceof String) {
+        String str = ((String)val).toLowerCase();
+        if ("true".equals(str) || "1".equals(str) || "yes".equals(str)) {
           return true;
-        } else if ( "false".equals( str ) || "0".equals( str ) || "no".equals( str ) ) {
+        } else if ("false".equals(str) || "0".equals(str) || "no".equals(str)) {
           return false;
         } else {
           try {
-            return Long.parseLong( val.toString() ) > 0;
-          } catch ( Exception e ) {
-            return Double.parseDouble( val.toString() ) > 0;
+            return Long.parseLong(val.toString()) > 0;
+          } catch (Exception e) {
+            return Double.parseDouble(val.toString()) > 0;
           }
         }
-      } else if ( val instanceof Number ) {
-        if ( val instanceof Integer ) {
-          return Integer.parseInt( val.toString() ) > 0;
-        } else if ( val instanceof Long ) {
-          return Long.parseLong( val.toString() ) > 0;
-        } else if ( val instanceof Float ) {
-          return Float.parseFloat( val.toString() ) > 0;
-        } else if ( val instanceof Double ) {
-          return Double.parseDouble( val.toString() ) > 0;
-        } else if ( val instanceof Short ) {
-          return Short.parseShort( val.toString() ) > 0;
+      } else if (val instanceof Number) {
+        if (val instanceof Integer) {
+          return Integer.parseInt(val.toString()) > 0;
+        } else if (val instanceof Long) {
+          return Long.parseLong(val.toString()) > 0;
+        } else if (val instanceof Float) {
+          return Float.parseFloat(val.toString()) > 0;
+        } else if (val instanceof Double) {
+          return Double.parseDouble(val.toString()) > 0;
+        } else if (val instanceof Short) {
+          return Short.parseShort(val.toString()) > 0;
         } else {
-          throw new DataFrameException( "Could not convert numeric type'" + val.getClass().getSimpleName() + "' to a boolean" );
+          throw new DataFrameException("Could not convert numeric type'" + val.getClass().getSimpleName() + "' to a boolean");
         }
       } else {
-        throw new DataFrameException( "Could not convert type'" + val.getClass().getSimpleName() + "' to a boolean" );
+        throw new DataFrameException("Could not convert type'" + val.getClass().getSimpleName() + "' to a boolean");
       }
     }
-    throw new DataFrameException( "Null Value could not be converted" );
+    throw new DataFrameException("Null Value could not be converted");
   }
 
 
@@ -351,8 +355,8 @@ public class DataFrame implements Cloneable {
    *         the found field could not be parsed or converted to a boolean 
    *         value.
    */
-  public boolean getAsBoolean( String name ) throws DataFrameException {
-    return asBoolean( getObject( name ) );
+  public boolean getAsBoolean(String name) throws DataFrameException {
+    return asBoolean(getObject(name));
   }
 
 
@@ -370,8 +374,8 @@ public class DataFrame implements Cloneable {
    *         the found field could not be parsed or converted to a boolean 
    *         value.
    */
-  public boolean getAsBoolean( final int indx ) throws DataFrameException {
-    return asBoolean( getObject( indx ) );
+  public boolean getAsBoolean(final int indx) throws DataFrameException {
+    return asBoolean(getObject(indx));
   }
 
 
@@ -387,8 +391,8 @@ public class DataFrame implements Cloneable {
    * @throws DataFrameException if the field does not exist or if the value of 
    *         the found field could not be parsed or converted to a date value.
    */
-  public Date getAsDate( String name ) throws DataFrameException {
-    return asDate( getObject( name ) );
+  public Date getAsDate(String name) throws DataFrameException {
+    return asDate(getObject(name));
   }
 
 
@@ -405,8 +409,8 @@ public class DataFrame implements Cloneable {
    * @throws DataFrameException if the field does not exist or if the value of 
    *         the found field could not be parsed or converted to a Date value.
    */
-  public Date getAsDate( final int indx ) throws DataFrameException {
-    return asDate( getObject( indx ) );
+  public Date getAsDate(final int indx) throws DataFrameException {
+    return asDate(getObject(indx));
   }
 
 
@@ -422,19 +426,19 @@ public class DataFrame implements Cloneable {
    * @throws DataFrameException if the object was null or not able to be parsed 
    *         into an integer value
    */
-  private int asInt( Object val ) throws DataFrameException {
-    if ( val != null ) {
-      if ( val instanceof Integer ) {
-        return ( (Integer)val ).intValue();
+  private int asInt(Object val) throws DataFrameException {
+    if (val != null) {
+      if (val instanceof Integer) {
+        return ((Integer)val).intValue();
       } else {
         try {
-          return Integer.parseInt( val.toString() );
-        } catch ( Exception e ) {
-          throw new DataFrameException( "Value could not be converted into an integer" );
+          return Integer.parseInt(val.toString());
+        } catch (Exception e) {
+          throw new DataFrameException("Value could not be converted into an integer");
         }
       }
     }
-    throw new DataFrameException( "Value could not be found" );
+    throw new DataFrameException("Value could not be found");
   }
 
 
@@ -451,8 +455,8 @@ public class DataFrame implements Cloneable {
    * @throws DataFrameException if the field does not exist or if the value of the 
    *         found field could not be parsed or converted to an integer value.
    */
-  public int getAsInt( String name ) throws DataFrameException {
-    return asInt( getObject( name ) );
+  public int getAsInt(String name) throws DataFrameException {
+    return asInt(getObject(name));
   }
 
 
@@ -469,8 +473,8 @@ public class DataFrame implements Cloneable {
    * @throws DataFrameException if the field does not exist or if the value of the 
    *         found field could not be parsed or converted to an integer value.
    */
-  public int getAsInt( final int indx ) throws DataFrameException {
-    return asInt( getObject( indx ) );
+  public int getAsInt(final int indx) throws DataFrameException {
+    return asInt(getObject(indx));
   }
 
 
@@ -486,19 +490,19 @@ public class DataFrame implements Cloneable {
    * @throws DataFrameException if the object was null or not able to be parsed 
    *         into a long value
    */
-  private long asLong( Object val ) throws DataFrameException {
-    if ( val != null ) {
-      if ( val instanceof Long ) {
-        return ( (Long)val ).longValue();
+  private long asLong(Object val) throws DataFrameException {
+    if (val != null) {
+      if (val instanceof Long) {
+        return ((Long)val).longValue();
       } else {
         try {
-          return Long.parseLong( val.toString() );
-        } catch ( Exception e ) {
-          throw new DataFrameException( "Value could not be converted into a long" );
+          return Long.parseLong(val.toString());
+        } catch (Exception e) {
+          throw new DataFrameException("Value could not be converted into a long");
         }
       }
     }
-    throw new DataFrameException( "Value could not be found" );
+    throw new DataFrameException("Value could not be found");
   }
 
 
@@ -515,8 +519,8 @@ public class DataFrame implements Cloneable {
    * @throws DataFrameException if the field does not exist or if the value of the 
    *         found field could not be parsed or converted to a long value.
    */
-  public long getAsLong( String name ) throws DataFrameException {
-    return asLong( getObject( name ) );
+  public long getAsLong(String name) throws DataFrameException {
+    return asLong(getObject(name));
   }
 
 
@@ -533,8 +537,8 @@ public class DataFrame implements Cloneable {
    * @throws DataFrameException if the field does not exist or if the value of the 
    *         found field could not be parsed or converted to a long value.
    */
-  public long getAsLong( final int indx ) throws DataFrameException {
-    return asLong( getObject( indx ) );
+  public long getAsLong(final int indx) throws DataFrameException {
+    return asLong(getObject(indx));
   }
 
 
@@ -550,19 +554,19 @@ public class DataFrame implements Cloneable {
    * @throws DataFrameException if the object was null or not able to be parsed 
    *         into a double value
    */
-  private double asDouble( Object val ) throws DataFrameException {
-    if ( val != null ) {
-      if ( val instanceof Double ) {
-        return ( (Double)val ).doubleValue();
+  private double asDouble(Object val) throws DataFrameException {
+    if (val != null) {
+      if (val instanceof Double) {
+        return ((Double)val).doubleValue();
       } else {
         try {
-          return Double.parseDouble( val.toString() );
-        } catch ( Exception e ) {
-          throw new DataFrameException( "Value could not be converted into a double" );
+          return Double.parseDouble(val.toString());
+        } catch (Exception e) {
+          throw new DataFrameException("Value could not be converted into a double");
         }
       }
     }
-    throw new DataFrameException( "Value could not be found" );
+    throw new DataFrameException("Value could not be found");
   }
 
 
@@ -579,8 +583,8 @@ public class DataFrame implements Cloneable {
    * @throws DataFrameException if the field does not exist or if the value of the 
    *         found field could not be parsed or converted to a double value.
    */
-  public double getAsDouble( String name ) throws DataFrameException {
-    return asDouble( getObject( name ) );
+  public double getAsDouble(String name) throws DataFrameException {
+    return asDouble(getObject(name));
   }
 
 
@@ -597,8 +601,8 @@ public class DataFrame implements Cloneable {
    * @throws DataFrameException if the field does not exist or if the value of the 
    *         found field could not be parsed or converted to a double value.
    */
-  public double getAsDouble( final int indx ) throws DataFrameException {
-    return asDouble( getObject( indx ) );
+  public double getAsDouble(final int indx) throws DataFrameException {
+    return asDouble(getObject(indx));
   }
 
 
@@ -614,19 +618,19 @@ public class DataFrame implements Cloneable {
    * @throws DataFrameException if the object was null or not able to be parsed 
    *         into a float value
    */
-  private float asFloat( Object val ) throws DataFrameException {
-    if ( val != null ) {
-      if ( val instanceof Float ) {
-        return ( (Float)val ).longValue();
+  private float asFloat(Object val) throws DataFrameException {
+    if (val != null) {
+      if (val instanceof Float) {
+        return ((Float)val).longValue();
       } else {
         try {
-          return Float.parseFloat( val.toString() );
-        } catch ( Exception e ) {
-          throw new DataFrameException( "Value could not be converted into a float" );
+          return Float.parseFloat(val.toString());
+        } catch (Exception e) {
+          throw new DataFrameException("Value could not be converted into a float");
         }
       }
     }
-    throw new DataFrameException( "Value could not be found" );
+    throw new DataFrameException("Value could not be found");
   }
 
 
@@ -643,8 +647,8 @@ public class DataFrame implements Cloneable {
    * @throws DataFrameException if the field does not exist or if the value of the 
    *         found field could not be parsed or converted to a float value.
    */
-  public float getAsFloat( String name ) throws DataFrameException {
-    return asFloat( getObject( name ) );
+  public float getAsFloat(String name) throws DataFrameException {
+    return asFloat(getObject(name));
   }
 
 
@@ -661,8 +665,8 @@ public class DataFrame implements Cloneable {
    * @throws DataFrameException if the field does not exist or if the value of the 
    *         found field could not be parsed or converted to a float value.
    */
-  public float getAsFloat( final int indx ) throws DataFrameException {
-    return asFloat( getObject( indx ) );
+  public float getAsFloat(final int indx) throws DataFrameException {
+    return asFloat(getObject(indx));
   }
 
 
@@ -679,12 +683,12 @@ public class DataFrame implements Cloneable {
    * @throws DataFrameException if the field does not exist or if the value of the 
    *         found field could not be parsed or converted to a String value.
    */
-  public String getAsString( final int indx ) throws DataFrameException {
-    final Object val = getObject( indx );
-    if ( val != null ) {
+  public String getAsString(final int indx) throws DataFrameException {
+    final Object val = getObject(indx);
+    if (val != null) {
       return val.toString();
     }
-    throw new DataFrameException( "Indexed field does not exist" );
+    throw new DataFrameException("Indexed field does not exist");
   }
 
 
@@ -700,13 +704,13 @@ public class DataFrame implements Cloneable {
    * 
    * @throws DataFrameException if the type of the found field is not a DataFrame.
    */
-  public DataFrame getAsFrame( final String name ) throws DataFrameException {
-    final Object val = getObject( name );
-    if ( val != null ) {
-      if ( val instanceof DataFrame ) {
+  public DataFrame getAsFrame(final String name) throws DataFrameException {
+    final Object val = getObject(name);
+    if (val != null) {
+      if (val instanceof DataFrame) {
         return (DataFrame)val;
       } else {
-        throw new DataFrameException( "Named field is not a frame" );
+        throw new DataFrameException("Named field is not a frame");
       }
     } else {
       return null;
@@ -726,13 +730,13 @@ public class DataFrame implements Cloneable {
    * 
    * @throws DataFrameException if the type of the found field is not a DataFrame.
    */
-  public DataFrame getAsFrame( final int indx ) throws DataFrameException {
-    final Object val = getObject( indx );
-    if ( val != null ) {
-      if ( val instanceof DataFrame ) {
+  public DataFrame getAsFrame(final int indx) throws DataFrameException {
+    final Object val = getObject(indx);
+    if (val != null) {
+      if (val instanceof DataFrame) {
         return (DataFrame)val;
       } else {
-        throw new DataFrameException( "Indexed field is not a frame" );
+        throw new DataFrameException("Indexed field is not a frame");
       }
     } else {
       return null;
@@ -751,11 +755,11 @@ public class DataFrame implements Cloneable {
    * @return The object value of the first occurrence of the named field or null 
    *         if the field with the given name was not found.
    */
-  public Object getObject( final String name ) {
-    for ( int i = 0; i < fields.size(); i++ ) {
-      final DataField field = fields.get( i );
+  public Object getObject(final String name) {
+    for (int i = 0; i < fields.size(); i++) {
+      final DataField field = fields.get(i);
 
-      if ( ( field.getName() != null ) && field.getName().equals( name ) ) {
+      if ((field.getName() != null) && field.getName().equals(name)) {
         return field.getObjectValue();
       }
     }
@@ -775,9 +779,9 @@ public class DataFrame implements Cloneable {
    * @return The object value of the field at the given index, or null if there 
    *         was no value at that index (out-of-bounds)
    */
-  public Object getObject( final int i ) {
-    if ( i < fields.size() ) {
-      return ( fields.get( i ) ).getObjectValue();
+  public Object getObject(final int i) {
+    if (i < fields.size()) {
+      return (fields.get(i)).getObjectValue();
     }
 
     return null;
@@ -795,8 +799,8 @@ public class DataFrame implements Cloneable {
     final DataFrame retval = new DataFrame();
 
     // Clone all the fields
-    for ( int i = 0; i < fields.size(); i++ ) {
-      retval.fields.add( i, (DataField)fields.get( i ).clone() );
+    for (int i = 0; i < fields.size(); i++) {
+      retval.fields.add(i, (DataField)fields.get(i).clone());
     }
     retval.modified = false;
 
@@ -812,8 +816,8 @@ public class DataFrame implements Cloneable {
    * @param name The name of the field to populate.
    * @param value The value to place in the named field
    */
-  public DataFrame( final String name, final Object value ) {
-    add( name, value );
+  public DataFrame(final String name, final Object value) {
+    add(name, value);
     modified = false;
   }
 
@@ -837,12 +841,12 @@ public class DataFrame implements Cloneable {
    *
    * @return the index of the field just added.
    */
-  public int add( final Object value ) {
+  public int add(final Object value) {
     modified = true;
-    if ( value instanceof DataField ) {
-      fields.add( (DataField)value );
+    if (value instanceof DataField) {
+      fields.add((DataField)value);
     } else {
-      fields.add( new DataField( value ) );
+      fields.add(new DataField(value));
     }
     return fields.size() - 1;
   }
@@ -864,9 +868,9 @@ public class DataFrame implements Cloneable {
    * @throws IllegalArgumentException If the name is longer than 255 characters 
    *         or the value is an unsupported type.
    */
-  public int add( final String name, final Object value ) {
+  public int add(final String name, final Object value) {
     modified = true;
-    fields.add( new DataField( name, value ) );
+    fields.add(new DataField(name, value));
     return fields.size() - 1;
   }
 
@@ -883,10 +887,10 @@ public class DataFrame implements Cloneable {
    * 
    * @return the index of the placed value or -1 if the given frame is null.
    */
-  public int add( final DataField field ) {
-    if ( field != null ) {
+  public int add(final DataField field) {
+    if (field != null) {
       modified = true;
-      fields.add( field );
+      fields.add(field);
       return fields.size() - 1;
     } else {
       return -1;
@@ -908,19 +912,19 @@ public class DataFrame implements Cloneable {
    * 
    * @return The index of the field the value was placed.
    */
-  public int put( final String name, final Object obj ) {
-    if ( ( obj != null ) || ( name != null ) ) {
-      if ( name != null ) {
-        for ( int i = 0; i < fields.size(); i++ ) {
-          final DataField field = fields.get( i );
+  public int put(final String name, final Object obj) {
+    if ((obj != null) || (name != null)) {
+      if (name != null) {
+        for (int i = 0; i < fields.size(); i++) {
+          final DataField field = fields.get(i);
 
-          if ( ( field.name != null ) && field.name.equals( name ) ) {
-            if ( obj != null ) {
-              field.type = DataField.getType( obj );
-              field.value = DataField.encode( obj );
+          if ((field.name != null) && field.name.equals(name)) {
+            if (obj != null) {
+              field.type = DataField.getType(obj);
+              field.value = DataField.encode(obj);
             } else {
               // Null object implies remove the named field
-              fields.remove( i );
+              fields.remove(i);
             }
 
             modified = true;
@@ -929,9 +933,9 @@ public class DataFrame implements Cloneable {
           }
         }
 
-        return add( name, obj );
+        return add(name, obj);
       } else {
-        return add( obj );
+        return add(obj);
       }
     }
 
@@ -948,14 +952,14 @@ public class DataFrame implements Cloneable {
    * 
    * @return The DataField that was removed.
    */
-  public DataField remove( final String name ) {
+  public DataField remove(final String name) {
     DataField retval = null;
-    if ( name != null ) {
-      for ( int i = 0; i < fields.size(); i++ ) {
-        final DataField field = fields.get( i );
+    if (name != null) {
+      for (int i = 0; i < fields.size(); i++) {
+        final DataField field = fields.get(i);
 
-        if ( ( field.name != null ) && field.name.equals( name ) ) {
-          retval = fields.remove( i );
+        if ((field.name != null) && field.name.equals(name)) {
+          retval = fields.remove(i);
 
           modified = true;
         }
@@ -988,9 +992,9 @@ public class DataFrame implements Cloneable {
    * @param name Name of the field to replace and then add.
    * @param obj The value of the object to set in the new field.
    */
-  public void replace( final String name, final Object obj ) {
-    remove( name );
-    add( name, obj );
+  public void replace(final String name, final Object obj) {
+    remove(name);
+    add(name, obj);
   }
 
 
@@ -1017,9 +1021,9 @@ public class DataFrame implements Cloneable {
    * @param name Name of the fields to replace and then add.
    * @param obj The value of the object to set in the new field.
    */
-  public void replaceAll( final String name, final Object obj ) {
-    removeAll( name );
-    add( name, obj );
+  public void replaceAll(final String name, final Object obj) {
+    removeAll(name);
+    add(name, obj);
   }
 
 
@@ -1030,15 +1034,15 @@ public class DataFrame implements Cloneable {
    *
    * @param name name of the DataField to remove.
    */
-  public void removeAll( final String name ) {
+  public void removeAll(final String name) {
     modified = true;
 
-    if ( name != null ) {
-      for ( int i = 0; i < fields.size(); i++ ) {
-        final DataField field = fields.get( i );
+    if (name != null) {
+      for (int i = 0; i < fields.size(); i++) {
+        final DataField field = fields.get(i);
 
-        if ( ( field.name != null ) && field.name.equals( name ) ) {
-          fields.remove( i-- );
+        if ((field.name != null) && field.name.equals(name)) {
+          fields.remove(i--);
         }
       }
     }
@@ -1063,13 +1067,13 @@ public class DataFrame implements Cloneable {
   public byte[] getDigest() {
     MessageDigest digest = null;
     try {
-      digest = MessageDigest.getInstance( "SHA-1" );
-    } catch ( final NoSuchAlgorithmException e ) {
+      digest = MessageDigest.getInstance("SHA-1");
+    } catch (final NoSuchAlgorithmException e) {
       e.printStackTrace();
       return null;
     }
     digest.reset();
-    digest.update( getBytes() );
+    digest.update(getBytes());
     return digest.digest();
   }
 
@@ -1088,7 +1092,7 @@ public class DataFrame implements Cloneable {
    * @return A String representation of the digest of the payload.
    */
   public String getDigestString() {
-    return ByteUtil.bytesToHex( getDigest() );
+    return ByteUtil.bytesToHex(getDigest());
   }
 
 
@@ -1105,13 +1109,13 @@ public class DataFrame implements Cloneable {
    */
   public byte[] getBytesOrig() {
     final ByteArrayOutputStream baos = new ByteArrayOutputStream();
-    final DataOutputStream dos = new DataOutputStream( baos );
+    final DataOutputStream dos = new DataOutputStream(baos);
 
     try {
-      for ( int i = 0; i < fields.size(); i++ ) {
-        dos.write( fields.get( i ).getBytes() );
+      for (int i = 0; i < fields.size(); i++) {
+        dos.write(fields.get(i).getBytes());
       }
-    } catch ( final IOException e ) {
+    } catch (final IOException e) {
       e.printStackTrace();
     }
 
@@ -1132,22 +1136,22 @@ public class DataFrame implements Cloneable {
    */
   public byte[] getBytes() {
     final ByteArrayOutputStream baos = new ByteArrayOutputStream();
-    final DataOutputStream dos = new DataOutputStream( baos );
+    final DataOutputStream dos = new DataOutputStream(baos);
     byte[] bytes = null;
 
     try {
-      for ( int i = 0; i < fields.size(); i++ ) {
-        bytes = fields.get( i ).getBytes();
-        if ( CHECK ) {
-          String error = check( bytes );
-          if ( error != null )
-            throw new DecodeException( error, bytes );
+      for (int i = 0; i < fields.size(); i++) {
+        bytes = fields.get(i).getBytes();
+        if (CHECK) {
+          String error = check(bytes);
+          if (error != null)
+            throw new DecodeException(error, bytes);
         }
 
-        dos.write( bytes );
+        dos.write(bytes);
       }
-    } catch ( final IOException e ) {
-      throw new DecodeException( "IO Error", e );
+    } catch (final IOException e) {
+      throw new DecodeException("IO Error", e);
     }
 
     return baos.toByteArray();
@@ -1169,27 +1173,27 @@ public class DataFrame implements Cloneable {
    * 
    * @return diagnostic text if there were problems, null if the check succeeded.
    */
-  public String check( final byte[] data ) {
-    if ( data != null ) {
+  public String check(final byte[] data) {
+    if (data != null) {
       DataField field = null;
       DataField lastfield = null;
       int offset = 0;
 
       try {
-        final ByteArrayInputStream bais = new ByteArrayInputStream( data );
-        final DataInputStream in = new DataInputStream( bais );
-        while ( in.available() > 0 ) {
+        final ByteArrayInputStream bais = new ByteArrayInputStream(data);
+        final DataInputStream in = new DataInputStream(bais);
+        while (in.available() > 0) {
           offset = data.length - in.available();
-          field = new DataField( in );
-          if ( field != null )
+          field = new DataField(in);
+          if (field != null)
             lastfield = field;
         }
-      } catch ( final EOFException eof ) {
-        return "CHECK: Data underflow for field, offset:" + offset + " LastField:" + lastfield + "\r\n" + ByteUtil.dump( data );
-      } catch ( final IOException ioe ) {
-        return "CHECK: " + ioe.getMessage() + ", offset:" + offset + " LastField:" + lastfield + "\r\n" + ByteUtil.dump( data );
-      } catch ( final DecodeException de ) {
-        return "CHECK: " + de.getMessage() + ", offset:" + offset + " LastField:" + lastfield + "\r\n" + ByteUtil.dump( data );
+      } catch (final EOFException eof) {
+        return "CHECK: Data underflow for field, offset:" + offset + " LastField:" + lastfield + "\r\n" + ByteUtil.dump(data);
+      } catch (final IOException ioe) {
+        return "CHECK: " + ioe.getMessage() + ", offset:" + offset + " LastField:" + lastfield + "\r\n" + ByteUtil.dump(data);
+      } catch (final DecodeException de) {
+        return "CHECK: " + de.getMessage() + ", offset:" + offset + " LastField:" + lastfield + "\r\n" + ByteUtil.dump(data);
       }
     }
     return null;
@@ -1201,16 +1205,14 @@ public class DataFrame implements Cloneable {
   /**
    * Get the byte[] with this name.
    * 
-   * <p>Basically, this will present the wire format of the named field.
-   *
    * @param name The name of the field to query.
    *
    * @return The bytes[] value or null
    */
-  public byte[] getBytes( final String name ) {
-    final Object retval = getObject( name );
+  public byte[] getBytes(final String name) {
+    final Object retval = getObject(name);
 
-    if ( ( retval != null ) && ( retval instanceof byte[] ) ) {
+    if ((retval != null) && (retval instanceof byte[])) {
       return (byte[])retval;
     }
 
@@ -1246,7 +1248,7 @@ public class DataFrame implements Cloneable {
    * 
    * @param list An ordered list of DataFields.
    */
-  public void setFields( final ArrayList<DataField> list ) {
+  public void setFields(final ArrayList<DataField> list) {
     fields = list;
     modified = true;
   }
@@ -1301,9 +1303,9 @@ public class DataFrame implements Cloneable {
 
     // get a list of unique field names
     Set<String> names = new HashSet<String>();
-    for ( int i = 0; i < fields.size(); names.add( fields.get( i++ ).getName() ) );
+    for (int i = 0; i < fields.size(); names.add(fields.get(i++).getName()));
 
-    retval.addAll( names );
+    retval.addAll(names);
 
     return retval;
   }
@@ -1319,61 +1321,61 @@ public class DataFrame implements Cloneable {
   @Override
   public String toString() {
     StringBuffer b = new StringBuffer();
-    if ( fields.size() > 0 ) {
-      boolean isArray = ( this.isEmpty() && this.isArrayBiased() ) || this.isArray();
-      if ( isArray )
-        b.append( "[" );
+    if (fields.size() > 0) {
+      boolean isArray = (this.isEmpty() && this.isArrayBiased()) || this.isArray();
+      if (isArray)
+        b.append("[");
       else
-        b.append( "{" );
+        b.append("{");
 
-      for ( DataField field : fields ) {
-        if ( !isArray ) {
-          b.append( '"' );
-          b.append( field.getName() );
-          b.append( "\":" );
+      for (DataField field : fields) {
+        if (!isArray) {
+          b.append('"');
+          b.append(field.getName());
+          b.append("\":");
         }
 
-        if ( field.getType() == DataField.UDEF ) {
-          b.append( "null" );
-        } else if ( field.getType() == DataField.BOOLEANTYPE ) {
-          b.append( field.getStringValue().toLowerCase() );
-        } else if ( field.isNumeric() ) {
-          b.append( field.getStringValue() );
-        } else if ( field.getType() == DataField.STRING ) {
-          b.append( '"' );
-          b.append( field.getStringValue() );
-          b.append( '"' );
-        } else if ( field.getType() == DataField.DATE ) {
-          b.append( '"' );
-          b.append( field.getStringValue() );
-          b.append( '"' );
-        } else if ( field.getType() == DataField.ARRAY ) {
-          b.append( field.getStringValue() ); // includes the brackets already
-        } else if ( field.getType() != DataField.FRAMETYPE ) {
-          if ( field.getObjectValue() != null ) {
-            b.append( '"' );
-            b.append( field.getObjectValue().toString() );
-            b.append( '"' );
+        if (field.getType() == DataField.UDEF) {
+          b.append("null");
+        } else if (field.getType() == DataField.BOOLEANTYPE) {
+          b.append(field.getStringValue().toLowerCase());
+        } else if (field.isNumeric()) {
+          b.append(field.getStringValue());
+        } else if (field.getType() == DataField.STRING) {
+          b.append('"');
+          b.append(field.getStringValue());
+          b.append('"');
+        } else if (field.getType() == DataField.DATE) {
+          b.append('"');
+          b.append(field.getStringValue());
+          b.append('"');
+        } else if (field.getType() == DataField.ARRAY) {
+          b.append(field.getStringValue()); // includes the brackets already
+        } else if (field.getType() != DataField.FRAMETYPE) {
+          if (field.getObjectValue() != null) {
+            b.append('"');
+            b.append(field.getObjectValue().toString());
+            b.append('"');
           }
         } else {
-          if ( field.isNull() ) {
-            b.append( "[]" );
+          if (field.isNull()) {
+            b.append("[]");
           } else {
-            b.append( field.getObjectValue().toString() );
+            b.append(field.getObjectValue().toString());
           }
         }
 
-        b.append( "," );
+        b.append(",");
       }
-      b.delete( b.length() - 1, b.length() );
+      b.delete(b.length() - 1, b.length());
 
-      if ( isArray )
-        b.append( "]" );
+      if (isArray)
+        b.append("]");
       else
-        b.append( "}" );
+        b.append("}");
 
     } else {
-      b.append( "{}" );
+      b.append("{}");
     }
     return b.toString();
   }
@@ -1415,8 +1417,8 @@ public class DataFrame implements Cloneable {
    */
   public boolean isArray() {
     boolean retval = true;
-    for ( DataField field : fields ) {
-      if ( field.name != null )
+    for (DataField field : fields) {
+      if (field.name != null)
         return false;
     }
     return retval;
@@ -1454,7 +1456,7 @@ public class DataFrame implements Cloneable {
    * @param flag true indicates this collection of fields should be created as 
    *        an array, false otherwise
    */
-  public void setArrayBias( boolean flag ) {
+  public void setArrayBias(boolean flag) {
     this.arrayBiased = flag;
   }
 
@@ -1470,9 +1472,9 @@ public class DataFrame implements Cloneable {
    * 
    * @param frame The frame from which the fields are read.
    */
-  public void merge( DataFrame frame ) {
-    for ( DataField field : frame.fields ) {
-      this.put( field.getName(), field.getObjectValue() );
+  public void merge(DataFrame frame) {
+    for (DataField field : frame.fields) {
+      this.put(field.getName(), field.getObjectValue());
     }
   }
 
@@ -1491,9 +1493,9 @@ public class DataFrame implements Cloneable {
    * 
    * @param frame The frame from which the fields are read.
    */
-  public void populate( DataFrame frame ) {
-    for ( DataField field : frame.getFields() ) {
-      add( field );
+  public void populate(DataFrame frame) {
+    for (DataField field : frame.getFields()) {
+      add(field);
     }
   }
 
@@ -1507,8 +1509,8 @@ public class DataFrame implements Cloneable {
    *  
    * @see java.util.Map#containsKey(java.lang.Object)
    */
-  public boolean containsKey( Object key ) {
-    return key != null && key instanceof String && contains( (String)key );
+  public boolean containsKey(Object key) {
+    return key != null && key instanceof String && contains((String)key);
   }
 
 
@@ -1523,7 +1525,7 @@ public class DataFrame implements Cloneable {
    * 
    * @see java.util.Map#containsValue(java.lang.Object)
    */
-  public boolean containsValue( Object value ) {
+  public boolean containsValue(Object value) {
     return false;
   }
 
@@ -1531,15 +1533,15 @@ public class DataFrame implements Cloneable {
 
 
   /**
-   * @param key the key of the valy for which to search
+   * @param key the key of the value for which to search
    * 
    * @return the object in this frame with the given key
    * 
    * @see java.util.Map#get(java.lang.Object)
    */
-  public Object get( Object key ) {
-    if ( key != null && key instanceof String )
-      return this.getObject( (String)key );
+  public Object get(Object key) {
+    if (key != null && key instanceof String)
+      return this.getObject((String)key);
     else
       return null;
   }
@@ -1558,26 +1560,26 @@ public class DataFrame implements Cloneable {
    * 
    * @see java.util.Map#put(java.lang.Object, java.lang.Object)
    */
-  public Object put( Object key, Object value ) {
+  public Object put(Object key, Object value) {
     Object retval = null;
 
-    if ( key != null ) {
+    if (key != null) {
 
-      if ( key instanceof String ) {
+      if (key instanceof String) {
         String name = (String)key;
 
-        for ( int i = 0; i < fields.size(); i++ ) {
-          final DataField field = fields.get( i );
+        for (int i = 0; i < fields.size(); i++) {
+          final DataField field = fields.get(i);
 
-          if ( ( field.name != null ) && field.name.equals( name ) ) {
+          if ((field.name != null) && field.name.equals(name)) {
 
-            if ( value != null ) {
+            if (value != null) {
               retval = field.getObjectValue();
-              field.type = DataField.getType( value );
-              field.value = DataField.encode( value );
+              field.type = DataField.getType(value);
+              field.value = DataField.encode(value);
             } else {
               // Null object implies remove the named field
-              retval = fields.remove( i );
+              retval = fields.remove(i);
             }
             modified = true;
 
@@ -1586,13 +1588,13 @@ public class DataFrame implements Cloneable {
         } // for
 
         // not found, add the value 
-        return add( name, value );
+        return add(name, value);
       } else {
         // key is not a string
-        throw new IllegalArgumentException( "DataFrame keys must be of type String" );
+        throw new IllegalArgumentException("DataFrame keys must be of type String");
       }
     } else {
-      add( value );
+      add(value);
     }
     return retval;
   }
@@ -1608,10 +1610,10 @@ public class DataFrame implements Cloneable {
    * 
    * @see java.util.Map#remove(java.lang.Object)
    */
-  public Object remove( Object key ) {
-    if ( key != null && key instanceof String ) {
-      DataField field = remove( (String)key );
-      if ( field != null )
+  public Object remove(Object key) {
+    if (key != null && key instanceof String) {
+      DataField field = remove((String)key);
+      if (field != null)
         return field.getObjectValue();
     }
     return null;
@@ -1628,7 +1630,7 @@ public class DataFrame implements Cloneable {
   public Set keySet() {
     // get a list of unique field names
     Set<String> names = new HashSet<String>();
-    for ( int i = 0; i < fields.size(); names.add( fields.get( i++ ).getName() ) );
+    for (int i = 0; i < fields.size(); names.add(fields.get(i++).getName()));
     return names;
   }
 
@@ -1642,7 +1644,7 @@ public class DataFrame implements Cloneable {
    */
   public Collection values() {
     List<Object> retval = new ArrayList<Object>();
-    for ( int i = 0; i < fields.size(); retval.add( fields.get( i++ ).getObjectValue() ) );
+    for (int i = 0; i < fields.size(); retval.add(fields.get(i++).getObjectValue()));
     return retval;
   }
 
@@ -1653,7 +1655,7 @@ public class DataFrame implements Cloneable {
    * @param flag true to check encoded fields by decoding them afterwards, 
    *        false to just encode fields.
    */
-  public static void setCheckFlag( boolean flag ) {
+  public static void setCheckFlag(boolean flag) {
     CHECK = flag;
   }
 
@@ -1676,8 +1678,8 @@ public class DataFrame implements Cloneable {
    * @throws IllegalArgumentException If the name is longer than 255 characters 
    *         or the value is an unsupported type.
    */
-  public DataFrame set( final String name, final Object value ) {
-    add( name, value );
+  public DataFrame set(final String name, final Object value) {
+    add(name, value);
     return this;
   }
 
@@ -1704,8 +1706,8 @@ public class DataFrame implements Cloneable {
    * @return the the data frame (this) to which the data was added.
    */
 
-  public DataFrame set( final Object value ) {
-    add( value );
+  public DataFrame set(final Object value) {
+    add(value);
     return this;
   }
 
