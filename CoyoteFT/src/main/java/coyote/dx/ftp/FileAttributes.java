@@ -55,8 +55,8 @@ public class FileAttributes {
   private String user = null;
   private String group = null;
   private int permissions;
-  private int atime;
-  private int mtime;
+  protected int atime;
+  protected int mtime;
   private String[] extended = null;
 
 
