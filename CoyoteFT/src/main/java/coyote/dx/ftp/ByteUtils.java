@@ -340,7 +340,7 @@ public class ByteUtils {
 
 
 
-  protected static boolean array_equals(final byte[] foo, final byte bar[]) {
+  protected static boolean arrayEquals(final byte[] foo, final byte bar[]) {
     final int i = foo.length;
     if (i != bar.length)
       return false;
