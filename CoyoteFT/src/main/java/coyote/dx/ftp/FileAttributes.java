@@ -12,24 +12,24 @@ import java.util.Date;
  */
 public class FileAttributes {
 
-  static final int S_ISUID = 04000; // set user ID on execution
-  static final int S_ISGID = 02000; // set group ID on execution
-  static final int S_ISVTX = 01000; // sticky bit
+  protected static final int S_ISUID = 04000; // set user ID on execution
+  protected static final int S_ISGID = 02000; // set group ID on execution
+  protected static final int S_ISVTX = 01000; // sticky bit
 
-  static final int S_IRUSR = 00400; // read by owner
-  static final int S_IWUSR = 00200; // write by owner
-  static final int S_IXUSR = 00100; // execute/search by owner
-  static final int S_IREAD = 00400; // read by owner
-  static final int S_IWRIT = 00200; // write by owner
-  static final int S_IEXEC = 00100; // execute/search by owner
+  protected static final int S_IRUSR = 00400; // read by owner
+  protected static final int S_IWUSR = 00200; // write by owner
+  protected static final int S_IXUSR = 00100; // execute/search by owner
+  protected static final int S_IREAD = 00400; // read by owner
+  protected static final int S_IWRIT = 00200; // write by owner
+  protected static final int S_IEXEC = 00100; // execute/search by owner
 
-  static final int S_IRGRP = 00040; // read by group
-  static final int S_IWGRP = 00020; // write by group
-  static final int S_IXGRP = 00010; // execute/search by group
+  protected static final int S_IRGRP = 00040; // read by group
+  protected static final int S_IWGRP = 00020; // write by group
+  protected static final int S_IXGRP = 00010; // execute/search by group
 
-  static final int S_IROTH = 00004; // read by others
-  static final int S_IWOTH = 00002; // write by others
-  static final int S_IXOTH = 00001; // execute/search by others
+  protected static final int S_IROTH = 00004; // read by others
+  protected static final int S_IWOTH = 00002; // write by others
+  protected static final int S_IXOTH = 00001; // execute/search by others
 
   private static final int pmask = 0xFFF;
 
@@ -39,14 +39,25 @@ public class FileAttributes {
   public static final int FILE_ATTR_ACMODTIME = 0x00000008;
   public static final int FILE_ATTR_EXTENDED = 0x80000000;
 
-  static final int S_IFMT = 0xf000;
-  static final int S_IFIFO = 0x1000;
-  static final int S_IFCHR = 0x2000;
-  static final int S_IFDIR = 0x4000;
-  static final int S_IFBLK = 0x6000;
-  static final int S_IFREG = 0x8000;
-  static final int S_IFLNK = 0xa000;
-  static final int S_IFSOCK = 0xc000;
+  protected static final int S_IFMT = 0xf000;
+  protected static final int S_IFIFO = 0x1000;
+  protected static final int S_IFCHR = 0x2000;
+  protected static final int S_IFDIR = 0x4000;
+  protected static final int S_IFBLK = 0x6000;
+  protected static final int S_IFREG = 0x8000;
+  protected static final int S_IFLNK = 0xa000;
+  protected static final int S_IFSOCK = 0xc000;
+
+  private int flags = 0;
+  private long size;
+  private int uid;
+  private int gid;
+  private String user = null;
+  private String group = null;
+  private int permissions;
+  private int atime;
+  private int mtime;
+  private String[] extended = null;
 
 
 
@@ -58,48 +69,37 @@ public class FileAttributes {
    * 
    * @return the file attributes represented by the data in the buffer
    */
-  static FileAttributes getAttributes( final Buffer buf ) {
+  protected static FileAttributes getAttributes(final Buffer buf) {
     final FileAttributes attr = new FileAttributes();
     attr.flags = buf.getInt();
-    if ( ( attr.flags & FILE_ATTR_SIZE ) != 0 ) {
+    if ((attr.flags & FILE_ATTR_SIZE) != 0) {
       attr.size = buf.getLong();
     }
-    if ( ( attr.flags & FILE_ATTR_UIDGID ) != 0 ) {
+    if ((attr.flags & FILE_ATTR_UIDGID) != 0) {
       attr.uid = buf.getInt();
       attr.gid = buf.getInt();
     }
-    if ( ( attr.flags & FILE_ATTR_PERMISSIONS ) != 0 ) {
+    if ((attr.flags & FILE_ATTR_PERMISSIONS) != 0) {
       attr.permissions = buf.getInt();
     }
-    if ( ( attr.flags & FILE_ATTR_ACMODTIME ) != 0 ) {
+    if ((attr.flags & FILE_ATTR_ACMODTIME) != 0) {
       attr.atime = buf.getInt();
     }
-    if ( ( attr.flags & FILE_ATTR_ACMODTIME ) != 0 ) {
+    if ((attr.flags & FILE_ATTR_ACMODTIME) != 0) {
       attr.mtime = buf.getInt();
     }
-    if ( ( attr.flags & FILE_ATTR_EXTENDED ) != 0 ) {
+    if ((attr.flags & FILE_ATTR_EXTENDED) != 0) {
       final int count = buf.getInt();
-      if ( count > 0 ) {
+      if (count > 0) {
         attr.extended = new String[count * 2];
-        for ( int i = 0; i < count; i++ ) {
-          attr.extended[i * 2] = ByteUtils.byte2str( buf.getString() );
-          attr.extended[( i * 2 ) + 1] = ByteUtils.byte2str( buf.getString() );
+        for (int i = 0; i < count; i++) {
+          attr.extended[i * 2] = ByteUtils.byte2str(buf.getString());
+          attr.extended[(i * 2) + 1] = ByteUtils.byte2str(buf.getString());
         }
       }
     }
     return attr;
   }
-
-  int flags = 0;
-  long size;
-  int uid;
-  int gid;
-  String user = null;
-  String group = null;
-  int permissions;
-  int atime;
-  int mtime;
-  String[] extended = null;
 
 
 
@@ -116,30 +116,30 @@ public class FileAttributes {
    * Dump the data in this attributes object to a buffer suitable for generating a deep copy.
    * @param buf
    */
-  void dump( final Buffer buf ) {
-    buf.putInt( flags );
-    if ( ( flags & FILE_ATTR_SIZE ) != 0 ) {
-      buf.putLong( size );
+  protected void dump(final Buffer buf) {
+    buf.putInt(flags);
+    if ((flags & FILE_ATTR_SIZE) != 0) {
+      buf.putLong(size);
     }
-    if ( ( flags & FILE_ATTR_UIDGID ) != 0 ) {
-      buf.putInt( uid );
-      buf.putInt( gid );
+    if ((flags & FILE_ATTR_UIDGID) != 0) {
+      buf.putInt(uid);
+      buf.putInt(gid);
     }
-    if ( ( flags & FILE_ATTR_PERMISSIONS ) != 0 ) {
-      buf.putInt( permissions );
+    if ((flags & FILE_ATTR_PERMISSIONS) != 0) {
+      buf.putInt(permissions);
     }
-    if ( ( flags & FILE_ATTR_ACMODTIME ) != 0 ) {
-      buf.putInt( atime );
+    if ((flags & FILE_ATTR_ACMODTIME) != 0) {
+      buf.putInt(atime);
     }
-    if ( ( flags & FILE_ATTR_ACMODTIME ) != 0 ) {
-      buf.putInt( mtime );
+    if ((flags & FILE_ATTR_ACMODTIME) != 0) {
+      buf.putInt(mtime);
     }
-    if ( ( flags & FILE_ATTR_EXTENDED ) != 0 ) {
+    if ((flags & FILE_ATTR_EXTENDED) != 0) {
       final int count = extended.length / 2;
-      if ( count > 0 ) {
-        for ( int i = 0; i < count; i++ ) {
-          buf.putString( ByteUtils.str2byte( extended[i * 2] ) );
-          buf.putString( ByteUtils.str2byte( extended[( i * 2 ) + 1] ) );
+      if (count > 0) {
+        for (int i = 0; i < count; i++) {
+          buf.putString(ByteUtils.str2byte(extended[i * 2]));
+          buf.putString(ByteUtils.str2byte(extended[(i * 2) + 1]));
         }
       }
     }
@@ -149,14 +149,14 @@ public class FileAttributes {
 
 
   public Date getAccessedTime() {
-    return new Date( atime * 1000L );
+    return new Date(atime * 1000L);
   }
 
 
 
 
   public String getAccessedTimeString() {
-    return ( getAccessedTime().toString() );
+    return (getAccessedTime().toString());
   }
 
 
@@ -201,14 +201,14 @@ public class FileAttributes {
 
 
   public Date getModifiedTime() {
-    return new Date( mtime * 1000L );
+    return new Date(mtime * 1000L);
   }
 
 
 
 
   public String getModifiedTimeString() {
-    return ( getModifiedTime().toString() );
+    return (getModifiedTime().toString());
   }
 
 
@@ -229,74 +229,74 @@ public class FileAttributes {
 
 
   public String getPermissionsString() {
-    final StringBuffer buf = new StringBuffer( 10 );
+    final StringBuffer buf = new StringBuffer(10);
 
-    if ( isDirectory() ) {
-      buf.append( 'd' );
-    } else if ( isLink() ) {
-      buf.append( 'l' );
+    if (isDirectory()) {
+      buf.append('d');
+    } else if (isLink()) {
+      buf.append('l');
     } else {
-      buf.append( '-' );
+      buf.append('-');
     }
 
-    if ( ( permissions & S_IRUSR ) != 0 ) {
-      buf.append( 'r' );
+    if ((permissions & S_IRUSR) != 0) {
+      buf.append('r');
     } else {
-      buf.append( '-' );
+      buf.append('-');
     }
 
-    if ( ( permissions & S_IWUSR ) != 0 ) {
-      buf.append( 'w' );
+    if ((permissions & S_IWUSR) != 0) {
+      buf.append('w');
     } else {
-      buf.append( '-' );
+      buf.append('-');
     }
 
-    if ( ( permissions & S_ISUID ) != 0 ) {
-      buf.append( 's' );
-    } else if ( ( permissions & S_IXUSR ) != 0 ) {
-      buf.append( 'x' );
+    if ((permissions & S_ISUID) != 0) {
+      buf.append('s');
+    } else if ((permissions & S_IXUSR) != 0) {
+      buf.append('x');
     } else {
-      buf.append( '-' );
+      buf.append('-');
     }
 
-    if ( ( permissions & S_IRGRP ) != 0 ) {
-      buf.append( 'r' );
+    if ((permissions & S_IRGRP) != 0) {
+      buf.append('r');
     } else {
-      buf.append( '-' );
+      buf.append('-');
     }
 
-    if ( ( permissions & S_IWGRP ) != 0 ) {
-      buf.append( 'w' );
+    if ((permissions & S_IWGRP) != 0) {
+      buf.append('w');
     } else {
-      buf.append( '-' );
+      buf.append('-');
     }
 
-    if ( ( permissions & S_ISGID ) != 0 ) {
-      buf.append( 's' );
-    } else if ( ( permissions & S_IXGRP ) != 0 ) {
-      buf.append( 'x' );
+    if ((permissions & S_ISGID) != 0) {
+      buf.append('s');
+    } else if ((permissions & S_IXGRP) != 0) {
+      buf.append('x');
     } else {
-      buf.append( '-' );
+      buf.append('-');
     }
 
-    if ( ( permissions & S_IROTH ) != 0 ) {
-      buf.append( 'r' );
+    if ((permissions & S_IROTH) != 0) {
+      buf.append('r');
     } else {
-      buf.append( '-' );
+      buf.append('-');
     }
 
-    if ( ( permissions & S_IWOTH ) != 0 ) {
-      buf.append( 'w' );
+    if ((permissions & S_IWOTH) != 0) {
+      buf.append('w');
     } else {
-      buf.append( '-' );
+      buf.append('-');
     }
 
-    if ( ( permissions & S_IXOTH ) != 0 ) {
-      buf.append( 'x' );
+    if ((permissions & S_IXOTH) != 0) {
+      buf.append('x');
     } else {
-      buf.append( '-' );
+      buf.append('-');
     }
-    return ( buf.toString() );
+    return (buf.toString());
   }
 
 
@@ -330,7 +330,7 @@ public class FileAttributes {
    * @return true if the file handle is a Block special file
    */
   public boolean isBlock() {
-    return isType( S_IFBLK );
+    return isType(S_IFBLK);
   }
 
 
@@ -340,7 +340,7 @@ public class FileAttributes {
    * @return true if the file handle is a Character special file
    */
   public boolean isCharacter() {
-    return isType( S_IFCHR );
+    return isType(S_IFCHR);
   }
 
 
@@ -350,7 +350,7 @@ public class FileAttributes {
    * @return true if the file handle is a directory
    */
   public boolean isDirectory() {
-    return isType( S_IFDIR );
+    return isType(S_IFDIR);
   }
 
 
@@ -360,7 +360,7 @@ public class FileAttributes {
    * @return true if the file handle is a FIFO
    */
   public boolean isFifo() {
-    return isType( S_IFIFO );
+    return isType(S_IFIFO);
   }
 
 
@@ -370,7 +370,7 @@ public class FileAttributes {
    * @return true if the file handle is a symbolic link
    */
   public boolean isLink() {
-    return isType( S_IFLNK );
+    return isType(S_IFLNK);
   }
 
 
@@ -380,7 +380,7 @@ public class FileAttributes {
    * @return true if the file handle is a regular file
    */
   public boolean isRegular() {
-    return isType( S_IFREG );
+    return isType(S_IFREG);
   }
 
 
@@ -390,43 +390,43 @@ public class FileAttributes {
    * @return true if the file handle is a socket
    */
   public boolean isSock() {
-    return isType( S_IFSOCK );
+    return isType(S_IFSOCK);
   }
 
 
 
 
-  private boolean isType( final int mask ) {
-    return ( ( flags & FILE_ATTR_PERMISSIONS ) != 0 ) && ( ( permissions & S_IFMT ) == mask );
+  private boolean isType(final int mask) {
+    return ((flags & FILE_ATTR_PERMISSIONS) != 0) && ((permissions & S_IFMT) == mask);
   }
 
 
 
 
-  int length() {
+  protected int length() {
     int len = 4;
 
-    if ( ( flags & FILE_ATTR_SIZE ) != 0 ) {
+    if ((flags & FILE_ATTR_SIZE) != 0) {
       len += 8;
     }
-    if ( ( flags & FILE_ATTR_UIDGID ) != 0 ) {
+    if ((flags & FILE_ATTR_UIDGID) != 0) {
       len += 8;
     }
-    if ( ( flags & FILE_ATTR_PERMISSIONS ) != 0 ) {
+    if ((flags & FILE_ATTR_PERMISSIONS) != 0) {
       len += 4;
     }
-    if ( ( flags & FILE_ATTR_ACMODTIME ) != 0 ) {
+    if ((flags & FILE_ATTR_ACMODTIME) != 0) {
       len += 8;
     }
-    if ( ( flags & FILE_ATTR_EXTENDED ) != 0 ) {
+    if ((flags & FILE_ATTR_EXTENDED) != 0) {
       len += 4;
       final int count = extended.length / 2;
-      if ( count > 0 ) {
-        for ( int i = 0; i < count; i++ ) {
+      if (count > 0) {
+        for (int i = 0; i < count; i++) {
           len += 4;
           len += extended[i * 2].length();
           len += 4;
-          len += extended[( i * 2 ) + 1].length();
+          len += extended[(i * 2) + 1].length();
         }
       }
     }
@@ -436,7 +436,7 @@ public class FileAttributes {
 
 
 
-  public void setAccessTime( final int atime ) {
+  public void setAccessTime(final int atime) {
     flags |= FILE_ATTR_ACMODTIME;
     this.atime = atime;
   }
@@ -444,14 +444,14 @@ public class FileAttributes {
 
 
 
-  void setFLAGS( final int flags ) {
+  protected void setFLAGS(final int flags) {
     this.flags = flags;
   }
 
 
 
 
-  public void setGID( final int gid ) {
+  public void setGID(final int gid) {
     flags |= FILE_ATTR_UIDGID;
     this.gid = gid;
   }
@@ -459,14 +459,14 @@ public class FileAttributes {
 
 
 
-  public void setGroup( final String value ) {
+  public void setGroup(final String value) {
     group = value;
   }
 
 
 
 
-  public void setModifiedTime( final int mtime ) {
+  public void setModifiedTime(final int mtime) {
     flags |= FILE_ATTR_ACMODTIME;
     this.mtime = mtime;
   }
@@ -474,16 +474,16 @@ public class FileAttributes {
 
 
 
-  public void setPERMISSIONS( int permissions ) {
+  public void setPERMISSIONS(int permissions) {
     flags |= FILE_ATTR_PERMISSIONS;
-    permissions = ( this.permissions & ~pmask ) | ( permissions & pmask );
+    permissions = (this.permissions & ~pmask) | (permissions & pmask);
     this.permissions = permissions;
   }
 
 
 
 
-  public void setSize( final long size ) {
+  public void setSize(final long size) {
     flags |= FILE_ATTR_SIZE;
     this.size = size;
   }
@@ -491,7 +491,7 @@ public class FileAttributes {
 
 
 
-  public void setUID( final int uid ) {
+  public void setUID(final int uid) {
     flags |= FILE_ATTR_UIDGID;
     this.uid = uid;
   }
@@ -499,7 +499,7 @@ public class FileAttributes {
 
 
 
-  public void setUser( final String value ) {
+  public void setUser(final String value) {
     user = value;
   }
 
@@ -508,7 +508,7 @@ public class FileAttributes {
 
   @Override
   public String toString() {
-    return ( getPermissionsString() + " " + getUID() + " " + getGID() + " " + getSize() + " " + getModifiedTimeString() );
+    return (getPermissionsString() + " " + getUID() + " " + getGID() + " " + getSize() + " " + getModifiedTimeString());
   }
 
 }
