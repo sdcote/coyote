@@ -494,7 +494,7 @@ public class RemoteSite extends DataFrame {
    *         from view
    */
   private DataFrame sanitize(DataFrame frame) {
-    DataFrame retval = (DataFrame)this.clone();
+    DataFrame retval = (DataFrame)frame.clone();
     if (retval.contains(PASS_FIELD)) {
       retval.put(PASS_FIELD, "-HIDDEN-");
     }
