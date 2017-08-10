@@ -1,15 +1,15 @@
 package coyote.dx.ftp;
 
 public class Buffer {
-  final byte[] tmp = new byte[4];
-  byte[] buffer;
-  int index;
-  int s;
+  protected final byte[] tmp = new byte[4];
+  protected byte[] buffer;
+  protected int index;
+  protected int s;
 
 
 
 
-  public Buffer( final int size ) {
+  public Buffer(final int size) {
     buffer = new byte[size];
     index = 0;
     s = 0;
@@ -18,7 +18,7 @@ public class Buffer {
 
 
 
-  public Buffer( final byte[] buffer ) {
+  public Buffer(final byte[] buffer) {
     this.buffer = buffer;
     index = 0;
     s = 0;
@@ -28,87 +28,88 @@ public class Buffer {
 
 
   public Buffer() {
-    this( 1024 * 10 * 2 );
+    this(1024 * 10 * 2);
   }
 
 
 
 
-  public void putByte( final byte foo ) {
+  public void putByte(final byte foo) {
     buffer[index++] = foo;
   }
 
 
 
 
-  public void putByte( final byte[] foo ) {
-    putByte( foo, 0, foo.length );
+  public void putByte(final byte[] foo) {
+    putByte(foo, 0, foo.length);
   }
 
 
 
 
-  public void putByte( final byte[] foo, final int begin, final int length ) {
-    System.arraycopy( foo, begin, buffer, index, length );
+  public void putByte(final byte[] foo, final int begin, final int length) {
+    System.arraycopy(foo, begin, buffer, index, length);
     index += length;
   }
 
 
 
 
-  public void putString( final byte[] foo ) {
-    putString( foo, 0, foo.length );
+  public void putString(final byte[] foo) {
+    putString(foo, 0, foo.length);
   }
 
 
 
 
-  public void putString( final byte[] foo, final int begin, final int length ) {
-    putInt( length );
-    putByte( foo, begin, length );
+  public void putString(final byte[] foo, final int begin, final int length) {
+    putInt(length);
+    putByte(foo, begin, length);
   }
 
 
 
 
-  public void putInt( final int val ) {
-    tmp[0] = (byte)( val >>> 24 );
-    tmp[1] = (byte)( val >>> 16 );
-    tmp[2] = (byte)( val >>> 8 );
-    tmp[3] = (byte)( val );
-    System.arraycopy( tmp, 0, buffer, index, 4 );
+  public void putInt(final int val) {
+    tmp[0] = (byte)(val >>> 24);
+    tmp[1] = (byte)(val >>> 16);
+    tmp[2] = (byte)(val >>> 8);
+    tmp[3] = (byte)(val);
+    System.arraycopy(tmp, 0, buffer, index, 4);
     index += 4;
   }
 
 
 
 
-  public void putLong( final long val ) {
-    tmp[0] = (byte)( val >>> 56 );
-    tmp[1] = (byte)( val >>> 48 );
-    tmp[2] = (byte)( val >>> 40 );
-    tmp[3] = (byte)( val >>> 32 );
-    System.arraycopy( tmp, 0, buffer, index, 4 );
-    tmp[0] = (byte)( val >>> 24 );
-    tmp[1] = (byte)( val >>> 16 );
-    tmp[2] = (byte)( val >>> 8 );
-    tmp[3] = (byte)( val );
-    System.arraycopy( tmp, 0, buffer, index + 4, 4 );
+  public void putLong(final long val) {
+    tmp[0] = (byte)(val >>> 56);
+    tmp[1] = (byte)(val >>> 48);
+    tmp[2] = (byte)(val >>> 40);
+    tmp[3] = (byte)(val >>> 32);
+    System.arraycopy(tmp, 0, buffer, index, 4);
+    tmp[0] = (byte)(val >>> 24);
+    tmp[1] = (byte)(val >>> 16);
+    tmp[2] = (byte)(val >>> 8);
+    tmp[3] = (byte)(val);
+    System.arraycopy(tmp, 0, buffer, index + 4, 4);
     index += 8;
   }
 
 
 
 
-  void skip( final int n ) {
+  protected void skip(final int n) {
     index += n;
   }
 
 
 
 
-  void putPad( int n ) {
-    while ( n > 0 ) {
+  protected void putPad(int x) {
+    int n = x;
+    while (n > 0) {
       buffer[index++] = (byte)0;
       n--;
     }
@@ -117,16 +118,16 @@ public class Buffer {
 
 
 
-  public void putMPInt( final byte[] foo ) {
+  public void putMPInt(final byte[] foo) {
     int i = foo.length;
-    if ( ( foo[0] & 0x80 ) != 0 ) {
+    if ((foo[0] & 0x80) != 0) {
       i++;
-      putInt( i );
-      putByte( (byte)0 );
+      putInt(i);
+      putByte((byte)0);
     } else {
-      putInt( i );
+      putInt(i);
     }
-    putByte( foo );
+    putByte(foo);
   }
 
 
@@ -146,7 +147,7 @@ public class Buffer {
 
 
 
-  public void setOffSet( final int s ) {
+  public void setOffSet(final int s) {
     this.s = s;
   }
 
@@ -155,7 +156,7 @@ public class Buffer {
 
   public long getLong() {
     long foo = getInt() & 0xffffffffL;
-    foo = ( ( foo << 32 ) ) | ( getInt() & 0xffffffffL );
+    foo = ((foo << 32)) | (getInt() & 0xffffffffL);
     return foo;
   }
 
@@ -164,7 +165,7 @@ public class Buffer {
 
   public int getInt() {
     int foo = getShort();
-    foo = ( ( foo << 16 ) & 0xffff0000 ) | ( getShort() & 0xffff );
+    foo = ((foo << 16) & 0xffff0000) | (getShort() & 0xffff);
     return foo;
   }
 
@@ -175,19 +176,19 @@ public class Buffer {
     long foo = 0L;
     long bar = 0L;
     foo = getByte();
-    foo = ( ( foo << 8 ) & 0xff00 ) | ( getByte() & 0xff );
+    foo = ((foo << 8) & 0xff00) | (getByte() & 0xff);
     bar = getByte();
-    bar = ( ( bar << 8 ) & 0xff00 ) | ( getByte() & 0xff );
-    foo = ( ( foo << 16 ) & 0xffff0000 ) | ( bar & 0xffff );
+    bar = ((bar << 8) & 0xff00) | (getByte() & 0xff);
+    foo = ((foo << 16) & 0xffff0000) | (bar & 0xffff);
     return foo;
   }
 
 
 
 
-  int getShort() {
+  protected int getShort() {
     int foo = getByte();
-    foo = ( ( foo << 8 ) & 0xff00 ) | ( getByte() & 0xff );
+    foo = ((foo << 8) & 0xff00) | (getByte() & 0xff);
     return foo;
   }
 
@@ -195,28 +196,28 @@ public class Buffer {
 
 
   public int getByte() {
-    return ( buffer[s++] & 0xff );
+    return (buffer[s++] & 0xff);
   }
 
 
 
 
-  public void getByte( final byte[] foo ) {
-    getByte( foo, 0, foo.length );
+  public void getByte(final byte[] foo) {
+    getByte(foo, 0, foo.length);
   }
 
 
 
 
-  void getByte( final byte[] foo, final int start, final int len ) {
-    System.arraycopy( buffer, s, foo, start, len );
+  protected void getByte(final byte[] foo, final int start, final int len) {
+    System.arraycopy(buffer, s, foo, start, len);
     s += len;
   }
 
 
 
 
-  public int getByte( final int len ) {
+  public int getByte(final int len) {
     final int foo = s;
     s += len;
     return foo;
@@ -227,14 +228,14 @@ public class Buffer {
 
   public byte[] getMPInt() {
     int i = getInt(); // uint32
-    if ( ( i < 0 ) || // bigger than 0x7fffffff
-        ( i > ( 8 * 1024 ) ) ) {
-      // TODO: an exception should be thrown.
+    if ((i < 0) || // bigger than 0x7fffffff
+        (i > (8 * 1024))) {
+      //  an exception should be thrown.
       i = 8 * 1024; // the session will be broken, but working around
       // OOME.
     }
     final byte[] foo = new byte[i];
-    getByte( foo, 0, i );
+    getByte(foo, 0, i);
     return foo;
   }
 
@@ -243,13 +244,13 @@ public class Buffer {
 
   public byte[] getMPIntBits() {
     final int bits = getInt();
-    final int bytes = ( bits + 7 ) / 8;
+    final int bytes = (bits + 7) / 8;
     byte[] foo = new byte[bytes];
-    getByte( foo, 0, bytes );
-    if ( ( foo[0] & 0x80 ) != 0 ) {
+    getByte(foo, 0, bytes);
+    if ((foo[0] & 0x80) != 0) {
       final byte[] bar = new byte[foo.length + 1];
       bar[0] = 0; // ??
-      System.arraycopy( foo, 0, bar, 1, foo.length );
+      System.arraycopy(foo, 0, bar, 1, foo.length);
       foo = bar;
     }
     return foo;
@@ -260,23 +261,23 @@ public class Buffer {
 
   public byte[] getString() {
     int i = getInt(); // uint32
-    if ( ( i < 0 ) || // bigger than 0x7fffffff
-        ( i > ( 256 * 1024 ) ) ) {
-      // TODO: an exception should be thrown.
+    if ((i < 0) || // bigger than 0x7fffffff
+        (i > (256 * 1024))) {
+      //  an exception should be thrown.
       i = 256 * 1024; // the session will be broken, but working around
       // OOME.
     }
     final byte[] foo = new byte[i];
-    getByte( foo, 0, i );
+    getByte(foo, 0, i);
     return foo;
   }
 
 
 
 
-  byte[] getString( final int[] start, final int[] len ) {
+  protected byte[] getString(final int[] start, final int[] len) {
     final int i = getInt();
-    start[0] = getByte( i );
+    start[0] = getByte(i);
     len[0] = i;
     return buffer;
   }
@@ -293,9 +294,9 @@ public class Buffer {
 
 
   public void shift() {
-    if ( s == 0 )
+    if (s == 0)
       return;
-    System.arraycopy( buffer, s, buffer, 0, index - s );
+    System.arraycopy(buffer, s, buffer, 0, index - s);
     index = index - s;
     s = 0;
   }
@@ -303,24 +304,24 @@ public class Buffer {
 
 
 
-  void rewind() {
+  protected void rewind() {
     s = 0;
   }
 
 
 
 
-  byte getCommand() {
+  protected byte getCommand() {
     return buffer[5];
   }
 
 
 
 
-  void checkFreeSize( final int n ) {
-    if ( buffer.length < ( index + n ) ) {
+  protected void checkFreeSize(final int n) {
+    if (buffer.length < (index + n)) {
       final byte[] tmp = new byte[buffer.length * 2];
-      System.arraycopy( buffer, 0, tmp, 0, index );
+      System.arraycopy(buffer, 0, tmp, 0, index);
       buffer = tmp;
     }
   }
