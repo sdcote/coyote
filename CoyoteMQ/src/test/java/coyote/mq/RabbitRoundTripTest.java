@@ -4,10 +4,6 @@
  * This program and the accompanying materials are made available under the 
  * terms of the MIT License which accompanies this distribution, and is 
  * available at http://creativecommons.org/licenses/MIT/
- *
- * Contributors:
- *   Stephan D. Cote 
- *      - Initial concept and implementation
  */
 package coyote.mq;
 
@@ -42,54 +38,54 @@ public class RabbitRoundTripTest extends AbstractMessagingTest {
     List<DataFrame> received = new ArrayList<DataFrame>();
 
     Config cfg = new Config();
-    cfg.set( ConfigTag.SOURCE, "amqp://localhost:" + broker.port );
-    cfg.set( ConfigTag.USERNAME, "guest" );
-    cfg.set( ConfigTag.PASSWORD, "guest" );
-    cfg.set( ConfigTag.QUEUE, QUEUE_NAME );
-    cfg.set( ConfigTag.USE_SSL, true );
+    cfg.set(ConfigTag.SOURCE, "amqp://localhost:" + broker.port);
+    cfg.set(ConfigTag.USERNAME, "guest");
+    cfg.set(ConfigTag.PASSWORD, "guest");
+    cfg.set(ConfigTag.QUEUE, QUEUE_NAME);
+    cfg.set(ConfigTag.USE_SSL, true);
 
     FrameReader reader = new RabbitReader();
-    cfg.set( ConfigTag.TARGET, cfg.getAsString( ConfigTag.SOURCE ) );
-    reader.setConfiguration( cfg );
-    reader.open( getContext() );
+    cfg.set(ConfigTag.TARGET, cfg.getAsString(ConfigTag.SOURCE));
+    reader.setConfiguration(cfg);
+    reader.open(getContext());
 
     FrameWriter writer = new RabbitWriter();
-    writer.setConfiguration( cfg );
-    writer.open( getContext() );
+    writer.setConfiguration(cfg);
+    writer.open(getContext());
 
     int limit = 1000;
-    for ( int x = 0; x < limit; x++ ) {
-      DataFrame message = new DataFrame().set( "Binary", Integer.toBinaryString( x ) ).set( "Hex", Integer.toHexString( x ) ).set( "Octal", Integer.toOctalString( x ) );
-      writer.write( message );
-      read( reader, received );
+    for (int x = 0; x < limit; x++) {
+      DataFrame message = new DataFrame().set("Binary", Integer.toBinaryString(x)).set("Hex", Integer.toHexString(x)).set("Octal", Integer.toOctalString(x));
+      writer.write(message);
+      read(reader, received);
     }
-    System.out.println( "=========================================================================" );
-    if ( received.size() < limit ) {
-      System.out.println( "Short by " + ( limit - received.size() ) + ", catching up..." );
+    System.out.println("=========================================================================");
+    if (received.size() < limit) {
+      System.out.println("Short by " + (limit - received.size()) + ", catching up...");
     }
     long timeout = 3000;
     long endtime = System.currentTimeMillis() + timeout;
-    while ( received.size() < limit ) {
-      read( reader, received );
-      if ( System.currentTimeMillis() > endtime ) {
-        fail( "Only received " + received.size() + " of " + limit + " messages within a " + timeout + "ms timeout period" );
+    while (received.size() < limit) {
+      read(reader, received);
+      if (System.currentTimeMillis() > endtime) {
+        fail("Only received " + received.size() + " of " + limit + " messages within a " + timeout + "ms timeout period");
       }
     }
 
-    assertTrue( received.size() == limit );
+    assertTrue(received.size() == limit);
   }
 
 
 
 
-  private void read( FrameReader reader, List<DataFrame> received ) {
-    TransactionContext txnContext = new TransactionContext( getContext() );
-    getContext().setTransaction( txnContext );
-    DataFrame retval = reader.read( txnContext );
-    if ( retval != null ) {
-      received.add( retval );
-      if ( received.size() % 100 == 0 ) {
-        System.out.println( "Received msg " + received.size() + " - " + retval.toString() );
+  private void read(FrameReader reader, List<DataFrame> received) {
+    TransactionContext txnContext = new TransactionContext(getContext());
+    getContext().setTransaction(txnContext);
+    DataFrame retval = reader.read(txnContext);
+    if (retval != null) {
+      received.add(retval);
+      if (received.size() % 100 == 0) {
+        System.out.println("Received msg " + received.size() + " - " + retval.toString());
       }
     }
   }

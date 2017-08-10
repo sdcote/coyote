@@ -4,10 +4,6 @@
  * This program and the accompanying materials are made available under the 
  * terms of the MIT License which accompanies this distribution, and is 
  * available at http://creativecommons.org/licenses/MIT/
- *
- * Contributors:
- *   Stephan D. Cote 
- *      - Initial concept and implementation
  */
 package coyote.mq;
 
@@ -33,13 +29,13 @@ public class TestBroker implements Closeable {
 
 
   public TestBroker() {
-    this( DEFAULT_PORT );
+    this(DEFAULT_PORT);
   }
 
 
 
 
-  public TestBroker( int port ) {
+  public TestBroker(int port) {
     this.port = port;
   }
 
@@ -47,7 +43,7 @@ public class TestBroker implements Closeable {
 
 
   public String getBrokerUri() {
-    return BROKER_URI + ":" + Integer.toString( port );
+    return BROKER_URI + ":" + Integer.toString(port);
   }
 
 
@@ -55,9 +51,9 @@ public class TestBroker implements Closeable {
 
   public void open() throws Exception {
     final BrokerOptions brokerOptions = new BrokerOptions();
-    brokerOptions.setConfigProperty( "qpid.amqp_port", Integer.toString( port ) );
-    brokerOptions.setInitialConfigurationLocation( INITIAL_CONFIG_PATH );
-    broker.startup( brokerOptions );
+    brokerOptions.setConfigProperty("qpid.amqp_port", Integer.toString(port));
+    brokerOptions.setInitialConfigurationLocation(INITIAL_CONFIG_PATH);
+    broker.startup(brokerOptions);
   }
 
 

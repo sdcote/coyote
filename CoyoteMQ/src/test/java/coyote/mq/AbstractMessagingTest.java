@@ -4,10 +4,6 @@
  * This program and the accompanying materials are made available under the 
  * terms of the MIT License which accompanies this distribution, and is 
  * available at http://creativecommons.org/licenses/MIT/
- *
- * Contributors:
- *   Stephan D. Cote 
- *      - Initial concept and implementation
  */
 package coyote.mq;
 
@@ -31,7 +27,7 @@ import coyote.loader.log.Log;
 public class AbstractMessagingTest {
   protected static TestBroker broker;
   private final TransformContext context = new TransformContext();
-  static final String CLASSNAME = AbstractMessagingTest.class.getSimpleName();
+  public static final String CLASSNAME = AbstractMessagingTest.class.getSimpleName();
 
 
 
@@ -41,7 +37,7 @@ public class AbstractMessagingTest {
    */
   @BeforeClass
   public static void setUpBeforeClass() throws Exception {
-    Log.addLogger( CLASSNAME, new ConsoleAppender( Log.TRACE_EVENTS | Log.DEBUG_EVENTS | Log.INFO_EVENTS | Log.WARN_EVENTS | Log.ERROR_EVENTS | Log.FATAL_EVENTS ) );
+    Log.addLogger(CLASSNAME, new ConsoleAppender(Log.TRACE_EVENTS | Log.DEBUG_EVENTS | Log.INFO_EVENTS | Log.WARN_EVENTS | Log.ERROR_EVENTS | Log.FATAL_EVENTS));
     broker = new TestBroker();
     broker.open();
   }
@@ -54,29 +50,29 @@ public class AbstractMessagingTest {
    */
   @AfterClass
   public static void tearDownAfterClass() throws Exception {
-    Log.removeLogger( CLASSNAME );
+    Log.removeLogger(CLASSNAME);
     broker.close();
   }
 
 
 
 
-  public void sendMessage( String queueName, DataFrame message ) {
-    if ( StringUtil.isNotBlank( queueName ) && message != null ) {
+  public void sendMessage(String queueName, DataFrame message) {
+    if (StringUtil.isNotBlank(queueName) && message != null) {
       byte[] data = message.getBytes();
       try {
         ConnectionFactory factory = new ConnectionFactory();
-        factory.setUri( broker.getBrokerUri() );
+        factory.setUri(broker.getBrokerUri());
         factory.useSslProtocol();
         // username:password should be in the URI for our tests
         try (Connection connection = factory.newConnection()) {
           Channel channel = connection.createChannel();
-          channel.queueDeclare( queueName, false, false, false, null );
-          channel.basicPublish( "", queueName, null, data );
-          Log.debug( "Sent " + data.length + " bytes to '" + queueName + "'" );
+          channel.queueDeclare(queueName, false, false, false, null);
+          channel.basicPublish("", queueName, null, data);
+          Log.debug("Sent " + data.length + " bytes to '" + queueName + "'");
         }
-      } catch ( Exception e ) {
-        Log.error( "Could not send message: " + e.getClass().getSimpleName() + "-" + e.getMessage() );
+      } catch (Exception e) {
+        Log.error("Could not send message: " + e.getClass().getSimpleName() + "-" + e.getMessage());
       }
     }
   }
