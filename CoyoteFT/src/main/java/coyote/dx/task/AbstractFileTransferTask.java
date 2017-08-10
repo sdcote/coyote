@@ -4,10 +4,6 @@
  * This program and the accompanying materials are made available under the 
  * terms of the MIT License which accompanies this distribution, and is 
  * available at http://creativecommons.org/licenses/MIT/
- *
- * Contributors:
- *   Stephan D. Cote 
- *      - Initial concept and implementation
  */
 package coyote.dx.task;
 
@@ -41,41 +37,41 @@ public abstract class AbstractFileTransferTask extends AbstractFileTask {
    * @return a remote site based on the given URI and the other applicable 
    *         configuration attributes 
    */
-  public RemoteSite configureSite( URI uri ) throws ConfigurationException {
+  public RemoteSite configureSite(URI uri) throws ConfigurationException {
     RemoteSite retval = null;
 
     // The source configuration must be a URI
-    retval = new RemoteSite( uri );
+    retval = new RemoteSite(uri);
 
     // Support the separate setting /override of other site attributes
 
-    if ( contains( ConfigTag.HOST ) ) {
-      retval.setHost( getString( ConfigTag.HOST ) );
+    if (contains(ConfigTag.HOST)) {
+      retval.setHost(getString(ConfigTag.HOST));
     }
 
-    if ( contains( ConfigTag.PORT ) ) {
-      retval.setPort( getInteger( ConfigTag.PORT ) );
+    if (contains(ConfigTag.PORT)) {
+      retval.setPort(getInteger(ConfigTag.PORT));
     }
 
-    if ( contains( ConfigTag.USERNAME ) ) {
-      site.setUsername( getString( ConfigTag.USERNAME ) );
+    if (contains(ConfigTag.USERNAME)) {
+      site.setUsername(getString(ConfigTag.USERNAME));
     }
 
-    if ( contains( ConfigTag.PASSWORD ) ) {
-      retval.setPassword( getString( ConfigTag.PASSWORD ) );
+    if (contains(ConfigTag.PASSWORD)) {
+      retval.setPassword(getString(ConfigTag.PASSWORD));
     }
 
-    if ( contains( ConfigTag.PROTOCOL ) ) {
-      retval.setProtocol( getString( ConfigTag.PROTOCOL ) );
+    if (contains(ConfigTag.PROTOCOL)) {
+      retval.setProtocol(getString(ConfigTag.PROTOCOL));
     }
 
-    if ( contains( Loader.ENCRYPT_PREFIX+ConfigTag.USERNAME ) ) {
+    if (contains(Loader.ENCRYPT_PREFIX + ConfigTag.USERNAME)) {
       // a little more streamlined, uniform way to handle encrypted values
-      retval.setUsername( CipherUtil.decryptString( getString( Loader.ENCRYPT_PREFIX+ConfigTag.USERNAME ) ) );
+      retval.setUsername(CipherUtil.decryptString(getString(Loader.ENCRYPT_PREFIX + ConfigTag.USERNAME)));
     }
 
-    if ( contains( Loader.ENCRYPT_PREFIX+ConfigTag.PASSWORD ) ) {
-      retval.setPassword( CipherUtil.decryptString( getString( Loader.ENCRYPT_PREFIX+ConfigTag.PASSWORD ) ) );
+    if (contains(Loader.ENCRYPT_PREFIX + ConfigTag.PASSWORD)) {
+      retval.setPassword(CipherUtil.decryptString(getString(Loader.ENCRYPT_PREFIX + ConfigTag.PASSWORD)));
     }
 
     return retval;
@@ -94,27 +90,27 @@ public abstract class AbstractFileTransferTask extends AbstractFileTask {
    * 
    * @throws ConfigurationException it there are problems parsing the URI text 
    */
-  public String getLocalFile( String text ) throws ConfigurationException {
+  public String getLocalFile(String text) throws ConfigurationException {
     String retval = null;
 
     try {
-      Assert.notBlank( text, "Local file URI cannot be null or empty" );
+      Assert.notBlank(text, "Local file URI cannot be null or empty");
 
       // Try to parse the target as a URI, failures result in a null
-      if ( UriUtil.parse( text ) == null ) {
+      if (UriUtil.parse(text) == null) {
         // Windows systems often have a drive letter in fully qualified filenames
-        if ( text.charAt( 1 ) == ':' ) {
+        if (text.charAt(1) == ':') {
           // convert it to a file URI
-          File f = new File( text );
+          File f = new File(text);
           retval = f.getAbsolutePath();
         } else {
-          throw new ConfigurationException( "Local file URI is not a valid URI '" + text + "'" );
+          throw new ConfigurationException("Local file URI is not a valid URI '" + text + "'");
         }
       } else {
-        retval = UriUtil.getFilePath( new URI( text ) );
+        retval = UriUtil.getFilePath(new URI(text));
       }
-    } catch ( Exception e ) {
-      throw new ConfigurationException( "Could not determine local file for '" + text + "'", e );
+    } catch (Exception e) {
+      throw new ConfigurationException("Could not determine local file for '" + text + "'", e);
     }
 
     return retval;

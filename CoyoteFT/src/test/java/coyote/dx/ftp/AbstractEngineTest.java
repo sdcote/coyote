@@ -4,10 +4,6 @@
  * This program and the accompanying materials are made available under the 
  * terms of the MIT License which accompanies this distribution, and is 
  * available at http://creativecommons.org/licenses/MIT/
- *
- * Contributors:
- *   Stephan D. Cote 
- *      - Initial concept and implementation
  */
 package coyote.dx.ftp;
 
@@ -36,29 +32,29 @@ public class AbstractEngineTest {
    * 
    * @return The transform engine configured with the requested configuration
    */
-  protected TransformEngine loadEngine( String name ) {
+  protected TransformEngine loadEngine(String name) {
     TransformEngine engine = null;
 
     // load named system properties
-    SystemPropertyUtil.load( name.toLowerCase() );
+    SystemPropertyUtil.load(name.toLowerCase());
 
     // now read the named configuration file
     StringBuffer b = new StringBuffer();
     try {
-      BufferedReader reader = new BufferedReader( new InputStreamReader( AbstractEngineTest.class.getClassLoader().getResourceAsStream( name + ".json" ) ) );
+      BufferedReader reader = new BufferedReader(new InputStreamReader(AbstractEngineTest.class.getClassLoader().getResourceAsStream(name + ".json")));
       String line;
-      while ( ( line = reader.readLine() ) != null ) {
-        b.append( line );
+      while ((line = reader.readLine()) != null) {
+        b.append(line);
       }
-    } catch ( FileNotFoundException e ) {
+    } catch (FileNotFoundException e) {
       e.printStackTrace();
-    } catch ( IOException e ) {
+    } catch (IOException e) {
       e.printStackTrace();
     }
     String cfgFile = b.toString();
 
     // create an engine out of the file
-    engine = TransformEngineFactory.getInstance( cfgFile );
+    engine = TransformEngineFactory.getInstance(cfgFile);
 
     // return the configured engine
     return engine;

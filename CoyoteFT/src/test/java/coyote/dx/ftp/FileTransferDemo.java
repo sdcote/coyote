@@ -4,10 +4,6 @@
  * This program and the accompanying materials are made available under the 
  * terms of the MIT License which accompanies this distribution, and is 
  * available at http://creativecommons.org/licenses/MIT/
- *
- * Contributors:
- *   Stephan D. Cote 
- *      - Initial concept and implementation
  */
 package coyote.dx.ftp;
 
@@ -27,11 +23,11 @@ public class FileTransferDemo {
    * @param args
    * @throws UnknownHostException 
    */
-  public static void main( String[] args ) throws UnknownHostException {
+  public static void main(String[] args) throws UnknownHostException {
 
     // Load properties to set system properties telling SNAPI to use a
     // proxy and what authentication to use
-    SystemPropertyUtil.load( "snowstorm" );
+    SystemPropertyUtil.load("snowstorm");
 
     String host = "coast.cs.purdue.edu";
     int port = 21;
@@ -42,21 +38,21 @@ public class FileTransferDemo {
 
     // Create a remote site object
     RemoteSite site = new RemoteSite();
-    site.setHost( host );
-    site.setPort( port );
-    site.setUsername( user );
-    site.setPassword( pass );
-    site.setProtocol( protocol );
-    System.out.println( site.toFormattedString() );
+    site.setHost(host);
+    site.setPort(port);
+    site.setUsername(user);
+    site.setPassword(pass);
+    site.setProtocol(protocol);
+    System.out.println(site.toFormattedString());
 
     // get a list of files on the remote site
     try {
-      List<RemoteFile> entries = site.listFiles( directory );
-      for ( RemoteFile file : entries ) {
-        System.out.println( file.getName() + " - " + file.getModifiedTime() );
+      List<RemoteFile> entries = site.listFiles(directory);
+      for (RemoteFile file : entries) {
+        System.out.println(file.getName() + " - " + file.getModifiedTime());
       }
 
-    } catch ( FileTransferException e ) {
+    } catch (FileTransferException e) {
       e.printStackTrace();
     }
     finally {

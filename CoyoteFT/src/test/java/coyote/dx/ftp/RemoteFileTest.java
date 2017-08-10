@@ -4,10 +4,6 @@
  * This program and the accompanying materials are made available under the 
  * terms of the MIT License which accompanies this distribution, and is 
  * available at http://creativecommons.org/licenses/MIT/
- *
- * Contributors:
- *   Stephan D. Cote 
- *      - Initial concept and implementation
  */
 package coyote.dx.ftp;
 
@@ -32,14 +28,14 @@ public class RemoteFileTest {
   @Test
   public void testGetName() {
     String test = "data.txt";
-    RemoteFile subject = new RemoteFile( "/home/sdcote/data.txt", null );
-    assertEquals( test, subject.getName() );
+    RemoteFile subject = new RemoteFile("/home/sdcote/data.txt", null);
+    assertEquals(test, subject.getName());
 
-    subject = new RemoteFile( "/data.txt", null );
-    assertEquals( test, subject.getName() );
+    subject = new RemoteFile("/data.txt", null);
+    assertEquals(test, subject.getName());
 
-    subject = new RemoteFile( "data.txt", null );
-    assertEquals( test, subject.getName() );
+    subject = new RemoteFile("data.txt", null);
+    assertEquals(test, subject.getName());
   }
 
 
@@ -50,15 +46,15 @@ public class RemoteFileTest {
    */
   @Test
   public void testGetParent() {
-    RemoteFile subject = new RemoteFile( "/home/sdcote/data.txt", null );
-    assertNotNull( subject.getParent() );
-    assertEquals( "/home/sdcote", subject.getParent() );
+    RemoteFile subject = new RemoteFile("/home/sdcote/data.txt", null);
+    assertNotNull(subject.getParent());
+    assertEquals("/home/sdcote", subject.getParent());
 
-    subject = new RemoteFile( "/data.txt", null );
-    assertNull( subject.getParent() );
+    subject = new RemoteFile("/data.txt", null);
+    assertNull(subject.getParent());
 
-    subject = new RemoteFile( "data.txt", null );
-    assertNull( subject.getParent() );
+    subject = new RemoteFile("data.txt", null);
+    assertNull(subject.getParent());
   }
 
 
@@ -66,17 +62,17 @@ public class RemoteFileTest {
 
   @Test
   public void testIsRelative() {
-    RemoteFile subject = new RemoteFile( "/home/sdcote/data.txt", null );
-    assertFalse( subject.isRelative() );
+    RemoteFile subject = new RemoteFile("/home/sdcote/data.txt", null);
+    assertFalse(subject.isRelative());
 
-    subject = new RemoteFile( "/data.txt", null );
-    assertFalse( subject.isRelative() );
+    subject = new RemoteFile("/data.txt", null);
+    assertFalse(subject.isRelative());
 
-    subject = new RemoteFile( "data.txt", null );
-    assertTrue( subject.isRelative() );
+    subject = new RemoteFile("data.txt", null);
+    assertTrue(subject.isRelative());
 
-    subject = new RemoteFile( "tmp/data.txt", null );
-    assertTrue( subject.isRelative() );
+    subject = new RemoteFile("tmp/data.txt", null);
+    assertTrue(subject.isRelative());
   }
 
 
@@ -87,17 +83,17 @@ public class RemoteFileTest {
    */
   @Test
   public void testGetAbsolutePath() {
-    RemoteFile subject = new RemoteFile( "/home/sdcote/data.txt", null );
-    assertEquals( "/home/sdcote/data.txt", subject.getAbsolutePath() );
+    RemoteFile subject = new RemoteFile("/home/sdcote/data.txt", null);
+    assertEquals("/home/sdcote/data.txt", subject.getAbsolutePath());
 
-    subject = new RemoteFile( "/data.txt", null );
-    assertEquals( "/data.txt", subject.getAbsolutePath() );
+    subject = new RemoteFile("/data.txt", null);
+    assertEquals("/data.txt", subject.getAbsolutePath());
 
-    subject = new RemoteFile( "data.txt", null );
-    assertEquals( "data.txt", subject.getAbsolutePath() );
+    subject = new RemoteFile("data.txt", null);
+    assertEquals("data.txt", subject.getAbsolutePath());
 
-    subject = new RemoteFile( "tmp/data.txt", null );
-    assertEquals( "tmp/data.txt", subject.getAbsolutePath() );
+    subject = new RemoteFile("tmp/data.txt", null);
+    assertEquals("tmp/data.txt", subject.getAbsolutePath());
   }
 
 }

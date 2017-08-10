@@ -4,10 +4,6 @@
  * This program and the accompanying materials are made available under the 
  * terms of the MIT License which accompanies this distribution, and is 
  * available at http://creativecommons.org/licenses/MIT/
- *
- * Contributors:
- *   Stephan D. Cote 
- *      - Initial concept and implementation
  */
 package coyote.dx;
 
@@ -19,11 +15,11 @@ import coyote.loader.log.LogMsg.BundleBaseName;
  * 
  */
 public class CFT {
-  public static final Version VERSION = new Version( 0, 0, 1, Version.EXPERIMENTAL );
+  public static final Version VERSION = new Version(0, 0, 1, Version.DEVELOPMENT);
   public static final String NAME = "BatchFT";
 
   public static final BundleBaseName MSG;
   static {
-    MSG = new BundleBaseName( "CFTMsg" );
+    MSG = new BundleBaseName("CFTMsg");
   }
 }

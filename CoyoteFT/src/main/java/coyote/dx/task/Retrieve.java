@@ -4,10 +4,6 @@
  * This program and the accompanying materials are made available under the 
  * terms of the MIT License which accompanies this distribution, and is 
  * available at http://creativecommons.org/licenses/MIT/
- *
- * Contributors:
- *   Stephan D. Cote 
- *      - Initial concept and implementation
  */
 package coyote.dx.task;
 
@@ -51,77 +47,77 @@ public class Retrieve extends AbstractFileTransferTask implements TransformTask 
    * @see coyote.dx.task.AbstractTransformTask#open(coyote.dx.context.TransformContext)
    */
   @Override
-  public void open( TransformContext context ) {
-    super.open( context );
+  public void open(TransformContext context) {
+    super.open(context);
 
     // Setup the remote site
-    String source = getString( ConfigTag.SOURCE );
+    String source = getString(ConfigTag.SOURCE);
     try {
       // The source configuration must be a URI
-      URI sourceUri = new URI( source );
+      URI sourceUri = new URI(source);
 
-      site = configureSite( sourceUri );
-      if ( site != null ) {
-        Log.debug( LogMsg.createMsg( CFT.MSG, "Retrieve.using_site", site.toString() ) );
+      site = configureSite(sourceUri);
+      if (site != null) {
+        Log.debug(LogMsg.createMsg(CFT.MSG, "Retrieve.using_site", site.toString()));
       } else {
-        throw new ConfigurationException( "Could not determine site from source URI of '" + source + "'" );
+        throw new ConfigurationException("Could not determine site from source URI of '" + source + "'");
       }
       remoteFile = sourceUri.getPath();
-      Log.debug( LogMsg.createMsg( CFT.MSG, "Retrieve.using_remote_file", remoteFile ) );
+      Log.debug(LogMsg.createMsg(CFT.MSG, "Retrieve.using_remote_file", remoteFile));
 
-      remoteFileAttributes = site.getAttributes( remoteFile );
+      remoteFileAttributes = site.getAttributes(remoteFile);
 
       // If the connection failed, an exception would have been thrown, if the
       // attributes are null, the remote file does not exist.
-      if ( remoteFileAttributes != null ) {
+      if (remoteFileAttributes != null) {
 
-        if ( remoteFileAttributes.isDirectory() ) {
+        if (remoteFileAttributes.isDirectory()) {
 
           // look for pattern
-          pattern = getString( ConfigTag.PATTERN );
+          pattern = getString(ConfigTag.PATTERN);
 
           // look for recurse
-          recurse = getBoolean( ConfigTag.RECURSE );
+          recurse = getBoolean(ConfigTag.RECURSE);
 
           // determine if we should preserve hierarchy or flatten to one directory
-          preserve = getBoolean( ConfigTag.PRESERVE );
+          preserve = getBoolean(ConfigTag.PRESERVE);
 
           // determine if we should delete the file after it has been retrieved
-          delete = getBoolean( ConfigTag.DELETE );
+          delete = getBoolean(ConfigTag.DELETE);
 
         } // if is directory
 
       } else {
 
         String msg = "The remote file '" + remoteFile + "' does not exist";
-        System.out.println( msg );
+        System.out.println(msg);
 
-        if ( haltOnError() ) {
-          context.setError( msg );
-          if ( site != null ) {
+        if (haltOnError()) {
+          context.setError(msg);
+          if (site != null) {
             site.close();
           }
           return;
         }
       }
 
-    } catch ( URISyntaxException | ConfigurationException e ) {
-      String msg = String.format( "Retrieve task source initialization failed: %s - %s", e.getClass().getName(), e.getMessage() );
-      Log.error( msg );
-      if ( haltOnError() ) {
-        context.setError( msg );
-        if ( site != null ) {
+    } catch (URISyntaxException | ConfigurationException e) {
+      String msg = String.format("Retrieve task source initialization failed: %s - %s", e.getClass().getName(), e.getMessage());
+      Log.error(msg);
+      if (haltOnError()) {
+        context.setError(msg);
+        if (site != null) {
           site.close();
         }
         return;
       }
-    } catch ( FileTransferException e ) {
+    } catch (FileTransferException e) {
       String msg = "The connection to the remote site '" + remoteFile + "' failed - " + e.getMessage();
-      System.out.println( msg );
+      System.out.println(msg);
 
-      if ( haltOnError() ) {
-        context.setError( msg );
-        if ( site != null ) {
+      if (haltOnError()) {
+        context.setError(msg);
+        if (site != null) {
           site.close();
         }
         return;
@@ -130,14 +126,14 @@ public class Retrieve extends AbstractFileTransferTask implements TransformTask 
 
     // Now determine the target which is supposed to be a local file
     try {
-      localFile = getLocalFile( getString( ConfigTag.TARGET ) );
-      Log.debug( LogMsg.createMsg( CFT.MSG, "Retrieve.using_local_file", localFile ) );
-    } catch ( Exception e ) {
-      String msg = String.format( "Retrieve task target initialization failed: %s - %s", e.getClass().getName(), e.getMessage() );
-      Log.error( msg );
-      if ( haltOnError() ) {
-        context.setError( msg );
-        if ( site != null ) {
+      localFile = getLocalFile(getString(ConfigTag.TARGET));
+      Log.debug(LogMsg.createMsg(CFT.MSG, "Retrieve.using_local_file", localFile));
+    } catch (Exception e) {
+      String msg = String.format("Retrieve task target initialization failed: %s - %s", e.getClass().getName(), e.getMessage());
+      Log.error(msg);
+      if (haltOnError()) {
+        context.setError(msg);
+        if (site != null) {
           site.close();
         }
         return;
@@ -157,43 +153,43 @@ public class Retrieve extends AbstractFileTransferTask implements TransformTask 
 
     try {
 
-      if ( remoteFileAttributes.isDirectory() ) {
+      if (remoteFileAttributes.isDirectory()) {
 
-        if ( !site.retrieveDirectory( remoteFile, localFile, pattern, recurse, preserve, delete ) ) {
-          String msg = String.format( "Retrieve task failed to retrieve all files from %s from %s to %s", remoteFile, site.getHost(), localFile );
-          Log.error( msg );
-          if ( haltOnError() ) {
-            context.setError( msg );
-            if ( site != null ) {
+        if (!site.retrieveDirectory(remoteFile, localFile, pattern, recurse, preserve, delete)) {
+          String msg = String.format("Retrieve task failed to retrieve all files from %s from %s to %s", remoteFile, site.getHost(), localFile);
+          Log.error(msg);
+          if (haltOnError()) {
+            context.setError(msg);
+            if (site != null) {
               site.close();
             }
             return;
           }
         } else {
-          Log.debug( LogMsg.createMsg( CFT.MSG, "Retrieve.retrieved_directory", remoteFile, site.getHost(), localFile ) );
+          Log.debug(LogMsg.createMsg(CFT.MSG, "Retrieve.retrieved_directory", remoteFile, site.getHost(), localFile));
         }
 
       } else {
 
         // perform the retrieval of the remote file
-        if ( !site.retrieveFile( remoteFile, localFile ) ) {
-          String msg = String.format( "Retrieve task failed to retrieve %s from %s to %s", remoteFile, site.getHost(), localFile );
-          Log.error( msg );
-          if ( haltOnError() ) {
-            context.setError( msg );
-            if ( site != null ) {
+        if (!site.retrieveFile(remoteFile, localFile)) {
+          String msg = String.format("Retrieve task failed to retrieve %s from %s to %s", remoteFile, site.getHost(), localFile);
+          Log.error(msg);
+          if (haltOnError()) {
+            context.setError(msg);
+            if (site != null) {
               site.close();
             }
             return;
           }
         } else {
-          Log.debug( LogMsg.createMsg( CFT.MSG, "Retrieve.retrieved_file", remoteFile, site.getHost(), localFile ) );
+          Log.debug(LogMsg.createMsg(CFT.MSG, "Retrieve.retrieved_file", remoteFile, site.getHost(), localFile));
         }
 
       }
     }
     finally {
-      if ( site != null ) {
+      if (site != null) {
         site.close();
       }
     }

@@ -4,10 +4,6 @@
  * This program and the accompanying materials are made available under the 
  * terms of the MIT License which accompanies this distribution, and is 
  * available at http://creativecommons.org/licenses/MIT/
- *
- * Contributors:
- *   Stephan D. Cote 
- *      - Initial concept and implementation
  */
 package coyote.dx.ftp;
 
@@ -26,11 +22,11 @@ public class WildcardFileFilter implements FileFilter {
 
 
 
-  static int checkIndexOf( final String str, final int strStartIndex, final String search ) {
+  static int checkIndexOf(final String str, final int strStartIndex, final String search) {
     final int endIndex = str.length() - search.length();
-    if ( endIndex >= strStartIndex ) {
-      for ( int i = strStartIndex; i <= endIndex; i++ ) {
-        if ( checkRegionMatches( str, i, search ) ) {
+    if (endIndex >= strStartIndex) {
+      for (int i = strStartIndex; i <= endIndex; i++) {
+        if (checkRegionMatches(str, i, search)) {
           return i;
         }
       }
@@ -41,44 +37,44 @@ public class WildcardFileFilter implements FileFilter {
 
 
 
-  static boolean checkRegionMatches( final String str, final int strStartIndex, final String search ) {
-    return str.regionMatches( IGNORECASE, strStartIndex, search, 0, search.length() );
+  static boolean checkRegionMatches(final String str, final int strStartIndex, final String search) {
+    return str.regionMatches(IGNORECASE, strStartIndex, search, 0, search.length());
   }
 
 
 
 
-  static String[] splitOnTokens( final String text ) {
+  static String[] splitOnTokens(final String text) {
 
-    if ( ( text.indexOf( '?' ) == NOT_FOUND ) && ( text.indexOf( '*' ) == NOT_FOUND ) ) {
-      return new String[] { text };
+    if ((text.indexOf('?') == NOT_FOUND) && (text.indexOf('*') == NOT_FOUND)) {
+      return new String[]{text};
     }
 
     final char[] array = text.toCharArray();
     final ArrayList<String> list = new ArrayList<String>();
     final StringBuilder buffer = new StringBuilder();
     char prevChar = 0;
-    for ( final char ch : array ) {
-      if ( ( ch == '?' ) || ( ch == '*' ) ) {
-        if ( buffer.length() != 0 ) {
-          list.add( buffer.toString() );
-          buffer.setLength( 0 );
+    for (final char ch : array) {
+      if ((ch == '?') || (ch == '*')) {
+        if (buffer.length() != 0) {
+          list.add(buffer.toString());
+          buffer.setLength(0);
         }
-        if ( ch == '?' ) {
-          list.add( "?" );
-        } else if ( prevChar != '*' ) {
-          list.add( "*" );
+        if (ch == '?') {
+          list.add("?");
+        } else if (prevChar != '*') {
+          list.add("*");
         }
       } else {
-        buffer.append( ch );
+        buffer.append(ch);
       }
       prevChar = ch;
     }
-    if ( buffer.length() != 0 ) {
-      list.add( buffer.toString() );
+    if (buffer.length() != 0) {
+      list.add(buffer.toString());
     }
 
-    return list.toArray( new String[list.size()] );
+    return list.toArray(new String[list.size()]);
   }
 
 
@@ -95,15 +91,15 @@ public class WildcardFileFilter implements FileFilter {
   * 
   * @return true if the filename matches the wildcard string
   */
-  public static boolean wildcardMatch( final String filename, final String wildcardMatcher ) {
-    if ( ( filename == null ) && ( wildcardMatcher == null ) ) {
+  public static boolean wildcardMatch(final String filename, final String wildcardMatcher) {
+    if ((filename == null) && (wildcardMatcher == null)) {
       return true;
     }
-    if ( ( filename == null ) || ( wildcardMatcher == null ) ) {
+    if ((filename == null) || (wildcardMatcher == null)) {
       return false;
     }
 
-    final String[] wcs = splitOnTokens( wildcardMatcher );
+    final String[] wcs = splitOnTokens(wildcardMatcher);
     boolean anyChars = false;
     int textIdx = 0;
     int wcsIdx = 0;
@@ -111,7 +107,7 @@ public class WildcardFileFilter implements FileFilter {
 
     // loop around a backtrack stack, to handle complex * matching
     do {
-      if ( backtrack.size() > 0 ) {
+      if (backtrack.size() > 0) {
         final int[] array = backtrack.pop();
         wcsIdx = array[0];
         textIdx = array[1];
@@ -119,39 +115,39 @@ public class WildcardFileFilter implements FileFilter {
       }
 
       // loop whilst tokens and text left to process
-      while ( wcsIdx < wcs.length ) {
+      while (wcsIdx < wcs.length) {
 
-        if ( wcs[wcsIdx].equals( "?" ) ) {
+        if (wcs[wcsIdx].equals("?")) {
           // ? so move to next text char
           textIdx++;
-          if ( textIdx > filename.length() ) {
+          if (textIdx > filename.length()) {
             break;
           }
           anyChars = false;
 
-        } else if ( wcs[wcsIdx].equals( "*" ) ) {
+        } else if (wcs[wcsIdx].equals("*")) {
           // set any chars status
           anyChars = true;
-          if ( wcsIdx == ( wcs.length - 1 ) ) {
+          if (wcsIdx == (wcs.length - 1)) {
             textIdx = filename.length();
           }
 
         } else {
           // matching text token
-          if ( anyChars ) {
+          if (anyChars) {
             // any chars then try to locate text token
-            textIdx = checkIndexOf( filename, textIdx, wcs[wcsIdx] );
-            if ( textIdx == NOT_FOUND ) {
+            textIdx = checkIndexOf(filename, textIdx, wcs[wcsIdx]);
+            if (textIdx == NOT_FOUND) {
               // token not found
               break;
             }
-            final int repeat = checkIndexOf( filename, textIdx + 1, wcs[wcsIdx] );
-            if ( repeat >= 0 ) {
-              backtrack.push( new int[] { wcsIdx, repeat } );
+            final int repeat = checkIndexOf(filename, textIdx + 1, wcs[wcsIdx]);
+            if (repeat >= 0) {
+              backtrack.push(new int[]{wcsIdx, repeat});
             }
           } else {
             // matching from current position
-            if ( !checkRegionMatches( filename, textIdx, wcs[wcsIdx] ) ) {
+            if (!checkRegionMatches(filename, textIdx, wcs[wcsIdx])) {
               break; // didn't match
             }
           }
@@ -165,12 +161,12 @@ public class WildcardFileFilter implements FileFilter {
       }
 
       // full match
-      if ( ( wcsIdx == wcs.length ) && ( textIdx == filename.length() ) ) {
+      if ((wcsIdx == wcs.length) && (textIdx == filename.length())) {
         return true;
       }
 
     }
-    while ( backtrack.size() > 0 );
+    while (backtrack.size() > 0);
 
     return false;
   }
@@ -184,8 +180,8 @@ public class WildcardFileFilter implements FileFilter {
    * @see coyote.dx.ftp.FileFilter#accept(coyote.dx.ftp.RemoteFile)
    */
   @Override
-  public boolean accept( final RemoteFile file ) {
-    return wildcardMatch( file.getName(), getPattern() );
+  public boolean accept(final RemoteFile file) {
+    return wildcardMatch(file.getName(), getPattern());
   }
 
 
@@ -204,7 +200,7 @@ public class WildcardFileFilter implements FileFilter {
   /**
    * @param pattern the pattern to be used in matching file names
    */
-  public void setPattern( final String pattern ) {
+  public void setPattern(final String pattern) {
     this.pattern = pattern;
   }
 }

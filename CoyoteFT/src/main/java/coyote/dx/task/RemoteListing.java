@@ -4,10 +4,6 @@
  * This program and the accompanying materials are made available under the 
  * terms of the MIT License which accompanies this distribution, and is 
  * available at http://creativecommons.org/licenses/MIT/
- *
- * Contributors:
- *   Stephan D. Cote 
- *      - Initial concept and implementation
  */
 package coyote.dx.task;
 
@@ -51,29 +47,29 @@ public class RemoteListing extends AbstractFileTransferTask {
    * @see coyote.dx.task.AbstractTransformTask#open(coyote.dx.context.TransformContext)
    */
   @Override
-  public void open( TransformContext context ) {
-    super.open( context );
+  public void open(TransformContext context) {
+    super.open(context);
 
     // Setup the remote site
-    String source = getString( ConfigTag.SOURCE );
+    String source = getString(ConfigTag.SOURCE);
     try {
-      URI sourceUri = new URI( source );
+      URI sourceUri = new URI(source);
 
-      site = configureSite( sourceUri );
-      if ( site != null ) {
-        Log.debug( LogMsg.createMsg( CFT.MSG, "Using Site: {}", site.toString() ) );
+      site = configureSite(sourceUri);
+      if (site != null) {
+        Log.debug(LogMsg.createMsg(CFT.MSG, "Using Site: {}", site.toString()));
       } else {
-        throw new ConfigurationException( "Could not determine site from source URI of '" + source + "'" );
+        throw new ConfigurationException("Could not determine site from source URI of '" + source + "'");
       }
       remoteFile = sourceUri.getPath();
-      Log.debug( LogMsg.createMsg( CFT.MSG, "Using remote file: {}", remoteFile ) );
+      Log.debug(LogMsg.createMsg(CFT.MSG, "Using remote file: {}", remoteFile));
 
-    } catch ( URISyntaxException | ConfigurationException e ) {
-      String msg = String.format( "ListSite task source initialization failed: %s - %s", e.getClass().getName(), e.getMessage() );
-      Log.error( msg );
-      if ( haltOnError() ) {
-        context.setError( msg );
-        if ( site != null ) {
+    } catch (URISyntaxException | ConfigurationException e) {
+      String msg = String.format("ListSite task source initialization failed: %s - %s", e.getClass().getName(), e.getMessage());
+      Log.error(msg);
+      if (haltOnError()) {
+        context.setError(msg);
+        if (site != null) {
           site.close();
         }
         return;
@@ -81,8 +77,8 @@ public class RemoteListing extends AbstractFileTransferTask {
     }
 
     // Check for the recurse flag
-    if ( contains( ConfigTag.RECURSE ) ) {
-      recurse = getBoolean( ConfigTag.RECURSE );
+    if (contains(ConfigTag.RECURSE)) {
+      recurse = getBoolean(ConfigTag.RECURSE);
     }
 
   }
@@ -98,18 +94,18 @@ public class RemoteListing extends AbstractFileTransferTask {
 
     try {
       // perform the retrieval
-      listSite( remoteFile );
-    } catch ( FileTransferException e ) {
+      listSite(remoteFile);
+    } catch (FileTransferException e) {
       e.printStackTrace();
-      String msg = String.format( "ListSite task failed to list %s from %s - %s: %s", remoteFile, site.getHost(), e.getClass().getSimpleName(), e.getMessage() );
-      Log.error( msg );
-      if ( haltOnError() ) {
-        context.setError( msg );
+      String msg = String.format("ListSite task failed to list %s from %s - %s: %s", remoteFile, site.getHost(), e.getClass().getSimpleName(), e.getMessage());
+      Log.error(msg);
+      if (haltOnError()) {
+        context.setError(msg);
         return;
       }
     }
     finally {
-      if ( site != null ) {
+      if (site != null) {
         site.close();
       }
     }
@@ -119,12 +115,12 @@ public class RemoteListing extends AbstractFileTransferTask {
 
 
 
-  private void listSite( String directory ) throws FileTransferException {
-    List<RemoteFile> listing = site.listFiles( directory );
-    for ( RemoteFile file : listing ) {
-      Log.info( file.toString() );
-      if ( file.isDirectory() && recurse ) {
-        listSite( file.getName() );
+  private void listSite(String directory) throws FileTransferException {
+    List<RemoteFile> listing = site.listFiles(directory);
+    for (RemoteFile file : listing) {
+      Log.info(file.toString());
+      if (file.isDirectory() && recurse) {
+        listSite(file.getName());
       }
     }
 
