@@ -6,7 +6,7 @@
 
 		"Reader": {
 			"class": "RabbitReader",
-            "target": "amqp://runrabbitrun/myexchange",
+            "source": "amqp://runrabbitrun/myexchange",
             "username": "jdoe",
             "password": "Ik2mYsjBm",
 			"use_ssl": true,
