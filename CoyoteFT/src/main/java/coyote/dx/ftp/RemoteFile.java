@@ -18,9 +18,9 @@ public class RemoteFile implements Comparable<RemoteFile> {
    * @param filename this is the absolute filename
    * @param attrs
    */
-  RemoteFile( final String filename, final FileAttributes attrs ) {
-    setName( filename );
-    setAttrs( attrs );
+  protected RemoteFile(final String filename, final FileAttributes attrs) {
+    setName(filename);
+    setAttrs(attrs);
   }
 
 
@@ -34,13 +34,13 @@ public class RemoteFile implements Comparable<RemoteFile> {
    *          is empty
    */
   public String getName() {
-    if ( filename != null ) {
-      int index = filename.lastIndexOf( separatorChar );
+    if (filename != null) {
+      int index = filename.lastIndexOf(separatorChar);
 
-      if ( index >= 0 ) {
-        return filename.substring( index + 1 );
+      if (index >= 0) {
+        return filename.substring(index + 1);
       } else {
-        if ( filename == null ) {
+        if (filename == null) {
           return "";
         } else {
           return filename;
@@ -63,10 +63,10 @@ public class RemoteFile implements Comparable<RemoteFile> {
    *          does not name a parent
    */
   public String getParent() {
-    int index = filename.lastIndexOf( separatorChar );
+    int index = filename.lastIndexOf(separatorChar);
 
-    if ( index > 0 ) {
-      return filename.substring( 0, index );
+    if (index > 0) {
+      return filename.substring(0, index);
     } else {
       return null;
     }
@@ -86,7 +86,7 @@ public class RemoteFile implements Comparable<RemoteFile> {
 
 
 
-  void setName( final String filename ) {
+  protected void setName(final String filename) {
     this.filename = filename;
   }
 
@@ -100,7 +100,7 @@ public class RemoteFile implements Comparable<RemoteFile> {
 
 
 
-  void setAttrs( final FileAttributes attrs ) {
+  protected void setAttrs(final FileAttributes attrs) {
     this.attrs = attrs;
   }
 
@@ -145,10 +145,10 @@ public class RemoteFile implements Comparable<RemoteFile> {
   @Override
   public String toString() {
     StringBuffer b = new StringBuffer();
-    b.append( filename );
-    if ( attrs != null ) {
-      b.append( " " );
-      b.append( attrs.toString() );
+    b.append(filename);
+    if (attrs != null) {
+      b.append(" ");
+      b.append(attrs.toString());
     }
     return b.toString();
   }
@@ -171,7 +171,7 @@ public class RemoteFile implements Comparable<RemoteFile> {
 
 
   public boolean isAbsolute() {
-    return filename.charAt( 0 ) == separatorChar;
+    return filename.charAt(0) == separatorChar;
   }
 
 
@@ -185,8 +185,8 @@ public class RemoteFile implements Comparable<RemoteFile> {
 
 
   @Override
-  public int compareTo( final RemoteFile o ) throws ClassCastException {
-    return filename.compareTo( o.getName() );
+  public int compareTo(final RemoteFile o) throws ClassCastException {
+    return filename.compareTo(o.getName());
   }
 
 }

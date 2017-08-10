@@ -18,11 +18,12 @@ public class WildcardFileFilter implements FileFilter {
 
   private static final int NOT_FOUND = -1;
   private static final boolean IGNORECASE = true;
+  private String pattern = "*";
 
 
 
 
-  static int checkIndexOf(final String str, final int strStartIndex, final String search) {
+  protected static int checkIndexOf(final String str, final int strStartIndex, final String search) {
     final int endIndex = str.length() - search.length();
     if (endIndex >= strStartIndex) {
       for (int i = strStartIndex; i <= endIndex; i++) {
@@ -37,14 +38,14 @@ public class WildcardFileFilter implements FileFilter {
 
 
 
-  static boolean checkRegionMatches(final String str, final int strStartIndex, final String search) {
+  protected static boolean checkRegionMatches(final String str, final int strStartIndex, final String search) {
     return str.regionMatches(IGNORECASE, strStartIndex, search, 0, search.length());
   }
 
 
 
 
-  static String[] splitOnTokens(final String text) {
+  protected static String[] splitOnTokens(final String text) {
 
     if ((text.indexOf('?') == NOT_FOUND) && (text.indexOf('*') == NOT_FOUND)) {
       return new String[]{text};
@@ -170,8 +171,6 @@ public class WildcardFileFilter implements FileFilter {
 
     return false;
   }
-
-  private String pattern = "*";
 
 
 
