@@ -19,7 +19,7 @@ import coyote.loader.log.Log;
  */
 public class CommandLineProcess {
 
-  static Object mutex = new Object();
+  private static Object mutex = new Object();
 
 
 
@@ -27,7 +27,9 @@ public class CommandLineProcess {
   /**
    * Private constructor for a singleton fixture.
    */
-  private CommandLineProcess() {}
+  private CommandLineProcess() {
+    super();
+  }
 
 
 
@@ -104,7 +106,6 @@ public class CommandLineProcess {
         Log.debug(b);
       }
     }
-    finally {}
 
     if (process != null) {
       process.destroy();

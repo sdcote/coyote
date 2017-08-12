@@ -36,7 +36,7 @@ public class CommandLineProcessTest {
     Result result = CommandLineProcess.exec("arp -a ");
 
     String[] array = result.getOutput();
-    
+
     for (int i = 0; i < array.length; i++) {
       String line = array[i];
       System.out.println(line);
@@ -47,82 +47,4 @@ public class CommandLineProcessTest {
     }
   }
 
-
-
-
-  /**
-   * Find a (positive) integer in the given string between two tags.
-   *
-   * @param string the string to search
-   * @param startTag the start tag
-   * @param endTag the end tag
-   *
-   * @return the integer value found in the string or -1 if not found
-   */
-  public static int findInteger(String string, String startTag, String endTag) {
-    long l = findLong(string, startTag, endTag);
-
-    if (l <= Integer.MAX_VALUE) {
-      return (int)l;
-    } else {
-      return -1;
-    }
-  }
-
-
-
-
-  /**
-   * Find a (positive) long number in the given string between two tags.
-   *
-   * @param string the string to search
-   * @param startTag the start tag
-   * @param endTag the end tag
-   *
-   * @return the long value found in the string or -1 if not found
-   */
-  public static long findLong(String string, String startTag, String endTag) {
-    int indx = string.indexOf(startTag);
-    long retval = -1L;
-
-    if (indx < 0) {
-      return retval;
-    }
-
-    for (indx += startTag.length(); indx < string.length(); indx++) {
-      if (Character.isDigit(string.charAt(indx))) {
-        break;
-      }
-    }
-
-    if (indx == string.length()) {
-      return -1L;
-    }
-
-    for (; indx < string.length(); indx++) {
-      char ch = string.charAt(indx);
-
-      if (!Character.isDigit(ch)) {
-        break;
-      }
-
-      if (retval > 0L) {
-        retval *= 10L;
-      } else {
-        retval = 0L;
-      }
-
-      retval += Character.digit(ch, 10);
-    }
-
-    if ((endTag != null) && (indx < string.length())) {
-      int j = string.indexOf(endTag, indx);
-
-      if (j < 0) {
-        retval = -1L;
-      }
-    }
-
-    return retval;
-  }
 }
