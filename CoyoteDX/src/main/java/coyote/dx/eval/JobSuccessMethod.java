@@ -26,7 +26,7 @@ public class JobSuccessMethod extends AbstractBooleanMethod {
    * disposition map in that context map, the Error State flag is checked. If 
    * it is there and false then true is returned.
    * 
-   * <p>Not that if there is no job disposition found for the named job, this 
+   * <p>Note that if there is no job disposition found for the named job, this 
    * will return false which may not indicate the job failed. It may indicate 
    * that job does not exist. 
    * 
