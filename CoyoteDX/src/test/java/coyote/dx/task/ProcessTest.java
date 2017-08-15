@@ -166,6 +166,7 @@ public class ProcessTest {
 
 
 
+
   @Test
   public void badParameter() throws IOException, ConfigurationException, TaskException {
     final TransformContext context = new TransformContext();
@@ -220,13 +221,16 @@ public class ProcessTest {
 
 
   @Test
-  public void noCommand() throws IOException, ConfigurationException, TaskException {
+  public void noCommand() {
     final TransformContext context = new TransformContext();
     final Config cfg = new Config();
+    cfg.put(ConfigTag.HALT_ON_ERROR, true);
     try (Process task = new Process()) {
       task.setConfiguration(cfg);
       task.open(context);
       task.execute();
+    } catch (Exception e) {
+      fail("Should not have thrown an exception for no command");
     }
   }
 
