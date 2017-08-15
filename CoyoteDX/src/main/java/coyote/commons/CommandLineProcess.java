@@ -62,9 +62,9 @@ public class CommandLineProcess {
     String[] errArray = new String[0];
 
     Process process = null;
-    long startTime=-1;
-    int exitValue=-1;
-    long duration=-1;
+    long startTime = -1;
+    int exitValue = -1;
+    long duration = -1;
     try {
       startTime = System.currentTimeMillis();
 
@@ -183,10 +183,24 @@ public class CommandLineProcess {
      * Default constructor.
      */
     public ErrorReader() {
-      printing = true;
-      collecting = false;
+      this(true, true, 500);
+    }
+
+
+
+
+    /**
+     * Constructor specifying operation.
+     * 
+     * @param print print the errors as they are received
+     * @param collect collect the errors for later retrieval
+     * @param max the maximum number of errors to collect.
+     */
+    public ErrorReader(boolean print, boolean collect, int max) {
+      printing = print;
+      collecting = collect;
       collected = new String[0];
-      collectedMax = 500;
+      collectedMax = max;
     }
 
 
