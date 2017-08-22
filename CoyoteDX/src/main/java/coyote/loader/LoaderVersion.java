@@ -12,7 +12,6 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
-import coyote.commons.Version;
 import coyote.dx.CDX;
 
 
@@ -21,7 +20,7 @@ import coyote.dx.CDX;
  * components being loaded.
  */
 public class LoaderVersion {
-  Map<String, String> modules = new HashMap<String, String>();
+  private Map<String, String> modules = new HashMap<String, String>();
 
 
 
