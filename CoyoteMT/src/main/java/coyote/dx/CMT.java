@@ -4,10 +4,6 @@
  * This program and the accompanying materials are made available under the 
  * terms of the MIT License which accompanies this distribution, and is 
  * available at http://creativecommons.org/licenses/MIT/
- *
- * Contributors:
- *   Stephan D. Cote 
- *      - Initial concept and implementation
  */
 package coyote.dx;
 
@@ -30,7 +26,7 @@ import coyote.loader.log.LogMsg.BundleBaseName;
  * multiple classes in the project. 
  */
 public class CMT {
-  public static final Version VERSION = new Version( 0, 1, 1, Version.EXPERIMENTAL );
+  public static final Version VERSION = new Version(0, 1, 1, Version.EXPERIMENTAL);
   public static final String NAME = "CMT";
 
   public static final String SENDER = "sender";
@@ -44,7 +40,7 @@ public class CMT {
   public static final BundleBaseName MSG;
 
   static {
-    MSG = new BundleBaseName( "CMTMsg" );
+    MSG = new BundleBaseName("CMTMsg");
   }
 
 
@@ -57,28 +53,40 @@ public class CMT {
    * 
    * @return an instance of the named protocol to be used in sending email.
    */
-  public static MailProtocol loadProtocol( String protocol ) {
+  public static MailProtocol loadProtocol(String protocol) {
     String protocolClass = protocol;
 
-    if ( protocolClass != null && StringUtil.countOccurrencesOf( protocolClass, "." ) < 1 ) {
+    if (protocolClass != null && StringUtil.countOccurrencesOf(protocolClass, ".") < 1) {
       protocolClass = MAIL_PROTOCOL_PKG + "." + protocolClass;
     }
 
     MailProtocol mailProtocol = null;
     try {
-      Class<?> clazz = Class.forName( protocolClass );
+      Class<?> clazz = Class.forName(protocolClass);
       Constructor<?> ctor = clazz.getConstructor();
       Object object = ctor.newInstance();
-      if ( object instanceof MailProtocol ) {
+      if (object instanceof MailProtocol) {
         mailProtocol = (MailProtocol)object;
       } else {
-        Log.error( LogMsg.createMsg( CMT.MSG, "MT.instance_not_protocol", protocolClass ) );
+        Log.error(LogMsg.createMsg(CMT.MSG, "MT.instance_not_protocol", protocolClass));
       }
-    } catch ( ClassNotFoundException | NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e ) {
-      Log.error( LogMsg.createMsg( CMT.MSG, "MT.protocol_instantiation_error", protocolClass, e.getClass().getName(), e.getMessage() ) );
+    } catch (ClassNotFoundException | NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+      Log.error(LogMsg.createMsg(CMT.MSG, "MT.protocol_instantiation_error", protocolClass, e.getClass().getName(), e.getMessage()));
     }
 
     return mailProtocol;
+  }
+
+
+
+
+  /**
+   * Called by other classes to get our version number.
+   * 
+   * @return a string represing our version.
+   */
+  public String getVersion() {
+    return VERSION.toString();
   }
 
 }

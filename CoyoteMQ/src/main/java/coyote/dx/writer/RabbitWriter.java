@@ -27,6 +27,7 @@ import coyote.commons.StringUtil;
 import coyote.dataframe.DataFrame;
 import coyote.dataframe.marshal.JSONMarshaler;
 import coyote.dataframe.marshal.XMLMarshaler;
+import coyote.dx.CMQ;
 import coyote.dx.ConfigTag;
 import coyote.dx.ConfigurableComponent;
 import coyote.dx.FrameWriter;
@@ -34,7 +35,6 @@ import coyote.dx.context.TransformContext;
 import coyote.loader.Loader;
 import coyote.loader.log.Log;
 import coyote.loader.log.LogMsg;
-import coyote.mq.CMQ;
 
 
 /**

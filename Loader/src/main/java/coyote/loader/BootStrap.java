@@ -43,6 +43,8 @@ public class BootStrap extends AbstractLoader {
 
   protected static final String DEBUG_ARG = "-d";
   protected static final String INFO_ARG = "-v";
+  private static final String VERSION_ARG = "-version";
+  private static final String HELP_ARG = "-help";
 
   private static final String JSON_EXT = ".json";
 
@@ -124,12 +126,23 @@ public class BootStrap extends AbstractLoader {
         cfgLoc = args[0];
       }
     }
+
+    boolean abort = false;
     for (int x = 0; x < args.length; x++) {
       if (DEBUG_ARG.equalsIgnoreCase(args[x])) {
         Log.startLogging(Log.DEBUG);
       } else if (INFO_ARG.equalsIgnoreCase(args[x])) {
         Log.startLogging(Log.INFO);
+      } else if (VERSION_ARG.equalsIgnoreCase(args[x])) {
+        showVersion();
+        abort = true;
+      } else if (HELP_ARG.equalsIgnoreCase(args[x])) {
+        showHelp();
+        abort = true;
       }
+    }
+    if (abort) {
+      System.exit(0);
     }
 
     // Make sure we have a configuration 
@@ -138,6 +151,50 @@ public class BootStrap extends AbstractLoader {
       System.exit(8);
     }
 
+  }
+
+
+
+
+  /**
+   * 
+   */
+  private static void showHelp() {
+    try {
+      Class<?> clazz = Class.forName("coyote.loader.LoaderHelp");
+      Constructor<?> ctor = clazz.getConstructor();
+      Object obj = ctor.newInstance();
+      System.out.println(obj.toString());
+    } catch (Exception e) {
+      // expected when the class is not present
+      System.out.println("No help available.");
+    }
+  }
+
+
+
+
+  /**
+   * Prints the version of this loader and any other versions found.
+   * 
+   * <p>This method tries to load a "LoaderVersion" class which components can 
+   * contribute to the classpath to get their versions reported as well.
+   */
+  private static void showVersion() {
+    StringBuffer b = new StringBuffer();
+    b.append("Loader ");
+    b.append(Loader.API_VERSION.toString());
+
+    try {
+      Class<?> clazz = Class.forName("coyote.loader.LoaderVersion");
+      Constructor<?> ctor = clazz.getConstructor();
+      Object obj = ctor.newInstance();
+      b.append("\n");
+      b.append(obj.toString());
+    } catch (Exception e) {
+      // expected when the class is not present
+    }
+    System.out.println(b.toString());
   }
 
 

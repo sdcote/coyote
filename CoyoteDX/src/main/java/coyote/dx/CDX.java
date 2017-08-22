@@ -125,4 +125,16 @@ public class CDX {
     return retval;
   }
 
+
+
+
+  /**
+   * Called by other classes to get our version number.
+   * 
+   * @return a string represing our version.
+   */
+  public String getVersion() {
+    return VERSION.toString();
+  }
+
 }
