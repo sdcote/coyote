@@ -122,8 +122,6 @@ public class BootStrap extends AbstractLoader {
       if (ENCRYPT.equalsIgnoreCase(args[0])) {
         encrypt(args);
         System.exit(0);
-      } else {
-        cfgLoc = args[0];
       }
     }
 
@@ -139,6 +137,11 @@ public class BootStrap extends AbstractLoader {
       } else if (HELP_ARG.equalsIgnoreCase(args[x])) {
         showHelp();
         abort = true;
+      } else {
+        if (cfgLoc != null) {
+          System.out.println("Warning: using '" + args[0] + "' instead of '" + cfgLoc + "'");
+        }
+        cfgLoc = args[0];
       }
     }
     if (abort) {
