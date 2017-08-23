@@ -116,36 +116,36 @@ public class BootStrap extends AbstractLoader {
 
     // Get the URI to our configuration from either the command line or the system properties
     if (args != null && args.length > 0) {
-
       // if the first argument is "encrypt" perform an encryption operation 
       // using the rest of the command line arguments
       if (ENCRYPT.equalsIgnoreCase(args[0])) {
         encrypt(args);
         System.exit(0);
-      }
-    }
-
-    boolean abort = false;
-    for (int x = 0; x < args.length; x++) {
-      if (DEBUG_ARG.equalsIgnoreCase(args[x])) {
-        Log.startLogging(Log.DEBUG);
-      } else if (INFO_ARG.equalsIgnoreCase(args[x])) {
-        Log.startLogging(Log.INFO);
-      } else if (VERSION_ARG.equalsIgnoreCase(args[x])) {
-        showVersion();
-        abort = true;
-      } else if (HELP_ARG.equalsIgnoreCase(args[x])) {
-        showHelp();
-        abort = true;
       } else {
-        if (cfgLoc != null) {
-          System.out.println("Warning: using '" + args[0] + "' instead of '" + cfgLoc + "'");
+
+        boolean abort = false;
+        for (int x = 0; x < args.length; x++) {
+          if (DEBUG_ARG.equalsIgnoreCase(args[x])) {
+            Log.startLogging(Log.DEBUG);
+          } else if (INFO_ARG.equalsIgnoreCase(args[x])) {
+            Log.startLogging(Log.INFO);
+          } else if (VERSION_ARG.equalsIgnoreCase(args[x])) {
+            showVersion();
+            abort = true;
+          } else if (HELP_ARG.equalsIgnoreCase(args[x])) {
+            showHelp();
+            abort = true;
+          } else {
+            if (cfgLoc != null) {
+              System.out.println("Warning: using '" + args[0] + "' instead of '" + cfgLoc + "'");
+            }
+            cfgLoc = args[0];
+          }
         }
-        cfgLoc = args[0];
+        if (abort) {
+          System.exit(0);
+        }
       }
-    }
-    if (abort) {
-      System.exit(0);
     }
 
     // Make sure we have a configuration 
@@ -170,7 +170,7 @@ public class BootStrap extends AbstractLoader {
       System.out.println(obj.toString());
     } catch (Exception e) {
       // expected when the class is not present
-      System.out.println("No help available.");
+      System.out.println("No help available.\n");
     }
   }
 
@@ -185,7 +185,7 @@ public class BootStrap extends AbstractLoader {
    */
   private static void showVersion() {
     StringBuffer b = new StringBuffer();
-    b.append("Loader ");
+    b.append("Loader   ");
     b.append(Loader.API_VERSION.toString());
 
     try {
