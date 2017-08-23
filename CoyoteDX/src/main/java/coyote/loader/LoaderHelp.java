@@ -23,16 +23,20 @@ public class LoaderHelp {
     StringBuffer b = new StringBuffer();
     b.append("Coyote Data Exchange Toolkit v");
     b.append(CDX.VERSION.toString());
-    b.append("\n\nCall with the name of a data transfer file to execute that data transfer.");
-    b.append("\n    cdx [filename]");
-    b.append("\n\nThe following parameters are supported:");
-    b.append("\n  -d  Enable debugging messages.");
-    b.append("\n  -v  Enable verbose (informational) messages.");
-    b.append("\n  -help  This screen is displayed.");
-    b.append("\n  -version  Displays the version of all modules on the class path.");
-    b.append("\n  encrypt  Encrypt the given string.");
-    b.append("\n           This parameter takes the following positional parameters:");
-    b.append("\n    encrypt \"string to encrypt\" [key] [xtea|blowfish]");
+    b.append("\n\nCall with the name of a data transfer file to execute.");
+    b.append("\n\n    cdx [filename]");
+    b.append("\n\nIf the first parameter is \"encrypt\", the loader will encrypt the given");
+    b.append("\nquoted string using the defaults:");
+    b.append("\n\n    encrypt \"string to encrypt\"");
+    b.append("\n\nYou can specify the key and algorithm using positional parameters:");
+    b.append("\n\n    encrypt \"string to encrypt\" [key] [xtea|blowfish|null]");
+    b.append("\n\nThe following parameters are also supported:");
+    b.append("\n  -d        Enable debugging messages.");
+    b.append("\n  -v        Enable verbose (informational) messages.");
+    b.append("\n  -owd      Override the work directory with the current directory.");
+    b.append("\n  -help     Show this screen.");
+    b.append("\n  -version  Displays the version of all known modules on the class path.");
+    b.append("\n");
     return b.toString();
   }
 
