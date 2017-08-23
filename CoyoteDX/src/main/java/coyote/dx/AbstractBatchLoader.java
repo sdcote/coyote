@@ -28,7 +28,8 @@ public abstract class AbstractBatchLoader extends AbstractLoader {
   /**
    * If there is no specified directory in the HOMDIR system property, just use the current working directory
    */
-  public static final String DEFAULT_HOME = System.getProperty( "user.dir" );
+  public static final String DEFAULT_HOME = System.getProperty("user.dir");
+  private static final String OVERRIDE_WORK_DIR_ARG = "-owd";
 
 
 
@@ -54,86 +55,93 @@ public abstract class AbstractBatchLoader extends AbstractLoader {
    */
   protected void determineHomeDirectory() {
     // If our home directory is not specified as a system property...
-    if ( System.getProperty( Job.APP_HOME ) == null ) {
+    if (System.getProperty(Job.APP_HOME) == null) {
 
       // see of there are command line arguments to use
-      if ( getCommandLineArguments() != null ) {
+      if (getCommandLineArguments() != null) {
         // use the first argument to the bootstrap loader to determine the 
         // location of our configuration file
-        File cfgFile = new File( getCommandLineArguments()[0] );
+        File cfgFile = new File(getCommandLineArguments()[0]);
 
         // If that file exists, then use that files parent directory as our work
         // directory
-        if ( cfgFile.exists() ) {
-          System.setProperty( Job.APP_HOME, cfgFile.getParentFile().getAbsolutePath() );
+        if (cfgFile.exists()) {
+          System.setProperty(Job.APP_HOME, cfgFile.getParentFile().getAbsolutePath());
         } else {
           // we could not determine the path to the configuration file, use the 
           // current working directory
-          System.setProperty( Job.APP_HOME, DEFAULT_HOME );
+          System.setProperty(Job.APP_HOME, DEFAULT_HOME);
         }
       } else {
-        System.setProperty( Job.APP_HOME, DEFAULT_HOME );
+        System.setProperty(Job.APP_HOME, DEFAULT_HOME);
       }
     } else {
 
       // Normalize the "." that sometimes is set in the app.home property
-      if ( System.getProperty( Job.APP_HOME ).trim().equals( "." ) ) {
-        System.setProperty( Job.APP_HOME, DEFAULT_HOME );
-      } else if ( System.getProperty( Job.APP_HOME ).trim().length() == 0 ) {
+      if (System.getProperty(Job.APP_HOME).trim().equals(".")) {
+        System.setProperty(Job.APP_HOME, DEFAULT_HOME);
+      } else if (System.getProperty(Job.APP_HOME).trim().length() == 0) {
         // catch empty home property and just use the home directory
-        System.setProperty( Job.APP_HOME, DEFAULT_HOME );
+        System.setProperty(Job.APP_HOME, DEFAULT_HOME);
       }
     }
 
     // Remove all the relations and extra slashes from the home path
-    System.setProperty( Job.APP_HOME, FileUtil.normalizePath( System.getProperty( Job.APP_HOME ) ) );
-    Log.debug( LogMsg.createMsg( CDX.MSG, "Job.home_dir_set", System.getProperty( Job.APP_HOME ) ) );
+    System.setProperty(Job.APP_HOME, FileUtil.normalizePath(System.getProperty(Job.APP_HOME)));
+    Log.debug(LogMsg.createMsg(CDX.MSG, "Job.home_dir_set", System.getProperty(Job.APP_HOME)));
   }
 
 
 
 
   protected void determineWorkDirectory() {
-
     File result = null;
 
-    // First check for the app.work system property
-    String path = System.getProperties().getProperty( Job.APP_WORK );
+    // if the override work directory command line argument is present, set 
+    // the app.work system property to the current working directory.
+    for (int x = 0; x < commandLineArguments.length; x++) {
+      if (OVERRIDE_WORK_DIR_ARG.equalsIgnoreCase(commandLineArguments[x])) {
+        System.setProperty(Job.APP_WORK, System.getProperty("user.dir"));        
+      }
+    }
 
-    if ( StringUtil.isNotBlank( path ) ) {
-      String workDir = FileUtil.normalizePath( path );
-      File workingDir = new File( workDir );
-      if ( workingDir.exists() ) {
-        if ( workingDir.isDirectory() ) {
-          if ( workingDir.canWrite() ) {
+    // First check for the app.work system property
+    String path = System.getProperties().getProperty(Job.APP_WORK);
+
+    if (StringUtil.isNotBlank(path)) {
+      String workDir = FileUtil.normalizePath(path);
+      File workingDir = new File(workDir);
+      if (workingDir.exists()) {
+        if (workingDir.isDirectory()) {
+          if (workingDir.canWrite()) {
             result = workingDir;
           } else {
-            Log.warn( "The app.work property specified an un-writable (permissions) directory: " + workDir );
+            Log.warn("The app.work property specified an un-writable (permissions) directory: " + workDir);
           }
         } else {
-          Log.warn( "The app.work property does not specify a directory: " + workDir );
+          Log.warn("The app.work property does not specify a directory: " + workDir);
         }
       } else {
         // Try making it
         try {
-          FileUtil.makeDirectory( workingDir );
+          FileUtil.makeDirectory(workingDir);
           result = workingDir;
-        } catch ( IOException e ) {
-          Log.error( "Could not create working directory specified in app.work property: " + workDir + " - " + e.getMessage() );
+        } catch (IOException e) {
+          Log.error("Could not create working directory specified in app.work property: " + workDir + " - " + e.getMessage());
         }
       }
 
     } else {
       // No app.work defined, so try to locate the configuration file used to 
       // create this job
-      Log.debug( LogMsg.createMsg( CDX.MSG, "Job.no_work_dir_set", Job.APP_WORK, System.getProperty( coyote.loader.ConfigTag.CONFIG_URI ) ) );
+      Log.debug(LogMsg.createMsg(CDX.MSG, "Job.no_work_dir_set", Job.APP_WORK, System.getProperty(coyote.loader.ConfigTag.CONFIG_URI)));
 
-      URI cfgUri = UriUtil.parse( System.getProperty( coyote.loader.ConfigTag.CONFIG_URI ) );
-      if ( cfgUri != null && UriUtil.isFile( cfgUri ) ) {
-        File cfgFile = UriUtil.getFile( cfgUri );
-        if ( cfgFile != null ) {
-          File workingDir = new File( cfgFile.getParent() );
-          if ( workingDir.exists() && workingDir.isDirectory() && workingDir.canWrite() ) {
+      URI cfgUri = UriUtil.parse(System.getProperty(coyote.loader.ConfigTag.CONFIG_URI));
+      if (cfgUri != null && UriUtil.isFile(cfgUri)) {
+        File cfgFile = UriUtil.getFile(cfgUri);
+        if (cfgFile != null) {
+          File workingDir = new File(cfgFile.getParent());
+          if (workingDir.exists() && workingDir.isDirectory() && workingDir.canWrite()) {
             result = workingDir;
           }
         }
@@ -141,17 +149,17 @@ public abstract class AbstractBatchLoader extends AbstractLoader {
     }
 
     // If we have a result,
-    if ( result != null ) {
+    if (result != null) {
       // set it as our working directory
-      System.setProperty( Job.APP_WORK, result.getAbsolutePath() );
+      System.setProperty(Job.APP_WORK, result.getAbsolutePath());
     } else {
       // else just use the current working directory
-      System.setProperty( Job.APP_WORK, DEFAULT_HOME );
+      System.setProperty(Job.APP_WORK, DEFAULT_HOME);
     }
 
     // Remove all the relations and extra slashes from the home path
-    System.setProperty( Job.APP_WORK, FileUtil.normalizePath( System.getProperty( Job.APP_WORK ) ) );
-    Log.debug( LogMsg.createMsg( CDX.MSG, "Job.work_dir_set", System.getProperty( Job.APP_WORK ) ) );
+    System.setProperty(Job.APP_WORK, FileUtil.normalizePath(System.getProperty(Job.APP_WORK)));
+    Log.debug(LogMsg.createMsg(CDX.MSG, "Job.work_dir_set", System.getProperty(Job.APP_WORK)));
   }
 
 }
