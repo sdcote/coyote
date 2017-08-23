@@ -136,10 +136,12 @@ public class BootStrap extends AbstractLoader {
             showHelp();
             abort = true;
           } else {
-            if (cfgLoc != null) {
-              System.out.println("Warning: using '" + args[0] + "' instead of '" + cfgLoc + "'");
+            if (!args[x].startsWith("-")) {
+              if (cfgLoc != null) {
+                System.out.println("Warning: using '" + args[x] + "' instead of '" + cfgLoc + "'");
+              }
+              cfgLoc = args[x];
             }
-            cfgLoc = args[0];
           }
         }
         if (abort) {
