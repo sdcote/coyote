@@ -7,12 +7,17 @@
  */
 package coyote.dx;
 
+import java.io.File;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 import coyote.commons.StringUtil;
+import coyote.commons.UriUtil;
 import coyote.commons.Version;
 import coyote.dataframe.DataFrame;
+import coyote.dx.context.TransformContext;
 import coyote.loader.cfg.Config;
 import coyote.loader.cfg.ConfigurationException;
 import coyote.loader.log.Log;
@@ -135,6 +140,58 @@ public class CDX {
    */
   public String getVersion() {
     return VERSION.toString();
+  }
+
+
+
+
+  /**
+   * Take a relative file, and try to resolve it by searching in a number of 
+   * locations.
+   * 
+   * <p>Search for the file in the following locations:<ol>
+   * <li>Users current working directory
+   * <li>Configuration location, if it is a file system directory
+   * <li>Work directory (from system properties)
+   * <li>job directory</ol>
+   * 
+   * @param file the file to resolve
+   * @param context the transform context containing the different file 
+   *        locations for the transform job.
+   * 
+   * @return a file which may or may not have been resolved.
+   */
+  public static File resolveFile(File file, TransformContext context) {
+    File retval;
+    if (file != null && !file.isAbsolute()) {
+      retval = new File(System.getProperty(System.getProperty("user.dir"), file.getPath()));
+      if (!retval.exists()) {
+        String cfgUri = System.getProperty(coyote.loader.ConfigTag.CONFIG_URI);
+        if (StringUtil.isNotBlank(cfgUri)) {
+          try {
+            URI uri = new URI(cfgUri);
+            if (UriUtil.isFile(uri)) {
+              File cfgFile = UriUtil.getFile(uri);
+              if (cfgFile != null) {
+                retval = new File(cfgFile.getParent(), file.getPath());
+              }
+            }
+          } catch (URISyntaxException ignore) {
+            // The configuration may have come from the network
+          }
+        }
+        if (!retval.exists()) {
+          retval = new File(context.getSymbols().getString(Symbols.WORK_DIRECTORY), file.getPath());
+          if (!retval.exists()) {
+            retval = new File(context.getSymbols().getString(Symbols.JOB_DIRECTORY), file.getPath());
+          }
+        }
+      }
+    } else {
+      retval = file;
+    }
+
+    return retval;
   }
 
 }
