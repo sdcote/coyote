@@ -15,7 +15,7 @@ import coyote.loader.log.LogMsg.BundleBaseName;
  * 
  */
 public class CMQ {
-  public static final Version VERSION = new Version(0, 1, 0, Version.DEVELOPMENT);
+  public static final Version VERSION = new Version(0, 1, 1, Version.DEVELOPMENT);
   public static final String NAME = "CDX";
 
   public static final BundleBaseName MSG;

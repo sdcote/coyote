@@ -25,7 +25,7 @@ import coyote.loader.log.LogMsg.BundleBaseName;
  */
 public class CDX {
 
-  public static final Version VERSION = new Version(0, 7, 1, Version.EXPERIMENTAL);
+  public static final Version VERSION = new Version(0, 7, 1, Version.DEVELOPMENT);
   public static final String NAME = "CDX";
   public static final String DEFAULT_DATETIME_FORMAT = "yyyy-MM-dd HH:mm:ss.SSSX";
   public static final String DEFAULT_DATE_FORMAT = "yyyy-MM-dd";
