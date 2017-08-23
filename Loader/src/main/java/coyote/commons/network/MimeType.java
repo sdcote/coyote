@@ -5,7 +5,6 @@
  * terms of the MIT License which accompanies this distribution, and is
  * available at http://creativecommons.org/licenses/MIT/
  */
-
 package coyote.commons.network;
 
 import java.util.ArrayList;
@@ -41,7 +40,8 @@ public class MimeType {
   private static final MimeType UNKNOWN = new MimeType("unknown", "application/octet-stream", true);
 
   private final boolean binary;
-  private final String extension, type;
+  private final String extension;
+  private final String type;
 
   static {
     MIMES.add(JSON);
@@ -55,7 +55,6 @@ public class MimeType {
     MIMES.add(new MimeType("abc", "text/vnd.abc", false));
     MIMES.add(new MimeType("acgi", "text/html", false));
     MIMES.add(new MimeType("afl", "video/animaflex", true));
-    MIMES.add(new MimeType("ai", "application/postscript", true));
     MIMES.add(new MimeType("ai", "application/postscript", true));
     MIMES.add(new MimeType("aif", "audio/aiff", true));
     MIMES.add(new MimeType("aif", "audio/x-aiff", true));
@@ -87,7 +86,6 @@ public class MimeType {
     MIMES.add(new MimeType("avs", "video/avs-video", true));
     MIMES.add(new MimeType("bat", "text/plain", false));
     MIMES.add(new MimeType("bcpio", "application/x-bcpio", true));
-    MIMES.add(new MimeType("bin", "application/octet-stream", true));
     MIMES.add(new MimeType("bin", "application/octet-stream", true));
     MIMES.add(new MimeType("bin", "application/x-macbinary", true));
     MIMES.add(new MimeType("bm", "image/bmp", true));
@@ -135,7 +133,6 @@ public class MimeType {
     MIMES.add(new MimeType("der", "application/x-x509-ca-cert", true));
     MIMES.add(new MimeType("dif", "video/x-dv", true));
     MIMES.add(new MimeType("dir", "application/x-director", true));
-    MIMES.add(new MimeType("dir", "application/x-director", true));
     MIMES.add(new MimeType("dl", "video/dl", true));
     MIMES.add(new MimeType("dl", "video/x-dl", true));
     MIMES.add(new MimeType("dll", "application/octet-stream", true));
@@ -165,13 +162,10 @@ public class MimeType {
     MIMES.add(new MimeType("eml", "message/rfc822", true));
     MIMES.add(new MimeType("env", "application/x-envoy", true));
     MIMES.add(new MimeType("eps", "application/postscript", true));
-    MIMES.add(new MimeType("eps", "application/postscript", true));
-    MIMES.add(new MimeType("eps", "application/postscript", true));
     MIMES.add(new MimeType("es", "application/x-esrehber", true));
     MIMES.add(new MimeType("etx", "text/x-setext", false));
     MIMES.add(new MimeType("evy", "application/envoy", true));
     MIMES.add(new MimeType("evy", "application/x-envoy", true));
-    MIMES.add(new MimeType("exe", "application/octet-stream", true));
     MIMES.add(new MimeType("exe", "application/octet-stream", true));
     MIMES.add(new MimeType("f", "text/plain", false));
     MIMES.add(new MimeType("f", "text/x-fortran", false));
@@ -376,15 +370,11 @@ public class MimeType {
     MIMES.add(new MimeType("mpx", "application/x-project", true));
     MIMES.add(new MimeType("mrc", "application/marc", true));
     MIMES.add(new MimeType("ms", "application/x-troff-ms", true));
-    MIMES.add(new MimeType("ms", "application/x-troff-ms", true));
-    MIMES.add(new MimeType("ms", "application/x-troff-ms", true));
     MIMES.add(new MimeType("mv", "video/x-sgi-movie", true));
     MIMES.add(new MimeType("my", "audio/make", true));
     MIMES.add(new MimeType("mzz", "application/x-vnd.audioexplosion.mzz", true));
     MIMES.add(new MimeType("nap", "image/naplps", true));
     MIMES.add(new MimeType("naplps", "image/naplps", true));
-    MIMES.add(new MimeType("nc", "application/x-netcdf", true));
-    MIMES.add(new MimeType("nc", "application/x-netcdf", true));
     MIMES.add(new MimeType("nc", "application/x-netcdf", true));
     MIMES.add(new MimeType("ncm", "application/vnd.nokia.configuration-message", true));
     MIMES.add(new MimeType("nif", "image/x-niff", true));
@@ -415,8 +405,6 @@ public class MimeType {
     MIMES.add(new MimeType("part", "application/pro_eng", true));
     MIMES.add(new MimeType("part", "application/pro_eng", true));
     MIMES.add(new MimeType("pas", "text/pascal", false));
-    MIMES.add(new MimeType("pbm", "image/x-portable-bitmap", true));
-    MIMES.add(new MimeType("pbm", "image/x-portable-bitmap", true));
     MIMES.add(new MimeType("pbm", "image/x-portable-bitmap", true));
     MIMES.add(new MimeType("pcl", "application/vnd.hp-pcl", true));
     MIMES.add(new MimeType("pcl", "application/x-pcl", true));
@@ -460,7 +448,6 @@ public class MimeType {
     MIMES.add(new MimeType("psd", "application/octet-stream", true));
     MIMES.add(new MimeType("pvu", "paleovu/x-pv", true));
     MIMES.add(new MimeType("pwz", "application/vnd.ms-powerpoint", true));
-    MIMES.add(new MimeType("pwz", "application/vnd.ms-powerpoint", true));
     MIMES.add(new MimeType("py", "text/x-python", false));
     MIMES.add(new MimeType("py", "text/x-script.phyton", false));
     MIMES.add(new MimeType("pyc", "application/x-bytecode.python", true));
@@ -497,7 +484,6 @@ public class MimeType {
     MIMES.add(new MimeType("rnx", "application/vnd.rn-realplayer", true));
     MIMES.add(new MimeType("roff", "application/x-troff", true));
     MIMES.add(new MimeType("rp", "image/vnd.rn-realpix", true));
-    MIMES.add(new MimeType("rpm", "audio/x-pn-realaudio-plugin", true));
     MIMES.add(new MimeType("rpm", "audio/x-pn-realaudio-plugin", true));
     MIMES.add(new MimeType("rt", "text/richtext", false));
     MIMES.add(new MimeType("rt", "text/vnd.rn-realtext", false));
@@ -536,7 +522,6 @@ public class MimeType {
     MIMES.add(new MimeType("shtml", "text/x-server-parsed-html", false));
     MIMES.add(new MimeType("sid", "audio/x-psid", true));
     MIMES.add(new MimeType("sit", "application/x-sit", true));
-    MIMES.add(new MimeType("sit", "application/x-stuffit", true));
     MIMES.add(new MimeType("sit", "application/x-stuffit", true));
     MIMES.add(new MimeType("skd", "application/x-koan", true));
     MIMES.add(new MimeType("skm", "application/x-koan", true));
@@ -867,12 +852,8 @@ public class MimeType {
    */
   @Override
   public boolean equals(final Object obj) {
-    if (obj != null) {
-      if (obj instanceof MimeType) {
-        if (getType().equals(((MimeType)obj).getType())) {
-          return true;
-        }
-      }
+    if (obj != null && obj instanceof MimeType && getType().equals(((MimeType)obj).getType())) {
+      return true;
     }
     return false;
   }
