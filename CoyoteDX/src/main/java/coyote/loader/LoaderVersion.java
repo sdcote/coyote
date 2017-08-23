@@ -29,7 +29,7 @@ public class LoaderVersion {
    * Look for the versions of all known projects
    */
   public LoaderVersion() {
-    modules.put("Coyote", CDX.VERSION.toString());
+    modules.put("Coyote  ", CDX.VERSION.toString());
     checkVersion("CoyoteFT", "coyote.dx.CFT", modules);
     checkVersion("CoyoteMT", "coyote.dx.CMT", modules);
     checkVersion("CoyoteMQ", "coyote.dx.CMQ", modules);
