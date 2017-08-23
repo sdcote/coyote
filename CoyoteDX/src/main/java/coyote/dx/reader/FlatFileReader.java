@@ -78,6 +78,11 @@ public class FlatFileReader extends AbstractFrameReader implements FrameReader, 
         sourceFile = new File(source);
         Log.debug(LogMsg.createMsg(CDX.MSG, "Reader.using_source_file", sourceFile.getAbsolutePath()));
       }
+      
+      // if not absolute, use the CDX fixture to attemt to resolve the relative file
+      if (!sourceFile.isAbsolute()) {
+        sourceFile = CDX.resolveFile(sourceFile,getContext());
+      }
 
       if (sourceFile.exists() && sourceFile.canRead()) {
         lines = FileUtil.lineIterator(sourceFile);

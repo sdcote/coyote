@@ -126,9 +126,9 @@ public class JSONReader extends AbstractFrameReader implements FrameReader, Conf
       } else {
         Log.error("Using a source file of NULL_REF");
       }
-      // if not absolute, use the current job directory
+      // if not absolute, use the CDX fixture to attemt to resolve the relative file
       if (!sourceFile.isAbsolute()) {
-        sourceFile = new File(context.getSymbols().getString(Symbols.JOB_DIRECTORY), sourceFile.getPath());
+        sourceFile = CDX.resolveFile(sourceFile,getContext());
       }
       Log.debug("Using an absolute source file of " + sourceFile.getAbsolutePath());
 
