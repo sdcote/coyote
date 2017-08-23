@@ -21,13 +21,15 @@ import coyote.commons.StringUtil;
  * returned, so make sure the preferred MIME type appears first.</p>
  */
 public class MimeType {
+  
+  // The list of MIME types supported
+  private static final List<MimeType> MIMES = new ArrayList<MimeType>();
 
+  // handy constants for more readable code
   public static final MimeType ANY = new MimeType("*", "*/*", true);
   public static final MimeType APPLICATION_FORM = new MimeType("", "application/x-www-form-urlencoded", false);
-
   public static final MimeType ATOM_XML = new MimeType("", "application/atom+xml", false);
   public static final MimeType HTML = new MimeType("html", "text/html", false);
-  // handy constants for more readable code
   public static final MimeType JSON = new MimeType("json", "application/json", false);
   public static final MimeType MULTIPART_FORM = new MimeType("", "multipart/form-data", false);
   public static final MimeType PDF = new MimeType("pdf", "application/pdf", true);
@@ -36,7 +38,6 @@ public class MimeType {
   public static final MimeType TEXT = new MimeType("text", "text/plain", false);
   public static final MimeType XHTML_XML = new MimeType("", "application/xhtml+xml", false);
   public static final MimeType XML = new MimeType("xml", "application/xml", false);
-  private static final List<MimeType> MIMES = new ArrayList<MimeType>();
   private static final MimeType UNKNOWN = new MimeType("unknown", "application/octet-stream", true);
 
   private final boolean binary;
@@ -830,6 +831,12 @@ public class MimeType {
 
 
 
+  /**
+   * Private constructor to control the number of instances.
+   * @param extension the file extension without the "."
+   * @param type the MIME text description
+   * @param binary true if the tye is binary, false if text.
+   */
   private MimeType(final String extension, final String type, final boolean binary) {
     this.extension = extension;
     this.type = type;
