@@ -7,6 +7,7 @@
  */
 package coyote.commons;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
@@ -14,22 +15,23 @@ import org.junit.Test;
 
 public class VersionTest {
 
-  /*
-   * Test method for Version.toString()
-   */
   @Test
   public void testToString() {
     System.out.println();
     Version version = new Version(1, 2, 3, Version.EXPERIMENTAL);
-    System.out.println("x: " + version.toString());
+    assertEquals("1.2.3-exp", version.toString());
+
     version = new Version(1, 2, 3, Version.DEVELOPMENT);
-    System.out.println("d: " + version.toString());
+    assertEquals("1.2.3-dev", version.toString());
+
     version = new Version(1, 2, 3, Version.ALPHA);
-    System.out.println("a: " + version.toString());
+    assertEquals("1.2.3-alpha", version.toString());
+
     version = new Version(1, 2, 3, Version.BETA);
-    System.out.println("b: " + version.toString());
+    assertEquals("1.2.3-beta", version.toString());
+
     version = new Version(1, 2, 3, Version.GENERAL);
-    System.out.println("g: " + version.toString());
+    assertEquals("1.2.3", version.toString());
   }
 
 
