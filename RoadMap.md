@@ -16,6 +16,14 @@ This task executes a specific Transfer Job if its condition is met. This provide
 * Jobs can be run in serial or parallel, each with their own set of data
 * Processing results from Jobs can be accessed in other Jobs via Job Contexts. 
 
+## Stream Analytics
+Listeners have the ability to see all data read in by the reader (among other events) and can therefore keep track of the data as it is passing through the job. For those jobs wich run continually, a specialized listener can track the status of the data and make the that status available to external components in real time.
+
+#### Features
+* Abstract base class containing data access and calculation methods (Average, Minimum, Maximum, Standard Deviation, etc.)
+* Collecting metrics for publication (events) and recording (disk, database, etc.)
+* Support for registering with the web server as a responder enabling external components to poll for current status.
+
 ## CoyoteJS - JavaScript Processing
 There is no need to develop custom Java component to implement your business logic. Transformers can be written in JavaScript to perform just about anything you need.
 
