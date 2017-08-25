@@ -49,16 +49,6 @@ public class Scheduler extends ThreadJob {
 
 
   /**
-   * Constructor Scheduler
-   */
-  public Scheduler() {
-
-  }
-
-
-
-
-  /**
    * @return the number of jobs currently in the scheduler
    */
   public int getJobCount() {
@@ -367,7 +357,7 @@ public class Scheduler extends ThreadJob {
         }
 
         // link current and previous jobs to this job
-        if (job != current && job != previous) {
+        if (!job.equals(current) && !job.equals(previous)) {
           job.setPreviousJob(previous);
           job.setNextJob(current);
 
@@ -422,7 +412,7 @@ public class Scheduler extends ThreadJob {
         while (test != null) {
 
           // if the current job matches the job for which er are looking
-          if (job == test) {
+          if (job.equals(test)) {
 
             if (test.getPreviousJob() != null) {
               test.getPreviousJob().setNextJob(test.getNextJob());
