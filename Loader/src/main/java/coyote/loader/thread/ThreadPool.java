@@ -555,10 +555,8 @@ public class ThreadPool {
               tworker.shutdown();
               Thread.yield();
 
-              if (tworker.current_thread.isAlive()) {
-                if (Log.isLogging(THREAD)) {
-                  Log.append(THREAD, "Can't stop \"" + tworker.getThread().getName() + "\"");
-                }
+              if (tworker.current_thread.isAlive() && Log.isLogging(THREAD)) {
+                Log.append(THREAD, "Can't stop \"" + tworker.getThread().getName() + "\"");
               }
             }
           }
