@@ -4,10 +4,6 @@
  * This program and the accompanying materials are made available under the 
  * terms of the MIT License which accompanies this distribution, and is 
  * available at http://creativecommons.org/licenses/MIT/
- *
- * Contributors:
- *   Stephan D. Cote 
- *      - Initial concept and implementation
  */
 package coyote.loader.thread;
 
@@ -89,7 +85,7 @@ public class ThreadJob implements Runnable {
    *
    * @param job
    */
-  public ThreadJob( final Runnable job ) {
+  public ThreadJob(final Runnable job) {
     work = job;
   }
 
@@ -109,7 +105,7 @@ public class ThreadJob implements Runnable {
    * @return the thread in which this job is running.
    */
   public Thread daemonize() {
-    return daemonize( (String)null );
+    return daemonize((String)null);
   }
 
 
@@ -129,14 +125,14 @@ public class ThreadJob implements Runnable {
    *
    * @return the thread in which this job is running.
    */
-  public Thread daemonize( final String name ) {
-    final Thread newthread = new Thread( this );
+  public Thread daemonize(final String name) {
+    final Thread newthread = new Thread(this);
 
-    if ( ( name != null ) && ( name.length() > 0 ) ) {
-      newthread.setName( name );
+    if ((name != null) && (name.length() > 0)) {
+      newthread.setName(name);
     }
 
-    return daemonize( newthread );
+    return daemonize(newthread);
   }
 
 
@@ -155,11 +151,11 @@ public class ThreadJob implements Runnable {
    *
    * @return the thread in which this job is running.
    */
-  public Thread daemonize( final Thread thread ) {
+  public Thread daemonize(final Thread thread) {
     current_thread = thread;
 
     // only user threads keep the JVM running
-    current_thread.setDaemon( false );
+    current_thread.setDaemon(false);
 
     // start it
     current_thread.start();
@@ -184,22 +180,22 @@ public class ThreadJob implements Runnable {
    * @param timeout The number of milliseconds to wait for the main run loop to
    *          be entered.
    */
-  public void waitForActive( final long timeout ) {
-    if ( !isActive() ) {
+  public void waitForActive(final long timeout) {
+    if (!isActive()) {
       // determine the timeout sentinel value
       final long tout = System.currentTimeMillis() + timeout;
 
       // While we have not reached the sentinel time
-      while ( tout > System.currentTimeMillis() ) {
+      while (tout > System.currentTimeMillis()) {
         // wait on the active lock object
-        synchronized( activeLock ) {
+        synchronized (activeLock) {
           try {
-            activeLock.wait( 10 );
-          } catch ( final Throwable t ) {}
+            activeLock.wait(10);
+          } catch (final Throwable t) {}
         }
 
         // if we are now active...
-        if ( isActive() ) {
+        if (isActive()) {
           // ... break out of the time-out while loop
           break;
         }
@@ -221,7 +217,7 @@ public class ThreadJob implements Runnable {
    *         run loop, False otherwise.
    */
   public boolean isActive() {
-    synchronized( activeLock ) {
+    synchronized (activeLock) {
       return active;
     }
   }
@@ -239,8 +235,8 @@ public class ThreadJob implements Runnable {
    *         if this instance has never started running.
    */
   public boolean hasStarted() {
-    synchronized( mutex ) {
-      return ( started_time > 0 );
+    synchronized (mutex) {
+      return (started_time > 0);
     }
   }
 
@@ -261,11 +257,11 @@ public class ThreadJob implements Runnable {
    *
    * @param flag The boolean value to set to the active flag.
    */
-  protected void setActiveFlag( final boolean flag ) {
-    synchronized( activeLock ) {
+  protected void setActiveFlag(final boolean flag) {
+    synchronized (activeLock) {
       active = flag;
 
-      if ( active ) {
+      if (active) {
         activeLock.notifyAll();
       }
     }
@@ -296,10 +292,10 @@ public class ThreadJob implements Runnable {
    * message.</p>
    */
   public void shutdown() {
-    synchronized( mutex ) {
+    synchronized (mutex) {
       shutdown = true;
 
-      if ( current_thread != null ) {
+      if (current_thread != null) {
         current_thread.interrupt();
 
         // Make sure suspended threads are resumed so they can shutdown
@@ -315,7 +311,7 @@ public class ThreadJob implements Runnable {
    * @return whether or not the current thread is set to shutdown.
    */
   public boolean isShutdown() {
-    synchronized( mutex ) {
+    synchronized (mutex) {
       return shutdown;
     }
   }
@@ -330,11 +326,11 @@ public class ThreadJob implements Runnable {
    * thread of execution to perform a normal shutdown, and re-initialize.</p>
    */
   public void restart() {
-    synchronized( mutex ) {
+    synchronized (mutex) {
       restart = true;
       shutdown = true;
 
-      if ( current_thread != null ) {
+      if (current_thread != null) {
         current_thread.interrupt();
 
         // Make sure suspended threads are resumed so they can shutdown
@@ -350,7 +346,7 @@ public class ThreadJob implements Runnable {
    * @return whether or not the current thread is set to restart.
    */
   public boolean isRestart() {
-    synchronized( mutex ) {
+    synchronized (mutex) {
       return restart;
     }
   }
@@ -362,7 +358,7 @@ public class ThreadJob implements Runnable {
    * Suspend this object's thread of execution.
    */
   public void suspend() {
-    synchronized( mutex ) {
+    synchronized (mutex) {
       suspended = true;
     }
   }
@@ -374,7 +370,7 @@ public class ThreadJob implements Runnable {
    * @return whether or not the current thread is in a suspended state.
    */
   public boolean isSuspended() {
-    synchronized( mutex ) {
+    synchronized (mutex) {
       return suspended;
     }
   }
@@ -386,7 +382,7 @@ public class ThreadJob implements Runnable {
    * This resumes this object's thread of execution.
    */
   public void resume() {
-    synchronized( mutex ) {
+    synchronized (mutex) {
       suspended = false;
 
       mutex.notifyAll();
@@ -400,7 +396,7 @@ public class ThreadJob implements Runnable {
    * Set this thread to idle.
    */
   public void idle() {
-    synchronized( mutex ) {
+    synchronized (mutex) {
       idle = true;
     }
   }
@@ -412,7 +408,7 @@ public class ThreadJob implements Runnable {
    * @return whether or not the current thread is in an idle state.
    */
   public boolean isIdle() {
-    synchronized( mutex ) {
+    synchronized (mutex) {
       return idle;
     }
   }
@@ -444,26 +440,26 @@ public class ThreadJob implements Runnable {
    * 
    * @param timeout The number of milliseconds to wait.
    */
-  protected void park( final long timeout ) {
-    synchronized( mutex ) {
-      if ( isShutdown() ) {
+  protected void park(final long timeout) {
+    synchronized (mutex) {
+      if (isShutdown()) {
         // Cannot suspend if shutdown is pending
-        if ( isSuspended() ) {
+        if (isSuspended()) {
           resume();
         }
       } else {
-        if ( current_thread != null ) {
+        if (current_thread != null) {
           try {
-            if ( parkSleep ) {
-              if ( timeout == 0 ) {
-                Thread.sleep( Long.MAX_VALUE );
+            if (parkSleep) {
+              if (timeout == 0) {
+                Thread.sleep(Long.MAX_VALUE);
               } else {
-                Thread.sleep( timeout );
+                Thread.sleep(timeout);
               }
             } else {
-              mutex.wait( timeout );
+              mutex.wait(timeout);
             }
-          } catch ( final InterruptedException x ) {
+          } catch (final InterruptedException x) {
             current_thread.interrupt(); // re-throw
           }
         } else {}
@@ -478,7 +474,7 @@ public class ThreadJob implements Runnable {
    * Parks the thread for the preset idle_wait_time interval.
    */
   public void park() {
-    park( idle_wait_time );
+    park(idle_wait_time);
   }
 
 
@@ -493,8 +489,8 @@ public class ThreadJob implements Runnable {
    *
    * @param on the value of the flag to set.
    */
-  public void setHyper( final boolean on ) {
-    synchronized( mutex ) {
+  public void setHyper(final boolean on) {
+    synchronized (mutex) {
       hyper = on;
     }
   }
@@ -506,7 +502,7 @@ public class ThreadJob implements Runnable {
    * @return whether or not the current thread is hyper (never idles).
    */
   public boolean isHyper() {
-    synchronized( mutex ) {
+    synchronized (mutex) {
       return hyper;
     }
   }
@@ -567,8 +563,8 @@ public class ThreadJob implements Runnable {
    *
    * @throws InterruptedException
    */
-  public void sleep( final long millis ) throws InterruptedException {
-    Thread.sleep( millis );
+  public void sleep(final long millis) throws InterruptedException {
+    Thread.sleep(millis);
   }
 
 
@@ -582,8 +578,8 @@ public class ThreadJob implements Runnable {
    *
    * @throws InterruptedException
    */
-  public void sleep( final long millis, final int nanos ) throws InterruptedException {
-    Thread.sleep( millis, nanos );
+  public void sleep(final long millis, final int nanos) throws InterruptedException {
+    Thread.sleep(millis, nanos);
   }
 
 
@@ -618,7 +614,7 @@ public class ThreadJob implements Runnable {
    *
    * @param millis the number of milliseconds.
    */
-  public void setIdleTimeout( final long millis ) {
+  public void setIdleTimeout(final long millis) {
     idle_timeout = millis;
   }
 
@@ -642,7 +638,7 @@ public class ThreadJob implements Runnable {
    *
    * @param millis the number of milliseconds.
    */
-  public void setIdleWait( final long millis ) {
+  public void setIdleWait(final long millis) {
     idle_wait_time = millis;
   }
 
@@ -658,7 +654,7 @@ public class ThreadJob implements Runnable {
    *
    * @param flag indicating our idle state.
    */
-  public void setIdle( final boolean flag ) {
+  public void setIdle(final boolean flag) {
     this.idle = flag;
   }
 
@@ -683,9 +679,9 @@ public class ThreadJob implements Runnable {
 
       // set the active flag true only after we have initialized, so others can
       // use waitForActive to wait for us to initialize
-      setActiveFlag( true );
+      setActiveFlag(true);
 
-      while ( !isShutdown() ) {
+      while (!isShutdown()) {
         // Do whatever the sub-class wants
         doWork();
 
@@ -693,26 +689,26 @@ public class ThreadJob implements Runnable {
         Thread.yield();
 
         // If we are only supposed to perform the doWork method once...quit;
-        if ( doWorkOnce ) {
+        if (doWorkOnce) {
           restart = false;
 
           break;
         }
 
         // If we are in an idle state, park for a while to save CPU resources
-        if ( isIdle() ) {
-          park( idle_wait_time );
+        if (isIdle()) {
+          park(idle_wait_time);
         } else {
           // if not, check to see if it is time to begin idling
-          if ( !isHyper() && ( System.currentTimeMillis() > idle_time ) ) {
+          if (!isHyper() && (System.currentTimeMillis() > idle_time)) {
             idle = true;
           }
         }
 
         // Check to see if we should suspend execution
-        if ( isSuspended() ) {
+        if (isSuspended()) {
           // park for an indefinite period of time (resume will interrupt park)
-          park( 0 );
+          park(0);
         }
 
       } // if !shutdown
@@ -720,10 +716,10 @@ public class ThreadJob implements Runnable {
       // Clean up after ourselves, although we may restart
       terminate();
     }
-    while ( restart );
+    while (restart);
 
     // We are no longer running active
-    setActiveFlag( false );
+    setActiveFlag(false);
 
   }
 
@@ -741,10 +737,10 @@ public class ThreadJob implements Runnable {
    * @see #getThread
    */
   public void join() {
-    if ( current_thread != null ) {
+    if (current_thread != null) {
       try {
-        current_thread.join( 0 );
-      } catch ( final Exception e ) {}
+        current_thread.join(0);
+      } catch (final Exception e) {}
     }
   }
 
@@ -766,11 +762,11 @@ public class ThreadJob implements Runnable {
    *
    * @param millis
    */
-  public void join( final long millis ) {
-    if ( current_thread != null ) {
+  public void join(final long millis) {
+    if (current_thread != null) {
       try {
-        current_thread.join( millis );
-      } catch ( final Exception e ) {}
+        current_thread.join(millis);
+      } catch (final Exception e) {}
     }
   }
 
@@ -812,10 +808,10 @@ public class ThreadJob implements Runnable {
    * is run and this thread job is shutdown.</p>
    */
   public void doWork() {
-    if ( work == null ) {
+    if (work == null) {
       try {
-        Thread.sleep( 50 );
-      } catch ( final InterruptedException x ) {}
+        Thread.sleep(50);
+      } catch (final InterruptedException x) {}
     } else {
       work.run();
       shutdown();
@@ -832,7 +828,7 @@ public class ThreadJob implements Runnable {
    * @param flag Set to true to execute the doWork method once then exit, or 
    *        false, keep looping until shutdown is called.
    */
-  public void setDoWorkOnce( final boolean flag ) {
+  public void setDoWorkOnce(final boolean flag) {
     doWorkOnce = flag;
   }
 
@@ -862,7 +858,7 @@ public class ThreadJob implements Runnable {
    * @param b True informs the thread to use the sleep() method call, false
    *          indicates use wait().
    */
-  public void setParkSleep( final boolean b ) {
+  public void setParkSleep(final boolean b) {
     parkSleep = b;
   }
 
