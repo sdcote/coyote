@@ -54,7 +54,7 @@ public class ThreadPool {
   /** This is the name of this thread pool */
   private String pool_name;
 
-  /** This is the unique identifier for thread workers */
+  /** This is the unique identifier for thread worker */
   private int thread_identifier = 0;
 
   /** Flag indication if we are running or not */
@@ -78,15 +78,14 @@ public class ThreadPool {
   /** Counter of threadpools */
   private static long poolcount = 0;
 
-  public static final String JOBWAIT_TAG = "ThreadJobWait";
-
-  public static final String STOPWAIT_TAG = "ThreadStopWait";
-
-  public static final String MINWORKERS_TAG = "ThreadMinWorkers";
-
-  public static final String MAXWORKERS_TAG = "ThreadMaxWorkers";
-
+  /** Logging mask for thread events */
   private static final long THREAD = Log.getCode("THREAD");
+
+  // configuration arrtibute names
+  public static final String JOBWAIT_TAG = "ThreadJobWait";
+  public static final String STOPWAIT_TAG = "ThreadStopWait";
+  public static final String MINWORKERS_TAG = "ThreadMinWorkers";
+  public static final String MAXWORKERS_TAG = "ThreadMaxWorkers";
 
 
 
@@ -490,14 +489,22 @@ public class ThreadPool {
    * @return The number of jobs currently waiting to be serviced by the queue.
    */
   public int checkLoad() {
-    // if the queue is not empty AND there is work to do AND there are no idle
-    // workers to do it...
-    if ((jobqueue.size() > 0) && (worker_set.size() < maximum_workers) && (idle_set.size() == 0)) {
-      // ...create a new worker for this pool
-      newWorker();
-    }
 
-    return jobqueue.size();
+    if (jobqueue != null) {
+      // if there are more jobs than workers AND we have not reached the max worker size AND all workers are currently running jobs...
+      if (isRunning() && jobqueue.size() > worker_set.size() && worker_set.size() < maximum_workers && idle_set.size() == 0) {
+        if (Log.isLogging(THREAD)) {
+          Log.append(THREAD, "CheckLoad: Creating a new worker - JobQueue=" + jobqueue.size() + " Workers=" + worker_set.size() + " (max=" + maximum_workers + ") idle workers=" + idle_set.size());
+        }
+
+        // ...create a new worker for this pool
+        newWorker();
+      }
+
+      return jobqueue.size();
+    } else {
+      return 0;
+    }
   }
 
 
@@ -556,8 +563,7 @@ public class ThreadPool {
             }
           }
         }
-      }
-      finally {
+      } finally {
         worker_set.clear();
 
         worker_set = null;
@@ -654,10 +660,6 @@ public class ThreadPool {
       start();
     }
 
-    if ((getThreadCount() == 0) && (getMaxThreadCount() > 0)) {
-      newWorker();
-    }
-
     // if there is no job to do...
     if (job == null) {
       // whine and complain
@@ -665,6 +667,9 @@ public class ThreadPool {
     } else {
       // otherwise, dunk it in the pool
       jobqueue.put(job);
+
+      // make sure we have the threads to handle it.
+      checkLoad();
     }
   }
 
@@ -735,10 +740,15 @@ public class ThreadPool {
      * @param name
      */
     public ThreadWorker(String name) {
+      if (Log.isLogging(THREAD)) {
+        Log.append(THREAD, "Creating new thread worker '" + name + "'");
+      }
       current_thread = new Thread(this);
-
       current_thread.setName(name);
       current_thread.start();
+      if (Log.isLogging(THREAD)) {
+        Log.append(THREAD, "Thread worker '" + current_thread.getName() + "' has started.");
+      }
     }
 
 
@@ -748,6 +758,9 @@ public class ThreadPool {
      * Request this object to shutdown.
      */
     public void shutdown() {
+      if (Log.isLogging(THREAD)) {
+        Log.append(THREAD, "Thread worker '" + current_thread.getName() + "' is shutting down.");
+      }
       synchronized (mutex) {
         this.shutdown = true;
 
@@ -805,13 +818,29 @@ public class ThreadPool {
         }
       }
 
-      if (Log.isLogging(Log.DEBUG_EVENTS)) {
-        // Had to put this in because we were getting a null pointer exception
-        // on some occasions Figure out why!
-        if ((current_thread != null) && (worker_set != null) && (idle_set != null)) {
-          if (Log.isLogging(THREAD)) {
-            Log.append(THREAD, "[X] " + current_thread.getName() + " is terminated normally after running " + runs + " jobs. - Remaining workers=" + worker_set.size() + "  of which " + idle_set.size() + " are idle.");
+      if (Log.isLogging(THREAD)) {
+        if (current_thread != null && worker_set != null && idle_set != null) {
+          Log.append(THREAD, "[X] " + current_thread.getName() + " is terminated normally after running " + runs + " jobs. - Remaining workers=" + worker_set.size() + "  of which " + idle_set.size() + " are idle.");
+        } else {
+          StringBuffer b = new StringBuffer("ERROR [X] ");
+          if (current_thread == null) {
+            b.append("Current Thread is null.");
+          } else {
+            b.append(current_thread.getName());
           }
+          if (worker_set == null) {
+            b.append(" Worker set is null.");
+          } else {
+            b.append(" Remaining workers=");
+            b.append(worker_set.size());
+          }
+          if (idle_set == null) {
+            b.append(" Idle set is null.");
+          } else {
+            b.append(" Idle workers=");
+            b.append(idle_set.size());
+          }
+          Log.append(THREAD, b.toString());
         }
       }
     }
@@ -834,18 +863,13 @@ public class ThreadPool {
 
       // Try to get a job from the queue
       try {
-        // set this thread in the idle/waiting set
-        synchronized (idle_set) {
-          idle_set.add(current_thread);
-        }
-
         // Call getJob(timeout) and wait for a job to arrive
         job = getJob(job_wait_time);
 
         // If no job, it means we timed out before a job arrived in the queue
-        if ((job == null) && isRunning()) {
+        if (job == null && isRunning()) {
           if (Log.isLogging(THREAD)) {
-            Log.append(THREAD, "Total workers=" + worker_set.size() + "  Minimum=" + minimum_workers + "  Idle workers=" + idle_set.size() + " jobqueue=" + jobqueue.size() + "/" + jobqueue.capacity() + " jobs waiting");
+            Log.append(THREAD, "No threadjob available for execution. Total workers=" + worker_set.size() + "  Minimum=" + minimum_workers + "  Idle workers=" + idle_set.size() + " jobqueue=" + jobqueue.size() + "/" + jobqueue.capacity() + " jobs waiting");
           }
 
           if ((worker_set.size() > minimum_workers) && (idle_set.size() > 0)) {
@@ -853,37 +877,28 @@ public class ThreadPool {
             if (Log.isLogging(THREAD)) {
               Log.append(THREAD, "Idle death: " + current_thread.getName());
             }
-
             this.shutdown();
           }
         }
-      } catch (InterruptedException e) {
-        // Log.append(THREAD,"\""+current_thread.getName()+"\" ThreadWorker.doWork() exception "+e.toString()+" shutdown="+isShutdown());
+      } catch (InterruptedException ignore) {
+        // this is expected
       } catch (InterruptedIOException e) {
         if (Log.isLogging(THREAD)) {
           Log.append(THREAD, "\"" + current_thread.getName() + "\" ThreadWorker.doWork() exception " + e.toString() + " shutdown=" + isShutdown());
         }
       } catch (Exception e) {
         Log.append(THREAD, "\"" + current_thread.getName() + "\" ThreadWorker.doWork() exception " + e.toString() + "-" + e.getMessage());
-      }
-      finally {
-        synchronized (idle_set) {
-          idle_set.remove(current_thread);
-
-          // If not more threads accepting - start one
-          if ((idle_set.size() == 0) && isRunning() && (job != null) && (worker_set.size() < maximum_workers)) {
-            newWorker();
-          }
-
-        } // sync
-
       } // End of trying to get a job from the queue
 
       // handle the ThreadJob
-      if (!isShutdown() && (job != null)) {
+      if (!isShutdown() && job != null) {
+        // we have a job to execute, remove the current thread from the list of idle threads
+        synchronized (idle_set) {
+          idle_set.remove(current_thread);
+        } // sync
+
         try {
-          // Tag thread if debugging
-          Log.append(THREAD, this.getThread().getName() + " handling " + job + " - total runs=" + runs);
+          Log.append(THREAD, this.getThread().getName() + " handling " + job + " - total number of jobs executed in this thread = " + runs);
 
           // If we got a job to do...
           if (job != null) {
@@ -907,11 +922,14 @@ public class ThreadPool {
           java.io.ByteArrayOutputStream out = new java.io.ByteArrayOutputStream();
           e.printStackTrace(new java.io.PrintWriter(out, true));
           Log.error("\"" + current_thread.getName() + "\" ThreadWorker.run() exception during run() call " + e.toString() + ":" + e.getMessage() + System.getProperty("line.separator") + out.toString());
-        }
-        finally {
+        } finally {
+          Log.append(THREAD, this.getThread().getName() + " finished handling " + job + ", going idle");
           job = null;
+          // set this thread in the idle/waiting set
+          synchronized (idle_set) {
+            idle_set.add(current_thread);
+          }
         }
-
       } // end of handling the threadjob
 
     } // End of doWork()
