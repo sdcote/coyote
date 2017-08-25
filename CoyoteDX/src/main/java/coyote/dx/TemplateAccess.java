@@ -24,13 +24,6 @@ public class TemplateAccess {
 
 
 
-  public TemplateAccess() {
-
-  }
-
-
-
-
   /**
    * @param context
    */
