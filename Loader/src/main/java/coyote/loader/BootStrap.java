@@ -43,6 +43,7 @@ public class BootStrap extends AbstractLoader {
 
   protected static final String DEBUG_ARG = "-d";
   protected static final String INFO_ARG = "-v";
+  protected static final String TRACE_ARG = "-t";
   private static final String VERSION_ARG = "-version";
   private static final String HELP_ARG = "-help";
 
@@ -129,6 +130,8 @@ public class BootStrap extends AbstractLoader {
             Log.startLogging(Log.DEBUG);
           } else if (INFO_ARG.equalsIgnoreCase(args[x])) {
             Log.startLogging(Log.INFO);
+          } else if (TRACE_ARG.equalsIgnoreCase(args[x])) {
+            Log.startLogging(Log.TRACE);
           } else if (VERSION_ARG.equalsIgnoreCase(args[x])) {
             showVersion();
             abort = true;
@@ -297,13 +300,14 @@ public class BootStrap extends AbstractLoader {
   public static void main(String[] args) {
 
     // set the default logger
-    Log.addLogger(Log.DEFAULT_LOGGER_NAME, new ConsoleAppender(Log.WARN_EVENTS | Log.ERROR_EVENTS | Log.FATAL_EVENTS));
+    Log.addLogger(Log.DEFAULT_LOGGER_NAME, new ConsoleAppender(Log.NOTICE_EVENTS | Log.WARN_EVENTS | Log.ERROR_EVENTS | Log.FATAL_EVENTS));
 
     // Parse the command line arguments
     parseArgs(args);
 
     Log.info("Verbose logging is enabled");
     Log.debug("Debug logging is enabled");
+    Log.debug("Trace logging is enabled");
 
     // confirm the readability of app.home if it is set
     confirmAppHome();
