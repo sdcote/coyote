@@ -253,15 +253,15 @@ public class TransformEngineFactory {
           if (object != null) {
             if (object instanceof FrameValidator) {
               engine.addValidator((FrameValidator)object);
-              Log.debug(LogMsg.createMsg(CDX.MSG, "EngineFactory.Created validator task {} cfg={}", object.getClass().getName(), validatorConfig));
+              Log.debug(LogMsg.createMsg(CDX.MSG, "EngineFactory.created_validator", object.getClass().getName(), validatorConfig));
             } else {
-              Log.error(LogMsg.createMsg(CDX.MSG, "EngineFactory.Specified validator class '{}' was not a frame validator", field.getName()));
+              Log.error(LogMsg.createMsg(CDX.MSG, "EngineFactory.specified_class_is_not_a_validator", field.getName()));
             }
           } else {
-            Log.error(LogMsg.createMsg(CDX.MSG, "EngineFactory.Could not create an instance of the specified validator task '{}'", className));
+            Log.error(LogMsg.createMsg(CDX.MSG, "EngineFactory.could_not_create_instance_of_specified_validator", className));
           }
         } else {
-          Log.error(LogMsg.createMsg(CDX.MSG, "EngineFactory.Validator task did not contain a configuration, only scalar {}", field.getStringValue()));
+          Log.error(LogMsg.createMsg(CDX.MSG, "EngineFactory.frame_validator_did_not_contain_valid_configuration", field.getStringValue()));
         }
       } // for each validator
     } // cfg !null

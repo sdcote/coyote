@@ -129,7 +129,7 @@ public abstract class AbstractValidator extends AbstractConfigurableComponent im
         Log.info(LogMsg.createMsg(CDX.MSG, "Task.Header flag not valid " + e.getMessage()));
       }
     } else {
-      Log.debug(LogMsg.createMsg(CDX.MSG, "Task.No halt config"));
+      Log.debug(LogMsg.createMsg(CDX.MSG, "Validator.no_halt_config"));
     }
   }
 
