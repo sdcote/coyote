@@ -1,0 +1,126 @@
+{
+	"Class": "coyote.dx.Service",
+	"Port": 55290,
+
+
+	"Job" : {
+		"Name" : "Simple",
+		"Schedule": { "Minutes": "*" },
+		
+		"Reader" : {
+			"class" : "CSVReader",
+			"source" : "[#$app.home#]/demo/users.csv",
+			"header" : true
+		},
+
+		"Writer" : {
+			"class" : "FlatFileWriter",
+			"target" : "users.txt",
+			"fields" : {
+				"Role" : { "start" : 0, "length" : 6 },
+				"FirstName" : { "start" : 7, "length" : 11 },
+				"LastName" : { "start" : 19, "length" : 16 },
+				"MiddleInitial" : { "start" : 36, "length" : 1 }
+			}    
+		}		
+	},
+
+
+
+
+	"Job" : {
+		"Name" : "CSV-FLF",
+		"Schedule": { "Minutes": "*/5" },
+
+		"Reader" : {
+			"class" : "CSVReader",
+			"source" : "[#$app.home#]/demo/users.csv",
+			"header" : true
+		},
+
+		"Writer" : {
+			"class" : "FlatFileWriter",
+			"target" : "file://userfile.txt",
+			"fields" : {
+				"Role" : { "start" : 0, "length" : 6 },
+				"FirstName" : { "start" : 7, "length" : 11 },
+				"LastName" : { "start" : 19, "length" : 16 },
+				"MiddleInitial" : { "start" : 36, "length" : 1 },
+				"Gender" : { "start" : 38, "length" : 1 },
+				"Username" : { "start" : 40, "length" : 8 },
+				"Password" : { "start" : 49, "length" : 15 },
+				"eMail" : { "start" : 65, "length" : 20 },
+				"License" : { "start" : 86, "length" : 36 },
+				"Rating" : { "start" : 123, "length" : 11 },
+				"Joined" : { "start" : 135, "length" : 10 },
+				"Visits" : { "start" : 146, "length" : 3 }
+			}    
+		}
+	},
+
+
+
+
+	"Job" : {
+		"Name" : "CSV-XML",
+		"Schedule": { "Pattern": "*/30 * * * *" },
+		
+		"Reader" : {
+			"class" : "CSVReader",
+			"source" : "[#$app.home#]/demo/users.csv",
+			"header" : true
+		},
+
+		"Writer" : {
+			"class" : "XMLWriter",
+			"target" : "users.xml",
+			"header" : "",
+			"rootElement" : "DataSet",
+			"rootAttributes" : "version=\"1.0\" exporter=\"CoyoteBatch\"",
+			"rowElement" : "DataRow",
+			"rowAttributes" : "seq=[#$currentRow#]",
+			"fieldFormat" : "<Column name=\"{0}\" value=\"{4}\"/>"
+		}
+	},
+
+
+
+
+	"Job" : {
+		"Name" : "DBwriter",
+		"Schedule": { "Pattern": "0 * * * *" },
+		
+		"Reader" : {
+			"class" : "CSVReader",
+			"source" : "[#$app.home#]/demo/users.csv",
+			"header" : true
+		},
+
+		"Writer":{
+			"class" : "JdbcWriter",
+			"target" : "jdbc:h2:[#$jobdir#]/demodb;MODE=Oracle;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE",
+			"table" : "user",
+			"autocreate" : true,
+			"driver" : "org.h2.Driver",
+			"library" : "jar:file:[#$app.home#]/lib/h2-1.4.187.jar!/",
+			"username" : "sa",
+			"password" : "",
+			"batch" : 100
+  	},
+
+		"Listeners": {
+			"ContextLogger": { "target" : "file://ContextLogger.log" }
+		}
+	},	
+
+
+	"Logging": {
+		"FileAppender": { "target": "file://ServiceTestMulti.log", "categories": "info, notice" },
+		"FileAppender": { "target": "file://ServiceTestMultiError.log", "categories": "error, fatal, warn" },
+		"CyclingFileAppender": { "target": "file://ServiceTestMultiDebug.log", "categories": "trace, debug, error, fatal, warn", "generations": 10, "maxsize": "2MB", "enabled": true },
+		"CyclingFileAppender": { "target": "file://ServiceTestMultiTrace.log", "categories": "trace", "generations": 10, "maxsize": "2MB", "enabled": true },
+		"CyclingFileAppender": { "target": "file://ServiceTestMultiScheduler.log", "categories": "scheduler, thread", "generations": 10, "maxsize": "2MB" },
+		"CyclingFileAppender": { "target": "file://ServiceTestMultiHttpd.log", "categories": "httpd", "generations": 7, "interval": "1d", "cycletime": "00:03", "maxsize": "10MB" }
+	}
+
+}
