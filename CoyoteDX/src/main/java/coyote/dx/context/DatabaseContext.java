@@ -280,24 +280,12 @@ public class DatabaseContext extends PersistentContext {
           incrementRunCount();
           setPreviousRunDate();
           updateSymbols();
+          updateFields();
         } catch (final ConfigurationException e) {
           e.printStackTrace();
         }
 
-        // Any fields defined in the configuration override values in the data store
-        final Config section = configuration.getSection(ConfigTag.FIELDS);
-        if (section != null) {
-          for (final DataField field : section.getFields()) {
-            if (!field.isFrame()) {
-              if (StringUtil.isNotBlank(field.getName()) && !field.isNull()) {
-                final String token = field.getStringValue();
-                final String value = Template.resolve(token, engine.getSymbolTable());
-                engine.getSymbolTable().put(field.getName(), value);
-                set(field.getName(), value);
-              }
-            }
-          }
-        }
+
       }
     }
 
@@ -305,18 +293,6 @@ public class DatabaseContext extends PersistentContext {
 
 
 
-
-  /**
-   * 
-   */
-  @SuppressWarnings("unchecked")
-  private void updateSymbols() {
-    if (symbols != null) {
-      for (final String key : properties.keySet()) {
-        symbols.put(key, properties.get(key));
-      }
-    }
-  }
 
 
 

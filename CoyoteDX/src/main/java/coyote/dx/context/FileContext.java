@@ -50,7 +50,9 @@ public class FileContext extends PersistentContext {
 
 
 
-  public FileContext() {}
+  public FileContext() {
+    // default constructor    
+  }
 
 
 
@@ -78,10 +80,6 @@ public class FileContext extends PersistentContext {
         Log.warn("Could not load context: " + e.getClass().getSimpleName() + " - " + e.getMessage());
       }
     }
-
-    incrementRunCount();
-
-    setPreviousRunDate();
 
     // now resolve our configuration
     super.open();

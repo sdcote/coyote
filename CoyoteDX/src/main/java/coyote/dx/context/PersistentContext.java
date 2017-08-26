@@ -11,8 +11,13 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import coyote.commons.DateUtil;
+import coyote.commons.StringUtil;
+import coyote.commons.template.Template;
+import coyote.dataframe.DataField;
 import coyote.dx.CDX;
+import coyote.dx.ConfigTag;
 import coyote.dx.Symbols;
+import coyote.loader.cfg.Config;
 import coyote.loader.log.Log;
 import coyote.loader.log.LogMsg;
 
@@ -40,6 +45,44 @@ import coyote.loader.log.LogMsg;
 public abstract class PersistentContext extends TransformContext {
   long runcount = 0;
   Date lastRunDate = null;
+
+
+
+
+  /**
+   * @see coyote.dx.context.TransformContext#open()
+   */
+  @Override
+  public void open() {
+    incrementRunCount();
+    setPreviousRunDate();
+    updateSymbols();
+    updateFields();
+  }
+
+
+
+
+  /**
+   * Look for the {@code fields} section in our configuration and place each 
+   * field in the context and symbol table.
+   */
+  protected void updateFields() {
+    // Any fields defined in the configuration override values in the data store
+    final Config section = configuration.getSection(ConfigTag.FIELDS);
+    if (section != null) {
+      for (final DataField field : section.getFields()) {
+        if (!field.isFrame()) {
+          if (StringUtil.isNotBlank(field.getName()) && !field.isNull()) {
+            final String token = field.getStringValue();
+            final String value = Template.resolve(token, engine.getSymbolTable());
+            engine.getSymbolTable().put(field.getName(), value);
+            set(field.getName(), value);
+          }
+        }
+      }
+    }
+  }
 
 
 
@@ -117,6 +160,22 @@ public abstract class PersistentContext extends TransformContext {
     }
 
     Log.debug("Runcount is " + runcount);
+  }
+
+
+
+
+  /**
+   * Take all of the properties in this context and update the symbol table 
+   * with them.
+   */
+  @SuppressWarnings("unchecked")
+  protected void updateSymbols() {
+    if (symbols != null) {
+      for (final String key : properties.keySet()) {
+        symbols.put(key, properties.get(key));
+      }
+    }
   }
 
 }
