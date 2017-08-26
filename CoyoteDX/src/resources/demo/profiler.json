@@ -9,8 +9,8 @@
 			"header" : true
 		},
 
-		"Listeners": {
-			"DataProfiler": { "target": "users-profile.txt" }
+		"Listener": {
+			"DataProfiler": { "target": "[#$user.dir#][#$file.separator#]users-profile.txt" }
 		}
 
 	}
