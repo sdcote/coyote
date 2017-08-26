@@ -33,6 +33,7 @@ public class LoaderHelp {
     b.append("\n\nThe following parameters are also supported:");
     b.append("\n  -d        Enable debugging messages.");
     b.append("\n  -v        Enable verbose (informational) messages.");
+    b.append("\n  -t        Enable (program flow) trace messages.");
     b.append("\n  -owd      Override the work directory with the current directory.");
     b.append("\n  -help     Show this screen.");
     b.append("\n  -version  Displays the version of all known modules on the class path.");
