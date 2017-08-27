@@ -128,6 +128,7 @@ public class ConfigTag {
   public static final String AVOID = "avoid";
   public static final String HALT_ON_FAIL = "halt";
   public static final String DESCRIPTION = "desc";
+  public static final String VALUES = "values";
 
   // Scheduler
 
