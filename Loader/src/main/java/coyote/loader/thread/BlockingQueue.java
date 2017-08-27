@@ -4,10 +4,6 @@
  * This program and the accompanying materials are made available under the 
  * terms of the MIT License which accompanies this distribution, and is 
  * available at http://creativecommons.org/licenses/MIT/
- *
- * Contributors:
- *   Stephan D. Cote 
- *      - Initial concept and implementation
  */
 package coyote.loader.thread;
 
@@ -42,10 +38,10 @@ public class BlockingQueue {
    *
    * @param size
    */
-  public BlockingQueue( int size ) {
+  public BlockingQueue(int size) {
     capacity = size;
 
-    if ( size == 0 ) {
+    if (size == 0) {
       capacity = 255;
     }
 
@@ -85,7 +81,7 @@ public class BlockingQueue {
    * @return the current load percentage of the queue
    */
   public float load() {
-    if ( capacity > 0 ) {
+    if (capacity > 0) {
       return (float)size / (float)capacity;
     } else {
       return 1;
@@ -102,7 +98,7 @@ public class BlockingQueue {
    *         get()
    */
   public boolean isEmpty() {
-    if ( ( capacity - size ) == 0 ) {
+    if ((capacity - size) == 0) {
       return true;
     } else {
       return false;
@@ -128,8 +124,8 @@ public class BlockingQueue {
    * Clears out the queue.
    */
   public void clear() {
-    synchronized( slots ) {
-      for ( int i = 0; i < capacity; i++ ) {
+    synchronized (slots) {
+      for (int i = 0; i < capacity; i++) {
         slots[i] = null;
       }
 
@@ -145,21 +141,24 @@ public class BlockingQueue {
   /**
    * Put object in queue.
    *
-   * <p>Block indefinitely if the queue is full.</p>
+   * <p>Block indefinitely if the queue is full. This is a risky call as if 
+   * there is nothing pulling objects from the queue, this will block all 
+   * other threads trying to place objects in the queue. Your system may lock
+   * up and never resume.</p>
    *
    * @param o Object to place in the queue
    *
    * @throws InterruptedException
    */
-  public void put( Object o ) throws InterruptedException {
-    synchronized( slots ) {
-      while ( size == capacity ) {
+  public void put(Object o) throws InterruptedException {
+    synchronized (slots) {
+      while (size == capacity) {
         slots.wait();
       }
 
       slots[tail] = o;
 
-      if ( ++tail == capacity ) {
+      if (++tail == capacity) {
         tail = 0;
       }
 
@@ -181,19 +180,19 @@ public class BlockingQueue {
    * @param o Object
    * @exception InterruptedException Timeout expired or otherwise interrupted
    */
-  public void put( Object o, int timeout ) throws InterruptedException {
-    synchronized( slots ) {
-      if ( size == capacity ) {
-        slots.wait( timeout );
+  public void put(Object o, int timeout) throws InterruptedException {
+    synchronized (slots) {
+      if (size == capacity) {
+        slots.wait(timeout);
 
-        if ( size == capacity ) {
-          throw new InterruptedException( "Timed out" );
+        if (size == capacity) {
+          throw new InterruptedException("Timed out");
         }
       }
 
       slots[tail] = o;
 
-      if ( ++tail == capacity ) {
+      if (++tail == capacity) {
         tail = 0;
       }
 
@@ -216,18 +215,18 @@ public class BlockingQueue {
    * @throws InterruptedException
    */
   public Object get() throws InterruptedException {
-    synchronized( slots ) {
-      while ( size == 0 ) {
+    synchronized (slots) {
+      while (size == 0) {
         slots.wait();
       }
 
       Object o = slots[head];
 
-      if ( ++head == capacity ) {
+      if (++head == capacity) {
         head = 0;
       }
 
-      if ( size == capacity ) {
+      if (size == capacity) {
         slots.notify();
       }
 
@@ -250,23 +249,23 @@ public class BlockingQueue {
    *
    * @throws InterruptedException
    */
-  public Object get( long millis ) throws InterruptedException {
-    synchronized( slots ) {
-      if ( size == 0 ) {
-        slots.wait( millis );
+  public Object get(long millis) throws InterruptedException {
+    synchronized (slots) {
+      if (size == 0) {
+        slots.wait(millis);
       }
 
-      if ( size == 0 ) {
+      if (size == 0) {
         return null;
       }
 
       Object o = slots[head];
 
-      if ( ++head == capacity ) {
+      if (++head == capacity) {
         head = 0;
       }
 
-      if ( size == capacity ) {
+      if (size == capacity) {
         slots.notify();
       }
 
@@ -289,12 +288,12 @@ public class BlockingQueue {
    * @throws InterruptedException
    */
   public Object peek() throws InterruptedException {
-    synchronized( slots ) {
-      if ( size == 0 ) {
+    synchronized (slots) {
+      if (size == 0) {
         slots.wait();
       }
 
-      if ( size == 0 ) {
+      if (size == 0) {
         return null;
       }
 
@@ -317,13 +316,13 @@ public class BlockingQueue {
    *
    * @throws InterruptedException
    */
-  public Object peek( int millis ) throws InterruptedException {
-    synchronized( slots ) {
-      if ( size == 0 ) {
-        slots.wait( (long)millis );
+  public Object peek(int millis) throws InterruptedException {
+    synchronized (slots) {
+      if (size == 0) {
+        slots.wait((long)millis);
       }
 
-      if ( size == 0 ) {
+      if (size == 0) {
         return null;
       }
 
