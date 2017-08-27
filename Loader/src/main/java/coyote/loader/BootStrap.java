@@ -49,6 +49,21 @@ public class BootStrap extends AbstractLoader {
 
   private static final String JSON_EXT = ".json";
 
+  static {
+    // Setup a default uncaught exception handler to assist in diagnosing 
+    // silent thread death in any components.
+    Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
+      @Override
+      public void uncaughtException(Thread t, Throwable e) {
+        java.io.ByteArrayOutputStream out = new java.io.ByteArrayOutputStream();
+        e.printStackTrace(new java.io.PrintWriter(out, true));
+        String message = "UNCAUGHT THREAD EXCEPTION: " + t.getName() + ": " + e.getMessage() + "\n" + out.toString();
+        Log.fatal(message);
+        System.err.println(message);
+      }
+    });
+  }
+
 
 
 
