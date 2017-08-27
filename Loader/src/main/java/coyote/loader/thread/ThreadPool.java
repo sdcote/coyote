@@ -664,7 +664,14 @@ public class ThreadPool {
       Log.warn("ThreadPool.handle() received a null job");
     } else {
       // otherwise, dunk it in the pool
-      jobqueue.put(job);
+      try {
+        jobqueue.put(job, 5000);
+      } catch (InterruptedException e) {
+        if (jobqueue.size() == jobqueue.capacity()) {
+          Log.error("Could not place job in queue: Queue Full");
+          Log.append(THREAD, "ThreadPool.handle(ThreadJob) JobQueue is Full - size:" + jobqueue.size() + " capacity:" + jobqueue.capacity() + " Workers=" + worker_set.size() + " (max=" + maximum_workers + ") idle workers=" + idle_set.size() + " exception: " + e.toString());
+        }
+      }
 
       // make sure we have the threads to handle it.
       checkLoad();
@@ -733,9 +740,9 @@ public class ThreadPool {
 
 
     /**
-     * Constructor
+     * Default Constructor.
      *
-     * @param name
+     * @param name name of the thread
      */
     public ThreadWorker(String name) {
       if (Log.isLogging(THREAD)) {
@@ -920,9 +927,19 @@ public class ThreadPool {
           java.io.ByteArrayOutputStream out = new java.io.ByteArrayOutputStream();
           e.printStackTrace(new java.io.PrintWriter(out, true));
           Log.error("\"" + current_thread.getName() + "\" ThreadWorker.run() exception during run() call " + e.toString() + ":" + e.getMessage() + System.getProperty("line.separator") + out.toString());
+        } catch (Throwable t) {
+          java.io.ByteArrayOutputStream out = new java.io.ByteArrayOutputStream();
+          t.printStackTrace(new java.io.PrintWriter(out, true));
+          Log.error("\"" + current_thread.getName() + "\" ThreadWorker.run() threw an excption during run() call " + t.toString() + ":" + t.getMessage() + System.getProperty("line.separator") + out.toString());
         } finally {
           Log.append(THREAD, this.getThread().getName() + " finished handling " + job + ", going idle");
+
+          // Reset any inturrpted state before moving on to the next job
+          Thread.interrupted();
+
+          // de-reference job
           job = null;
+
           // set this thread in the idle/waiting set
           synchronized (idle_set) {
             idle_set.add(current_thread);
