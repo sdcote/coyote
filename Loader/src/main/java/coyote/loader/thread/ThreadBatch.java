@@ -4,10 +4,6 @@
  * This program and the accompanying materials are made available under the 
  * terms of the MIT License which accompanies this distribution, and is 
  * available at http://creativecommons.org/licenses/MIT/
- *
- * Contributors:
- *   Stephan D. Cote 
- *      - Initial concept and implementation
  */
 package coyote.loader.thread;
 
@@ -21,14 +17,14 @@ import coyote.loader.log.Log;
  */
 public class ThreadBatch extends ThreadJob {
 
-  /** the array of Runnable objects */
+  /** The array of Runnable objects */
   Runnable tasks[];
 
 
 
 
   /**
-   * Constructor
+   * Default constructor.
    */
   public ThreadBatch() {
     tasks = new Runnable[0];
@@ -38,7 +34,7 @@ public class ThreadBatch extends ThreadJob {
 
 
   /**
-   * Over-rided the ThreadJob's doWork() method to run all the Runnable objects
+   * Override the ThreadJob's doWork() method to run all the Runnable objects 
    * we have.
    *
    * <p>If an exception is thrown during the running of a task, it is written
@@ -49,7 +45,7 @@ public class ThreadBatch extends ThreadJob {
       try {
         // Run each task
         tasks[i].run();
-      } catch ( Exception e ) {
+      } catch ( Throwable e ) {
         // Ready any caught exceptions for the loggers
         Log.warn( "ThreadBatch. Task '" + tasks[i].getClass().getName() + "' reported an exception: " + e.getClass().getName() + "-" + e.getMessage() + "\n" + ExceptionUtil.stackTrace( e ) );
       }

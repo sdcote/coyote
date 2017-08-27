@@ -43,12 +43,12 @@ public abstract class AbstractValidator extends AbstractConfigurableComponent im
 
 
 
-  @Override
-  public void open(TransformContext context) {}
-
-
-
-
+  /**
+   * Returns if this component is configured to halt on failure.
+   * 
+   * @return true if the "halt" configuration parameter is present and set to 
+   *         true, false otherwise.
+   */
   public boolean haltOnFail() {
     if (configuration.containsIgnoreCase(ConfigTag.HALT_ON_FAIL)) {
       return configuration.getBoolean(ConfigTag.HALT_ON_FAIL);
@@ -59,8 +59,25 @@ public abstract class AbstractValidator extends AbstractConfigurableComponent im
 
 
 
+  /**
+   * @see coyote.dx.Component#open(coyote.dx.context.TransformContext)
+   */
   @Override
-  public void close() throws IOException {}
+  public void open(TransformContext context) {
+    // all components need to implement this method but not all components 
+    // need to be opened.    
+  }
+
+
+
+
+  /**
+   * @see java.io.Closeable#close()
+   */
+  @Override
+  public void close() throws IOException {
+    // implementation for Closable, not all components require closing
+  }
 
 
 
@@ -70,9 +87,9 @@ public abstract class AbstractValidator extends AbstractConfigurableComponent im
    * of this validation rule and optionally sets the transaction context in 
    * error if {@link #haltOnFail()} is set to true.
    * 
-   * @param context
-   * @param field
-   * @param message
+   * @param context The current transaction context.
+   * @param field the field name failing validation.
+   * @param message the reason why the validation failed.
    */
   protected void fail(TransactionContext context, String field, String message) {
     context.fireValidationFailed(this, message);
@@ -89,8 +106,8 @@ public abstract class AbstractValidator extends AbstractConfigurableComponent im
    * of this validation rule and optionally sets the transaction context in 
    * error if {@link #haltOnFail()} is set to true.
    * 
-   * @param context
-   * @param field
+   * @param context The current transaction context.
+   * @param field the field name failing validation.
    */
   protected void fail(TransactionContext context, String field) {
     if (StringUtil.isNotBlank(description)) {
@@ -137,6 +154,8 @@ public abstract class AbstractValidator extends AbstractConfigurableComponent im
 
 
   /**
+   * Field name accessor.
+   * 
    * @return the name of the field to which this validator is targeted
    */
   public String getFieldName() {
@@ -147,6 +166,8 @@ public abstract class AbstractValidator extends AbstractConfigurableComponent im
 
 
   /**
+   * Validation descriptor message.
+   * 
    * @return the description of this validator (Also used in error messages)
    */
   public String getDescription() {
