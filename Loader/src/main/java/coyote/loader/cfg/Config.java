@@ -14,8 +14,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
+import java.math.BigInteger;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -656,6 +658,166 @@ public class Config extends DataFrame implements Cloneable, Serializable {
    */
   public Config copy() {
     return new Config((DataFrame)super.clone());
+  }
+
+
+
+
+  /**
+   * Return the object value of the named field.
+   *
+   * @param name The name of the field containing the object to retrieve.
+   *
+   * @return The object value of the first occurrence of the named field or null 
+   *         if the field with the given name was not found.
+   */
+  @Override
+  public Object getObject(final String name) {
+    for (int i = 0; i < fields.size(); i++) {
+      final DataField field = fields.get(i);
+      if ((field.getName() != null) && field.getName().equals(name)) {
+        if (DataField.ARRAY == field.getType()) {
+          return getArrayFromFrame((DataFrame)field.getObjectValue());
+        } else if (DataField.FRAMETYPE == field.getType()) {
+          DataFrame frame = (DataFrame)field.getObjectValue();
+          if (frame.isArray()) {
+            return getArrayFromFrame(frame);
+          } else {
+            return frame;
+          }
+        } else {
+          return field.getObjectValue();
+        }
+      }
+    }
+    return null;
+  }
+
+
+
+
+  /**
+   * Return an array of the values from the given frame.
+   * 
+   * <p><strong>NOTE:</strong> The frame should either be an array {@code 
+   * DataFrame.isArray()} of be a frame of all the same type. The first field 
+   * is checked for the type of an array to create an return. If any of the 
+   * remaining fields differ in type, a ClassCastException will be thrown and 
+   * the data will be incomplete.</p>
+   * 
+   * @param frm the frame to convert into an array
+   * 
+   * @return an array of
+   */
+  private Object getArrayFromFrame(DataFrame frm) {
+    Object retval = new Object[0];
+
+    if (frm.getFieldCount() > 0) {
+      DataField fld = frm.getField(0); 
+      switch (fld.getType()) {
+        case DataField.STRING:
+          String[] sarray = new String[frm.getFieldCount()];
+          for (int x = 0; x < sarray.length; x++) {
+            sarray[x] = (String)frm.getObject(x);
+          }
+          retval = sarray;
+          break;
+        case DataField.UDEF:
+          Object[] narray = new Object[frm.getFieldCount()];
+          for (int x = 0; x < narray.length; x++) {
+            narray[x] = null;
+          }
+          retval = narray;
+          break;
+        case DataField.S8:
+        case DataField.BYTEARRAY:
+          byte[] barray = new byte[frm.getFieldCount()];
+          for (int x = 0; x < barray.length; x++) {
+            barray[x] = (byte)frm.getObject(x);
+          }
+          retval = barray;
+          break;
+        case DataField.U8:
+        case DataField.S16:
+          short[] sharray = new short[frm.getFieldCount()];
+          for (int x = 0; x < sharray.length; x++) {
+            sharray[x] = (short)frm.getObject(x);
+          }
+          retval = sharray;
+          break;
+        case DataField.U16:
+        case DataField.S32:
+          int[] iarray = new int[frm.getFieldCount()];
+          for (int x = 0; x < iarray.length; x++) {
+            iarray[x] = (int)frm.getObject(x);
+          }
+          retval = iarray;
+          break;
+        case DataField.U32:
+        case DataField.S64:
+          long[] larray = new long[frm.getFieldCount()];
+          for (int x = 0; x < larray.length; x++) {
+            larray[x] = (long)frm.getObject(x);
+          }
+          retval = larray;
+          break;
+        case DataField.U64:
+          BigInteger[] biarray = new BigInteger[frm.getFieldCount()];
+          for (int x = 0; x < biarray.length; x++) {
+            try {
+              biarray[x] = new BigInteger(frm.getAsString(x));
+            } catch (DataFrameException ignore) {
+              ignore.printStackTrace(); // should not happen
+            }
+          }
+          retval = biarray;
+          break;
+        case DataField.FLOAT:
+          float[] farray = new float[frm.getFieldCount()];
+          for (int x = 0; x < farray.length; x++) {
+            farray[x] = (float)frm.getObject(x);
+          }
+          retval = farray;
+          break;
+        case DataField.DOUBLE:
+          double[] darray = new double[frm.getFieldCount()];
+          for (int x = 0; x < darray.length; x++) {
+            darray[x] = (double)frm.getObject(x);
+          }
+          retval = darray;
+          break;
+        case DataField.BOOLEANTYPE:
+          boolean[] blarray = new boolean[frm.getFieldCount()];
+          for (int x = 0; x < blarray.length; x++) {
+            blarray[x] = (boolean)frm.getObject(x);
+          }
+          retval = blarray;
+          break;
+        case DataField.DATE:
+          Date[] dtarray = new Date[frm.getFieldCount()];
+          for (int x = 0; x < dtarray.length; x++) {
+            dtarray[x] = (Date)frm.getObject(x);
+          }
+          retval = dtarray;
+          break;
+        case DataField.URI:
+          URI[] uarray = new URI[frm.getFieldCount()];
+          for (int x = 0; x < uarray.length; x++) {
+            uarray[x] = (URI)frm.getObject(x);
+          }
+          retval = uarray;
+          break;
+        default:
+          Object[] oarray = new Object[frm.getFieldCount()];
+          for (int x = 0; x < oarray.length; x++) {
+            oarray[x] = frm.getObject(x);
+          }
+          retval = oarray;
+          break;
+      }
+    }
+    return retval;
+
   }
 
 }
