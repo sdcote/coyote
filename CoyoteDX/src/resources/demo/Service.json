@@ -1,7 +1,7 @@
 {
 	"Class": "coyote.dx.Service",
 
-	"Components": [
+	"Component": [
 		{
 			"Class": "coyote.loader.Wedge",
 			"Notes": "This just keeps the the service open."
