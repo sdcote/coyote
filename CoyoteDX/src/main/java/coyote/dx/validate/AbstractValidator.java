@@ -46,6 +46,10 @@ public abstract class AbstractValidator extends AbstractConfigurableComponent im
   /**
    * Returns if this component is configured to halt on failure.
    * 
+   * <p>In the case of a validator, Halt implies the Validation exception is 
+   * to be thrown on failure indicating the rest of the validations are not to 
+   * be processed. Halt in the sense of halt validation.
+   * 
    * @return true if the "halt" configuration parameter is present and set to 
    *         true, false otherwise.
    */
@@ -90,11 +94,13 @@ public abstract class AbstractValidator extends AbstractConfigurableComponent im
    * @param context The current transaction context.
    * @param field the field name failing validation.
    * @param message the reason why the validation failed.
+   * 
+   * @throws ValidationException if haltOnFail returns true
    */
-  protected void fail(TransactionContext context, String field, String message) {
+  protected void fail(TransactionContext context, String field, String message) throws ValidationException {
     context.fireValidationFailed(this, message);
     if (haltOnFail()) {
-      context.setError(message);
+      throw new ValidationException("Validation failed for field '" + field + "' - " + message);
     }
   }
 
@@ -108,8 +114,10 @@ public abstract class AbstractValidator extends AbstractConfigurableComponent im
    * 
    * @param context The current transaction context.
    * @param field the field name failing validation.
+   * 
+   * @throws ValidationException if haltOnFail returns true
    */
-  protected void fail(TransactionContext context, String field) {
+  protected void fail(TransactionContext context, String field) throws ValidationException {
     if (StringUtil.isNotBlank(description)) {
       fail(context, field, description);
     } else {
@@ -143,7 +151,7 @@ public abstract class AbstractValidator extends AbstractConfigurableComponent im
       try {
         cfg.getBoolean(ConfigTag.HALT_ON_FAIL);
       } catch (Exception e) {
-        Log.info(LogMsg.createMsg(CDX.MSG, "Task.Header flag not valid " + e.getMessage()));
+        Log.info(LogMsg.createMsg(CDX.MSG, "Validator.invalid_halt_config", cfg.getString(ConfigTag.HALT_ON_FAIL)));
       }
     } else {
       Log.debug(LogMsg.createMsg(CDX.MSG, "Validator.no_halt_config"));

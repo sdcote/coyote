@@ -14,4 +14,11 @@ public class ValidationException extends Exception {
 
   private static final long serialVersionUID = 2195504109617659621L;
 
+  /**
+   * @param msg
+   */
+  public ValidationException(String msg) {
+    super(msg);
+  }
+
 }

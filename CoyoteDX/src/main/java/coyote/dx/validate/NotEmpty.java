@@ -33,6 +33,7 @@ public class NotEmpty extends AbstractValidator implements FrameValidator {
    */
   @Override
   public boolean process(TransactionContext context) throws ValidationException {
+    boolean retval = true;
 
     // get the field from the working frame of the given context
     DataFrame frame = context.getWorkingFrame();
@@ -46,22 +47,20 @@ public class NotEmpty extends AbstractValidator implements FrameValidator {
 
         // check the value
         if (StringUtil.isBlank(value)) {
+          retval = false;
           fail(context, fieldName);
-          return false;
         }
-
       } else {
-        // fail
+        retval = false;
         fail(context, fieldName);
-        return false;
       }
     } else {
       // fail && error
-      context.setError("There is no working frame");
-      return false;
+      retval = false;
+      fail(context, fieldName, "There is no working frame");
     }
 
-    return true;
+    return retval;
   }
 
 }

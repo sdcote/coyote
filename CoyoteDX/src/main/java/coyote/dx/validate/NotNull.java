@@ -30,30 +30,29 @@ public class NotNull extends AbstractValidator implements FrameValidator {
    */
   @Override
   public boolean process(TransactionContext context) throws ValidationException {
-
+    boolean retval = true;
     // get the field from the working frame of the given context
     DataFrame frame = context.getWorkingFrame();
 
     if (frame != null) {
       DataField field = frame.getField(fieldName);
       if (field != null) {
-
         if (field.isNull()) {
+          retval = false;
           fail(context, fieldName);
-          return false;
         }
       } else {
         // if the field does not exist, it is effectively null - no value
+        retval = false;
         fail(context, fieldName);
-        return false;
       }
     } else {
       // fail && error
-      context.setError("There is no working frame");
-      return false;
+      retval = false;
+      fail(context, fieldName, "There is no working frame");
     }
 
-    return true;
+    return retval;
   }
 
 }

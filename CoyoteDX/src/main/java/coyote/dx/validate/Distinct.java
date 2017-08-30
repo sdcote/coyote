@@ -44,6 +44,7 @@ public class Distinct extends AbstractValidator implements FrameValidator {
    */
   @Override
   public boolean process(TransactionContext context) throws ValidationException {
+    boolean retval = true;
 
     // get the field from the working frame of the given context
     DataFrame frame = context.getWorkingFrame();
@@ -59,24 +60,26 @@ public class Distinct extends AbstractValidator implements FrameValidator {
             int count = (Integer)values.get(key);
             count++;
             values.put(key, count);
+            retval = false;
             fail(context, fieldName, fieldName + ": value of '" + key + "' has occured " + count + " times");
-            return false;
           } else {
             values.put(key, 1);
           }
         } else {
+          retval = false;
           fail(context, fieldName, "Empty value for " + fieldName + " count: " + ++emptycount);
         }
       } else {
+        retval = false;
         fail(context, fieldName, "Missing field for " + fieldName + " count: " + ++missingcount);
       }
     } else {
       // fail && error
-      context.setError("There is no working frame");
-      return false;
+      retval = false;
+      fail(context, fieldName, "There is no working frame");
     }
 
-    return true;
+    return retval;
   }
 
 }

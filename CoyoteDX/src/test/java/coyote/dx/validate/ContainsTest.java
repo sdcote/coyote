@@ -29,11 +29,14 @@ import coyote.loader.cfg.ConfigurationException;
  */
 public class ContainsTest extends AbstractTest {
 
-  @Ignore
-  public void test() {
+  @Test
+  public void basics() {
 
     String[] models = {"PT3500", "PT4000", "PT4500"};
-    DataFrame config = new DataFrame().set(ConfigTag.FIELD, "model").set(ConfigTag.VALUES, models).set(ConfigTag.DESCRIPTION, "Only certain models are supported");
+    DataFrame config = new DataFrame()
+        .set(ConfigTag.FIELD, "model")
+        .set(ConfigTag.VALUES, models)
+        .set(ConfigTag.DESCRIPTION, "Only certain models are supported");
 
     Config configuration = parseConfiguration(config.toString());
 
@@ -68,6 +71,20 @@ public class ContainsTest extends AbstractTest {
       fail(e.getMessage());
     }
 
+    // Case is different and ignore case is false by default
+    context = createTransactionContext();
+    sourceFrame = new DataFrame();
+    sourceFrame.put("model", "pt4500");
+    context.setSourceFrame(sourceFrame);
+
+    try {
+      boolean result = validator.process(context);
+      assertFalse(result);
+    } catch (ValidationException e) {
+      e.printStackTrace();
+      fail(e.getMessage());
+    }
+
     // Blank value should return false
     context = createTransactionContext();
     sourceFrame = new DataFrame();
@@ -76,7 +93,7 @@ public class ContainsTest extends AbstractTest {
 
     try {
       boolean result = validator.process(context);
-      assertTrue(result);
+      assertFalse(result);
     } catch (ValidationException e) {
       e.printStackTrace();
       fail(e.getMessage());
@@ -90,7 +107,7 @@ public class ContainsTest extends AbstractTest {
 
     try {
       boolean result = validator.process(context);
-      assertTrue(result);
+      assertFalse(result);
     } catch (ValidationException e) {
       e.printStackTrace();
       fail(e.getMessage());
@@ -110,6 +127,198 @@ public class ContainsTest extends AbstractTest {
       fail(e.getMessage());
     }
 
+  }
+
+  @Test
+  public void ignoreCase() {
+
+    String[] models = {"PT3500", "PT4000", "PT4500"};
+    DataFrame config = new DataFrame()
+        .set(ConfigTag.FIELD, "model")
+        .set(ConfigTag.VALUES, models)
+        .set(ConfigTag.DESCRIPTION, "Only certain models are supported")
+        .set(ConfigTag.IGNORE_CASE,true);
+
+    Config configuration = parseConfiguration(config.toString());
+
+    @SuppressWarnings("resource")
+    FrameValidator validator = new Contains();
+
+    try {
+      validator.setConfiguration(configuration);
+    } catch (ConfigurationException e) {
+      e.printStackTrace();
+      fail(e.getMessage());
+    }
+
+    validator.open(getTransformContext());
+
+    TransactionContext context = createTransactionContext();
+    DataFrame sourceFrame = new DataFrame();
+    sourceFrame.put("model", "PT4500");
+
+    context.setSourceFrame(sourceFrame);
+
+    try {
+      boolean result = validator.process(context);
+      assertTrue(result);
+    } catch (ValidationException e) {
+      e.printStackTrace();
+      fail(e.getMessage());
+    }
+
+    context = createTransactionContext();
+    sourceFrame = new DataFrame();
+    sourceFrame.put("model", "pt4500");
+    context.setSourceFrame(sourceFrame);
+
+    try {
+      boolean result = validator.process(context);
+      assertTrue(result);
+    } catch (ValidationException e) {
+      e.printStackTrace();
+      fail(e.getMessage());
+    }
+
+    context = createTransactionContext();
+    sourceFrame = new DataFrame();
+    sourceFrame.put("model", " ");
+    context.setSourceFrame(sourceFrame);
+
+    try {
+      boolean result = validator.process(context);
+      assertFalse(result);
+    } catch (ValidationException e) {
+      e.printStackTrace();
+      fail(e.getMessage());
+    }
+
+    context = createTransactionContext();
+    sourceFrame = new DataFrame();
+    sourceFrame.put("model", "");
+    context.setSourceFrame(sourceFrame);
+
+    try {
+      boolean result = validator.process(context);
+      assertFalse(result);
+    } catch (ValidationException e) {
+      e.printStackTrace();
+      fail(e.getMessage());
+    }
+
+    context = createTransactionContext();
+    sourceFrame = new DataFrame();
+    sourceFrame.put("model", null);
+    context.setSourceFrame(sourceFrame);
+
+    try {
+      boolean result = validator.process(context);
+      assertFalse(result);
+    } catch (ValidationException e) {
+      e.printStackTrace();
+      fail(e.getMessage());
+    }
+
+  }
+
+
+
+
+  @Ignore
+  public void readFromFile() {
+    DataFrame config = new DataFrame().set(ConfigTag.FIELD, "model").set(ConfigTag.VALUES, "modelfile.txt").set(ConfigTag.DESCRIPTION, "Only certain models are supported");
+    Config configuration = parseConfiguration(config.toString());
+
+    @SuppressWarnings("resource")
+    FrameValidator validator = new Contains();
+    try {
+      validator.setConfiguration(configuration);
+    } catch (ConfigurationException e) {
+      e.printStackTrace();
+      fail(e.getMessage());
+    }
+
+    validator.open(getTransformContext());
+    TransactionContext context = createTransactionContext();
+    DataFrame sourceFrame = new DataFrame();
+    sourceFrame.put("model", "PT4500");
+    context.setSourceFrame(sourceFrame);
+
+    try {
+      boolean result = validator.process(context);
+      assertTrue(result);
+    } catch (ValidationException e) {
+      e.printStackTrace();
+      fail(e.getMessage());
+    }
+  }
+
+
+
+
+
+
+  @Ignore
+  public void readFromUri() {
+    DataFrame config = new DataFrame().set(ConfigTag.FIELD, "model").set(ConfigTag.VALUES, "file://modelfile.txt").set(ConfigTag.DESCRIPTION, "Only certain models are supported");
+    Config configuration = parseConfiguration(config.toString());
+
+    @SuppressWarnings("resource")
+    FrameValidator validator = new Contains();
+    try {
+      validator.setConfiguration(configuration);
+    } catch (ConfigurationException e) {
+      e.printStackTrace();
+      fail(e.getMessage());
+    }
+
+    validator.open(getTransformContext());
+    TransactionContext context = createTransactionContext();
+    DataFrame sourceFrame = new DataFrame();
+    sourceFrame.put("model", "PT4500");
+    context.setSourceFrame(sourceFrame);
+
+    try {
+      boolean result = validator.process(context);
+      assertTrue(result);
+    } catch (ValidationException e) {
+      e.printStackTrace();
+      fail(e.getMessage());
+    }
+  }
+
+
+
+
+
+
+  @Ignore
+  public void readFromNetUri() {
+    DataFrame config = new DataFrame().set(ConfigTag.FIELD, "model").set(ConfigTag.VALUES, "http://modelfile.txt").set(ConfigTag.DESCRIPTION, "Only certain models are supported");
+    Config configuration = parseConfiguration(config.toString());
+
+    @SuppressWarnings("resource")
+    FrameValidator validator = new Contains();
+    try {
+      validator.setConfiguration(configuration);
+    } catch (ConfigurationException e) {
+      e.printStackTrace();
+      fail(e.getMessage());
+    }
+
+    validator.open(getTransformContext());
+    TransactionContext context = createTransactionContext();
+    DataFrame sourceFrame = new DataFrame();
+    sourceFrame.put("model", "PT4500");
+    context.setSourceFrame(sourceFrame);
+
+    try {
+      boolean result = validator.process(context);
+      assertTrue(result);
+    } catch (ValidationException e) {
+      e.printStackTrace();
+      fail(e.getMessage());
+    }
   }
 
 }

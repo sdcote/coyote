@@ -153,7 +153,7 @@ public class CDX {
    * <li>Users current working directory
    * <li>Configuration location, if it is a file system directory
    * <li>Work directory (from system properties)
-   * <li>job directory</ol>
+   * <li>Job directory</ol>
    * 
    * @param file the file to resolve
    * @param context the transform context containing the different file 
@@ -162,7 +162,7 @@ public class CDX {
    * @return a file which may or may not have been resolved.
    */
   public static File resolveFile(File file, TransformContext context) {
-    File retval;
+    File retval = file;
     if (file != null && !file.isAbsolute()) {
       retval = new File(System.getProperty(System.getProperty("user.dir"), file.getPath()));
       if (!retval.exists()) {
@@ -187,10 +187,42 @@ public class CDX {
           }
         }
       }
-    } else {
-      retval = file;
     }
 
+    return retval;
+  }
+
+
+
+
+  public static File resolveFile(String token, TransformContext context) {
+    File retval = null;
+    URI uri = UriUtil.parse(token);
+    if (uri != null) {
+      retval = UriUtil.getFile(uri);
+      if (retval == null) {
+        if (uri.getScheme() == null) {
+          // Assume a file if there is no scheme
+          Log.debug("Source URI did not contain a scheme, assuming a filename");
+          retval = new File(token);
+        } else {
+          Log.warn(LogMsg.createMsg(CDX.MSG, "Reader.source_is_not_file", token));
+        }
+      }
+    } else {
+      Log.debug("Source could not be parsed into a URI, assuming a filename");
+      retval = new File(token);
+    }
+    if (retval != null) {
+      Log.debug("Using a source file of " + retval.getAbsolutePath());
+    } else {
+      Log.error("Using a source file of NULL_REF");
+    }
+    // if not absolute, use the CDX fixture to attemt to resolve the relative file
+    if (!retval.isAbsolute()) {
+      retval = CDX.resolveFile(retval, context);
+    }
+    Log.debug("Using an absolute source file of " + retval.getAbsolutePath());
     return retval;
   }
 

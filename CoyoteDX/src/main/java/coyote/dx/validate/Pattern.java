@@ -49,7 +49,8 @@ public class Pattern extends AbstractValidator implements FrameValidator {
 
 
   /**
-   * @return the avoid
+   * @return true if this validator is to reject any matching value, false if 
+   *         this validator is limiting the the values in this validator.
    */
   public boolean isAvoiding() {
     return avoid;
@@ -59,7 +60,8 @@ public class Pattern extends AbstractValidator implements FrameValidator {
 
 
   /**
-   * @param flag the avoid to set
+   * @param flag true if the validator is to avoid the pattern (return false 
+   *        on match), false if the pattern must match.
    */
   public void setAvoid(boolean flag) {
     this.avoid = flag;
@@ -106,7 +108,6 @@ public class Pattern extends AbstractValidator implements FrameValidator {
     // perform base class configuration first
     super.setConfiguration(cfg);
 
-    //
     if (cfg.contains(ConfigTag.AVOID)) {
       setAvoid(true);
       setRegEx(cfg.getAsString(ConfigTag.AVOID));
@@ -141,6 +142,7 @@ public class Pattern extends AbstractValidator implements FrameValidator {
   @Override
   public boolean process(TransactionContext context) throws ValidationException {
     boolean retval = true;
+
     //get the working frame of the given context
     DataFrame frame = context.getWorkingFrame();
 
@@ -157,15 +159,15 @@ public class Pattern extends AbstractValidator implements FrameValidator {
           if (isAvoiding()) {
             // we are avoiding a match so if there is a match, log a failure
             if (valuePattern.matcher(value).matches()) {
-              fail(context, fieldName);
               retval = false;
+              fail(context, fieldName);
             }
           } else {
             // we are not avoiding (i.e requiring) a match so log a failure if 
             // it does not match
             if (!valuePattern.matcher(value).matches()) {
-              fail(context, fieldName);
               retval = false;
+              fail(context, fieldName);
             }
           } // avoiding?
 
@@ -175,8 +177,8 @@ public class Pattern extends AbstractValidator implements FrameValidator {
 
     } else {
       // fail && error
-      context.setError("There is no working frame");
       retval = false;
+      fail(context, fieldName, "There is no working frame");
     }
 
     return retval;

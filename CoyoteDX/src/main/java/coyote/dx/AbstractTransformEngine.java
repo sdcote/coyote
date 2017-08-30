@@ -383,13 +383,19 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
             // If the working frame did not get filtered out...
             if (txnContext.getWorkingFrame() != null) {
 
-              // pass it through the validation rules - errors are logged
+              // pass it through the validation rules
               txnContext.setState("Validate");
               boolean passed = true;
+              List<String> errors = new ArrayList<String>();
               for (FrameValidator validator : validators) {
                 try {
                   if (!validator.process(txnContext)) {
                     passed = false;
+                    String error =validator.getDescription();
+                    if(StringUtil.isBlank(error)){
+                      error = validator.getClass().getName();
+                    }
+                    errors.add(error);
                   }
                 } catch (ValidationException e) {
                   txnContext.setError(e.getMessage());
@@ -398,6 +404,14 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
 
               // if there were validation errors
               if (!passed) {
+                StringBuffer b = new StringBuffer("Validation errors:");
+                for(int x=0;x<errors.size();x++){
+                  b.append(errors.get(x));
+                  if(x+1<errors.size()){
+                    b.append(", ");
+                  }
+                }
+                txnContext.setError(b.toString());
                 getContext().fireFrameValidationFailed(txnContext);
               }
 
