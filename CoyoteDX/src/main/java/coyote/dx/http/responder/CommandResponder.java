@@ -39,7 +39,8 @@ public class CommandResponder extends AbstractBatchResponder implements Responde
 
     // Get the command from the URL parameters specified when we were registered with the router 
     String command = urlParams.get("command");
-
+    Log.debug("Received a command of '" + command + "'");
+    
     // Process the command
     if (StringUtil.isNotBlank(command)) {
       results.put("command", command);
@@ -47,9 +48,11 @@ public class CommandResponder extends AbstractBatchResponder implements Responde
         case SHUTDOWN:
           // Create a Scheduled Job which will shutdown the service in a few seconds
           service.getScheduler().schedule(new ShutdownCmd(), System.currentTimeMillis() + 2000);
+          Log.debug("Placed a shutdown command in the scheduler for later execution");
           results.put("result", "success");
           break;
         default:
+          Log.debug("Unknowned command '" + command + "' ignored");
           results.put("result", "Unknown command");
           break;
       }
