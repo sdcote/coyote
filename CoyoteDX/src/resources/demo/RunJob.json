@@ -9,8 +9,8 @@
 			"LogContext" : { "category":"debug" },
 			"RunJob" : { 
 				"condition": "jobSuccess(Price) && checkField(Price.ContextOutput.Last, GT, 2790)",
-				"filename" : "sellBitcoin",
-				"fields" : { "Coins": 0.035, "Account": "12345", "Password": "53crEt" }
+				"filename" : "SellBitcoin",
+				"context" : { "Coins": 0.035, "Account": "12345", "Password": "53crEt" }
 			},
 			"RunJob" : { "condition": "jobFailure(Price)", "filename":"BitcoinCleanup" }
 		}
