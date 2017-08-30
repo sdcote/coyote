@@ -25,6 +25,7 @@ import coyote.commons.network.http.IHTTPSession;
 import coyote.dataframe.DataField;
 import coyote.dataframe.DataFrame;
 import coyote.dataframe.DataFrameException;
+import coyote.loader.Loader;
 import coyote.loader.cfg.Config;
 import coyote.loader.log.Log;
 
@@ -45,7 +46,6 @@ import coyote.loader.log.Log;
 public class GenericAuthProvider implements AuthProvider {
   public static final String ALLOW_NO_SSL = "AllowUnsecuredConnections";
   public static final String AUTH_SECTION = "Auth";
-  public static final String ENCRYPTED = "Encrypted";
   public static final String GROUPS = "Groups";
   public static final String NAME = "Name";
   public static final String PASSWORD = "Password";
@@ -246,14 +246,14 @@ public class GenericAuthProvider implements AuthProvider {
         for (final DataField userfield : userframe.getFields()) {
           if (userfield.getName() != null) {
             if (userfield.getName().endsWith(NAME)) {
-              if (userfield.getName().startsWith(ENCRYPTED)) {
+              if (userfield.getName().startsWith(Loader.ENCRYPT_PREFIX)) {
                 user.setName(CipherUtil.decryptString(userfield.getStringValue()));
               } else {
                 user.setName(userfield.getStringValue());
               }
             } else if (userfield.getName().endsWith(PASSWORD)) {
               String passwd;
-              if (userfield.getName().startsWith(ENCRYPTED)) {
+              if (userfield.getName().startsWith(Loader.ENCRYPT_PREFIX)) {
                 passwd = CipherUtil.decryptString(userfield.getStringValue());
               } else {
                 passwd = userfield.getStringValue();
@@ -263,7 +263,7 @@ public class GenericAuthProvider implements AuthProvider {
               } catch (final UnsupportedEncodingException e) {}
             } else if (userfield.getName().endsWith(GROUPS)) {
               String groups;
-              if (userfield.getName().startsWith(ENCRYPTED)) {
+              if (userfield.getName().startsWith(Loader.ENCRYPT_PREFIX)) {
                 groups = CipherUtil.decryptString(userfield.getStringValue());
               } else {
                 groups = userfield.getStringValue();
