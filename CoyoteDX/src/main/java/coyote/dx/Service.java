@@ -82,9 +82,15 @@ public class Service extends AbstractBatchLoader implements Loader {
    * <p>Part of the creation process is the passing of the configuration frame 
    * from which the HttpManager can extract its configuration.
    * 
-   * @param cfg The configuration for the manager (may be null)
+   * @param config The configuration for the manager (may be null)
    */
-  private void startManager(Config cfg) {
+  private void startManager(Config config) {
+    Config cfg;
+    if (config == null) {
+      cfg = new Config();
+    } else {
+      cfg = config;
+    }
 
     // look for the Static Manager Binder in the classpath
     try {
