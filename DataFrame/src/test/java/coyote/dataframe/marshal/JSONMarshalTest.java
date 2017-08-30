@@ -261,7 +261,7 @@ public class JSONMarshalTest {
 
     List<DataFrame> frames = JSONMarshaler.marshal(json);
     assertTrue(frames.size() == 1);
-    DataFrame frame = frames.get(0);
+    //DataFrame frame = frames.get(0);
     //System.out.println( frame.toString() );
     //System.out.println(JSONMarshaler.toFormattedString(frame));
   }

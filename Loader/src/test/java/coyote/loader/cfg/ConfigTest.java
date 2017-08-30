@@ -160,7 +160,7 @@ public class ConfigTest {
     String cfgData = config.toString();
     //System.out.println(cfgData);
     List<DataFrame> cfglist = JSONMarshaler.marshal(cfgData);
-    DataFrame frame = cfglist.get(0);
+    //DataFrame frame = cfglist.get(0);
     Config configuration = new Config(cfglist.get(0));
     Object obj = configuration.getObject("array");
     assertNotNull(obj);
