@@ -10,6 +10,7 @@ package coyote.dx.validate;
 import java.io.File;
 import java.net.URI;
 
+import coyote.commons.FileUtil;
 import coyote.commons.UriUtil;
 import coyote.dataframe.DataField;
 import coyote.dataframe.DataFrame;
@@ -19,6 +20,7 @@ import coyote.dx.context.TransactionContext;
 import coyote.dx.context.TransformContext;
 import coyote.loader.cfg.Config;
 import coyote.loader.cfg.ConfigurationException;
+import coyote.loader.log.Log;
 
 
 /**
@@ -73,7 +75,12 @@ public class Contains extends AbstractValidator {
   @Override
   public void open(TransformContext context) {
     if (valueUri != null) {
-      // load the values from the URI
+      if (UriUtil.isFile(valueUri)) {
+        File file = UriUtil.getFile(valueUri);
+        values = FileUtil.textToArray(file);
+      } else {
+        Log.error("Network URIs are not supported yet.");
+      }
     }
   }
 
