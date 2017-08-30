@@ -20,7 +20,10 @@
 				{ "ENC:Name" : "OjlIAF1dPhHiNBqMCqVJUg==",  
 				  "ENC:Password" : "6CIY8APrIlUyh75cRgqlNzgAdPz/K2mz"
 				}
-			]
+			],
+			"SendAuthRequestOnFailure": true,
+			"AllowUnsecuredConnections" : false
+
 		},
 		"IPACL" : {
 			"default" : "deny",
