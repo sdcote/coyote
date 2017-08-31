@@ -13,6 +13,8 @@ import coyote.dataframe.marshal.ParseException;
 
 /**
  * Parse JSON text into DataFrames.
+ * 
+ * http://www.ietf.org/rfc/rfc4627.txt
  */
 public class JsonFrameParser {
 

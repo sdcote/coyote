@@ -1343,7 +1343,13 @@ public class DataFrame implements Cloneable {
           b.append(field.getStringValue());
         } else if (field.getType() == DataField.STRING) {
           b.append('"');
-          b.append(field.getStringValue());
+          String retval =field.getStringValue();
+          retval=retval.replace("\n", "\\n");
+          retval=retval.replace("\r", "\\r");
+          retval=retval.replace("\t", "\\t");
+          retval=retval.replace("\f", "\\f");
+          retval=retval.replace("\b", "\\b");
+          b.append(retval);
           b.append('"');
         } else if (field.getType() == DataField.DATE) {
           b.append('"');

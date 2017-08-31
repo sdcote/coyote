@@ -24,6 +24,7 @@ import java.util.List;
 
 import org.junit.Test;
 
+import coyote.commons.ByteUtil;
 import coyote.dataframe.DataField;
 import coyote.dataframe.DataFrame;
 import coyote.dataframe.DataFrameException;
@@ -265,5 +266,59 @@ public class JSONMarshalTest {
     //System.out.println( frame.toString() );
     //System.out.println(JSONMarshaler.toFormattedString(frame));
   }
+
+  @Test
+  public void readEscaped() {
+    String json = new String("{ \"text\":\"\\n\" }");
+    //System.out.println( json );
+
+    List<DataFrame> frames = JSONMarshaler.marshal(json);
+    assertTrue(frames.size() == 1);
+    DataFrame frame = frames.get(0);
+    //System.out.println( frame.toString() );
+    DataField field = frame.getField("text");
+    assertNotNull(field);
+    byte[] bytes = field.getValue();
+    //System.out.println(ByteUtil.dump(bytes));
+    assertTrue(bytes.length==1);
+    assertTrue(bytes[0]==10);
+    
+    json = new String("{ \"text\":\"\\t\" }");
+    frames = JSONMarshaler.marshal(json);
+    frame = frames.get(0);
+    field = frame.getField("text");
+    bytes = field.getValue();
+    assertTrue(bytes.length==1);
+    assertTrue(bytes[0]==9);
+
+    json = new String("{ \"text\":\"\\r\" }");
+    frames = JSONMarshaler.marshal(json);
+    frame = frames.get(0);
+    field = frame.getField("text");
+    bytes = field.getValue();
+    assertTrue(bytes.length==1);
+    assertTrue(bytes[0]==13);
+
+    json = new String("{ \"text\":\"\\f\" }");
+    frames = JSONMarshaler.marshal(json);
+    frame = frames.get(0);
+    field = frame.getField("text");
+    bytes = field.getValue();
+    assertTrue(bytes.length==1);
+    assertTrue(bytes[0]==12);
+
+    json = new String("{ \"text\":\"\\b\" }");
+    frames = JSONMarshaler.marshal(json);
+    frame = frames.get(0);
+    System.out.println( frame.toString() );
+    field = frame.getField("text");
+    bytes = field.getValue();
+    System.out.println(ByteUtil.dump(bytes));
+    assertTrue(bytes.length==1);
+    assertTrue(bytes[0]==8);
+
+  }
+  
+  
 
 }
