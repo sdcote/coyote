@@ -139,7 +139,16 @@ public class CSVWriter extends AbstractFrameFileWriter implements FrameWriter, C
    * @return true if the token contains special characters and needs to be surrounded in quotes, false otherwise
    */
   private static boolean tokenContainsSpecialCharacters(final String token) {
-    return (token.indexOf(QUOTE_CHARACTER) != -1) || (token.indexOf(separator) != -1) || (token.indexOf(ESCAPE_CHARACTER) != -1) || (token.contains("\n")) || (token.contains("\r"));
+    boolean retval = false;
+    char character;
+    for (int x = 0; x < token.length(); x++) {
+      character = token.charAt(x);
+      if (character < 32 || character == QUOTE_CHARACTER || character == separator || character == ESCAPE_CHARACTER) {
+        retval = true;
+        break;
+      }
+    }
+    return retval;
   }
 
 
