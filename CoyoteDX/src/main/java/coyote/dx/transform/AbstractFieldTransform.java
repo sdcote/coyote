@@ -42,6 +42,20 @@ public abstract class AbstractFieldTransform extends AbstractFrameTransform impl
     } else {
       fieldPattern = java.util.regex.Pattern.compile(fieldName.trim());
     }
+
+    // Look for a conditional statement the transform may use to control if it
+    // processes or not
+    String token = getConfiguration().getString(ConfigTag.CONDITION);
+    if (StringUtil.isNotBlank(token)) {
+      expression = token.trim();
+
+      try {
+        evaluator.evaluateBoolean(expression);
+      } catch (final IllegalArgumentException e) {
+        context.setError("Invalid boolean expression in transform: " + e.getMessage());
+      }
+    }
+
   }
 
 
@@ -56,28 +70,6 @@ public abstract class AbstractFieldTransform extends AbstractFrameTransform impl
 
     // set the transform context in the evaluator so it can resolve variables
     evaluator.setContext(context);
-
-    // get the name of the field to transform
-    String token = getConfiguration().getString(ConfigTag.NAME);
-
-    if (StringUtil.isBlank(token)) {
-      context.setError("Set transform must contain a field name");
-    } else {
-      fieldName = token.trim();
-    }
-
-    // Look for a conditional statement the transform may use to control if it
-    // processes or not
-    token = getConfiguration().getString(ConfigTag.CONDITION);
-    if (StringUtil.isNotBlank(token)) {
-      expression = token.trim();
-
-      try {
-        evaluator.evaluateBoolean(expression);
-      } catch (final IllegalArgumentException e) {
-        context.setError("Invalid boolean expression in transform: " + e.getMessage());
-      }
-    }
 
   }
 
