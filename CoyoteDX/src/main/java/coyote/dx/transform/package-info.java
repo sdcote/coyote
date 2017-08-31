@@ -15,7 +15,7 @@
  * data characteristics of a  the frames observed, giving totals of values, 
  * frame counts and possible data profiling (e.g. nulls in fieldX). The results 
  * of such summarization can be accessed in the TransformContext by post 
- * processing tasks or even the context listener.</p> 
+ * processing tasks or context listeners.</p> 
  * 
  * <p>This package is a tool kit for data transformation on a field level 
  * within the context of a data frame.</p>

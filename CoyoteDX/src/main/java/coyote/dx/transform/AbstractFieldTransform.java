@@ -12,6 +12,8 @@ import coyote.dx.ConfigTag;
 import coyote.dx.FrameTransform;
 import coyote.dx.context.TransformContext;
 import coyote.dx.eval.Evaluator;
+import coyote.loader.cfg.Config;
+import coyote.loader.cfg.ConfigurationException;
 
 
 /**
@@ -19,11 +21,28 @@ import coyote.dx.eval.Evaluator;
  */
 public abstract class AbstractFieldTransform extends AbstractFrameTransform implements FrameTransform {
 
-  // The name of the field we are to transform
+  protected java.util.regex.Pattern fieldPattern = null;
   protected String fieldName = null;
-
   protected Evaluator evaluator = new Evaluator();
   protected String expression = null;
+
+
+
+
+  /**
+   * @see coyote.dx.AbstractConfigurableComponent#setConfiguration(coyote.loader.cfg.Config)
+   */
+  @Override
+  public void setConfiguration(Config cfg) throws ConfigurationException {
+    super.setConfiguration(cfg);
+
+    fieldName = getConfiguration().getString(ConfigTag.FIELD);
+    if (StringUtil.isBlank(fieldName)) {
+      throw new ConfigurationException("Transforms require a field name or pattern.");
+    } else {
+      fieldPattern = java.util.regex.Pattern.compile(fieldName.trim());
+    }
+  }
 
 
 

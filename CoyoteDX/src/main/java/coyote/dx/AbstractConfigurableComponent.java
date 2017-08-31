@@ -26,8 +26,6 @@ public abstract class AbstractConfigurableComponent implements ConfigurableCompo
 
   protected Config configuration = new Config();
   protected TransformContext context = null;
-
-  // All components are enabled unless specifically configured otherwise
   protected boolean enabled = true;
 
 
@@ -40,7 +38,6 @@ public abstract class AbstractConfigurableComponent implements ConfigurableCompo
   public void setConfiguration(Config cfg) throws ConfigurationException {
     configuration = cfg;
 
-    // if there is an enabled flag, set it; otherwise default to true
     if (containsIgnoreCase(ConfigTag.ENABLED)) {
       setEnabled(getBoolean(getConfiguration().getFieldIgnoreCase(ConfigTag.ENABLED).getName()));
     }

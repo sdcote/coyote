@@ -12,7 +12,6 @@ import coyote.dx.CDX;
 import coyote.dx.FrameTransform;
 import coyote.dx.TransformException;
 import coyote.dx.context.TransactionContext;
-import coyote.dx.context.TransformContext;
 import coyote.loader.log.Log;
 import coyote.loader.log.LogMsg;
 
@@ -21,24 +20,15 @@ import coyote.loader.log.LogMsg;
  * If the conditions of this transform are met, then the named field is removed 
  * from the frame. 
  * 
- * <p>This only removes the first occurrence of the name field.</p>
+ * <p>This only removes the first occurrence of the named field.</p>
  * 
  * <p>Processing continues after this filter is processed.</p>
  */
 public class Remove extends AbstractFieldTransform implements FrameTransform {
 
   /**
-   * @see coyote.dx.filter.AbstractFrameFilter#open(coyote.dx.context.TransformContext)
+   * @see coyote.dx.FrameTransform#process(coyote.dataframe.DataFrame)
    */
-  @Override
-  public void open(final TransformContext context) {
-    super.open(context);
-
-  }
-
-
-
-
   @Override
   public DataFrame process(final DataFrame frame) throws TransformException {
     // If there is a conditional expression

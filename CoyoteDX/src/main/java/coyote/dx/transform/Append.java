@@ -52,20 +52,8 @@ public class Append extends AbstractFieldTransform implements FrameTransform {
 
 
 
-  // TODO: Support specifying a type...particularly when there is no existing value
-
   /**
-   * 
-   */
-  public Append() {
-
-  }
-
-
-
-
-  /**
-   * @see coyote.dx.transform.AbstractFrameTransform#open(coyote.dx.context.TransformContext)
+   * @see coyote.dx.transform.AbstractFieldTransform#open(coyote.dx.context.TransformContext)
    */
   @Override
   public void open(final TransformContext context) {

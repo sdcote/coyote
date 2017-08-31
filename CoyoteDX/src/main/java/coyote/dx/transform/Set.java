@@ -32,10 +32,10 @@ import coyote.loader.log.LogMsg;
  * <p>The following is a real life example which sets the {@code terminator} to 
  * a value of "2" if the context is processing the last record or "1" otherwise
  * which indicates more records (frames) are to be expected:
- * <pre> "Set" : { "Name" : "cust_item_usage", "Value" : "0001.00" }
- * "Set" : { "Name" : "terminator", "Condition": "islast", "Value" : "2", "Default" : "1" }</pre>
+ * <pre> "Set" : { "Field" : "cust_item_usage", "Value" : "0001.00" }
+ * "Set" : { "Field" : "terminator", "Condition": "islast", "Value" : "2", "Default" : "1" }</pre>
  * <ul>
- * <li>Name - the name of the field to set. (Required)</li>
+ * <li>Field - the name of the field to set. (Required)</li>
  * <li>Condition - The boolean expression which must evaluate to true foe the 
  * value to be set. (defaults to "true")</li>
  * <li>Value - The value to set in the named field if the condition evaluates 
@@ -58,20 +58,8 @@ public class Set extends AbstractFieldTransform implements FrameTransform {
 
 
 
-  // TODO: Support specifying a type...particularly when there is no existing value
-
   /**
-   * 
-   */
-  public Set() {
-
-  }
-
-
-
-
-  /**
-   * @see coyote.dx.transform.AbstractFrameTransform#open(coyote.dx.context.TransformContext)
+   * @see coyote.dx.transform.AbstractFieldTransform#open(coyote.dx.context.TransformContext)
    */
   @Override
   public void open(final TransformContext context) {
