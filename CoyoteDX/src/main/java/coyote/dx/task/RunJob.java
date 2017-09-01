@@ -15,11 +15,14 @@ import java.net.URISyntaxException;
 import coyote.commons.FileUtil;
 import coyote.commons.StringUtil;
 import coyote.commons.UriUtil;
+import coyote.commons.template.Template;
+import coyote.dataframe.DataField;
 import coyote.dx.CDX;
 import coyote.dx.ConfigTag;
 import coyote.dx.TaskException;
 import coyote.dx.TransformEngine;
 import coyote.dx.TransformEngineFactory;
+import coyote.dx.context.TransformContext;
 import coyote.loader.Loader;
 import coyote.loader.cfg.Config;
 import coyote.loader.cfg.ConfigurationException;
@@ -144,34 +147,34 @@ public class RunJob extends AbstractTransformTask {
 
   private URI checkWorkDirectory(String cfgLoc, StringBuffer errMsg) throws TaskException {
     URI retval = null;
-    if(getContext()!=null && getContext().getEngine()!=null){
-    File wrkDir = getContext().getEngine().getWorkDirectory();
-    if( wrkDir != null){
-      if (wrkDir.exists()) {
-        if (wrkDir.isDirectory()) {
-          final File cfgFile = new File(wrkDir, cfgLoc);
-          final File alternativeFile = new File(wrkDir, cfgLoc + JSON_EXT);
+    if (getContext() != null && getContext().getEngine() != null) {
+      File wrkDir = getContext().getEngine().getWorkDirectory();
+      if (wrkDir != null) {
+        if (wrkDir.exists()) {
+          if (wrkDir.isDirectory()) {
+            final File cfgFile = new File(wrkDir, cfgLoc);
+            final File alternativeFile = new File(wrkDir, cfgLoc + JSON_EXT);
 
-          if (cfgFile.exists()) {
-            retval = FileUtil.getFileURI(cfgFile);
-          } else {
-            if (alternativeFile.exists()) {
-              retval = FileUtil.getFileURI(alternativeFile);
+            if (cfgFile.exists()) {
+              retval = FileUtil.getFileURI(cfgFile);
             } else {
-              errMsg.append(LogMsg.createMsg(CDX.MSG, "Task.runjob.no_work_dir_file", cfgFile.getAbsolutePath()) + StringUtil.CRLF);
-              errMsg.append(LogMsg.createMsg(CDX.MSG, "Task.runjob.cfg_file_not_found", cfgLoc) + StringUtil.CRLF);
+              if (alternativeFile.exists()) {
+                retval = FileUtil.getFileURI(alternativeFile);
+              } else {
+                errMsg.append(LogMsg.createMsg(CDX.MSG, "Task.runjob.no_work_dir_file", cfgFile.getAbsolutePath()) + StringUtil.CRLF);
+                errMsg.append(LogMsg.createMsg(CDX.MSG, "Task.runjob.cfg_file_not_found", cfgLoc) + StringUtil.CRLF);
+              }
             }
+          } else {
+            errMsg.append(LogMsg.createMsg(CDX.MSG, "Task.runjob.wrk_dir_is_not_directory", wrkDir) + StringUtil.CRLF);
           }
         } else {
-          errMsg.append(LogMsg.createMsg(CDX.MSG, "Task.runjob.wrk_dir_is_not_directory", wrkDir) + StringUtil.CRLF);
+          errMsg.append(LogMsg.createMsg(CDX.MSG, "Task.runjob.wrk_dir_does_not_exist", wrkDir) + StringUtil.CRLF);
         }
+
       } else {
-        errMsg.append(LogMsg.createMsg(CDX.MSG, "Task.runjob.wrk_dir_does_not_exist", wrkDir) + StringUtil.CRLF);
+        errMsg.append(LogMsg.createMsg(CDX.MSG, "Task.runjob.work_dir_not_set_in_engine") + StringUtil.CRLF);
       }
-      
-    } else {
-      errMsg.append(LogMsg.createMsg(CDX.MSG, "Task.runjob.work_dir_not_set_in_engine") + StringUtil.CRLF);
-    }
     } else {
       errMsg.append(LogMsg.createMsg(CDX.MSG, "Task.runjob.no_reference_to_engine") + StringUtil.CRLF);
     }
@@ -199,13 +202,13 @@ public class RunJob extends AbstractTransformTask {
     URI retval = null;
     File localfile = new File(cfgLoc);
     File alternativeFile = new File(cfgLoc + JSON_EXT);
-    
+
     if (localfile.exists()) {
       retval = FileUtil.getFileURI(localfile);
     } else {
       if (alternativeFile.exists()) {
         retval = FileUtil.getFileURI(alternativeFile);
-      }else{
+      } else {
         errMsg.append(LogMsg.createMsg(CDX.MSG, "Task.runjob.no_local_cfg_file", localfile.getAbsolutePath()) + StringUtil.CRLF);
       }
     }
@@ -249,6 +252,28 @@ public class RunJob extends AbstractTransformTask {
         // Set the engine's work directory to this task's job directory  
         engine.setWorkDirectory(getJobDirectory());
 
+        Config params = getConfiguration().getSection(ConfigTag.PARAMETERS);
+        if (params != null) {
+          TransformContext childContext = new TransformContext();
+          for (DataField field : params.getFields()) {
+            if (field.getType() == DataField.STRING) {
+              
+              // TODO: Parameters need to be resolved. They may represent context values or symbols
+              
+              // preprocess - so any unresolved variables will be resolved in 
+              // the child job ;)
+              String pval = Template.preProcess(field.getStringValue(), getContext().getSymbols());
+              childContext.set(field.getName(), pval);
+              Log.debug("Runjob setting parameter '" + field.getName() + "' to '" + pval + "'");
+            } else {
+              childContext.set(field.getName(), field.getObjectValue());
+              Log.debug("Runjob setting parameter '" + field.getName() + "' to " + field.getStringValue());
+            }
+          }
+
+          engine.setContext(childContext);
+        }
+
         try {
           engine.run();
         } catch (final Throwable t) {
@@ -259,8 +284,7 @@ public class RunJob extends AbstractTransformTask {
             Log.error(errMsg);
             return;
           }
-        }
-        finally {
+        } finally {
           try {
             engine.close();
           } catch (final Exception ignore) {}

@@ -665,4 +665,20 @@ public abstract class OperationalContext {
     return retval;
   }
 
+
+
+
+  /**
+   * Get a mutable list of key names fro this context.
+   * 
+   * @return a list of strings (possibly empty) representing the keys in this 
+   *         context.
+   */
+  public List<String> getKeys() {
+    List<String> retval = new ArrayList<String>(properties.size());
+    for (String key : properties.keySet()) {
+      retval.add(key);
+    }
+    return retval;
+  }
 }

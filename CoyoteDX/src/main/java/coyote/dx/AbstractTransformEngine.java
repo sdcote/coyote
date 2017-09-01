@@ -192,6 +192,12 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
     } else {
       // reset the context in case is was used previously
       getContext().reset();
+
+      // place any existing context variables in the symbol table
+      for (String name : getContext().getKeys()) {
+        symbols.put(name, getContext().getAsString(name));
+        Log.debug("Populating symbols with existing context property '" + name + "', value = '" + getContext().getAsString(name) + "'");
+      }
     }
 
     // get the command line arguments from the symbol table and post the array
@@ -391,8 +397,8 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
                 try {
                   if (!validator.process(txnContext)) {
                     passed = false;
-                    String error =validator.getDescription();
-                    if(StringUtil.isBlank(error)){
+                    String error = validator.getDescription();
+                    if (StringUtil.isBlank(error)) {
                       error = validator.getClass().getName();
                     }
                     errors.add(error);
@@ -405,9 +411,9 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
               // if there were validation errors
               if (!passed) {
                 StringBuffer b = new StringBuffer("Validation errors:");
-                for(int x=0;x<errors.size();x++){
+                for (int x = 0; x < errors.size(); x++) {
                   b.append(errors.get(x));
-                  if(x+1<errors.size()){
+                  if (x + 1 < errors.size()) {
                     b.append(", ");
                   }
                 }
@@ -532,8 +538,7 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
           reportTransformContextError(getContext());
         }
       }
-    }
-    finally {
+    } finally {
       // signal the end of the context
       getContext().end();
 

@@ -120,6 +120,7 @@ public class ConfigTag {
   public static final String FILE = "filename";
   public static final String DIRECTORY = "directory";
   public static final String APPEND = "append";
+  public static final String PARAMETERS = "parameters";
 
   // Validations
 
