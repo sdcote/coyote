@@ -237,7 +237,9 @@ public class JSONMarshalTest {
     assertTrue(results.size() == 1);
     DataFrame frame = results.get(0);
 
-    for(DataField field: frame.getFields()){ System.out.println( field.toString() ); }
+    for (DataField field : frame.getFields()) {
+      System.out.println(field.toString());
+    }
     DataField users = frame.getField("Users");
     //    assertTrue(users.isArray()); // list of unnamed fields
     //    assertTrue( user);
@@ -267,9 +269,12 @@ public class JSONMarshalTest {
     //System.out.println(JSONMarshaler.toFormattedString(frame));
   }
 
+
+
+
   @Test
   public void readEscaped() {
-    String json = new String("{ \"text\":\"\\n\" }");
+    String json = "{ \"text\":\"\\n\" }";
     //System.out.println( json );
 
     List<DataFrame> frames = JSONMarshaler.marshal(json);
@@ -280,45 +285,43 @@ public class JSONMarshalTest {
     assertNotNull(field);
     byte[] bytes = field.getValue();
     //System.out.println(ByteUtil.dump(bytes));
-    assertTrue(bytes.length==1);
-    assertTrue(bytes[0]==10);
-    
-    json = new String("{ \"text\":\"\\t\" }");
+    assertTrue(bytes.length == 1);
+    assertTrue(bytes[0] == 10);
+
+    json = "{ \"text\":\"\\t\" }";
     frames = JSONMarshaler.marshal(json);
     frame = frames.get(0);
     field = frame.getField("text");
     bytes = field.getValue();
-    assertTrue(bytes.length==1);
-    assertTrue(bytes[0]==9);
+    assertTrue(bytes.length == 1);
+    assertTrue(bytes[0] == 9);
 
-    json = new String("{ \"text\":\"\\r\" }");
+    json = "{ \"text\":\"\\r\" }";
     frames = JSONMarshaler.marshal(json);
     frame = frames.get(0);
     field = frame.getField("text");
     bytes = field.getValue();
-    assertTrue(bytes.length==1);
-    assertTrue(bytes[0]==13);
+    assertTrue(bytes.length == 1);
+    assertTrue(bytes[0] == 13);
 
-    json = new String("{ \"text\":\"\\f\" }");
+    json = "{ \"text\":\"\\f\" }";
     frames = JSONMarshaler.marshal(json);
     frame = frames.get(0);
     field = frame.getField("text");
     bytes = field.getValue();
-    assertTrue(bytes.length==1);
-    assertTrue(bytes[0]==12);
+    assertTrue(bytes.length == 1);
+    assertTrue(bytes[0] == 12);
 
-    json = new String("{ \"text\":\"\\b\" }");
+    json = "{ \"text\":\"\\b\" }";
     frames = JSONMarshaler.marshal(json);
     frame = frames.get(0);
-    System.out.println( frame.toString() );
+    System.out.println(frame.toString());
     field = frame.getField("text");
     bytes = field.getValue();
     System.out.println(ByteUtil.dump(bytes));
-    assertTrue(bytes.length==1);
-    assertTrue(bytes[0]==8);
+    assertTrue(bytes.length == 1);
+    assertTrue(bytes[0] == 8);
 
   }
-  
-  
 
 }

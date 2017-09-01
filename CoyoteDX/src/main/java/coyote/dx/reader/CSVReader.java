@@ -21,7 +21,6 @@ import coyote.dx.CDX;
 import coyote.dx.ConfigTag;
 import coyote.dx.ConfigurableComponent;
 import coyote.dx.FrameReader;
-import coyote.dx.Symbols;
 import coyote.dx.context.TransactionContext;
 import coyote.dx.context.TransformContext;
 import coyote.loader.cfg.Config;
@@ -50,16 +49,6 @@ public class CSVReader extends AbstractFrameReader implements FrameReader, Confi
   private String[] header = new String[0];
 
   public char SEPARATOR = ',';
-
-
-
-
-  /**
-   * Default constructor, expecting subsequent configuration.
-   */
-  public CSVReader() {
-
-  }
 
 
 
@@ -218,7 +207,7 @@ public class CSVReader extends AbstractFrameReader implements FrameReader, Confi
       }
       // if not absolute, use the CDX fixture to attemt to resolve the relative file
       if (!sourceFile.isAbsolute()) {
-        sourceFile = CDX.resolveFile(sourceFile,getContext());
+        sourceFile = CDX.resolveFile(sourceFile, getContext());
       }
       Log.debug("Using an absolute source file of " + sourceFile.getAbsolutePath());
 
