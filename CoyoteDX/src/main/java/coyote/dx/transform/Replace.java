@@ -50,11 +50,11 @@ public class Replace extends AbstractFieldTransform implements FrameTransform {
   @Override
   public void setConfiguration(Config cfg) throws ConfigurationException {
     super.setConfiguration(cfg);
-    
+
     String fieldname = getConfiguration().getString(ConfigTag.FIELD);
-    if( StringUtil.isBlank(fieldname)){
+    if (StringUtil.isBlank(fieldname)) {
       throw new ConfigurationException("Transforms require a field name or pattern.");
-    } else{
+    } else {
       fieldPattern = java.util.regex.Pattern.compile(fieldname.trim());
     }
 
@@ -62,11 +62,11 @@ public class Replace extends AbstractFieldTransform implements FrameTransform {
     regex = getString(ConfigTag.PATTERN);
     replacement = getString(ConfigTag.VALUE);
 
-    if (target==null && regex==null) {
+    if (target == null && regex == null) {
       throw new ConfigurationException("Replace transform requires a target or pattern for which to search");
     }
 
-    if (target!=null && regex!=null) {
+    if (target != null && regex != null) {
       throw new ConfigurationException("Replace transform requires either target or pattern attribute but not both");
     }
 
@@ -93,14 +93,14 @@ public class Replace extends AbstractFieldTransform implements FrameTransform {
             retval = frame;
           }
         } catch (final IllegalArgumentException e) {
-          Log.warn(LogMsg.createMsg(CDX.MSG, "Transform.boolean_evaluation_error",this.getClass().getName(), e.getMessage()));
+          Log.warn(LogMsg.createMsg(CDX.MSG, "Transform.boolean_evaluation_error", this.getClass().getName(), e.getMessage()));
           retval = frame;
         }
       } else {
         retval = perfomReplace(frame);
       }
     } else {
-      Log.warn(LogMsg.createMsg(CDX.MSG, "Transform.no_working_frame",this.getClass().getName()));
+      Log.warn(LogMsg.createMsg(CDX.MSG, "Transform.no_working_frame", this.getClass().getName()));
       retval = new DataFrame();
     }
     return retval;
@@ -124,12 +124,29 @@ public class Replace extends AbstractFieldTransform implements FrameTransform {
         value = field.getStringValue();
         if (StringUtil.isNotEmpty(value)) {
           String newval;
-          if (target!=null) {
+          if (target != null) {
             newval = value.replace(target, replacement);
           } else {
             newval = value.replaceAll(regex, replacement);
           }
           retval.add(new DataField(field.getName(), newval));
+          if (Log.isLogging(Log.DEBUG_EVENTS) && value.length() != newval.length()) {
+            int difference = value.length() - newval.length();
+            StringBuilder b = new StringBuilder("Replace: '");
+            b.append(field.getName());
+            b.append("' value was ");
+            b.append(value.length());
+            b.append(", now ");
+            b.append(newval.length());
+            if (difference > 0) {
+              b.append(" - removed ");
+            } else {
+              b.append(" - added ");
+            }
+            b.append(Math.abs(value.length()));
+            b.append(" characters");
+            Log.debug(b.toString());
+          }
         } else {
           retval.add(field);
         }
