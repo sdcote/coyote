@@ -14,4 +14,16 @@ public class TransformException extends Exception {
 
   private static final long serialVersionUID = -2907145890425653296L;
 
+
+
+
+  /**
+   * Create a new exception with the given message.
+   * 
+   * @param msg the exception message to set.
+   */
+  public TransformException(String msg) {
+    super(msg);
+  }
+
 }
