@@ -3,12 +3,14 @@
 	"Job": {
 		"Name": "SellBitCoin",
 		"Description": "Simple job run by RunJob.json to illustrate conditional job runs.",
+
 		"PreProcess": {
 			"LogEntry": {
 				"message": "SELLING BITCOINS at [#$DateTime#]",
 				"category": "notice"
 			}
 		},
+
 		"Reader": {
 			"Class": "StaticReader",
 			"fields": {
@@ -17,28 +19,19 @@
 				"Account": "[#$Account#]"
 			}
 		},
+
 		"Transform": {
-			"Replace": {
-				"field": "short_description",
-				"target": "\n",
-				"value": " "
-			},
-			"Replace": {
-				"field": "short_description",
-				"pattern": "\r|\t",
-				"value": ""
-			},
-			"Replace": {
-				"field": "short_description",
-				"target": "  ",
-				"value": " "
-			}
+			"Multiply": { "field": "TotalCost", "source": "Coins", "factor": "Cost", "setsymbol": false },
+			"Multiply": { "field": "TotalIncome", "pattern": "Coins", "factor": "Price", "setsymbol": false },
+			"Subtract": { "field": "Profit", "minuend": "TotalIncome", "subtrahend ": "TotalCost", "setsymbol": true }
 		},
+
 		"Writer": {
-			"LogEntry": {
-				"message": "SOLD BITCOINS at [#$DateTime#]",
-				"category": "notice"
-			}
+			"class": "ConsoleWriter",
+			"format": "json",
+			"indent": false,
+			"message": "Sold [#$Coins#] coins for [#$Profit#] profit."
 		}
+
 	}
 }

@@ -23,7 +23,7 @@
 	},
 	"Logging": {
 		"ConsoleAppender": {
-			"categories": "trace, debug,info, notice, error, fatal, warn"
+			"categories": "info, notice, error, fatal, warn"
 		}
 	}
 }
