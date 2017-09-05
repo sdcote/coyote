@@ -256,18 +256,28 @@ public class RunJob extends AbstractTransformTask {
         if (params != null) {
           TransformContext childContext = new TransformContext();
           for (DataField field : params.getFields()) {
+            String parameterName = field.getName();
             if (field.getType() == DataField.STRING) {
-              
-              // TODO: Parameters need to be resolved. They may represent context values or symbols
-              
+
+              // Parameters need to be resolved. They may represent context values
+              String parameterValue = field.getStringValue();
+
+              // perform a simple context resolve
+              String resolvedValue = getContext().resolveToString(parameterValue);
+
+              // If it did not result, it is probably a literal value
+              if (resolvedValue == null) {
+                resolvedValue = parameterValue;
+              }
+
               // preprocess - so any unresolved variables will be resolved in 
               // the child job ;)
-              String pval = Template.preProcess(field.getStringValue(), getContext().getSymbols());
-              childContext.set(field.getName(), pval);
-              Log.debug("Runjob setting parameter '" + field.getName() + "' to '" + pval + "'");
+              String pval = Template.preProcess(resolvedValue, getContext().getSymbols());
+              childContext.set(parameterName, pval);
+              Log.debug("Runjob setting parameter '" + parameterName + "' to '" + pval + "'");
             } else {
-              childContext.set(field.getName(), field.getObjectValue());
-              Log.debug("Runjob setting parameter '" + field.getName() + "' to " + field.getStringValue());
+              childContext.set(parameterName, field.getObjectValue());
+              Log.debug("Runjob setting parameter '" + parameterName + "' to " + field.getStringValue());
             }
           }
 
