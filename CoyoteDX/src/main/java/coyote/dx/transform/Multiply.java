@@ -29,7 +29,7 @@ import coyote.loader.log.Log;
  * "Multiply": { "field": "TotalCost", "source": "Count", "factor": "Cost", "setsymbol": false }
  * </pre>
  */
-public class Multiply extends AbstractFieldTransform implements FrameTransform {
+public class Multiply extends AbstractMathTransform implements FrameTransform {
 
   public static final String FACTOR = "factor";
 
@@ -123,24 +123,6 @@ public class Multiply extends AbstractFieldTransform implements FrameTransform {
 
 
 
-  private boolean isFractional(DataField field) {
-    boolean retval = false;
-    if (field.isNotNull() && field.isNumeric() && field.getStringValue().indexOf(".") > -1) {
-      retval = true;
-    }
-    return retval;
-  }
-
-
-
-
-  private boolean isFractional(String token) {
-    boolean retval = false;
-    if (StringUtil.isNotEmpty(token) && token.indexOf(".") > -1) {
-      retval = true;
-    }
-    return retval;
-  }
 
 
 
@@ -227,50 +209,5 @@ public class Multiply extends AbstractFieldTransform implements FrameTransform {
 
 
 
-  private double getAsDouble(DataField field) throws TransformException {
-    double retval = 0D;
-    if (field != null && field.isNotFrame() && field.isNotNull()) {
-      Object val = field.getObjectValue();
-      if (val != null) {
-        if (val instanceof Double) {
-          retval = ((Double)val).doubleValue();
-        } else {
-          try {
-            retval = Double.parseDouble(val.toString());
-          } catch (Exception e) {
-            throw new TransformException("Value could not be converted into a double");
-          }
-        }
-      } else{
-        throw new TransformException("Null field value could not be converted into a double");
-      }
-    }
-    return retval;
-  }
-
-
-
-
-  private long getAsLong(DataField field) throws TransformException {
-    long retval = 0L;
-    if (field != null && field.isNotFrame() && field.isNotNull()) {
-      Object val = field.getObjectValue();
-      if (val != null) {
-        if (val instanceof Double) {
-          retval = ((Long)val).longValue();
-        } else {
-          try {
-            String ls = val.toString();
-            retval = Long.parseLong(ls);
-          } catch (Exception e) {
-            throw new TransformException("Value could not be converted into a long");
-          }
-        }
-      } else {
-        throw new TransformException("Null field value could not be converted into a long");
-      }
-    }
-    return retval;
-  }
-
+ 
 }
