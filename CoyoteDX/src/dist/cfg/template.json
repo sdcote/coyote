@@ -1,8 +1,9 @@
 {
 	"Class": "coyote.dx.Job",
-	"Notes": "Feel free to use the notes attribute to describe any of the components.",
+
 	"Job": {
 		"Name": "Template",
+		"Notes": "Feel free to use the notes attribute to describe any of the components.",
 
 		"Context": {
 		},
