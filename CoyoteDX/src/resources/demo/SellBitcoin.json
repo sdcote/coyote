@@ -13,8 +13,8 @@
 			"Class": "StaticReader",
 			"fields": {
 				"Coins": "[#$Coins#]",
-				"Cost":  "[#$Cost#]",
-				"Account":  "[#$Account#]"
+				"Cost": "[#$Cost#]",
+				"Account": "[#$Account#]"
 			}
 		},
 		"Transform": {
