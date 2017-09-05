@@ -8,6 +8,7 @@
 package coyote.dx.reader;
 
 import coyote.commons.StringUtil;
+import coyote.commons.template.Template;
 import coyote.dataframe.DataField;
 import coyote.dataframe.DataFrame;
 import coyote.dx.CDX;
@@ -55,7 +56,36 @@ public class StaticReader extends AbstractFrameReader {
     if (counter >= limit) {
       context.setLastFrame(true);
     }
-    return frame;
+    return resolve(frame);
+  }
+
+
+
+
+  /**
+   * Resolve the variables in the configured frame.
+   * 
+   * <p>This scans through all the string fields and resolves them against the 
+   * currently set symbol table.
+   * 
+   * @param frame the frame to resolve.
+   * 
+   * @return a frame will all the string templates resolved to the current 
+   *         state of the symbol table or null if the passed frame is null.
+   */
+  private DataFrame resolve(DataFrame frame) {
+    DataFrame retval = null;
+    if (frame != null) {
+      retval = new DataFrame();
+      for (final DataField field : frame.getFields()) {
+        if (field.getType() == DataField.STRING) {
+          retval.add(field.getName(), Template.preProcess(field.getStringValue(), getContext().getSymbols()));
+        } else {
+          retval.add(field);
+        }
+      }
+    }
+    return retval;
   }
 
 
@@ -77,6 +107,7 @@ public class StaticReader extends AbstractFrameReader {
    */
   @Override
   public void open(TransformContext context) {
+    super.open(context);
     counter = 0;
     try {
       limit = configuration.getInt(ConfigTag.LIMIT);
