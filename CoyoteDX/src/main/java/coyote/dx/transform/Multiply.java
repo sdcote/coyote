@@ -71,7 +71,7 @@ public class Multiply extends AbstractMathTransform implements FrameTransform {
     } else {
       field = frame.getField(getFieldName());
       if (field == null) {
-        Log.warn("Could not retrive the field '" + getSource() + "'");
+        Log.warn("Could not retrive the field '" + getFieldName() + "'");
       }
     }
 
