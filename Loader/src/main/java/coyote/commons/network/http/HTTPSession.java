@@ -204,7 +204,9 @@ class HTTPSession implements IHTTPSession {
           throw new ResponseException(Status.BAD_REQUEST, "BAD REQUEST: Content type is multipart/form-data but chunk does not start with boundary.");
         }
 
-        String partName = null, fileName = null, partContentType = null;
+        String partName = null;
+        String fileName = null;
+        String partContentType = null;
         // Parse the reset of the header lines
         mpline = in.readLine();
         headerLines++;
@@ -240,7 +242,7 @@ class HTTPSession implements IHTTPSession {
         }
         int partHeaderLength = 0;
         while (headerLines-- > 0) {
-          partHeaderLength = scipOverNewLine(partHeaderBuff, partHeaderLength);
+          partHeaderLength = skipPastNewLine(partHeaderBuff, partHeaderLength);
         }
         // Read the part data
         if (partHeaderLength >= (len - 4)) {
@@ -416,8 +418,7 @@ class HTTPSession implements IHTTPSession {
       final Response resp = Response.createFixedLengthResponse(re.getStatus(), MimeType.TEXT.getType(), re.getMessage());
       resp.send(outputStream);
       HTTPD.safeClose(outputStream);
-    }
-    finally {
+    } finally {
       HTTPD.safeClose(response);
       cacheManager.clear();
     }
@@ -687,8 +688,7 @@ class HTTPSession implements IHTTPSession {
       } else if (Method.PUT.equals(method)) {
         retval.put(Body.CONTENT, fbuf, new ContentType(requestHeaders.get(HTTP.HDR_CONTENT_TYPE.toLowerCase())));
       }
-    }
-    finally {
+    } finally {
       HTTPD.safeClose(randomAccessFile);
     }
 
@@ -717,8 +717,7 @@ class HTTPSession implements IHTTPSession {
         path = tempFile.getName();
       } catch (final Exception e) {
         throw new Error(e);
-      }
-      finally {
+      } finally {
         HTTPD.safeClose(fileOutputStream);
       }
     }
@@ -728,11 +727,12 @@ class HTTPSession implements IHTTPSession {
 
 
 
-  private int scipOverNewLine(final byte[] partHeaderBuff, int index) {
-    while (partHeaderBuff[index] != '\n') {
-      index++;
+  private int skipPastNewLine(final byte[] partHeaderBuff, int index) {
+    int retval = index;
+    while (partHeaderBuff[retval] != '\n') {
+      retval++;
     }
-    return ++index;
+    return ++retval;
   }
 
 
