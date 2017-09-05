@@ -149,29 +149,25 @@ public abstract class AbstractConfigurableComponent implements ConfigurableCompo
    *         be found in either the configuration of transform context.
    */
   public String getString(String key) {
+    String retval;
     String value = null;
 
-    // Perform a case insensitive search for the value with the given key
+    // Perform a case insensitive search for the value with the given key. 
+    // This may be a literal, or reference a value in the transform context.
     value = getConfiguration().getString(key);
 
     if (context != null) {
-      // See if there is a match in the context for reference resolution
       if (value != null) {
         // perform a case sensitive search for the value in the context
         String cval = context.getAsString(value, true);
-
-        // if an exact match was found in the context...
         if (cval != null) {
-          // ...resolve the value as a template
-          return Template.preProcess(cval, context.getSymbols());
+          retval = Template.preProcess(cval, context.getSymbols());
         }
-      }
-
-      if (value == null) {
-        // perform a case insensitive search in the context
+      } else {
+        // perform a case insensitive search in the context for the key
         value = context.getAsString(key, false);
       }
-      String retval = Template.preProcess(value, context.getSymbols());
+      retval = Template.preProcess(value, context.getSymbols());
 
       // Only log if the value changed
       if (Log.isLogging(Log.DEBUG_EVENTS)) {
@@ -179,12 +175,12 @@ public abstract class AbstractConfigurableComponent implements ConfigurableCompo
           Log.debug(LogMsg.createMsg(CDX.MSG, "Component.resolved_value", value, retval));
         }
       }
-
-      return retval;
     } else {
-      // no context, return the raw value
-      return value;
+      // no context, return the configuration value as it is probably a literal
+      retval = value;
     }
+
+    return retval;
   }
 
 
