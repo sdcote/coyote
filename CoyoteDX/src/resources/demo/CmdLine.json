@@ -1,0 +1,16 @@
+{
+	"Class": "coyote.dx.Job",
+
+	"Job": {
+		"Name": "CmdLine",
+		"Description": "Shows how to access commind line arguments",
+
+		"Reader" : { "class" : "StaticReader" },
+
+		"Writer" : { "class" : "ConsoleWriter",
+			"message" : "Command line arguments:\n[#$cmd.arg.1#]\n[#$cmd.arg.2#]\n[#$cmd.arg.3#]"
+		}
+
+	}
+
+}
