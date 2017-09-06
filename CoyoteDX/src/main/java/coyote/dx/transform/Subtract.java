@@ -13,6 +13,7 @@ import coyote.dx.FrameTransform;
 import coyote.dx.TransformException;
 import coyote.loader.cfg.Config;
 import coyote.loader.cfg.ConfigurationException;
+import coyote.loader.log.Log;
 
 
 /**
@@ -67,6 +68,8 @@ public class Subtract extends AbstractMathTransform implements FrameTransform {
   @Override
   public DataFrame performTransform(DataFrame frame) throws TransformException {
     DataFrame retval = frame;
+    Log.debug("SUBTRACT<"+frame.toString());
+
     String minuend;
     if (frame.contains(getMinuend())) {
       minuend = frame.getAsString(getMinuend());
@@ -94,6 +97,7 @@ public class Subtract extends AbstractMathTransform implements FrameTransform {
         getContext().getSymbols().put(getFieldName(), Long.toString(result));
       }
     }
+    Log.debug("SUBTRACT>"+retval.toString());
     return retval;
   }
 
@@ -122,28 +126,7 @@ public class Subtract extends AbstractMathTransform implements FrameTransform {
 
 
 
-  private long getLong(String token) throws TransformException {
-    long retval = 0L;
-    try {
-      retval = Long.parseLong(token);
-    } catch (Exception e) {
-      throw new TransformException("Token '" + token + "' could not be converted into a long");
-    }
-    return retval;
-  }
-
-
-
-
-  private double getDouble(String token) throws TransformException {
-    double retval = 0D;
-    try {
-      retval = Double.parseDouble(token);
-    } catch (Exception e) {
-      throw new TransformException("Token '" + token + "' could not be converted into a double");
-    }
-    return retval;
-  }
+ 
 
 
 
