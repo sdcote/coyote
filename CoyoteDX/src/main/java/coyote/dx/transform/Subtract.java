@@ -19,8 +19,9 @@ import coyote.loader.log.Log;
 /**
  * Subtract transformations.
  * 
+ * <p>Simply subtract one field from another or use literals if desired.
  * 
- * <pre>
+ * This can be configured thusly:<pre>
  * "Subtract": { "field": "Revenue", "subtrahend ": "Expenses" }
  * "Subtract": { "field": "Revenue", "subtrahend ": "3.50" }
  * "Subtract": { "field": "Profit", "minuend": "Price", "subtrahend ": "Cost" }
@@ -65,10 +66,11 @@ public class Subtract extends AbstractMathTransform implements FrameTransform {
   /**
    * @see coyote.dx.FrameTransform#process(coyote.dataframe.DataFrame)
    */
+  @SuppressWarnings("unchecked")
   @Override
   public DataFrame performTransform(DataFrame frame) throws TransformException {
     DataFrame retval = frame;
-    Log.debug("SUBTRACT<"+frame.toString());
+    Log.debug("SUBTRACT<" + frame.toString());
 
     String minuend;
     if (frame.contains(getMinuend())) {
@@ -97,7 +99,7 @@ public class Subtract extends AbstractMathTransform implements FrameTransform {
         getContext().getSymbols().put(getFieldName(), Long.toString(result));
       }
     }
-    Log.debug("SUBTRACT>"+retval.toString());
+    Log.debug("SUBTRACT>" + retval.toString());
     return retval;
   }
 
@@ -126,14 +128,6 @@ public class Subtract extends AbstractMathTransform implements FrameTransform {
 
 
 
- 
-
-
-
-
-  /**
-   * @return the minuend
-   */
   private String getMinuend() {
     return minuendValue;
   }
@@ -141,9 +135,6 @@ public class Subtract extends AbstractMathTransform implements FrameTransform {
 
 
 
-  /**
-   * @param val the minuend to set
-   */
   private void setMinuend(String val) {
     minuendValue = val;
   }
@@ -151,9 +142,6 @@ public class Subtract extends AbstractMathTransform implements FrameTransform {
 
 
 
-  /**
-   * @return the subtrahend
-   */
   private String getSubtrahend() {
     return subtrahendValue;
   }
@@ -161,9 +149,6 @@ public class Subtract extends AbstractMathTransform implements FrameTransform {
 
 
 
-  /**
-   * @param val the subtrahend to set
-   */
   private void setSubtrahend(String val) {
     subtrahendValue = val;
   }
