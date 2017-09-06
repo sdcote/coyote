@@ -21,6 +21,7 @@ import java.util.Properties;
 import coyote.commons.ArrayUtil;
 import coyote.commons.CipherUtil;
 import coyote.commons.DateUtil;
+import coyote.commons.NumberUtil;
 import coyote.commons.StringUtil;
 import coyote.loader.Loader;
 
@@ -186,6 +187,13 @@ public class SymbolTable extends HashMap {
           } else if (retval instanceof Date) {
             // if retval is a date, then use a date format
             return formatDate((Date)retval, format);
+          } else if (retval instanceof String) {
+            // maybe it is a string representation of a number
+            try {
+              return formatNumber(NumberUtil.parse((String)retval), format);
+            } catch (NumberFormatException e) {
+              // whoops, guess not
+            }
           }
         }
 
