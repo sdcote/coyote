@@ -21,8 +21,11 @@ import coyote.loader.cfg.ConfigurationException;
  * 
  * <pre>
  * "Subtract": { "field": "Revenue", "subtrahend ": "Expenses" }
+ * "Subtract": { "field": "Revenue", "subtrahend ": "3.50" }
  * "Subtract": { "field": "Profit", "minuend": "Price", "subtrahend ": "Cost" }
+ * "Subtract": { "field": "Profit", "minuend": "Price", "subtrahend ": "3.50" }
  * "Subtract": { "field": "Profit", "minuend": "Price", "subtrahend ": "Cost", "setsymbol": false }
+ * "Subtract": { "field": "Profit", "minuend": "71.25", "subtrahend ": "Cost", "setsymbol": false }
  * </pre>
  */
 public class Subtract extends AbstractMathTransform implements FrameTransform {
@@ -48,6 +51,11 @@ public class Subtract extends AbstractMathTransform implements FrameTransform {
     if (StringUtil.isBlank(getSubtrahend())) {
       throw new ConfigurationException("Subtract transform requires a subtrahend");
     }
+
+    if (StringUtil.isEmpty(getMinuend())) {
+      setMinuend(getFieldName());
+    }
+
   }
 
 
@@ -73,11 +81,67 @@ public class Subtract extends AbstractMathTransform implements FrameTransform {
       subtrahend = getSubtrahend();
     }
 
+    if (isFractional(minuend) || isFractional(subtrahend)) {
+      double result = subtractDouble(minuend, subtrahend);
+      retval.put(getFieldName(), result);
+      if (isSetSymbol()) {
+        getContext().getSymbols().put(getFieldName(), Double.toString(result));
+      }
+    } else {
+      long result = subtractLong(minuend, subtrahend);
+      retval.put(getFieldName(), result);
+      if (isSetSymbol()) {
+        getContext().getSymbols().put(getFieldName(), Long.toString(result));
+      }
+    }
+    return retval;
+  }
 
-    
-    
-    
-    
+
+
+
+  private double subtractDouble(String minuend, String subtrahend) throws TransformException {
+    double retval = 0L;
+    double min = getDouble(minuend);
+    double sub = getDouble(subtrahend);
+    retval = min - sub;
+    return retval;
+  }
+
+
+
+
+  private long subtractLong(String minuend, String subtrahend) throws TransformException {
+    long retval = 0L;
+    long min = getLong(minuend);
+    long sub = getLong(subtrahend);
+    retval = min - sub;
+    return retval;
+  }
+
+
+
+
+  private long getLong(String token) throws TransformException {
+    long retval = 0L;
+    try {
+      retval = Long.parseLong(token);
+    } catch (Exception e) {
+      throw new TransformException("Token '" + token + "' could not be converted into a long");
+    }
+    return retval;
+  }
+
+
+
+
+  private double getDouble(String token) throws TransformException {
+    double retval = 0D;
+    try {
+      retval = Double.parseDouble(token);
+    } catch (Exception e) {
+      throw new TransformException("Token '" + token + "' could not be converted into a double");
+    }
     return retval;
   }
 
@@ -95,10 +159,10 @@ public class Subtract extends AbstractMathTransform implements FrameTransform {
 
 
   /**
-   * @param minuend the minuend to set
+   * @param val the minuend to set
    */
-  private void setMinuend(String minuend) {
-    minuendValue = minuend;
+  private void setMinuend(String val) {
+    minuendValue = val;
   }
 
 
@@ -115,10 +179,10 @@ public class Subtract extends AbstractMathTransform implements FrameTransform {
 
 
   /**
-   * @param subtrahend the subtrahend to set
+   * @param val the subtrahend to set
    */
-  private void setSubtrahend(String subtrahend) {
-    subtrahendValue = subtrahend;
+  private void setSubtrahend(String val) {
+    subtrahendValue = val;
   }
 
 }
