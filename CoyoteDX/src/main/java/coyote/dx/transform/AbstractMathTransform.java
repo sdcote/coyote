@@ -17,17 +17,6 @@ import coyote.dx.TransformException;
  */
 public abstract class AbstractMathTransform extends AbstractFieldTransform {
 
-  protected boolean isFractional(DataField field) {
-    boolean retval = false;
-    if (field.isNotNull() && field.isNumeric() && field.getStringValue().indexOf(".") > -1) {
-      retval = true;
-    }
-    return retval;
-  }
-
-
-
-
   protected boolean isFractional(String token) {
     boolean retval = false;
     if (StringUtil.isNotEmpty(token) && token.indexOf(".") > -1) {
@@ -85,4 +74,29 @@ public abstract class AbstractMathTransform extends AbstractFieldTransform {
     return retval;
   }
 
+
+
+
+  protected long getLong(String token) throws TransformException {
+    long retval = 0L;
+    try {
+      retval = Long.parseLong(token);
+    } catch (Exception e) {
+      throw new TransformException("Token '" + token + "' could not be converted into a long");
+    }
+    return retval;
+  }
+
+
+
+
+  protected double getDouble(String token) throws TransformException {
+    double retval = 0D;
+    try {
+      retval = Double.parseDouble(token);
+    } catch (Exception e) {
+      throw new TransformException("Token '" + token + "' could not be converted into a double");
+    }
+    return retval;
+  }
 }

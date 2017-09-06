@@ -62,16 +62,24 @@ public class Multiply extends AbstractMathTransform implements FrameTransform {
   public DataFrame performTransform(DataFrame frame) throws TransformException {
     DataFrame retval = frame;
     DataField field;
+    Log.debug("MULTIPLY<" + frame.toString());
 
+    String fieldString;
     if (StringUtil.isNotBlank(getSource())) {
       field = frame.getField(getSource());
       if (field == null) {
-        Log.warn("Could not retrive the source field '" + getSource() + "'");
+        Log.warn("Could not retrive the source field '" + getSource() + "' setting to zero");
+        fieldString = "0";
+      } else {
+        fieldString = field.getStringValue();
       }
     } else {
       field = frame.getField(getFieldName());
       if (field == null) {
-        Log.warn("Could not retrive the field '" + getFieldName() + "'");
+        Log.warn("Could not retrive the field '" + getFieldName() + "' setting to zero");
+        fieldString = "0";
+      } else {
+        fieldString = field.getStringValue();
       }
     }
 
@@ -82,7 +90,7 @@ public class Multiply extends AbstractMathTransform implements FrameTransform {
       factorString = getFactor();
     }
 
-    if (isFractional(factorString) || isFractional(field)) {
+    if (isFractional(factorString) || isFractional(fieldString)) {
       double result = multiplyDouble(field, factorString);
       retval.put(getFieldName(), result);
       if (isSetSymbol()) {
@@ -95,6 +103,7 @@ public class Multiply extends AbstractMathTransform implements FrameTransform {
         getContext().getSymbols().put(getFieldName(), Long.toString(result));
       }
     }
+    Log.debug("MULTIPLY>" + retval.toString());
     return retval;
   }
 
@@ -104,7 +113,7 @@ public class Multiply extends AbstractMathTransform implements FrameTransform {
   private long multiplyLong(DataField field, String factor) throws TransformException {
     long retval = 0L;
     long val = getAsLong(field);
-    long ftr = getLongFactor();
+    long ftr = getLong(factor);
     retval = val * ftr;
     return retval;
   }
@@ -115,14 +124,10 @@ public class Multiply extends AbstractMathTransform implements FrameTransform {
   private double multiplyDouble(DataField field, String factor) throws TransformException {
     double retval = 0D;
     double val = getAsDouble(field);
-    double ftr = getDoubleFactor();
+    double ftr = getDouble(factor);
     retval = val * ftr;
     return retval;
   }
-
-
-
-
 
 
 
@@ -172,42 +177,4 @@ public class Multiply extends AbstractMathTransform implements FrameTransform {
     source = src;
   }
 
-
-
-
-  /**
-   * @return
-   * @throws TransformException 
-   */
-  private long getLongFactor() throws TransformException {
-    long retval = 0L;
-    try {
-      retval = Long.parseLong(factor);
-    } catch (Exception e) {
-      throw new TransformException("Factor could not be converted into a long");
-    }
-    return retval;
-  }
-
-
-
-
-  /**
-   * @return
-   * @throws TransformException 
-   */
-  private double getDoubleFactor() throws TransformException {
-    double retval = 0D;
-    try {
-      retval = Double.parseDouble(factor);
-    } catch (Exception e) {
-      throw new TransformException("Factor could not be converted into a double");
-    }
-    return retval;
-  }
-
-
-
-
- 
 }
