@@ -35,7 +35,7 @@ import coyote.loader.log.LogMsg;
  * }</pre> The "Fields" section specifies order and content of the fields. The
  * number of copies is controlled by the "limit" configuration attribute, and 
  * defaults to 1 if no limit is specified or if the value could not be parsed 
- * into an integer.
+ * into an integer. If no fields are specified, an empty frame will be sent.
  *  
  * <p>Note numeric and boolean fields are treated as their respective types.
  */
@@ -115,9 +115,9 @@ public class StaticReader extends AbstractFrameReader {
       limit = 1;
     }
 
+    frame = new DataFrame();
     final Config section = configuration.getSection(ConfigTag.FIELDS);
     if (section != null) {
-      frame = new DataFrame();
       for (final DataField field : section.getFields()) {
         if (!field.isFrame()) {
           if (StringUtil.isNotBlank(field.getName()) && !field.isNull()) {
@@ -125,11 +125,7 @@ public class StaticReader extends AbstractFrameReader {
           }
         }
       }
-    } else {
-      String msg = LogMsg.createMsg(CDX.MSG, "Reader.no_fields_specified", getClass().getName()).toString();
-      Log.error(msg);
-      context.setError(msg);
-    }
+    } 
   }
 
 }
