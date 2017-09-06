@@ -434,9 +434,18 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
                     txnContext.setWorkingFrame(resultFrame);
 
                   } catch (Exception e) {
-                    // catch any manner of transformation exception
-                    txnContext.setError(e.getMessage());
+                    StringBuilder b = new StringBuilder(txnContext.getErrorMessage());
+                    if( b.length()>0){
+                      b.append(", ");
+                    }
+                    b.append(transformer.getClass().getSimpleName());
+                    b.append(": ");
+                    b.append(e.getMessage());
+                    txnContext.setError(b.toString());
                   }
+                }
+                if( txnContext.isInError()){
+                  Log.debug("TRANSFORM ERRORS: "+txnContext.getErrorMessage());
                 }
 
                 // Pass it through the mapper - only the required fields should 
