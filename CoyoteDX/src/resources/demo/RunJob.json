@@ -11,7 +11,7 @@
 				"condition": "jobSuccess(Price) && checkField(Price.ContextOutput.Last, GT, 2790)",
 				"filename": "SellBitcoin",
 				"parameters": {
-					"Coins": 0.035,
+					"Coins": 0.35,
 					"Cost": 1.51,
 					"Price": "Price.ContextOutput.Last",
 					"Account": "12345",
@@ -23,7 +23,7 @@
 	},
 	"Logging": {
 		"ConsoleAppender": {
-			"categories": "info, notice, error, fatal, warn"
+			"categories": "notice, error, fatal, warn"
 		}
 	}
 }
