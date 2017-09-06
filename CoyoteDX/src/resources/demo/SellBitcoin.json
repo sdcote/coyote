@@ -16,21 +16,22 @@
 			"fields": {
 				"Coins": "[#$Coins#]",
 				"Cost": "[#$Cost#]",
+				"Price": "[#$Price#]",
 				"Account": "[#$Account#]"
 			}
 		},
 
 		"Transform": {
 			"Multiply": { "field": "TotalCost", "source": "Coins", "factor": "Cost", "setsymbol": false },
-			"Multiply": { "field": "TotalIncome", "pattern": "Coins", "factor": "Price", "setsymbol": false },
-			"Subtract": { "field": "Profit", "minuend": "TotalIncome", "subtrahend ": "TotalCost", "setsymbol": true }
+			"Multiply": { "field": "TotalIncome", "source": "Coins", "factor": "Price", "setsymbol": false },
+			"Subtract": { "field": "Profit", "minuend": "TotalIncome", "subtrahend": "TotalCost", "setsymbol": true }
 		},
 
 		"Writer": {
 			"class": "ConsoleWriter",
-			"format": "json",
+			"format": "none",
 			"indent": false,
-			"message": "Sold [#$Coins#] coins for [#$Profit#] profit."
+			"message": "Sold [#$Coins#] coins for $[#$Profit|0.00#] profit."
 		}
 
 	}
