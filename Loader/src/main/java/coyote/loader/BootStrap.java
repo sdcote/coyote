@@ -155,10 +155,11 @@ public class BootStrap extends AbstractLoader {
             abort = true;
           } else {
             if (!args[x].startsWith("-")) {
-              if (cfgLoc != null) {
-                System.out.println("Warning: using '" + args[x] + "' instead of '" + cfgLoc + "'");
+              if (cfgLoc == null) {
+                // use the first non-delimited argument as the config location, 
+                // others are considered arguments to the loader 
+                cfgLoc = args[x];
               }
-              cfgLoc = args[x];
             }
           }
         }
