@@ -103,26 +103,18 @@ public class ScheduledBatchJob extends ScheduledJob implements ManagedComponent 
           }
         }
       }
+    }
 
-      if (cronentry != null) {
-
-        // Repeat according to the schedule
-        setRepeatable(true);
-        setExecutionTime(cronentry.getNextTime());
-
-        if (Log.isLogging(Log.DEBUG_EVENTS)) {
-          Log.debug(cronentry.toString());
-        }
-      } else {
-        Log.error(LogMsg.createMsg(CDX.MSG, "Job.schedule_no_cron_entry", getExecutionInterval()));
-
-        // No schedule, no repeat
-        setRepeatable(false);
-
-        // run one second in the future to give initialization time to settle
-        setExecutionTime(System.currentTimeMillis() + 1000);
+    if (cronentry != null) {
+      setRepeatable(true);
+      setExecutionTime(cronentry.getNextTime());
+      if (Log.isLogging(Log.DEBUG_EVENTS)) {
+        Log.debug(cronentry.toString());
       }
-
+    } else {
+      Log.warn(LogMsg.createMsg(CDX.MSG, "Job.schedule_no_cron_entry", getExecutionInterval()));
+      setRepeatable(false);
+      setExecutionTime(System.currentTimeMillis() + 1000);
     }
 
   }
@@ -198,8 +190,7 @@ public class ScheduledBatchJob extends ScheduledJob implements ManagedComponent 
         // If we blowup, set the active flag false, so the service will remove 
         // us from the scheduler. We will be reloaded if our reload flag is set
         setActiveFlag(false);
-      }
-      finally {
+      } finally {
         try {
           engine.close();
         } catch (final IOException ignore) {}
