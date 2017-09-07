@@ -449,7 +449,7 @@ public class CronEntryTest {
 
 
   @Test
-  public void range() {
+  public void hourPattern() {
     CronEntry subject = new CronEntry();
 
     try {
@@ -460,6 +460,35 @@ public class CronEntryTest {
     }
 
     try {
+      subject.setHourPattern("-1");
+      fail("Allows invalid hour pattern");
+    } catch (IllegalArgumentException expected) {
+      // should be too small
+    }
+    try {
+      CronEntry.parse("* 24 * * *");
+      fail("Allows invalid hour pattern");
+    } catch (ParseException expected) {
+      // should be too large
+    }
+
+    try {
+      CronEntry.parse("* -1 * * *");
+      fail("Allows invalid hour pattern");
+    } catch (ParseException expected) {
+      // should be too small
+    }
+
+  }
+
+
+
+
+  @Test
+  public void minutePattern() {
+    CronEntry subject = new CronEntry();
+
+    try {
       subject.setMinutePattern("60");
       fail("Allows invalid minute pattern");
     } catch (IllegalArgumentException expected) {
@@ -467,57 +496,8 @@ public class CronEntryTest {
     }
 
     try {
-      subject.setDayOfWeekPattern("7");
-      fail("Allows invalid day of week pattern");
-    } catch (IllegalArgumentException expected) {
-      // should be too large
-    }
-
-    try {
-      subject.setDayPattern("32");
-      fail("Allows invalid day of week pattern");
-    } catch (IllegalArgumentException expected) {
-      // should be too large
-    }
-
-    try {
-      subject.setMonthPattern("13");
-      fail("Allows invalid month pattern");
-    } catch (IllegalArgumentException expected) {
-      // should be too large
-    }
-
-    try {
-      subject.setHourPattern("-1");
-      fail("Allows invalid hour pattern");
-    } catch (IllegalArgumentException expected) {
-      // should be too small
-    }
-
-    try {
       subject.setMinutePattern("-1");
       fail("Allows invalid minute pattern");
-    } catch (IllegalArgumentException expected) {
-      // should be too small
-    }
-
-    try {
-      subject.setDayOfWeekPattern("-1");
-      fail("Allows invalid day of week pattern");
-    } catch (IllegalArgumentException expected) {
-      // should be too small
-    }
-
-    try {
-      subject.setDayPattern("-1");
-      fail("Allows invalid day of week pattern");
-    } catch (IllegalArgumentException expected) {
-      // should be too small
-    }
-
-    try {
-      subject.setMonthPattern("-1");
-      fail("Allows invalid month pattern");
     } catch (IllegalArgumentException expected) {
       // should be too small
     }
@@ -536,20 +516,49 @@ public class CronEntryTest {
       // should be too small
     }
 
+  }
+
+
+
+
+  @Test
+  public void dowPattern() {
+    CronEntry subject = new CronEntry();
+
     try {
-      CronEntry.parse("* 60 * * *");
-      fail("Allows invalid minute pattern");
-    } catch (ParseException expected) {
+      subject.setDayOfWeekPattern("7");
+      fail("Allows invalid day of week pattern");
+    } catch (IllegalArgumentException expected) {
       // should be too large
     }
 
     try {
-      CronEntry.parse("* -1 * * *");
-      fail("Allows invalid minute pattern");
-    } catch (ParseException expected) {
+      subject.setDayOfWeekPattern("-1");
+      fail("Allows invalid day of week pattern");
+    } catch (IllegalArgumentException expected) {
       // should be too small
     }
+  }
 
+
+
+
+  @Test
+  public void dayPattern() {
+    CronEntry subject = new CronEntry();
+    try {
+      subject.setDayPattern("32");
+      fail("Allows invalid day of week pattern");
+    } catch (IllegalArgumentException expected) {
+      // should be too large
+    }
+
+    try {
+      subject.setDayPattern("-1");
+      fail("Allows invalid day of week pattern");
+    } catch (IllegalArgumentException expected) {
+      // should be too small
+    }
     try {
       CronEntry.parse("* * 32 * *");
       fail("Allows invalid day of month pattern");
@@ -563,7 +572,27 @@ public class CronEntryTest {
     } catch (ParseException expected) {
       // should be too small
     }
+  }
 
+
+
+
+  @Test
+  public void monthPattern() {
+    CronEntry subject = new CronEntry();
+
+    try {
+      subject.setMonthPattern("13");
+      fail("Allows invalid month pattern");
+    } catch (IllegalArgumentException expected) {
+      // should be too large
+    }
+    try {
+      subject.setMonthPattern("-1");
+      fail("Allows invalid month pattern");
+    } catch (IllegalArgumentException expected) {
+      // should be too small
+    }
     try {
       CronEntry.parse("* * * 13 *");
       fail("Allows invalid month pattern");
@@ -575,6 +604,28 @@ public class CronEntryTest {
       CronEntry.parse("* * * -1 *");
       fail("Allows invalid month pattern");
     } catch (ParseException expected) {
+      // should be too small
+    }
+  }
+
+
+
+
+  @Test
+  public void dayOfWeekPattern() {
+    CronEntry subject = new CronEntry();
+
+    try {
+      subject.setDayOfWeekPattern("7");
+      fail("Allows invalid day of week pattern");
+    } catch (Exception expected) {
+      // should be too large
+    }
+
+    try {
+      subject.setDayOfWeekPattern("-1");
+      fail("Allows invalid day of week pattern");
+    } catch (Exception expected) {
       // should be too small
     }
 
