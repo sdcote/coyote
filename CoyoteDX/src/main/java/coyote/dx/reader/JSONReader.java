@@ -143,7 +143,7 @@ public class JSONReader extends AbstractFrameReader implements FrameReader, Conf
 
         String pattern = getString(ConfigTag.SELECTOR);
         if (StringUtil.isNotBlank(pattern)) {
-          FrameSelector selector = new FrameSelector("CVE_Items.*.cve");
+          FrameSelector selector = new FrameSelector(pattern);
           List<DataFrame> results = selector.select(frame);
           Log.debug("Selected " + results.size() + " frames");
           frames = results;
