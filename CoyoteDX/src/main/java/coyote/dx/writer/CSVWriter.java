@@ -252,6 +252,26 @@ public class CSVWriter extends AbstractFrameFileWriter implements FrameWriter, C
     }
     Log.debug(LogMsg.createMsg(CDX.MSG, "Writer.date_format_pattern_set_as", DATEFORMAT.toPattern()));
 
+    final DataFrame fieldcfg = cfg.getSection(ConfigTag.FIELDS);
+    if (fieldcfg != null) {
+      for (final DataField field : fieldcfg.getFields()) {
+        if (field.isFrame()) {
+          final DataFrame fielddef = (DataFrame)field.getObjectValue();
+          if (fielddef != null) {
+            if (fielddef.containsIgnoreCase(ConfigTag.TRIM)) {
+              try {
+                fielddef.getAsBoolean(ConfigTag.TRIM);
+              } catch (final Exception e) {
+                throw new ConfigurationException("Field definition '" + ConfigTag.TRIM + "' attribute is not a valid boolean for field " + field.getName());
+              }
+            }
+          }
+        } else {
+          throw new ConfigurationException("Field definition must be a frame: " + field.getName());
+        }
+      }
+    }
+
     // TODO: support a different separator character including "/t"
   }
 
