@@ -41,6 +41,7 @@ public class ConfigTag {
   public static final String QUERY = "query";
   public static final String SOURCE = "source";
   public static final String START = "start";
+  public static final String STOP = "stop";
   public static final String TABLE = "table";
   public static final String TARGET = "target";
   public static final String PATH = "path";
@@ -75,6 +76,7 @@ public class ConfigTag {
   public static final String DELIMITER = "Delimiter";
   public static final String SELECTOR = "Selector";
   public static final String SET_SYMBOL = "SetSymbol";
+  public static final String SECURE = "secure";
 
   // Networking proxy tags used by several components
   public static final String PROXY = "proxy";
@@ -93,7 +95,6 @@ public class ConfigTag {
   public static final String FIELD_FORMAT = "fieldFormat";
 
   // Transform engine
-
   public static final String CONTEXT = "context";
   public static final String TASKS = "task";
   public static final String PREPROCESS = "preprocess";
@@ -111,7 +112,6 @@ public class ConfigTag {
   public static final String ENABLED = "enabled";
 
   // Tasks
-
   public static final String TODIR = "todir";
   public static final String FROMDIR = "fromdir";
   public static final String HALT_ON_ERROR = "haltonerror";
@@ -124,7 +124,6 @@ public class ConfigTag {
   public static final String PARAMETERS = "parameters";
 
   // Validations
-
   public static final String FIELD = "field";
   public static final String MATCH = "match";
   public static final String AVOID = "avoid";
@@ -134,7 +133,6 @@ public class ConfigTag {
   public static final String IGNORE_CASE = "ignoreCase";
 
   // Scheduler
-
   public static final String SCHEDULE = "schedule";
   public static final String MINUTES = "minutes";
   public static final String HOURS = "hours";
@@ -145,7 +143,6 @@ public class ConfigTag {
   public static final String SECONDS = "seconds";
 
   // Manager
-
   public static final String IPACL = "ipacl";
   public static final String FREQUENCY = "frequency";
 
