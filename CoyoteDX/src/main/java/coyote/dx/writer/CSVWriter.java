@@ -47,10 +47,15 @@ import coyote.loader.log.LogMsg;
  *    "count": { "format" : "0000.00" }
  *  }</pre>
  *  
- *  <p>The writer also supports other configuration properties:<pre>
+ * <p>The writer also supports other configuration properties:<pre>
  *   "header" : true,
+ *   "separator" : "\t",
  *   "dateformat" : "yyyy/MM/dd",</pre>
- *  
+ * 
+ * <p>The separator can be a numeric representing the unicode character to use. 
+ * For example 9 can be used for the tab character as the tab character is 
+ * ASCII character 9. If more than one character is specified, then only the 
+ * first character is used.
  */
 public class CSVWriter extends AbstractFrameFileWriter implements FrameWriter, ConfigurableComponent {
 
@@ -84,7 +89,9 @@ public class CSVWriter extends AbstractFrameFileWriter implements FrameWriter, C
   /** The list of fields we are to write in the order they are to be written */
   private final List<FieldDefinition> fields = new ArrayList<FieldDefinition>();
 
-  public static final char separator = SEPARATOR;
+  public static char separator = SEPARATOR;
+
+  private static final String SEPARATOR_TAG = "separator";
 
 
 
@@ -257,13 +264,11 @@ public class CSVWriter extends AbstractFrameFileWriter implements FrameWriter, C
       for (final DataField field : fieldcfg.getFields()) {
         if (field.isFrame()) {
           final DataFrame fielddef = (DataFrame)field.getObjectValue();
-          if (fielddef != null) {
-            if (fielddef.containsIgnoreCase(ConfigTag.TRIM)) {
-              try {
-                fielddef.getAsBoolean(ConfigTag.TRIM);
-              } catch (final Exception e) {
-                throw new ConfigurationException("Field definition '" + ConfigTag.TRIM + "' attribute is not a valid boolean for field " + field.getName());
-              }
+          if (fielddef != null && fielddef.containsIgnoreCase(ConfigTag.TRIM)) {
+            try {
+              fielddef.getAsBoolean(ConfigTag.TRIM);
+            } catch (final Exception e) {
+              throw new ConfigurationException("Field definition '" + ConfigTag.TRIM + "' attribute is not a valid boolean for field " + field.getName());
             }
           }
         } else {
@@ -272,7 +277,25 @@ public class CSVWriter extends AbstractFrameFileWriter implements FrameWriter, C
       }
     }
 
-    // TODO: support a different separator character including "/t"
+    // Support a different separator character including "/t"
+    if (cfg.containsIgnoreCase(SEPARATOR_TAG)) {
+      DataField fld = cfg.getFieldIgnoreCase(SEPARATOR_TAG);
+      if (fld.isNumeric()) {
+        try {
+          char sepchar = (char)fld.getObjectValue();
+          separator = sepchar;
+        } catch (Throwable e) {
+          throw new ConfigurationException("Not a valid numeric character for CSV separator: " + fld.getObjectValue());
+        }
+      } else {
+        String sep = cfg.getString(SEPARATOR_TAG);
+        if (sep != null && sep.length() > 0) {
+          separator = sep.charAt(0);
+        } else {
+          throw new ConfigurationException("CSV separator is not valid: '" + sep + "'");
+        }
+      }
+    }
   }
 
 
@@ -439,6 +462,13 @@ public class CSVWriter extends AbstractFrameFileWriter implements FrameWriter, C
   public void close() throws IOException {
     fields.clear();
     super.close();
+  }
+
+
+
+
+  protected char getSeparator() {
+    return separator;
   }
 
 }
