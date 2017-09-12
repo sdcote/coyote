@@ -11,19 +11,24 @@ import java.io.IOException;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import coyote.commons.StringUtil;
+import coyote.commons.network.MimeType;
 import coyote.commons.network.http.HTTPD;
+import coyote.commons.network.http.Response;
+import coyote.commons.network.http.Status;
 import coyote.commons.network.http.auth.GenericAuthProvider;
 import coyote.commons.network.http.responder.HTTPDRouter;
-import coyote.commons.network.http.responder.Responder;
 import coyote.dataframe.DataField;
 import coyote.dataframe.DataFrame;
 import coyote.dataframe.DataFrameException;
 import coyote.dx.ConfigTag;
 import coyote.dx.FrameReader;
+import coyote.dx.context.ContextListener;
+import coyote.dx.context.OperationalContext;
 import coyote.dx.context.TransactionContext;
 import coyote.dx.context.TransformContext;
+import coyote.dx.http.HttpFuture;
 import coyote.dx.http.HttpManager;
-import coyote.dx.http.responder.AbstractBatchResponder;
+import coyote.dx.listener.AbstractListener;
 import coyote.loader.cfg.Config;
 import coyote.loader.cfg.ConfigurationException;
 import coyote.loader.log.Log;
@@ -42,12 +47,12 @@ import coyote.loader.log.Log;
  * until the JRE is shut down.
  */
 public class HttpReader extends AbstractFrameReader implements FrameReader {
+  private final String HTTPFUTURE = "HTTPFuture";
+  private ConcurrentLinkedQueue<HttpFuture> queue = new ConcurrentLinkedQueue<HttpFuture>();
 
-  ConcurrentLinkedQueue<DataFrame> queue = new ConcurrentLinkedQueue<DataFrame>();
-
-  HttpListener listener = null;
-  int port = 80;
-  Config cfg = null;
+  private HttpListener listener = null;
+  private int port = 80;
+  private Config cfg = null;
 
 
 
@@ -58,6 +63,19 @@ public class HttpReader extends AbstractFrameReader implements FrameReader {
   @Override
   public void setConfiguration(Config cfg) throws ConfigurationException {
     super.setConfiguration(cfg);
+    this.cfg = cfg;
+  }
+
+
+
+
+  /**
+   * @see coyote.dx.reader.AbstractFrameReader#close()
+   */
+  @Override
+  public void close() throws IOException {
+    listener.stop();
+    super.close();
   }
 
 
@@ -68,16 +86,19 @@ public class HttpReader extends AbstractFrameReader implements FrameReader {
    */
   @Override
   public void open(TransformContext context) {
-    open(context);
+    super.open(context);
 
     // Start the web server 
     try {
       listener = new HttpListener(port, cfg, this);
+      listener.start();
     } catch (IOException e) {
       getContext().setError("Could not start HTTP reader: " + e.getMessage());
       e.printStackTrace();
       return;
     }
+
+    context.addListener(new ResponseGenerator());
   }
 
 
@@ -85,15 +106,21 @@ public class HttpReader extends AbstractFrameReader implements FrameReader {
 
   @Override
   public DataFrame read(TransactionContext context) {
-    DataFrame retval = queue.poll();
+    HttpFuture future = queue.poll();
+    DataFrame retval = null;
 
-    if (retval == null) {
+    if (future == null) {
       // wait a short time before returning a null frame to keep the job from running hot
       try {
         Thread.sleep(1000);
       } catch (InterruptedException ignore) {}
     }
 
+    if (future != null) {
+      retval = future.getDataFrame();
+      System.out.println("Read: " + retval);
+      context.set(HTTPFUTURE, future);
+    }
     return retval;
   }
 
@@ -134,7 +161,7 @@ public class HttpReader extends AbstractFrameReader implements FrameReader {
       }
 
       if (reader == null)
-        throw new IllegalArgumentException("Cannot create HttpManager without a service reference");
+        throw new IllegalArgumentException("Cannot create HttpListener without a service reference");
 
       if (cfg != null) {
         DataFrame authConfig = null;
@@ -148,11 +175,26 @@ public class HttpReader extends AbstractFrameReader implements FrameReader {
       }
 
       addDefaultRoutes();
-      addRoute("/api", RequestHandler.class); // TODO: get from configuration
+      addRoute("/api", HttpReaderHandler.class, queue);
     }
+
   }
 
-  private class RequestHandler extends AbstractBatchResponder implements Responder {
+  private class ResponseGenerator extends AbstractListener implements ContextListener {
+
+    /**
+     * @see coyote.dx.listener.AbstractListener#onEnd(coyote.dx.context.OperationalContext)
+     */
+    @Override
+    public void onEnd(OperationalContext context) {
+      if (context instanceof TransactionContext) {
+        System.out.println("Completing HTTP request");
+        HttpFuture future = (HttpFuture)context.get(HTTPFUTURE);
+        if (future != null) {
+          future.setResponse(Response.createFixedLengthResponse(Status.OK, MimeType.JSON.getType(), "{\"Status\":\"OK\"}"));
+        }
+      }
+    }
 
   }
 
