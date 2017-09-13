@@ -7,6 +7,7 @@
  */
 package coyote.dx.reader;
 
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -18,8 +19,11 @@ import coyote.commons.network.http.Status;
 import coyote.commons.network.http.responder.Resource;
 import coyote.commons.network.http.responder.Responder;
 import coyote.dataframe.DataFrame;
+import coyote.dataframe.marshal.JSONMarshaler;
+import coyote.dataframe.marshal.XMLMarshaler;
 import coyote.dx.http.HttpFuture;
 import coyote.dx.http.responder.AbstractBatchResponder;
+import coyote.loader.log.Log;
 
 
 /**
@@ -102,10 +106,22 @@ public class HttpReaderHandler extends AbstractBatchResponder implements Respond
     // parse the body of the message into a dataframe
     try {
       Body body = session.parseBody();
-      System.out.println("Body contains " + body.size() + " entities");
-      future.setFrame(new DataFrame().set("Message", "This is still in development"));
+      Log.debug("Body contains " + body.size() + " entities");
       for (final String key : body.keySet()) {
+        Log.debug("Parsing body entity '" + key + "'");
         Object obj = body.get(key);
+        Log.debug("body entity '" + key + "' is a " + obj.getClass().getName());
+        if (obj instanceof String) {
+          List<DataFrame> frames = null;
+          if (session.getRequestHeaders().containsKey(MimeType.XML)) {
+            frames = XMLMarshaler.marshal((String)obj);
+          } else {
+            frames = JSONMarshaler.marshal((String)obj);
+          }
+          if (frames != null) {
+            future.setFrame(frames.get(0));
+          }
+        }
       }
     } catch (final Exception e) {
       e.printStackTrace();
