@@ -2,6 +2,8 @@
 	"Class": "coyote.dx.Job",
 	"Job": {
 		"Name": "HttpReader",
+		"Description": "Shows how to listen to HTTP events",
+
 		"Reader": {
 			"class": "HttpReader",
 			"port": 80,
