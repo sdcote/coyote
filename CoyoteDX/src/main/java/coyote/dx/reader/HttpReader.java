@@ -47,12 +47,15 @@ import coyote.loader.log.Log;
  * until the JRE is shut down.
  */
 public class HttpReader extends AbstractFrameReader implements FrameReader {
-  private final String HTTPFUTURE = "HTTPFuture";
+  private static final String DEFAULT_ENDPOINT = "/api";
+  private static final String ENDPOINT_TAG = "endpoint";
+  private static final String HTTPFUTURE = "HTTPFuture";
+  private static final String HTTPLISTENER = "HTTPListener";
+  private static final int DEFAULT_PORT = 80;
+
   private ConcurrentLinkedQueue<HttpFuture> queue = new ConcurrentLinkedQueue<HttpFuture>();
 
   private HttpListener listener = null;
-  private int port = 80;
-  private Config cfg = null;
 
 
 
@@ -63,7 +66,14 @@ public class HttpReader extends AbstractFrameReader implements FrameReader {
   @Override
   public void setConfiguration(Config cfg) throws ConfigurationException {
     super.setConfiguration(cfg);
-    this.cfg = cfg;
+
+    if (getConfiguration().containsIgnoreCase(ConfigTag.PORT)) {
+      try {
+        getConfiguration().getInt(ConfigTag.PORT);
+      } catch (Exception ignore) {
+        throw new ConfigurationException(this.getClass().getName() + " configuration contains an invalid port specification of '" + getConfiguration().getString(ConfigTag.PORT) + "'");
+      }
+    }
   }
 
 
@@ -88,17 +98,64 @@ public class HttpReader extends AbstractFrameReader implements FrameReader {
   public void open(TransformContext context) {
     super.open(context);
 
-    // Start the web server 
+    HttpListener lstnr = null;
     try {
-      listener = new HttpListener(port, cfg, this);
-      listener.start();
-    } catch (IOException e) {
-      getContext().setError("Could not start HTTP reader: " + e.getMessage());
-      e.printStackTrace();
-      return;
+      lstnr = (HttpListener)context.get(HTTPLISTENER);
+    } catch (Throwable ball) {
+      // apparently there is no existing server 
     }
 
+    if (lstnr == null) {
+      try {
+        listener = new HttpListener(getPort(), getConfiguration());
+        listener.start();
+        context.set(HTTPLISTENER, listener);
+        Log.debug("Listening on port " + listener.getPort());
+      } catch (IOException e) {
+        getContext().setError("Could not start HTTP reader: " + e.getMessage());
+        e.printStackTrace();
+        return;
+      }
+    } else {
+      listener = lstnr;
+    }
+
+    listener.addRoute(getEndpoint(), HttpReaderHandler.class, queue);
+    Log.debug("Servicing endpoing '" + getEndpoint() + "'");
+
     context.addListener(new ResponseGenerator());
+  }
+
+
+
+
+  /**
+   * @return
+   */
+  private int getPort() {
+    int retval = DEFAULT_PORT;
+    if (getConfiguration().containsIgnoreCase(ConfigTag.PORT)) {
+      try {
+        retval = getConfiguration().getInt(ConfigTag.PORT);
+      } catch (Exception ignore) {
+        Log.error("Configuration contains an invalid port specification of '" + getConfiguration().getString(ConfigTag.PORT) + "'");
+      }
+    }
+    return retval;
+  }
+
+
+
+
+  /**
+   * @return the endpoint this listener is to use. Defaults to "/api"
+   */
+  private String getEndpoint() {
+    String retval = DEFAULT_ENDPOINT;
+    if (getConfiguration().containsIgnoreCase(ENDPOINT_TAG)) {
+      retval = getConfiguration().getString(ENDPOINT_TAG);
+    }
+    return retval;
   }
 
 
@@ -118,7 +175,6 @@ public class HttpReader extends AbstractFrameReader implements FrameReader {
 
     if (future != null) {
       retval = future.getDataFrame();
-      System.out.println("Read: " + retval);
       context.set(HTTPFUTURE, future);
     }
     return retval;
@@ -139,10 +195,8 @@ public class HttpReader extends AbstractFrameReader implements FrameReader {
 
     /**
      * Create the server instance with all the defaults.
-     * 
-     * @param reader the reader that services our requests
      */
-    public HttpListener(int port, Config cfg, HttpReader reader) throws IOException {
+    public HttpListener(int port, Config cfg) throws IOException {
       super(port);
 
       boolean secureServer;
@@ -160,9 +214,6 @@ public class HttpReader extends AbstractFrameReader implements FrameReader {
         }
       }
 
-      if (reader == null)
-        throw new IllegalArgumentException("Cannot create HttpListener without a service reference");
-
       if (cfg != null) {
         DataFrame authConfig = null;
         for (DataField field : cfg.getFields()) {
@@ -173,9 +224,7 @@ public class HttpReader extends AbstractFrameReader implements FrameReader {
         configIpACL(cfg.getSection(ConfigTag.IPACL));
         configDosTables(cfg.getSection(ConfigTag.FREQUENCY));
       }
-
       addDefaultRoutes();
-      addRoute("/api", HttpReaderHandler.class, queue);
     }
 
   }
@@ -188,10 +237,14 @@ public class HttpReader extends AbstractFrameReader implements FrameReader {
     @Override
     public void onEnd(OperationalContext context) {
       if (context instanceof TransactionContext) {
-        System.out.println("Completing HTTP request");
+        Log.debug("Completing HTTP request");
         HttpFuture future = (HttpFuture)context.get(HTTPFUTURE);
         if (future != null) {
-          future.setResponse(Response.createFixedLengthResponse(Status.OK, MimeType.JSON.getType(), "{\"Status\":\"OK\"}"));
+          if (context.isInError()) {
+            future.setResponse(Response.createFixedLengthResponse(Status.BAD_REQUEST, MimeType.JSON.getType(), "{\"Status\":\"Error\",\"Message\",\"" + context.getErrorMessage() + "\"}"));
+          } else {
+            future.setResponse(Response.createFixedLengthResponse(Status.OK, MimeType.JSON.getType(), "{\"Status\":\"OK\"}"));
+          }
         }
       }
     }
