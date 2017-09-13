@@ -15,7 +15,7 @@
 			"table" : "user",
 			"autocreate" : true,
 			"driver" : "org.h2.Driver",
-			"library" : "jar:file:[#$app.home#]/lib/h2-1.4.187.jar!/",
+			"library" : "jar:file:[#$app.home#]/lib/h2-1.4.196.jar!/",
 			"username" : "sa",
 			"password" : "",
 			"batch" : 100
