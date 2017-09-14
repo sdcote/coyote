@@ -55,7 +55,27 @@ public abstract class AbstractMessageTask extends AbstractTransformTask {
     return retval;
   }
 
+  protected String getUsername() {
+    String retval = getString( ConfigTag.USERNAME );
+    if ( StringUtil.isBlank( retval ) ) {
+      retval = getString( Loader.ENCRYPT_PREFIX + ConfigTag.USERNAME );
+      if ( StringUtil.isNotBlank( retval ) ) {
+        return CipherUtil.decryptString( retval );
+      }
+    }
+    return retval;
+  }
 
+  protected String getPassword() {
+    String retval = getString( ConfigTag.PASSWORD );
+    if ( StringUtil.isBlank( retval ) ) {
+      retval = getString( Loader.ENCRYPT_PREFIX + ConfigTag.PASSWORD );
+      if ( StringUtil.isNotBlank( retval ) ) {
+        return CipherUtil.decryptString( retval );
+      }
+    }
+    return retval;
+  }
 
 
   protected String getSubject() {

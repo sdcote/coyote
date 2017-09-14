@@ -149,7 +149,7 @@ public abstract class AbstractConfigurableComponent implements ConfigurableCompo
    *         be found in either the configuration of transform context.
    */
   public String getString(String key) {
-    String retval;
+    String retval = null;
     String value = null;
 
     // Perform a case insensitive search for the value with the given key. 
@@ -161,7 +161,7 @@ public abstract class AbstractConfigurableComponent implements ConfigurableCompo
         // perform a case sensitive search for the value in the context
         String cval = context.getAsString(value, true);
         if (cval != null) {
-          retval = Template.preProcess(cval, context.getSymbols());
+          value = cval;
         }
       } else {
         // perform a case insensitive search in the context for the key

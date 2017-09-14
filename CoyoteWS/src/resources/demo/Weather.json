@@ -1,0 +1,56 @@
+{
+	"Class": "coyote.dx.Job",
+	"Job": {
+		"Name": "CMH_Weather",
+		"Description": "Email someone the latest weather readings in Columbus, Ohio",
+
+		"Context": {
+			"cityid": "4509177",
+			"ENC:apikey": "AV+v+KRIESiT67E0MCKOAsxhohnMmyzWUhGivTOfdjHANLJn2AsByad4DYZ/WMH5mKWERpxZSV4IKQsiFGKtn+2rY8dGVQya",
+			"EmailReceiver": "sdcote@gmail.com",
+			"CoyoteTeam": "The Coyote DX Team",
+			"EmailSubject": "DX Results for '[#$JobName#]",
+			"EmailAttachment": "[#$jobdir#].zip",
+			"EmailBody": "[#$EmailReceiver#]:\n\nFind attached the results of the requested job run.\n\nRegards,\n[#$CoyoteTeam#]"
+		},
+
+		"Reader": {
+			"Class": "WebServiceReader",
+			"Source": "http://api.openweathermap.org/data/2.5/weather?id=[#$cityid#]&APPID=[#$ENC:apikey#]",
+			"Protocol": {
+				"ExchangeType": "JSON_REST",
+				"Method": "GET"
+			}
+		},
+
+		"Writer": {
+			"class": "CSVWriter",
+			"header": true,
+			"dateformat": "yyyy/MM/dd",
+			"target": "cmh_weather.csv"
+		},
+		
+		"PostProcess": {
+			"LogContext": { },
+			"Archive": { "source": "[#$jobdir#]" },
+			"Mail": {
+				"hostname": "smtp.gmail.com",
+				"port": 587,
+				"protocol": "GmailTLS",
+				"ENC:username": "q3YEnVqgPxdNauVIKi/0CNOIA0xDP7rvBNyXksa6eYCrKc9OGmZ2yWl+Yrrw9RNW3QpXrX0Aluw=",
+				"ENC:password": "nrasR4FXrf+ZyM1cigtHktGWc+UeZ5EPoNj/Lack6tXPgx58hFwwXq7BiYmN5SfA",
+				"ENC:sender": "q3YEnVqgPxdNauVIKi/0CNOIA0xDP7rvBNyXksa6eYCrKc9OGmZ2yWl+Yrrw9RNW3QpXrX0Aluw=",
+				"receiver": "EmailReceiver",
+				"subject": "EmailSubject",
+				"attach": "EmailAttachment",
+				"body": "EmailBody"
+			},
+			"Delete": { "directory": "[#$jobdir#]" },
+			"Delete": { "filename": "EmailAttachment" }
+		}
+	},
+
+	"Logging": {
+		"FileAppender": { "target": "job.log", "categories": "trace, debug, info, notice, warn, error, fatal" }
+	}
+}
