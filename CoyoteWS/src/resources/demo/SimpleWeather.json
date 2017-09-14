@@ -1,0 +1,33 @@
+{
+	"Class": "coyote.dx.Job",
+
+	"Job": {
+		"Name": "CMH_Weather",
+
+		"Context": {
+			"cityid":"4509177",
+			"ENC:apikey":"AV+v+KRIESiT67E0MCKOAsxhohnMmyzWUhGivTOfdjHANLJn2AsByad4DYZ/WMH5mKWERpxZSV4IKQsiFGKtn+2rY8dGVQya"		
+		},
+		
+		"Reader": {
+			"Class": "WebServiceReader",
+			"Source": "http://api.openweathermap.org/data/2.5/weather?id=[#$cityid#]&APPID=[#$ENC:apikey#]",
+			"Protocol" : {
+				"ExchangeType" : "JSON_REST",
+				"Method" : "GET"
+			}
+		},
+
+		"Writer" : {
+			"class" : "CSVWriter",
+			"header" : true,
+			"dateformat" : "yyyy/MM/dd",
+			"target" : "cmh_weather.csv"
+		}
+
+	},
+
+	"Logging": {
+		"ConsoleAppender": { "name": "default", "target": "STDOUT", "categories": "trace, debug, info, notice, warn, error, fatal" }
+	}
+}
