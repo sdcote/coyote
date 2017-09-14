@@ -110,21 +110,24 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
       frameset.clearAll();
     }
 
+    if (connection != null) {
+      try {
+        commit();
+      } catch (final SQLException e) {
+        Log.warn(LogMsg.createMsg(CDX.MSG, "Writer.could_not_commit_prior_to_close", e.getMessage()));
+      }
+    }
+
     if (ps != null) {
       try {
         ps.close();
+        ps = null;
       } catch (final SQLException e) {
         Log.error(LogMsg.createMsg(CDX.MSG, "Writer.Could not close prepared statememt: {%s}", e.getMessage()));
       }
     }
 
     if (connection != null) {
-      try {
-        commit();
-      } catch (final SQLException e) {
-        Log.error(LogMsg.createMsg(CDX.MSG, "Writer.Could not commit prior to close: {%s}", e.getMessage()));
-      }
-
       // if it looks like we created the connection ourselves (e.g. we have a 
       // configured target) close the connection
       if (StringUtil.isNotBlank(getTarget())) {
@@ -132,6 +135,7 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
 
         try {
           connection.close();
+          connection = null;
         } catch (final SQLException e) {
           Log.error(LogMsg.createMsg(CDX.MSG, "Writer.Could not close connection cleanly: {%s}", e.getMessage()));
         }
@@ -159,6 +163,8 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
     final StringBuffer c = new StringBuffer("insert into ");
     final StringBuffer v = new StringBuffer();
 
+    c.append(getSchema());
+    c.append('.');
     c.append(getTable());
     c.append(" (");
     for (final String name : frameset.getColumns()) {
@@ -232,35 +238,46 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
 
 
   public String getDriver() {
-    return configuration.getAsString(ConfigTag.DRIVER);
+    return configuration.getString(ConfigTag.DRIVER);
   }
 
 
 
 
   public String getLibrary() {
-    return configuration.getAsString(ConfigTag.LIBRARY);
+    return configuration.getString(ConfigTag.LIBRARY);
   }
 
 
 
 
   public String getPassword() {
-    return configuration.getAsString(ConfigTag.PASSWORD);
+    return configuration.getString(ConfigTag.PASSWORD);
   }
 
 
 
 
   public String getTable() {
-    return configuration.getAsString(ConfigTag.TABLE);
+    return configuration.getString(ConfigTag.TABLE);
   }
 
 
 
 
   public String getUsername() {
-    return configuration.getAsString(ConfigTag.USERNAME);
+    return configuration.getString(ConfigTag.USERNAME);
+  }
+
+
+
+
+  public String getSchema() {
+    String retval = configuration.getString(ConfigTag.SCHEMA);
+    if (StringUtil.isBlank(retval)) {
+      retval = configuration.getString(ConfigTag.USERNAME);
+    }
+    return retval;
   }
 
 
@@ -590,7 +607,6 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
       // Since this is the first time we have tried to write to the table, make
       // sure the table exists
       if (checkTable()) {
-
         SQL = generateInsertSQL();
         Log.debug(LogMsg.createMsg(CDX.MSG, "Writer.using_sql", getClass().getName(), SQL));
 
@@ -598,7 +614,6 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
         try {
           ps = connection.prepareStatement(SQL);
         } catch (final SQLException e) {
-
           getContext().setError(LogMsg.createMsg(CDX.MSG, "Writer.preparedstatement_exception", getClass().getName(), e.getMessage()).toString());
         }
       }
@@ -691,8 +706,10 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
   @SuppressWarnings("unchecked")
   private boolean checkTable() {
 
+    checkSchema();
+
     // check to see if the table exists
-    if (!tableExists(getTable())) {
+    if (!JdbcUtil.tableExists(getTable(), getConnection())) {
 
       if (isAutoCreate()) {
         Connection conn = getConnection();
@@ -704,7 +721,8 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
         }
 
         symbolTable.put(DatabaseDialect.TABLE_NAME_SYM, getTable());
-        symbolTable.put(DatabaseDialect.DB_SCHEMA_SYM, getUsername());
+        symbolTable.put(DatabaseDialect.DB_SCHEMA_SYM, getSchema());
+
         String command = DatabaseDialect.getCreate(database, schema, symbolTable);
 
         Log.debug(LogMsg.createMsg(CDX.MSG, "Writer.creating_table", getClass().getName(), getTable(), command));
@@ -715,9 +733,8 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
           stmt.executeUpdate(command);
 
         } catch (Exception e) {
-          Log.warn(LogMsg.createMsg(CDX.MSG, "Problems creating {} table: {}", getTable(), e.getMessage()));
-        }
-        finally {
+          Log.error(LogMsg.createMsg(CDX.MSG, "Writer.jdbc_table_create_error", getTable(), e.getMessage()));
+        } finally {
           try {
             stmt.close();
           } catch (Exception e) {
@@ -725,15 +742,57 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
           }
         }
 
-        //TODO getContext().setError( LogMsg.createMsg( CDX.MSG, "Writer.table_creation_exception", getClass().getName(), e.getMessage() ).toString() );
-        // return false;
+        try {
+          commit();
+        } catch (final SQLException e) {
+          Log.warn("Couldnt commit table creation: " + e.getMessage());
+        }
+
+        if (JdbcUtil.tableExists(getTable(), getSchema(), getConnection())) {
+          Log.debug("Table creation verified");
+        } else {
+          Log.error("Could not verifiy the creation of '" + getTable() + "." + getSchema() + "' table, expect subsequent database operations to fail.");
+        }
       }
+
     }
 
     // get the schema for the database table we are using
     tableschema = getTableSchema(getTable());
 
     return true;
+  }
+
+
+
+
+  /**
+   * 
+   */
+  private void checkSchema() {
+    Log.debug("Looking for schema '"+getSchema()+"'");
+    if (!JdbcUtil.schemaExists(getSchema(), getConnection())) {
+      if (isAutoCreate()) {
+        String sql = DatabaseDialect.getCreateSchema(database, getSchema(), getUsername());
+        Log.debug("Schema '"+getSchema()+"' not found in database, creating it with:\n" + sql);
+        try (Statement stmt = connection.createStatement()) {
+          stmt.executeUpdate(sql);
+          Log.debug("Schema created.");
+
+          if (JdbcUtil.schemaExists(getSchema(), getConnection())) {
+            Log.debug("Schema creation verified");
+          } else {
+            Log.error("Could not verify the creation of schema '" + getSchema() + "'");
+          }
+
+        } catch (final SQLException e) {
+          Log.error("Schema creation failed!");
+          e.printStackTrace();
+        }
+      } else {
+        Log.warn("The schema '" + getSchema() + "' does not exist in the database and autocreate is set to '" + isAutoCreate() + "', expect subsequent database operations to fail.");
+      }
+    }
   }
 
 
@@ -766,7 +825,7 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
         // get all the tables so we can perform a case insensitive search
         rs = meta.getTables(null, null, "%", null);
         while (rs.next()) {
-          if (StringUtil.equalsIgnoreCase(tablename,rs.getString("TABLE_NAME"))) {
+          if (StringUtil.equalsIgnoreCase(tablename, rs.getString("TABLE_NAME"))) {
             tableSchemaName = rs.getString("TABLE_NAME");
             break;
           }
@@ -774,8 +833,7 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
       } catch (SQLException e) {
         e.printStackTrace();
         context.setError("Problems confirming table name: " + e.getMessage());
-      }
-      finally {
+      } finally {
         if (rs != null) {
           try {
             rs.close();
@@ -883,13 +941,12 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
 
           }
 
-          System.out.println(retval);
+          //System.out.println(retval);
 
         } catch (SQLException e) {
           e.printStackTrace();
           context.setError("Problems confirming table columns: " + e.getMessage());
-        }
-        finally {
+        } finally {
           if (rs != null) {
             try {
               rs.close();
@@ -901,56 +958,6 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
 
       }
 
-    }
-    return retval;
-  }
-
-
-
-
-  /**
-   * Determine if a particular table exists in the database.
-   * 
-   * @param tablename The name of the table for which to query
-   * 
-   * @return true the named table exists, false the table does not exist.
-   */
-  private boolean tableExists(String tablename) {
-    boolean retval = false;
-    if (StringUtil.isNotBlank(tablename)) {
-      Connection conn = getConnection();
-      if (conn == null) {
-        Log.error("Cannot get connection");
-        context.setError("Could not connect to the database");
-        return false;
-      }
-
-      ResultSet rs = null;
-      try {
-        DatabaseMetaData meta = conn.getMetaData();
-
-        // get all the tables so we can perform a case insensitive search
-        rs = meta.getTables(null, null, "%", null);
-        while (rs.next()) {
-          if (StringUtil.equalsIgnoreCase(tablename,rs.getString("TABLE_NAME"))) {
-            retval = true;
-          }
-        }
-        return retval;
-
-      } catch (SQLException e) {
-        e.printStackTrace();
-        context.setError("Problems confirming table: " + e.getMessage());
-      }
-      finally {
-        if (rs != null) {
-          try {
-            rs.close();
-          } catch (SQLException ignore) {
-            //ignore.printStackTrace();
-          }
-        }
-      }
     }
     return retval;
   }

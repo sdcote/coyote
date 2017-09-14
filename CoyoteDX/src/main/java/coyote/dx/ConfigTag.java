@@ -43,6 +43,7 @@ public class ConfigTag {
   public static final String START = "start";
   public static final String STOP = "stop";
   public static final String TABLE = "table";
+  public static final String SCHEMA = "schema";
   public static final String TARGET = "target";
   public static final String PATH = "path";
   public static final String TRIM = "trim";
