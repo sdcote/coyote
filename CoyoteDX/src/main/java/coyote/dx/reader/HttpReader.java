@@ -45,6 +45,14 @@ import coyote.loader.log.Log;
  * 
  * <p>This reader never returns EOF. This means the job will run indefinitely 
  * until the JRE is shut down.
+ * 
+ * <p>This reader can be configured thusly:<pre>
+ * "Reader" : { 
+ *   "class" : "HttpReader",
+ *   "port" : 80, 
+ *   "timeout" : 5000, 
+ *   "endpoint" : "/coyote" 
+ * }</pre>
  */
 public class HttpReader extends AbstractFrameReader implements FrameReader {
   private static final String DEFAULT_ENDPOINT = "/api";
@@ -52,6 +60,7 @@ public class HttpReader extends AbstractFrameReader implements FrameReader {
   private static final String HTTPFUTURE = "HTTPFuture";
   private static final String HTTPLISTENER = "HTTPListener";
   private static final int DEFAULT_PORT = 80;
+  protected static final int DEFAULT_TIMEOUT = 10000;
 
   private ConcurrentLinkedQueue<HttpFuture> queue = new ConcurrentLinkedQueue<HttpFuture>();
 
@@ -72,6 +81,14 @@ public class HttpReader extends AbstractFrameReader implements FrameReader {
         getConfiguration().getInt(ConfigTag.PORT);
       } catch (Exception ignore) {
         throw new ConfigurationException(this.getClass().getName() + " configuration contains an invalid port specification of '" + getConfiguration().getString(ConfigTag.PORT) + "'");
+      }
+    }
+
+    if (getConfiguration().containsIgnoreCase(ConfigTag.TIMEOUT)) {
+      try {
+        getConfiguration().getInt(ConfigTag.TIMEOUT);
+      } catch (Exception ignore) {
+        throw new ConfigurationException(this.getClass().getName() + " configuration contains an invalid timeout specification of '" + getConfiguration().getString(ConfigTag.TIMEOUT) + "'");
       }
     }
   }
@@ -120,7 +137,7 @@ public class HttpReader extends AbstractFrameReader implements FrameReader {
       listener = lstnr;
     }
 
-    listener.addRoute(getEndpoint(), HttpReaderHandler.class, queue);
+    listener.addRoute(getEndpoint(), HttpReaderHandler.class, queue, getTimeout());
     Log.debug("Servicing endpoing '" + getEndpoint() + "'");
 
     context.addListener(new ResponseGenerator());
@@ -145,6 +162,17 @@ public class HttpReader extends AbstractFrameReader implements FrameReader {
   }
 
 
+  private int getTimeout() {
+    int retval = DEFAULT_TIMEOUT;
+    if (getConfiguration().containsIgnoreCase(ConfigTag.TIMEOUT)) {
+      try {
+        retval = getConfiguration().getInt(ConfigTag.TIMEOUT);
+      } catch (Exception ignore) {
+        Log.error("Configuration contains an invalid timeout specification of '" + getConfiguration().getString(ConfigTag.TIMEOUT) + "'");
+      }
+    }
+    return retval;
+  }
 
 
   /**
@@ -169,7 +197,7 @@ public class HttpReader extends AbstractFrameReader implements FrameReader {
     if (future == null) {
       // wait a short time before returning a null frame to keep the job from running hot
       try {
-        Thread.sleep(1000);
+        Thread.sleep(250);
       } catch (InterruptedException ignore) {}
     }
 
