@@ -27,8 +27,8 @@ import coyote.dataframe.marshal.JSONMarshaler;
 public abstract class AbstractBatchResponder extends DefaultResponder implements Responder {
 
   protected Status status = Status.OK;
-
   protected DataFrame results = new DataFrame();
+  protected MimeType mimetype = MimeType.JSON;
 
 
 
@@ -91,7 +91,47 @@ public abstract class AbstractBatchResponder extends DefaultResponder implements
 
   @Override
   public String getMimeType() {
-    return MimeType.JSON.getType();
+    return mimetype.getType();
+  }
+
+
+
+
+  /**
+   * @return the results
+   */
+  protected DataFrame getResults() {
+    return results;
+  }
+
+
+
+
+  /**
+   * @param results the results to set
+   */
+  protected void setResults(DataFrame results) {
+    this.results = results;
+  }
+
+
+
+
+  /**
+   * @param status the status to set
+   */
+  protected void setStatus(Status status) {
+    this.status = status;
+  }
+
+
+
+
+  /**
+   * @param type the mimetype to set
+   */
+  protected void setMimetype(MimeType type) {
+    mimetype = type;
   }
 
 }
