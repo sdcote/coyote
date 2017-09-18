@@ -22,7 +22,6 @@ import coyote.commons.StringUtil;
 import coyote.commons.UriUtil;
 import coyote.dx.CDX;
 import coyote.dx.ConfigTag;
-import coyote.dx.Symbols;
 import coyote.dx.TaskException;
 import coyote.dx.TransformTask;
 import coyote.dx.context.TransformContext;
@@ -141,7 +140,7 @@ public class Combine extends AbstractFileTask implements TransformTask {
         // if not absolute, use the current job directory
         if (targetFile != null) {
           if (!targetFile.isAbsolute()) {
-            targetFile = new File(context.getSymbols().getString(Symbols.JOB_DIRECTORY), targetFile.getPath());
+            targetFile = new File(getJobDirectory(), targetFile.getPath());
           }
           Log.debug("Using a target file of " + targetFile.getAbsolutePath());
 

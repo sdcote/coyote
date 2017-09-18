@@ -13,7 +13,6 @@ import coyote.commons.FileUtil;
 import coyote.commons.StringUtil;
 import coyote.dx.CDX;
 import coyote.dx.ConfigTag;
-import coyote.dx.Symbols;
 import coyote.dx.TaskException;
 import coyote.loader.log.Log;
 import coyote.loader.log.LogMsg;
@@ -42,7 +41,7 @@ public class Delete extends AbstractFileTask {
 
       // if not absolute, use the current job directory
       if (!sourceFile.isAbsolute()) {
-        sourceFile = new File(context.getSymbols().getString(Symbols.JOB_DIRECTORY), sourceFile.getPath());
+        sourceFile = new File(getJobDirectory(), sourceFile.getPath());
       }
       Log.debug(LogMsg.createMsg(CDX.MSG, "Task.deleting_file", file, sourceFile.getAbsolutePath()));
 
@@ -62,7 +61,7 @@ public class Delete extends AbstractFileTask {
 
       // if not absolute, use the current job directory
       if (!dirFile.isAbsolute()) {
-        dirFile = new File(context.getSymbols().getString(Symbols.JOB_DIRECTORY), dirFile.getPath());
+        dirFile = new File(getJobDirectory(), dirFile.getPath());
       }
       Log.debug(LogMsg.createMsg(CDX.MSG, "Task.deleting_directory", dir, dirFile.getAbsolutePath()));
 

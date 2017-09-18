@@ -19,7 +19,6 @@ import coyote.commons.UriUtil;
 import coyote.dx.CDX;
 import coyote.dx.ConfigTag;
 import coyote.dx.FrameWriter;
-import coyote.dx.Symbols;
 import coyote.dx.context.TransformContext;
 import coyote.loader.log.Log;
 import coyote.loader.log.LogMsg;
@@ -49,8 +48,7 @@ public abstract class AbstractFrameFileWriter extends AbstractFrameWriter implem
         printwriter.close();
       } catch (Exception e) {
         Log.debug("Exception closing writer:" + e.getMessage());
-      }
-      finally {
+      } finally {
         printwriter = null;
       }
     }
@@ -91,9 +89,9 @@ public abstract class AbstractFrameFileWriter extends AbstractFrameWriter implem
         File targetFile = null;
 
         // Check to see if it is STDOUT or STDERR
-        if (StringUtil.equalsIgnoreCase(STDOUT,target)) {
+        if (StringUtil.equalsIgnoreCase(STDOUT, target)) {
           printwriter = new PrintWriter(System.out);
-        } else if (StringUtil.equalsIgnoreCase(STDERR,target)) {
+        } else if (StringUtil.equalsIgnoreCase(STDERR, target)) {
           printwriter = new PrintWriter(System.err);
         } else if (uri != null) {
           if (UriUtil.isFile(uri)) {
@@ -113,9 +111,9 @@ public abstract class AbstractFrameFileWriter extends AbstractFrameWriter implem
           targetFile = new File(target);
         }
 
-        // if not absolute, use the current working directory
+        // if not absolute, use the current job directory
         if (!targetFile.isAbsolute()) {
-          targetFile = new File(context.getSymbols().getString(Symbols.JOB_DIRECTORY), targetFile.getPath());
+          targetFile = new File(getJobDirectory(), targetFile.getPath());
         }
         Log.debug("Using a target file of " + targetFile.getAbsolutePath());
 

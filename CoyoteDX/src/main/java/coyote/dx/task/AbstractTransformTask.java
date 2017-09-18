@@ -236,33 +236,5 @@ public abstract class AbstractTransformTask extends AbstractConfigurableComponen
 
 
 
-  /**
-   * Accessor for this tasks job directory.
-   * 
-   * @return the job directory for this task
-   */
-  protected File getJobDirectory() {
-    File retval = null;
-    if (context != null && context.getEngine() != null) {
-      retval = context.getEngine().getJobDirectory();
-    }
-    return retval;
-  }
-
-
-
-
-  /**
-   * Accessor for this tasks work directory.
-   * 
-   * @return the work directory for this task
-   */
-  protected File getWorkDirectory() {
-    File retval = null;
-    if (context != null && context.getEngine() != null) {
-      retval = context.getEngine().getWorkDirectory();
-    }
-    return retval;
-  }
-
+ 
 }

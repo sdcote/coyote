@@ -20,8 +20,9 @@ import coyote.commons.FileUtil;
 import coyote.commons.template.SymbolTable;
 import coyote.dx.AbstractTest;
 import coyote.dx.ConfigTag;
-import coyote.dx.Symbols;
+import coyote.dx.DefaultTransformEngine;
 import coyote.dx.TaskException;
+import coyote.dx.TransformEngine;
 import coyote.dx.context.TransformContext;
 import coyote.loader.cfg.Config;
 import coyote.loader.cfg.ConfigurationException;
@@ -49,7 +50,9 @@ public class WebGetTest extends AbstractTest {
   public static void setUpBeforeClass() throws Exception {
     context.setSymbols(symbols);
     testDir = new File(FileUtil.getCurrentWorkingDirectory(), "testdir");
-    context.getSymbols().put(Symbols.JOB_DIRECTORY, testDir.getAbsolutePath());
+    TransformEngine engine = new DefaultTransformEngine();
+    engine.setJobDirectory(testDir);
+    context.setEngine(engine);
     Log.addLogger(Log.DEFAULT_LOGGER_NAME, new ConsoleAppender(Log.TRACE_EVENTS | Log.DEBUG_EVENTS | Log.INFO_EVENTS | Log.WARN_EVENTS | Log.ERROR_EVENTS | Log.FATAL_EVENTS));
   }
 
@@ -72,8 +75,8 @@ public class WebGetTest extends AbstractTest {
     resetDirectory(testDir);
 
     Config cfg = new Config();
-    cfg.put(ConfigTag.SOURCE, "http://mirrors.ibiblio.org/apache//commons/pool/binaries/commons-pool2-2.4.2-bin.tar.gz");
 
+    cfg.put(ConfigTag.SOURCE, "http://mirrors.ibiblio.org/apache//commons/pool/binaries/commons-pool2-2.4.2-bin.tar.gz");
     try (WebGet task = new WebGet()) {
       task.setConfiguration(cfg);
       task.open(context);

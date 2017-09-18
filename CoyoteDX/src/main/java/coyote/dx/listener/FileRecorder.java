@@ -20,7 +20,6 @@ import coyote.commons.StringUtil;
 import coyote.commons.UriUtil;
 import coyote.dx.CDX;
 import coyote.dx.ConfigTag;
-import coyote.dx.Symbols;
 import coyote.dx.context.TransformContext;
 import coyote.loader.log.Log;
 import coyote.loader.log.LogMsg;
@@ -76,7 +75,7 @@ public abstract class FileRecorder extends ContextRecorder {
 
         // if not absolute, use the current working directory
         if (!dest.isAbsolute()) {
-          dest = new File(context.getSymbols().getString(Symbols.JOB_DIRECTORY), UriUtil.getFilePath(uri));
+          dest = new File(getJobDirectory(), UriUtil.getFilePath(uri));
         }
 
         // make any directories as necessary
@@ -120,8 +119,7 @@ public abstract class FileRecorder extends ContextRecorder {
         if (log_writer != null) {
           try {
             log_writer.close();
-          } catch (final Exception ignore) {}
-          finally {
+          } catch (final Exception ignore) {} finally {
             log_writer = null;
           }
         }
@@ -152,8 +150,7 @@ public abstract class FileRecorder extends ContextRecorder {
     if (log_writer != null) {
       try {
         log_writer.close();
-      } catch (final Exception ignore) {}
-      finally {
+      } catch (final Exception ignore) {} finally {
         log_writer = null;
       }
     }

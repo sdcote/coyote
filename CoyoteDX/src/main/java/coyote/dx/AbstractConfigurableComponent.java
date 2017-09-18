@@ -7,6 +7,8 @@
  */
 package coyote.dx;
 
+import java.io.File;
+
 import coyote.commons.CipherUtil;
 import coyote.commons.StringUtil;
 import coyote.commons.template.Template;
@@ -27,6 +29,7 @@ public abstract class AbstractConfigurableComponent implements ConfigurableCompo
   protected Config configuration = new Config();
   protected TransformContext context = null;
   protected boolean enabled = true;
+  protected File jobDirectory = new File(System.getProperty("user.dir"));
 
 
 
@@ -37,13 +40,43 @@ public abstract class AbstractConfigurableComponent implements ConfigurableCompo
   @Override
   public void setConfiguration(Config cfg) throws ConfigurationException {
     configuration = cfg;
-
     if (containsIgnoreCase(ConfigTag.ENABLED)) {
       setEnabled(getBoolean(getConfiguration().getFieldIgnoreCase(ConfigTag.ENABLED).getName()));
     }
-
   }
 
+
+
+
+
+  /**
+   * Accessor for this tasks job directory.
+   * 
+   * @return the job directory for this task
+   */
+  protected File getJobDirectory() {
+    File retval = jobDirectory;
+    if (context != null && context.getEngine() != null) {
+      retval = context.getEngine().getJobDirectory();
+    }
+    return retval;
+  }
+
+
+
+
+  /**
+   * Accessor for this tasks work directory.
+   * 
+   * @return the work directory for this task
+   */
+  protected File getWorkDirectory() {
+    File retval = null;
+    if (context != null && context.getEngine() != null) {
+      retval = context.getEngine().getWorkDirectory();
+    }
+    return retval;
+  }
 
 
 

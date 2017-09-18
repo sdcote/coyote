@@ -155,8 +155,7 @@ public class LogManager extends AbstractConfigurableComponent implements Configu
                 // make it absolute to our job directory
                 if (!logfile.isAbsolute()) {
                   if (getContext() != null && getContext().getSymbols() != null) {
-                    File jobdir = new File(getContext().getSymbols().getString(Symbols.JOB_DIRECTORY));
-                    logfile = new File(jobdir, logfile.getPath());
+                    logfile = new File(getJobDirectory(), logfile.getPath());
                     testUri = FileUtil.getFileURI(logfile);
                     cval = testUri.toString();
                   }

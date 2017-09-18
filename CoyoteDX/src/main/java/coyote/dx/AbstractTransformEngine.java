@@ -90,10 +90,7 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
 
 
   public AbstractTransformEngine() {
-
-    // Fill the symbol table with system properties
     symbols.readSystemProperties();
-
   }
 
 
@@ -118,7 +115,7 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
    * @param dir the private directory to set
    */
   @SuppressWarnings("unchecked")
-  protected void setJobDirectory(File dir) {
+  public void setJobDirectory(File dir) {
     jobDirectory = dir;
     if (dir != null) {
       symbols.put(Symbols.JOB_DIRECTORY, jobDirectory.getAbsolutePath());
@@ -435,7 +432,7 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
 
                   } catch (Exception e) {
                     StringBuilder b = new StringBuilder(txnContext.getErrorMessage());
-                    if( b.length()>0){
+                    if (b.length() > 0) {
                       b.append(", ");
                     }
                     b.append(transformer.getClass().getSimpleName());
@@ -444,8 +441,8 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
                     txnContext.setError(b.toString());
                   }
                 }
-                if( txnContext.isInError()){
-                  Log.debug("TRANSFORM ERRORS: "+txnContext.getErrorMessage());
+                if (txnContext.isInError()) {
+                  Log.debug("TRANSFORM ERRORS: " + txnContext.getErrorMessage());
                 }
 
                 // Pass it through the mapper - only the required fields should 

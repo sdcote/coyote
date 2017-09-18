@@ -180,6 +180,17 @@ public interface TransformEngine extends RunnableComponent {
   public File getJobDirectory();
 
 
+  /**
+   * This sets a common sharable location on the file system where the engine 
+   * can find data shared by components in this engine.
+   * 
+   * <p>It is in this directory where the engine's component data can be 
+   * persisted between runs.
+   * 
+   * @param dir the directory to be used as a sharable space on the file system
+   */
+  public void setJobDirectory(File dir);
+
 
 
   /**
@@ -207,8 +218,8 @@ public interface TransformEngine extends RunnableComponent {
    * This sets a common sharable location on the file system where the engine 
    * can find data shared by other jobs.
    * 
-   * <p>It is in this directory where the engin's data can be persisted 
-   * between runs.
+   * <p>It is in this directory where the engine's data can be persisted 
+   * between runs when sharing data with other jobs.
    * 
    * @param dir the directory to be used as a sharable space on the file system
    */

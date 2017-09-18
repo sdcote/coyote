@@ -11,7 +11,6 @@ import java.io.File;
 
 import coyote.commons.StringUtil;
 import coyote.dx.ConfigTag;
-import coyote.dx.Symbols;
 
 
 /**
@@ -29,10 +28,11 @@ public abstract class AbstractFileTask extends AbstractTransformTask {
    * @return the absolute path to the job directory or "" if not set.
    */
   protected String getJobDir() {
+    String retval = "";
     try {
-      return getContext().getSymbols().get(Symbols.JOB_DIRECTORY).toString();
+      retval= getJobDirectory().getAbsolutePath();
     } catch (Throwable t) {}
-    return "";
+    return retval;
   }
 
 
