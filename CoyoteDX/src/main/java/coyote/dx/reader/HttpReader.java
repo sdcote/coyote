@@ -38,6 +38,11 @@ import coyote.loader.log.Log;
  * This starts listening for HTTP requests on a particular port and converts 
  * those requests into DataFrames.
  * 
+ * <p>HttpReader is an event-based reader, never returning EOF it listens for 
+ * HTTP requests and generates data frames from the request data. The primary 
+ * use case is to create a ReST endpoint to which clients can send and 
+ * retrieve data, presumably through a data store or messaging system. 
+ * 
  * <p>This will start a new thread acting as a listener and a thread for each 
  * request that comes in. Each request thread simply converts the retrieved 
  * data into a DataFrame and places it in the Queue for the reader to return 
@@ -51,8 +56,12 @@ import coyote.loader.log.Log;
  *   "class" : "HttpReader",
  *   "port" : 80, 
  *   "timeout" : 5000, 
- *   "endpoint" : "/coyote" 
+ *   "endpoint" : "/coyote/:id" 
  * }</pre>
+ * 
+ * <p>If the endpoint contains an optional parameter, this reader will also 
+ * attach to the root URL. In the above example, this reader will also respond 
+ * to requests for "/coyote" as well as "/coyote/:id".  
  */
 public class HttpReader extends AbstractFrameReader implements FrameReader {
   private static final String DEFAULT_ENDPOINT = "/api";
@@ -61,9 +70,7 @@ public class HttpReader extends AbstractFrameReader implements FrameReader {
   private static final String HTTPLISTENER = "HTTPListener";
   private static final int DEFAULT_PORT = 80;
   protected static final int DEFAULT_TIMEOUT = 10000;
-
   private ConcurrentLinkedQueue<HttpFuture> queue = new ConcurrentLinkedQueue<HttpFuture>();
-
   private HttpListener listener = null;
 
 
@@ -122,11 +129,23 @@ public class HttpReader extends AbstractFrameReader implements FrameReader {
       // apparently there is no existing server 
     }
 
+    // try to use any listener cached in the Loader context. This allows for 
+    // one HTTP listener to be shared amongst many jobs as might be the case
+    // in a Service with multiple Jobs
+    try {
+      lstnr = (HttpListener)context.getEngine().getContext().get(HTTPLISTENER);
+    } catch (Throwable ball) {
+      // apparently there is no existing server 
+    }
+    
+    
+
     if (lstnr == null) {
       try {
         listener = new HttpListener(getPort(), getConfiguration());
         listener.start();
-        context.set(HTTPLISTENER, listener);
+        context.set(HTTPLISTENER, listener); // transform context
+        context.getEngine().getContext().set(HTTPLISTENER, listener); // loader context
         Log.debug("Listening on port " + listener.getPort());
       } catch (IOException e) {
         getContext().setError("Could not start HTTP reader: " + e.getMessage());
@@ -135,10 +154,23 @@ public class HttpReader extends AbstractFrameReader implements FrameReader {
       }
     } else {
       listener = lstnr;
+      Log.debug("Reusing HTTP Listener on port " + listener.getPort());
     }
 
     listener.addRoute(getEndpoint(), HttpReaderHandler.class, queue, getTimeout());
-    Log.debug("Servicing endpoing '" + getEndpoint() + "'");
+    Log.debug("Servicing endpoint '" + getEndpoint() + "'");
+
+    // because there may be optional parameters, also listen to the root
+    if (getEndpoint().contains(":")) {
+      String root = getEndpoint().substring(0, getEndpoint().indexOf(':'));
+      if (StringUtil.isNotBlank(root)) {
+        if (root.endsWith("/")) {
+          root = root.substring(0, root.length() - 1);
+        }
+        listener.addRoute(root, HttpReaderHandler.class, queue, getTimeout());
+        Log.debug("Also servicing root endpoint '" + root + "'");
+      }
+    }
 
     context.addListener(new ResponseGenerator());
   }
@@ -147,7 +179,7 @@ public class HttpReader extends AbstractFrameReader implements FrameReader {
 
 
   /**
-   * @return
+   * @return the port to which this listener should bind.
    */
   private int getPort() {
     int retval = DEFAULT_PORT;
@@ -162,6 +194,12 @@ public class HttpReader extends AbstractFrameReader implements FrameReader {
   }
 
 
+
+
+  /**
+   * @return the number of milliseconds this reader should wait for the engine 
+   *         to process the request before returning a response.
+   */
   private int getTimeout() {
     int retval = DEFAULT_TIMEOUT;
     if (getConfiguration().containsIgnoreCase(ConfigTag.TIMEOUT)) {
@@ -173,6 +211,8 @@ public class HttpReader extends AbstractFrameReader implements FrameReader {
     }
     return retval;
   }
+
+
 
 
   /**
@@ -189,6 +229,14 @@ public class HttpReader extends AbstractFrameReader implements FrameReader {
 
 
 
+  /**
+   * Retrieve the next future from our queue and return the data frame it contains.
+   * 
+   * <p>If there is no future, this method pauses for a short time to keep the 
+   * engine thread from constantly cycling when there is nothing to do.
+   * 
+   * @see coyote.dx.FrameReader#read(coyote.dx.context.TransactionContext)
+   */
   @Override
   public DataFrame read(TransactionContext context) {
     HttpFuture future = queue.poll();
@@ -211,6 +259,12 @@ public class HttpReader extends AbstractFrameReader implements FrameReader {
 
 
 
+  /**
+   * Always return false to keep the reader activly reading from the HTTP 
+   * server thread.
+   * 
+   * @see coyote.dx.FrameReader#eof()
+   */
   @Override
   public boolean eof() {
     return false;
@@ -257,6 +311,10 @@ public class HttpReader extends AbstractFrameReader implements FrameReader {
 
   }
 
+  /**
+   * Set the response in the request future when the transaction context is 
+   * complete.
+   */
   private class ResponseGenerator extends AbstractListener implements ContextListener {
 
     /**
