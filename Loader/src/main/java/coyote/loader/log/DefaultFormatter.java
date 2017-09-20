@@ -4,10 +4,6 @@
  * This program and the accompanying materials are made available under the 
  * terms of the MIT License which accompanies this distribution, and is 
  * available at http://creativecommons.org/licenses/MIT/
- *
- * Contributors:
- *   Stephan D. Cote 
- *      - Initial concept and implementation
  */
 package coyote.loader.log;
 
@@ -19,7 +15,9 @@ import coyote.commons.StringUtil;
 
 
 /**
- * Class DefaultFormatter
+ * This is the default formatter for all log entries.
+ * 
+ * <p>This should meet the needs of 99% of the use cases.
  */
 public class DefaultFormatter implements Formatter {
   private static final SimpleDateFormat DATE_FORMATTER = new SimpleDateFormat( "yyyy-MM-dd HH:mm:ss.SSS zzz" );
