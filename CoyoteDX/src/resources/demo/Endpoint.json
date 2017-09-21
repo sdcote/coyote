@@ -24,17 +24,17 @@
 		},
 
 		"Listener": {
-			"CreateRecord": { "Condition": "match( Working.HttpMethod, POST)", "database": "H2", "table":"endpoint" },
-			"ReadRecord": { "Condition": "match( Working.HttpMethod, GET)", "database": "H2", "table":"endpoint" },
-			"UpdateRecord": { "Condition": "match( Working.HttpMethod, PUT)", "database": "H2", "table":"endpoint" },
-			"DeleteRecord": { "Condition": "match( Working.HttpMethod, DELETE)", "database": "H2", "table":"endpoint" }
+			"CreateRecord": { "Condition": "match( Context.HTTPMethod, POST)", "database": "H2", "table":"endpoint" },
+			"ReadRecord": { "Condition": "match( Context.HTTPMethod, GET)", "database": "H2", "table":"endpoint" },
+			"UpdateRecord": { "Condition": "match( Context.HTTPMethod, PUT)", "database": "H2", "table":"endpoint" },
+			"DeleteRecord": { "Condition": "match( Context.HTTPMethod, DELETE)", "database": "H2", "table":"endpoint" }
 		}
 
 	},
 
 	"Logging": {
 		"StandardError": { "categories": "warn, error, fatal" },
-		"StandardOutput": { "categories": "info, notice" }
+		"StandardOutput": { "categories": "debug, info, notice" }
 	}
 
 }
