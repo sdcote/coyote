@@ -358,6 +358,8 @@ public class HttpReader extends AbstractFrameReader implements FrameReader {
           if (context.isInError()) {
             future.setResponse(Response.createFixedLengthResponse(Status.BAD_REQUEST, MimeType.JSON.getType(), "{\"Status\":\"Error\",\"Message\",\"" + context.getErrorMessage() + "\"}"));
           } else {
+            // how do we get other data from the components?
+            // should we look in the transaction context for a response frame? 
             future.setResponse(Response.createFixedLengthResponse(Status.OK, MimeType.JSON.getType(), "{\"Status\":\"OK\"}"));
           }
         }
