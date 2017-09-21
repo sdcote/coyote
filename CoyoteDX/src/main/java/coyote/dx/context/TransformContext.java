@@ -35,6 +35,8 @@ public class TransformContext extends OperationalContext {
   public static final String STARTTIME = "StartTime";
   private static final String SOURCE = "Source.";
   private static final String TARGET = "Target.";
+  private static final String CONTEXT = "Context.";
+  private static final String TRANSFORM = "Transform.";
 
   private static final String WORKING = "Working.";
   private volatile TransactionContext transactionContext = null;
@@ -248,7 +250,9 @@ public class TransformContext extends OperationalContext {
    * context.
    * <li>Target.[field name] field in the target frame of the transaction
    * context.
-   * <li>[field name] field in the working frame of the transaction</ul>
+   * <li>[field name] field in the working frame of the transaction
+   * <li>Context.[field name] value in the transaction context.
+   * <li>Transform.[field name] value in the transform context.</ul>
    *
    * @param token the name of the field, context or symbol value
    *
@@ -271,11 +275,14 @@ public class TransformContext extends OperationalContext {
       if ((transactionContext != null) && (transactionContext.getTargetFrame() != null)) {
         retval = transactionContext.getTargetFrame().getAsString(name);
       }
-    } else {
-      // assume a working frame field
-      if ((transactionContext != null) && (transactionContext.getWorkingFrame() != null)) {
-        retval = transactionContext.getWorkingFrame().getAsString(token);
+    } else if (token.startsWith(CONTEXT)) {
+      final String name = token.substring(CONTEXT.length());
+      if (transactionContext != null) {
+        retval = transactionContext.getAsString(name);
       }
+    } else if (token.startsWith(TRANSFORM)) {
+      final String name = token.substring(TRANSFORM.length());
+      retval = getAsString(name);
     }
     return retval;
   }
@@ -296,7 +303,8 @@ public class TransformContext extends OperationalContext {
    * context.
    * <li>Target.[field name] field in the target frame of the transaction
    * context.
-   * <li>[field name] field in the working frame of the transaction</ul>
+   * <li>Context.[field name] value in the transaction context.
+   * <li>Transform.[field name] value in the transform context.</ul>
    *
    * @param token the name of the field, context or symbol value
    *
@@ -319,6 +327,14 @@ public class TransformContext extends OperationalContext {
       if ((transactionContext != null) && (transactionContext.getTargetFrame() != null)) {
         retval = transactionContext.getTargetFrame().getObject(name);
       }
+    } else if (token.startsWith(CONTEXT)) {
+      final String name = token.substring(CONTEXT.length());
+      if (transactionContext != null) {
+        retval = transactionContext.get(name);
+      }
+    } else if (token.startsWith(TRANSFORM)) {
+      final String name = token.substring(TRANSFORM.length());
+      retval = get(name);
     }
     return retval;
   }
