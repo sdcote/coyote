@@ -88,23 +88,19 @@ public class HttpReader extends AbstractFrameReader implements FrameReader {
   public void setConfiguration(Config cfg) throws ConfigurationException {
     super.setConfiguration(cfg);
 
-    if (getConfiguration().containsIgnoreCase(ConfigTag.PORT)) {
-      if (!Template.appearsToBeATemplate(getString(ConfigTag.PORT))) {
-        try {
-          getConfiguration().getInt(ConfigTag.PORT);
-        } catch (Exception ignore) {
-          throw new ConfigurationException(this.getClass().getName() + " configuration contains an invalid port specification of '" + getConfiguration().getString(ConfigTag.PORT) + "'");
-        }
+    if (getConfiguration().containsIgnoreCase(ConfigTag.PORT) && !Template.appearsToBeATemplate(getString(ConfigTag.PORT))) {
+      try {
+        getConfiguration().getInt(ConfigTag.PORT);
+      } catch (Exception ignore) {
+        throw new ConfigurationException(this.getClass().getName() + " configuration contains an invalid port specification of '" + getConfiguration().getString(ConfigTag.PORT) + "'");
       }
     }
 
-    if (getConfiguration().containsIgnoreCase(ConfigTag.TIMEOUT)) {
-      if (!Template.appearsToBeATemplate(getString(ConfigTag.TIMEOUT))) {
-        try {
-          getConfiguration().getInt(ConfigTag.TIMEOUT);
-        } catch (Exception ignore) {
-          throw new ConfigurationException(this.getClass().getName() + " configuration contains an invalid timeout specification of '" + getConfiguration().getString(ConfigTag.TIMEOUT) + "'");
-        }
+    if (getConfiguration().containsIgnoreCase(ConfigTag.TIMEOUT) && !Template.appearsToBeATemplate(getString(ConfigTag.TIMEOUT))) {
+      try {
+        getConfiguration().getInt(ConfigTag.TIMEOUT);
+      } catch (Exception ignore) {
+        throw new ConfigurationException(this.getClass().getName() + " configuration contains an invalid timeout specification of '" + getConfiguration().getString(ConfigTag.TIMEOUT) + "'");
       }
     }
   }
@@ -331,7 +327,6 @@ public class HttpReader extends AbstractFrameReader implements FrameReader {
       }
 
       if (cfg != null) {
-        DataFrame authConfig = null;
         for (DataField field : cfg.getFields()) {
           if (StringUtil.equalsIgnoreCase(GenericAuthProvider.AUTH_SECTION, field.getName()) && field.isFrame()) {
             setAuthProvider(new GenericAuthProvider(new Config((DataFrame)field.getObjectValue())));
