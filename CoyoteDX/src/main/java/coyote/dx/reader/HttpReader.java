@@ -67,6 +67,7 @@ public class HttpReader extends AbstractFrameReader implements FrameReader {
   private static final String DEFAULT_ENDPOINT = "/api";
   private static final String ENDPOINT_TAG = "endpoint";
   private static final String HTTPFUTURE = "HTTPFuture";
+  private static final String HTTPMETHOD = "HTTPMethod";
   private static final String HTTPLISTENER = "HTTPListener";
   private static final int DEFAULT_PORT = 80;
   protected static final int DEFAULT_TIMEOUT = 10000;
@@ -252,6 +253,7 @@ public class HttpReader extends AbstractFrameReader implements FrameReader {
     if (future != null) {
       retval = future.getDataFrame();
       context.set(HTTPFUTURE, future);
+      context.set(HTTPMETHOD, future.getMethod().toUpperCase());
     }
     return retval;
   }
