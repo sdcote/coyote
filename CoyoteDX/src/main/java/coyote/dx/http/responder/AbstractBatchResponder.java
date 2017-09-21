@@ -19,6 +19,7 @@ import coyote.commons.network.http.responder.Resource;
 import coyote.commons.network.http.responder.Responder;
 import coyote.dataframe.DataFrame;
 import coyote.dataframe.marshal.JSONMarshaler;
+import coyote.dataframe.marshal.XMLMarshaler;
 
 
 /**
@@ -83,7 +84,11 @@ public abstract class AbstractBatchResponder extends DefaultResponder implements
 
   @Override
   public String getText() {
-    return JSONMarshaler.marshal(results);
+    if (mimetype.equals(MimeType.XML)) {
+      return XMLMarshaler.marshal(results);
+    } else {
+      return JSONMarshaler.marshal(results);
+    }
   }
 
 
