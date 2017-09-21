@@ -7,6 +7,7 @@
  */
 package coyote.dx.reader;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.Map;
@@ -17,13 +18,14 @@ import coyote.commons.network.MimeType;
 import coyote.commons.network.http.Body;
 import coyote.commons.network.http.HTTP;
 import coyote.commons.network.http.IHTTPSession;
-import coyote.commons.network.http.Method;
 import coyote.commons.network.http.Response;
+import coyote.commons.network.http.ResponseException;
 import coyote.commons.network.http.Status;
 import coyote.commons.network.http.responder.Resource;
 import coyote.commons.network.http.responder.Responder;
 import coyote.dataframe.DataFrame;
 import coyote.dataframe.marshal.JSONMarshaler;
+import coyote.dataframe.marshal.MarshalException;
 import coyote.dataframe.marshal.XMLMarshaler;
 import coyote.dx.http.HttpFuture;
 import coyote.dx.http.responder.AbstractBatchResponder;
@@ -47,7 +49,6 @@ import coyote.loader.log.Log;
 public class HttpReaderHandler extends AbstractBatchResponder implements Responder {
 
   private static final String STATUS = "Status";
-  private static final Object OK = "OK";
   private static final String MESSAGE = "Message";
   private static final Object ERROR = "Error";
 
@@ -62,7 +63,7 @@ public class HttpReaderHandler extends AbstractBatchResponder implements Respond
     @SuppressWarnings("unchecked")
     final ConcurrentLinkedQueue<HttpFuture> queue = resource.initParameter(0, ConcurrentLinkedQueue.class);
     final int timeout = resource.initParameter(1, Integer.class);
-    return handleRequest("DELETE", session, queue, timeout);
+    return handleRequest("DELETE", session, urlParams, queue, timeout);
   }
 
 
@@ -76,7 +77,7 @@ public class HttpReaderHandler extends AbstractBatchResponder implements Respond
     @SuppressWarnings("unchecked")
     final ConcurrentLinkedQueue<HttpFuture> queue = resource.initParameter(0, ConcurrentLinkedQueue.class);
     final int timeout = resource.initParameter(1, Integer.class);
-    return handleRequest("GET", session, queue, timeout);
+    return handleRequest("GET", session, urlParams, queue, timeout);
   }
 
 
@@ -124,92 +125,123 @@ public class HttpReaderHandler extends AbstractBatchResponder implements Respond
    *
    * @return the HTTP response with the results of processing.
    */
-  private Response handleRequest(final String method, final IHTTPSession session, final ConcurrentLinkedQueue<HttpFuture> queue, final int timeout) {
+  @SuppressWarnings("resource")
+  private Response handleRequest(final String method, final IHTTPSession session, final Map<String, String> urlParams, final ConcurrentLinkedQueue<HttpFuture> queue, final int timeout) {
     int millis = timeout;
     if (millis < 1) {
       millis = HttpReader.DEFAULT_TIMEOUT;
     }
 
     Response retval = null;
-    Log.debug("Handling '" + method + "' request (timeout=" + timeout + "ms)");
-    if (Method.GET.toString().equalsIgnoreCase(method)) {
-      setResults(new DataFrame().set(STATUS, OK).set(MESSAGE, "GET requests do not send data, use PUT, POST or some other HTTP method type."));
-      retval = Response.createFixedLengthResponse(Status.OK, getMimeType(), getText());
-    } else {
-      final HttpFuture future = new HttpFuture();
-      future.setMethod(method);
-      future.setAcceptType(getAcceptType(session));
-      future.setContentType(getContentType(session));
+    final HttpFuture future = new HttpFuture();
+    future.setMethod(method);
+    future.setAcceptType(getAcceptType(session));
+    future.setContentType(getContentType(session));
 
-      // parse the body of the message into a dataframe
+    DataFrame dframe = null;
+
+    Body body = null;
+    try {
+      body = session.parseBody();
+    } catch (IOException | ResponseException e1) {
+      setResults(new DataFrame().set(STATUS, ERROR).set(MESSAGE, "Problems parsing request body: " + e1.getMessage()));
+      retval = Response.createFixedLengthResponse(Status.BAD_REQUEST, getMimeType(), getText());
+    }
+
+    if (Log.isLogging(Log.DEBUG_EVENTS)) {
+      Log.debug("Handling '" + method + "' request (timeout=" + timeout + "ms)");
+      Log.debug("Body contains " + (body != null ? body.size() : 0) + " entities");
+      Log.debug("Request Parameter count: " + (session.getParms() != null ? session.getParms().size() : 0) + " pairs");
+      Log.debug("URL Parameter count: " + (urlParams != null ? urlParams.size() : 0) + " pairs");
+    }
+
+    // Start with the body
+    if (body != null && body.size() > 0) {
       try {
-        final Body body = session.parseBody();
-        Log.debug("Body contains " + body.size() + " entities");
-
-        if (body.size() > 0) {
-          for (final String key : body.keySet()) {
-            Log.debug("Parsing body entity '" + key + "'");
-            final Object obj = body.get(key);
-            Log.debug("body entity '" + key + "' is a " + obj.getClass().getName());
-
-            String data = null;
-            if (obj instanceof String) {
-              data = (String)obj;
-            } else if (obj instanceof ByteBuffer) {
-              ByteBuffer buffer = (ByteBuffer)obj;
-              data = new String(buffer.array());
-            } else {
-              Log.error("I don't know how to parse a " + obj.getClass().getName() + " body object.");
-            }
-
-            if (data != null) {
-              List<DataFrame> frames = null;
-              if (session.getRequestHeaders().containsKey(MimeType.XML)) {
-                frames = XMLMarshaler.marshal(data);
-              } else {
-                frames = JSONMarshaler.marshal(data);
-              }
-              if (frames != null) {
-                final DataFrame frame = frames.get(0);
-                if (frame != null) {
-                  Log.debug("Placing data frame in future for processing");
-                  future.setFrame(frame);
-                } else {
-                  Log.notice("No data frame found in HTTP request");
-                }
-              } else {
-                Log.warn("No dataframe list to process");
-              }
-            }
-
-          }
-        } else if (session.getParms() != null && session.getParms().size() > 0) {
-          //if the body contains no entities, maybe data was submitted as form-data - each vey-value pair is a field in the frame
-          Log.notice("Form parameters are not yet supported...open a ticket");
-        } else {
-          setResults(new DataFrame().set(STATUS, ERROR).set(MESSAGE, "There was no body nor form data found to process."));
-          retval = Response.createFixedLengthResponse(Status.BAD_REQUEST, getMimeType(), getText());
-        }
+        dframe = parseBody(body, session);
       } catch (final Exception e) {
-        e.printStackTrace();
         setResults(new DataFrame().set(STATUS, ERROR).set(MESSAGE, "Problems parsing body: " + e.getMessage()));
         retval = Response.createFixedLengthResponse(Status.BAD_REQUEST, getMimeType(), getText());
       }
+    } else {
+      dframe = new DataFrame();
+    }
 
-      if (future.getFrame() != null) {
-        // add the future to the queue for the reader to send through the engine
-        queue.add(future);
+    // next, use request parameters overriding what may be in the body
+    if (session.getParms() != null && session.getParms().size() > 0) {
+      for (Map.Entry<String, String> entry : session.getParms().entrySet()) {
+        dframe.put(entry.getKey(), entry.getValue());
+      }
+    }
 
-        // wait for the future to be processed by the reader/engine for a
-        // specific number of milliseconds
-        retval = future.getResponse(millis);
+    // finally, URL parameters override the body and the request params
+    if (urlParams != null && urlParams.size() > 0) {
+      for (Map.Entry<String, String> entry : urlParams.entrySet()) {
+        dframe.put(entry.getKey(), entry.getValue());
+      }
+    }
 
-        if (retval == null) {
-          setResults(new DataFrame().set(STATUS, ERROR).set(MESSAGE, "Transform did not return a result within the time-out period"));
-          retval = Response.createFixedLengthResponse(Status.UNAVAILABLE, getMimeType(), getText());
-        }
+    // set the results in the future
+    future.setFrame(dframe);
+
+    // if there is data to process add it to the queue, otherwise report a bad request
+    if (future.getFrame().getFieldCount() > 0) {
+      queue.add(future);
+      retval = future.getResponse(millis);
+      if (retval == null) {
+        setResults(new DataFrame().set(STATUS, ERROR).set(MESSAGE, "Transform did not return a result within the time-out period"));
+        retval = Response.createFixedLengthResponse(Status.UNAVAILABLE, getMimeType(), getText());
+      }
+    } else {
+      setResults(new DataFrame().set(STATUS, ERROR).set(MESSAGE, "No data to process"));
+      retval = Response.createFixedLengthResponse(Status.BAD_REQUEST, getMimeType(), getText());
+    }
+
+    return retval;
+  }
+
+
+
+
+  /**
+   * Retrieve the first data frame from the body of the request.
+   * 
+   * @param body the request body
+   * @param session the session request
+   * 
+   * @return the first dataframe parsed from the body
+   * 
+   * @throws MarshalException if the JSON or XML data could not be parsed
+   */
+  private DataFrame parseBody(Body body, IHTTPSession session) throws MarshalException {
+    DataFrame retval = null;
+    for (final String key : body.keySet()) {
+      final Object obj = body.get(key);
+
+      String data = null;
+      if (obj instanceof String) {
+        data = (String)obj;
+      } else if (obj instanceof ByteBuffer) {
+        ByteBuffer buffer = (ByteBuffer)obj;
+        data = new String(buffer.array());
       } else {
-        Log.debug("no data to process");
+        Log.error("I don't know how to parse a " + obj.getClass().getName() + " body object.");
+        throw new MarshalException("Problems parsing request body. Check logs for details.");
+      }
+
+      if (data != null) {
+        List<DataFrame> frames = null;
+        if (session.getRequestHeaders().containsKey(MimeType.XML)) {
+          frames = XMLMarshaler.marshal(data);
+        } else {
+          frames = JSONMarshaler.marshal(data);
+        }
+        if (frames != null) {
+          retval = frames.get(0);
+          break; // only get the first dataframe
+        } else {
+          Log.warn("No dataframe list to process");
+        }
       }
     }
     return retval;
@@ -226,7 +258,7 @@ public class HttpReaderHandler extends AbstractBatchResponder implements Respond
     @SuppressWarnings("unchecked")
     final ConcurrentLinkedQueue<HttpFuture> queue = resource.initParameter(0, ConcurrentLinkedQueue.class);
     final int timeout = resource.initParameter(1, Integer.class);
-    return handleRequest(method, session, queue, timeout);
+    return handleRequest(method, session, urlParams, queue, timeout);
   }
 
 
@@ -240,7 +272,7 @@ public class HttpReaderHandler extends AbstractBatchResponder implements Respond
     @SuppressWarnings("unchecked")
     final ConcurrentLinkedQueue<HttpFuture> queue = resource.initParameter(0, ConcurrentLinkedQueue.class);
     final int timeout = resource.initParameter(1, Integer.class);
-    return handleRequest("POST", session, queue, timeout);
+    return handleRequest("POST", session, urlParams, queue, timeout);
   }
 
 
@@ -254,7 +286,7 @@ public class HttpReaderHandler extends AbstractBatchResponder implements Respond
     @SuppressWarnings("unchecked")
     final ConcurrentLinkedQueue<HttpFuture> queue = resource.initParameter(0, ConcurrentLinkedQueue.class);
     final int timeout = resource.initParameter(1, Integer.class);
-    return handleRequest("PUT", session, queue, timeout);
+    return handleRequest("PUT", session, urlParams, queue, timeout);
   }
 
 }
