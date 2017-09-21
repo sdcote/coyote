@@ -24,7 +24,7 @@ public class TableDefinition {
   private String productName;
   private String productVersion;
   private String schemaName;
-  private final String tableName;
+  private String tableName;
 
 
 
@@ -179,6 +179,16 @@ public class TableDefinition {
    */
   public String getName() {
     return tableName;
+  }
+
+
+
+
+  /**
+   * @param name the name of the table to set
+   */
+  public void setName(String name) {
+    this.tableName = name;
   }
 
 
