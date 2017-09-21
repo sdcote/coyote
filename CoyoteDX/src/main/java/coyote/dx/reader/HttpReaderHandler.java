@@ -83,6 +83,48 @@ public class HttpReaderHandler extends AbstractBatchResponder implements Respond
 
 
 
+  /**
+   * @see coyote.dx.http.responder.AbstractBatchResponder#other(java.lang.String, coyote.commons.network.http.responder.Resource, java.util.Map, coyote.commons.network.http.IHTTPSession)
+   */
+  @Override
+  public Response other(final String method, final Resource resource, final Map<String, String> urlParams, final IHTTPSession session) {
+    @SuppressWarnings("unchecked")
+    final ConcurrentLinkedQueue<HttpFuture> queue = resource.initParameter(0, ConcurrentLinkedQueue.class);
+    final int timeout = resource.initParameter(1, Integer.class);
+    return handleRequest(method, session, urlParams, queue, timeout);
+  }
+
+
+
+
+  /**
+   * @see coyote.dx.http.responder.AbstractBatchResponder#post(coyote.commons.network.http.responder.Resource, java.util.Map, coyote.commons.network.http.IHTTPSession)
+   */
+  @Override
+  public Response post(final Resource resource, final Map<String, String> urlParams, final IHTTPSession session) {
+    @SuppressWarnings("unchecked")
+    final ConcurrentLinkedQueue<HttpFuture> queue = resource.initParameter(0, ConcurrentLinkedQueue.class);
+    final int timeout = resource.initParameter(1, Integer.class);
+    return handleRequest("POST", session, urlParams, queue, timeout);
+  }
+
+
+
+
+  /**
+   * @see coyote.dx.http.responder.AbstractBatchResponder#put(coyote.commons.network.http.responder.Resource, java.util.Map, coyote.commons.network.http.IHTTPSession)
+   */
+  @Override
+  public Response put(final Resource resource, final Map<String, String> urlParams, final IHTTPSession session) {
+    @SuppressWarnings("unchecked")
+    final ConcurrentLinkedQueue<HttpFuture> queue = resource.initParameter(0, ConcurrentLinkedQueue.class);
+    final int timeout = resource.initParameter(1, Integer.class);
+    return handleRequest("PUT", session, urlParams, queue, timeout);
+  }
+
+
+
+
   private String getAcceptType(final IHTTPSession session) {
     return getPreferredHeaderValue(session, HTTP.HDR_ACCEPT);
   }
@@ -125,7 +167,6 @@ public class HttpReaderHandler extends AbstractBatchResponder implements Respond
    *
    * @return the HTTP response with the results of processing.
    */
-  @SuppressWarnings("resource")
   private Response handleRequest(final String method, final IHTTPSession session, final Map<String, String> urlParams, final ConcurrentLinkedQueue<HttpFuture> queue, final int timeout) {
     int millis = timeout;
     if (millis < 1) {
@@ -140,63 +181,119 @@ public class HttpReaderHandler extends AbstractBatchResponder implements Respond
 
     DataFrame dframe = null;
 
+    // Start with the body
+    try {
+      dframe = populateBody(session);
+    } catch (IllegalArgumentException e) {
+      setResults(new DataFrame().set(STATUS, ERROR).set(MESSAGE, e.getMessage()));
+      retval = Response.createFixedLengthResponse(Status.BAD_REQUEST, getMimeType(), getText());
+    }
+
+    if (retval == null) {
+      // next, use request parameters overriding what may be in the body
+      dframe = populateRequestParameters(dframe, session);
+
+      // finally, URL parameters override the body and the request params
+      dframe = populateUrlParameters(dframe, urlParams);
+
+      // set the results in the future
+      future.setFrame(dframe);
+
+      // if there is data to process add it to the queue, otherwise report a bad request
+      if (future.getFrame().getFieldCount() > 0) {
+        queue.add(future);
+        retval = future.getResponse(millis);
+        if (retval == null) {
+          setResults(new DataFrame().set(STATUS, ERROR).set(MESSAGE, "Transform did not return a result within the time-out period"));
+          retval = Response.createFixedLengthResponse(Status.UNAVAILABLE, getMimeType(), getText());
+        }
+      } else {
+        setResults(new DataFrame().set(STATUS, ERROR).set(MESSAGE, "No data to process"));
+        retval = Response.createFixedLengthResponse(Status.BAD_REQUEST, getMimeType(), getText());
+      }
+    }
+    return retval;
+  }
+
+
+
+
+  /**
+   * Create a dataframe out of the body of the request in the given session.
+   * 
+   * @param session the session containing the request.
+   * 
+   * @return a data frame populated with the data in the body or an empty data 
+   *         frame if no body was in the session.
+   *
+   * @throws IllegalArgumentException if there were problems parsing the body
+   */
+  private DataFrame populateBody(IHTTPSession session) throws IllegalArgumentException {
+    DataFrame retval;
     Body body = null;
     try {
       body = session.parseBody();
     } catch (IOException | ResponseException e1) {
-      setResults(new DataFrame().set(STATUS, ERROR).set(MESSAGE, "Problems parsing request body: " + e1.getMessage()));
-      retval = Response.createFixedLengthResponse(Status.BAD_REQUEST, getMimeType(), getText());
+      throw new IllegalArgumentException("Problems parsing request body: " + e1.getMessage());
     }
 
-    if (Log.isLogging(Log.DEBUG_EVENTS)) {
-      Log.debug("Handling '" + method + "' request (timeout=" + timeout + "ms)");
-      Log.debug("Body contains " + (body != null ? body.size() : 0) + " entities");
-      Log.debug("Request Parameter count: " + (session.getParms() != null ? session.getParms().size() : 0) + " pairs");
-      Log.debug("URL Parameter count: " + (urlParams != null ? urlParams.size() : 0) + " pairs");
-    }
-
-    // Start with the body
     if (body != null && body.size() > 0) {
       try {
-        dframe = parseBody(body, session);
+        retval = parseBody(body, session);
       } catch (final Exception e) {
-        setResults(new DataFrame().set(STATUS, ERROR).set(MESSAGE, "Problems parsing body: " + e.getMessage()));
-        retval = Response.createFixedLengthResponse(Status.BAD_REQUEST, getMimeType(), getText());
+        throw new IllegalArgumentException("Problems parsing body data: " + e.getMessage());
       }
     } else {
-      dframe = new DataFrame();
+      retval = new DataFrame();
     }
+    return retval;
+  }
 
-    // next, use request parameters overriding what may be in the body
-    if (session.getParms() != null && session.getParms().size() > 0) {
-      for (Map.Entry<String, String> entry : session.getParms().entrySet()) {
-        dframe.put(entry.getKey(), entry.getValue());
-      }
-    }
 
-    // finally, URL parameters override the body and the request params
+
+
+  /**
+   * Add/overwrite URL parameters to the data frame.
+   * 
+   * <p>If any of the fields match existing parameters, the values in the data 
+   * frame will be over-written.
+   * 
+   * @param frame the original data frame
+   * @param urlParams the map of parameters
+   * 
+   * @return a data frame with the parameters added
+   */
+  private DataFrame populateUrlParameters(DataFrame frame, Map<String, String> urlParams) {
+    DataFrame retval = frame;
     if (urlParams != null && urlParams.size() > 0) {
       for (Map.Entry<String, String> entry : urlParams.entrySet()) {
-        dframe.put(entry.getKey(), entry.getValue());
+        retval.put(entry.getKey(), entry.getValue());
       }
     }
+    return retval;
+  }
 
-    // set the results in the future
-    future.setFrame(dframe);
 
-    // if there is data to process add it to the queue, otherwise report a bad request
-    if (future.getFrame().getFieldCount() > 0) {
-      queue.add(future);
-      retval = future.getResponse(millis);
-      if (retval == null) {
-        setResults(new DataFrame().set(STATUS, ERROR).set(MESSAGE, "Transform did not return a result within the time-out period"));
-        retval = Response.createFixedLengthResponse(Status.UNAVAILABLE, getMimeType(), getText());
+
+
+  /**
+   * Add/overwrite request parameters to the data frame.
+   * 
+   * <p>If any of the fields match existing parameters, the values in the data 
+   * frame will be over-written.
+   * 
+   * @param frame the original data frame
+   * @param session the session containing the request parameters
+   * 
+   * @return a data frame with the parameters added
+   */
+  private DataFrame populateRequestParameters(DataFrame frame, IHTTPSession session) {
+    DataFrame retval = frame;
+    if (session.getParms() != null && session.getParms().size() > 0) {
+      for (Map.Entry<String, String> entry : session.getParms().entrySet()) {
+        retval.put(entry.getKey(), entry.getValue());
       }
-    } else {
-      setResults(new DataFrame().set(STATUS, ERROR).set(MESSAGE, "No data to process"));
-      retval = Response.createFixedLengthResponse(Status.BAD_REQUEST, getMimeType(), getText());
     }
-
     return retval;
   }
 
@@ -245,48 +342,6 @@ public class HttpReaderHandler extends AbstractBatchResponder implements Respond
       }
     }
     return retval;
-  }
-
-
-
-
-  /**
-   * @see coyote.dx.http.responder.AbstractBatchResponder#other(java.lang.String, coyote.commons.network.http.responder.Resource, java.util.Map, coyote.commons.network.http.IHTTPSession)
-   */
-  @Override
-  public Response other(final String method, final Resource resource, final Map<String, String> urlParams, final IHTTPSession session) {
-    @SuppressWarnings("unchecked")
-    final ConcurrentLinkedQueue<HttpFuture> queue = resource.initParameter(0, ConcurrentLinkedQueue.class);
-    final int timeout = resource.initParameter(1, Integer.class);
-    return handleRequest(method, session, urlParams, queue, timeout);
-  }
-
-
-
-
-  /**
-   * @see coyote.dx.http.responder.AbstractBatchResponder#post(coyote.commons.network.http.responder.Resource, java.util.Map, coyote.commons.network.http.IHTTPSession)
-   */
-  @Override
-  public Response post(final Resource resource, final Map<String, String> urlParams, final IHTTPSession session) {
-    @SuppressWarnings("unchecked")
-    final ConcurrentLinkedQueue<HttpFuture> queue = resource.initParameter(0, ConcurrentLinkedQueue.class);
-    final int timeout = resource.initParameter(1, Integer.class);
-    return handleRequest("POST", session, urlParams, queue, timeout);
-  }
-
-
-
-
-  /**
-   * @see coyote.dx.http.responder.AbstractBatchResponder#put(coyote.commons.network.http.responder.Resource, java.util.Map, coyote.commons.network.http.IHTTPSession)
-   */
-  @Override
-  public Response put(final Resource resource, final Map<String, String> urlParams, final IHTTPSession session) {
-    @SuppressWarnings("unchecked")
-    final ConcurrentLinkedQueue<HttpFuture> queue = resource.initParameter(0, ConcurrentLinkedQueue.class);
-    final int timeout = resource.initParameter(1, Integer.class);
-    return handleRequest("PUT", session, urlParams, queue, timeout);
   }
 
 }
