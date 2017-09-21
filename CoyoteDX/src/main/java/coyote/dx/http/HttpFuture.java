@@ -14,12 +14,40 @@ import coyote.dataframe.DataFrame;
 /**
  * Future class which allow requesting threads to wait for completion of
  * processing in other threads before sending a response.
+ * 
+ * <p>This holds several items other components may find useful in 
+ * transforming and writing the contained data frame.
+ * 
+ * <p>It is expected that a Response object will be set to mark this future 
+ * completed.
  */
 public class HttpFuture {
   private final Object mutex = new Object();
   private volatile Response response = null;
   private DataFrame frame = null;
   private String method = null;
+  private String acceptType = null;
+  private String contentType = null;
+
+
+
+
+  /**
+   * @return the MIME type in the Accept-Type request header
+   */
+  public String getAcceptType() {
+    return acceptType;
+  }
+
+
+
+
+  /**
+   * @return the MIME type in the Content-Type request header
+   */
+  public String getContentType() {
+    return contentType;
+  }
 
 
 
@@ -73,6 +101,30 @@ public class HttpFuture {
     synchronized (mutex) {
       return (response != null);
     }
+  }
+
+
+
+
+  /**
+   * Set the accept type for this request.
+   *
+   * @param type the MIME type in the Accept-Type request header
+   */
+  public void setAcceptType(final String type) {
+    acceptType = type;
+  }
+
+
+
+
+  /**
+   * Set the content type for this request.
+   *
+   * @param type the MIME type in the Content-Type request header
+   */
+  public void setContentType(final String type) {
+    contentType = type;
   }
 
 
