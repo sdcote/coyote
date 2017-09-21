@@ -54,19 +54,19 @@ import coyote.loader.log.Log;
  */
 public abstract class HTTPD {
   public static final String CLASS = "HTTPD";
-  public static final long EVENT = Log.getCode( CLASS );
+  public static final long EVENT = Log.getCode(CLASS);
 
   private static final String CONTENT_DISPOSITION_REGEX = "([ |\t]*Content-Disposition[ |\t]*:)(.*)";
 
-  static final Pattern CONTENT_DISPOSITION_PATTERN = Pattern.compile( CONTENT_DISPOSITION_REGEX, Pattern.CASE_INSENSITIVE );
+  static final Pattern CONTENT_DISPOSITION_PATTERN = Pattern.compile(CONTENT_DISPOSITION_REGEX, Pattern.CASE_INSENSITIVE);
 
   private static final String CONTENT_TYPE_REGEX = "([ |\t]*content-type[ |\t]*:)(.*)";
 
-  static final Pattern CONTENT_TYPE_PATTERN = Pattern.compile( CONTENT_TYPE_REGEX, Pattern.CASE_INSENSITIVE );
+  static final Pattern CONTENT_TYPE_PATTERN = Pattern.compile(CONTENT_TYPE_REGEX, Pattern.CASE_INSENSITIVE);
 
   private static final String CONTENT_DISPOSITION_ATTRIBUTE_REGEX = "[ |\t]*([a-zA-Z]*)[ |\t]*=[ |\t]*['|\"]([^\"^']*)['|\"]";
 
-  static final Pattern CONTENT_DISPOSITION_ATTRIBUTE_PATTERN = Pattern.compile( CONTENT_DISPOSITION_ATTRIBUTE_REGEX );
+  static final Pattern CONTENT_DISPOSITION_ATTRIBUTE_PATTERN = Pattern.compile(CONTENT_DISPOSITION_ATTRIBUTE_REGEX);
 
   /**
    * Maximum time to wait on Socket.getInputStream().read() (in milliseconds)
@@ -79,7 +79,7 @@ public abstract class HTTPD {
    * Our IP address Access Control List. It is set to deny everything unless 
    * addresses match the entries in this list. 
    */
-  final IpAcl acl = new IpAcl( IpAcl.DENY );
+  final IpAcl acl = new IpAcl(IpAcl.DENY);
 
   /**
    * This is our Denial of Service tracker. It keeps a list of times a request
@@ -132,8 +132,8 @@ public abstract class HTTPD {
    * @return a map of {@code String} (parameter name) to
    *         {@code List<String>} - a list of the values supplied.
    */
-  protected static Map<String, List<String>> decodeParameters( final Map<String, String> parms ) {
-    return decodeParameters( parms.get( HTTPD.QUERY_STRING_PARAMETER ) );
+  protected static Map<String, List<String>> decodeParameters(final Map<String, String> parms) {
+    return decodeParameters(parms.get(HTTPD.QUERY_STRING_PARAMETER));
   }
 
 
@@ -149,20 +149,20 @@ public abstract class HTTPD {
    * @return a map of {@code String} (parameter name) to 
    *         {@code List<String>} (a list of the values supplied).
    */
-  protected static Map<String, List<String>> decodeParameters( final String queryString ) {
+  protected static Map<String, List<String>> decodeParameters(final String queryString) {
     final Map<String, List<String>> parms = new HashMap<String, List<String>>();
-    if ( queryString != null ) {
-      final StringTokenizer st = new StringTokenizer( queryString, "&" );
-      while ( st.hasMoreTokens() ) {
+    if (queryString != null) {
+      final StringTokenizer st = new StringTokenizer(queryString, "&");
+      while (st.hasMoreTokens()) {
         final String e = st.nextToken();
-        final int sep = e.indexOf( '=' );
-        final String propertyName = sep >= 0 ? decodePercent( e.substring( 0, sep ) ).trim() : decodePercent( e ).trim();
-        if ( !parms.containsKey( propertyName ) ) {
-          parms.put( propertyName, new ArrayList<String>() );
+        final int sep = e.indexOf('=');
+        final String propertyName = sep >= 0 ? decodePercent(e.substring(0, sep)).trim() : decodePercent(e).trim();
+        if (!parms.containsKey(propertyName)) {
+          parms.put(propertyName, new ArrayList<String>());
         }
-        final String propertyValue = sep >= 0 ? decodePercent( e.substring( sep + 1 ) ) : null;
-        if ( propertyValue != null ) {
-          parms.get( propertyName ).add( propertyValue );
+        final String propertyValue = sep >= 0 ? decodePercent(e.substring(sep + 1)) : null;
+        if (propertyValue != null) {
+          parms.get(propertyName).add(propertyValue);
         }
       }
     }
@@ -180,12 +180,12 @@ public abstract class HTTPD {
    * @return expanded form of the input, for example "foo%20bar" becomes
    *         "foo bar"
    */
-  protected static String decodePercent( final String str ) {
+  protected static String decodePercent(final String str) {
     String decoded = null;
     try {
-      decoded = URLDecoder.decode( str, "UTF8" );
-    } catch ( final UnsupportedEncodingException ignored ) {
-      Log.append( EVENT, "Encoding not supported, ignored", ignored );
+      decoded = URLDecoder.decode(str, "UTF8");
+    } catch (final UnsupportedEncodingException ignored) {
+      Log.append(EVENT, "Encoding not supported, ignored", ignored);
     }
     return decoded;
   }
@@ -200,8 +200,8 @@ public abstract class HTTPD {
     * 
     * @return the connected mime/type
     */
-  public static String getMimeTypeForFile( final String uri ) {
-    return MimeType.get( uri ).get( 0 ).getType();
+  public static String getMimeTypeForFile(final String uri) {
+    return MimeType.get(uri).get(0).getType();
   }
 
 
@@ -212,16 +212,16 @@ public abstract class HTTPD {
    * array of loaded KeyManagers. These objects must properly
    * loaded/initialized by the caller.
    */
-  public static SSLServerSocketFactory makeSSLSocketFactory( final KeyStore loadedKeyStore, final KeyManager[] keyManagers ) throws IOException {
+  public static SSLServerSocketFactory makeSSLSocketFactory(final KeyStore loadedKeyStore, final KeyManager[] keyManagers) throws IOException {
     SSLServerSocketFactory res = null;
     try {
-      final TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance( TrustManagerFactory.getDefaultAlgorithm() );
-      trustManagerFactory.init( loadedKeyStore );
-      final SSLContext ctx = SSLContext.getInstance( "TLS" );
-      ctx.init( keyManagers, trustManagerFactory.getTrustManagers(), null );
+      final TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+      trustManagerFactory.init(loadedKeyStore);
+      final SSLContext ctx = SSLContext.getInstance("TLS");
+      ctx.init(keyManagers, trustManagerFactory.getTrustManagers(), null);
       res = ctx.getServerSocketFactory();
-    } catch ( final Exception e ) {
-      throw new IOException( e.getMessage() );
+    } catch (final Exception e) {
+      throw new IOException(e.getMessage());
     }
     return res;
   }
@@ -234,11 +234,11 @@ public abstract class HTTPD {
    * loaded KeyManagerFactory. These objects must properly loaded/initialized
    * by the caller.
    */
-  public static SSLServerSocketFactory makeSSLSocketFactory( final KeyStore loadedKeyStore, final KeyManagerFactory loadedKeyFactory ) throws IOException {
+  public static SSLServerSocketFactory makeSSLSocketFactory(final KeyStore loadedKeyStore, final KeyManagerFactory loadedKeyFactory) throws IOException {
     try {
-      return makeSSLSocketFactory( loadedKeyStore, loadedKeyFactory.getKeyManagers() );
-    } catch ( final Exception e ) {
-      throw new IOException( e.getMessage() );
+      return makeSSLSocketFactory(loadedKeyStore, loadedKeyFactory.getKeyManagers());
+    } catch (final Exception e) {
+      throw new IOException(e.getMessage());
     }
   }
 
@@ -249,87 +249,86 @@ public abstract class HTTPD {
    * Creates an SSLSocketFactory for HTTPS. Pass a KeyStore resource with your
    * certificate and passphrase
    */
-  public static SSLServerSocketFactory makeSSLSocketFactory( final String keyAndTrustStoreClasspathPath, final char[] passphrase ) throws IOException {
+  public static SSLServerSocketFactory makeSSLSocketFactory(final String keyAndTrustStoreClasspathPath, final char[] passphrase) throws IOException {
     try {
-      final KeyStore keystore = KeyStore.getInstance( KeyStore.getDefaultType() );
-      final InputStream keystoreStream = HTTPD.class.getResourceAsStream( keyAndTrustStoreClasspathPath );
+      final KeyStore keystore = KeyStore.getInstance(KeyStore.getDefaultType());
+      final InputStream keystoreStream = HTTPD.class.getResourceAsStream(keyAndTrustStoreClasspathPath);
 
-      if ( keystoreStream == null ) {
-        throw new IOException( "Unable to load keystore from classpath: " + keyAndTrustStoreClasspathPath );
+      if (keystoreStream == null) {
+        throw new IOException("Unable to load keystore from classpath: " + keyAndTrustStoreClasspathPath);
       }
 
-      keystore.load( keystoreStream, passphrase );
-      final KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance( KeyManagerFactory.getDefaultAlgorithm() );
-      keyManagerFactory.init( keystore, passphrase );
-      return makeSSLSocketFactory( keystore, keyManagerFactory );
-    } catch ( final Exception e ) {
-      throw new IOException( e.getMessage() );
+      keystore.load(keystoreStream, passphrase);
+      final KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
+      keyManagerFactory.init(keystore, passphrase);
+      return makeSSLSocketFactory(keystore, keyManagerFactory);
+    } catch (final Exception e) {
+      throw new IOException(e.getMessage());
     }
   }
 
 
 
 
-  @SuppressWarnings({ "unchecked", "rawtypes" })
-  public static List<MimeType> getMimeTypes( String filename ) {
+  @SuppressWarnings({"unchecked", "rawtypes"})
+  public static List<MimeType> getMimeTypes(String filename) {
 
-    if ( MIME_TYPES == null ) {
+    if (MIME_TYPES == null) {
       // since the mimetype map is null, we apparently have not initialized yet 
       MIME_TYPES = new HashMap<String, String>();
       try {
         // try to load the custom mimetypes
-        final Enumeration<URL> resources = HTTPD.class.getClassLoader().getResources( MIMETYPE_RESOURCE );
-        while ( resources.hasMoreElements() ) {
+        final Enumeration<URL> resources = HTTPD.class.getClassLoader().getResources(MIMETYPE_RESOURCE);
+        while (resources.hasMoreElements()) {
           final URL url = resources.nextElement();
           final Properties properties = new Properties();
           InputStream stream = null;
           try {
             stream = url.openStream();
-            properties.load( url.openStream() );
-          } catch ( final IOException e ) {
-            Log.append( EVENT, "Could not load custom mimetypes from " + url, e );
-          }
-          finally {
-            safeClose( stream );
+            properties.load(url.openStream());
+          } catch (final IOException e) {
+            Log.append(EVENT, "Could not load custom mimetypes from " + url, e);
+          } finally {
+            safeClose(stream);
           }
           // put all the found types in the map
-          MIME_TYPES.putAll( (Map)properties );
+          MIME_TYPES.putAll((Map)properties);
 
           // go through all the new types and add them to the static mapping
-          for ( String key : MIME_TYPES.keySet() ) {
-            String value = MIME_TYPES.get( key );
-            if ( StringUtil.isNotBlank( value ) ) {
-              MimeType.add( key, value, false );
+          for (String key : MIME_TYPES.keySet()) {
+            String value = MIME_TYPES.get(key);
+            if (StringUtil.isNotBlank(value)) {
+              MimeType.add(key, value, false);
             }
           }
         }
-      } catch ( final IOException e ) {
-        Log.append( EVENT, "no mime types available at " + MIMETYPE_RESOURCE );
+      } catch (final IOException e) {
+        Log.append(EVENT, "no mime types available at " + MIMETYPE_RESOURCE);
       }
     }
 
     // return the list of MimeTypes for this filename
-    return MimeType.get( filename );
+    return MimeType.get(filename);
   }
 
 
 
 
-  static final void safeClose( final Object closeable ) {
+  static final void safeClose(final Object closeable) {
     try {
-      if ( closeable != null ) {
-        if ( closeable instanceof Closeable ) {
-          ( (Closeable)closeable ).close();
-        } else if ( closeable instanceof Socket ) {
-          ( (Socket)closeable ).close();
-        } else if ( closeable instanceof ServerSocket ) {
-          ( (ServerSocket)closeable ).close();
+      if (closeable != null) {
+        if (closeable instanceof Closeable) {
+          ((Closeable)closeable).close();
+        } else if (closeable instanceof Socket) {
+          ((Socket)closeable).close();
+        } else if (closeable instanceof ServerSocket) {
+          ((ServerSocket)closeable).close();
         } else {
-          throw new IllegalArgumentException( "Unknown object to close" );
+          throw new IllegalArgumentException("Unknown object to close");
         }
       }
-    } catch ( final IOException e ) {
-      Log.append( EVENT, "Could not close", e );
+    } catch (final IOException e) {
+      Log.append(EVENT, "Could not close", e);
     }
   }
 
@@ -339,8 +338,8 @@ public abstract class HTTPD {
   /**
    * Constructs an HTTP server on given port.
    */
-  public HTTPD( final int port ) {
-    this( null, port );
+  public HTTPD(final int port) {
+    this(null, port);
   }
 
 
@@ -349,12 +348,12 @@ public abstract class HTTPD {
   /**
    * Constructs an HTTP server on given hostname and port.
    */
-  public HTTPD( final String hostname, final int port ) {
+  public HTTPD(final String hostname, final int port) {
     this.hostname = hostname;
     myPort = port;
-    setCacheManagerFactory( new DefaultCacheManagerFactory() );
-    setAsyncRunner( new DefaultExecutor() );
-    Log.append( EVENT, "Server initialized on port " + myPort );
+    setCacheManagerFactory(new DefaultCacheManagerFactory());
+    setAsyncRunner(new DefaultExecutor());
+    Log.append(EVENT, "Server initialized on port " + myPort);
   }
 
 
@@ -368,9 +367,9 @@ public abstract class HTTPD {
    *        access the server, false to reject the socket connection from any 
    *        address matching the network
    */
-  public void addToACL( final IpNetwork network, final boolean allowed ) {
-    if ( network != null ) {
-      acl.add( network, allowed );
+  public void addToACL(final IpNetwork network, final boolean allowed) {
+    if (network != null) {
+      acl.add(network, allowed);
     }
   }
 
@@ -393,8 +392,8 @@ public abstract class HTTPD {
    * @param allow The new default mode: True = allow by default, false = deny 
    *              by default.
    */
-  protected void setDefaultAllow( final boolean allow ) {
-    acl.setDefaultAllow( allow );
+  protected void setDefaultAllow(final boolean allow) {
+    acl.setDefaultAllow(allow);
   }
 
 
@@ -432,8 +431,8 @@ public abstract class HTTPD {
    * 
    * @return the client handler
    */
-  protected ClientHandler createClientHandler( final Socket finalAccept, final InputStream inputStream, final boolean secured ) {
-    return new ClientHandler( this, inputStream, finalAccept, secured );
+  protected ClientHandler createClientHandler(final Socket finalAccept, final InputStream inputStream, final boolean secured) {
+    return new ClientHandler(this, inputStream, finalAccept, secured);
   }
 
 
@@ -447,8 +446,8 @@ public abstract class HTTPD {
    * 
    * @return the server runnable.
    */
-  protected ServerRunnable createServerRunnable( final int timeout ) {
-    return new ServerRunnable( this, timeout );
+  protected ServerRunnable createServerRunnable(final int timeout) {
+    return new ServerRunnable(this, timeout);
   }
 
 
@@ -497,8 +496,8 @@ public abstract class HTTPD {
   /**
    * Call before {@code start()} to serve over HTTPS instead of HTTP
    */
-  public void makeSecure( final SSLServerSocketFactory sslServerSocketFactory, final String[] sslProtocols ) {
-    serverSocketFactory = new SecureServerSocketFactory( sslServerSocketFactory, sslProtocols );
+  public void makeSecure(final SSLServerSocketFactory sslServerSocketFactory, final String[] sslProtocols) {
+    serverSocketFactory = new SecureServerSocketFactory(sslServerSocketFactory, sslProtocols);
   }
 
 
@@ -514,22 +513,22 @@ public abstract class HTTPD {
    * @return HTTP response, see class Response for details
    * @throws SecurityResponseException if processing the request generated a security exception
    */
-  public Response serve( final IHTTPSession session ) throws SecurityResponseException {
+  public Response serve(final IHTTPSession session) throws SecurityResponseException {
     final Method method = session.getMethod();
-    if ( Method.PUT.equals( method ) || Method.POST.equals( method ) ) {
+    if (!Method.TRACE.equals(method)) {
       try {
         session.parseBody(); // this is not really necessary but here for demonstration
-      } catch ( final IOException ioe ) {
-        return Response.createFixedLengthResponse( Status.INTERNAL_ERROR, MimeType.TEXT.getType(), "SERVER INTERNAL ERROR: IOException: " + ioe.getMessage() );
-      } catch ( final ResponseException re ) {
-        return Response.createFixedLengthResponse( re.getStatus(), MimeType.TEXT.getType(), re.getMessage() );
+      } catch (final IOException ioe) {
+        return Response.createFixedLengthResponse(Status.INTERNAL_ERROR, MimeType.TEXT.getType(), "SERVER INTERNAL ERROR: IOException: " + ioe.getMessage());
+      } catch (final ResponseException re) {
+        return Response.createFixedLengthResponse(re.getStatus(), MimeType.TEXT.getType(), re.getMessage());
       }
     }
 
     final Map<String, String> parms = session.getParms();
-    parms.put( HTTPD.QUERY_STRING_PARAMETER, session.getQueryParameterString() );
+    parms.put(HTTPD.QUERY_STRING_PARAMETER, session.getQueryParameterString());
 
-    return Response.createFixedLengthResponse( Status.NOT_FOUND, MimeType.TEXT.getType(), "Not Found" );
+    return Response.createFixedLengthResponse(Status.NOT_FOUND, MimeType.TEXT.getType(), "Not Found");
   }
 
 
@@ -540,14 +539,14 @@ public abstract class HTTPD {
    * 
    * @param asyncRunner strategy for handling threads.
    */
-  public void setAsyncRunner( final Executor asyncRunner ) {
+  public void setAsyncRunner(final Executor asyncRunner) {
     this.asyncRunner = asyncRunner;
   }
 
 
 
 
-  public void setServerSocketFactory( final ServerSocketFactory serverSocketFactory ) {
+  public void setServerSocketFactory(final ServerSocketFactory serverSocketFactory) {
     this.serverSocketFactory = serverSocketFactory;
   }
 
@@ -559,7 +558,7 @@ public abstract class HTTPD {
    * 
    * @param factory new strategy for handling temp files.
    */
-  public void setCacheManagerFactory( final CacheManagerFactory factory ) {
+  public void setCacheManagerFactory(final CacheManagerFactory factory) {
     cacheManagerFactory = factory;
   }
 
@@ -572,7 +571,7 @@ public abstract class HTTPD {
    * @throws IOException if the socket is in use.
    */
   public void start() throws IOException {
-    start( HTTPD.SOCKET_READ_TIMEOUT );
+    start(HTTPD.SOCKET_READ_TIMEOUT);
   }
 
 
@@ -581,8 +580,8 @@ public abstract class HTTPD {
   /**
    * Starts the server (in setDaemon(true) mode).
    */
-  public void start( final int timeout ) throws IOException {
-    start( timeout, true );
+  public void start(final int timeout) throws IOException {
+    start(timeout, true);
   }
 
 
@@ -596,25 +595,25 @@ public abstract class HTTPD {
    * 
    * @throws IOException if the socket is in use.
    */
-  public void start( final int timeout, final boolean daemon ) throws IOException {
+  public void start(final int timeout, final boolean daemon) throws IOException {
     myServerSocket = getServerSocketFactory().create();
-    myServerSocket.setReuseAddress( true );
+    myServerSocket.setReuseAddress(true);
 
-    final ServerRunnable serverRunnable = createServerRunnable( timeout );
-    myThread = new Thread( serverRunnable );
-    myThread.setDaemon( daemon );
-    myThread.setName( "HTTPD Listener" );
+    final ServerRunnable serverRunnable = createServerRunnable(timeout);
+    myThread = new Thread(serverRunnable);
+    myThread.setDaemon(daemon);
+    myThread.setName("HTTPD Listener");
     myThread.start();
-    while ( !serverRunnable.isBoundToPort && ( serverRunnable.bindException == null ) ) {
+    while (!serverRunnable.isBoundToPort && (serverRunnable.bindException == null)) {
       try {
-        Thread.sleep( 10L );
-      } catch ( final Throwable e ) {
+        Thread.sleep(10L);
+      } catch (final Throwable e) {
         // on some platforms (e.g. mobile devices) this may not be allowed, 
         // that is why we catch throwable. This should happen right away 
         // because we are just waiting for the socket to bind.
       }
     }
-    if ( serverRunnable.bindException != null ) {
+    if (serverRunnable.bindException != null) {
       throw serverRunnable.bindException;
     }
   }
@@ -626,17 +625,17 @@ public abstract class HTTPD {
    * Stop the server.
    */
   public void stop() {
-    Log.append( EVENT, "Server terminating" );
+    Log.append(EVENT, "Server terminating");
     try {
-      safeClose( myServerSocket );
+      safeClose(myServerSocket);
       asyncRunner.closeAll();
-      if ( myThread != null ) {
+      if (myThread != null) {
         myThread.join();
       }
-    } catch ( final Exception e ) {
-      Log.append( EVENT, "WARN: Could not stop all connections", e );
+    } catch (final Exception e) {
+      Log.append(EVENT, "WARN: Could not stop all connections", e);
     }
-    Log.append( EVENT, "Server termination complete" );
+    Log.append(EVENT, "Server termination complete");
   }
 
 
@@ -648,15 +647,15 @@ public abstract class HTTPD {
    *         everything. Override this for custom semantics.
    */
   @SuppressWarnings("static-method")
-  protected boolean useGzipWhenAccepted( final Response r ) {
-    return ( r.getMimeType() != null ) && r.getMimeType().toLowerCase().contains( "text/" );
+  protected boolean useGzipWhenAccepted(final Response r) {
+    return (r.getMimeType() != null) && r.getMimeType().toLowerCase().contains("text/");
   }
 
 
 
 
   public final boolean wasStarted() {
-    return ( myServerSocket != null ) && ( myThread != null );
+    return (myServerSocket != null) && (myThread != null);
   }
 
 
@@ -677,7 +676,7 @@ public abstract class HTTPD {
    * @param provider the component responsible for providing authentication 
    *        and authorization processing to the server
    */
-  public void setAuthProvider( AuthProvider provider ) {
+  public void setAuthProvider(AuthProvider provider) {
     authProvider = provider;
   }
 
@@ -727,51 +726,51 @@ public abstract class HTTPD {
   * 
   * @param cfg The configuration to parse
   */
-  public void configIpACL( Config cfg ) {
-    if ( cfg != null ) {
-      for ( DataField field : cfg.getFields() ) {
+  public void configIpACL(Config cfg) {
+    if (cfg != null) {
+      for (DataField field : cfg.getFields()) {
         String network = field.getName();
         String access = field.getStringValue();
 
         IpNetwork ipNet = null;
-        if ( StringUtil.isNotBlank( network ) ) {
+        if (StringUtil.isNotBlank(network)) {
 
-          if ( "DEFAULT".equalsIgnoreCase( network.trim() ) ) {
-            if ( StringUtil.isNotBlank( access ) ) {
-              setDefaultAllow( IpAcl.ALLOW_TAG.equalsIgnoreCase( access.trim() ) );
+          if ("DEFAULT".equalsIgnoreCase(network.trim())) {
+            if (StringUtil.isNotBlank(access)) {
+              setDefaultAllow(IpAcl.ALLOW_TAG.equalsIgnoreCase(access.trim()));
             } else {
-              Log.debug( "Blank access on default ACL rule" );
+              Log.debug("Blank access on default ACL rule");
             }
           } else {
 
             try {
-              ipNet = new IpNetwork( network );
-            } catch ( IpAddressException e ) {
+              ipNet = new IpNetwork(network);
+            } catch (IpAddressException e) {
               // maybe it is an address
               try {
-                IpAddress ipAdr = new IpAddress( network );
-                ipNet = new IpNetwork( ipAdr.toString() + "/0" );
-              } catch ( IpAddressException ex ) {
-                Log.error( "Invalid network specification '" + network + "' - " + ex.getMessage() );
+                IpAddress ipAdr = new IpAddress(network);
+                ipNet = new IpNetwork(ipAdr.toString() + "/0");
+              } catch (IpAddressException ex) {
+                Log.error("Invalid network specification '" + network + "' - " + ex.getMessage());
                 ipNet = null;
               }
             }
 
-            if ( ipNet != null ) {
+            if (ipNet != null) {
               boolean allows = true;
-              if ( StringUtil.isNotBlank( access ) ) {
-                allows = IpAcl.ALLOW_TAG.equalsIgnoreCase( access.trim() );
+              if (StringUtil.isNotBlank(access)) {
+                allows = IpAcl.ALLOW_TAG.equalsIgnoreCase(access.trim());
               }
-              Log.append( EVENT, "Adding " + ipNet + " to IP Access Control List with allows = " + allows );
-              addToACL( ipNet, allows );
+              Log.append(EVENT, "Adding " + ipNet + " to IP Access Control List with allows = " + allows);
+              addToACL(ipNet, allows);
             } else {
-              Log.error( "Network: " + ipNet + " not added to IP Access Control List" );
+              Log.error("Network: " + ipNet + " not added to IP Access Control List");
             }
 
           } // if default
 
         } else {
-          Log.debug( "No network or address" );
+          Log.debug("No network or address");
         }
 
       } // for each field
@@ -809,7 +808,7 @@ public abstract class HTTPD {
    *   - FUTURE: Terminate terminate the server
    * @param cfg
    */
-  public void configDosTables( Config cfg ) {
+  public void configDosTables(Config cfg) {
     // TODO: Make this work
   }
 
