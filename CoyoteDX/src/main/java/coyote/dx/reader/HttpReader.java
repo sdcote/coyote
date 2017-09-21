@@ -10,6 +10,7 @@ package coyote.dx.reader;
 import java.io.IOException;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+import coyote.commons.NetUtil;
 import coyote.commons.StringUtil;
 import coyote.commons.network.MimeType;
 import coyote.commons.network.http.HTTPD;
@@ -17,6 +18,7 @@ import coyote.commons.network.http.Response;
 import coyote.commons.network.http.Status;
 import coyote.commons.network.http.auth.GenericAuthProvider;
 import coyote.commons.network.http.responder.HTTPDRouter;
+import coyote.commons.template.Template;
 import coyote.dataframe.DataField;
 import coyote.dataframe.DataFrame;
 import coyote.dataframe.DataFrameException;
@@ -66,9 +68,11 @@ import coyote.loader.log.Log;
 public class HttpReader extends AbstractFrameReader implements FrameReader {
   private static final String DEFAULT_ENDPOINT = "/api";
   private static final String ENDPOINT_TAG = "endpoint";
-  private static final String HTTPFUTURE = "HTTPFuture";
-  private static final String HTTPMETHOD = "HTTPMethod";
-  private static final String HTTPLISTENER = "HTTPListener";
+  private static final String HTTP_FUTURE = "HttpFuture";
+  private static final String HTTP_METHOD = "HttpMethod";
+  private static final String HTTP_LISTENER = "HttpListener";
+  private static final String HTTP_ACCEPT_TYPE = "HttpAcceptType";
+  private static final String HTTP_CONTENT_TYPE = "HttpContentType";
   private static final int DEFAULT_PORT = 80;
   protected static final int DEFAULT_TIMEOUT = 10000;
   private ConcurrentLinkedQueue<HttpFuture> queue = new ConcurrentLinkedQueue<HttpFuture>();
@@ -85,18 +89,22 @@ public class HttpReader extends AbstractFrameReader implements FrameReader {
     super.setConfiguration(cfg);
 
     if (getConfiguration().containsIgnoreCase(ConfigTag.PORT)) {
-      try {
-        getConfiguration().getInt(ConfigTag.PORT);
-      } catch (Exception ignore) {
-        throw new ConfigurationException(this.getClass().getName() + " configuration contains an invalid port specification of '" + getConfiguration().getString(ConfigTag.PORT) + "'");
+      if (!Template.appearsToBeATemplate(getString(ConfigTag.PORT))) {
+        try {
+          getConfiguration().getInt(ConfigTag.PORT);
+        } catch (Exception ignore) {
+          throw new ConfigurationException(this.getClass().getName() + " configuration contains an invalid port specification of '" + getConfiguration().getString(ConfigTag.PORT) + "'");
+        }
       }
     }
 
     if (getConfiguration().containsIgnoreCase(ConfigTag.TIMEOUT)) {
-      try {
-        getConfiguration().getInt(ConfigTag.TIMEOUT);
-      } catch (Exception ignore) {
-        throw new ConfigurationException(this.getClass().getName() + " configuration contains an invalid timeout specification of '" + getConfiguration().getString(ConfigTag.TIMEOUT) + "'");
+      if (!Template.appearsToBeATemplate(getString(ConfigTag.TIMEOUT))) {
+        try {
+          getConfiguration().getInt(ConfigTag.TIMEOUT);
+        } catch (Exception ignore) {
+          throw new ConfigurationException(this.getClass().getName() + " configuration contains an invalid timeout specification of '" + getConfiguration().getString(ConfigTag.TIMEOUT) + "'");
+        }
       }
     }
   }
@@ -125,7 +133,7 @@ public class HttpReader extends AbstractFrameReader implements FrameReader {
 
     HttpListener lstnr = null;
     try {
-      lstnr = (HttpListener)context.get(HTTPLISTENER);
+      lstnr = (HttpListener)context.get(HTTP_LISTENER);
     } catch (Throwable ball) {
       // apparently there is no existing server 
     }
@@ -134,19 +142,17 @@ public class HttpReader extends AbstractFrameReader implements FrameReader {
     // one HTTP listener to be shared amongst many jobs as might be the case
     // in a Service with multiple Jobs
     try {
-      lstnr = (HttpListener)context.getEngine().getContext().get(HTTPLISTENER);
+      lstnr = (HttpListener)context.getEngine().getContext().get(HTTP_LISTENER);
     } catch (Throwable ball) {
       // apparently there is no existing server 
     }
-    
-    
 
     if (lstnr == null) {
       try {
         listener = new HttpListener(getPort(), getConfiguration());
         listener.start();
-        context.set(HTTPLISTENER, listener); // transform context
-        context.getEngine().getContext().set(HTTPLISTENER, listener); // loader context
+        context.set(HTTP_LISTENER, listener); // transform context
+        context.getEngine().getContext().set(HTTP_LISTENER, listener); // loader context
         Log.debug("Listening on port " + listener.getPort());
       } catch (IOException e) {
         getContext().setError("Could not start HTTP reader: " + e.getMessage());
@@ -158,7 +164,8 @@ public class HttpReader extends AbstractFrameReader implements FrameReader {
       Log.debug("Reusing HTTP Listener on port " + listener.getPort());
     }
 
-    listener.addRoute(getEndpoint(), HttpReaderHandler.class, queue, getTimeout());
+    int timeout = getTimeout();
+    listener.addRoute(getEndpoint(), HttpReaderHandler.class, queue, timeout);
     Log.debug("Servicing endpoint '" + getEndpoint() + "'");
 
     // because there may be optional parameters, also listen to the root
@@ -168,7 +175,7 @@ public class HttpReader extends AbstractFrameReader implements FrameReader {
         if (root.endsWith("/")) {
           root = root.substring(0, root.length() - 1);
         }
-        listener.addRoute(root, HttpReaderHandler.class, queue, getTimeout());
+        listener.addRoute(root, HttpReaderHandler.class, queue, timeout);
         Log.debug("Also servicing root endpoint '" + root + "'");
       }
     }
@@ -180,15 +187,31 @@ public class HttpReader extends AbstractFrameReader implements FrameReader {
 
 
   /**
+   * Get a port to which this listener should bind.
+   * 
+   * <p>If no port is configured, the default port of 80 is used. If there are 
+   * issues parsing the value, an error is logged and the default of 80 is 
+   * returned.
+   *   
    * @return the port to which this listener should bind.
    */
   private int getPort() {
     int retval = DEFAULT_PORT;
     if (getConfiguration().containsIgnoreCase(ConfigTag.PORT)) {
-      try {
-        retval = getConfiguration().getInt(ConfigTag.PORT);
-      } catch (Exception ignore) {
-        Log.error("Configuration contains an invalid port specification of '" + getConfiguration().getString(ConfigTag.PORT) + "'");
+      // get the value, resolving it as a template in the process 
+      String value = getString(ConfigTag.PORT);
+      if (Template.appearsToBeATemplate(value)) {
+        Log.error("Could not fully resolve configuration element '" + ConfigTag.PORT + "' (" + value + "), using default value of " + retval);
+      } else {
+        try {
+          retval = Integer.parseInt(value);
+          if (NetUtil.validatePort(retval) == 0) {
+            retval = DEFAULT_PORT;
+            Log.error("Configuration contains an out of range '" + ConfigTag.PORT + "' value of '" + value + "' (" + getConfiguration().getAsString(ConfigTag.PORT) + "), using default value of " + retval);
+          }
+        } catch (Exception ignore) {
+          Log.error("Configuration contains an invalid '" + ConfigTag.PORT + "' value of '" + value + "' (" + getConfiguration().getAsString(ConfigTag.PORT) + "), using default value of " + retval);
+        }
       }
     }
     return retval;
@@ -204,10 +227,15 @@ public class HttpReader extends AbstractFrameReader implements FrameReader {
   private int getTimeout() {
     int retval = DEFAULT_TIMEOUT;
     if (getConfiguration().containsIgnoreCase(ConfigTag.TIMEOUT)) {
-      try {
-        retval = getConfiguration().getInt(ConfigTag.TIMEOUT);
-      } catch (Exception ignore) {
-        Log.error("Configuration contains an invalid timeout specification of '" + getConfiguration().getString(ConfigTag.TIMEOUT) + "'");
+      String value = getString(ConfigTag.TIMEOUT);
+      if (Template.appearsToBeATemplate(value)) {
+        Log.error("Could not fully resolve configuration element '" + ConfigTag.TIMEOUT + "' (" + value + "), using default value of " + retval);
+      } else {
+        try {
+          retval = Integer.parseInt(value);
+        } catch (Exception ignore) {
+          Log.error("Configuration contains an invalid '" + ConfigTag.TIMEOUT + "' value of '" + value + "' (" + getConfiguration().getAsString(ConfigTag.TIMEOUT) + "), using value of " + retval);
+        }
       }
     }
     return retval;
@@ -222,7 +250,9 @@ public class HttpReader extends AbstractFrameReader implements FrameReader {
   private String getEndpoint() {
     String retval = DEFAULT_ENDPOINT;
     if (getConfiguration().containsIgnoreCase(ENDPOINT_TAG)) {
-      retval = getConfiguration().getString(ENDPOINT_TAG);
+      retval = getString(ENDPOINT_TAG);
+    } else {
+      Log.error("Configuration did not contain '" + ConfigTag.TIMEOUT + "', using default value of " + retval);
     }
     return retval;
   }
@@ -252,8 +282,10 @@ public class HttpReader extends AbstractFrameReader implements FrameReader {
 
     if (future != null) {
       retval = future.getDataFrame();
-      context.set(HTTPFUTURE, future);
-      context.set(HTTPMETHOD, future.getMethod().toUpperCase());
+      context.set(HTTP_FUTURE, future);
+      context.set(HTTP_METHOD, future.getMethod().toUpperCase());
+      context.set(HTTP_ACCEPT_TYPE, future.getAcceptType());
+      context.set(HTTP_CONTENT_TYPE, future.getContentType());
     }
     return retval;
   }
@@ -326,7 +358,7 @@ public class HttpReader extends AbstractFrameReader implements FrameReader {
     public void onEnd(OperationalContext context) {
       if (context instanceof TransactionContext) {
         Log.debug("Completing HTTP request");
-        HttpFuture future = (HttpFuture)context.get(HTTPFUTURE);
+        HttpFuture future = (HttpFuture)context.get(HTTP_FUTURE);
         if (future != null) {
           if (context.isInError()) {
             future.setResponse(Response.createFixedLengthResponse(Status.BAD_REQUEST, MimeType.JSON.getType(), "{\"Status\":\"Error\",\"Message\",\"" + context.getErrorMessage() + "\"}"));
