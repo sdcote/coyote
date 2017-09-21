@@ -33,6 +33,7 @@
 
 	"Logging": {
 		"StandardError": { "categories": "warn, error, fatal" },
-		"StandardOutput": { "categories": "debug, info, notice" }
+		"StandardOutput": { "categories": "info, notice" }
 	}
+
 }
