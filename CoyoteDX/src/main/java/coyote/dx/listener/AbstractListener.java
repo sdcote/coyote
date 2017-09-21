@@ -9,7 +9,9 @@ package coyote.dx.listener;
 
 import java.io.IOException;
 
+import coyote.commons.StringUtil;
 import coyote.dx.AbstractConfigurableComponent;
+import coyote.dx.ConfigTag;
 import coyote.dx.ConfigurableComponent;
 import coyote.dx.FrameReader;
 import coyote.dx.FrameValidator;
@@ -18,12 +20,54 @@ import coyote.dx.context.ContextListener;
 import coyote.dx.context.OperationalContext;
 import coyote.dx.context.TransactionContext;
 import coyote.dx.context.TransformContext;
+import coyote.dx.eval.Evaluator;
 
 
 /**
  * No-op implementation of a listener to assist in cleaner coding of listeners.
  */
 public abstract class AbstractListener extends AbstractConfigurableComponent implements ContextListener, ConfigurableComponent {
+
+  protected Evaluator evaluator = new Evaluator();
+
+
+
+
+  /**
+   * Return the conditional expression from the configuration.
+   * 
+   * @return the condition which must evaluate to true before the task is to 
+   *         execute.
+   */
+  public String getCondition() {
+    if (configuration.containsIgnoreCase(ConfigTag.CONDITION)) {
+      return configuration.getString(ConfigTag.CONDITION);
+    }
+    return null;
+  }
+
+
+
+
+  /**
+   * @see coyote.dx.Component#open(coyote.dx.context.TransformContext)
+   */
+  @Override
+  public void open(TransformContext context) {
+    setContext(context);
+    evaluator.setContext(context);
+
+    if (StringUtil.isNotBlank(getCondition())) {
+      try {
+        evaluator.evaluateBoolean(getCondition());
+      } catch (final IllegalArgumentException e) {
+        context.setError("Invalid boolean expression in listener: " + e.getMessage());
+      }
+    }
+  }
+
+
+
 
   /**
    * @see coyote.dx.context.ContextListener#onError(coyote.dx.context.OperationalContext)
@@ -86,17 +130,6 @@ public abstract class AbstractListener extends AbstractConfigurableComponent imp
   @Override
   public void onValidationFailed(OperationalContext context, FrameValidator validator, String msg) {
     // listeners should override this method to perform processing when a field fails validations
-  }
-
-
-
-
-  /**
-   * @see coyote.dx.Component#open(coyote.dx.context.TransformContext)
-   */
-  @Override
-  public void open(TransformContext context) {
-    super.context = context;
   }
 
 
