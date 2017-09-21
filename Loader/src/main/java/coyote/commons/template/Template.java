@@ -547,4 +547,23 @@ public class Template extends StringParser {
     }
   }
 
+
+
+
+  /**
+   * Determine if the given text appears to be a parsable template.
+   * 
+   * <p>This does not perform a complete parsing of the template, but only a
+   * check to see if there is bot an open and close delimiter in the proper 
+   * order. 
+   * 
+   * @param text the text to check
+   * 
+   * @return true if the given text appears to have at least one pair of 
+   *         delimiters in the proper order, false otherwise.
+   */
+  public static boolean appearsToBeATemplate(String text) {
+    return text.contains(OPEN) && text.contains(CLOSE) && text.indexOf(CLOSE) - text.indexOf(OPEN) > 1;
+  }
+
 }
