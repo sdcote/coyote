@@ -27,6 +27,7 @@ import coyote.dx.Symbols;
  * amongst each other while remaining functionally separate.</p>
  */
 public abstract class OperationalContext {
+  private static final String RESULT_KEY = "CDX.RESULT";
   protected String state = null;
   protected StringBuffer errorMessage = null;
   protected volatile long startTime = 0;
@@ -181,7 +182,10 @@ public abstract class OperationalContext {
 
 
   /**
-   * Place an object in this context with the given key
+   * Place an object in this context with the given key.
+   * 
+   * <p>If an object exists with the given key, it will be over-written. If 
+   * the value is null, it will be removed.
    * 
    * @param key the name of the object to place
    * @param value the object to place (null results in the object being removed)
@@ -680,5 +684,41 @@ public abstract class OperationalContext {
       retval.add(key);
     }
     return retval;
+  }
+
+
+
+
+  /**
+   * Set the results of processing in the context using the common key.
+   * 
+   * <p>This is a convenience method to help ensure uniformity in saving and 
+   * retrieving the results of processing, particularly in the context of a 
+   * transaction.
+   *  
+   * @param value The object to store
+   * 
+   * @see #getProcessingResult()
+   */
+  public void setProcessingResult(Object value) {
+    set(RESULT_KEY, value);
+  }
+
+
+
+
+  /**
+   * Retrieve the results of processing in the context using the common key.
+   *  
+   * <p>This is a convenience method to help ensure uniformity in saving and 
+   * retrieving the results of processing, particularly in the context of a 
+   * transaction.
+   *  
+   * @return what is stored in this context under the common key.
+   * 
+   * @see #setProcessingResult(Object)
+   */
+  public Object getProcessingResult() {
+    return get(RESULT_KEY);
   }
 }
