@@ -14,6 +14,7 @@ import java.util.List;
 
 import coyote.commons.CipherUtil;
 import coyote.commons.ExceptionUtil;
+import coyote.commons.StringUtil;
 import coyote.commons.jdbc.DriverDelegate;
 import coyote.dataframe.DataFrameException;
 import coyote.dx.context.TransformContext;
@@ -42,7 +43,9 @@ public class Database extends AbstractConfigurableComponent implements Configura
 
 
 
-  public Database() {}
+  public Database() {
+    // although this should be created by the compiler, it's here for classForName()
+  }
 
 
 
@@ -68,8 +71,8 @@ public class Database extends AbstractConfigurableComponent implements Configura
   public Connection getConnection() {
     Connection connection = null;
     connection = createConnection();
-    if ( connection != null ) {
-      connections.add( connection );
+    if (connection != null) {
+      connections.add(connection);
     }
     return connection;
   }
@@ -84,20 +87,22 @@ public class Database extends AbstractConfigurableComponent implements Configura
    * 
    * @return the connection to the database or null if there were problems
    */
-  private Connection createConnection() {
+  private synchronized Connection createConnection() {
     Connection retval = null;
     try {
-      if ( driver == null ) {
+      // if we have not been initialized, register the driver
+      if (driver == null) {
         String url = getLibrary();
-        URL u = new URL( url );
-        URLClassLoader ucl = new URLClassLoader( new URL[] { u } );
-        driver = (Driver)Class.forName( getDriver(), true, ucl ).newInstance();
-        DriverManager.registerDriver( new DriverDelegate( driver ) );
+        URL u = new URL(url);
+        URLClassLoader ucl = new URLClassLoader(new URL[]{u});
+        driver = (Driver)Class.forName(getDriver(), true, ucl).newInstance();
+        DriverManager.registerDriver(new DriverDelegate(driver));
       }
-      retval = DriverManager.getConnection( getTarget(), getUsername(), getPassword() );
-    } catch ( InstantiationException | IllegalAccessException | ClassNotFoundException | SQLException | MalformedURLException e ) {
-      Log.error( "Could not connect to database: " + e.getClass().getSimpleName() + " - " + e.getMessage() );
-      Log.debug( "ERROR: Could not connect to database: " + e.getClass().getSimpleName() + " - " + e.getMessage() + "\n" + ExceptionUtil.stackTrace( e ) );
+
+      retval = DriverManager.getConnection(getTarget(), getUsername(), getPassword());
+    } catch (InstantiationException | IllegalAccessException | ClassNotFoundException | SQLException | MalformedURLException e) {
+      Log.error("Could not connect to database: " + e.getClass().getSimpleName() + " - " + e.getMessage());
+      Log.debug("ERROR: Could not connect to database: " + e.getClass().getSimpleName() + " - " + e.getMessage() + "\n" + ExceptionUtil.stackTrace(e));
     }
     return retval;
   }
@@ -108,8 +113,8 @@ public class Database extends AbstractConfigurableComponent implements Configura
   /**
    * @param value
    */
-  public void setAutoCreate( boolean value ) {
-    configuration.put( ConfigTag.AUTO_CREATE, value );
+  public void setAutoCreate(boolean value) {
+    configuration.put(ConfigTag.AUTO_CREATE, value);
   }
 
 
@@ -117,8 +122,8 @@ public class Database extends AbstractConfigurableComponent implements Configura
 
   public boolean isAutoCreate() {
     try {
-      return configuration.getAsBoolean( ConfigTag.AUTO_CREATE );
-    } catch ( DataFrameException ignore ) {}
+      return configuration.getAsBoolean(ConfigTag.AUTO_CREATE);
+    } catch (DataFrameException ignore) {}
     return false;
   }
 
@@ -126,7 +131,7 @@ public class Database extends AbstractConfigurableComponent implements Configura
 
 
   public String getDriver() {
-    return configuration.getString( ConfigTag.DRIVER );
+    return getString(ConfigTag.DRIVER);
   }
 
 
@@ -136,7 +141,7 @@ public class Database extends AbstractConfigurableComponent implements Configura
    * @return the target URI to which the writer will write
    */
   public String getTarget() {
-    return configuration.getString( ConfigTag.TARGET );
+    return getString(ConfigTag.TARGET);
   }
 
 
@@ -147,34 +152,30 @@ public class Database extends AbstractConfigurableComponent implements Configura
    * 
    * @param value the URI to where the writer should write its data
    */
-  public void setTarget( final String value ) {
-    configuration.put( ConfigTag.TARGET, value );
+  public void setTarget(final String value) {
+    configuration.put(ConfigTag.TARGET, value);
   }
 
 
 
 
   public String getPassword() {
-    if ( configuration.containsIgnoreCase( ConfigTag.PASSWORD ) ) {
-      return configuration.getAsString( ConfigTag.PASSWORD );
-    } else if ( configuration.containsIgnoreCase( Loader.ENCRYPT_PREFIX + ConfigTag.PASSWORD ) ) {
-      return CipherUtil.decryptString( configuration.getAsString( Loader.ENCRYPT_PREFIX + ConfigTag.PASSWORD ) );
-    } else {
-      return null;
+    String retval = getString(ConfigTag.PASSWORD);
+    if (StringUtil.isEmpty(retval) && configuration.containsIgnoreCase(Loader.ENCRYPT_PREFIX + ConfigTag.PASSWORD)) {
+      retval = CipherUtil.decryptString(configuration.getAsString(Loader.ENCRYPT_PREFIX + ConfigTag.PASSWORD));
     }
+    return retval;
   }
 
 
 
 
   public String getUsername() {
-    if ( configuration.containsIgnoreCase( ConfigTag.USERNAME ) ) {
-      return configuration.getFieldIgnoreCase( ConfigTag.USERNAME ).getStringValue();
-    } else if ( configuration.containsIgnoreCase( Loader.ENCRYPT_PREFIX + ConfigTag.USERNAME ) ) {
-      return CipherUtil.decryptString( configuration.getFieldIgnoreCase( Loader.ENCRYPT_PREFIX + ConfigTag.USERNAME ).getStringValue() );
-    } else {
-      return null;
+    String retval = getString(ConfigTag.USERNAME);
+    if (StringUtil.isEmpty(retval) && configuration.containsIgnoreCase(Loader.ENCRYPT_PREFIX + ConfigTag.USERNAME)) {
+      retval = CipherUtil.decryptString(configuration.getAsString(Loader.ENCRYPT_PREFIX + ConfigTag.USERNAME));
     }
+    return retval;
   }
 
 
@@ -183,29 +184,29 @@ public class Database extends AbstractConfigurableComponent implements Configura
   /**
    * @param value
    */
-  public void setUsername( String value ) {
-    configuration.put( ConfigTag.USERNAME, value );
+  public void setUsername(String value) {
+    configuration.put(ConfigTag.USERNAME, value);
   }
 
 
 
 
-  public void setName( String value ) {
-    configuration.put( ConfigTag.NAME, value );
+  public void setName(String value) {
+    configuration.put(ConfigTag.NAME, value);
   }
 
 
 
 
   public String getName() {
-    return configuration.getString( ConfigTag.NAME );
+    return getString(ConfigTag.NAME);
   }
 
 
 
 
   public String getLibrary() {
-    return configuration.getString( ConfigTag.LIBRARY );
+    return getString(ConfigTag.LIBRARY);
   }
 
 
@@ -215,7 +216,7 @@ public class Database extends AbstractConfigurableComponent implements Configura
    * @see coyote.dx.Component#open(coyote.dx.context.TransformContext)
    */
   @Override
-  public void open( TransformContext context ) {
+  public void open(TransformContext context) {
     // This is not called by the framework as it is not a regular component
   }
 
@@ -227,11 +228,11 @@ public class Database extends AbstractConfigurableComponent implements Configura
    */
   @Override
   public void close() throws IOException {
-    for ( Connection connection : connections ) {
-      if ( connection != null ) {
+    for (Connection connection : connections) {
+      if (connection != null) {
         try {
           connection.close();
-        } catch ( SQLException ignore ) {}
+        } catch (SQLException ignore) {}
       }
     }
   }
@@ -247,20 +248,20 @@ public class Database extends AbstractConfigurableComponent implements Configura
    *
    * @return database product name
    */
-  public String getProductName( Connection connection ) {
+  public String getProductName(Connection connection) {
     String retval = null;
     DatabaseMetaData meta = null;
     try {
       meta = connection.getMetaData();
-    } catch ( SQLException e ) {
-      getContext().setError( "Could not connect to database: " + e.getClass().getSimpleName() + " - " + e.getMessage() );
+    } catch (SQLException e) {
+      getContext().setError("Could not connect to database: " + e.getClass().getSimpleName() + " - " + e.getMessage());
     }
 
-    if ( meta != null ) {
+    if (meta != null) {
       try {
         retval = meta.getDatabaseProductName();
-      } catch ( SQLException ignore ) {}
-      if ( retval != null ) {
+      } catch (SQLException ignore) {}
+      if (retval != null) {
         return retval.toUpperCase();
       }
     }
@@ -280,23 +281,20 @@ public class Database extends AbstractConfigurableComponent implements Configura
     DatabaseMetaData meta = null;
     try {
       meta = connection.getMetaData();
-    } catch ( SQLException e ) {
-      getContext().setError( "Could not connect to database: " + e.getClass().getSimpleName() + " - " + e.getMessage() );
+    } catch (SQLException e) {
+      getContext().setError("Could not connect to database: " + e.getClass().getSimpleName() + " - " + e.getMessage());
     }
 
-    if ( meta != null ) {
+    if (meta != null) {
       try {
         retval = meta.getDatabaseProductVersion();
-      } catch ( SQLException ignore ) {}
-      if ( retval != null ) {
+      } catch (SQLException ignore) {}
+      if (retval != null) {
         return retval.toUpperCase();
       }
     }
     return retval;
   }
-
-
-
 
 
 
@@ -311,19 +309,94 @@ public class Database extends AbstractConfigurableComponent implements Configura
     DatabaseMetaData meta = null;
     try {
       meta = connection.getMetaData();
-    } catch ( SQLException e ) {
-      getContext().setError( "Could not connect to database: " + e.getClass().getSimpleName() + " - " + e.getMessage() );
+    } catch (SQLException e) {
+      getContext().setError("Could not connect to database: " + e.getClass().getSimpleName() + " - " + e.getMessage());
     }
 
-    if ( meta != null ) {
+    if (meta != null) {
       try {
         retval = meta.getDatabaseProductVersion();
-      } catch ( SQLException ignore ) {}
-      if ( retval != null ) {
+      } catch (SQLException ignore) {}
+      if (retval != null) {
         return retval.toUpperCase();
       }
     }
     return retval;
+  }
+
+
+
+
+  /**
+   * @param library
+   */
+  public void setLibrary(String library) {
+    configuration.set(ConfigTag.LIBRARY, library);
+  }
+
+
+
+
+  /**
+   * @param driver
+   */
+  public void setDriver(String driver) {
+    configuration.set(ConfigTag.DRIVER, driver);
+  }
+
+
+
+
+  /**
+   * @param password
+   */
+  public void setPassword(String password) {
+    configuration.set(ConfigTag.PASSWORD, password);
+  }
+
+
+
+
+  /**
+   * @param schema
+   */
+  public void setSchema(String schema) {
+    configuration.set(ConfigTag.SCHEMA, schema);
+  }
+
+
+
+
+  /**
+   * This retruns the name of the schema in the configuration, or the name of 
+   * the user if the schema is not defined.
+   * 
+   *  @return the name of the schema for this table
+   */
+  public String getSchema() {
+    String retval = getString(ConfigTag.SCHEMA);
+    if (StringUtil.isBlank(retval)) {
+      retval = getUsername();
+    }
+    return retval;
+  }
+
+
+
+
+  /**
+   * @see java.lang.Object#toString()
+   */
+  @Override
+  public String toString() {
+    StringBuffer b = new StringBuffer("Database: ");
+    String name = getName();
+    if (StringUtil.isNotEmpty(name)) {
+      b.append(name);
+      b.append(" ");
+    }
+    b.append(getTarget());
+    return b.toString();
   }
 
 }
