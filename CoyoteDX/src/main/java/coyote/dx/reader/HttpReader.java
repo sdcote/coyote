@@ -22,6 +22,8 @@ import coyote.commons.template.Template;
 import coyote.dataframe.DataField;
 import coyote.dataframe.DataFrame;
 import coyote.dataframe.DataFrameException;
+import coyote.dataframe.marshal.JSONMarshaler;
+import coyote.dataframe.marshal.XMLMarshaler;
 import coyote.dx.ConfigTag;
 import coyote.dx.FrameReader;
 import coyote.dx.context.ContextListener;
@@ -346,6 +348,13 @@ public class HttpReader extends AbstractFrameReader implements FrameReader {
    */
   private class ResponseGenerator extends AbstractListener implements ContextListener {
 
+    private static final String STATUS = "Status";
+    private static final String ERROR = "Error";
+    private static final String MESSAGE = "Message";
+
+
+
+
     /**
      * @see coyote.dx.listener.AbstractListener#onEnd(coyote.dx.context.OperationalContext)
      */
@@ -354,16 +363,55 @@ public class HttpReader extends AbstractFrameReader implements FrameReader {
       if (context instanceof TransactionContext) {
         Log.debug("Completing HTTP request");
         HttpFuture future = (HttpFuture)context.get(HTTP_FUTURE);
+        Object result = context.getProcessingResult();
         if (future != null) {
+          MimeType type = determineResponseType(future);
+
           if (context.isInError()) {
-            future.setResponse(Response.createFixedLengthResponse(Status.BAD_REQUEST, MimeType.JSON.getType(), "{\"Status\":\"Error\",\"Message\",\"" + context.getErrorMessage() + "\"}"));
+            String errorText = getErrorText(context.getErrorMessage(), type);
+            future.setResponse(Response.createFixedLengthResponse(Status.BAD_REQUEST, type.getType(), errorText));
           } else {
-            // how do we get other data from the components?
-            // should we look in the transaction context for a response frame? 
-            future.setResponse(Response.createFixedLengthResponse(Status.OK, MimeType.JSON.getType(), "{\"Status\":\"OK\"}"));
+            String results;
+            if (result != null) {
+              if (result instanceof DataFrame) {
+                if (type.equals(MimeType.XML)) {
+                  results = XMLMarshaler.marshal((DataFrame)result);
+                } else {
+                  results = JSONMarshaler.marshal((DataFrame)result);
+                }
+              } else {
+                results = result.toString();
+              }
+            } else {
+              results = "";
+            }
+            future.setResponse(Response.createFixedLengthResponse(Status.OK, MimeType.JSON.getType(), results));
           }
         }
       }
+    }
+
+
+
+
+    /**
+     * Get a properly formatted error message base on the given MIME type.
+     * 
+     * @param errorMessage the test of the error message
+     * @param type the MIME type
+     * 
+     * @return a string formatted according the the given MIME type indicating 
+     *         a message.
+     */
+    private String getErrorText(String errorMessage, MimeType type) {
+      String results;
+      DataFrame errorFrame = new DataFrame().set(STATUS, ERROR).set(MESSAGE, errorMessage);
+      if (type.equals(MimeType.XML)) {
+        results = XMLMarshaler.marshal(errorFrame);
+      } else {
+        results = JSONMarshaler.marshal(errorFrame);
+      }
+      return results;
     }
 
   }
