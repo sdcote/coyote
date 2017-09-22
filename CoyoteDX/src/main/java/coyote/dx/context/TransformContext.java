@@ -65,6 +65,7 @@ public class TransformContext extends OperationalContext {
   public void addDataStore(final Database store) {
     if ((store != null) && StringUtil.isNotBlank(store.getName())) {
       databases.put(store.getName(), store);
+      store.setContext(this);
     }
   }
 
