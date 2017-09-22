@@ -14,7 +14,6 @@ import coyote.dx.CDX;
 import coyote.dx.context.ContextListener;
 import coyote.dx.context.OperationalContext;
 import coyote.dx.context.TransactionContext;
-import coyote.dx.context.TransformContext;
 import coyote.loader.log.Log;
 import coyote.loader.log.LogMsg;
 
@@ -74,37 +73,13 @@ public class CreateRecord extends AbstractDatabaseListener implements ContextLis
 
 
   /**
-   * @see coyote.dx.listener.AbstractListener#open(coyote.dx.context.TransformContext)
-   */
-  @Override
-  public void open(TransformContext context) {
-    super.open(context);
-
-    // Change the name of the table based on the configuration
-
-    // Change the schema of the table based on the configuration
-
-    // get a connection
-
-    // make sure the schema exists
-
-    // make sure the table exists
-
-    // if there are problems, place the context in error
-
-  }
-
-
-
-
-  /**
    * @param cntxt
    */
   private void performCreate(TransactionContext cntxt) {
     Log.info("Create Record Listener handling target frame of " + cntxt.getTargetFrame());
     DataFrame frame = cntxt.getWorkingFrame();
     String guid = GUID.randomGUID().toString();
-    saveFrame(frame,guid,null);
+    saveFrame(frame, guid, null);
     // place the GUID in the transaction context so the data frame can be retrieved later
     cntxt.setProcessingResult(guid);
   }
@@ -115,14 +90,14 @@ public class CreateRecord extends AbstractDatabaseListener implements ContextLis
   /**
    * @param frame
    */
-  private void saveFrame(DataFrame frame,String sysid, String parent) {
+  private void saveFrame(DataFrame frame, String sysid, String parent) {
     if (frame != null) {
       for (DataField field : frame.getFields()) {
         if (field.isFrame()) {
           String guid = GUID.randomGUID().toString();
-          saveFrame((DataFrame)field.getObjectValue(),guid,sysid);
+          saveFrame((DataFrame)field.getObjectValue(), guid, sysid);
         } else {
-          saveField(field,sysid);
+          saveField(field, sysid);
         }
       }
     }
@@ -135,7 +110,7 @@ public class CreateRecord extends AbstractDatabaseListener implements ContextLis
    * @param field
    */
   private void saveField(DataField field, String parent) {
-    Log.info("Saving field '" + field.getName() + "' type:" + field.getTypeName()+ " Frame:"+parent);
+    Log.info("Saving field '" + field.getName() + "' type:" + field.getTypeName() + " Frame:" + parent);
   }
 
 }
