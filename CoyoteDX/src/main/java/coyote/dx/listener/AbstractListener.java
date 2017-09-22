@@ -160,31 +160,4 @@ public abstract class AbstractListener extends AbstractConfigurableComponent imp
 
 
 
-  /**
-   * Determine the MIME type of the response based on the contents of the the 
-   * HttpFuture.
-   * 
-   * @param future the future containing the Accept-Type and Content-Type
-   * 
-   * @return the approperiate MIME type for the response.
-   */
-  protected MimeType determineResponseType(HttpFuture future) {
-    MimeType retval;
-    String acceptType = future.getAcceptType();
-    String contentType = future.getContentType();
-    Log.debug("Future accept-type: '" + acceptType + "' content-type: '" + contentType + "'");
-    if (StringUtil.isBlank(acceptType) || acceptType.contains(MimeType.ANY.getType())) {
-      if (StringUtil.isNotBlank(contentType) && contentType.contains(MimeType.XML.getType())) {
-        retval = MimeType.XML;
-      } else {
-        retval = MimeType.JSON;
-      }
-    } else if (acceptType.contains(MimeType.XML.getType())) {
-      retval = MimeType.XML;
-    } else {
-      retval = MimeType.JSON;
-    }
-    return retval;
-  }
-
 }

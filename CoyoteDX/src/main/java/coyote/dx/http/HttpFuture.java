@@ -7,6 +7,8 @@
  */
 package coyote.dx.http;
 
+import coyote.commons.StringUtil;
+import coyote.commons.network.MimeType;
 import coyote.commons.network.http.Response;
 import coyote.dataframe.DataFrame;
 
@@ -152,6 +154,48 @@ public class HttpFuture {
       response = result;
       mutex.notifyAll();
     }
+  }
+
+
+
+
+  /**
+   * Determine the MIME type of the response based on the contents of the the 
+   * Accept-Type and Content-Type data in this future.
+   * 
+   * @return the approperiate MIME type for the response.
+   */
+  public MimeType determineResponseType() {
+    return determineResponseType(this);
+  }
+
+
+
+
+  /**
+   * Determine the MIME type of the response based on the contents of the the 
+   * HttpFuture.
+   * 
+   * @param future the future containing the Accept-Type and Content-Type
+   * 
+   * @return the approperiate MIME type for the response.
+   */
+  private static MimeType determineResponseType(HttpFuture future) {
+    MimeType retval;
+    String acceptType = future.getAcceptType();
+    String contentType = future.getContentType();
+    if (StringUtil.isBlank(acceptType) || acceptType.contains(MimeType.ANY.getType())) {
+      if (StringUtil.isNotBlank(contentType) && contentType.contains(MimeType.XML.getType())) {
+        retval = MimeType.XML;
+      } else {
+        retval = MimeType.JSON;
+      }
+    } else if (acceptType.contains(MimeType.XML.getType())) {
+      retval = MimeType.XML;
+    } else {
+      retval = MimeType.JSON;
+    }
+    return retval;
   }
 
 }
