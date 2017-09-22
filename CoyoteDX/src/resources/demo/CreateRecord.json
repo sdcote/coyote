@@ -1,0 +1,40 @@
+{
+	"Class": "coyote.dx.Job",
+	"Job": {
+		"Name": "HttpReader",
+		"Description": "Test configuration for CreateRecord listener, creating just one record at a time.",
+		"Database": {
+			"H2": {
+				"library": "file:[#$app.home#]/lib/h2-1.4.196.jar",
+				"driver": "org.h2.Driver",
+				"target": "jdbc:h2:~/demodb",
+				"autocreate": true,
+				"username": "sa",
+				"password": ""
+			}
+		},
+
+		"Reader": { "class": "StaticReader" },
+
+		"Transform": {
+			"Set": { "field": "Message", "value": "Create Record" },
+			"Guid": { "field": "ID" },
+			"Timestamp": { "field": "Received" }
+		},
+
+		"Listener": {
+			"CreateRecord": {
+				"source": "H2",
+				"table": "CRLISTEN"
+			}
+		}
+	},
+	"Logging": {
+		"StandardError": {
+			"categories": "warn, error, fatal"
+		},
+		"StandardOutput": {
+			"categories": "debug, info, notice"
+		}
+	}
+}
