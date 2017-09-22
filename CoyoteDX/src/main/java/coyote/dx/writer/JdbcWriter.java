@@ -32,8 +32,8 @@ import java.sql.Statement;
 import java.sql.Types;
 import java.util.Date;
 
-import coyote.commons.JdbcUtil;
 import coyote.commons.StringUtil;
+import coyote.commons.jdbc.DatabaseUtil;
 import coyote.commons.jdbc.DriverDelegate;
 import coyote.commons.template.SymbolTable;
 import coyote.dataframe.DataField;
@@ -497,7 +497,7 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
             pstmt.setNull(indx, TIMESTAMP);
           } else {
             final Object obj = field.getObjectValue();
-            pstmt.setTimestamp(indx, JdbcUtil.getTimeStamp((Date)obj));
+            pstmt.setTimestamp(indx, DatabaseUtil.getTimeStamp((Date)obj));
           }
           break;
         case DataField.URI:
@@ -709,7 +709,7 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
     checkSchema();
 
     // check to see if the table exists
-    if (!JdbcUtil.tableExists(getTable(), getConnection())) {
+    if (!DatabaseUtil.tableExists(getTable(), getConnection())) {
 
       if (isAutoCreate()) {
         Connection conn = getConnection();
@@ -748,7 +748,7 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
           Log.warn("Couldnt commit table creation: " + e.getMessage());
         }
 
-        if (JdbcUtil.tableExists(getTable(), getSchema(), getConnection())) {
+        if (DatabaseUtil.tableExists(getTable(), getSchema(), getConnection())) {
           Log.debug("Table creation verified");
         } else {
           Log.error("Could not verifiy the creation of '" + getTable() + "." + getSchema() + "' table, expect subsequent database operations to fail.");
@@ -770,16 +770,16 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
    * 
    */
   private void checkSchema() {
-    Log.debug("Looking for schema '"+getSchema()+"'");
-    if (!JdbcUtil.schemaExists(getSchema(), getConnection())) {
+    Log.debug("Looking for schema '" + getSchema() + "'");
+    if (!DatabaseUtil.schemaExists(getSchema(), getConnection())) {
       if (isAutoCreate()) {
         String sql = DatabaseDialect.getCreateSchema(database, getSchema(), getUsername());
-        Log.debug("Schema '"+getSchema()+"' not found in database, creating it with:\n" + sql);
+        Log.debug("Schema '" + getSchema() + "' not found in database, creating it with:\n" + sql);
         try (Statement stmt = connection.createStatement()) {
           stmt.executeUpdate(sql);
           Log.debug("Schema created.");
 
-          if (JdbcUtil.schemaExists(getSchema(), getConnection())) {
+          if (DatabaseUtil.schemaExists(getSchema(), getConnection())) {
             Log.debug("Schema creation verified");
           } else {
             Log.error("Could not verify the creation of schema '" + getSchema() + "'");
