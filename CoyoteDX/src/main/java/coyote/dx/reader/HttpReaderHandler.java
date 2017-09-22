@@ -47,6 +47,10 @@ import coyote.loader.log.Log;
  * HttpFuture then send it back to the client. 
  */
 public class HttpReaderHandler extends AbstractBatchResponder implements Responder {
+  private static final int TWO_MINUTES = 120000;
+
+
+
 
   /**
    * @see coyote.dx.http.responder.AbstractBatchResponder#delete(coyote.commons.network.http.responder.Resource, java.util.Map, coyote.commons.network.http.IHTTPSession)
@@ -162,7 +166,9 @@ public class HttpReaderHandler extends AbstractBatchResponder implements Respond
    */
   private Response handleRequest(final String method, final IHTTPSession session, final Map<String, String> urlParams, final ConcurrentLinkedQueue<HttpFuture> queue, final int timeout) {
     int millis = timeout;
-    if (millis < 1) {
+
+    // prevent infinite and excessive blocking
+    if (millis < 1 || millis > TWO_MINUTES) {
       millis = HttpReader.DEFAULT_TIMEOUT;
     }
 
@@ -172,6 +178,9 @@ public class HttpReaderHandler extends AbstractBatchResponder implements Respond
     future.setAcceptType(getAcceptType(session));
     future.setContentType(getContentType(session));
 
+    // set out mimetype based on the future object
+    setMimetype(future.determineResponseType());
+
     DataFrame dframe = null;
 
     // Start with the body
@@ -179,12 +188,10 @@ public class HttpReaderHandler extends AbstractBatchResponder implements Respond
       dframe = populateBody(session);
       if (dframe == null) {
         setResults(new DataFrame().set(HttpReader.STATUS, HttpReader.ERROR).set(HttpReader.MESSAGE, "Could not parse request body into valid data frame"));
-        setMimetype(future.determineResponseType());
         retval = Response.createFixedLengthResponse(Status.BAD_REQUEST, getMimeType(), getText());
       }
     } catch (IllegalArgumentException e) {
       setResults(new DataFrame().set(HttpReader.STATUS, HttpReader.ERROR).set(HttpReader.MESSAGE, e.getMessage()));
-      setMimetype(future.determineResponseType());
       retval = Response.createFixedLengthResponse(Status.BAD_REQUEST, getMimeType(), getText());
     }
 
@@ -198,18 +205,19 @@ public class HttpReaderHandler extends AbstractBatchResponder implements Respond
       // set the results in the future
       future.setFrame(dframe);
 
-      // if there is data to process add it to the queue, otherwise report a bad request
+      // if there is data to process add it to the queue, otherwise report a bad (empty) request
       if (future.getFrame().getFieldCount() > 0) {
         queue.add(future);
+
+        // wait for a response, but only for the timeout period
         retval = future.getResponse(millis);
+
         if (retval == null) {
           setResults(new DataFrame().set(HttpReader.STATUS, HttpReader.ERROR).set(HttpReader.MESSAGE, "Transform did not return a result within the time-out period"));
-          setMimetype(future.determineResponseType());
           retval = Response.createFixedLengthResponse(Status.UNAVAILABLE, getMimeType(), getText());
         }
       } else {
         setResults(new DataFrame().set(HttpReader.STATUS, HttpReader.ERROR).set(HttpReader.MESSAGE, "No data to process"));
-        setMimetype(future.determineResponseType());
         retval = Response.createFixedLengthResponse(Status.BAD_REQUEST, getMimeType(), getText());
       }
     }
@@ -332,7 +340,7 @@ public class HttpReaderHandler extends AbstractBatchResponder implements Respond
         String contentType = session.getRequestHeaders().get(HTTP.HDR_CONTENT_TYPE.toLowerCase());
         if (StringUtil.isNotEmpty(contentType) && contentType.contains(MimeType.XML.getType())) {
           frames = XMLMarshaler.marshal(data);
-          if( frames==null || frames.size()==0){
+          if (frames == null || frames.size() == 0) {
             throw new MarshalException("No valid XML data found");
           }
         } else {
