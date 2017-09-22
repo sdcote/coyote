@@ -10,6 +10,7 @@ package coyote.dx.listener;
 import java.io.IOException;
 
 import coyote.commons.StringUtil;
+import coyote.commons.network.MimeType;
 import coyote.dx.AbstractConfigurableComponent;
 import coyote.dx.ConfigTag;
 import coyote.dx.ConfigurableComponent;
@@ -21,6 +22,8 @@ import coyote.dx.context.OperationalContext;
 import coyote.dx.context.TransactionContext;
 import coyote.dx.context.TransformContext;
 import coyote.dx.eval.Evaluator;
+import coyote.dx.http.HttpFuture;
+import coyote.loader.log.Log;
 
 
 /**
@@ -152,6 +155,36 @@ public abstract class AbstractListener extends AbstractConfigurableComponent imp
   @Override
   public void onFrameValidationFailed(TransactionContext context) {
     // override this method to perform processing when the entire frame fails validation
+  }
+
+
+
+
+  /**
+   * Determine the MIME type of the response based on the contents of the the 
+   * HttpFuture.
+   * 
+   * @param future the future containing the Accept-Type and Content-Type
+   * 
+   * @return the approperiate MIME type for the response.
+   */
+  protected MimeType determineResponseType(HttpFuture future) {
+    MimeType retval;
+    String acceptType = future.getAcceptType();
+    String contentType = future.getContentType();
+    Log.debug("Future accept-type: '" + acceptType + "' content-type: '" + contentType + "'");
+    if (StringUtil.isBlank(acceptType) || acceptType.contains(MimeType.ANY.getType())) {
+      if (StringUtil.isNotBlank(contentType) && contentType.contains(MimeType.XML.getType())) {
+        retval = MimeType.XML;
+      } else {
+        retval = MimeType.JSON;
+      }
+    } else if (acceptType.contains(MimeType.XML.getType())) {
+      retval = MimeType.XML;
+    } else {
+      retval = MimeType.JSON;
+    }
+    return retval;
   }
 
 }
