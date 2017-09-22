@@ -75,6 +75,9 @@ public class HttpReader extends AbstractFrameReader implements FrameReader {
   private static final String HTTP_LISTENER = "HttpListener";
   private static final String HTTP_ACCEPT_TYPE = "HttpAcceptType";
   private static final String HTTP_CONTENT_TYPE = "HttpContentType";
+  public static final String STATUS = "Status";
+  public static final String ERROR = "Error";
+  public static final String MESSAGE = "Message";
   private static final int DEFAULT_PORT = 80;
   protected static final int DEFAULT_TIMEOUT = 10000;
   private ConcurrentLinkedQueue<HttpFuture> queue = new ConcurrentLinkedQueue<HttpFuture>();
@@ -302,6 +305,29 @@ public class HttpReader extends AbstractFrameReader implements FrameReader {
     return false;
   }
 
+
+
+
+  /**
+   * Get a properly formatted error message base on the given MIME type.
+   * 
+   * @param errorMessage the test of the error message
+   * @param type the MIME type
+   * 
+   * @return a string formatted according the the given MIME type indicating 
+   *         a message.
+   */
+  public static String getErrorText(String errorMessage, MimeType type) {
+    String results;
+    DataFrame errorFrame = new DataFrame().set(STATUS, ERROR).set(MESSAGE, errorMessage);
+    if (type.equals(MimeType.XML)) {
+      results = XMLMarshaler.marshal(errorFrame);
+    } else {
+      results = JSONMarshaler.marshal(errorFrame);
+    }
+    return results;
+  }
+
   /**
    * Our HTTP listener
    */
@@ -348,13 +374,6 @@ public class HttpReader extends AbstractFrameReader implements FrameReader {
    */
   private class ResponseGenerator extends AbstractListener implements ContextListener {
 
-    private static final String STATUS = "Status";
-    private static final String ERROR = "Error";
-    private static final String MESSAGE = "Message";
-
-
-
-
     /**
      * @see coyote.dx.listener.AbstractListener#onEnd(coyote.dx.context.OperationalContext)
      */
@@ -365,10 +384,10 @@ public class HttpReader extends AbstractFrameReader implements FrameReader {
         HttpFuture future = (HttpFuture)context.get(HTTP_FUTURE);
         Object result = context.getProcessingResult();
         if (future != null) {
-          MimeType type = determineResponseType(future);
+          MimeType type = future.determineResponseType();
 
           if (context.isInError()) {
-            String errorText = getErrorText(context.getErrorMessage(), type);
+            String errorText = HttpReader.getErrorText(context.getErrorMessage(), type);
             future.setResponse(Response.createFixedLengthResponse(Status.BAD_REQUEST, type.getType(), errorText));
           } else {
             String results;
@@ -389,29 +408,6 @@ public class HttpReader extends AbstractFrameReader implements FrameReader {
           }
         }
       }
-    }
-
-
-
-
-    /**
-     * Get a properly formatted error message base on the given MIME type.
-     * 
-     * @param errorMessage the test of the error message
-     * @param type the MIME type
-     * 
-     * @return a string formatted according the the given MIME type indicating 
-     *         a message.
-     */
-    private String getErrorText(String errorMessage, MimeType type) {
-      String results;
-      DataFrame errorFrame = new DataFrame().set(STATUS, ERROR).set(MESSAGE, errorMessage);
-      if (type.equals(MimeType.XML)) {
-        results = XMLMarshaler.marshal(errorFrame);
-      } else {
-        results = JSONMarshaler.marshal(errorFrame);
-      }
-      return results;
     }
 
   }

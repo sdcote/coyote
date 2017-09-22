@@ -48,13 +48,6 @@ import coyote.loader.log.Log;
  */
 public class HttpReaderHandler extends AbstractBatchResponder implements Responder {
 
-  private static final String STATUS = "Status";
-  private static final String MESSAGE = "Message";
-  private static final Object ERROR = "Error";
-
-
-
-
   /**
    * @see coyote.dx.http.responder.AbstractBatchResponder#delete(coyote.commons.network.http.responder.Resource, java.util.Map, coyote.commons.network.http.IHTTPSession)
    */
@@ -184,8 +177,14 @@ public class HttpReaderHandler extends AbstractBatchResponder implements Respond
     // Start with the body
     try {
       dframe = populateBody(session);
+      if (dframe == null) {
+        setResults(new DataFrame().set(HttpReader.STATUS, HttpReader.ERROR).set(HttpReader.MESSAGE, "Could not parse request body into valid data frame"));
+        setMimetype(future.determineResponseType());
+        retval = Response.createFixedLengthResponse(Status.BAD_REQUEST, getMimeType(), getText());
+      }
     } catch (IllegalArgumentException e) {
-      setResults(new DataFrame().set(STATUS, ERROR).set(MESSAGE, e.getMessage()));
+      setResults(new DataFrame().set(HttpReader.STATUS, HttpReader.ERROR).set(HttpReader.MESSAGE, e.getMessage()));
+      setMimetype(future.determineResponseType());
       retval = Response.createFixedLengthResponse(Status.BAD_REQUEST, getMimeType(), getText());
     }
 
@@ -204,11 +203,13 @@ public class HttpReaderHandler extends AbstractBatchResponder implements Respond
         queue.add(future);
         retval = future.getResponse(millis);
         if (retval == null) {
-          setResults(new DataFrame().set(STATUS, ERROR).set(MESSAGE, "Transform did not return a result within the time-out period"));
+          setResults(new DataFrame().set(HttpReader.STATUS, HttpReader.ERROR).set(HttpReader.MESSAGE, "Transform did not return a result within the time-out period"));
+          setMimetype(future.determineResponseType());
           retval = Response.createFixedLengthResponse(Status.UNAVAILABLE, getMimeType(), getText());
         }
       } else {
-        setResults(new DataFrame().set(STATUS, ERROR).set(MESSAGE, "No data to process"));
+        setResults(new DataFrame().set(HttpReader.STATUS, HttpReader.ERROR).set(HttpReader.MESSAGE, "No data to process"));
+        setMimetype(future.determineResponseType());
         retval = Response.createFixedLengthResponse(Status.BAD_REQUEST, getMimeType(), getText());
       }
     }
@@ -328,12 +329,16 @@ public class HttpReaderHandler extends AbstractBatchResponder implements Respond
 
       if (data != null) {
         List<DataFrame> frames = null;
-        if (session.getRequestHeaders().containsKey(MimeType.XML)) {
+        String contentType = session.getRequestHeaders().get(HTTP.HDR_CONTENT_TYPE.toLowerCase());
+        if (StringUtil.isNotEmpty(contentType) && contentType.contains(MimeType.XML.getType())) {
           frames = XMLMarshaler.marshal(data);
+          if( frames==null || frames.size()==0){
+            throw new MarshalException("No valid XML data found");
+          }
         } else {
           frames = JSONMarshaler.marshal(data);
         }
-        if (frames != null) {
+        if (frames != null && frames.size() > 0) {
           retval = frames.get(0);
           break; // only get the first dataframe
         } else {
