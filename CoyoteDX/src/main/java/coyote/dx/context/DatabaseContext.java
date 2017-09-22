@@ -19,7 +19,6 @@ import coyote.commons.ExceptionUtil;
 import coyote.commons.StringUtil;
 import coyote.commons.jdbc.DatabaseUtil;
 import coyote.commons.template.SymbolTable;
-import coyote.commons.template.Template;
 import coyote.dataframe.DataField;
 import coyote.dataframe.DataFrame;
 import coyote.dataframe.FrameSet;
@@ -31,7 +30,6 @@ import coyote.dx.db.ColumnDefinition;
 import coyote.dx.db.ColumnType;
 import coyote.dx.db.DatabaseDialect;
 import coyote.dx.db.TableDefinition;
-import coyote.loader.cfg.Config;
 import coyote.loader.cfg.ConfigurationException;
 import coyote.loader.log.Log;
 import coyote.loader.log.LogMsg;
@@ -285,14 +283,10 @@ public class DatabaseContext extends PersistentContext {
           e.printStackTrace();
         }
 
-
       }
     }
 
   }
-
-
-
 
 
 
@@ -393,7 +387,7 @@ public class DatabaseContext extends PersistentContext {
    * Make sure the tables exist.
    */
   private void verifyTables() {
-    if (!DatabaseUtil.tableExists(connection, TABLE_NAME)) {
+    if (!DatabaseUtil.tableExists(TABLE_NAME, connection)) {
       if (isAutoCreate()) {
         createTables();
       }
