@@ -66,6 +66,8 @@ import coyote.loader.log.Log;
  * <p>If the endpoint contains an optional parameter, this reader will also 
  * attach to the root URL. In the above example, this reader will also respond 
  * to requests for "/coyote" as well as "/coyote/:id".  
+ * 
+ * <p>You can have as many parameters as you want: "/api/:object:/:action".
  */
 public class HttpReader extends AbstractFrameReader implements FrameReader {
   private static final String DEFAULT_ENDPOINT = "/api";
@@ -404,7 +406,7 @@ public class HttpReader extends AbstractFrameReader implements FrameReader {
             } else {
               results = "";
             }
-            future.setResponse(Response.createFixedLengthResponse(Status.OK, MimeType.JSON.getType(), results));
+            future.setResponse(Response.createFixedLengthResponse(Status.OK, type.getType(), results));
           }
         }
       }
