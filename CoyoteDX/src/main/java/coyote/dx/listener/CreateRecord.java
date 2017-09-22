@@ -106,6 +106,7 @@ public class CreateRecord extends AbstractDatabaseListener implements ContextLis
     String guid = GUID.randomGUID().toString();
     saveFrame(frame,guid,null);
     // place the GUID in the transaction context so the data frame can be retrieved later
+    cntxt.setProcessingResult(guid);
   }
 
 
