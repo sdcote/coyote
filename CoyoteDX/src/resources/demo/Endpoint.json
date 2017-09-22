@@ -24,16 +24,16 @@
 		},
 
 		"Listener": {
-			"CreateRecord": { "Condition": "match( Context.HttpMethod, POST)", "database": "H2", "table": "endpoint" },
-			"ReadRecord": { "Condition": "match( Context.HttpMethod, GET)", "database": "H2", "table": "endpoint", "key": "sysid" },
-			"UpdateRecord": { "Condition": "match( Context.HttpMethod, PUT)", "database": "H2", "table": "endpoint", "key": "sysid" },
-			"DeleteRecord": { "Condition": "match( Context.HttpMethod, DELETE)", "database": "H2", "table": "endpoint", "key": "sysid" }
+			"CreateRecord": { "Condition": "match( Context.HttpMethod, POST)", "source": "H2", "table": "endpoint" },
+			"ReadRecord": { "Condition": "match( Context.HttpMethod, GET)", "source": "H2", "table": "endpoint", "key": "sysid" },
+			"UpdateRecord": { "Condition": "match( Context.HttpMethod, PUT)", "source": "H2", "table": "endpoint", "key": "sysid" },
+			"DeleteRecord": { "Condition": "match( Context.HttpMethod, DELETE)", "source": "H2", "table": "endpoint", "key": "sysid" }
 		}
 	},
 
 	"Logging": {
 		"StandardError": { "categories": "warn, error, fatal" },
-		"StandardOutput": { "categories": "info, notice" }
+		"StandardOutput": { "categories": "debug, info, notice" }
 	}
 
 }
