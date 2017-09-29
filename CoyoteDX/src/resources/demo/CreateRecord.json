@@ -7,7 +7,7 @@
 			"H2": {
 				"library": "file:[#$app.home#]/lib/h2-1.4.196.jar",
 				"driver": "org.h2.Driver",
-				"target": "jdbc:h2:~/demodb",
+				"target": "jdbc:h2:tcp://localhost/~/demodb",
 				"autocreate": true,
 				"username": "sa",
 				"password": ""
@@ -23,18 +23,11 @@
 		},
 
 		"Listener": {
-			"CreateRecord": {
-				"source": "H2",
-				"table": "CRLISTEN"
-			}
+			"CreateRecord": { "source": "H2", "table": "CRLISTEN" }
 		}
 	},
 	"Logging": {
-		"StandardError": {
-			"categories": "warn, error, fatal"
-		},
-		"StandardOutput": {
-			"categories": "debug, info, notice"
-		}
+		"StandardError": { "categories": "warn, error, fatal" },
+		"StandardOutput": { "categories": "debug, info, notice" }
 	}
 }
