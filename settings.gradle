@@ -1,6 +1,4 @@
 rootProject.name = 'Coyote'
-include 'DataFrame'
-include 'Loader'
 include 'CoyoteDX'
 include 'CoyoteFT'
 include 'CoyoteWS'

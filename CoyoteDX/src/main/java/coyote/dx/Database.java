@@ -43,13 +43,6 @@ public class Database extends AbstractConfigurableComponent implements Configura
 
 
 
-  public Database() {
-    // although this should be created by the compiler, it's here for classForName()
-  }
-
-
-
-
   /**
    * Create a new connection using the configuration.
    * 

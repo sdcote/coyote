@@ -4,8 +4,9 @@ mainClassName = 'coyote.loader.BootStrap'
 ext {
 	title = 'Coyote Logging SLF4J Binding'
 	provider = 'Coyote Systems'
-	junitVersion = '4.11'
+	junitVersion = '4.12'
 	slf4jVersion = '1.7.7'
+	loaderVersion = '0.7.2'
 }
 
 jar {
@@ -17,8 +18,7 @@ jar {
 }
 
 dependencies {
-	compile project(':Loader')
-	compile "coyote:Loader:$version"
+	compile "coyote:Loader:$loaderVersion"
 	compile "org.slf4j:slf4j-api:$slf4jVersion"
 	testCompile "junit:junit:$junitVersion"	
 }
