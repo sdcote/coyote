@@ -71,7 +71,10 @@ public abstract class AbstractDatabaseListener extends AbstractListener implemen
 
 
   public AbstractDatabaseListener() {
-    // This is the normalized data model, each field is stored as a record
+    // This is the data model for frame storage. In simple mode, the SysId and
+    // Value fields are populated with a GUID and the JSON format of the data 
+    // frame respectively. In normalized mode, each field is stored as a 
+    // separate record/row preserving sequence and hierarchy of the frame.
     tableschema.addColumn(new ColumnDefinition("SysId", ColumnType.STRING).setLength(36).setPrimaryKey(true));
     tableschema.addColumn(new ColumnDefinition("Parent", ColumnType.STRING).setLength(36));
     tableschema.addColumn(new ColumnDefinition("Sequence", ColumnType.INT).setNullable(true));
@@ -131,7 +134,9 @@ public abstract class AbstractDatabaseListener extends AbstractListener implemen
   public boolean isAutoCreate() {
     try {
       return configuration.getAsBoolean(ConfigTag.AUTO_CREATE);
-    } catch (final DataFrameException ignore) {}
+    } catch (final DataFrameException ignore) {
+      // must not be set or is invalid boolean value
+    }
     return false;
   }
 
