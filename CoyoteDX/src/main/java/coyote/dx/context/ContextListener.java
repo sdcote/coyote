@@ -14,15 +14,33 @@ import coyote.dx.FrameWriter;
 
 
 /**
- * Listens to the operational context an performs actions on different events.
+ * Listens to the operational context and performs actions on different events.
  */
 public interface ContextListener extends ConfigurableComponent {
 
+  /**
+   * Called when either the Transaction or the Transform Context ends.
+   * 
+   * <p>The listener should use reflection (instanceof) to check if the 
+   * context is a transaction or the transform. If the context is an instance 
+   * of TransformContext, the the engine is about to terminate.
+   * 
+   * @param context the context which is ending
+   */
   void onEnd(OperationalContext context);
 
 
 
 
+  /**
+   * Called when either the Transaction or the Transform Context is starting.
+   * 
+   * <p>The listener should use reflection (instanceof) to check if the 
+   * context is a transaction or the transform. If the context is an instance 
+   * of TransformContext, the the engine is about to start reading.
+   * 
+   * @param context the context which is starting
+   */
   void onStart(OperationalContext context);
 
 
@@ -50,6 +68,14 @@ public interface ContextListener extends ConfigurableComponent {
 
 
 
+  /**
+   * Called when either the transaction or transform context is in error.
+   * 
+   * <p>The listener should use reflection (instanceof) to check if the 
+   * context is a transaction or the transform. 
+   * 
+   * @param context the context which has been set to error.
+   */
   void onError(OperationalContext context);
 
 
