@@ -20,10 +20,7 @@ import coyote.dx.context.TransformContext;
  */
 public interface TransformEngine extends RunnableComponent {
 
-  /**
-   * @param object
-   */
-  public void addListener(ContextListener object);
+  public void addListener(ContextListener listener);
 
 
 
@@ -118,11 +115,6 @@ public interface TransformEngine extends RunnableComponent {
 
 
 
-  public void addDatabase(Database database);
-
-
-
-
   public void addValidator(FrameValidator validator);
 
 
@@ -180,6 +172,8 @@ public interface TransformEngine extends RunnableComponent {
   public File getJobDirectory();
 
 
+
+
   /**
    * This sets a common sharable location on the file system where the engine 
    * can find data shared by components in this engine.
@@ -190,6 +184,7 @@ public interface TransformEngine extends RunnableComponent {
    * @param dir the directory to be used as a sharable space on the file system
    */
   public void setJobDirectory(File dir);
+
 
 
 

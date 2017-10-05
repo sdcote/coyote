@@ -128,6 +128,21 @@ xsi:schemaLocation="http://izpack.org/schema/installation http://izpack.org/sche
 			<fileset dir="daemon\build\install\daemon\lib" targetdir="$INSTALL_PATH/lib" includes="ServiceDemo*.jar" override="true"/>
 			<fileset dir="daemon\src\resources\demo" targetdir="$INSTALL_PATH/demo" override="true"/>
 		</pack>
+		<pack name="CoyoteDB" required="no" preselected="yes" >
+			<description>Installs the Coyote Database toolkit.</description>
+			<fileset dir="CoyoteDB\build\install\CoyoteDB\doc" targetdir="$INSTALL_PATH/doc" override="true"/>
+			<fileset dir="CoyoteDB\src\resources\licenses" targetdir="$INSTALL_PATH/doc/licenses" override="true"/>
+			<fileset dir="CoyoteDB\build\install\CoyoteDB\lib" targetdir="$INSTALL_PATH/lib" includes="CoyoteDB*.jar" override="true"/>
+		</pack>
+		<pack name="CoyoteFT Source" required="no" preselected="no" >
+			<description>The source code and javadoc files for the Coyote Database toolkit.</description>
+			<fileset dir="CoyoteDB\build\libs" targetdir="$INSTALL_PATH/doc/CoyoteDB" includes="*-javadoc.jar" override="true"/>
+			<fileset dir="CoyoteDB\build\libs" targetdir="$INSTALL_PATH/doc/CoyoteDB" includes="*-sources.jar" override="true"/>
+		</pack>		
+		<pack name="CoyoteDB Demo" required="no" preselected="no" >
+			<description>A collection of configuration files demonstrating how to use the database tools.</description>
+			<fileset dir="CoyoteDB\src\resources\demo" targetdir="$INSTALL_PATH/demo" override="true"/>
+		</pack>
 		<pack name="CoyoteFT" required="no" preselected="yes" >
 			<description>Installs the Coyote File Transfer toolkit.</description>
 			<fileset dir="CoyoteFT\build\install\CoyoteFT\doc" targetdir="$INSTALL_PATH/doc" override="true"/>

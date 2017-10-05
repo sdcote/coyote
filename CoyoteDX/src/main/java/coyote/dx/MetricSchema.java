@@ -5,7 +5,7 @@
  * terms of the MIT License which accompanies this distribution, and is
  * available at http://creativecommons.org/licenses/MIT/
  */
-package coyote.dx.db;
+package coyote.dx;
 
 import java.util.ArrayList;
 import java.util.List;

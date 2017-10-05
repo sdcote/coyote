@@ -20,6 +20,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 import coyote.commons.StringUtil;
+import coyote.commons.jdbc.DatabaseDialect;
 import coyote.commons.jdbc.DriverDelegate;
 import coyote.dataframe.DataFrame;
 import coyote.dx.CDX;
@@ -27,7 +28,6 @@ import coyote.dx.ConfigTag;
 import coyote.dx.Database;
 import coyote.dx.context.TransactionContext;
 import coyote.dx.context.TransformContext;
-import coyote.dx.db.DatabaseDialect;
 import coyote.loader.log.Log;
 import coyote.loader.log.LogMsg;
 
@@ -62,8 +62,9 @@ public class JdbcReader extends AbstractFrameReader {
     Log.debug(LogMsg.createMsg(CDX.MSG, "Reader.using a source of {%s}", source));
     if (StringUtil.isNotBlank(source)) {
 
-      // first see if it is a named database in the context
-      Database db = context.getDatabase(source);
+      // First see if it is a named database in the context. 
+      // Look for a Database component with a name matching our SOURCE config
+      Database db = null;
 
       if (db != null) {
         Log.debug(LogMsg.createMsg(CDX.MSG, "Reader.We have a shared database definition! {%s}", db.toString()));

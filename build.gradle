@@ -1,11 +1,11 @@
 allprojects {
 	defaultTasks 'clean', 'build', 'publish', 'installDist'
 	group = 'coyote'
-	version = '0.7.1'
+	version = '0.8.0'
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '2.14'
+    gradleVersion = '4.2'
 }
 
 

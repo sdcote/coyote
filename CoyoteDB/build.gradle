@@ -1,0 +1,20 @@
+defaultTasks 'clean', 'build', 'publish', 'installDist'
+mainClassName = "coyote.loader.BootStrap"
+
+jar {
+    manifest {
+		attributes  'Implementation-Title' : 'Coyote Database Toolkit',
+		'Provider' : 'Coyote Systems',
+		'Main-Class' : "$mainClassName",
+		'Implementation-Version' : version
+	}
+}
+
+ext {
+	junitVersion = '4.12'
+}
+dependencies {
+	compile project(':CoyoteDX')
+	compile "coyote:CoyoteDX:$version"
+	testCompile "junit:junit:$junitVersion"	
+}

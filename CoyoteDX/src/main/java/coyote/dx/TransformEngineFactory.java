@@ -30,7 +30,6 @@ import coyote.dx.transform.AbstractFrameTransform;
 import coyote.dx.validate.AbstractValidator;
 import coyote.dx.writer.AbstractFrameWriter;
 import coyote.loader.cfg.Config;
-import coyote.loader.cfg.ConfigurationException;
 import coyote.loader.log.Log;
 import coyote.loader.log.LogMsg;
 
@@ -151,12 +150,6 @@ public class TransformEngineFactory {
             configWriter((DataFrame)field.getObjectValue(), retval);
           } else {
             Log.error("Invalid writer configuration section");
-          }
-        } else if (StringUtil.equalsIgnoreCase(ConfigTag.DATABASE, field.getName())) {
-          if (field.isFrame()) {
-            configDatabases((DataFrame)field.getObjectValue(), retval);
-          } else {
-            Log.error("Invalid database configuration section");
           }
         } else if (StringUtil.equalsIgnoreCase(ConfigTag.VALIDATE, field.getName())) {
           if (field.isFrame()) {
@@ -296,44 +289,6 @@ public class TransformEngineFactory {
           Log.error(LogMsg.createMsg(CDX.MSG, "EngineFactory.transformer_task_did_not_contain_valid_configuration", field.getStringValue()));
         }
       } // for each transformer
-    } // cfg !null
-  }
-
-
-
-
-  /**
-   * This creates data sources in the engine for components to use
-   * 
-   * @param cfg
-   * @param retval
-   */
-  private static void configDatabases(DataFrame cfg, TransformEngine engine) {
-    if (cfg != null) {
-      for (DataField field : cfg.getFields()) {
-        if (field.isFrame()) {
-          if (StringUtil.isNotBlank(field.getName())) {
-            Config dataSourceCfg = new Config((DataFrame)field.getObjectValue());
-
-            Database store = new Database();
-            try {
-              store.setConfiguration(dataSourceCfg);
-              store.setName(field.getName());
-            } catch (ConfigurationException e) {
-              Log.error(LogMsg.createMsg(CDX.MSG, "EngineFactory.Could not configure database - {} : {}", e.getClass().getSimpleName(), e.getMessage()));
-            }
-
-            // Add it to the engine (actually its transform context)
-            engine.addDatabase(store);
-
-          } else {
-            Log.error(LogMsg.createMsg(CDX.MSG, "EngineFactory.Databases must have a unique name"));
-          }
-
-        } else {
-          Log.error(LogMsg.createMsg(CDX.MSG, "EngineFactory.Database did not contain a configuration, only scalar {}", field.getStringValue()));
-        }
-      } // for each configuration section
     } // cfg !null
   }
 

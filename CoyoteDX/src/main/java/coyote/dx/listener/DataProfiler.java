@@ -14,15 +14,14 @@ import java.util.Date;
 import coyote.commons.StringUtil;
 import coyote.commons.template.SymbolTable;
 import coyote.dataframe.DataFrame;
+import coyote.dx.FieldMetrics;
 import coyote.dx.FrameReader;
 import coyote.dx.FrameWriter;
+import coyote.dx.MetricSchema;
 import coyote.dx.context.ContextListener;
 import coyote.dx.context.OperationalContext;
 import coyote.dx.context.TransactionContext;
 import coyote.dx.context.TransformContext;
-import coyote.dx.db.DatabaseDialect;
-import coyote.dx.db.FieldMetrics;
-import coyote.dx.db.MetricSchema;
 
 
 /**
@@ -30,8 +29,8 @@ import coyote.dx.db.MetricSchema;
  * reports on the characteristics of the data observed.
  */
 public class DataProfiler extends FileRecorder implements ContextListener {
-  private MetricSchema inputSchema = new MetricSchema();
-  private MetricSchema outputSchema = new MetricSchema();
+  protected MetricSchema inputSchema = new MetricSchema();
+  protected MetricSchema outputSchema = new MetricSchema();
   protected static final SymbolTable symbols = new SymbolTable();
 
   long readBytes = 0;
@@ -85,68 +84,17 @@ public class DataProfiler extends FileRecorder implements ContextListener {
       elapsed = context.getElapsed();
       writePerformanceSummary();
       writeInputSummary();
-      writeInputSQL();
       writeOutputSummary();
-      writeOutputSQL();
     }
   }
 
 
 
 
-  /**
-   * 
-   */
-  private void writeOutputSQL() {
-    if (outputSchema.getSampleCount() > 0) {
-      StringBuffer b = new StringBuffer("Table Creation for Output");
-      b.append(StringUtil.LINE_FEED);
-      symbols.put(DatabaseDialect.DB_SCHEMA_SYM, "DBUser");
-      symbols.put(DatabaseDialect.TABLE_NAME_SYM, "TableName");
-      b.append("H2: ");
-      b.append(DatabaseDialect.getCreate(DatabaseDialect.H2, outputSchema, symbols));
-      b.append(StringUtil.LINE_FEED);
-      b.append("Oracle: ");
-      b.append(DatabaseDialect.getCreate(DatabaseDialect.ORACLE, outputSchema, symbols));
-      b.append(StringUtil.LINE_FEED);
-      b.append("MySQL: ");
-      b.append(DatabaseDialect.getCreate(DatabaseDialect.MYSQL, outputSchema, symbols));
-      b.append(StringUtil.LINE_FEED);
-      b.append(StringUtil.LINE_FEED);
-      write(b.toString());
-    }
-  }
 
 
 
-
-  /**
-   * 
-   */
-  private void writeInputSQL() {
-    if (inputSchema.getSampleCount() > 0) {
-      StringBuffer b = new StringBuffer("Table Creation for Input");
-      b.append(StringUtil.LINE_FEED);
-      symbols.put(DatabaseDialect.DB_SCHEMA_SYM, "DBUser");
-      symbols.put(DatabaseDialect.TABLE_NAME_SYM, "TableName");
-      b.append("H2: ");
-      b.append(DatabaseDialect.getCreate(DatabaseDialect.H2, inputSchema, symbols));
-      b.append(StringUtil.LINE_FEED);
-      b.append("Oracle: ");
-      b.append(DatabaseDialect.getCreate(DatabaseDialect.ORACLE, inputSchema, symbols));
-      b.append(StringUtil.LINE_FEED);
-      b.append("MySQL: ");
-      b.append(DatabaseDialect.getCreate(DatabaseDialect.MYSQL, inputSchema, symbols));
-      b.append(StringUtil.LINE_FEED);
-      b.append(StringUtil.LINE_FEED);
-      write(b.toString());
-    }
-  }
-
-
-
-
-  private void writePerformanceSummary() {
+  protected void writePerformanceSummary() {
     StringBuffer b = new StringBuffer("Transform Performance:");
     b.append(StringUtil.LINE_FEED);
 
@@ -250,7 +198,7 @@ public class DataProfiler extends FileRecorder implements ContextListener {
   /**
    * Write the summary of the data read in.
    */
-  private void writeInputSummary() {
+  protected void writeInputSummary() {
     StringBuffer b = new StringBuffer("Input Data Profile:");
     b.append(StringUtil.LINE_FEED);
     b.append("Read Count: ");
@@ -366,7 +314,7 @@ public class DataProfiler extends FileRecorder implements ContextListener {
   /**
    * Write the summary of the data written out.
    */
-  private void writeOutputSummary() {
+  protected void writeOutputSummary() {
     StringBuffer b = new StringBuffer("Output Data Profile:");
     b.append(StringUtil.LINE_FEED);
     b.append("Write Count: ");

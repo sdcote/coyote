@@ -14,7 +14,11 @@ import java.sql.Statement;
 
 import coyote.commons.CipherUtil;
 import coyote.commons.StringUtil;
+import coyote.commons.jdbc.ColumnDefinition;
+import coyote.commons.jdbc.ColumnType;
+import coyote.commons.jdbc.DatabaseDialect;
 import coyote.commons.jdbc.DatabaseUtil;
+import coyote.commons.jdbc.TableDefinition;
 import coyote.commons.template.SymbolTable;
 import coyote.dataframe.DataFrameException;
 import coyote.dx.CDX;
@@ -22,10 +26,6 @@ import coyote.dx.ConfigTag;
 import coyote.dx.Database;
 import coyote.dx.context.ContextListener;
 import coyote.dx.context.TransformContext;
-import coyote.dx.db.ColumnDefinition;
-import coyote.dx.db.ColumnType;
-import coyote.dx.db.DatabaseDialect;
-import coyote.dx.db.TableDefinition;
 import coyote.loader.Loader;
 import coyote.loader.cfg.Config;
 import coyote.loader.cfg.ConfigurationException;
@@ -231,7 +231,7 @@ public abstract class AbstractDatabaseListener extends AbstractListener implemen
    * @return the database helper class from which we get connections
    */
   protected synchronized Database getDatabase() {
-    Database retval = context.getDatabase(getString(ConfigTag.SOURCE));
+    Database retval = null;
     if (retval == null) {
       retval = database;
       if (retval == null) {

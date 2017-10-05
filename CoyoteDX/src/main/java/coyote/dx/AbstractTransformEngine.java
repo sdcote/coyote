@@ -1134,22 +1134,6 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
 
 
   /**
-   * @see coyote.dx.TransformEngine#addDatabase(coyote.dx.Database)
-   */
-  @Override
-  public void addDatabase(Database database) {
-
-    if (getContext() == null) {
-      setContext(new TransformContext(listeners));
-    }
-
-    getContext().addDataStore(database);
-  }
-
-
-
-
-  /**
    * @see coyote.dx.TransformEngine#addValidator(coyote.dx.FrameValidator)
    */
   @Override

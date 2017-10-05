@@ -5,7 +5,7 @@
  * terms of the MIT License which accompanies this distribution, and is
  * available at http://creativecommons.org/licenses/MIT/
  */
-package coyote.dx.db;
+package coyote.commons.jdbc;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -15,6 +15,8 @@ import coyote.commons.StringUtil;
 import coyote.commons.template.SymbolTable;
 import coyote.commons.template.Template;
 import coyote.dx.CDX;
+import coyote.dx.FieldMetrics;
+import coyote.dx.MetricSchema;
 import coyote.loader.log.Log;
 import coyote.loader.log.LogMsg;
 

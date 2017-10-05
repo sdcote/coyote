@@ -6,7 +6,7 @@
  * available at http://creativecommons.org/licenses/MIT/
  */
 
-package coyote.dx.db;
+package coyote.commons.jdbc;
 
 /**
  * This holds details about a column in a table.

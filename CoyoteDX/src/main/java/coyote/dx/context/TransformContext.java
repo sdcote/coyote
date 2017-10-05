@@ -7,7 +7,6 @@
  */
 package coyote.dx.context;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -16,7 +15,6 @@ import coyote.commons.StringUtil;
 import coyote.commons.template.Template;
 import coyote.dataframe.DataField;
 import coyote.dataframe.DataFrame;
-import coyote.dx.Database;
 import coyote.dx.Symbols;
 import coyote.dx.TransformEngine;
 import coyote.loader.cfg.Config;
@@ -41,7 +39,6 @@ public class TransformContext extends OperationalContext {
   private static final String WORKING = "Working.";
   private volatile TransactionContext transactionContext = null;
   protected Config configuration = new Config();
-  protected Map<String, Database> databases = new HashMap<String, Database>();
   protected TransformEngine engine = null;
   protected volatile long openCount = 0;
 
@@ -62,28 +59,10 @@ public class TransformContext extends OperationalContext {
 
 
 
-  public void addDataStore(final Database store) {
-    if ((store != null) && StringUtil.isNotBlank(store.getName())) {
-      databases.put(store.getName(), store);
-      store.setContext(this);
-    }
-  }
-
-
-
-
   /**
    * Close (terminate) the context.
    */
   public void close() {
-    for (final Map.Entry<String, Database> entry : databases.entrySet()) {
-      //System.out.printf("Closing : %s %n", entry.getKey());
-      try {
-        entry.getValue().close();
-      } catch (final IOException ignore) {
-        //System.out.printf("Problems closing : %s - %s %n", entry.getKey(), ignore.getMessage());
-      }
-    }
 
     // Set the closing disposition of the job
     final Map<String, Object> disposition = new HashMap<String, Object>();
@@ -130,13 +109,6 @@ public class TransformContext extends OperationalContext {
 
   public Config getConfiguration() {
     return configuration;
-  }
-
-
-
-
-  public Database getDatabase(final String name) {
-    return databases.get(name);
   }
 
 

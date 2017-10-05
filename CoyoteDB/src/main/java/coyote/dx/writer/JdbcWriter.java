@@ -33,8 +33,12 @@ import java.sql.Types;
 import java.util.Date;
 
 import coyote.commons.StringUtil;
+import coyote.commons.jdbc.ColumnDefinition;
+import coyote.commons.jdbc.ColumnType;
+import coyote.commons.jdbc.DatabaseDialect;
 import coyote.commons.jdbc.DatabaseUtil;
 import coyote.commons.jdbc.DriverDelegate;
+import coyote.commons.jdbc.TableDefinition;
 import coyote.commons.template.SymbolTable;
 import coyote.dataframe.DataField;
 import coyote.dataframe.DataFrame;
@@ -44,12 +48,8 @@ import coyote.dx.CDX;
 import coyote.dx.ConfigTag;
 import coyote.dx.ConfigurableComponent;
 import coyote.dx.FrameWriter;
+import coyote.dx.MetricSchema;
 import coyote.dx.context.TransformContext;
-import coyote.dx.db.ColumnDefinition;
-import coyote.dx.db.ColumnType;
-import coyote.dx.db.DatabaseDialect;
-import coyote.dx.db.MetricSchema;
-import coyote.dx.db.TableDefinition;
 import coyote.loader.log.Log;
 import coyote.loader.log.LogMsg;
 

@@ -19,10 +19,6 @@ import java.sql.Types;
 import coyote.commons.StringUtil;
 import coyote.dataframe.DataFrame;
 import coyote.dataframe.FrameSet;
-import coyote.dx.db.ColumnDefinition;
-import coyote.dx.db.ColumnType;
-import coyote.dx.db.DatabaseDialect;
-import coyote.dx.db.TableDefinition;
 import coyote.loader.log.Log;
 
 
@@ -389,7 +385,7 @@ public class DatabaseUtil {
 
 
   /**
-  * Determine if a particular table exists in the database.
+  * Determine if a particular schema exists in the database.
   * 
   * @param name The name of the schema for which to query
   * 
