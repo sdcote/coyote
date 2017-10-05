@@ -34,50 +34,42 @@ public class Job extends AbstractBatchLoader implements Loader {
 
 
   /**
-   * 
-   */
-  public Job() {
-
-  }
-
-
-
-
-  /**
    * @see coyote.loader.AbstractLoader#configure(coyote.loader.cfg.Config)
    */
   @Override
-  public void configure( Config cfg ) throws ConfigurationException {
-    super.configure( cfg );
-    
+  public void configure(Config cfg) throws ConfigurationException {
+    super.configure(cfg);
+
     // Support the concept of an ever-repeating job
     try {
-      repeat = configuration.getBoolean( ConfigTag.REPEAT );
-    } catch ( NumberFormatException ignore ) {}
+      repeat = configuration.getBoolean(ConfigTag.REPEAT);
+    } catch (NumberFormatException ignore) {
+      // probably does not exist
+    }
 
     // calculate and normalize the appropriate value for "app.home"
     determineHomeDirectory();
 
     determineWorkDirectory();
 
-    List<Config> jobs = cfg.getSections( coyote.dx.ConfigTag.JOB );
+    List<Config> jobs = cfg.getSections(coyote.dx.ConfigTag.JOB);
 
-    if ( jobs.size() > 0 ) {
+    if (jobs.size() > 0) {
 
-      Config job = jobs.get( 0 );
+      Config job = jobs.get(0);
 
       // If the job has no name... 
-      if ( StringUtil.isBlank( job.getName() ) ) {
-        if ( StringUtil.isNotBlank( cfg.getName() ) ) {
+      if (StringUtil.isBlank(job.getName())) {
+        if (StringUtil.isNotBlank(cfg.getName())) {
           //...set it to the name of the parent...
-          job.setName( cfg.getName() );
+          job.setName(cfg.getName());
         } else {
           //...or the base of the configuration URI
-          String cfguri = System.getProperty( ConfigTag.CONFIG_URI );
-          if ( StringUtil.isNotBlank( cfguri ) ) {
+          String cfguri = System.getProperty(ConfigTag.CONFIG_URI);
+          if (StringUtil.isNotBlank(cfguri)) {
             try {
-              job.setName( UriUtil.getBase( new URI( cfguri ) ) );
-            } catch ( URISyntaxException ignore ) {
+              job.setName(UriUtil.getBase(new URI(cfguri)));
+            } catch (URISyntaxException ignore) {
               // well, we tried, it will probably get assigned a UUID later
             }
           }
@@ -86,20 +78,20 @@ public class Job extends AbstractBatchLoader implements Loader {
 
       // have the Engine Factory create a transformation engine based on the
       // configuration 
-      engine = TransformEngineFactory.getInstance( job );
+      engine = TransformEngineFactory.getInstance(job);
 
       // store the command line arguments in the symbol table of the engine
-      for ( int x = 0; x < commandLineArguments.length; x++ ) {
-        engine.getSymbolTable().put( Symbols.COMMAND_LINE_ARG_PREFIX + x, commandLineArguments[x] );
+      for (int x = 0; x < commandLineArguments.length; x++) {
+        engine.getSymbolTable().put(Symbols.COMMAND_LINE_ARG_PREFIX + x, commandLineArguments[x]);
       }
 
-      if ( StringUtil.isBlank( engine.getName() ) ) {
-        Log.trace( LogMsg.createMsg( CDX.MSG, "Job.unnamed_engine_configured" ) );
+      if (StringUtil.isBlank(engine.getName())) {
+        Log.trace(LogMsg.createMsg(CDX.MSG, "Job.unnamed_engine_configured"));
       } else {
-        Log.trace( LogMsg.createMsg( CDX.MSG, "Job.engine_configured", engine.getName() ) );
+        Log.trace(LogMsg.createMsg(CDX.MSG, "Job.engine_configured", engine.getName()));
       }
     } else {
-      Log.fatal( LogMsg.createMsg( CDX.MSG, "Job.no_job_section" ) );
+      Log.fatal(LogMsg.createMsg(CDX.MSG, "Job.no_job_section"));
     }
   }
 
@@ -112,8 +104,8 @@ public class Job extends AbstractBatchLoader implements Loader {
   @Override
   public void start() {
 
-    if ( engine != null ) {
-      Log.trace( LogMsg.createMsg( CDX.MSG, "Job.running", engine.getName(), engine.getClass().getSimpleName() ) );
+    if (engine != null) {
+      Log.trace(LogMsg.createMsg(CDX.MSG, "Job.running", engine.getName(), engine.getClass().getSimpleName()));
 
       // run the transformation
       // Note that depending on the configuration, this could be placed in the 
@@ -122,24 +114,23 @@ public class Job extends AbstractBatchLoader implements Loader {
       do {
         try {
           engine.run();
-        } catch ( final Exception e ) {
-          Log.fatal( LogMsg.createMsg( CDX.MSG, "Job.exception_running_engine", e.getClass().getSimpleName(), e.getMessage(), engine.getName(), engine.getClass().getSimpleName() ) );
-          Log.fatal( ExceptionUtil.toString( e ) );
-          if( Log.isLogging( Log.DEBUG_EVENTS )){
-            Log.debug( ExceptionUtil.stackTrace( e ) );
+        } catch (final Exception e) {
+          Log.fatal(LogMsg.createMsg(CDX.MSG, "Job.exception_running_engine", e.getClass().getSimpleName(), e.getMessage(), engine.getName(), engine.getClass().getSimpleName()));
+          Log.fatal(ExceptionUtil.toString(e));
+          if (Log.isLogging(Log.DEBUG_EVENTS)) {
+            Log.debug(ExceptionUtil.stackTrace(e));
           }
-        }
-        finally {
+        } finally {
           try {
             engine.close();
-          } catch ( final IOException ignore ) {}
-          Log.trace( LogMsg.createMsg( CDX.MSG, "Job.completed", engine.getName(), engine.getClass().getSimpleName() ) );
+          } catch (final IOException ignore) {}
+          Log.trace(LogMsg.createMsg(CDX.MSG, "Job.completed", engine.getName(), engine.getClass().getSimpleName()));
         } // try-catch-finally
       }
-      while ( repeat );
-      
+      while (repeat);
+
     } else {
-      Log.fatal( LogMsg.createMsg( CDX.MSG, "Job.no_engine" ) );
+      Log.fatal(LogMsg.createMsg(CDX.MSG, "Job.no_engine"));
     }
   }
 
