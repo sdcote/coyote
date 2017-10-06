@@ -133,7 +133,7 @@ public class TransformEngineFactory {
           } else {
             Log.error("Invalid reader configuration section");
           }
-        } else if (StringUtil.equalsIgnoreCase(ConfigTag.FILTERS, field.getName())) {
+        } else if (StringUtil.equalsIgnoreCase(ConfigTag.FILTER, field.getName())) {
           if (field.isFrame()) {
             configFilters((DataFrame)field.getObjectValue(), retval);
           } else {
@@ -163,7 +163,7 @@ public class TransformEngineFactory {
           } else {
             Log.error("Invalid pre-process configuration section");
           }
-        } else if (StringUtil.equalsIgnoreCase(ConfigTag.PREPROCESS, field.getName()) || StringUtil.equalsIgnoreCase(ConfigTag.TASKS, field.getName())) {
+        } else if (StringUtil.equalsIgnoreCase(ConfigTag.PREPROCESS, field.getName()) || StringUtil.equalsIgnoreCase(ConfigTag.TASK, field.getName())) {
           if (field.isFrame()) {
             configPreProcess((DataFrame)field.getObjectValue(), retval);
           } else {

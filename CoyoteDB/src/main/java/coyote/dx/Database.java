@@ -36,8 +36,8 @@ import coyote.loader.log.Log;
  * be closed at the end of the transform (if the transform exits normally).
  */
 public class Database extends AbstractConfigurableComponent implements ConfigurableComponent {
-
   private final List<Connection> connections = new ArrayList<Connection>();
+  private volatile boolean initialized = false;
   private Driver driver = null;
 
 
@@ -64,8 +64,10 @@ public class Database extends AbstractConfigurableComponent implements Configura
   public Connection getConnection() {
     Connection connection = null;
     connection = createConnection();
-    if (connection != null) {
-      connections.add(connection);
+    synchronized (connections) {
+      if (connection != null) {
+        connections.add(connection);
+      }
     }
     return connection;
   }
@@ -82,14 +84,21 @@ public class Database extends AbstractConfigurableComponent implements Configura
    */
   private synchronized Connection createConnection() {
     Connection retval = null;
+
     try {
-      // if we have not been initialized, register the driver
-      if (driver == null) {
+      // if we have not been initialized
+      if (!initialized) {
         String url = getLibrary();
-        URL u = new URL(url);
-        URLClassLoader ucl = new URLClassLoader(new URL[]{u});
-        driver = (Driver)Class.forName(getDriver(), true, ucl).newInstance();
-        DriverManager.registerDriver(new DriverDelegate(driver));
+
+        // If we do not have a library URL, assume the driver is in the classpath
+        if (StringUtil.isBlank(url)) {
+          Class.forName(getDriver());
+        } else {
+          URL u = new URL(url);
+          URLClassLoader ucl = new URLClassLoader(new URL[]{u});
+          driver = (Driver)Class.forName(getDriver(), true, ucl).newInstance();
+          DriverManager.registerDriver(new DriverDelegate(driver));
+        }
       }
 
       retval = DriverManager.getConnection(getTarget(), getUsername(), getPassword());
@@ -97,6 +106,7 @@ public class Database extends AbstractConfigurableComponent implements Configura
       Log.error("Could not connect to database: " + e.getClass().getSimpleName() + " - " + e.getMessage());
       Log.debug("ERROR: Could not connect to database: " + e.getClass().getSimpleName() + " - " + e.getMessage() + "\n" + ExceptionUtil.stackTrace(e));
     }
+
     return retval;
   }
 

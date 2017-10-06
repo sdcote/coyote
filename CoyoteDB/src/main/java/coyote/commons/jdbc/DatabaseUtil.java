@@ -17,6 +17,7 @@ import java.sql.Timestamp;
 import java.sql.Types;
 
 import coyote.commons.StringUtil;
+import coyote.commons.Version;
 import coyote.dataframe.DataFrame;
 import coyote.dataframe.FrameSet;
 import coyote.loader.log.Log;
@@ -26,6 +27,55 @@ import coyote.loader.log.Log;
  * 
  */
 public class DatabaseUtil {
+
+  /**
+   * Get the name of the product to which this connection is attached.
+   * 
+   * @param connection the connection to query
+   * 
+   * @return the name of the database product attached to this connection.
+   */
+  public static String getProduct(Connection connection) {
+    String retval = null;
+    try {
+      DatabaseMetaData meta = connection.getMetaData();
+      String product = meta.getDatabaseProductName();
+      if (StringUtil.isNotBlank(product)) {
+        retval = product;
+      }
+    } catch (SQLException e) {
+      if (Log.isLogging(Log.DEBUG_EVENTS)) {
+        Log.debug("Could not get database product name: " + e.getClass().getName() + " - " + e.getMessage());
+      }
+    }
+    return retval;
+  }
+
+
+
+
+  /**
+   * Get the version of the driver connected to the database.
+   * 
+   * @param connection the connection to query
+   * 
+   * @return The version of the driver used by this connection.
+   */
+  public static Version getVersion(Connection connection) {
+    Version retval = null;
+    try {
+      DatabaseMetaData meta = connection.getMetaData();
+      retval = new Version(meta.getDatabaseMajorVersion(), meta.getDatabaseMinorVersion(), 0);
+    } catch (SQLException e) {
+      if (Log.isLogging(Log.DEBUG_EVENTS)) {
+        Log.debug("Could not get database product version: " + e.getClass().getName() + " - " + e.getMessage());
+      }
+    }
+    return retval;
+  }
+
+
+
 
   /**
    * Generate a TableDefinition for the given table name.
@@ -429,5 +479,4 @@ public class DatabaseUtil {
     return retval;
   }
 
-  
 }
