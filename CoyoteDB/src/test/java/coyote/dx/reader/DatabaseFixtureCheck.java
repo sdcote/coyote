@@ -36,13 +36,13 @@ public class DatabaseFixtureCheck extends AbstractFrameReader {
     if (counter >= limit) {
       context.setLastFrame(true);
     }
-    return runCheck(context);
+    return runCheck();
   }
 
 
 
 
-  private DataFrame runCheck(TransactionContext context) {
+  private DataFrame runCheck() {
     DataFrame retval = new DataFrame();
     boolean tryConnection = false;
     try {
