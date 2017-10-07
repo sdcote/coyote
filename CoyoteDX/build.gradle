@@ -6,7 +6,7 @@ ext {
 	title = 'Coyote Data eXchange Framework & Toolkit'
 	provider = 'Coyote Systems'
 	junitVersion = '4.12'
-	loaderVersion = '0.7.2'
+	loaderVersion = '0.7.3'
 }
 dependencies {
 	compile "coyote:Loader:$loaderVersion"
