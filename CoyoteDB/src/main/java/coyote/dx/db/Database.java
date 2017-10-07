@@ -1,4 +1,4 @@
-package coyote.dx;
+package coyote.dx.db;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -17,6 +17,9 @@ import coyote.commons.ExceptionUtil;
 import coyote.commons.StringUtil;
 import coyote.commons.jdbc.DriverDelegate;
 import coyote.dataframe.DataFrameException;
+import coyote.dx.AbstractConfigurableComponent;
+import coyote.dx.ConfigTag;
+import coyote.dx.ConfigurableComponent;
 import coyote.dx.context.TransformContext;
 import coyote.loader.Loader;
 import coyote.loader.log.Log;
@@ -35,7 +38,7 @@ import coyote.loader.log.Log;
  * components to obtain a connection from the context which is guaranteed to 
  * be closed at the end of the transform (if the transform exits normally).
  */
-public class Database extends AbstractConfigurableComponent implements ConfigurableComponent {
+public class Database extends AbstractConfigurableComponent implements ConfigurableComponent, DatabaseConnector {
   private final List<Connection> connections = new ArrayList<Connection>();
   private volatile boolean initialized = false;
   private Driver driver = null;
@@ -48,8 +51,8 @@ public class Database extends AbstractConfigurableComponent implements Configura
    * 
    * <p>This does not share nor pool connections, but creates a new connection 
    * on each request. This should be fine for this toolkit as it is expected 
-   * that maybe two connections (one for a reader and one for a writer) might be 
-   * created.
+   * that maybe two connections (one for a reader and one for a writer) might 
+   * be created.
    * 
    * <p>The primary benefit of this class is that many components can 
    * reference one database configuration in the job and not have to duplicate 
@@ -60,7 +63,10 @@ public class Database extends AbstractConfigurableComponent implements Configura
    * <p>Each connection is tracked and closed when this component is closed.
    * 
    * @return a new connection
+   * 
+   * @see coyote.dx.db.DatabaseConnector#getConnection()
    */
+  @Override
   public Connection getConnection() {
     Connection connection = null;
     connection = createConnection();
@@ -70,6 +76,19 @@ public class Database extends AbstractConfigurableComponent implements Configura
       }
     }
     return connection;
+  }
+
+
+
+
+  /**
+   * Always returns false as we do not pool/manage connections.
+   * 
+   * @see coyote.dx.db.DatabaseConnector#isPooled()
+   */
+  @Override
+  public boolean isPooled() {
+    return false;
   }
 
 
@@ -101,7 +120,7 @@ public class Database extends AbstractConfigurableComponent implements Configura
         }
       }
 
-      retval = DriverManager.getConnection(getTarget(), getUsername(), getPassword());
+      retval = DriverManager.getConnection(getTarget(), getUserName(), getPassword());
     } catch (InstantiationException | IllegalAccessException | ClassNotFoundException | SQLException | MalformedURLException e) {
       Log.error("Could not connect to database: " + e.getClass().getSimpleName() + " - " + e.getMessage());
       Log.debug("ERROR: Could not connect to database: " + e.getClass().getSimpleName() + " - " + e.getMessage() + "\n" + ExceptionUtil.stackTrace(e));
@@ -173,7 +192,11 @@ public class Database extends AbstractConfigurableComponent implements Configura
 
 
 
-  public String getUsername() {
+  /**
+  * @see coyote.dx.db.DatabaseConnector#getUserName()
+  */
+  @Override
+  public String getUserName() {
     String retval = getString(ConfigTag.USERNAME);
     if (StringUtil.isEmpty(retval) && configuration.containsIgnoreCase(Loader.ENCRYPT_PREFIX + ConfigTag.USERNAME)) {
       retval = CipherUtil.decryptString(configuration.getAsString(Loader.ENCRYPT_PREFIX + ConfigTag.USERNAME));
@@ -379,7 +402,7 @@ public class Database extends AbstractConfigurableComponent implements Configura
   public String getSchema() {
     String retval = getString(ConfigTag.SCHEMA);
     if (StringUtil.isBlank(retval)) {
-      retval = getUsername();
+      retval = getUserName();
     }
     return retval;
   }

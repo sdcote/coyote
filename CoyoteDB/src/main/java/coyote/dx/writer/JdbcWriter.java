@@ -18,13 +18,8 @@ import static java.sql.Types.TINYINT;
 import static java.sql.Types.VARCHAR;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLClassLoader;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
-import java.sql.Driver;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -33,13 +28,14 @@ import java.sql.Types;
 import java.util.Date;
 
 import coyote.commons.StringUtil;
+import coyote.commons.Version;
 import coyote.commons.jdbc.ColumnDefinition;
 import coyote.commons.jdbc.ColumnType;
 import coyote.commons.jdbc.DatabaseDialect;
 import coyote.commons.jdbc.DatabaseUtil;
-import coyote.commons.jdbc.DriverDelegate;
 import coyote.commons.jdbc.TableDefinition;
 import coyote.commons.template.SymbolTable;
+import coyote.commons.template.Template;
 import coyote.dataframe.DataField;
 import coyote.dataframe.DataFrame;
 import coyote.dataframe.DataFrameException;
@@ -50,6 +46,11 @@ import coyote.dx.ConfigurableComponent;
 import coyote.dx.FrameWriter;
 import coyote.dx.MetricSchema;
 import coyote.dx.context.TransformContext;
+import coyote.dx.db.Database;
+import coyote.dx.db.DatabaseConnector;
+import coyote.loader.Loader;
+import coyote.loader.cfg.Config;
+import coyote.loader.cfg.ConfigurationException;
 import coyote.loader.log.Log;
 import coyote.loader.log.LogMsg;
 
@@ -66,6 +67,9 @@ import coyote.loader.log.LogMsg;
  * supports.</p> 
  */
 public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, ConfigurableComponent {
+
+  /** the thing we use to get connections to the database */
+  private DatabaseConnector connector = null;
 
   protected static final SymbolTable symbolTable = new SymbolTable();
 
@@ -94,6 +98,22 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
   protected String SQL = null;
 
   protected PreparedStatement ps = null;
+
+
+
+
+  /**
+   * @see coyote.dx.AbstractConfigurableComponent#setConfiguration(coyote.loader.cfg.Config)
+   */
+  @Override
+  public void setConfiguration(Config cfg) throws ConfigurationException {
+    super.setConfiguration(cfg);
+
+    String token = getString(ConfigTag.TABLE);
+    if (StringUtil.isBlank(token)) {
+      throw new ConfigurationException("Invalid '" + ConfigTag.TABLE + "' configuration attribute of '" + token + "'");
+    }
+  }
 
 
 
@@ -199,35 +219,40 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
   private Connection getConnection() {
 
     if (connection == null) {
+
+      if (getConnector() == null) {
+        Log.fatal("We don't have a connector to give us a connection to a database. The open method failed to do its job!");
+      }
+
       // get the connection to the database
       try {
-        final URL u = new URL(getLibrary());
-        final URLClassLoader ucl = new URLClassLoader(new URL[]{u});
-        final Driver driver = (Driver)Class.forName(getDriver(), true, ucl).newInstance();
-        DriverManager.registerDriver(new DriverDelegate(driver));
-
-        connection = DriverManager.getConnection(getTarget(), getUsername(), getPassword());
+        connection = getConnector().getConnection();
 
         if (connection != null) {
           Log.debug(LogMsg.createMsg(CDX.MSG, "Writer.connected_to", getClass().getName(), getTarget()));
           DatabaseMetaData meta = connection.getMetaData();
-
-          // get the product name 
           String product = meta.getDatabaseProductName();
-          // save it for later
           database = product.toUpperCase();
 
           // update the symbols with database information
           symbolTable.put(DatabaseDialect.DATABASE_SYM, product);
-          symbolTable.put(DatabaseDialect.DATABASE_VERSION_SYM, meta.getDatabaseProductVersion());
+          Version version = DatabaseUtil.getDriverVersion(connection);
+          symbolTable.put(DatabaseDialect.DATABASE_VERSION_SYM, version == null ? "unknown" : version.toString());
+          symbolTable.put(DatabaseDialect.DATABASE_VERSION_FULL_SYM, meta.getDatabaseProductVersion());
           symbolTable.put(DatabaseDialect.DATABASE_MAJOR_SYM, meta.getDatabaseMajorVersion());
           symbolTable.put(DatabaseDialect.DATABASE_MINOR_SYM, meta.getDatabaseMinorVersion());
+          version = DatabaseUtil.getDriverVersion(connection);
+          symbolTable.put(DatabaseDialect.DRIVER_VERSION_SYM, version == null ? "unknown" : version.toString());
+          symbolTable.put(DatabaseDialect.DRIVER_VERSION_FULL_SYM, meta.getDriverVersion());
+          symbolTable.put(DatabaseDialect.DRIVER_MAJOR_SYM, meta.getDriverMajorVersion());
+          symbolTable.put(DatabaseDialect.DRIVER_MINOR_SYM, meta.getDriverMinorVersion());
 
           // log debug information about the database
           Log.debug(LogMsg.createMsg(CDX.MSG, "Writer.connected_to_product", getClass().getName(), meta.getDatabaseProductName(), meta.getDatabaseProductVersion(), meta.getDatabaseMajorVersion(), meta.getDatabaseMinorVersion()));
-
+        } else {
+          getContext().setError("Connector could not get a connection to the database");
         }
-      } catch (InstantiationException | IllegalAccessException | ClassNotFoundException | SQLException | MalformedURLException e) {
+      } catch (SQLException e) {
         getContext().setError("Could not connect to database: " + e.getClass().getSimpleName() + " - " + e.getMessage());
       }
     }
@@ -237,36 +262,8 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
 
 
 
-  public String getDriver() {
-    return configuration.getString(ConfigTag.DRIVER);
-  }
-
-
-
-
-  public String getLibrary() {
-    return configuration.getString(ConfigTag.LIBRARY);
-  }
-
-
-
-
-  public String getPassword() {
-    return configuration.getString(ConfigTag.PASSWORD);
-  }
-
-
-
-
   public String getTable() {
     return configuration.getString(ConfigTag.TABLE);
-  }
-
-
-
-
-  public String getUsername() {
-    return configuration.getString(ConfigTag.USERNAME);
   }
 
 
@@ -309,38 +306,89 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
 
     // If we don't have a connection, prepare to create one
     if (connection == null) {
-      // get our configuration data
-      setTarget(getString(ConfigTag.TARGET));
-      Log.debug(LogMsg.createMsg(CDX.MSG, "Writer.using_target", getClass().getName(), getTarget()));
 
-      setTable(getString(ConfigTag.TABLE));
-      Log.debug(LogMsg.createMsg(CDX.MSG, "Writer.using_table", getClass().getName(), getTable()));
+      // Look for a database connector in the context bound with the name specified in the TARGET attribute
+      String target = getConfiguration().getString(ConfigTag.TARGET);
+      target = Template.preProcess(target, context.getSymbols());
+      Object obj = getContext().get(target);
+      if (obj != null && obj instanceof DatabaseConnector) {
+        setConnector((DatabaseConnector)obj);
+        Log.debug("Using database connector found in context bound to '" + target + "'");
+      }
 
-      setUsername(getString(ConfigTag.USERNAME));
-      Log.debug(LogMsg.createMsg(CDX.MSG, "Writer.using_user", getClass().getName(), getUsername()));
+      if (getConnector() == null) {
+        // we have to create a Database based on our configuration
+        Database database = new Database();
+        Config cfg = new Config();
+        
+        if (StringUtil.isNotBlank(getString(ConfigTag.TARGET)))
+          cfg.put(ConfigTag.TARGET, getString(ConfigTag.TARGET));
+        
+        if (StringUtil.isNotBlank(getString(ConfigTag.DRIVER)))
+          cfg.put(ConfigTag.DRIVER, getString(ConfigTag.DRIVER));
+        
+        if (StringUtil.isNotBlank(getString(ConfigTag.LIBRARY)))
+          cfg.put(ConfigTag.LIBRARY, getString(ConfigTag.LIBRARY));
+        
+        if (StringUtil.isNotBlank(getString(ConfigTag.USERNAME)))
+          cfg.put(ConfigTag.USERNAME, getString(ConfigTag.USERNAME));
+        
+        if (StringUtil.isNotBlank(getString(Loader.ENCRYPT_PREFIX + ConfigTag.USERNAME)))
+          cfg.put(Loader.ENCRYPT_PREFIX + ConfigTag.USERNAME, getString(Loader.ENCRYPT_PREFIX + ConfigTag.USERNAME));
+        
+        if (StringUtil.isNotBlank(getString(ConfigTag.PASSWORD)))
+          cfg.put(ConfigTag.PASSWORD, getString(ConfigTag.PASSWORD));
+        
+        if (StringUtil.isNotBlank(getString(Loader.ENCRYPT_PREFIX + ConfigTag.PASSWORD)))
+          cfg.put(Loader.ENCRYPT_PREFIX + ConfigTag.PASSWORD, getString(Loader.ENCRYPT_PREFIX + ConfigTag.PASSWORD));
 
-      setPassword(getString(ConfigTag.PASSWORD));
-      Log.debug(LogMsg.createMsg(CDX.MSG, "Writer.using_password", getClass().getName(), StringUtil.isBlank(getPassword()) ? 0 : getPassword().length()));
+        setConnector(database);
 
-      setDriver(getString(ConfigTag.DRIVER));
-      Log.debug(LogMsg.createMsg(CDX.MSG, "Writer.using_driver", getClass().getName(), getDriver()));
+        try {
+          database.setConfiguration(cfg);
+          if (Log.isLogging(Log.DEBUG_EVENTS)) {
+            Log.debug(LogMsg.createMsg(CDX.MSG, "Writer.using_target", getClass().getName(), database.getTarget()));
+            Log.debug(LogMsg.createMsg(CDX.MSG, "Writer.using_driver", getClass().getName(), database.getDriver()));
+            Log.debug(LogMsg.createMsg(CDX.MSG, "Writer.using_library", getClass().getName(), database.getLibrary()));
+            Log.debug(LogMsg.createMsg(CDX.MSG, "Writer.using_user", getClass().getName(), database.getUserName()));
+            Log.debug(LogMsg.createMsg(CDX.MSG, "Writer.using_password", getClass().getName(), StringUtil.isBlank(database.getPassword()) ? 0 : database.getPassword().length()));
+          }
+        } catch (ConfigurationException e) {
+          context.setError("Could not configure database connector: " + e.getClass().getName() + " - " + e.getMessage());
+        }
 
-      setAutoCreate(getBoolean(ConfigTag.AUTO_CREATE));
-      Log.debug(LogMsg.createMsg(CDX.MSG, "Writer.autocreate_tables", getClass().getName(), isAutoCreate()));
-
-      setAutoAdjust(getBoolean(ConfigTag.AUTO_ADJUST));
-      Log.debug(LogMsg.createMsg(CDX.MSG, "Writer.autoadjust_tables", getClass().getName(), isAutoAdjust()));
-
-      setBatchSize(getInteger(ConfigTag.BATCH));
-      Log.debug(LogMsg.createMsg(CDX.MSG, "Writer.using_batch_size", getClass().getName(), getBatchSize()));
-
-      setLibrary(getString(ConfigTag.LIBRARY));
-      Log.debug(LogMsg.createMsg(CDX.MSG, "Writer.using_driver", getClass().getName(), getLibrary()));
-      //TODO: try to ensure the JAR exists
-
+        // if there is no schema in the configuration, set it to the same as the username
+        if (StringUtil.isBlank(getString(ConfigTag.SCHEMA))) {
+          getConfiguration().set(ConfigTag.SCHEMA, database.getUserName());
+        }
+        if (Log.isLogging(Log.DEBUG_EVENTS)) {
+          Log.debug(LogMsg.createMsg(CDX.MSG, "Writer.using_schema", getClass().getName(), database.getSchema()));
+        }
+      }
     } else {
       Log.debug(LogMsg.createMsg(CDX.MSG, "Writer.using_existing_connection", getClass().getName()));
     }
+
+    setSchema(getString(ConfigTag.SCHEMA));
+    if (StringUtil.isBlank(getString(ConfigTag.SCHEMA))) {
+      context.setError("Could not determine the '" + ConfigTag.SCHEMA + "' value");
+    }
+    Log.debug(LogMsg.createMsg(CDX.MSG, "Writer.using_schema", getClass().getName(), getSchema()));
+
+    setTable(getString(ConfigTag.TABLE));
+    if (StringUtil.isBlank(getString(ConfigTag.TABLE))) {
+      context.setError("Could not determine the '" + ConfigTag.TABLE + "' value");
+    }
+    Log.debug(LogMsg.createMsg(CDX.MSG, "Writer.using_table", getClass().getName(), getTable()));
+
+    setAutoCreate(getBoolean(ConfigTag.AUTO_CREATE));
+    Log.debug(LogMsg.createMsg(CDX.MSG, "Writer.autocreate_tables", getClass().getName(), isAutoCreate()));
+
+    setAutoAdjust(getBoolean(ConfigTag.AUTO_ADJUST));
+    Log.debug(LogMsg.createMsg(CDX.MSG, "Writer.autoadjust_tables", getClass().getName(), isAutoAdjust()));
+
+    setBatchSize(getInteger(ConfigTag.BATCH));
+    Log.debug(LogMsg.createMsg(CDX.MSG, "Writer.using_batch_size", getClass().getName(), getBatchSize()));
 
     // validate and cache our batch size
     if (getBatchSize() < 1) {
@@ -432,7 +480,6 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
           }
           break;
         case DataField.S8:
-        case DataField.U8:
           Log.debug(LogMsg.createMsg(CDX.MSG, "Database.saving_field_as", getClass().getName(), field.getName(), indx, "S8-byte"));
           if (field.isNull()) {
             pstmt.setNull(indx, TINYINT);
@@ -440,8 +487,8 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
             pstmt.setByte(indx, (byte)field.getObjectValue());
           }
           break;
+        case DataField.U8:
         case DataField.S16:
-        case DataField.U16:
           Log.debug(LogMsg.createMsg(CDX.MSG, "Database.saving_field_as", getClass().getName(), field.getName(), indx, "S16-Short"));
           if (field.isNull()) {
             pstmt.setNull(indx, SMALLINT);
@@ -449,8 +496,8 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
             pstmt.setShort(indx, (Short)field.getObjectValue());
           }
           break;
+        case DataField.U16:
         case DataField.S32:
-        case DataField.U32:
           Log.debug(LogMsg.createMsg(CDX.MSG, "Database.saving_field_as", getClass().getName(), field.getName(), indx, "S32-Integer"));
           if (field.isNull()) {
             pstmt.setNull(indx, INTEGER);
@@ -458,6 +505,7 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
             pstmt.setInt(indx, (Integer)field.getObjectValue());
           }
           break;
+        case DataField.U32:
         case DataField.S64:
         case DataField.U64:
           Log.debug(LogMsg.createMsg(CDX.MSG, "Database.saving_field_as", getClass().getName(), field.getName(), indx, "S64-Long"));
@@ -524,28 +572,8 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
   /**
    * @param value
    */
-  private void setDriver(final String value) {
-    configuration.put(ConfigTag.DRIVER, value);
-  }
-
-
-
-
-  /**
-   * @param value
-   */
-  private void setLibrary(final String value) {
-    configuration.put(ConfigTag.LIBRARY, value);
-  }
-
-
-
-
-  /**
-   * @param value
-   */
-  private void setPassword(final String value) {
-    configuration.put(ConfigTag.PASSWORD, value);
+  private void setSchema(final String value) {
+    configuration.put(ConfigTag.SCHEMA, value);
   }
 
 
@@ -556,16 +584,6 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
    */
   public void setTable(final String value) {
     configuration.put(ConfigTag.TABLE, value);
-  }
-
-
-
-
-  /**
-   * @param value
-   */
-  public void setUsername(final String value) {
-    configuration.put(ConfigTag.USERNAME, value);
   }
 
 
@@ -773,7 +791,8 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
     Log.debug("Looking for schema '" + getSchema() + "'");
     if (!DatabaseUtil.schemaExists(getSchema(), getConnection())) {
       if (isAutoCreate()) {
-        String sql = DatabaseDialect.getCreateSchema(database, getSchema(), getUsername());
+        String username = getConnector().getUserName();
+        String sql = DatabaseDialect.getCreateSchema(database, getSchema(), username);
         Log.debug("Schema '" + getSchema() + "' not found in database, creating it with:\n" + sql);
         try (Statement stmt = connection.createStatement()) {
           stmt.executeUpdate(sql);
@@ -979,6 +998,27 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
       writeBatch();
     }
 
+  }
+
+
+
+
+  /**
+   * Return the connector we use for 
+   * @return the connector
+   */
+  public DatabaseConnector getConnector() {
+    return connector;
+  }
+
+
+
+
+  /**
+   * @param connector the connector to set
+   */
+  public void setConnector(DatabaseConnector connector) {
+    this.connector = connector;
   }
 
 }

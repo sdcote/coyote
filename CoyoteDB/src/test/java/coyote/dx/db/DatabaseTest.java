@@ -5,7 +5,7 @@
  * terms of the MIT License which accompanies this distribution, and is 
  * available at http://creativecommons.org/licenses/MIT/
  */
-package coyote.dx;
+package coyote.dx.db;
 
 import static org.junit.Assert.assertNotNull;
 
@@ -20,6 +20,8 @@ import org.junit.Test;
 import coyote.commons.jdbc.DatabaseUtil;
 import coyote.dataframe.DataFrame;
 import coyote.dataframe.marshal.JSONMarshaler;
+import coyote.dx.ConfigTag;
+import coyote.dx.db.Database;
 import coyote.loader.cfg.Config;
 import coyote.loader.cfg.ConfigurationException;
 import coyote.loader.log.ConsoleAppender;
@@ -50,7 +52,6 @@ public class DatabaseTest {
     File dbfile = new File("demodb.mv.db");
     System.out.println(dbfile.getAbsolutePath());
     dbfile.delete();
-
   }
 
 
@@ -58,7 +59,6 @@ public class DatabaseTest {
 
   @Test
   public void basic() throws ConfigurationException, IOException {
-
     DataFrame config = new DataFrame() //
         .set(ConfigTag.DRIVER, "org.h2.Driver") //
         .set(ConfigTag.TARGET, "jdbc:h2:./demodb") //
@@ -72,9 +72,10 @@ public class DatabaseTest {
 
     Connection conn = database.getConnection();
     assertNotNull("Could not connect to the database", conn);
-    System.out.println(DatabaseUtil.getProduct(conn));
-    System.out.println(DatabaseUtil.getVersion(conn));
-database.close();
+    System.out.println("Product: "+DatabaseUtil.getProduct(conn));
+    System.out.println("Database Version: "+DatabaseUtil.getDatabaseVersion(conn));
+    System.out.println("Driver Version: "+DatabaseUtil.getDriverVersion(conn));
+    database.close();
   }
 
 
@@ -82,7 +83,6 @@ database.close();
 
   @Test
   public void library() throws ConfigurationException, IOException {
-
     DataFrame config = new DataFrame() //
         .set(ConfigTag.LIBRARY, "jar:file:./src/resources/demojars/h2-1.4.196.jar!/") //
         .set(ConfigTag.DRIVER, "org.h2.Driver") //

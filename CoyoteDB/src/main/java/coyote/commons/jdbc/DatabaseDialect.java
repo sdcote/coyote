@@ -33,7 +33,12 @@ public class DatabaseDialect {
   public static final String DATABASE_MAJOR_SYM = "dbMajorVersion";
   public static final String DATABASE_MINOR_SYM = "dbMinorVersion";
   public static final String DATABASE_SYM = "database";
+  public static final Object DATABASE_VERSION_FULL_SYM = "databaseFullVersion";
   public static final String DATABASE_VERSION_SYM = "databaseVersion";
+  public static final Object DRIVER_VERSION_FULL_SYM = "driverFullVersion";
+  public static final Object DRIVER_VERSION_SYM = "driverVersion";
+  public static final String DRIVER_MAJOR_SYM = "dvrMajorVersion";
+  public static final String DRIVER_MINOR_SYM = "dvrMinorVersion";
   public static final String DB_SCHEMA_SYM = "schemaName";
   public static final String DELETE = "delete";
   public static final String FIELD_DEF_SYM = "fielddefinitions";

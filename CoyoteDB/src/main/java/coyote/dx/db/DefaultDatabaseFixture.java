@@ -9,7 +9,6 @@ package coyote.dx.db;
 
 import java.sql.Connection;
 
-import coyote.dx.Database;
 import coyote.loader.cfg.Config;
 import coyote.loader.cfg.ConfigurationException;
 
@@ -54,6 +53,17 @@ public class DefaultDatabaseFixture implements DatabaseFixture {
   public void setConfiguration(Config cfg) throws ConfigurationException {
     database = new Database();
     database.setConfiguration(cfg);
+  }
+
+
+
+
+  /**
+   * @see coyote.dx.db.DatabaseConnector#getUserName()
+   */
+  @Override
+  public String getUserName() {
+    return database.getUserName();
   }
 
 }

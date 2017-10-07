@@ -5,7 +5,7 @@
  * terms of the MIT License which accompanies this distribution, and is 
  * available at http://creativecommons.org/licenses/MIT/
  */
-package coyote.dx;
+package coyote.dx.task;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -21,6 +21,8 @@ import org.junit.Test;
 import coyote.TestingLoader;
 import coyote.dataframe.DataFrame;
 import coyote.dataframe.marshal.JSONMarshaler;
+import coyote.dx.ConfigTag;
+import coyote.dx.TransformEngine;
 import coyote.dx.context.TransformContext;
 import coyote.loader.cfg.Config;
 import coyote.loader.cfg.ConfigurationException;
@@ -29,7 +31,8 @@ import coyote.loader.log.Log;
 
 
 /**
- * 
+ * This tests the task which places a database fixture in the transform 
+ * context for other components to share.
  */
 public class DatabaseFixtureTaskTest {
 
@@ -63,16 +66,15 @@ public class DatabaseFixtureTaskTest {
     // Create a Job
     DataFrame jobFrame = new DataFrame().set(ConfigTag.NAME, "test") //
         .set(ConfigTag.READER, // 
-            new DataFrame().set(ConfigTag.CLASS, "DatabaseFixtureCheck") //
+            new DataFrame().set(ConfigTag.CLASS, "DatabaseFixtureCheck") // the thing which will check our fixture
                 .set(ConfigTag.SOURCE, fixtureName) // name of the fixture to check
         ).set(ConfigTag.TASK, // create a task section
-            new DataFrame().set("DatabaseFixture", // add a task
+            new DataFrame().set("DatabaseFixture", // add a task, DatabaseFixture
                 new DataFrame().set(ConfigTag.CLASS, "coyote.dx.db.DefaultDatabaseFixture") // static fixture
                     .set(ConfigTag.NAME, fixtureName) // name of the fixture for look-up
-                    .set(ConfigTag.TARGET, "jdbc:h2:./demodb;MODE=Oracle") //
-                    .set(ConfigTag.TABLE, "user") //
-                    .set(ConfigTag.AUTO_CREATE, true) //
+                    .set(ConfigTag.TARGET, "jdbc:h2:./demodb") //
                     .set(ConfigTag.DRIVER, "org.h2.jdbcx.JdbcDataSource") //
+                    .set(ConfigTag.AUTO_CREATE, true) //
                     .set(ConfigTag.USERNAME, "sa") //
                     .set(ConfigTag.PASSWORD, "")) //
     );

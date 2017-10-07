@@ -28,8 +28,8 @@ import coyote.dataframe.DataFrame;
 import coyote.dataframe.FrameSet;
 import coyote.dx.CDX;
 import coyote.dx.ConfigTag;
-import coyote.dx.Database;
 import coyote.dx.Symbols;
+import coyote.dx.db.Database;
 import coyote.loader.cfg.ConfigurationException;
 import coyote.loader.log.Log;
 import coyote.loader.log.LogMsg;
@@ -126,7 +126,7 @@ public class DatabaseContext extends PersistentContext {
    */
   private void createTables() {
 
-    String sql = DatabaseDialect.getCreateSchema(databaseProduct, SCHEMA_NAME, database.getUsername());
+    String sql = DatabaseDialect.getCreateSchema(databaseProduct, SCHEMA_NAME, database.getUserName());
     Log.debug("Creating table in database...");
     try (Statement stmt = connection.createStatement()) {
       stmt.executeUpdate(sql);
@@ -170,8 +170,8 @@ public class DatabaseContext extends PersistentContext {
   private void determineIdentity() {
     identity = getIdentity();
     if (identity == null) {
-      if (StringUtil.isNotBlank(database.getUsername())) {
-        identity = database.getUsername();
+      if (StringUtil.isNotBlank(database.getUserName())) {
+        identity = database.getUserName();
       } else if (StringUtil.isNotBlank(database.getConnectedUser(connection))) {
         identity = database.getConnectedUser(connection);
       } else {

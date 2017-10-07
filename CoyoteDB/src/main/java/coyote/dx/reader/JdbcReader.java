@@ -25,9 +25,9 @@ import coyote.commons.jdbc.DriverDelegate;
 import coyote.dataframe.DataFrame;
 import coyote.dx.CDX;
 import coyote.dx.ConfigTag;
-import coyote.dx.Database;
 import coyote.dx.context.TransactionContext;
 import coyote.dx.context.TransformContext;
+import coyote.dx.db.Database;
 import coyote.loader.log.Log;
 import coyote.loader.log.LogMsg;
 

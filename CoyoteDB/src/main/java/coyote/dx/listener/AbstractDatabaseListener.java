@@ -23,9 +23,9 @@ import coyote.commons.template.SymbolTable;
 import coyote.dataframe.DataFrameException;
 import coyote.dx.CDX;
 import coyote.dx.ConfigTag;
-import coyote.dx.Database;
 import coyote.dx.context.ContextListener;
 import coyote.dx.context.TransformContext;
+import coyote.dx.db.Database;
 import coyote.loader.Loader;
 import coyote.loader.cfg.Config;
 import coyote.loader.cfg.ConfigurationException;
@@ -289,7 +289,7 @@ public abstract class AbstractDatabaseListener extends AbstractListener implemen
   private void checkSchema() {
     tableschema.setSchemaName(getDatabase().getSchema());
     boolean autocreate = getDatabase().isAutoCreate();
-    String username = getDatabase().getUsername();
+    String username = getDatabase().getUserName();
 
     Log.debug("Looking for schema '" + tableschema.getSchemaName() + "'");
     if (!DatabaseUtil.schemaExists(tableschema.getSchemaName(), getConnection())) {

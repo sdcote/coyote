@@ -203,10 +203,8 @@ public abstract class AbstractConfigurableComponent implements ConfigurableCompo
       retval = Template.preProcess(value, context.getSymbols());
 
       // Only log if the value changed
-      if (Log.isLogging(Log.DEBUG_EVENTS)) {
-        if (retval != null && !retval.equals(value)) {
-          Log.debug(LogMsg.createMsg(CDX.MSG, "Component.resolved_value", value, retval));
-        }
+      if (Log.isLogging(Log.DEBUG_EVENTS) && retval != null && !retval.equals(value)) {
+        Log.debug(LogMsg.createMsg(CDX.MSG, "Component.resolved_value", value, retval));
       }
     } else {
       // no context, return the configuration value as it is probably a literal

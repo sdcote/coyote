@@ -55,20 +55,83 @@ public class DatabaseUtil {
 
 
   /**
-   * Get the version of the driver connected to the database.
+   * Get the version of the database to which we are connected.
    * 
    * @param connection the connection to query
    * 
-   * @return The version of the driver used by this connection.
+   * @return The version of the database used by this connection.
    */
-  public static Version getVersion(Connection connection) {
+  public static Version getDatabaseVersion(Connection connection) {
     Version retval = null;
     try {
       DatabaseMetaData meta = connection.getMetaData();
-      retval = new Version(meta.getDatabaseMajorVersion(), meta.getDatabaseMinorVersion(), 0);
+      retval = parseVersionString(meta.getDatabaseProductVersion());
+      if (retval == null) {
+        retval = new Version(meta.getDatabaseMajorVersion(), meta.getDatabaseMinorVersion(), 0);
+      }
     } catch (SQLException e) {
       if (Log.isLogging(Log.DEBUG_EVENTS)) {
         Log.debug("Could not get database product version: " + e.getClass().getName() + " - " + e.getMessage());
+      }
+    }
+    return retval;
+  }
+
+
+
+
+  /**
+   * Get the version of the database to which we are connected.
+   * 
+   * @param connection the connection to query
+   * 
+   * @return The version of the database used by this connection.
+   */
+  public static Version getDriverVersion(Connection connection) {
+    Version retval = null;
+    try {
+      DatabaseMetaData meta = connection.getMetaData();
+      retval = parseVersionString(meta.getDriverVersion());
+      if (retval == null) {
+        retval = new Version(meta.getDriverMajorVersion(), meta.getDriverMinorVersion(), 0);
+      }
+    } catch (SQLException e) {
+      if (Log.isLogging(Log.DEBUG_EVENTS)) {
+        Log.debug("Could not get driver version: " + e.getClass().getName() + " - " + e.getMessage());
+      }
+    }
+    return retval;
+  }
+
+
+
+
+  /**
+   * Locate the version in the string and pares it into a version.
+   * 
+   * <p>This splits the string up by spaces and tries to locate the first 
+   * token containing a dot (.) and passes it to the Version object for 
+   * parsing.
+   * 
+   * @param text the string to parse
+   * 
+   * @return A version based on the string passed or null if no string could 
+   *         be found.
+   */
+  private static Version parseVersionString(String text) {
+    Version retval = null;
+    if (StringUtil.isNotBlank(text)) {
+      String[] tokens = text.split(" ");
+      for (int x = 0; x < tokens.length; x++) {
+        String str = tokens[x];
+        if (StringUtil.isNotBlank(str) && str.indexOf('.') > 0) {
+          retval = Version.createVersion(str);
+          if (retval != null && retval.getMajor() > 0) {
+            break;
+          } else {
+            retval = null;
+          }
+        }
       }
     }
     return retval;
@@ -478,5 +541,35 @@ public class DatabaseUtil {
     }
     return retval;
   }
+
+
+
+
+  /**
+   * Retrieve the name of the user connected to the database with the given 
+   * connection.
+   * 
+   * <p>Not all drivers support the ability to return the name of the user so
+   * the return value may be null, blank or empty.
+   * 
+   * @param connection the connection to query
+   * 
+   * @return the name of the user or null if the underlying connection driver 
+   *         does not support this feature.
+   */
+  public static String getUserName(Connection connection) {
+    String retval = null;
+    try {
+      DatabaseMetaData meta = connection.getMetaData();
+      String username = meta.getUserName();
+      if (StringUtil.isNotBlank(username)) {
+        retval = username;
+      }
+    } catch (SQLException e) {
+      if (Log.isLogging(Log.DEBUG_EVENTS)) {
+        Log.debug("Could not get database product name: " + e.getClass().getName() + " - " + e.getMessage());
+      }
+    }
+    return retval;  }
 
 }
