@@ -361,9 +361,6 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
         if (StringUtil.isBlank(getString(ConfigTag.SCHEMA))) {
           getConfiguration().set(ConfigTag.SCHEMA, database.getUserName());
         }
-        if (Log.isLogging(Log.DEBUG_EVENTS)) {
-          Log.debug(LogMsg.createMsg(CDX.MSG, "Writer.using_schema", getClass().getName(), database.getSchema()));
-        }
       }
     } else {
       Log.debug(LogMsg.createMsg(CDX.MSG, "Writer.using_existing_connection", getClass().getName()));
@@ -654,7 +651,7 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
     if (getContext().isNotInError()) {
       if (batchsize <= 1) {
         final DataFrame frame = frameset.get(0);
-        Log.debug(LogMsg.createMsg(CDX.MSG, "Writer.Writing single frame {%s}", getClass().getName(), frame));
+        Log.debug(LogMsg.createMsg(CDX.MSG, "Writer.writing_single_frame", getClass().getName(), frame.toString()));
 
         int indx = 1;
         for (final String name : frameset.getColumns()) {

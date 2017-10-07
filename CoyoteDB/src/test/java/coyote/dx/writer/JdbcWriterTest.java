@@ -51,7 +51,6 @@ public class JdbcWriterTest {
   @AfterClass
   public static void tearDownAfterClass() throws Exception {
     File dbfile = new File("demodb.mv.db");
-    System.out.println(dbfile.getAbsolutePath());
     dbfile.delete();
   }
 
