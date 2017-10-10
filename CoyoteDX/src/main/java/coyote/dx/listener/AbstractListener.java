@@ -10,7 +10,6 @@ package coyote.dx.listener;
 import java.io.IOException;
 
 import coyote.commons.StringUtil;
-import coyote.commons.network.MimeType;
 import coyote.dx.AbstractConfigurableComponent;
 import coyote.dx.ConfigTag;
 import coyote.dx.ConfigurableComponent;
@@ -22,8 +21,6 @@ import coyote.dx.context.OperationalContext;
 import coyote.dx.context.TransactionContext;
 import coyote.dx.context.TransformContext;
 import coyote.dx.eval.Evaluator;
-import coyote.dx.http.HttpFuture;
-import coyote.loader.log.Log;
 
 
 /**
@@ -159,5 +156,13 @@ public abstract class AbstractListener extends AbstractConfigurableComponent imp
 
 
 
+
+  /**
+   * @see coyote.dx.context.ContextListener#onMap(coyote.dx.context.TransactionContext)
+   */
+  @Override
+  public void onMap(TransactionContext txnContext) {
+    // listeners should override this method to perform processing after mapping and before writing.
+  }
 
 }

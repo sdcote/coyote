@@ -460,6 +460,7 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
                   // Map / Move fields from the working to the target frame
                   try {
                     mapper.process(txnContext);
+                    txnContext.fireMap(txnContext);
                   } catch (MappingException e) {
                     txnContext.setError(e.getMessage());
                   }

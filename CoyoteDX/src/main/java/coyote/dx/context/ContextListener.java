@@ -49,6 +49,11 @@ public interface ContextListener extends ConfigurableComponent {
   /**
    * Called just after a frame has been written by a writer.
    * 
+   * <p>If there a multiple writers, this method will be called multiple times 
+   * for each transaction. This will be called even if the writer is disabled 
+   * or does not run based on its set condition. This method will be called 
+   * for every writer defined in the configuration. 
+   * 
    * @param context the transaction context
    * @param writer the writer which just called to write a frame
    */
@@ -111,5 +116,18 @@ public interface ContextListener extends ConfigurableComponent {
    * @see #onValidationFailed(OperationalContext, FrameValidator, String)
    */
   void onFrameValidationFailed(TransactionContext context);
+
+
+
+
+  /**
+   * Called just after a successfull mapping of the working frame to the 
+   * target frame.
+   * 
+   * <p>Note: this will not be called if the mapping failed for any reason.
+   * 
+   * @param txnContext the transaction context containing the data frames.
+   */
+  void onMap(TransactionContext txnContext);
 
 }

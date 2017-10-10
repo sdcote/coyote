@@ -19,9 +19,7 @@ import coyote.dx.context.TransformContext;
 /**
  * 
  */
-public class AbstractDatabaseFixtureTask extends AbstractTransformTask implements ContextListener {
-  
-  
+public abstract class AbstractDatabaseFixtureTask extends AbstractTransformTask implements ContextListener {
 
   /**
    * @see coyote.dx.task.AbstractTransformTask#open(coyote.dx.context.TransformContext)
@@ -107,6 +105,18 @@ public class AbstractDatabaseFixtureTask extends AbstractTransformTask implement
   @Override
   public void onFrameValidationFailed(TransactionContext context) {
     // no-op
+  }
+
+
+
+
+  /**
+   * @see coyote.dx.context.ContextListener#onMap(coyote.dx.context.TransactionContext)
+   */
+  @Override
+  public void onMap(TransactionContext txnContext) {
+    // TODO Auto-generated method stub
+
   }
 
 }

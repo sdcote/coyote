@@ -29,6 +29,7 @@ import coyote.dx.context.TransactionContext;
 import coyote.dx.context.TransformContext;
 import coyote.dx.web.ResponseFuture;
 import coyote.dx.web.ResponseFutureQueue;
+import coyote.loader.cfg.Config;
 import coyote.loader.log.Log;
 
 
@@ -56,7 +57,7 @@ public class WebServerReader extends AbstractFrameReader implements FrameReader,
 
   private HTTPDRouter server = null;
 
-  private ResponseFutureQueue futureQueue = new ResponseFutureQueue( 1024 );
+  private ResponseFutureQueue futureQueue = new ResponseFutureQueue(1024);
 
 
 
@@ -65,14 +66,14 @@ public class WebServerReader extends AbstractFrameReader implements FrameReader,
    * @see coyote.dx.reader.AbstractFrameReader#open(coyote.dx.context.TransformContext)
    */
   @Override
-  public void open( final TransformContext context ) {
+  public void open(final TransformContext context) {
     super.context = context;
 
     // TODO: find a webserver in the context, and if none is found or we are configured to stand one up ourselves, create one of our own.
 
     // Register this instance as a context listener so we will be able to 
     // perform processing when the transaction context completes.
-    context.addListener( this );
+    context.addListener(this);
   }
 
 
@@ -85,19 +86,19 @@ public class WebServerReader extends AbstractFrameReader implements FrameReader,
    * @see coyote.dx.FrameReader#read(coyote.dx.context.TransactionContext)
    */
   @Override
-  public DataFrame read( TransactionContext context ) {
+  public DataFrame read(TransactionContext context) {
     DataFrame retval = null;
 
     ResponseFuture future = null;
-    while ( future == null ) {
+    while (future == null) {
       try {
-        future = futureQueue.get( 1000 );
-      } catch ( InterruptedException e ) {}
+        future = futureQueue.get(1000);
+      } catch (InterruptedException e) {}
 
-      if ( future == null ) {
+      if (future == null) {
         //Check to see if we should shutdown
       } else {
-        future.setTransactionContext( context );
+        future.setTransactionContext(context);
         // TODO: retrieve data from it
         // TODO: make sure it is valid - if not update the future with the error and go back to blocking
         // 
@@ -126,7 +127,7 @@ public class WebServerReader extends AbstractFrameReader implements FrameReader,
    * @see coyote.commons.network.http.responder.Responder#delete(coyote.commons.network.http.responder.Resource, java.util.Map, coyote.commons.network.http.IHTTPSession)
    */
   @Override
-  public Response delete( Resource resource, Map<String, String> urlParams, IHTTPSession session ) {
+  public Response delete(Resource resource, Map<String, String> urlParams, IHTTPSession session) {
     return null;
   }
 
@@ -137,7 +138,7 @@ public class WebServerReader extends AbstractFrameReader implements FrameReader,
    * @see coyote.commons.network.http.responder.Responder#get(coyote.commons.network.http.responder.Resource, java.util.Map, coyote.commons.network.http.IHTTPSession)
    */
   @Override
-  public Response get( Resource resource, Map<String, String> urlParams, IHTTPSession session ) {
+  public Response get(Resource resource, Map<String, String> urlParams, IHTTPSession session) {
     return null;
   }
 
@@ -148,7 +149,7 @@ public class WebServerReader extends AbstractFrameReader implements FrameReader,
    * @see coyote.commons.network.http.responder.Responder#other(java.lang.String, coyote.commons.network.http.responder.Resource, java.util.Map, coyote.commons.network.http.IHTTPSession)
    */
   @Override
-  public Response other( String method, Resource resource, Map<String, String> urlParams, IHTTPSession session ) {
+  public Response other(String method, Resource resource, Map<String, String> urlParams, IHTTPSession session) {
     return null;
   }
 
@@ -159,7 +160,7 @@ public class WebServerReader extends AbstractFrameReader implements FrameReader,
    * @see coyote.commons.network.http.responder.Responder#post(coyote.commons.network.http.responder.Resource, java.util.Map, coyote.commons.network.http.IHTTPSession)
    */
   @Override
-  public Response post( Resource resource, Map<String, String> urlParams, IHTTPSession session ) {
+  public Response post(Resource resource, Map<String, String> urlParams, IHTTPSession session) {
     return null;
   }
 
@@ -176,14 +177,14 @@ public class WebServerReader extends AbstractFrameReader implements FrameReader,
    * @see coyote.commons.network.http.responder.Responder#put(coyote.commons.network.http.responder.Resource, java.util.Map, coyote.commons.network.http.IHTTPSession)
    */
   @Override
-  public Response put( Resource resource, Map<String, String> urlParams, IHTTPSession session ) {
+  public Response put(Resource resource, Map<String, String> urlParams, IHTTPSession session) {
     try {
-      ResponseFuture future = new ResponseFuture( session );
-      futureQueue.put( future );
-      future.wait( 120000 );
+      ResponseFuture future = new ResponseFuture(session);
+      futureQueue.put(future);
+      future.wait(120000);
       TransactionContext txnctx = future.getTransactionContext();
       // TODO: create a response based on the state of the transaction context
-    } catch ( InterruptedException e ) {
+    } catch (InterruptedException e) {
       e.printStackTrace();
     }
     return null;
@@ -196,9 +197,9 @@ public class WebServerReader extends AbstractFrameReader implements FrameReader,
    * @see coyote.dx.context.ContextListener#onEnd(coyote.dx.context.OperationalContext)
    */
   @Override
-  public void onEnd( OperationalContext context ) {
-    if ( context instanceof TransactionContext ) {
-      Log.debug( "Notifying responder the transaction is complete" );
+  public void onEnd(OperationalContext context) {
+    if (context instanceof TransactionContext) {
+      Log.debug("Notifying responder the transaction is complete");
       // TODO: Notify the WebTransaction that the processing is complete
     }
   }
@@ -210,7 +211,7 @@ public class WebServerReader extends AbstractFrameReader implements FrameReader,
    * @see coyote.dx.context.ContextListener#onStart(coyote.dx.context.OperationalContext)
    */
   @Override
-  public void onStart( OperationalContext context ) {}
+  public void onStart(OperationalContext context) {}
 
 
 
@@ -219,7 +220,7 @@ public class WebServerReader extends AbstractFrameReader implements FrameReader,
    * @see coyote.dx.context.ContextListener#onWrite(coyote.dx.context.TransactionContext, coyote.dx.FrameWriter)
    */
   @Override
-  public void onWrite( TransactionContext context, FrameWriter writer ) {}
+  public void onWrite(TransactionContext context, FrameWriter writer) {}
 
 
 
@@ -228,7 +229,7 @@ public class WebServerReader extends AbstractFrameReader implements FrameReader,
    * @see coyote.dx.context.ContextListener#onRead(coyote.dx.context.TransactionContext, coyote.dx.FrameReader)
    */
   @Override
-  public void onRead( TransactionContext context, FrameReader reader ) {}
+  public void onRead(TransactionContext context, FrameReader reader) {}
 
 
 
@@ -237,7 +238,7 @@ public class WebServerReader extends AbstractFrameReader implements FrameReader,
    * @see coyote.dx.context.ContextListener#onError(coyote.dx.context.OperationalContext)
    */
   @Override
-  public void onError( OperationalContext context ) {}
+  public void onError(OperationalContext context) {}
 
 
 
@@ -246,7 +247,7 @@ public class WebServerReader extends AbstractFrameReader implements FrameReader,
    * @see coyote.dx.context.ContextListener#onValidationFailed(coyote.dx.context.OperationalContext, coyote.dx.FrameValidator, java.lang.String)
    */
   @Override
-  public void onValidationFailed( OperationalContext context, FrameValidator validator, String msg ) {}
+  public void onValidationFailed(OperationalContext context, FrameValidator validator, String msg) {}
 
 
 
@@ -255,6 +256,30 @@ public class WebServerReader extends AbstractFrameReader implements FrameReader,
    * @see coyote.dx.context.ContextListener#onFrameValidationFailed(coyote.dx.context.TransactionContext)
    */
   @Override
-  public void onFrameValidationFailed( TransactionContext context ) {}
+  public void onFrameValidationFailed(TransactionContext context) {}
+
+
+
+
+  /**
+   * @see coyote.dx.context.ContextListener#onMap(coyote.dx.context.TransactionContext)
+   */
+  @Override
+  public void onMap(TransactionContext txnContext) {
+    // TODO Auto-generated method stub
+
+  }
+
+
+
+
+  /**
+   * @see coyote.dx.ConfigurableComponent#getConfiguration()
+   */
+  @Override
+  public Config getConfiguration() {
+    // TODO Auto-generated method stub
+    return null;
+  }
 
 }

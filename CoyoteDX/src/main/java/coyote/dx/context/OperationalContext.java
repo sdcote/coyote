@@ -422,6 +422,17 @@ public abstract class OperationalContext {
 
 
 
+  /**
+   * @param txnContext
+   */
+  public void fireMap(TransactionContext txnContext) {
+    if (parent != null)
+      parent.fireMap(txnContext);
+
+    for (ContextListener listener : listeners) {
+      listener.onMap(txnContext);
+    }
+  }
 
   public void fireWrite(TransactionContext context, FrameWriter writer) {
     if (parent != null)
@@ -673,7 +684,7 @@ public abstract class OperationalContext {
 
 
   /**
-   * Get a mutable list of key names fro this context.
+   * Get a mutable list of key names for this context.
    * 
    * @return a list of strings (possibly empty) representing the keys in this 
    *         context.
