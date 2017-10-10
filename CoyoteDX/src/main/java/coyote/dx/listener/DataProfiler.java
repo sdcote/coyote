@@ -17,7 +17,7 @@ import coyote.dataframe.DataFrame;
 import coyote.dx.FieldMetrics;
 import coyote.dx.FrameReader;
 import coyote.dx.FrameWriter;
-import coyote.dx.MetricSchema;
+import coyote.dx.DataSetMetrics;
 import coyote.dx.context.ContextListener;
 import coyote.dx.context.OperationalContext;
 import coyote.dx.context.TransactionContext;
@@ -29,8 +29,8 @@ import coyote.dx.context.TransformContext;
  * reports on the characteristics of the data observed.
  */
 public class DataProfiler extends FileRecorder implements ContextListener {
-  protected MetricSchema inputSchema = new MetricSchema();
-  protected MetricSchema outputSchema = new MetricSchema();
+  protected DataSetMetrics inputSchema = new DataSetMetrics();
+  protected DataSetMetrics outputSchema = new DataSetMetrics();
   protected static final SymbolTable symbols = new SymbolTable();
 
   long readBytes = 0;

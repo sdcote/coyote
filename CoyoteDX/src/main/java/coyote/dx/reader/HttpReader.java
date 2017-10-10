@@ -42,10 +42,23 @@ import coyote.loader.log.Log;
  * This starts listening for HTTP requests on a particular port and converts 
  * those requests into DataFrames.
  * 
- * <p>HttpReader is an event-based reader, never returning EOF it listens for 
- * HTTP requests and generates data frames from the request data. The primary 
- * use case is to create a ReST endpoint to which clients can send and 
- * retrieve data, presumably through a data store or messaging system. 
+ * <p>HttpReader is an event-based reader, never returning EOF, it listens for 
+ * HTTP requests (i.e. HttpFuture) and generates data frames from the request 
+ * data conatined therein. The {@code read(TransactionContext)} method then
+ * binds the future to the {@code TransactionContext} and returns that data 
+ * frame to be processed by the rest of the components.
+ * 
+ * <p>This reader registers a context listener ({@code ResponseGenerator}} 
+ * when it initializes with the (@code TransformContext} which listens for the 
+ * transaction context to end at which time a response is generated and placed 
+ * in the future, completing it.
+ * 
+ * The primary use case is to create a ReST endpoint to which clients can send 
+ * and retrieve data, presumably through a data store or messaging system. 
+ * Multiple endpoints can be supported with conditions set on transforms and 
+ * writers to control processing paths allowing basic CRUD operations for 
+ * service endpoints. Custom Transforms can be written to perform more complex 
+ * processing.
  * 
  * <p>This will start a new thread acting as a listener and a thread for each 
  * request that comes in. Each request thread simply converts the retrieved 
@@ -63,12 +76,22 @@ import coyote.loader.log.Log;
  *   "endpoint" : "/coyote/:id" 
  * }</pre>
  * 
+ * <p>The {@code port} and {@code timeout} arguments are optional and will 
+ * default to port 80 and 10000 (10 seconds) if not specified.
+ * 
+ * <p>The {@code endpoint} argument can be a single endpoint or a comma 
+ * separated list of many different endpoints. For example:<pre>
+ * "endpoint" : "/api/order/:id, /api/account/:id, /api/user/:id"</pre>
+ * 
  * <p>If the endpoint contains an optional parameter, this reader will also 
  * attach to the root URL. In the above example, this reader will also respond 
  * to requests for "/coyote" as well as "/coyote/:id".  
  * 
  * <p>You can have as many parameters as you want: "/api/:object:/:action".
- */
+ * 
+ * <p>A minimal configuration contains only the class and endpoint:<pre>
+ * "Reader": { "class": "HttpReader", "endpoint": "/api/object" }</pre>
+ *  */
 public class HttpReader extends AbstractFrameReader implements FrameReader {
   private static final String DEFAULT_ENDPOINT = "/api";
   private static final String ENDPOINT_TAG = "endpoint";
@@ -77,6 +100,8 @@ public class HttpReader extends AbstractFrameReader implements FrameReader {
   private static final String HTTP_LISTENER = "HttpListener";
   private static final String HTTP_ACCEPT_TYPE = "HttpAcceptType";
   private static final String HTTP_CONTENT_TYPE = "HttpContentType";
+  private static final String HTTP_RESOURCE = "HttpResource";
+  private static final String HTTP_REQUEST_URI = "HttpRequestURI";
   public static final String STATUS = "Status";
   public static final String ERROR = "Error";
   public static final String MESSAGE = "Message";
@@ -168,22 +193,40 @@ public class HttpReader extends AbstractFrameReader implements FrameReader {
     }
 
     int timeout = getTimeout();
-    listener.addRoute(getEndpoint(), HttpReaderHandler.class, queue, timeout);
-    Log.debug("Servicing endpoint '" + getEndpoint() + "'");
 
-    // because there may be optional parameters, also listen to the root
-    if (getEndpoint().contains(":")) {
-      String root = getEndpoint().substring(0, getEndpoint().indexOf(':'));
-      if (StringUtil.isNotBlank(root)) {
-        if (root.endsWith("/")) {
-          root = root.substring(0, root.length() - 1);
-        }
-        listener.addRoute(root, HttpReaderHandler.class, queue, timeout);
-        Log.debug("Also servicing root endpoint '" + root + "'");
-      }
+    String endpoint = getEndpoint();
+    String[] values = endpoint.split("[,\\s]+");
+
+    if (values.length > 0) {
+      for (int x = 0; x < values.length; x++) {
+        if (StringUtil.isNotBlank(values[x])) {
+          listener.addRoute(values[x], HttpReaderHandler.class, queue, timeout);
+          Log.debug("Servicing endpoint '" + values[x] + "'");
+
+          // because there may be optional parameters, also listen to the root
+          if (values[x].contains(":")) {
+            String root = values[x].substring(0, values[x].indexOf(':'));
+            if (StringUtil.isNotBlank(root)) {
+              if (root.endsWith("/")) {
+                root = root.substring(0, root.length() - 1);
+              }
+              listener.addRoute(root, HttpReaderHandler.class, queue, timeout);
+              Log.debug("Also servicing root endpoint '" + root + "'");
+            }
+          } // contains params
+        } // not blank
+      } // for each endpoint
+
+      // Because we are adding this listener in the Reader.open() phase, all the 
+      // other listeners should have already been added and initialized. This 
+      // means this listener should run after all the other listeners defined in 
+      // the configuration file.
+      context.addListener(new ResponseGenerator());
+
+    } else {
+      getContext().setError("No Endpoints for HTTP listener");
     }
 
-    context.addListener(new ResponseGenerator());
   }
 
 
@@ -289,6 +332,9 @@ public class HttpReader extends AbstractFrameReader implements FrameReader {
       context.set(HTTP_METHOD, future.getMethod().toUpperCase());
       context.set(HTTP_ACCEPT_TYPE, future.getAcceptType());
       context.set(HTTP_CONTENT_TYPE, future.getContentType());
+      context.set(HTTP_RESOURCE, future.getResource());
+      context.set(HTTP_REQUEST_URI, future.getRequestUri());
+      Log.info("Processing request for '"+future.getRequestUri()+"'");
     }
     return retval;
   }
@@ -373,6 +419,10 @@ public class HttpReader extends AbstractFrameReader implements FrameReader {
   /**
    * Set the response in the request future when the transaction context is 
    * complete.
+   * 
+   * <p>The response is expected to be bound in the transaction context. If 
+   * there is no result in the context, the target frame is used. If both are 
+   * missing, an empty string is returned. 
    */
   private class ResponseGenerator extends AbstractListener implements ContextListener {
 
@@ -384,7 +434,7 @@ public class HttpReader extends AbstractFrameReader implements FrameReader {
       if (context instanceof TransactionContext) {
         Log.debug("Completing HTTP request");
         HttpFuture future = (HttpFuture)context.get(HTTP_FUTURE);
-        Object result = context.getProcessingResult();
+
         if (future != null) {
           MimeType type = future.determineResponseType();
 
@@ -392,6 +442,12 @@ public class HttpReader extends AbstractFrameReader implements FrameReader {
             String errorText = HttpReader.getErrorText(context.getErrorMessage(), type);
             future.setResponse(Response.createFixedLengthResponse(Status.BAD_REQUEST, type.getType(), errorText));
           } else {
+            Object result = context.getProcessingResult();
+
+            if (result == null) {
+              result = ((TransactionContext)context).getTargetFrame();
+            }
+
             String results;
             if (result != null) {
               if (result instanceof DataFrame) {
@@ -406,7 +462,13 @@ public class HttpReader extends AbstractFrameReader implements FrameReader {
             } else {
               results = "";
             }
+
+            // package the results
+            if( StringUtil.isBlank(results) && future.getMethod().equalsIgnoreCase("GET")){
+              future.setResponse(Response.createFixedLengthResponse(Status.NOT_FOUND, type.getType(), results));
+            } else {
             future.setResponse(Response.createFixedLengthResponse(Status.OK, type.getType(), results));
+            }
           }
         }
       }

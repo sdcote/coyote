@@ -60,7 +60,7 @@ public class HttpReaderHandler extends AbstractBatchResponder implements Respond
     @SuppressWarnings("unchecked")
     final ConcurrentLinkedQueue<HttpFuture> queue = resource.initParameter(0, ConcurrentLinkedQueue.class);
     final int timeout = resource.initParameter(1, Integer.class);
-    return handleRequest("DELETE", session, urlParams, queue, timeout);
+    return handleRequest("DELETE", determineEndpoint(resource.getUri()), session, urlParams, queue, timeout);
   }
 
 
@@ -74,7 +74,7 @@ public class HttpReaderHandler extends AbstractBatchResponder implements Respond
     @SuppressWarnings("unchecked")
     final ConcurrentLinkedQueue<HttpFuture> queue = resource.initParameter(0, ConcurrentLinkedQueue.class);
     final int timeout = resource.initParameter(1, Integer.class);
-    return handleRequest("GET", session, urlParams, queue, timeout);
+    return handleRequest("GET", determineEndpoint(resource.getUri()), session, urlParams, queue, timeout);
   }
 
 
@@ -88,7 +88,7 @@ public class HttpReaderHandler extends AbstractBatchResponder implements Respond
     @SuppressWarnings("unchecked")
     final ConcurrentLinkedQueue<HttpFuture> queue = resource.initParameter(0, ConcurrentLinkedQueue.class);
     final int timeout = resource.initParameter(1, Integer.class);
-    return handleRequest(method, session, urlParams, queue, timeout);
+    return handleRequest(method, determineEndpoint(resource.getUri()), session, urlParams, queue, timeout);
   }
 
 
@@ -102,7 +102,7 @@ public class HttpReaderHandler extends AbstractBatchResponder implements Respond
     @SuppressWarnings("unchecked")
     final ConcurrentLinkedQueue<HttpFuture> queue = resource.initParameter(0, ConcurrentLinkedQueue.class);
     final int timeout = resource.initParameter(1, Integer.class);
-    return handleRequest("POST", session, urlParams, queue, timeout);
+    return handleRequest("POST", determineEndpoint(resource.getUri()), session, urlParams, queue, timeout);
   }
 
 
@@ -116,7 +116,7 @@ public class HttpReaderHandler extends AbstractBatchResponder implements Respond
     @SuppressWarnings("unchecked")
     final ConcurrentLinkedQueue<HttpFuture> queue = resource.initParameter(0, ConcurrentLinkedQueue.class);
     final int timeout = resource.initParameter(1, Integer.class);
-    return handleRequest("PUT", session, urlParams, queue, timeout);
+    return handleRequest("PUT", determineEndpoint(resource.getUri()), session, urlParams, queue, timeout);
   }
 
 
@@ -159,12 +159,13 @@ public class HttpReaderHandler extends AbstractBatchResponder implements Respond
    * results.
    *
    * @param method HTTP method (GET, POST, PUT, etc.) called
+   * @param resource the name of the resource requested
    * @param session the session representing the HTTP request
    * @param timeout how long to wait for the completion of the future
    *
    * @return the HTTP response with the results of processing.
    */
-  private Response handleRequest(final String method, final IHTTPSession session, final Map<String, String> urlParams, final ConcurrentLinkedQueue<HttpFuture> queue, final int timeout) {
+  private Response handleRequest(final String method, final String resource, final IHTTPSession session, final Map<String, String> urlParams, final ConcurrentLinkedQueue<HttpFuture> queue, final int timeout) {
     int millis = timeout;
 
     // prevent infinite and excessive blocking
@@ -177,6 +178,8 @@ public class HttpReaderHandler extends AbstractBatchResponder implements Respond
     future.setMethod(method);
     future.setAcceptType(getAcceptType(session));
     future.setContentType(getContentType(session));
+    future.setRequestUri(session.getUri());
+    future.setResource(resource);
 
     // set out mimetype based on the future object
     setMimetype(future.determineResponseType());
@@ -220,6 +223,29 @@ public class HttpReaderHandler extends AbstractBatchResponder implements Respond
         setResults(new DataFrame().set(HttpReader.STATUS, HttpReader.ERROR).set(HttpReader.MESSAGE, "No data to process"));
         retval = Response.createFixedLengthResponse(Status.BAD_REQUEST, getMimeType(), getText());
       }
+    }
+    return retval;
+  }
+
+
+
+
+  /**
+   * @param entryUri
+   * @param requestUri
+   * @return
+   */
+  private static String determineEndpoint(String entryUri) {
+    String retval = entryUri;
+
+    // if the entry URI contains a ':', drop everything after the first occurence ,  including the ':' and the previous '/'
+    if (retval.indexOf(':') > 0) {
+      retval = retval.substring(0, retval.indexOf(':') - 1);
+    }
+
+    // retrieve everything from the last / on
+    if (retval.lastIndexOf('/') > 0) {
+      retval = retval.substring(retval.lastIndexOf('/') + 1);
     }
     return retval;
   }

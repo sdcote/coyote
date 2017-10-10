@@ -30,6 +30,8 @@ public class HttpFuture {
   private String method = null;
   private String acceptType = null;
   private String contentType = null;
+  private String requestUri = null;
+  private String resource = null;
 
 
 
@@ -196,6 +198,46 @@ public class HttpFuture {
       retval = MimeType.JSON;
     }
     return retval;
+  }
+
+
+
+
+  /**
+   * @return the request URI
+   */
+  public String getRequestUri() {
+    return requestUri;
+  }
+
+
+
+
+  /**
+   * @param uri the URI to set
+   */
+  public void setRequestUri(String uri) {
+    this.requestUri = uri;
+  }
+
+
+
+
+  /**
+   * @param resource the name of the resource requested
+   */
+  public void setResource(String resource) {
+    this.resource = resource;
+  }
+
+
+
+
+  /**
+   * @return the resource
+   */
+  public String getResource() {
+    return resource;
   }
 
 }

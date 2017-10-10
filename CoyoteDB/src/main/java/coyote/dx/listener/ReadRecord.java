@@ -7,16 +7,19 @@
  */
 package coyote.dx.listener;
 
-import coyote.dx.CDX;
+import java.sql.Connection;
+import java.sql.SQLException;
+
+import coyote.commons.StringUtil;
+import coyote.commons.jdbc.DatabaseUtil;
+import coyote.dataframe.DataFrame;
 import coyote.dx.context.ContextListener;
-import coyote.dx.context.OperationalContext;
 import coyote.dx.context.TransactionContext;
 import coyote.loader.log.Log;
-import coyote.loader.log.LogMsg;
 
 
 /**
- * This deletes a record from a table using a specific field as the key.
+ * This reads a record from a table using a specific field as the key.
  * 
  * <p>Using a listener instead of a Writer allows for more finer control of 
  * the operation.
@@ -29,40 +32,38 @@ import coyote.loader.log.LogMsg;
 public class ReadRecord extends AbstractDatabaseListener implements ContextListener {
 
   /**
-   * @see coyote.dx.listener.AbstractListener#onEnd(coyote.dx.context.OperationalContext)
+   * @see coyote.dx.listener.AbstractDatabaseListener#execute(coyote.dx.context.TransactionContext)
    */
   @Override
-  public void onEnd(OperationalContext context) {
-    if (context instanceof TransactionContext) {
-      TransactionContext cntxt = (TransactionContext)context;
-      if (isEnabled()) {
-        if (getCondition() != null) {
-          try {
-            if (evaluator.evaluateBoolean(getCondition())) {
-              performCreate(cntxt);
-            } else {
-              if (Log.isLogging(Log.DEBUG_EVENTS)) {
-                Log.debug(LogMsg.createMsg(CDX.MSG, "Listener.boolean_evaluation_false", getCondition()));
-              }
-            }
-          } catch (final IllegalArgumentException e) {
-            Log.error(LogMsg.createMsg(CDX.MSG, "Listener.boolean_evaluation_error", getCondition(), e.getMessage()));
-          }
-        } else {
-          performCreate(cntxt);
-        }
+  public void execute(TransactionContext cntxt) {
+    Log.info("Read Record Listener handling target frame of " + cntxt.getTargetFrame());
+    Connection connection = getConnector().getConnection();
+
+    // look for the SysId of the record to read
+    DataFrame frame = cntxt.getWorkingFrame();
+    if (frame != null) {
+      if (frame.containsIgnoreCase(SYSID)) {
+        String sysid = frame.getFieldIgnoreCase(SYSID).getStringValue();
+        String query = "select * from " + determineSchema() + "." + getTable() + " where sysid = '" + sysid + "'";
+        DataFrame result = DatabaseUtil.readRecord(connection, query);
+        cntxt.setTargetFrame(result); // replace the working frame with the results
+      }
+    } else {
+      Log.error("No frame");
+    }
+
+    // if the connector pools connections, it is safe to close the connection
+    // otherwise, we should keep it open for later use by this component.
+    if (getConnector().isPooled()) {
+      try {
+        // closing a pooled connection returns it to the pool
+        connection.close();
+      } catch (SQLException e) {
+        Log.warn(this.getClass().getName() + " experienced problems closing the database connection: " + e.getMessage());
       }
     }
+
   }
 
-
-
-
-  /**
-   * @param cntxt
-   */
-  private void performCreate(TransactionContext cntxt) {
-    Log.info("Read Record Listener handling target frame of " + cntxt.getTargetFrame());
-  }
 
 }

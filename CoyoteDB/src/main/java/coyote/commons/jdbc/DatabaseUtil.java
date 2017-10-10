@@ -337,7 +337,7 @@ public class DatabaseUtil {
                 retval.add(rsmd.getColumnName(i), DatabaseDialect.resolveValue(result.getObject(i), rsmd.getColumnType(i)));
               }
             } else {
-              Log.error("Read past EOF");
+              Log.debug("No data, read past EOF - query: " + query);
               return retval;
             }
           } catch (SQLException e) {
@@ -570,6 +570,7 @@ public class DatabaseUtil {
         Log.debug("Could not get database product name: " + e.getClass().getName() + " - " + e.getMessage());
       }
     }
-    return retval;  }
+    return retval;
+  }
 
 }

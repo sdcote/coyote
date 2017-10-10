@@ -9,23 +9,28 @@ package coyote.dx.listener;
 
 import java.io.IOException;
 import java.sql.Connection;
+import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 
 import coyote.commons.CipherUtil;
 import coyote.commons.StringUtil;
+import coyote.commons.Version;
 import coyote.commons.jdbc.ColumnDefinition;
 import coyote.commons.jdbc.ColumnType;
 import coyote.commons.jdbc.DatabaseDialect;
 import coyote.commons.jdbc.DatabaseUtil;
 import coyote.commons.jdbc.TableDefinition;
 import coyote.commons.template.SymbolTable;
+import coyote.commons.template.Template;
 import coyote.dataframe.DataFrameException;
 import coyote.dx.CDX;
 import coyote.dx.ConfigTag;
 import coyote.dx.context.ContextListener;
+import coyote.dx.context.TransactionContext;
 import coyote.dx.context.TransformContext;
 import coyote.dx.db.Database;
+import coyote.dx.db.DatabaseConnector;
 import coyote.loader.Loader;
 import coyote.loader.cfg.Config;
 import coyote.loader.cfg.ConfigurationException;
@@ -37,6 +42,9 @@ import coyote.loader.log.LogMsg;
  * This is a base class for any listener which needs to work with a database.
  */
 public abstract class AbstractDatabaseListener extends AbstractListener implements ContextListener {
+
+  /** The thing we use to get connections to the database */
+  private DatabaseConnector connector = null;
 
   /** The JDBC connection used by this writer to interact with the database */
   protected Connection connection;
@@ -53,6 +61,116 @@ public abstract class AbstractDatabaseListener extends AbstractListener implemen
   /** The database table definition */
   private final TableDefinition tableschema = new TableDefinition("DATAFRAME");
 
+  private boolean initialized = false;
+
+  public static final String SYSID = "SysId";
+
+
+
+
+  public AbstractDatabaseListener() {
+    // This is the data model for frame storage. In simple mode, the SysId and
+    // Value fields are populated with a GUID and the JSON format of the data 
+    // frame respectively. In normalized mode, each field is stored as a 
+    // separate record/row preserving sequence and hierarchy of the frame.
+    tableschema.addColumn(new ColumnDefinition(SYSID, ColumnType.STRING).setLength(36).setPrimaryKey(true));
+    tableschema.addColumn(new ColumnDefinition("Parent", ColumnType.STRING).setLength(36));
+    tableschema.addColumn(new ColumnDefinition("Sequence", ColumnType.INT).setNullable(true));
+    tableschema.addColumn(new ColumnDefinition("Name", ColumnType.STRING).setLength(64));
+    tableschema.addColumn(new ColumnDefinition("Value", ColumnType.STRING).setLength(4096).setNullable(true));
+    tableschema.addColumn(new ColumnDefinition("Type", ColumnType.SHORT).setNullable(true));
+    tableschema.addColumn(new ColumnDefinition("CreatedBy", ColumnType.STRING).setLength(32));
+    tableschema.addColumn(new ColumnDefinition("CreatedOn", ColumnType.DATE));
+    tableschema.addColumn(new ColumnDefinition("ModifiedBy", ColumnType.STRING).setLength(32));
+    tableschema.addColumn(new ColumnDefinition("ModifiedOn", ColumnType.DATE));
+  }
+
+
+
+
+  /**
+   * Initialize the listener.
+   * 
+   * <p>Because Listeners are created and opend first, they will not have the 
+   * ability to see any context variables other components may have created 
+   * and placed. Since we want to use any DatabaseFixtures Tasks may have 
+   * bound to the context, we have to wait until used for the first time to 
+   * initialize.
+   */
+  private void init() {
+
+    if (context instanceof TransformContext) {
+
+      // If we don't have a connection, prepare to create one
+      if (connection == null) {
+
+        // Look for a database connector in the context bound with the name specified in the TARGET attribute
+        String target = getConfiguration().getString(ConfigTag.TARGET);
+        target = Template.preProcess(target, context.getSymbols());
+        Object obj = getContext().get(target);
+        if (obj != null && obj instanceof DatabaseConnector) {
+          setConnector((DatabaseConnector)obj);
+          Log.debug("Using database connector found in context bound to '" + target + "'");
+        }
+
+        if (getConnector() == null) {
+          // we have to create a Database based on our configuration
+          Database database = new Database();
+          Config cfg = new Config();
+
+          if (StringUtil.isNotBlank(getString(ConfigTag.TARGET)))
+            cfg.put(ConfigTag.TARGET, getString(ConfigTag.TARGET));
+
+          if (StringUtil.isNotBlank(getString(ConfigTag.DRIVER)))
+            cfg.put(ConfigTag.DRIVER, getString(ConfigTag.DRIVER));
+
+          if (StringUtil.isNotBlank(getString(ConfigTag.LIBRARY)))
+            cfg.put(ConfigTag.LIBRARY, getString(ConfigTag.LIBRARY));
+
+          if (StringUtil.isNotBlank(getString(ConfigTag.USERNAME)))
+            cfg.put(ConfigTag.USERNAME, getString(ConfigTag.USERNAME));
+
+          if (StringUtil.isNotBlank(getString(Loader.ENCRYPT_PREFIX + ConfigTag.USERNAME)))
+            cfg.put(Loader.ENCRYPT_PREFIX + ConfigTag.USERNAME, getString(Loader.ENCRYPT_PREFIX + ConfigTag.USERNAME));
+
+          if (StringUtil.isNotBlank(getString(ConfigTag.PASSWORD)))
+            cfg.put(ConfigTag.PASSWORD, getString(ConfigTag.PASSWORD));
+
+          if (StringUtil.isNotBlank(getString(Loader.ENCRYPT_PREFIX + ConfigTag.PASSWORD)))
+            cfg.put(Loader.ENCRYPT_PREFIX + ConfigTag.PASSWORD, getString(Loader.ENCRYPT_PREFIX + ConfigTag.PASSWORD));
+
+          setConnector(database);
+
+          try {
+            database.setConfiguration(cfg);
+            if (Log.isLogging(Log.DEBUG_EVENTS)) {
+              Log.debug(LogMsg.createMsg(CDX.MSG, "Writer.using_target", getClass().getName(), database.getTarget()));
+              Log.debug(LogMsg.createMsg(CDX.MSG, "Writer.using_driver", getClass().getName(), database.getDriver()));
+              Log.debug(LogMsg.createMsg(CDX.MSG, "Writer.using_library", getClass().getName(), database.getLibrary()));
+              Log.debug(LogMsg.createMsg(CDX.MSG, "Writer.using_user", getClass().getName(), database.getUserName()));
+              Log.debug(LogMsg.createMsg(CDX.MSG, "Writer.using_password", getClass().getName(), StringUtil.isBlank(database.getPassword()) ? 0 : database.getPassword().length()));
+            }
+          } catch (ConfigurationException e) {
+            context.setError("Could not configure database connector: " + e.getClass().getName() + " - " + e.getMessage());
+          }
+
+          // if there is no schema in the configuration, set it to the same as the username
+          if (StringUtil.isBlank(getString(ConfigTag.SCHEMA))) {
+            getConfiguration().set(ConfigTag.SCHEMA, database.getUserName());
+          }
+        }
+      } else {
+        Log.debug(LogMsg.createMsg(CDX.MSG, "Writer.using_existing_connection", getClass().getName()));
+      }
+
+      // make sure we have the table we need
+      checkTable();
+
+    }
+
+    initialized = true;
+  }
+
 
 
 
@@ -65,26 +183,6 @@ public abstract class AbstractDatabaseListener extends AbstractListener implemen
       database.close();
     }
     super.close();
-  }
-
-
-
-
-  public AbstractDatabaseListener() {
-    // This is the data model for frame storage. In simple mode, the SysId and
-    // Value fields are populated with a GUID and the JSON format of the data 
-    // frame respectively. In normalized mode, each field is stored as a 
-    // separate record/row preserving sequence and hierarchy of the frame.
-    tableschema.addColumn(new ColumnDefinition("SysId", ColumnType.STRING).setLength(36).setPrimaryKey(true));
-    tableschema.addColumn(new ColumnDefinition("Parent", ColumnType.STRING).setLength(36));
-    tableschema.addColumn(new ColumnDefinition("Sequence", ColumnType.INT).setNullable(true));
-    tableschema.addColumn(new ColumnDefinition("Name", ColumnType.STRING).setLength(64));
-    tableschema.addColumn(new ColumnDefinition("Value", ColumnType.STRING).setLength(4096).setNullable(true));
-    tableschema.addColumn(new ColumnDefinition("Type", ColumnType.SHORT).setNullable(true));
-    tableschema.addColumn(new ColumnDefinition("CreatedBy", ColumnType.STRING).setLength(32));
-    tableschema.addColumn(new ColumnDefinition("CreatedOn", ColumnType.DATE));
-    tableschema.addColumn(new ColumnDefinition("ModifiedBy", ColumnType.STRING).setLength(32));
-    tableschema.addColumn(new ColumnDefinition("ModifiedOn", ColumnType.DATE));
   }
 
 
@@ -137,7 +235,7 @@ public abstract class AbstractDatabaseListener extends AbstractListener implemen
     } catch (final DataFrameException ignore) {
       // must not be set or is invalid boolean value
     }
-    return false;
+    return true;
   }
 
 
@@ -226,15 +324,18 @@ public abstract class AbstractDatabaseListener extends AbstractListener implemen
   /**
    * Retrieve the Database object holding our connections.
    * 
-   * <p>This is either a shared database or one we created locally.
+   * <p>This is the databse we created locally through our configuration. If 
+   * the local configuration does not contain a database configuration, null 
+   * will be returned.
    * 
-   * @return the database helper class from which we get connections
+   * @return the database helper class from which we get connections or null 
+   *         if this listener has no database configuration.
    */
   protected synchronized Database getDatabase() {
     Database retval = null;
     if (retval == null) {
       retval = database;
-      if (retval == null) {
+      if (retval == null && getConfiguration().containsIgnoreCase(getDriver())) {
         retval = new Database();
         retval.setContext(getContext());
         retval.setLibrary(getLibrary());
@@ -254,23 +355,48 @@ public abstract class AbstractDatabaseListener extends AbstractListener implemen
 
 
 
-  /**
-   * Get either a cached connection, or a new connection from the database we 
-   * are using.
-   * 
-   * @return a connection to our configured or shared database
-   */
-  protected Connection getConnection() {
-    Connection retval = connection;
-    if (retval == null) {
-      Database db = getDatabase();
-      if (db != null) {
-        retval = db.getConnection();
-      } else {
-        Log.error("Could not connect to database: no database reference available");
+  @SuppressWarnings("unchecked")
+  private Connection getConnection() {
+
+    if (connection == null) {
+
+      if (getConnector() == null) {
+        Log.fatal("We don't have a connector to give us a connection to a database. The open method failed to do its job!");
+      }
+
+      // get the connection to the database
+      try {
+        connection = getConnector().getConnection();
+
+        if (connection != null) {
+          Log.debug(LogMsg.createMsg(CDX.MSG, "Writer.connected_to", getClass().getName(), getTarget()));
+          DatabaseMetaData meta = connection.getMetaData();
+          String product = meta.getDatabaseProductName();
+          databaseProduct = product.toUpperCase();
+
+          // update the symbols with database information
+          symbolTable.put(DatabaseDialect.DATABASE_SYM, product);
+          Version version = DatabaseUtil.getDriverVersion(connection);
+          symbolTable.put(DatabaseDialect.DATABASE_VERSION_SYM, version == null ? "unknown" : version.toString());
+          symbolTable.put(DatabaseDialect.DATABASE_VERSION_FULL_SYM, meta.getDatabaseProductVersion());
+          symbolTable.put(DatabaseDialect.DATABASE_MAJOR_SYM, meta.getDatabaseMajorVersion());
+          symbolTable.put(DatabaseDialect.DATABASE_MINOR_SYM, meta.getDatabaseMinorVersion());
+          version = DatabaseUtil.getDriverVersion(connection);
+          symbolTable.put(DatabaseDialect.DRIVER_VERSION_SYM, version == null ? "unknown" : version.toString());
+          symbolTable.put(DatabaseDialect.DRIVER_VERSION_FULL_SYM, meta.getDriverVersion());
+          symbolTable.put(DatabaseDialect.DRIVER_MAJOR_SYM, meta.getDriverMajorVersion());
+          symbolTable.put(DatabaseDialect.DRIVER_MINOR_SYM, meta.getDriverMinorVersion());
+
+          // log debug information about the database
+          Log.debug(LogMsg.createMsg(CDX.MSG, "Writer.connected_to_product", getClass().getName(), meta.getDatabaseProductName(), meta.getDatabaseProductVersion(), meta.getDatabaseMajorVersion(), meta.getDatabaseMinorVersion()));
+        } else {
+          getContext().setError("Connector could not get a connection to the database");
+        }
+      } catch (SQLException e) {
+        getContext().setError("Could not connect to database: " + e.getClass().getSimpleName() + " - " + e.getMessage());
       }
     }
-    return retval;
+    return connection;
   }
 
 
@@ -287,14 +413,12 @@ public abstract class AbstractDatabaseListener extends AbstractListener implemen
    * Check to make sure our database schema exists. 
    */
   private void checkSchema() {
-    tableschema.setSchemaName(getDatabase().getSchema());
-    boolean autocreate = getDatabase().isAutoCreate();
-    String username = getDatabase().getUserName();
+    tableschema.setSchemaName(determineSchema());
 
     Log.debug("Looking for schema '" + tableschema.getSchemaName() + "'");
     if (!DatabaseUtil.schemaExists(tableschema.getSchemaName(), getConnection())) {
-      if (autocreate) {
-        String sql = DatabaseDialect.getCreateSchema(databaseProduct, tableschema.getSchemaName(), username);
+      if (isAutoCreate()) {
+        String sql = DatabaseDialect.getCreateSchema(databaseProduct, tableschema.getSchemaName(), determineUserName());
         Log.debug("Schema '" + tableschema.getSchemaName() + "' not found in database, creating it with:\n" + sql);
         try (Statement stmt = connection.createStatement()) {
           stmt.executeUpdate(sql);
@@ -311,7 +435,7 @@ public abstract class AbstractDatabaseListener extends AbstractListener implemen
           e.printStackTrace();
         }
       } else {
-        Log.warn("The schema '" + tableschema.getSchemaName() + "' does not exist in the database and autocreate is set to '" + autocreate + "', expect subsequent database operations to fail.");
+        Log.warn("The schema '" + tableschema.getSchemaName() + "' does not exist in the database and autocreate is set to '" + isAutoCreate() + "', expect subsequent database operations to fail.");
       }
     }
   }
@@ -333,13 +457,12 @@ public abstract class AbstractDatabaseListener extends AbstractListener implemen
     boolean retval = false;
     checkSchema();
 
-    boolean autocreate = getDatabase().isAutoCreate();
     tableschema.setName(getTable());
 
     // check to see if the table exists
     if (!DatabaseUtil.tableExists(tableschema.getName(), getConnection())) {
 
-      if (autocreate) {
+      if (isAutoCreate()) {
         Connection conn = getConnection();
 
         if (conn == null) {
@@ -383,11 +506,16 @@ public abstract class AbstractDatabaseListener extends AbstractListener implemen
           Log.error("Could not verifiy the creation of '" + tableschema.getName() + "." + tableschema.getSchemaName() + "' table, expect subsequent database operations to fail.");
         }
       } else {
-        Log.warn("The table '" + tableschema.getName() + "' does not exist in the database and autocreate is set to '" + autocreate + "', expect subsequent database operations to fail.");
+        Log.warn("The table '" + tableschema.getName() + "' does not exist in the database and autocreate is set to '" + isAutoCreate() + "', expect subsequent database operations to fail.");
       }
 
     } else {
       retval = true;
+    }
+
+    // return the connection to the pool if we are pooling connections
+    if (getConnector().isPooled()) {
+      quietlyClose(connection);
     }
 
     return retval;
@@ -397,21 +525,121 @@ public abstract class AbstractDatabaseListener extends AbstractListener implemen
 
 
   /**
-   * @see coyote.dx.listener.AbstractListener#open(coyote.dx.context.TransformContext)
+   * Close the given connection, consuming any exceptions.
+   * 
+   * @param conn the JDBC connection to close.
    */
-  @Override
-  public void open(TransformContext context) {
-    super.open(context);
-
-    // get a connection
-    connection = getConnection();
-
-    // get the product we are using for use in the DatabaseDialect helper
-    databaseProduct = getDatabase().getProductName(connection);
-
-    // make sure we have the table we need
-    checkTable();
-
+  protected void quietlyClose(Connection conn) {
+    if (conn != null) {
+      try {
+        conn.close();
+      } catch (SQLException ignore) {
+        // ignore exceptions
+      }
+    }
   }
 
+
+
+
+  /**
+   * Return the connector we use for getting a connection to the database.
+   * 
+   * @return the connector
+   */
+  public DatabaseConnector getConnector() {
+    return connector;
+  }
+
+
+
+
+  /**
+   * @param connector the connector to set
+   */
+  public void setConnector(DatabaseConnector connector) {
+    this.connector = connector;
+  }
+
+
+
+
+  @Override
+  public void onMap(TransactionContext context) {
+    if (isEnabled()) {
+      if (getCondition() != null) {
+        try {
+          if (evaluator.evaluateBoolean(getCondition())) {
+            if (!initialized) {
+              init();
+            }
+            execute(context);
+          } else {
+            if (Log.isLogging(Log.DEBUG_EVENTS)) {
+              Log.debug(LogMsg.createMsg(CDX.MSG, "Listener.boolean_evaluation_false", getCondition()));
+            }
+          }
+        } catch (final IllegalArgumentException e) {
+          Log.error(LogMsg.createMsg(CDX.MSG, "Listener.boolean_evaluation_error", getCondition(), e.getMessage()));
+        }
+      } else {
+        if (!initialized) {
+          init();
+        }
+        execute(context);
+      }
+    }
+  }
+
+
+
+
+  /**
+   * @param context the transaction context on which to operate
+   */
+  protected void execute(TransactionContext context) {
+    // listeners should override this method to perform ther database operation
+  }
+
+
+
+
+  /**
+   * Returns the name of the schema based on configuration or the connected 
+   * user.
+   * 
+   * <p>This checks the configuration for the name of the schema to use and if 
+   * not found, checks the configuration for the name of the user. If both are 
+   * blank, this method will query the name of the user used to connect to the 
+   * database.
+   * 
+   * @return the configured schema or the user name of the connection.
+   */
+  protected String determineSchema() {
+    String schema = getSchema();
+    if (StringUtil.isBlank(schema)) {
+      schema = DatabaseUtil.getUserName(getConnection());
+    }
+    return schema;
+  }
+
+
+
+
+  /**
+   * Returns the name of the user in the configuration or the connection.
+   * 
+   * <p>This checks the configuration for the username and if it does not 
+   * exist the connection is checket for the name of the user used in the 
+   * connection.
+   * 
+   * @return the configured user name or the user name of the connection.
+   */
+  private String determineUserName() {
+    String retval = getUsername();
+    if (StringUtil.isBlank(retval)) {
+      retval = DatabaseUtil.getUserName(connection);
+    }
+    return retval;
+  }
 }

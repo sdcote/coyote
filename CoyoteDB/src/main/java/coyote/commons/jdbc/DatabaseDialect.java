@@ -16,7 +16,7 @@ import coyote.commons.template.SymbolTable;
 import coyote.commons.template.Template;
 import coyote.dx.CDX;
 import coyote.dx.FieldMetrics;
-import coyote.dx.MetricSchema;
+import coyote.dx.DataSetMetrics;
 import coyote.loader.log.Log;
 import coyote.loader.log.LogMsg;
 
@@ -225,7 +225,7 @@ public class DatabaseDialect {
    * @see coyote.commons.template.Template
    */
   @SuppressWarnings("unchecked")
-  public static String getCreate(final String database, final MetricSchema schema, final SymbolTable symbols) {
+  public static String getCreate(final String database, final DataSetMetrics schema, final SymbolTable symbols) {
 
     final Map<String, String> typeMap = TYPES.get(database);
     if (typeMap != null) {

@@ -44,7 +44,7 @@ import coyote.dx.CDX;
 import coyote.dx.ConfigTag;
 import coyote.dx.ConfigurableComponent;
 import coyote.dx.FrameWriter;
-import coyote.dx.MetricSchema;
+import coyote.dx.DataSetMetrics;
 import coyote.dx.context.TransformContext;
 import coyote.dx.db.Database;
 import coyote.dx.db.DatabaseConnector;
@@ -74,7 +74,7 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
   protected static final SymbolTable symbolTable = new SymbolTable();
 
   /** The schema of all the frames we have read in so far. */
-  private MetricSchema schema = new MetricSchema();
+  private DataSetMetrics schema = new DataSetMetrics();
 
   /** The database table definition */
   private TableDefinition tableschema = null;
