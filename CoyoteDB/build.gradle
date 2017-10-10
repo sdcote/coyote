@@ -16,7 +16,7 @@ ext {
 dependencies {
 	compile project(':CoyoteDX')
 	compile "coyote:CoyoteDX:$version"
-	testCompile files('./src/resources/demojars/h2-1.4.187.jar')
+	testCompile files('./src/resources/demojars/h2-1.4.196.jar')
 	testCompile files('./src/resources/demojars/sqljdbc42.jar')
 	testCompile "junit:junit:$junitVersion"	
 }
