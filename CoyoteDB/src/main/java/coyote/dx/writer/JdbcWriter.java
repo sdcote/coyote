@@ -68,7 +68,7 @@ import coyote.loader.log.LogMsg;
  */
 public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, ConfigurableComponent {
 
-  /** the thing we use to get connections to the database */
+  /** The thing we use to get connections to the database */
   private DatabaseConnector connector = null;
 
   protected static final SymbolTable symbolTable = new SymbolTable();
