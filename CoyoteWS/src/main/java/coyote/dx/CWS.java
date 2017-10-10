@@ -63,7 +63,7 @@ public class CWS {
   // Message bundle for i18n
   public static final BundleBaseName MSG;
   static {
-    MSG = new BundleBaseName("BatchWSMsg");
+    MSG = new BundleBaseName("CWSMsg");
   }
 
 
