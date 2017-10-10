@@ -6,7 +6,7 @@ xsi:schemaLocation="http://izpack.org/schema/installation http://izpack.org/sche
 
 	<info>
 		<appname>Coyote DX Framework and Toolkit</appname>
-		<appversion>0.7.1</appversion>
+		<appversion>0.8.0</appversion>
 		<authors>
 			<author name="Steve Cote" email="sdcote@gmail.com"/>
 		</authors>
