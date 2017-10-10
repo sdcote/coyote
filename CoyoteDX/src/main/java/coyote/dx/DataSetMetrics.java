@@ -22,7 +22,7 @@ import coyote.dataframe.DataFrame;
  * Data Frames they have observed, compiling a detailed profile about the set
  * of frames.</p>
  */
-public class MetricSchema {
+public class DataSetMetrics {
 
   private final List<FieldMetrics> metrics = new ArrayList<FieldMetrics>();
 
