@@ -7,20 +7,30 @@
  */
 package coyote.dx.listener;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.util.Date;
+
+import coyote.commons.ExceptionUtil;
 import coyote.commons.GUID;
+import coyote.commons.jdbc.DatabaseDialect;
+import coyote.commons.template.SymbolTable;
 import coyote.dataframe.DataField;
 import coyote.dataframe.DataFrame;
 import coyote.dataframe.DataFrameException;
-import coyote.dx.CDX;
+import coyote.dataframe.marshal.JSONMarshaler;
 import coyote.dx.context.ContextListener;
-import coyote.dx.context.OperationalContext;
 import coyote.dx.context.TransactionContext;
 import coyote.loader.log.Log;
-import coyote.loader.log.LogMsg;
 
 
 /**
- * This inserts the working record into the configured database table.
+ * This inserts the target record into the configured database table.
+ * 
+ * <p>This listener is executed after the working frame is mapped to the 
+ * target frame so that any mapping operations are included in the processing
+ * of the data. Since it runs after mapping, it mimics a writer. 
  * 
  * <p>Using a listener instead of a Writer allows for more finer control of 
  * the operation. For example, records can be created when it is known the 
@@ -53,54 +63,38 @@ import coyote.loader.log.LogMsg;
  */
 public class CreateRecord extends AbstractDatabaseListener implements ContextListener {
 
-  private static final String SIMPLE_MODE = "SimpleMode";
 
 
 
 
   /**
-   * @see coyote.dx.listener.AbstractListener#onEnd(coyote.dx.context.OperationalContext)
+   * @see coyote.dx.listener.AbstractDatabaseListener#execute(coyote.dx.context.TransactionContext)
    */
   @Override
-  public void onEnd(OperationalContext context) {
-    if (context instanceof TransactionContext) {
-      TransactionContext cntxt = (TransactionContext)context;
-      if (isEnabled()) {
-        if (getCondition() != null) {
-          try {
-            if (evaluator.evaluateBoolean(getCondition())) {
-              performCreate(cntxt);
-            } else {
-              if (Log.isLogging(Log.DEBUG_EVENTS)) {
-                Log.debug(LogMsg.createMsg(CDX.MSG, "Listener.boolean_evaluation_false", getCondition()));
-              }
-            }
-          } catch (final IllegalArgumentException e) {
-            Log.error(LogMsg.createMsg(CDX.MSG, "Listener.boolean_evaluation_error", getCondition(), e.getMessage()));
-          }
-        } else {
-          performCreate(cntxt);
-        }
-      }
-    }
-  }
-
-
-
-
-  /**
-   * @param cntxt
-   */
-  private void performCreate(TransactionContext cntxt) {
+  public void execute(TransactionContext cntxt) {
     Log.info("Create Record Listener handling target frame of " + cntxt.getTargetFrame());
-    DataFrame frame = cntxt.getWorkingFrame();
+    Connection conn = getConnector().getConnection();
+
     String guid;
     if (isSimpleMode()) {
-      guid = saveEntireFrame(frame);
+      guid = saveEntireFrame(cntxt.getTargetFrame(), conn);
     } else {
-      guid = saveFrame(frame, 0, null);
+      guid = saveFrame(cntxt.getTargetFrame(), 0, null);
     }
+
     cntxt.setProcessingResult(guid);
+
+    // if the connector pools connections, it is safe to close the connection
+    // otherwise, we should keep it open for later use by this component.
+    if (getConnector().isPooled()) {
+      try {
+        // closing a pooled connection returns it to the pool
+        conn.close();
+      } catch (SQLException e) {
+        Log.warn(this.getClass().getName() + " experienced problems closing the database connection: " + e.getMessage());
+      }
+    }
+
   }
 
 
@@ -110,32 +104,49 @@ public class CreateRecord extends AbstractDatabaseListener implements ContextLis
    * This saves the entire frame as a JSON string in the value field.
    * 
    * @param frame the frame to save.
+   * @param conn 
    * 
    * @return the system identifier for the inserted record.
    */
-  private String saveEntireFrame(DataFrame frame) {
+  @SuppressWarnings("unchecked")
+  private String saveEntireFrame(DataFrame frame, Connection conn) {
     String sysid = GUID.randomGUID().toString();
     Log.info("Frame Id:" + sysid + " - " + frame);
+
+    // serialize the frame into JSON
+    String value = JSONMarshaler.marshal(frame);
+
+    final SymbolTable sqlsymbols = new SymbolTable();
+    sqlsymbols.put(DatabaseDialect.DB_SCHEMA_SYM, determineSchema());
+    sqlsymbols.put(DatabaseDialect.TABLE_NAME_SYM, getTable());
+    sqlsymbols.put(DatabaseDialect.FIELD_NAMES_SYM, "SysId, Active, Value, Type, CreatedBy, CreatedOn, ModifiedBy, ModifiedOn");
+    sqlsymbols.put(DatabaseDialect.FIELD_VALUES_SYM, "?, ?, ?, ?, ?, ?, ?, ?");
+    final String sql = DatabaseDialect.getSQL(databaseProduct, DatabaseDialect.INSERT, sqlsymbols);
+    if (sql != null) {
+      try {
+        final PreparedStatement preparedStatement = connection.prepareStatement(sql);
+        preparedStatement.setString(1, sysid);
+        preparedStatement.setBoolean(2, true);
+        preparedStatement.setString(3, value);
+        preparedStatement.setShort(4, DataField.STRING);
+        preparedStatement.setString(5, getIdentity());
+        preparedStatement.setTimestamp(6, new java.sql.Timestamp(new Date().getTime()));
+        preparedStatement.setString(7, getIdentity());
+        preparedStatement.setTimestamp(8, new java.sql.Timestamp(new Date().getTime()));
+        preparedStatement.executeUpdate();
+      } catch (final SQLException e) {
+        Log.fatal(ExceptionUtil.toString(e));
+        Log.debug(ExceptionUtil.stackTrace(e));
+      }
+    } else {
+      Log.error("Cannot support " + databaseProduct + " database product");
+    }
+
     return sysid;
   }
 
 
 
-
-  /**
-   * @return true if this is to serialize the entire frame into the value 
-   *         field, false to store each field in a separate row.
-   */
-  private boolean isSimpleMode() {
-    boolean retval = true;
-    try {
-      retval = configuration.getAsBoolean(SIMPLE_MODE);
-    } catch (final DataFrameException ignore) {
-      // must not be set or is invalid boolean value
-    }
-
-    return retval;
-  }
 
   //
 

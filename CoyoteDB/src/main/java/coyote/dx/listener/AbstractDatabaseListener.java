@@ -56,14 +56,18 @@ public abstract class AbstractDatabaseListener extends AbstractListener implemen
   protected static final SymbolTable symbolTable = new SymbolTable();
 
   /** The database product name (Oracle, H2, etc.) to which we are connected. */
-  private String databaseProduct = null;
+  protected String databaseProduct = null;
 
   /** The database table definition */
   private final TableDefinition tableschema = new TableDefinition("DATAFRAME");
 
   private boolean initialized = false;
+  private static final String SIMPLE_MODE = "SimpleMode";
+  private static final String DEFAULT_IDENTITY = "00000000-0000-0000-0000-000000000000";
 
   public static final String SYSID = "SysId";
+  public static final String VALUE = "Value";
+  public static final String TYPE = "Type";
 
 
 
@@ -74,14 +78,15 @@ public abstract class AbstractDatabaseListener extends AbstractListener implemen
     // frame respectively. In normalized mode, each field is stored as a 
     // separate record/row preserving sequence and hierarchy of the frame.
     tableschema.addColumn(new ColumnDefinition(SYSID, ColumnType.STRING).setLength(36).setPrimaryKey(true));
-    tableschema.addColumn(new ColumnDefinition("Parent", ColumnType.STRING).setLength(36));
+    tableschema.addColumn(new ColumnDefinition("Active", ColumnType.BOOLEAN));
+    tableschema.addColumn(new ColumnDefinition("Parent", ColumnType.STRING).setLength(36).setNullable(true));
     tableschema.addColumn(new ColumnDefinition("Sequence", ColumnType.INT).setNullable(true));
-    tableschema.addColumn(new ColumnDefinition("Name", ColumnType.STRING).setLength(64));
-    tableschema.addColumn(new ColumnDefinition("Value", ColumnType.STRING).setLength(4096).setNullable(true));
-    tableschema.addColumn(new ColumnDefinition("Type", ColumnType.SHORT).setNullable(true));
-    tableschema.addColumn(new ColumnDefinition("CreatedBy", ColumnType.STRING).setLength(32));
+    tableschema.addColumn(new ColumnDefinition("Name", ColumnType.STRING).setLength(64).setNullable(true));
+    tableschema.addColumn(new ColumnDefinition(VALUE, ColumnType.STRING).setLength(4096).setNullable(true));
+    tableschema.addColumn(new ColumnDefinition(TYPE, ColumnType.SHORT).setNullable(true));
+    tableschema.addColumn(new ColumnDefinition("CreatedBy", ColumnType.STRING).setLength(36));
     tableschema.addColumn(new ColumnDefinition("CreatedOn", ColumnType.DATE));
-    tableschema.addColumn(new ColumnDefinition("ModifiedBy", ColumnType.STRING).setLength(32));
+    tableschema.addColumn(new ColumnDefinition("ModifiedBy", ColumnType.STRING).setLength(36));
     tableschema.addColumn(new ColumnDefinition("ModifiedOn", ColumnType.DATE));
   }
 
@@ -248,6 +253,23 @@ public abstract class AbstractDatabaseListener extends AbstractListener implemen
    */
   public String getDriver() {
     return getString(ConfigTag.DRIVER);
+  }
+
+
+
+
+  /**
+   * This only reads from the configuration, not the shared database if used.
+   * 
+   * @return the sysid of the the identity performing database modifications. 
+   *         If no were configured a default value of all zeros is used.
+   */
+  public String getIdentity() {
+    String retval = getString(ConfigTag.IDENTITY);
+    if (StringUtil.isBlank(retval)) {
+      retval = DEFAULT_IDENTITY;
+    }
+    return retval;
   }
 
 
@@ -642,4 +664,23 @@ public abstract class AbstractDatabaseListener extends AbstractListener implemen
     }
     return retval;
   }
+
+
+
+
+  /**
+   * @return true if this is to serialize the entire frame into the value 
+   *         field, false to store each field in a separate row.
+   */
+  protected boolean isSimpleMode() {
+    boolean retval = true;
+    try {
+      retval = configuration.getAsBoolean(SIMPLE_MODE);
+    } catch (final DataFrameException ignore) {
+      // must not be set or is invalid boolean value
+    }
+
+    return retval;
+  }
+
 }

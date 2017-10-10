@@ -7,12 +7,12 @@
  */
 package coyote.dx.listener;
 
-import coyote.dx.CDX;
+import java.sql.Connection;
+import java.sql.SQLException;
+
 import coyote.dx.context.ContextListener;
-import coyote.dx.context.OperationalContext;
 import coyote.dx.context.TransactionContext;
 import coyote.loader.log.Log;
-import coyote.loader.log.LogMsg;
 
 
 /**
@@ -28,41 +28,27 @@ import coyote.loader.log.LogMsg;
  */
 public class DeleteRecord extends AbstractDatabaseListener implements ContextListener {
 
-  /**
-   * @see coyote.dx.listener.AbstractListener#onEnd(coyote.dx.context.OperationalContext)
-   */
   @Override
-  public void onEnd(OperationalContext context) {
-    if (context instanceof TransactionContext) {
-      TransactionContext cntxt = (TransactionContext)context;
-      if (isEnabled()) {
-        if (getCondition() != null) {
-          try {
-            if (evaluator.evaluateBoolean(getCondition())) {
-              performCreate(cntxt);
-            } else {
-              if (Log.isLogging(Log.DEBUG_EVENTS)) {
-                Log.debug(LogMsg.createMsg(CDX.MSG, "Listener.boolean_evaluation_false", getCondition()));
-              }
-            }
-          } catch (final IllegalArgumentException e) {
-            Log.error(LogMsg.createMsg(CDX.MSG, "Listener.boolean_evaluation_error", getCondition(), e.getMessage()));
-          }
-        } else {
-          performCreate(cntxt);
-        }
+  public void execute(TransactionContext cntxt) {
+    Log.info("Delete Record Listener handling target frame of " + cntxt.getTargetFrame());
+    Connection conn = getConnector().getConnection();
+
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    // Deletes are simply a matter of flagging the record as in-active.
+    // The idea is that in-active records will be purged at a later date.
+    // This gives the system the ability to maintain historical context
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+    // if the connector pools connections, it is safe to close the connection
+    // otherwise, we should keep it open for later use by this component.
+    if (getConnector().isPooled()) {
+      try {
+        // closing a pooled connection returns it to the pool
+        conn.close();
+      } catch (SQLException e) {
+        Log.warn(this.getClass().getName() + " experienced problems closing the database connection: " + e.getMessage());
       }
     }
+
   }
-
-
-
-
-  /**
-   * @param cntxt
-   */
-  private void performCreate(TransactionContext cntxt) {
-    Log.info("Delete Record Listener handling target frame of " + cntxt.getTargetFrame());
-  }
-
 }

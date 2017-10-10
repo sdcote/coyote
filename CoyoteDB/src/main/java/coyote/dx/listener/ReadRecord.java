@@ -9,10 +9,11 @@ package coyote.dx.listener;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.List;
 
-import coyote.commons.StringUtil;
 import coyote.commons.jdbc.DatabaseUtil;
 import coyote.dataframe.DataFrame;
+import coyote.dataframe.marshal.JSONMarshaler;
 import coyote.dx.context.ContextListener;
 import coyote.dx.context.TransactionContext;
 import coyote.loader.log.Log;
@@ -46,6 +47,26 @@ public class ReadRecord extends AbstractDatabaseListener implements ContextListe
         String sysid = frame.getFieldIgnoreCase(SYSID).getStringValue();
         String query = "select * from " + determineSchema() + "." + getTable() + " where sysid = '" + sysid + "'";
         DataFrame result = DatabaseUtil.readRecord(connection, query);
+
+        // if this is running in Simple mode, then the value should be a JSON string, revert it back into a Dataframe
+        if (result != null) {
+          if (isSimpleMode()) {
+            if( result.containsIgnoreCase(VALUE)){
+            String json = result.getFieldIgnoreCase(VALUE).getStringValue();
+            List<DataFrame> frames = JSONMarshaler.marshal(json);
+            if (frames.size() > 0) {
+              result = frames.get(0);
+            } else {
+              Log.warn("There did not seem to be a data frame stored in the value.");
+            }
+          }
+          } else {
+            Log.warn("Complex mode not yet supported");
+          }
+        } else {
+          Log.warn("No results for " + sysid);
+        }
+
         cntxt.setTargetFrame(result); // replace the working frame with the results
       }
     } else {
@@ -64,6 +85,5 @@ public class ReadRecord extends AbstractDatabaseListener implements ContextListe
     }
 
   }
-
 
 }
