@@ -334,7 +334,7 @@ public class HttpReader extends AbstractFrameReader implements FrameReader {
       context.set(HTTP_CONTENT_TYPE, future.getContentType());
       context.set(HTTP_RESOURCE, future.getResource());
       context.set(HTTP_REQUEST_URI, future.getRequestUri());
-      Log.info("Processing request for '"+future.getRequestUri()+"'");
+      Log.info("Processing request for '" + future.getRequestUri() + "'");
     }
     return retval;
   }
@@ -464,10 +464,14 @@ public class HttpReader extends AbstractFrameReader implements FrameReader {
             }
 
             // package the results
-            if( StringUtil.isBlank(results) && future.getMethod().equalsIgnoreCase("GET")){
-              future.setResponse(Response.createFixedLengthResponse(Status.NOT_FOUND, type.getType(), results));
+            if (StringUtil.isBlank(results)) {
+              if (future.getMethod().equalsIgnoreCase("GET")) {
+                future.setResponse(Response.createFixedLengthResponse(Status.NOT_FOUND, type.getType(), results));
+              } else {
+                future.setResponse(Response.createFixedLengthResponse(Status.NO_CONTENT, type.getType(), results));
+              }
             } else {
-            future.setResponse(Response.createFixedLengthResponse(Status.OK, type.getType(), results));
+              future.setResponse(Response.createFixedLengthResponse(Status.OK, type.getType(), results));
             }
           }
         }
