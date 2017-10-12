@@ -61,10 +61,6 @@ public abstract class AbstractDatabaseListener extends AbstractListener implemen
   private static final String SIMPLE_MODE = "SimpleMode";
   private static final String DEFAULT_IDENTITY = "00000000-0000-0000-0000-000000000000";
 
-  private static final String SYSID = "SysId";
-  private static final String VALUE = "Value";
-  private static final String TYPE = "Type";
-
 
 
 
@@ -576,7 +572,11 @@ public abstract class AbstractDatabaseListener extends AbstractListener implemen
   /**
    * This is the main entry point for all sub-classes.
    * 
-   * <p>This metho check to see if the listener is enabled then if any conditions exist. If enabled and the 
+   * <p>This method checks to see if the listener is enabled then if any 
+   * conditions exist. If enabled and the conditions pass or there are no 
+   * conditions, this then calls the {@code execute(TransactionContext)} sub-
+   * class method to perform their processing. 
+   * 
    * @see coyote.dx.listener.AbstractListener#onMap(coyote.dx.context.TransactionContext)
    */
   @Override
@@ -672,7 +672,6 @@ public abstract class AbstractDatabaseListener extends AbstractListener implemen
     } catch (final DataFrameException ignore) {
       // must not be set or is invalid boolean value
     }
-
     return retval;
   }
 
