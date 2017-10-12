@@ -16,8 +16,6 @@ import java.sql.Statement;
 import coyote.commons.CipherUtil;
 import coyote.commons.StringUtil;
 import coyote.commons.Version;
-import coyote.commons.jdbc.ColumnDefinition;
-import coyote.commons.jdbc.ColumnType;
 import coyote.commons.jdbc.DatabaseDialect;
 import coyote.commons.jdbc.DatabaseUtil;
 import coyote.commons.jdbc.TableDefinition;
@@ -31,6 +29,7 @@ import coyote.dx.context.TransactionContext;
 import coyote.dx.context.TransformContext;
 import coyote.dx.db.Database;
 import coyote.dx.db.DatabaseConnector;
+import coyote.dx.db.FrameStore;
 import coyote.loader.Loader;
 import coyote.loader.cfg.Config;
 import coyote.loader.cfg.ConfigurationException;
@@ -58,37 +57,13 @@ public abstract class AbstractDatabaseListener extends AbstractListener implemen
   /** The database product name (Oracle, H2, etc.) to which we are connected. */
   protected String databaseProduct = null;
 
-  /** The database table definition */
-  private final TableDefinition tableschema = new TableDefinition("DATAFRAME");
-
   private boolean initialized = false;
   private static final String SIMPLE_MODE = "SimpleMode";
   private static final String DEFAULT_IDENTITY = "00000000-0000-0000-0000-000000000000";
 
-  public static final String SYSID = "SysId";
-  public static final String VALUE = "Value";
-  public static final String TYPE = "Type";
-
-
-
-
-  public AbstractDatabaseListener() {
-    // This is the data model for frame storage. In simple mode, the SysId and
-    // Value fields are populated with a GUID and the JSON format of the data 
-    // frame respectively. In normalized mode, each field is stored as a 
-    // separate record/row preserving sequence and hierarchy of the frame.
-    tableschema.addColumn(new ColumnDefinition(SYSID, ColumnType.STRING).setLength(36).setPrimaryKey(true));
-    tableschema.addColumn(new ColumnDefinition("Active", ColumnType.BOOLEAN));
-    tableschema.addColumn(new ColumnDefinition("Parent", ColumnType.STRING).setLength(36).setNullable(true));
-    tableschema.addColumn(new ColumnDefinition("Sequence", ColumnType.INT).setNullable(true));
-    tableschema.addColumn(new ColumnDefinition("Name", ColumnType.STRING).setLength(64).setNullable(true));
-    tableschema.addColumn(new ColumnDefinition(VALUE, ColumnType.STRING).setLength(4096).setNullable(true));
-    tableschema.addColumn(new ColumnDefinition(TYPE, ColumnType.SHORT).setNullable(true));
-    tableschema.addColumn(new ColumnDefinition("CreatedBy", ColumnType.STRING).setLength(36));
-    tableschema.addColumn(new ColumnDefinition("CreatedOn", ColumnType.DATE));
-    tableschema.addColumn(new ColumnDefinition("ModifiedBy", ColumnType.STRING).setLength(36));
-    tableschema.addColumn(new ColumnDefinition("ModifiedOn", ColumnType.DATE));
-  }
+  private static final String SYSID = "SysId";
+  private static final String VALUE = "Value";
+  private static final String TYPE = "Type";
 
 
 
@@ -377,6 +352,16 @@ public abstract class AbstractDatabaseListener extends AbstractListener implemen
 
 
 
+  /**
+   * @return the name of the database product to which we are connected
+   */
+  protected String getDatabaseProduct() {
+    return databaseProduct;
+  }
+
+
+
+
   @SuppressWarnings("unchecked")
   private Connection getConnection() {
 
@@ -435,21 +420,21 @@ public abstract class AbstractDatabaseListener extends AbstractListener implemen
    * Check to make sure our database schema exists. 
    */
   private void checkSchema() {
-    tableschema.setSchemaName(determineSchema());
+    String schema = determineSchema();
 
-    Log.debug("Looking for schema '" + tableschema.getSchemaName() + "'");
-    if (!DatabaseUtil.schemaExists(tableschema.getSchemaName(), getConnection())) {
+    Log.debug("Looking for schema '" + schema + "'");
+    if (!DatabaseUtil.schemaExists(schema, getConnection())) {
       if (isAutoCreate()) {
-        String sql = DatabaseDialect.getCreateSchema(databaseProduct, tableschema.getSchemaName(), determineUserName());
-        Log.debug("Schema '" + tableschema.getSchemaName() + "' not found in database, creating it with:\n" + sql);
+        String sql = DatabaseDialect.getCreateSchema(databaseProduct, schema, determineUserName());
+        Log.debug("Schema '" + schema + "' not found in database, creating it with:\n" + sql);
         try (Statement stmt = connection.createStatement()) {
           stmt.executeUpdate(sql);
           Log.debug("Schema created.");
 
-          if (DatabaseUtil.schemaExists(tableschema.getSchemaName(), getConnection())) {
+          if (DatabaseUtil.schemaExists(schema, getConnection())) {
             Log.debug("Schema creation verified");
           } else {
-            Log.error("Could not verify the creation of schema '" + tableschema.getSchemaName() + "'");
+            Log.error("Could not verify the creation of schema '" + schema + "'");
           }
 
         } catch (final SQLException e) {
@@ -457,7 +442,7 @@ public abstract class AbstractDatabaseListener extends AbstractListener implemen
           e.printStackTrace();
         }
       } else {
-        Log.warn("The schema '" + tableschema.getSchemaName() + "' does not exist in the database and autocreate is set to '" + isAutoCreate() + "', expect subsequent database operations to fail.");
+        Log.warn("The schema '" + schema + "' does not exist in the database and autocreate is set to '" + isAutoCreate() + "', expect subsequent database operations to fail.");
       }
     }
   }
@@ -479,26 +464,28 @@ public abstract class AbstractDatabaseListener extends AbstractListener implemen
     boolean retval = false;
     checkSchema();
 
-    tableschema.setName(getTable());
+    String table = getTable();
 
     // check to see if the table exists
-    if (!DatabaseUtil.tableExists(tableschema.getName(), getConnection())) {
+    if (!DatabaseUtil.tableExists(table, getConnection())) {
 
       if (isAutoCreate()) {
         Connection conn = getConnection();
-
+        String schema = determineSchema();
         if (conn == null) {
           Log.error("Cannot get database connection");
           context.setError("Could not connect to the database");
           return false;
         }
 
-        symbolTable.put(DatabaseDialect.TABLE_NAME_SYM, tableschema.getName());
-        symbolTable.put(DatabaseDialect.DB_SCHEMA_SYM, tableschema.getSchemaName());
+        symbolTable.put(DatabaseDialect.TABLE_NAME_SYM, table);
+        symbolTable.put(DatabaseDialect.DB_SCHEMA_SYM, schema);
 
-        String command = DatabaseDialect.getCreate(databaseProduct, tableschema);
+        TableDefinition tabledef = FrameStore.getTableSchema(table, schema);
 
-        Log.debug(LogMsg.createMsg(CDX.MSG, "Writer.creating_table", getClass().getName(), tableschema.getName(), command));
+        String command = DatabaseDialect.getCreate(databaseProduct, tabledef);
+
+        Log.debug(LogMsg.createMsg(CDX.MSG, "Writer.creating_table", getClass().getName(), table, command));
 
         Statement stmt = null;
         try {
@@ -506,12 +493,12 @@ public abstract class AbstractDatabaseListener extends AbstractListener implemen
           stmt.executeUpdate(command);
 
         } catch (Exception e) {
-          Log.error(LogMsg.createMsg(CDX.MSG, "Writer.jdbc_table_create_error", tableschema.getName(), e.getMessage()));
+          Log.error(LogMsg.createMsg(CDX.MSG, "Writer.jdbc_table_create_error", table, e.getMessage()));
         } finally {
           try {
             stmt.close();
           } catch (Exception e) {
-            Log.warn(LogMsg.createMsg(CDX.MSG, "Problems closing create {} statement: {}", tableschema.getName(), e.getMessage()));
+            Log.warn(LogMsg.createMsg(CDX.MSG, "Problems closing create {} statement: {}", table, e.getMessage()));
           }
         }
 
@@ -521,14 +508,14 @@ public abstract class AbstractDatabaseListener extends AbstractListener implemen
           Log.warn("Couldnt commit table creation: " + e.getMessage());
         }
 
-        if (DatabaseUtil.tableExists(tableschema.getName(), tableschema.getSchemaName(), getConnection())) {
+        if (DatabaseUtil.tableExists(table, schema, getConnection())) {
           Log.debug("Table creation verified");
           retval = true;
         } else {
-          Log.error("Could not verifiy the creation of '" + tableschema.getName() + "." + tableschema.getSchemaName() + "' table, expect subsequent database operations to fail.");
+          Log.error("Could not verifiy the creation of '" + table + "." + schema + "' table, expect subsequent database operations to fail.");
         }
       } else {
-        Log.warn("The table '" + tableschema.getName() + "' does not exist in the database and autocreate is set to '" + isAutoCreate() + "', expect subsequent database operations to fail.");
+        Log.warn("The table '" + table + "' does not exist in the database and autocreate is set to '" + isAutoCreate() + "', expect subsequent database operations to fail.");
       }
 
     } else {
@@ -586,6 +573,12 @@ public abstract class AbstractDatabaseListener extends AbstractListener implemen
 
 
 
+  /**
+   * This is the main entry point for all sub-classes.
+   * 
+   * <p>This metho check to see if the listener is enabled then if any conditions exist. If enabled and the 
+   * @see coyote.dx.listener.AbstractListener#onMap(coyote.dx.context.TransactionContext)
+   */
   @Override
   public void onMap(TransactionContext context) {
     if (isEnabled()) {

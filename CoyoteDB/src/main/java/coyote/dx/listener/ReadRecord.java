@@ -9,13 +9,11 @@ package coyote.dx.listener;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.List;
 
-import coyote.commons.jdbc.DatabaseUtil;
 import coyote.dataframe.DataFrame;
-import coyote.dataframe.marshal.JSONMarshaler;
 import coyote.dx.context.ContextListener;
 import coyote.dx.context.TransactionContext;
+import coyote.dx.db.FrameStore;
 import coyote.loader.log.Log;
 
 
@@ -41,36 +39,19 @@ public class ReadRecord extends AbstractDatabaseListener implements ContextListe
     Connection connection = getConnector().getConnection();
 
     // look for the SysId of the record to read
-    DataFrame frame = cntxt.getWorkingFrame();
+    DataFrame frame = cntxt.getTargetFrame();
     if (frame != null) {
-      if (frame.containsIgnoreCase(SYSID)) {
-        String sysid = frame.getFieldIgnoreCase(SYSID).getStringValue();
-        String query = "select * from " + determineSchema() + "." + getTable() + " where sysid = '" + sysid + "'";
-        DataFrame result = DatabaseUtil.readRecord(connection, query);
-
-        // if this is running in Simple mode, then the value should be a JSON string, revert it back into a Dataframe
-        if (result != null) {
-          if (isSimpleMode()) {
-            if( result.containsIgnoreCase(VALUE)){
-            String json = result.getFieldIgnoreCase(VALUE).getStringValue();
-            List<DataFrame> frames = JSONMarshaler.marshal(json);
-            if (frames.size() > 0) {
-              result = frames.get(0);
-            } else {
-              Log.warn("There did not seem to be a data frame stored in the value.");
-            }
-          }
-          } else {
-            Log.warn("Complex mode not yet supported");
-          }
-        } else {
+      if (frame.containsIgnoreCase(FrameStore.SYSID)) {
+        String sysid = frame.getFieldIgnoreCase(FrameStore.SYSID).getStringValue();
+        // Use the static methods in the FrameStore to encapsulate and standardize all SQL processing
+        DataFrame result = FrameStore.read(sysid, connection, getIdentity(), determineSchema(), getTable(), getDatabaseProduct());
+        if (result == null) {
           Log.warn("No results for " + sysid);
         }
-
-        cntxt.setTargetFrame(result); // replace the working frame with the results
+        cntxt.setTargetFrame(result); // replace the target frame with the results
       }
     } else {
-      Log.error("No frame");
+      Log.error("No frame from which to retrive the system identifier");
     }
 
     // if the connector pools connections, it is safe to close the connection
