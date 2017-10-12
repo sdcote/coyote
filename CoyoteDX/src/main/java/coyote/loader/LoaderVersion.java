@@ -16,7 +16,7 @@ import coyote.dx.CDX;
 
 
 /**
- * This class is used to display astring representing the version of the 
+ * This class is used to display a string representing the version of the 
  * components being loaded.
  */
 public class LoaderVersion {
@@ -36,6 +36,7 @@ public class LoaderVersion {
     checkVersion("CoyoteUI", "coyote.dx.CUI", modules);
     checkVersion("CoyoteWS", "coyote.dx.CWS", modules);
     checkVersion("CoyoteSN", "coyote.dx.CSN", modules);
+    checkVersion("CoyoteDB", "coyote.dx.CDB", modules);
   }
 
 
