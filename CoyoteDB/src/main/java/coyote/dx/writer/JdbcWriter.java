@@ -9,10 +9,16 @@ package coyote.dx.writer;
 
 import static java.sql.Types.BIGINT;
 import static java.sql.Types.BOOLEAN;
+import static java.sql.Types.DATE;
+import static java.sql.Types.DECIMAL;
+import static java.sql.Types.DISTINCT;
 import static java.sql.Types.DOUBLE;
 import static java.sql.Types.FLOAT;
 import static java.sql.Types.INTEGER;
+import static java.sql.Types.NUMERIC;
+import static java.sql.Types.REAL;
 import static java.sql.Types.SMALLINT;
+import static java.sql.Types.TIME;
 import static java.sql.Types.TIMESTAMP;
 import static java.sql.Types.TINYINT;
 import static java.sql.Types.VARCHAR;
@@ -24,7 +30,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.sql.Types;
 import java.util.Date;
 
 import coyote.commons.StringUtil;
@@ -43,8 +48,8 @@ import coyote.dataframe.FrameSet;
 import coyote.dx.CDX;
 import coyote.dx.ConfigTag;
 import coyote.dx.ConfigurableComponent;
-import coyote.dx.FrameWriter;
 import coyote.dx.DataSetMetrics;
+import coyote.dx.FrameWriter;
 import coyote.dx.context.TransformContext;
 import coyote.dx.db.Database;
 import coyote.dx.db.DatabaseConnector;
@@ -900,36 +905,36 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
             remarks = rs.getString("REMARKS");
 
             switch (rs.getInt("DATA_TYPE")) {
-              case Types.TIME:
-              case Types.TIMESTAMP:
-              case Types.DATE:
+              case TIME:
+              case TIMESTAMP:
+              case DATE:
                 type = ColumnType.DATE;
                 break;
-              case Types.BOOLEAN:
+              case BOOLEAN:
                 type = ColumnType.BOOLEAN;
                 break;
-              case Types.TINYINT:
+              case TINYINT:
                 type = ColumnType.BYTE;
                 break;
-              case Types.SMALLINT:
+              case SMALLINT:
                 type = ColumnType.SHORT;
                 break;
-              case Types.INTEGER:
+              case INTEGER:
                 type = ColumnType.INT;
                 break;
-              case Types.FLOAT:
-              case Types.DOUBLE:
-              case Types.REAL:
+              case FLOAT:
+              case DOUBLE:
+              case REAL:
                 type = ColumnType.FLOAT;
                 break;
-              case Types.DECIMAL:
-              case Types.NUMERIC:
+              case DECIMAL:
+              case NUMERIC:
                 type = ColumnType.DOUBLE;
                 break;
-              case Types.BIGINT:
+              case BIGINT:
                 type = ColumnType.LONG;
                 break;
-              case Types.DISTINCT:
+              case DISTINCT:
                 unique = true;
                 type = ColumnType.STRING;
                 break;

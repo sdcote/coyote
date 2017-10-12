@@ -65,12 +65,6 @@ public class RunJob extends AbstractTransformTask {
         if (!localfile.isAbsolute()) {
           cfgUri = checkCurrentDirectory(cfgLoc, errMsg);
           if (cfgUri == null) {
-            cfgUri = checkHomeDirectory(cfgLoc, errMsg);
-          }
-          if (cfgUri == null) {
-            cfgUri = checkHomeCfgDirectory(cfgLoc, errMsg);
-          }
-          if (cfgUri == null) {
             cfgUri = checkWorkDirectory(cfgLoc, errMsg);
           }
           if (cfgUri == null) {
@@ -179,20 +173,6 @@ public class RunJob extends AbstractTransformTask {
       errMsg.append(LogMsg.createMsg(CDX.MSG, "Task.runjob.no_reference_to_engine") + StringUtil.CRLF);
     }
     return retval;
-  }
-
-
-
-
-  private URI checkHomeCfgDirectory(String cfgLoc, StringBuffer errMsg) throws TaskException {
-    return null;
-  }
-
-
-
-
-  private URI checkHomeDirectory(String cfgLoc, StringBuffer errMsg) throws TaskException {
-    return null;
   }
 
 

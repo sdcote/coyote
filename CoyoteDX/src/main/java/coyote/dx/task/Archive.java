@@ -52,8 +52,8 @@ public class Archive extends AbstractFileTask {
     final String source = getString(ConfigTag.SOURCE);
     final String target = getString(ConfigTag.TARGET);
 
-    final String pattern = getString(ConfigTag.PATTERN);
-    boolean overwrite = getBoolean(ConfigTag.OVERWRITE);
+    //final String pattern = getString(ConfigTag.PATTERN);
+    //boolean overwrite = getBoolean(ConfigTag.OVERWRITE);
 
     if (StringUtil.isNotBlank(source)) {
       File sourceFile = new File(source);

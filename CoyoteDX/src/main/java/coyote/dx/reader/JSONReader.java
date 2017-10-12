@@ -23,7 +23,6 @@ import coyote.dx.CDX;
 import coyote.dx.ConfigTag;
 import coyote.dx.ConfigurableComponent;
 import coyote.dx.FrameReader;
-import coyote.dx.Symbols;
 import coyote.dx.context.TransactionContext;
 import coyote.dx.context.TransformContext;
 import coyote.loader.log.Log;
@@ -128,7 +127,7 @@ public class JSONReader extends AbstractFrameReader implements FrameReader, Conf
       }
       // if not absolute, use the CDX fixture to attemt to resolve the relative file
       if (!sourceFile.isAbsolute()) {
-        sourceFile = CDX.resolveFile(sourceFile,getContext());
+        sourceFile = CDX.resolveFile(sourceFile, getContext());
       }
       Log.debug("Using an absolute source file of " + sourceFile.getAbsolutePath());
 

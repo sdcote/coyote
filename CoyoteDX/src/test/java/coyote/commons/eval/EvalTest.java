@@ -139,9 +139,7 @@ public class EvalTest {
       // Set the value of x
       variables.set("x", x);
       // Evaluate the expression
-      Double result = eval.evaluate(expression, variables);
-      // Ouput the result
-      //System.out.println("x="+x+" -> "+expression+" = "+result);
+      eval.evaluate(expression, variables);
       x += step;
     }
   }

@@ -60,12 +60,9 @@ public class WebServiceReader extends AbstractFrameReader implements FrameReader
 
   private Resource resource = null;
   private Authenticator authenticator = new NullAuthenticator();
-  private String selectorPattern = null;
-
   private Response lastResponse = null;
-
   List<DataFrame> dataframes = null;
-
+  //private String selectorPattern = null;
 
 
 
@@ -75,72 +72,72 @@ public class WebServiceReader extends AbstractFrameReader implements FrameReader
    * @see coyote.dx.Component#open(coyote.dx.context.TransformContext)
    */
   @Override
-  public void open( TransformContext context ) {
-    setContext( context );
+  public void open(TransformContext context) {
+    setContext(context);
 
     String resourceUrl = null;
     Proxy proxy = null;
 
     // Get the resource - this is usually the host as in https://host.com
-    DataField dfld = getConfiguration().getFieldIgnoreCase( ConfigTag.SOURCE );
-    if ( dfld != null ) {
+    DataField dfld = getConfiguration().getFieldIgnoreCase(ConfigTag.SOURCE);
+    if (dfld != null) {
       resourceUrl = dfld.getStringValue();
     }
 
     // Get proxy data if defined
-    for ( DataField field : getConfiguration().getFields() ) {
-      if ( ( field.getName() != null ) && field.getName().equalsIgnoreCase( CWS.PROXY ) ) {
-        if ( field.isFrame() ) {
+    for (DataField field : getConfiguration().getFields()) {
+      if ((field.getName() != null) && field.getName().equalsIgnoreCase(CWS.PROXY)) {
+        if (field.isFrame()) {
           try {
-            proxy = CWS.configProxy( (DataFrame)field.getObjectValue() );
-          } catch ( ConfigurationException e ) {
-            Log.fatal( e );
-            context.setError( "Could not create proxy: " + e.getMessage() );
+            proxy = CWS.configProxy((DataFrame)field.getObjectValue());
+          } catch (ConfigurationException e) {
+            Log.fatal(e);
+            context.setError("Could not create proxy: " + e.getMessage());
             return;
           }
           break;
         } else {
-          Log.error( "Invalid proxy configuration, expected a section not a scalar" );
+          Log.error("Invalid proxy configuration, expected a section not a scalar");
         }
       }
     }
 
     // Get authenticator, if defined
-    for ( DataField field : getConfiguration().getFields() ) {
-      if ( ( field.getName() != null ) && field.getName().equalsIgnoreCase( CWS.AUTHENTICATOR ) ) {
-        if ( field.isFrame() ) {
+    for (DataField field : getConfiguration().getFields()) {
+      if ((field.getName() != null) && field.getName().equalsIgnoreCase(CWS.AUTHENTICATOR)) {
+        if (field.isFrame()) {
           DataFrame cfg = (DataFrame)field.getObjectValue();
           try {
-            authenticator = CWS.configAuthenticator( cfg );
+            authenticator = CWS.configAuthenticator(cfg);
             break;
-          } catch ( ConfigurationException e ) {
-            Log.fatal( e );
-            context.setError( "Could not create authenticator: " + e.getMessage() );
+          } catch (ConfigurationException e) {
+            Log.fatal(e);
+            context.setError("Could not create authenticator: " + e.getMessage());
             return;
           }
         } else {
-          Log.error( "Invalid authenticator configuration, expected a section not an attribute" );
+          Log.error("Invalid authenticator configuration, expected a section not an attribute");
         }
       }
     }
 
     // look for a Protocol section
     Parameters protocol = null;
-    for ( DataField field : getConfiguration().getFields() ) {
-      if ( ( field.getName() != null ) && field.getName().equalsIgnoreCase( CWS.PROTOCOL ) ) {
-        if ( field.isFrame() ) {
+    for (DataField field : getConfiguration().getFields()) {
+      if ((field.getName() != null) && field.getName().equalsIgnoreCase(CWS.PROTOCOL)) {
+        if (field.isFrame()) {
           try {
-            protocol = CWS.configParameters( (DataFrame)field.getObjectValue() );
-          } catch ( ConfigurationException e ) {
-            Log.fatal( e );
-            context.setError( "Could not configure protocol: " + e.getMessage() );
+            protocol = CWS.configParameters((DataFrame)field.getObjectValue());
+          } catch (ConfigurationException e) {
+            Log.fatal(e);
+            context.setError("Could not configure protocol: " + e.getMessage());
             return;
           }
-          Log.debug( "Found a protocol: " + protocol.toString() );
+          Log.debug("Found a protocol: " + protocol.toString());
           break;
         } else {
-          context.setError( "Invalid protocol configuration, expected a section not an attribute" );
-          context.setState( "Configuration Error" );
+          context.setError("Invalid protocol configuration, expected a section not an attribute");
+          context.setState("Configuration Error");
           return;
         }
       }
@@ -148,51 +145,51 @@ public class WebServiceReader extends AbstractFrameReader implements FrameReader
 
     // Get the request body (a.k.a. the payload or message) and place it in 
     // our request parameters
-    for ( DataField field : getConfiguration().getFields() ) {
-      if ( ( field.getName() != null ) && field.getName().equalsIgnoreCase( CWS.BODY ) ) {
-        if ( field.isFrame() ) {
+    for (DataField field : getConfiguration().getFields()) {
+      if ((field.getName() != null) && field.getName().equalsIgnoreCase(CWS.BODY)) {
+        if (field.isFrame()) {
           DataFrame cfg = (DataFrame)field.getObjectValue();
-          protocol.setPayload( cfg );
+          protocol.setPayload(cfg);
           break;
         } else {
-          protocol.setBody( field.getStringValue() );
+          protocol.setBody(field.getStringValue());
         }
       }
     }
 
     // Get the selector pattern
-    selectorPattern = getConfiguration().getAsString( CWS.SELECTOR );
+    //selectorPattern = getConfiguration().getAsString(CWS.SELECTOR);
 
     try {
 
       // treat the source as a template
-      String url = Template.resolve( resourceUrl, getContext().getSymbols() );
+      String url = Template.resolve(resourceUrl, getContext().getSymbols());
 
       // Create a new web resource
-      resource = new Resource( url, protocol, proxy );
+      resource = new Resource(url, protocol, proxy);
 
       // Set the configured authenticator
-      resource.setAuthenticator( authenticator );
+      resource.setAuthenticator(authenticator);
 
       // Now look for a Request Decorator configuration frame and add the 
       // request decorators to the new resource 
-      for ( DataField field : getConfiguration().getFields() ) {
-        if ( field.getName() != null && field.getName().equalsIgnoreCase( CWS.DECORATOR ) ) {
-          if ( field.isFrame() ) {
+      for (DataField field : getConfiguration().getFields()) {
+        if (field.getName() != null && field.getName().equalsIgnoreCase(CWS.DECORATOR)) {
+          if (field.isFrame()) {
             DataFrame cfgFrame = (DataFrame)field.getObjectValue();
-            for ( DataField cfgfield : cfgFrame.getFields() ) {
-              if ( cfgfield.isFrame() ) {
-                if ( StringUtil.isNotBlank( cfgfield.getName() ) ) {
-                  CWS.configDecorator( cfgfield.getName(), (DataFrame)cfgfield.getObjectValue(), resource );
+            for (DataField cfgfield : cfgFrame.getFields()) {
+              if (cfgfield.isFrame()) {
+                if (StringUtil.isNotBlank(cfgfield.getName())) {
+                  CWS.configDecorator(cfgfield.getName(), (DataFrame)cfgfield.getObjectValue(), resource);
                 } else {
-                  Log.error( LogMsg.createMsg( CWS.MSG, "Decorator.configuration_must_be_named" ) );
+                  Log.error(LogMsg.createMsg(CWS.MSG, "Decorator.configuration_must_be_named"));
                 }
               } else {
-                Log.error( LogMsg.createMsg( CWS.MSG, "Decorator.invalid_decorator_configuration_section" ) );
+                Log.error(LogMsg.createMsg(CWS.MSG, "Decorator.invalid_decorator_configuration_section"));
               }
             }
           } else {
-            Log.error( LogMsg.createMsg( CWS.MSG, "Decorator.invalid_decorator_configuration_section" ) );
+            Log.error(LogMsg.createMsg(CWS.MSG, "Decorator.invalid_decorator_configuration_section"));
           }
         }
       }
@@ -200,12 +197,12 @@ public class WebServiceReader extends AbstractFrameReader implements FrameReader
       // Open the resource performing any authentication exchanges
       resource.open();
 
-    } catch ( IOException e ) {
-      Log.fatal( e );
-      context.setError( "Could not create resource: " + e.getMessage() );
-    } catch ( AuthenticationException e ) {
-      Log.fatal( e );
-      context.setError( "Could not authenticate resource: " + e.getMessage() );
+    } catch (IOException e) {
+      Log.fatal(e);
+      context.setError("Could not create resource: " + e.getMessage());
+    } catch (AuthenticationException e) {
+      Log.fatal(e);
+      context.setError("Could not authenticate resource: " + e.getMessage());
     }
 
     // The resource should be open and ready for reads
@@ -215,14 +212,14 @@ public class WebServiceReader extends AbstractFrameReader implements FrameReader
 
 
   @Override
-  public DataFrame read( TransactionContext context ) {
+  public DataFrame read(TransactionContext context) {
 
-    if ( dataframes == null ) {
+    if (dataframes == null) {
       dataframes = retrieveData();
     }
 
-    if ( dataframes.size() > 0 )
-      return dataframes.remove( 0 );
+    if (dataframes.size() > 0)
+      return dataframes.remove(0);
 
     return null;
   }
@@ -239,25 +236,24 @@ public class WebServiceReader extends AbstractFrameReader implements FrameReader
   private List<DataFrame> retrieveData() {
     List<DataFrame> retval = new ArrayList<DataFrame>();
 
-   
     try {
       lastResponse = resource.request();
-    } catch ( InvocationException e ) {
+    } catch (InvocationException e) {
       e.printStackTrace();
     }
 
-    if ( lastResponse != null ) {
-      while ( !lastResponse.isComplete() ) {
+    if (lastResponse != null) {
+      while (!lastResponse.isComplete()) {
         Thread.yield();
       }
     }
 
-    if ( lastResponse != null ) {
+    if (lastResponse != null) {
       DataFrame result = lastResponse.getResult();
 
       //TODO apply the selector to the results
 
-      retval.add( DataFrameUtil.flatten( result ) );
+      retval.add(DataFrameUtil.flatten(result));
     }
     return retval;
   }
@@ -273,7 +269,7 @@ public class WebServiceReader extends AbstractFrameReader implements FrameReader
    */
   @Override
   public boolean eof() {
-    return ( dataframes != null && dataframes.size() == 0 );
+    return (dataframes != null && dataframes.size() == 0);
   }
 
 

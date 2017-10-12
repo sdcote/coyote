@@ -7,8 +7,6 @@
  */
 package coyote.dx.db;
 
-import java.sql.Connection;
-
 import coyote.loader.cfg.Config;
 import coyote.loader.cfg.ConfigurationException;
 
@@ -18,12 +16,6 @@ import coyote.loader.cfg.ConfigurationException;
  * context.
  */
 public interface DatabaseFixture extends DatabaseConnector {
-
-
-
-  
-
-
 
   /**
    * This is how the fixture is configured.

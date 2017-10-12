@@ -30,11 +30,6 @@ import coyote.loader.log.Log;
  */
 public class DefaultHttpManager extends HTTPDRouter implements HttpManager {
 
-  private final Service service;
-
-
-
-
   /**
    * Create the server instance with all the defaults.
    * 
@@ -61,12 +56,8 @@ public class DefaultHttpManager extends HTTPDRouter implements HttpManager {
     if (service == null)
       throw new IllegalArgumentException("Cannot create HttpManager without a service reference");
 
-    // Our connection to the service instance we are managing
-    this.service = service;
-
     if (cfg != null) {
       // Setup auth provider from configuration - No configuration results in deny-all operation
-      DataFrame authConfig = null;
       for (DataField field : cfg.getFields()) {
         if (StringUtil.equalsIgnoreCase(GenericAuthProvider.AUTH_SECTION, field.getName()) && field.isFrame()) {
           setAuthProvider(new GenericAuthProvider(new Config((DataFrame)field.getObjectValue())));

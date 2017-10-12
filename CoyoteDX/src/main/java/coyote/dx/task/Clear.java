@@ -28,32 +28,32 @@ public class Clear extends AbstractFileTask {
    */
   @Override
   protected void performTask() throws TaskException {
-    final String directory = getString( ConfigTag.DIRECTORY );
-    if ( contains( ConfigTag.HALT_ON_ERROR ) ) {
-      setHaltOnError( getBoolean( ConfigTag.HALT_ON_ERROR ) );
+    final String directory = getString(ConfigTag.DIRECTORY);
+    if (contains(ConfigTag.HALT_ON_ERROR)) {
+      setHaltOnError(getBoolean(ConfigTag.HALT_ON_ERROR));
     }
 
     // get if we should recurse into sub directories when clearing directories
     boolean recurse = true;
-    if ( contains( ConfigTag.RECURSE ) ) {
-      recurse = getBoolean( ConfigTag.RECURSE );
+    if (contains(ConfigTag.RECURSE)) {
+      recurse = getBoolean(ConfigTag.RECURSE);
     }
 
-    if ( StringUtil.isNotBlank( directory ) ) {
-      final String dir = resolveArgument( directory );
-      coyote.loader.log.Log.info( LogMsg.createMsg( CDX.MSG, "Task.Clearing directory named {%s}", dir ) );
+    if (StringUtil.isNotBlank(directory)) {
+      final String dir = resolveArgument(directory);
+      Log.info(LogMsg.createMsg(CDX.MSG, "Task.Clearing directory named {%s}", dir));
 
       try {
-        FileUtil.clearDir( dir, true, recurse );
-      } catch ( final Exception e ) {
-        if ( haltOnError ) {
-          getContext().setError( String.format( "Task.Clearing directory operation '%s' failed: %s", dir, e.getMessage() ) );
+        FileUtil.clearDir(dir, true, recurse);
+      } catch (final Exception e) {
+        if (haltOnError) {
+          getContext().setError(String.format("Task.Clearing directory operation '%s' failed: %s", dir, e.getMessage()));
           return;
         }
       }
 
     } else {
-      Log.warn( LogMsg.createMsg( CDX.MSG, "Task.Clear has no {%s} or {%s} argument - nothing to do.", ConfigTag.FILE, ConfigTag.DIRECTORY ) );
+      Log.warn(LogMsg.createMsg(CDX.MSG, "Task.Clear has no {%s} or {%s} argument - nothing to do.", ConfigTag.FILE, ConfigTag.DIRECTORY));
     }
 
   }

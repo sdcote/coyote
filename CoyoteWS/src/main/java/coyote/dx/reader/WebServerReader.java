@@ -51,11 +51,11 @@ import coyote.loader.log.Log;
  */
 public class WebServerReader extends AbstractFrameReader implements FrameReader, ConfigurableComponent, Responder, ContextListener {
 
-  private static final int DEFAULT_PORT = 80;
+  //private static final int DEFAULT_PORT = 80;
 
-  private static final String PORT = "Port";
+  //private static final String PORT = "Port";
 
-  private HTTPDRouter server = null;
+  //private HTTPDRouter server = null;
 
   private ResponseFutureQueue futureQueue = new ResponseFutureQueue(1024);
 
