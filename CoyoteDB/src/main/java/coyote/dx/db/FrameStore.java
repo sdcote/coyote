@@ -100,7 +100,7 @@ public abstract class FrameStore {
   @SuppressWarnings("unchecked")
   public static String create(DataFrame frame, Connection conn, String entity, String schema, String table, String dialect) {
     String retval = GUID.randomSecureGUID().toString();
-    Log.info("Frame Id:" + retval + " - " + frame);
+    Log.info("Creating Frame Id:" + retval);
     String databaseProduct = dialect;
     if (StringUtil.isBlank(databaseProduct)) {
       databaseProduct = DatabaseUtil.getProduct(conn);
@@ -136,18 +136,16 @@ public abstract class FrameStore {
 
           count++;
           if (count % BATCH_SIZE == 0) {
-            System.out.println("Commit the batch of " + BATCH_SIZE);
             int[] result = preparedStatement.executeBatch();
-            count = 0;
-            System.out.println("Number of rows inserted: " + result.length);
             conn.commit();
+            Log.debug("Commited a batch of " + result.length+" rows");
+            count = 0;
           }
         }
 
         if (count > 0) {
-          System.out.println("Commit the batch");
           int[] result = preparedStatement.executeBatch();
-          System.out.println("Number of rows inserted: " + result.length);
+          Log.debug("Commited batch of " + result.length+" rows");
           conn.commit();
         }
 

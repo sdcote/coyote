@@ -46,7 +46,7 @@ public class ReadRecord extends AbstractDatabaseListener implements ContextListe
         // Use the static methods in the FrameStore to encapsulate and standardize all SQL processing
         DataFrame result = FrameStore.read(sysid, connection, getIdentity(), determineSchema(), getTable(), getDatabaseProduct());
         if (result == null) {
-          Log.warn("No results for " + sysid);
+          Log.warn("No results for frame with a SysId of '" + sysid + "'");
         }
         cntxt.setTargetFrame(result); // replace the target frame with the results
       }

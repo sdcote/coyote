@@ -334,7 +334,7 @@ public class HttpReader extends AbstractFrameReader implements FrameReader {
       context.set(HTTP_CONTENT_TYPE, future.getContentType());
       context.set(HTTP_RESOURCE, future.getResource());
       context.set(HTTP_REQUEST_URI, future.getRequestUri());
-      Log.info("Processing request for '" + future.getRequestUri() + "'");
+      Log.debug("Processing request for '" + future.getRequestUri() + "'");
     }
     return retval;
   }
