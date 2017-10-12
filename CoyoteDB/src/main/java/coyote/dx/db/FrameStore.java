@@ -64,11 +64,15 @@ public abstract class FrameStore {
   public static final String MODIFIED_BY = "ModifiedBy";
   public static final String MODIFIED_ON = "ModifiedOn";
 
+  // Size of the batch of inserts and updates to send at once
   private static final int BATCH_SIZE = 250;
 
 
 
 
+  /**
+   * Private constructor
+   */
   private FrameStore() {
     // no instances, all static methods
   }
@@ -228,13 +232,22 @@ public abstract class FrameStore {
 
 
   /**
-   * @param slots
-   * @param conn
-   * @param entity
-   * @param schema
-   * @param table
-   * @param dialect
-   * @return
+   * Assemble the given list of field slots into a data frame.
+   * 
+   * <p>With the exception of {@code slots}, all the arguments are used when
+   * calling {@link #read(String, Connection, String, String, String, String)}
+   * to retrieve a filed that itself contains other fields (i.e. a DataFrame).
+   * 
+   * @param slots the list of filed slots representing the fields in the frame
+   * @param sysid the system identifier of the frame to retrieve
+   * @param conn the JDBC connection to the database
+   * @param entity the entity reading the dataframe
+   * @param schema the schema in the database where the data is stored
+   * @param table the table in the schema where the data is stored
+   * @param dialect the database product being used, if null, the connection 
+   *        metadata will be queried
+   *
+   * @return a data frame comprised of the data from the field slots 
    */
   private static DataFrame assembleFrame(List<FieldSlot> slots, Connection conn, String entity, String schema, String table, String dialect) {
     DataFrame retval = new DataFrame();
@@ -292,42 +305,6 @@ public abstract class FrameStore {
   public static boolean delete(String sysid, Connection conn, String entity, String schema, String table) {
     boolean retval = false;
 
-    return retval;
-  }
-
-
-
-
-  /**
-   * Retrieve a frame from the database.
-   * 
-   * <p>This is a recursive method which gathers all the fields with a 
-   * request, then closes the result set before calling the assemble method to 
-   * create the data frame. If and of the fields are discovered to be of type 
-   * DataFrame, then the assemble method calls this method to create that 
-   * frame. This occurs for each level in the data frames hierarchy.
-   * 
-   * @param sysid the system identifier of the frame to retrieve
-   * @param conn the JDBC connection to the database
-   * @return the dataframe with the given system identifier or null if that 
-   *         frame could not be found.
-   */
-  private DataFrame getFrame(String sysid, Connection conn) {
-    DataFrame retval = null;
-    return retval;
-  }
-
-
-
-
-  /**
-   * 
-   * @param slots the list of FieldSlot references representing the 
-   * @param conn the JDBC connection to the database
-   * @return
-   */
-  private DataFrame assemble(List<FieldSlot> slots, Connection conn) {
-    DataFrame retval = null;
     return retval;
   }
 
