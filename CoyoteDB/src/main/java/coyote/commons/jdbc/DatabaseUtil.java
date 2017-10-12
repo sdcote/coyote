@@ -573,4 +573,20 @@ public class DatabaseUtil {
     return retval;
   }
 
+
+
+
+  /**
+   * Close the given statement and consume any thrown exceptions.
+   * 
+   * @param statement the resource to close.
+   */
+  public static void closeQuietly(Statement statement) {
+    try {
+      statement.close();
+    } catch (SQLException ignore) {
+      // no exceptions
+    }
+  }
+
 }
