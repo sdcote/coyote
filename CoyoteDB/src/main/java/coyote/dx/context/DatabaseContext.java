@@ -110,6 +110,9 @@ public class DatabaseContext extends PersistentContext {
     }
 
     upsertFields(connection, TABLE_NAME, frame);
+    
+    DatabaseUtil.closeQuietly(connection);
+    // connection = null; //should probably null this out since it is closed
 
     super.close();
   }
