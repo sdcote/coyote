@@ -19,6 +19,7 @@ import coyote.commons.jdbc.DatabaseDialect;
 import coyote.commons.jdbc.DatabaseUtil;
 import coyote.commons.template.Template;
 import coyote.dataframe.DataFrame;
+import coyote.dx.CDB;
 import coyote.dx.CDX;
 import coyote.dx.ConfigTag;
 import coyote.dx.context.TransactionContext;
@@ -62,7 +63,7 @@ public class JdbcReader extends AbstractFrameReader {
 
     if (getConfiguration().containsIgnoreCase(ConfigTag.SOURCE)) {
       String source = getString(ConfigTag.SOURCE);
-      Log.debug(LogMsg.createMsg(CDX.MSG, "Reader.using a source of {%s}", source));
+      Log.debug(LogMsg.createMsg(CDX.MSG, "Component.configured_source_is", this.getClass().getSimpleName(), source));
 
       // If we don't have a connection, prepare to create one
       if (connection == null) {
@@ -72,7 +73,7 @@ public class JdbcReader extends AbstractFrameReader {
         Object obj = getContext().get(target);
         if (obj != null && obj instanceof DatabaseConnector) {
           setConnector((DatabaseConnector)obj);
-          Log.debug("Using database connector found in context bound to '" + target + "'");
+          Log.debug(LogMsg.createMsg(CDB.MSG, "Component.found_connector_in_context", this.getClass().getSimpleName(), target));
         }
 
         if (getConnector() == null) {
@@ -106,14 +107,16 @@ public class JdbcReader extends AbstractFrameReader {
           try {
             database.setConfiguration(cfg);
             if (Log.isLogging(Log.DEBUG_EVENTS)) {
-              Log.debug(LogMsg.createMsg(CDX.MSG, "Reader.using_target", getClass().getName(), database.getTarget()));
-              Log.debug(LogMsg.createMsg(CDX.MSG, "Reader.using_driver", getClass().getName(), database.getDriver()));
-              Log.debug(LogMsg.createMsg(CDX.MSG, "Reader.using_library", getClass().getName(), database.getLibrary()));
-              Log.debug(LogMsg.createMsg(CDX.MSG, "Reader.using_user", getClass().getName(), database.getUserName()));
-              Log.debug(LogMsg.createMsg(CDX.MSG, "Reader.using_password", getClass().getName(), StringUtil.isBlank(database.getPassword()) ? 0 : database.getPassword().length()));
+              Log.debug(LogMsg.createMsg(CDX.MSG, "Component.using_target", getClass().getSimpleName(), database.getTarget()));
+              Log.debug(LogMsg.createMsg(CDX.MSG, "Component.using_driver", getClass().getSimpleName(), database.getDriver()));
+              Log.debug(LogMsg.createMsg(CDX.MSG, "Component.using_library", getClass().getSimpleName(), database.getLibrary()));
+              Log.debug(LogMsg.createMsg(CDX.MSG, "Component.using_user", getClass().getSimpleName(), database.getUserName()));
+              Log.debug(LogMsg.createMsg(CDX.MSG, "Component.using_password", getClass().getSimpleName(), StringUtil.isBlank(database.getPassword()) ? 0 : database.getPassword().length()));
             }
           } catch (ConfigurationException e) {
-            context.setError("Could not configure database connector: " + e.getClass().getName() + " - " + e.getMessage());
+            String msg = LogMsg.createMsg(CDB.MSG, "Component.could_not_configure_database", getClass().getSimpleName(), e.getMessage()).toString();
+            Log.error(msg, e);
+            context.setError(msg);
           }
 
           // if there is no schema in the configuration, set it to the same as the username
@@ -122,14 +125,14 @@ public class JdbcReader extends AbstractFrameReader {
           }
         }
       } else {
-        Log.debug(LogMsg.createMsg(CDX.MSG, "Reader.using_existing_connection", getClass().getName()));
+        Log.debug(LogMsg.createMsg(CDB.MSG, "Component.using_existing_connection", getClass().getSimpleName()));
       }
 
       connection = getConnection();
 
       if (connection != null) {
         String query = getString(ConfigTag.QUERY);
-        Log.debug(LogMsg.createMsg(CDX.MSG, "Reader.Using a query of '{%s}'", query));
+        Log.debug(LogMsg.createMsg(CDX.MSG, "Component.using_query", this.getClass().getSimpleName(), query));
 
         try {
           statement = connection.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY);
@@ -141,16 +144,18 @@ public class JdbcReader extends AbstractFrameReader {
             EOF = false;
           }
         } catch (SQLException e) {
-          String msg = String.format("Error querying database: '%s' - query = '%s'", e.getMessage().trim(), query);
-          context.setError(getClass().getName() + " " + msg);
+          String msg = LogMsg.createMsg(CDB.MSG, "Component.error_quering_database", getClass().getSimpleName(), e.getMessage().trim(), query).toString();
+          context.setError(msg);
         }
       } else {
-        Log.error("Could not connect to source");
-        context.setError(getClass().getName() + " could not connect to source");
+        String msg = LogMsg.createMsg(CDX.MSG, "Component.could_not_connect_to_source", getClass().getSimpleName(), getSource()).toString();
+        Log.error(msg);
+        context.setError(msg);
       }
     } else {
-      Log.error("No source specified");
-      context.setError(getClass().getName() + " could not determine source of data");
+      String msg = LogMsg.createMsg(CDX.MSG, "Component.no_source_specified", getClass().getSimpleName()).toString();
+      Log.error(msg);
+      context.setError(msg);
     }
   }
 
@@ -245,11 +250,11 @@ public class JdbcReader extends AbstractFrameReader {
   private Connection getConnection() {
     if (connection == null) {
       if (getConnector() == null) {
-        Log.fatal("We don't have a connector to give us a connection to a database. The open method failed to do its job!");
+        Log.fatal(LogMsg.createMsg(CDB.MSG, "Component.no_connector", getClass().getSimpleName()));
       }
       connection = getConnector().getConnection();
       if (Log.isLogging(Log.DEBUG_EVENTS) && connection != null) {
-        Log.debug(LogMsg.createMsg(CDX.MSG, "Reader.connected_to", getClass().getName(), getSource()));
+        Log.debug(LogMsg.createMsg(CDB.MSG, "Database.connected_to", getClass().getSimpleName(), getSource()));
       }
     }
     return connection;

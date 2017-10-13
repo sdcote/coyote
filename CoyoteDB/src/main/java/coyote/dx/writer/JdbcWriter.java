@@ -45,6 +45,7 @@ import coyote.dataframe.DataField;
 import coyote.dataframe.DataFrame;
 import coyote.dataframe.DataFrameException;
 import coyote.dataframe.FrameSet;
+import coyote.dx.CDB;
 import coyote.dx.CDX;
 import coyote.dx.ConfigTag;
 import coyote.dx.ConfigurableComponent;
@@ -130,7 +131,7 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
   public void close() throws IOException {
 
     if (frameset.size() > 0) {
-      Log.debug(LogMsg.createMsg(CDX.MSG, "Writer.completing_batch", getClass().getName(), frameset.size()));
+      Log.debug(LogMsg.createMsg(CDX.MSG, "Writer.completing_batch", getClass().getSimpleName(), frameset.size()));
       writeBatch();
       frameset.clearAll();
     }
@@ -156,7 +157,7 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
       // if it looks like we created the connection ourselves (e.g. we have a 
       // configured target) close the connection
       if (StringUtil.isNotBlank(getTarget())) {
-        Log.debug(LogMsg.createMsg(CDX.MSG, "Writer.closing_connection", getClass().getName(), getTarget()));
+        Log.debug(LogMsg.createMsg(CDX.MSG, "Writer.closing_connection", getClass().getSimpleName(), getTarget()));
 
         try {
           connection.close();
@@ -234,7 +235,7 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
         connection = getConnector().getConnection();
 
         if (connection != null) {
-          Log.debug(LogMsg.createMsg(CDX.MSG, "Writer.connected_to", getClass().getName(), getTarget()));
+          Log.debug(LogMsg.createMsg(CDX.MSG, "Writer.connected_to", getClass().getSimpleName(), getTarget()));
           DatabaseMetaData meta = connection.getMetaData();
           String product = meta.getDatabaseProductName();
           database = product.toUpperCase();
@@ -253,7 +254,7 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
           symbolTable.put(DatabaseDialect.DRIVER_MINOR_SYM, meta.getDriverMinorVersion());
 
           // log debug information about the database
-          Log.debug(LogMsg.createMsg(CDX.MSG, "Writer.connected_to_product", getClass().getName(), meta.getDatabaseProductName(), meta.getDatabaseProductVersion(), meta.getDatabaseMajorVersion(), meta.getDatabaseMinorVersion()));
+          Log.debug(LogMsg.createMsg(CDX.MSG, "Writer.connected_to_product", getClass().getSimpleName(), meta.getDatabaseProductName(), meta.getDatabaseProductVersion(), meta.getDatabaseMajorVersion(), meta.getDatabaseMinorVersion()));
         } else {
           getContext().setError("Connector could not get a connection to the database");
         }
@@ -352,14 +353,14 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
         try {
           database.setConfiguration(cfg);
           if (Log.isLogging(Log.DEBUG_EVENTS)) {
-            Log.debug(LogMsg.createMsg(CDX.MSG, "Writer.using_target", getClass().getName(), database.getTarget()));
-            Log.debug(LogMsg.createMsg(CDX.MSG, "Writer.using_driver", getClass().getName(), database.getDriver()));
-            Log.debug(LogMsg.createMsg(CDX.MSG, "Writer.using_library", getClass().getName(), database.getLibrary()));
-            Log.debug(LogMsg.createMsg(CDX.MSG, "Writer.using_user", getClass().getName(), database.getUserName()));
-            Log.debug(LogMsg.createMsg(CDX.MSG, "Writer.using_password", getClass().getName(), StringUtil.isBlank(database.getPassword()) ? 0 : database.getPassword().length()));
+            Log.debug(LogMsg.createMsg(CDX.MSG, "Component.using_target", getClass().getSimpleName(), database.getTarget()));
+            Log.debug(LogMsg.createMsg(CDX.MSG, "Component.using_driver", getClass().getSimpleName(), database.getDriver()));
+            Log.debug(LogMsg.createMsg(CDX.MSG, "Component.using_library", getClass().getSimpleName(), database.getLibrary()));
+            Log.debug(LogMsg.createMsg(CDX.MSG, "Component.using_user", getClass().getSimpleName(), database.getUserName()));
+            Log.debug(LogMsg.createMsg(CDX.MSG, "Component.using_password", getClass().getSimpleName(), StringUtil.isBlank(database.getPassword()) ? 0 : database.getPassword().length()));
           }
         } catch (ConfigurationException e) {
-          context.setError("Could not configure database connector: " + e.getClass().getName() + " - " + e.getMessage());
+          context.setError("Could not configure database connector: " + e.getClass().getSimpleName() + " - " + e.getMessage());
         }
 
         // if there is no schema in the configuration, set it to the same as the username
@@ -368,29 +369,29 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
         }
       }
     } else {
-      Log.debug(LogMsg.createMsg(CDX.MSG, "Writer.using_existing_connection", getClass().getName()));
+      Log.debug(LogMsg.createMsg(CDX.MSG, "Writer.using_existing_connection", getClass().getSimpleName()));
     }
 
     setSchema(getString(ConfigTag.SCHEMA));
     if (StringUtil.isBlank(getString(ConfigTag.SCHEMA))) {
       context.setError("Could not determine the '" + ConfigTag.SCHEMA + "' value");
     }
-    Log.debug(LogMsg.createMsg(CDX.MSG, "Writer.using_schema", getClass().getName(), getSchema()));
+    Log.debug(LogMsg.createMsg(CDX.MSG, "Writer.using_schema", getClass().getSimpleName(), getSchema()));
 
     setTable(getString(ConfigTag.TABLE));
     if (StringUtil.isBlank(getString(ConfigTag.TABLE))) {
       context.setError("Could not determine the '" + ConfigTag.TABLE + "' value");
     }
-    Log.debug(LogMsg.createMsg(CDX.MSG, "Writer.using_table", getClass().getName(), getTable()));
+    Log.debug(LogMsg.createMsg(CDX.MSG, "Writer.using_table", getClass().getSimpleName(), getTable()));
 
     setAutoCreate(getBoolean(ConfigTag.AUTO_CREATE));
-    Log.debug(LogMsg.createMsg(CDX.MSG, "Writer.autocreate_tables", getClass().getName(), isAutoCreate()));
+    Log.debug(LogMsg.createMsg(CDX.MSG, "Writer.autocreate_tables", getClass().getSimpleName(), isAutoCreate()));
 
     setAutoAdjust(getBoolean(ConfigTag.AUTO_ADJUST));
-    Log.debug(LogMsg.createMsg(CDX.MSG, "Writer.autoadjust_tables", getClass().getName(), isAutoAdjust()));
+    Log.debug(LogMsg.createMsg(CDX.MSG, "Writer.autoadjust_tables", getClass().getSimpleName(), isAutoAdjust()));
 
     setBatchSize(getInteger(ConfigTag.BATCH));
-    Log.debug(LogMsg.createMsg(CDX.MSG, "Writer.using_batch_size", getClass().getName(), getBatchSize()));
+    Log.debug(LogMsg.createMsg(CDX.MSG, "Writer.using_batch_size", getClass().getSimpleName(), getBatchSize()));
 
     // validate and cache our batch size
     if (getBatchSize() < 1) {
@@ -474,7 +475,7 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
           getContext().setError("Cannot add byte arrays to table");
           break;
         case DataField.STRING:
-          Log.debug(LogMsg.createMsg(CDX.MSG, "Database.saving_field_as", getClass().getName(), field.getName(), indx, "String"));
+          Log.debug(LogMsg.createMsg(CDB.MSG, "Database.saving_field_as", getClass().getSimpleName(), field.getName(), indx, "String"));
           if (field.isNull()) {
             pstmt.setNull(indx, VARCHAR);
           } else {
@@ -482,7 +483,7 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
           }
           break;
         case DataField.S8:
-          Log.debug(LogMsg.createMsg(CDX.MSG, "Database.saving_field_as", getClass().getName(), field.getName(), indx, "S8-byte"));
+          Log.debug(LogMsg.createMsg(CDB.MSG, "Database.saving_field_as", getClass().getSimpleName(), field.getName(), indx, "S8-byte"));
           if (field.isNull()) {
             pstmt.setNull(indx, TINYINT);
           } else {
@@ -491,7 +492,7 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
           break;
         case DataField.U8:
         case DataField.S16:
-          Log.debug(LogMsg.createMsg(CDX.MSG, "Database.saving_field_as", getClass().getName(), field.getName(), indx, "S16-Short"));
+          Log.debug(LogMsg.createMsg(CDB.MSG, "Database.saving_field_as", getClass().getSimpleName(), field.getName(), indx, "S16-Short"));
           if (field.isNull()) {
             pstmt.setNull(indx, SMALLINT);
           } else {
@@ -500,7 +501,7 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
           break;
         case DataField.U16:
         case DataField.S32:
-          Log.debug(LogMsg.createMsg(CDX.MSG, "Database.saving_field_as", getClass().getName(), field.getName(), indx, "S32-Integer"));
+          Log.debug(LogMsg.createMsg(CDB.MSG, "Database.saving_field_as", getClass().getSimpleName(), field.getName(), indx, "S32-Integer"));
           if (field.isNull()) {
             pstmt.setNull(indx, INTEGER);
           } else {
@@ -510,7 +511,7 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
         case DataField.U32:
         case DataField.S64:
         case DataField.U64:
-          Log.debug(LogMsg.createMsg(CDX.MSG, "Database.saving_field_as", getClass().getName(), field.getName(), indx, "S64-Long"));
+          Log.debug(LogMsg.createMsg(CDB.MSG, "Database.saving_field_as", getClass().getSimpleName(), field.getName(), indx, "S64-Long"));
           if (field.isNull()) {
             pstmt.setNull(indx, BIGINT);
           } else {
@@ -518,7 +519,7 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
           }
           break;
         case DataField.FLOAT:
-          Log.debug(LogMsg.createMsg(CDX.MSG, "Database.saving_field_as", getClass().getName(), field.getName(), indx, "Float"));
+          Log.debug(LogMsg.createMsg(CDB.MSG, "Database.saving_field_as", getClass().getSimpleName(), field.getName(), indx, "Float"));
           if (field.isNull()) {
             pstmt.setNull(indx, FLOAT);
           } else {
@@ -526,7 +527,7 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
           }
           break;
         case DataField.DOUBLE:
-          Log.debug(LogMsg.createMsg(CDX.MSG, "Database.saving_field_as", getClass().getName(), field.getName(), indx, "Double"));
+          Log.debug(LogMsg.createMsg(CDB.MSG, "Database.saving_field_as", getClass().getSimpleName(), field.getName(), indx, "Double"));
           if (field.isNull()) {
             pstmt.setNull(indx, DOUBLE);
           } else {
@@ -534,7 +535,7 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
           }
           break;
         case DataField.BOOLEANTYPE:
-          Log.debug(LogMsg.createMsg(CDX.MSG, "Database.saving_field_as", getClass().getName(), field.getName(), indx, "Boolean"));
+          Log.debug(LogMsg.createMsg(CDB.MSG, "Database.saving_field_as", getClass().getSimpleName(), field.getName(), indx, "Boolean"));
           if (field.isNull()) {
             pstmt.setNull(indx, BOOLEAN);
           } else {
@@ -542,7 +543,7 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
           }
           break;
         case DataField.DATE:
-          Log.debug(LogMsg.createMsg(CDX.MSG, "Database.saving_field_as", getClass().getName(), field.getName(), indx, "Timestamp"));
+          Log.debug(LogMsg.createMsg(CDB.MSG, "Database.saving_field_as", getClass().getSimpleName(), field.getName(), indx, "Timestamp"));
           if (field.isNull()) {
             pstmt.setNull(indx, TIMESTAMP);
           } else {
@@ -551,7 +552,7 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
           }
           break;
         case DataField.URI:
-          Log.debug(LogMsg.createMsg(CDX.MSG, "Database.saving_field_as", getClass().getName(), field.getName(), indx, "String"));
+          Log.debug(LogMsg.createMsg(CDB.MSG, "Database.saving_field_as", getClass().getSimpleName(), field.getName(), indx, "String"));
           pstmt.setString(indx, field.getStringValue());
           break;
         case DataField.ARRAY:
@@ -628,13 +629,13 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
       // sure the table exists
       if (checkTable()) {
         SQL = generateInsertSQL();
-        Log.debug(LogMsg.createMsg(CDX.MSG, "Writer.using_sql", getClass().getName(), SQL));
+        Log.debug(LogMsg.createMsg(CDX.MSG, "Writer.using_sql", getClass().getSimpleName(), SQL));
 
         final Connection connection = getConnection();
         try {
           ps = connection.prepareStatement(SQL);
         } catch (final SQLException e) {
-          getContext().setError(LogMsg.createMsg(CDX.MSG, "Writer.preparedstatement_exception", getClass().getName(), e.getMessage()).toString());
+          getContext().setError(LogMsg.createMsg(CDX.MSG, "Writer.preparedstatement_exception", getClass().getSimpleName(), e.getMessage()).toString());
         }
       }
     }
@@ -656,7 +657,7 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
     if (getContext().isNotInError()) {
       if (batchsize <= 1) {
         final DataFrame frame = frameset.get(0);
-        Log.debug(LogMsg.createMsg(CDX.MSG, "Writer.writing_single_frame", getClass().getName(), frame.toString()));
+        Log.debug(LogMsg.createMsg(CDX.MSG, "Writer.writing_single_frame", getClass().getSimpleName(), frame.toString()));
 
         int indx = 1;
         for (final String name : frameset.getColumns()) {
@@ -667,7 +668,7 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
           }
         }
 
-        Log.debug(LogMsg.createMsg(CDX.MSG, "Writer.executing_sql", getClass().getName(), ps.toString()));
+        Log.debug(LogMsg.createMsg(CDX.MSG, "Writer.executing_sql", getClass().getSimpleName(), ps.toString()));
 
         try {
           ps.execute();
@@ -678,7 +679,7 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
       } else {
         // Now write a batch
         for (final DataFrame frame : frameset.getRows()) {
-          Log.debug(LogMsg.createMsg(CDX.MSG, "Writer.writing_frame", this.getClass().getName(), frame));
+          Log.debug(LogMsg.createMsg(CDX.MSG, "Writer.writing_frame", this.getClass().getSimpleName(), frame));
 
           int indx = 1;
           for (final String name : frameset.getColumns()) {
@@ -745,7 +746,7 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
 
         String command = DatabaseDialect.getCreate(database, schema, symbolTable);
 
-        Log.debug(LogMsg.createMsg(CDX.MSG, "Writer.creating_table", getClass().getName(), getTable(), command));
+        Log.debug(LogMsg.createMsg(CDX.MSG, "Writer.creating_table", getClass().getSimpleName(), getTable(), command));
 
         Statement stmt = null;
         try {
@@ -992,11 +993,11 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
    * @param frame the frame to be written
    */
   private void writeFrame(final DataFrame frame) {
-    Log.debug(LogMsg.createMsg(CDX.MSG, "Writer.writing_fields", getClass().getName(), frame.size()));
+    Log.debug(LogMsg.createMsg(CDX.MSG, "Writer.writing_fields", getClass().getSimpleName(), frame.size()));
     frameset.add(frame);
 
     if (frameset.size() >= batchsize) {
-      Log.debug(LogMsg.createMsg(CDX.MSG, "Writer.writing_batch", getClass().getName(), frameset.size(), batchsize));
+      Log.debug(LogMsg.createMsg(CDX.MSG, "Writer.writing_batch", getClass().getSimpleName(), frameset.size(), batchsize));
       writeBatch();
     }
 
