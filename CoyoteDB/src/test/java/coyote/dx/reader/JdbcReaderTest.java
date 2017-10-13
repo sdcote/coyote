@@ -35,11 +35,13 @@ import coyote.loader.log.Log;
  * 
  */
 public class JdbcReaderTest {
-  static final String JDBC_DRIVER = "org.h2.Driver";
-  static final String DB_URL = "jdbc:h2:./readertest";
-  static final String USER = "username";
-  static final String PASS = "password";
-  static final String TABLE = "users";
+  private static final String CATALOG = "readertest";
+  private static final String JDBC_DRIVER = "org.h2.Driver";
+  private static final String DB_URL = "jdbc:h2:./"+CATALOG;
+  private static final String LIBRARY_LOC = "jar:file:.src/resources/demojars/h2-1.4.196.jar!/";
+  private static final String USER = "username";
+  private static final String PASS = "password";
+  private static final String TABLE = "users";
 
 
 
@@ -76,11 +78,11 @@ public class JdbcReaderTest {
    */
   @AfterClass
   public static void tearDownAfterClass() throws Exception {
-    File dbfile = new File("readertest.mv.db");
+    File dbfile = new File(CATALOG+".mv.db");
     Log.debug(dbfile.getAbsolutePath());
     dbfile.delete();
     // delete the trace file if it exists - it's text file showing what commands were processed
-    dbfile = new File("readertest.trace.db");
+    dbfile = new File(CATALOG+".trace.db");
     if (dbfile.exists()) {
       Log.debug(dbfile.getAbsolutePath());
       dbfile.delete();
@@ -116,8 +118,8 @@ public class JdbcReaderTest {
       while (!reader.eof()) {
         count++;
         DataFrame frame = reader.read(txncontext);
-        if( txncontext.isInError()){
-          Log.error("Read error: "+txncontext.getErrorMessage());
+        if (txncontext.isInError()) {
+          Log.error("Read error: " + txncontext.getErrorMessage());
           break;
         }
         if (frame == null) {
@@ -140,7 +142,51 @@ public class JdbcReaderTest {
         // be quiet
       }
     }
+  }
 
+
+
+
+  @Test
+  public void libraryConfig() {
+    DataFrame cfg = new DataFrame() //
+        .set(ConfigTag.SOURCE, DB_URL) //
+        .set(ConfigTag.DRIVER, JDBC_DRIVER) //
+        .set(ConfigTag.LIBRARY, LIBRARY_LOC) //
+        .set(ConfigTag.USERNAME, USER) //
+        .set(ConfigTag.PASSWORD, PASS) //
+        .set(ConfigTag.QUERY, "select Role, Username from " + TABLE + "");
+    Config config = new Config(cfg);
+    System.out.println(config.toFormattedString());
+
+    JdbcReader reader = new JdbcReader();
+    try {
+      reader.setConfiguration(config);
+      TransformContext context = new TransformContext();
+      reader.open(context);
+      if (StringUtil.isNotBlank(context.getErrorMessage())) {
+        Log.error(context.getErrorMessage());
+      }
+      assertFalse(context.isInError());
+      TransactionContext txncontext = new TransactionContext(context);
+      int count = 0;
+      while (!reader.eof()) {
+        count++;
+        if (count > 250) {
+          break;
+        }
+      }
+      assertFalse(txncontext.isInError());
+    } catch (Exception e) {
+      Log.error(e);
+      fail("Exception:" + e);
+    } finally {
+      try {
+        reader.close();
+      } catch (Exception ignore) {
+        // be quiet
+      }
+    }
   }
 
 }

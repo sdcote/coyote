@@ -10,6 +10,8 @@ package coyote.dx.context;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import java.io.File;
+
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -27,6 +29,13 @@ import coyote.loader.log.Log;
  * 
  */
 public class DatabaseContextTest extends AbstractContextTest {
+  private static final String CATALOG = "context";
+  private static final String JDBC_DRIVER = "org.h2.Driver";
+  private static final String DB_URL = "jdbc:h2:./"+CATALOG;
+  private static final String LIBRARY_LOC = "jar:file:.src/resources/demojars/h2-1.4.196.jar!/";
+  private static final String USER = "username";
+  private static final String PASS = "password";
+  
 
   /**
    * @throws java.lang.Exception
@@ -41,11 +50,18 @@ public class DatabaseContextTest extends AbstractContextTest {
 
 
   /**
-   * @throws java.lang.Exception
+   * @throws Exception
    */
   @AfterClass
   public static void tearDownAfterClass() throws Exception {
-
+    File dbfile = new File(CATALOG+".mv.db");
+    Log.debug(dbfile.getAbsolutePath());
+    dbfile.delete();
+    dbfile = new File(CATALOG+".trace.db");
+    if (dbfile.exists()) {
+      Log.debug(dbfile.getAbsolutePath());
+      dbfile.delete();
+    }
   }
 
 
@@ -55,7 +71,19 @@ public class DatabaseContextTest extends AbstractContextTest {
   public void contextWithLibraryAttribute() {
     String jobName = "ContextTest";
 
-    DataFrame config = new DataFrame().set("class", "DatabaseContext").set("target", "jdbc:h2:./test").set("autocreate", true).set("library", "jar:file:src/resources/demojars/h2-1.4.187.jar!/").set("driver", "org.h2.Driver").set("username", "sa").set("password", "").set("fields", new DataFrame().set("SomeKey", "SomeValue").set("AnotherKey", "AnotherValue"));
+    DataFrame config = new DataFrame() //
+        .set("class", "DatabaseContext") //
+        .set("target", DB_URL) //
+        .set("autocreate", true) //
+        .set("library", LIBRARY_LOC) //
+        .set("driver", JDBC_DRIVER) //
+        .set("username", USER) //
+        .set("password", PASS) //
+        .set("fields",
+            new DataFrame() //
+                .set("SomeKey", "SomeValue") //
+                .set("AnotherKey", "AnotherValue") //
+    );
 
     TransformEngine engine = new DefaultTransformEngine();
     engine.setName(jobName);
@@ -88,6 +116,8 @@ public class DatabaseContextTest extends AbstractContextTest {
     assertTrue(obj instanceof Long);
     long lastRunCount = (Long)obj;
     assertEquals(nextRunCount + 1, lastRunCount);
+    
+    context.close();
   }
 
 

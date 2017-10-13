@@ -32,6 +32,12 @@ import coyote.loader.log.Log;
  * 
  */
 public class DatabaseTest {
+  private static final String CATALOG = "dbtest";
+  private static final String JDBC_DRIVER = "org.h2.Driver";
+  private static final String DB_URL = "jdbc:h2:./"+CATALOG;
+  private static final String LIBRARY_LOC = "jar:file:.src/resources/demojars/h2-1.4.196.jar!/";
+  private static final String USER = "username";
+  private static final String PASS = "password";
 
   /**
    * @throws java.lang.Exception
@@ -49,10 +55,17 @@ public class DatabaseTest {
    */
   @AfterClass
   public static void tearDownAfterClass() throws Exception {
-    File dbfile = new File("demodb.mv.db");
-    System.out.println(dbfile.getAbsolutePath());
+    File dbfile = new File(CATALOG+".mv.db");
+    Log.debug(dbfile.getAbsolutePath());
     dbfile.delete();
+    // delete the trace file if it exists - it's text file showing what commands were processed
+    dbfile = new File(CATALOG+".trace.db");
+    if (dbfile.exists()) {
+      Log.debug(dbfile.getAbsolutePath());
+      dbfile.delete();
+    }
   }
+
 
 
 
@@ -60,10 +73,10 @@ public class DatabaseTest {
   @Test
   public void basic() throws ConfigurationException, IOException {
     DataFrame config = new DataFrame() //
-        .set(ConfigTag.DRIVER, "org.h2.Driver") //
-        .set(ConfigTag.TARGET, "jdbc:h2:./demodb") //
-        .set(ConfigTag.USERNAME, "sa") //
-        .set(ConfigTag.PASSWORD, "");
+        .set(ConfigTag.DRIVER, JDBC_DRIVER) //
+        .set(ConfigTag.TARGET, DB_URL) //
+        .set(ConfigTag.USERNAME, USER) //
+        .set(ConfigTag.PASSWORD, PASS);
     System.out.println(JSONMarshaler.toFormattedString(config));
     Config cfg = new Config(config);
 
@@ -84,11 +97,11 @@ public class DatabaseTest {
   @Test
   public void library() throws ConfigurationException, IOException {
     DataFrame config = new DataFrame() //
-        .set(ConfigTag.LIBRARY, "jar:file:./src/resources/demojars/h2-1.4.196.jar!/") //
-        .set(ConfigTag.DRIVER, "org.h2.Driver") //
-        .set(ConfigTag.TARGET, "jdbc:h2:./demodb") //
-        .set(ConfigTag.USERNAME, "sa") //
-        .set(ConfigTag.PASSWORD, "");
+        .set(ConfigTag.LIBRARY, LIBRARY_LOC) //
+        .set(ConfigTag.DRIVER, JDBC_DRIVER) //
+        .set(ConfigTag.TARGET, DB_URL) //
+        .set(ConfigTag.USERNAME, USER) //
+        .set(ConfigTag.PASSWORD, PASS);
     System.out.println(JSONMarshaler.toFormattedString(config));
     Config cfg = new Config(config);
 
