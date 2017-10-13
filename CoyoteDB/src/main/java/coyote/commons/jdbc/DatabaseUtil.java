@@ -582,10 +582,48 @@ public class DatabaseUtil {
    * @param statement the resource to close.
    */
   public static void closeQuietly(Statement statement) {
-    try {
-      statement.close();
-    } catch (SQLException ignore) {
-      // no exceptions
+    if (statement != null) {
+      try {
+        statement.close();
+      } catch (SQLException ignore) {
+        // no exceptions
+      }
+    }
+  }
+
+
+
+
+  /**
+   * Close the given ResultSet and consume any thrown exceptions.
+   * 
+   * @param resultset the resource to close
+   */
+  public static void closeQuietly(ResultSet resultset) {
+    if (resultset != null) {
+      try {
+        resultset.close();
+      } catch (SQLException ignore) {
+        // no exceptions
+      }
+    }
+  }
+
+
+
+
+  /**
+   * Close the given Connection and consume any thrown exceptions.
+   * 
+   * @param connection the connection to close
+   */
+  public static void closeQuietly(Connection connection) {
+    if (connection != null) {
+      try {
+        connection.close();
+      } catch (SQLException ignore) {
+        // no exceptions
+      }
     }
   }
 

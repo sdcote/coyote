@@ -9,12 +9,18 @@ The primary deciding factor for locating a feature is its applicability. If any 
 
 The secondary consideration for placing something in a separate module is its dependencies. If an external library is required, then it will go in a separate project / module. This gives the user the choice of using the third party library. 
 
-## RunJob Tasks
-This task executes a specific Transfer Job if its condition is met. This provided the capability to chain together complex orchestration of Jobs.
+## CoyoteML
+The Machine Learning (ML) sub-project contributes tools to assist with processing data sets and performing machine learning processing. Much of what is specific to machine learning is encapsulated in this project, but the actual algorithms are contributed by well-established external libraries. CoyoteML provides a simple way to plug these third-party algorithms into Coyote data flows.
+
+It is expected that several coyote jobs will be involved in machine learning experiments, each transforming the data into intermediate data sets which then feed other data transfer jobs. The expectation is that these jobs will be productionalized and run regularly to make assertions. 
 
 #### Features
-* Jobs can be run in serial or parallel, each with their own set of data
-* Processing results from Jobs can be accessed in other Jobs via Job Contexts. 
+* Bring the best of many different external libraries into one data flow by plugging in transforms and listeners which encapsulate the third-party library.
+* Existing CoyoteDX data flows can be configured to use machine learning algorithms with no programming, just configuration files.
+* Simple, clear path to productionalizing experiments.
+* One framework to incorporate many different tools.
+* Support for registering components with the web server enabling the monitoring and results of machine learning jobs via ReST calls. 
+* ARFF and XRFF file format support, readers and writers both supporting compression.
 
 ## Stream Analytics
 Listeners have the ability to see all data read in by the reader (among other events) and can therefore keep track of the data as it is passing through the job. For those jobs wich run continually, a specialized listener can track the status of the data and make the that status available to external components in real time.

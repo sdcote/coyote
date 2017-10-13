@@ -10,6 +10,7 @@ package coyote.dx.reader;
 import java.io.IOException;
 
 import coyote.dx.AbstractConfigurableComponent;
+import coyote.dx.ConfigTag;
 import coyote.dx.ConfigurableComponent;
 import coyote.dx.FrameReader;
 import coyote.dx.context.TransformContext;
@@ -47,5 +48,15 @@ public abstract class AbstractFrameReader extends AbstractConfigurableComponent 
    */
   @Override
   public void close() throws IOException {}
+
+
+
+
+  /**
+   * @return the source URI from which the reader will read
+   */
+  public String getSource() {
+    return configuration.getAsString(ConfigTag.SOURCE);
+  }
 
 }

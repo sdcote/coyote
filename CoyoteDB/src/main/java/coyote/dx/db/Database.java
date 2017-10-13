@@ -160,7 +160,7 @@ public class Database extends AbstractConfigurableComponent implements Configura
 
 
   /**
-   * @return the target URI to which the writer will write
+   * @return the target URI to which the connections will be made.
    */
   public String getTarget() {
     return getString(ConfigTag.TARGET);

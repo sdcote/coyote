@@ -8,12 +8,7 @@
 package coyote.dx.reader;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLClassLoader;
 import java.sql.Connection;
-import java.sql.Driver;
-import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
@@ -21,29 +16,37 @@ import java.sql.Statement;
 
 import coyote.commons.StringUtil;
 import coyote.commons.jdbc.DatabaseDialect;
-import coyote.commons.jdbc.DriverDelegate;
+import coyote.commons.jdbc.DatabaseUtil;
+import coyote.commons.template.Template;
 import coyote.dataframe.DataFrame;
 import coyote.dx.CDX;
 import coyote.dx.ConfigTag;
 import coyote.dx.context.TransactionContext;
 import coyote.dx.context.TransformContext;
 import coyote.dx.db.Database;
+import coyote.dx.db.DatabaseConnector;
+import coyote.loader.Loader;
+import coyote.loader.cfg.Config;
+import coyote.loader.cfg.ConfigurationException;
 import coyote.loader.log.Log;
 import coyote.loader.log.LogMsg;
 
 
 /**
  * This is a frame reader which uses a JDBC result set to create frames.
- * 
- * TODO: support TransactionContext.setLastFrame( true )
  */
 public class JdbcReader extends AbstractFrameReader {
 
-  private Connection connection;
+  /** The thing we use to get connections to the database */
+  private DatabaseConnector connector = null;
 
-  ResultSet result = null;
+  /** The JDBC connection used by this reader to interact with the database */
+  protected Connection connection;
+
+  private ResultSet result = null;
+  private Statement statement = null;
   private volatile boolean EOF = true;
-  ResultSetMetaData rsmd = null;
+  private ResultSetMetaData rsmd = null;
   private int columnCount = 0;
 
 
@@ -55,87 +58,100 @@ public class JdbcReader extends AbstractFrameReader {
    */
   @Override
   public void open(TransformContext context) {
-    super.context = context;
+    super.setContext(context);
 
-    // check for a source it might be a 
-    String source = getString(ConfigTag.SOURCE);
-    Log.debug(LogMsg.createMsg(CDX.MSG, "Reader.using a source of {%s}", source));
-    if (StringUtil.isNotBlank(source)) {
+    if (getConfiguration().containsIgnoreCase(ConfigTag.SOURCE)) {
+      String source = getString(ConfigTag.SOURCE);
+      Log.debug(LogMsg.createMsg(CDX.MSG, "Reader.using a source of {%s}", source));
 
-      // First see if it is a named database in the context. 
-      // Look for a Database component with a name matching our SOURCE config
-      Database db = null;
+      // If we don't have a connection, prepare to create one
+      if (connection == null) {
 
-      if (db != null) {
-        Log.debug(LogMsg.createMsg(CDX.MSG, "Reader.We have a shared database definition! {%s}", db.toString()));
-        connection = db.getConnection();
-      } else {
-
-        // configure a connection ourselves
-
-        String library = getString(ConfigTag.LIBRARY);
-        Log.debug(LogMsg.createMsg(CDX.MSG, "Reader.Using a driver JAR of {%s}", library));
-
-        String driver = getString(ConfigTag.DRIVER);
-        Log.debug(LogMsg.createMsg(CDX.MSG, "Reader.Using a driver of {%s}", driver));
-
-        // get our configuration data
-        String target = getString(ConfigTag.TARGET);
-        Log.debug(LogMsg.createMsg(CDX.MSG, "Reader.Using a target of {%s}", target));
-
-        String username = getString(ConfigTag.USERNAME);
-        Log.debug(LogMsg.createMsg(CDX.MSG, "Reader.Using a user of {%s}", username));
-
-        String password = getString(ConfigTag.PASSWORD);
-        Log.debug(LogMsg.createMsg(CDX.MSG, "Reader.Using a password with a length of {%s}", StringUtil.isBlank(password) ? 0 : password.length()));
-
-        // get the connection to the database
-        try {
-          URL u = new URL(library);
-          URLClassLoader ucl = new URLClassLoader(new URL[]{u});
-          Driver dvr = (Driver)Class.forName(driver, true, ucl).newInstance();
-          DriverManager.registerDriver(new DriverDelegate(dvr));
-
-          connection = DriverManager.getConnection(target, username, password);
-
-          if (connection != null) {
-            Log.debug(LogMsg.createMsg(CDX.MSG, "Reader.Connected to {%s}", target));
-          }
-        } catch (InstantiationException | IllegalAccessException | ClassNotFoundException | SQLException | MalformedURLException e) {
-          Log.error("Could not connect to database: " + e.getClass().getSimpleName() + " - " + e.getMessage());
+        String target = getConfiguration().getString(ConfigTag.SOURCE);
+        target = Template.preProcess(target, context.getSymbols());
+        Object obj = getContext().get(target);
+        if (obj != null && obj instanceof DatabaseConnector) {
+          setConnector((DatabaseConnector)obj);
+          Log.debug("Using database connector found in context bound to '" + target + "'");
         }
+
+        if (getConnector() == null) {
+          // we have to create a Database based on our configuration
+          Database database = new Database();
+          Config cfg = new Config();
+
+          if (StringUtil.isNotBlank(getString(ConfigTag.SOURCE)))
+            cfg.put(ConfigTag.TARGET, getString(ConfigTag.SOURCE)); // connection target
+
+          if (StringUtil.isNotBlank(getString(ConfigTag.DRIVER)))
+            cfg.put(ConfigTag.DRIVER, getString(ConfigTag.DRIVER));
+
+          if (StringUtil.isNotBlank(getString(ConfigTag.LIBRARY)))
+            cfg.put(ConfigTag.LIBRARY, getString(ConfigTag.LIBRARY));
+
+          if (StringUtil.isNotBlank(getString(ConfigTag.USERNAME)))
+            cfg.put(ConfigTag.USERNAME, getString(ConfigTag.USERNAME));
+
+          if (StringUtil.isNotBlank(getString(Loader.ENCRYPT_PREFIX + ConfigTag.USERNAME)))
+            cfg.put(Loader.ENCRYPT_PREFIX + ConfigTag.USERNAME, getString(Loader.ENCRYPT_PREFIX + ConfigTag.USERNAME));
+
+          if (StringUtil.isNotBlank(getString(ConfigTag.PASSWORD)))
+            cfg.put(ConfigTag.PASSWORD, getString(ConfigTag.PASSWORD));
+
+          if (StringUtil.isNotBlank(getString(Loader.ENCRYPT_PREFIX + ConfigTag.PASSWORD)))
+            cfg.put(Loader.ENCRYPT_PREFIX + ConfigTag.PASSWORD, getString(Loader.ENCRYPT_PREFIX + ConfigTag.PASSWORD));
+
+          setConnector(database);
+
+          try {
+            database.setConfiguration(cfg);
+            if (Log.isLogging(Log.DEBUG_EVENTS)) {
+              Log.debug(LogMsg.createMsg(CDX.MSG, "Reader.using_target", getClass().getName(), database.getTarget()));
+              Log.debug(LogMsg.createMsg(CDX.MSG, "Reader.using_driver", getClass().getName(), database.getDriver()));
+              Log.debug(LogMsg.createMsg(CDX.MSG, "Reader.using_library", getClass().getName(), database.getLibrary()));
+              Log.debug(LogMsg.createMsg(CDX.MSG, "Reader.using_user", getClass().getName(), database.getUserName()));
+              Log.debug(LogMsg.createMsg(CDX.MSG, "Reader.using_password", getClass().getName(), StringUtil.isBlank(database.getPassword()) ? 0 : database.getPassword().length()));
+            }
+          } catch (ConfigurationException e) {
+            context.setError("Could not configure database connector: " + e.getClass().getName() + " - " + e.getMessage());
+          }
+
+          // if there is no schema in the configuration, set it to the same as the username
+          if (StringUtil.isBlank(getString(ConfigTag.SCHEMA))) {
+            getConfiguration().set(ConfigTag.SCHEMA, database.getUserName());
+          }
+        }
+      } else {
+        Log.debug(LogMsg.createMsg(CDX.MSG, "Reader.using_existing_connection", getClass().getName()));
       }
 
-      String query = getString(ConfigTag.QUERY);
-      Log.debug(LogMsg.createMsg(CDX.MSG, "Reader.Using a query of '{%s}'", query));
+      connection = getConnection();
 
       if (connection != null) {
+        String query = getString(ConfigTag.QUERY);
+        Log.debug(LogMsg.createMsg(CDX.MSG, "Reader.Using a query of '{%s}'", query));
 
         try {
-          Statement statement = connection.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY);
+          statement = connection.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY);
           result = statement.executeQuery(query);
-
           rsmd = result.getMetaData();
-
           columnCount = rsmd.getColumnCount();
 
           if (result.isBeforeFirst()) {
             EOF = false;
           }
-
         } catch (SQLException e) {
           String msg = String.format("Error querying database: '%s' - query = '%s'", e.getMessage().trim(), query);
-          //Log.error( msg );
           context.setError(getClass().getName() + " " + msg);
         }
-
+      } else {
+        Log.error("Could not connect to source");
+        context.setError(getClass().getName() + " could not connect to source");
       }
-
     } else {
       Log.error("No source specified");
-      context.setError(getClass().getName() + " could not determine source");
+      context.setError(getClass().getName() + " could not determine source of data");
     }
-
   }
 
 
@@ -153,19 +169,19 @@ public class JdbcReader extends AbstractFrameReader {
         if (result.next()) {
           retval = new DataFrame();
 
-          // Set EOF if this is the last record
-          EOF = result.isLast();
+          if (result.isLast()) {
+            EOF = true;
+            context.setLastFrame(true);
+          }
 
-          // add each of the fields to the dataframe
           for (int i = 1; i <= columnCount; i++) {
-            // Log.info( rsmd.getColumnName( i ) + " - '" + result.getString( i ) + "' (" + rsmd.getColumnType( i ) + ")" );
             retval.add(rsmd.getColumnName(i), DatabaseDialect.resolveValue(result.getObject(i), rsmd.getColumnType(i)));
           }
 
+          context.setLastFrame(result.isLast());
         } else {
           Log.error("Read past EOF");
           EOF = true;
-          return retval;
         }
       } catch (SQLException e) {
         e.printStackTrace();
@@ -174,8 +190,6 @@ public class JdbcReader extends AbstractFrameReader {
     } else {
       EOF = true;
     }
-
-    // TODO: support TransactionContext.setLastFrame( true )
 
     return retval;
   }
@@ -199,14 +213,46 @@ public class JdbcReader extends AbstractFrameReader {
    */
   @Override
   public void close() throws IOException {
-
-    if (result != null) {
-      try {
-        result.close();
-      } catch (SQLException ignore) {}
-    }
-
+    DatabaseUtil.closeQuietly(result);
+    DatabaseUtil.closeQuietly(connection);
     super.close();
+  }
+
+
+
+
+  /**  
+  * Return the connector we use for 
+  * @return the connector
+  */
+  public DatabaseConnector getConnector() {
+    return connector;
+  }
+
+
+
+
+  /**
+  * @param connector the connector to set
+  */
+  public void setConnector(DatabaseConnector connector) {
+    this.connector = connector;
+  }
+
+
+
+
+  private Connection getConnection() {
+    if (connection == null) {
+      if (getConnector() == null) {
+        Log.fatal("We don't have a connector to give us a connection to a database. The open method failed to do its job!");
+      }
+      connection = getConnector().getConnection();
+      if (Log.isLogging(Log.DEBUG_EVENTS) && connection != null) {
+        Log.debug(LogMsg.createMsg(CDX.MSG, "Reader.connected_to", getClass().getName(), getSource()));
+      }
+    }
+    return connection;
   }
 
 }

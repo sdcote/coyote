@@ -5,7 +5,7 @@
  * terms of the MIT License which accompanies this distribution, and is 
  * available at http://creativecommons.org/licenses/MIT/
  */
-package coyote.dx.reader;
+package coyote.dx.db;
 
 import java.sql.Connection;
 
@@ -14,6 +14,7 @@ import coyote.dataframe.DataFrame;
 import coyote.dx.ConfigTag;
 import coyote.dx.context.TransactionContext;
 import coyote.dx.context.TransformContext;
+import coyote.dx.reader.AbstractFrameReader;
 import coyote.loader.log.Log;
 
 
