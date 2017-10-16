@@ -34,7 +34,7 @@ import coyote.loader.log.LogMsg;
  * 
  * TODO: Support preload
  */
-public class CSVReader extends AbstractFrameReader implements FrameReader, ConfigurableComponent {
+public class CSVReader2 extends AbstractFrameReader implements FrameReader, ConfigurableComponent {
 
   /** The component responsible for reading CSV files into frames */
   private coyote.commons.csv.CSVReader reader = null;

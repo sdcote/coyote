@@ -22,7 +22,7 @@ import coyote.dx.TaskException;
 import coyote.dx.TransformTask;
 import coyote.dx.context.TransactionContext;
 import coyote.dx.context.TransformContext;
-import coyote.dx.reader.CSVReader;
+import coyote.dx.reader.CSVReader2;
 import coyote.dx.reader.JsonReader;
 import coyote.dx.reader.XmlReader;
 import coyote.dx.writer.JdbcWriter;
@@ -139,7 +139,7 @@ public class TableLoad extends AbstractTransformTask implements TransformTask {
     Log.debug("Using a format of " + format.toUpperCase());
 
     if (format.equalsIgnoreCase(CSV)) {
-      reader = new CSVReader();
+      reader = new CSVReader2();
       super.getConfiguration().set(ConfigTag.HEADER, true);
     } else if (format.equalsIgnoreCase(JSON)) {
       reader = new JsonReader();
