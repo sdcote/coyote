@@ -30,11 +30,9 @@ import coyote.loader.log.LogMsg;
 
 
 /**
- * 
- * 
  * TODO: Make into a streaming reader with preload optional.
  */
-public class JSONReader extends AbstractFrameReader implements FrameReader, ConfigurableComponent {
+public abstract class MarshalingFrameReader extends AbstractFrameReader implements FrameReader, ConfigurableComponent {
 
   private final List<DataFrame> buffer = new ArrayList<DataFrame>();
   private volatile int currentFrame = 0;
@@ -136,7 +134,7 @@ public class JSONReader extends AbstractFrameReader implements FrameReader, Conf
         String data = FileUtil.fileToString(sourceFile);
         Log.debug("Read in " + data.length() + " characters of data");
 
-        List<DataFrame> frames = JSONMarshaler.marshal(data);
+        List<DataFrame> frames = getFrames(data);
         Log.debug("Read in " + frames.size() + " frames");
         DataFrame frame = frames.get(0);
 
@@ -161,6 +159,17 @@ public class JSONReader extends AbstractFrameReader implements FrameReader, Conf
       Log.error("No source specified");
       context.setError(getClass().getName() + " could not determine source");
     }
+  }
+
+
+
+
+  /**
+   * @param data
+   * @return
+   */
+  protected List<DataFrame> getFrames(String data) {
+    return JSONMarshaler.marshal(data);
   }
 
 }

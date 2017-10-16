@@ -23,7 +23,8 @@ import coyote.dx.TransformTask;
 import coyote.dx.context.TransactionContext;
 import coyote.dx.context.TransformContext;
 import coyote.dx.reader.CSVReader;
-import coyote.dx.reader.JSONReader;
+import coyote.dx.reader.JsonReader2;
+import coyote.dx.reader.XmlReader;
 import coyote.dx.writer.JdbcWriter;
 import coyote.loader.cfg.Config;
 import coyote.loader.cfg.ConfigurationException;
@@ -141,7 +142,9 @@ public class TableLoad extends AbstractTransformTask implements TransformTask {
       reader = new CSVReader();
       super.getConfiguration().set(ConfigTag.HEADER, true);
     } else if (format.equalsIgnoreCase(JSON)) {
-      reader = new JSONReader();
+      reader = new JsonReader2();
+    } else if (format.equalsIgnoreCase(XML)) {
+      reader = new XmlReader();
     } else {
       context.setError("Unsupported file format of '" + format + "'");
     }

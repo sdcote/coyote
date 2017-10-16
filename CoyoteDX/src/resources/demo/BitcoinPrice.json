@@ -7,7 +7,7 @@
 			"WebGet": { "source": "https://blockchain.info/ticker"  }
 		},
 
-		"Reader": { "class": "JSONReader", "source": "ticker" },
+		"Reader": { "class": "JsonReader2", "source": "ticker" },
 
 		"Mapper": { "fields" : { "USD.15m": "15m", "USD.last": "Last", "USD.buy": "Buy", "USD.sell": "Sell" } },
 
