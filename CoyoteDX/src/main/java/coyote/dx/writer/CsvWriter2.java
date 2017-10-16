@@ -57,7 +57,7 @@ import coyote.loader.log.LogMsg;
  * ASCII character 9. If more than one character is specified, then only the 
  * first character is used.
  */
-public class CSVWriter extends AbstractFrameFileWriter implements FrameWriter, ConfigurableComponent {
+public class CsvWriter2 extends AbstractFrameFileWriter implements FrameWriter, ConfigurableComponent {
 
   /** The character used for escaping quotes. */
   public static final char ESCAPE_CHARACTER = '"';
