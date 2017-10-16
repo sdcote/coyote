@@ -133,8 +133,6 @@ public class CSVReader extends AbstractFrameReader implements FrameReader, Confi
       context.setError(e.getMessage());
     }
 
-    // TODO: consume empty lines: sometimes CSV files have empty lines at the end of the file...we should consume them
-
     // Support the concept of last frame    
     if (reader.eof()) {
       context.setLastFrame(true);
@@ -180,7 +178,7 @@ public class CSVReader extends AbstractFrameReader implements FrameReader, Confi
     // check for a source in our configuration, if not there use the transform 
     // context as it may have been set by a previous operation
     String source = super.getString(ConfigTag.SOURCE);
-    Log.debug(LogMsg.createMsg(CDX.MSG, "Reader.configured_source_is", source));
+    Log.debug(LogMsg.createMsg(CDX.MSG, "Component.configured_source_is", this.getClass().getSimpleName(), source));
     if (StringUtil.isNotBlank(source)) {
 
       File sourceFile = null;
