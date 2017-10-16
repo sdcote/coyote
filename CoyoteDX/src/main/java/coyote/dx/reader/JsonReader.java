@@ -18,7 +18,7 @@ import coyote.dx.FrameReader;
 /**
  * 
  */
-public class JsonReader2 extends MarshalingFrameReader implements FrameReader, ConfigurableComponent {
+public class JsonReader extends MarshalingFrameReader implements FrameReader, ConfigurableComponent {
 
   /**
    * @see coyote.dx.reader.MarshalingFrameReader#getFrames(java.lang.String)
