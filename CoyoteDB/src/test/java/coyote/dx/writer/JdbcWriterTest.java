@@ -34,10 +34,10 @@ import coyote.loader.log.Log;
  */
 public class JdbcWriterTest {
   private static final String CATALOG = "writertest";
-  private static final String JDBC_DRIVER = "org.h2.Driver";
+  //private static final String JDBC_DRIVER = "org.h2.Driver";
   private static final String JDBC_SOURCE = "org.h2.jdbcx.JdbcDataSource";
   private static final String DB_URL = "jdbc:h2:./" + CATALOG;
-  private static final String LIBRARY_LOC = "jar:file:.src/resources/demojars/h2-1.4.196.jar!/";
+  //private static final String LIBRARY_LOC = "jar:file:.src/resources/demojars/h2-1.4.196.jar!/";
   private static final String USER = "username";
   private static final String PASS = "password";
   private static final String SCHEMA = "test";

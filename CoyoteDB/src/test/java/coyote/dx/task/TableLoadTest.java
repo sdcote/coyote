@@ -53,7 +53,7 @@ public class TableLoadTest {
    */
   @BeforeClass
   public static void setUpBeforeClass() throws Exception {
-   // Log.addLogger(Log.DEFAULT_LOGGER_NAME, new ConsoleAppender(Log.TRACE_EVENTS | Log.DEBUG_EVENTS | Log.INFO_EVENTS | Log.NOTICE_EVENTS | Log.WARN_EVENTS | Log.ERROR_EVENTS | Log.FATAL_EVENTS));
+    // Log.addLogger(Log.DEFAULT_LOGGER_NAME, new ConsoleAppender(Log.TRACE_EVENTS | Log.DEBUG_EVENTS | Log.INFO_EVENTS | Log.NOTICE_EVENTS | Log.WARN_EVENTS | Log.ERROR_EVENTS | Log.FATAL_EVENTS));
     Log.addLogger(Log.DEFAULT_LOGGER_NAME, new ConsoleAppender(Log.INFO_EVENTS | Log.WARN_EVENTS | Log.ERROR_EVENTS | Log.FATAL_EVENTS));
   }
 
@@ -84,16 +84,17 @@ public class TableLoadTest {
     // Create a Job
     DataFrame jobFrame = new DataFrame().set(ConfigTag.NAME, "test") //
         .set(ConfigTag.TASK, // 
-            new DataFrame().set("TableLoad", new DataFrame() // 
-                .set(ConfigTag.SOURCE, "src/test/resources/users.csv") //
-                .set(ConfigTag.TARGET, DB_URL) //
-                .set(ConfigTag.DRIVER, JDBC_SOURCE) //
-                .set(ConfigTag.USERNAME, USER) //
-                .set(ConfigTag.PASSWORD, PASS) //
-                .set(ConfigTag.SCHEMA, SCHEMA) //
-                .set(ConfigTag.TABLE, TABLE) //
-                .set(ConfigTag.AUTO_CREATE, true) //
-                ) //
+            new DataFrame().set("TableLoad",
+                new DataFrame() // 
+                    .set(ConfigTag.SOURCE, "src/test/resources/users.csv") //
+                    .set(ConfigTag.TARGET, DB_URL) //
+                    .set(ConfigTag.DRIVER, JDBC_SOURCE) //
+                    .set(ConfigTag.USERNAME, USER) //
+                    .set(ConfigTag.PASSWORD, PASS) //
+                    .set(ConfigTag.SCHEMA, SCHEMA) //
+                    .set(ConfigTag.TABLE, TABLE) //
+                    .set(ConfigTag.AUTO_CREATE, true) //
+            ) //
     );
 
     Config configuration = new Config();
@@ -109,8 +110,7 @@ public class TableLoadTest {
     TransformContext context = engine.getContext();
     assertNotNull(context);
     assertFalse(context.isInError());
-    
-    
+
     // Use a JdbcReader to read data from the newly loaded table
     DataFrame cfg = new DataFrame() //
         .set(ConfigTag.SOURCE, DB_URL) //
@@ -160,9 +160,7 @@ public class TableLoadTest {
         // be quiet
       }
     }
-    
-    
-    
+
   }
 
 }
