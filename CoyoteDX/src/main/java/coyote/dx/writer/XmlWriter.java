@@ -30,7 +30,7 @@ import coyote.loader.log.LogMsg;
  * HEADER
  * &lt;xml version="1.0" encoding="windows-1252"?&gt;
  */
-public class XmlWriter2 extends AbstractFrameFileWriter implements FrameWriter, ConfigurableComponent {
+public class XmlWriter extends AbstractFrameFileWriter implements FrameWriter, ConfigurableComponent {
 
   private final StringBuilder b = new StringBuilder();
 

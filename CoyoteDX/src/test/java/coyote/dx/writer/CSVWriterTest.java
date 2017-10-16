@@ -36,7 +36,7 @@ public class CSVWriterTest extends AbstractTest {
     DataFrame sourceFrame = new DataFrame();
     context.setSourceFrame(sourceFrame);
 
-    try (CsvWriter2 writer = new CsvWriter2()) {
+    try (CsvWriter writer = new CsvWriter()) {
       writer.setConfiguration(configuration);
       writer.open(getTransformContext());
 
