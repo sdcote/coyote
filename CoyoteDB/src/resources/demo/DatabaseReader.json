@@ -1,0 +1,33 @@
+{
+	"Class" : "coyote.dx.Job",
+	"Job" : {
+		"Name" : "DatabaseReader",
+		"Description": "Demonstrate reading from a database.",
+		
+		"Reader" : {
+			"class" : "JdbcReader",
+			"source" : "jdbc:h2:[#$user.dir#]/userdb",
+			"driver" : "org.h2.Driver",
+			"library" : "jar:file:[#$user.dir#]/h2-1.4.196.jar!/",
+			"username" : "sa",
+			"password" : "",
+			"query" : "select Role, Username, License from sa.user"
+		},
+
+		"Writer" : {
+			"class" : "ConsoleWriter",
+			"format" : "json",
+			"indent" : false,
+			"message" : "Record [#$CurrentFrame#] received."
+		}
+
+	},
+
+
+	"Logging": {
+	  "StandardOutput": { "categories": "info, notice" },
+	  "StandardError": { "categories": "error, fatal, warn" }
+	}
+
+
+}
