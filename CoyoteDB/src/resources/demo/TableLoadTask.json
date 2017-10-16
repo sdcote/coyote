@@ -1,0 +1,60 @@
+{
+	"Class": "coyote.dx.Job",
+	"Job": {
+		"Name": "HttpReader",
+		"Description": "Shows how to use TableLoad task to load data into a database to perform a 3-way inner join exporting the data to a CSV file.",
+
+		"Preprocess": {
+			"DatabaseFixture": {
+				"name": "H2",
+				"target": "jdbc:h2:[#$user.dir#]/staging",
+				"driver": "org.h2.jdbcx.JdbcDataSource",
+				"username": "sa"
+			},
+			"TableLoad": {
+				"source": "somefile.csv",
+				"target": "H2",
+				"table": "SOME"
+			},
+			"TableLoad": {
+				"source": "otherfile.json",
+				"target": "H2",
+				"table": "OTHER"
+			},
+			"TableLoad": {
+				"source": "yetanotherfile.csv",
+				"target": "H2",
+				"table": "ANOTHER"
+			}
+		},
+
+		"Reader": {
+			"class": "JdbcReader",
+			"source": "H2",
+			"query": "SELECT s.studentname, s.studentid, s.studentdesc, h.hallname FROM some s INNER JOIN hallprefs o on s.studentid = o.studentid INNER JOIN halls a on o.hallid = a.hallid"
+		},
+
+		"Writer": {
+			"class": "CSVWriter",
+			"header": true,
+			"target": "joineddata.csv"
+		},
+
+		"PostProcess": {
+			"Delete": {
+				"file": "[#$user.dir#][#$FS#]staging.mv.db"
+			},
+			"Delete": {
+				"file": "[#$user.dir#][#$FS#]staging.trace.db"
+			}
+		}
+	},
+	"Logging": {
+		"StandardError": {
+			"categories": "warn, error, fatal"
+		},
+		"StandardOutput": {
+			"categories": "debug, info, notice"
+		}
+	}
+}
