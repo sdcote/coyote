@@ -12,7 +12,7 @@ package coyote.commons.jdbc;
  * This holds details about a column in a table.
  */
 public class ColumnDefinition {
-  private int length;
+  private long length;
   private boolean mandatory;
   private String name;
   private boolean nullable;
@@ -59,7 +59,7 @@ public class ColumnDefinition {
   /**
    * @return the length
    */
-  public int getLength() {
+  public long getLength() {
     return length;
   }
 
@@ -156,7 +156,7 @@ public class ColumnDefinition {
 
 
 
-  public ColumnDefinition setLength(final int length) {
+  public ColumnDefinition setLength(final long length) {
     this.length = length;
     return this;
   }

@@ -326,25 +326,25 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
         // we have to create a Database based on our configuration
         Database database = new Database();
         Config cfg = new Config();
-        
+
         if (StringUtil.isNotBlank(getString(ConfigTag.TARGET)))
           cfg.put(ConfigTag.TARGET, getString(ConfigTag.TARGET));
-        
+
         if (StringUtil.isNotBlank(getString(ConfigTag.DRIVER)))
           cfg.put(ConfigTag.DRIVER, getString(ConfigTag.DRIVER));
-        
+
         if (StringUtil.isNotBlank(getString(ConfigTag.LIBRARY)))
           cfg.put(ConfigTag.LIBRARY, getString(ConfigTag.LIBRARY));
-        
+
         if (StringUtil.isNotBlank(getString(ConfigTag.USERNAME)))
           cfg.put(ConfigTag.USERNAME, getString(ConfigTag.USERNAME));
-        
+
         if (StringUtil.isNotBlank(getString(Loader.ENCRYPT_PREFIX + ConfigTag.USERNAME)))
           cfg.put(Loader.ENCRYPT_PREFIX + ConfigTag.USERNAME, getString(Loader.ENCRYPT_PREFIX + ConfigTag.USERNAME));
-        
+
         if (StringUtil.isNotBlank(getString(ConfigTag.PASSWORD)))
           cfg.put(ConfigTag.PASSWORD, getString(ConfigTag.PASSWORD));
-        
+
         if (StringUtil.isNotBlank(getString(Loader.ENCRYPT_PREFIX + ConfigTag.PASSWORD)))
           cfg.put(Loader.ENCRYPT_PREFIX + ConfigTag.PASSWORD, getString(Loader.ENCRYPT_PREFIX + ConfigTag.PASSWORD));
 
@@ -429,7 +429,8 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
   /**
    * @param value
    */
-  private void setBatchSize(final int value) {
+  public void setBatchSize(final int value) {
+    batchsize = value;
     configuration.put(ConfigTag.BATCH, value);
   }
 
@@ -642,12 +643,33 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
 
     if (isAutoAdjust()) {
       for (final String name : frameset.getColumns()) {
-
         if (schema.getMetric(name).getMaximumStringLength() > tableschema.findColumn(name).getLength()) {
-          // TODO: if auto adjust, check the size of the string and issue an 
+          // if auto adjust, check the size of the string and issue an 
           // "alter table" command to adjust the size of the column if the 
           // string is too large to fit
-          System.out.println("The " + database + " table '" + tableschema.getName() + "' must be altered to fit the '" + name + "' value; table allows a size of " + tableschema.findColumn(name).getLength() + " but data requires " + schema.getMetric(name).getMaximumStringLength());
+          Log.debug("The " + database + " table '" + tableschema.getName() + "' must be altered to fit the '" + name + "' value; table allows a size of " + tableschema.findColumn(name).getLength() + " but data requires " + schema.getMetric(name).getMaximumStringLength());
+
+          PreparedStatement aps = null;
+          String alterSql = "ALTER TABLE " + getSchema() + "." + getTable() + " ALTER COLUMN " + name + " VARCHAR2(" + schema.getMetric(name).getMaximumStringLength() + ")";
+          try {
+            aps = connection.prepareStatement(alterSql);
+            aps.execute();
+          } catch (final SQLException e) {
+            getContext().setError(LogMsg.createMsg(CDX.MSG, "Writer.preparedstatement_exception", getClass().getSimpleName(), e.getMessage()).toString());
+          } finally {
+            if (aps != null) {
+              try {
+                aps.close();
+              } catch (SQLException ignore) {
+                // quiet
+              }
+            }
+          }
+
+          // alter table Employee alter column salary numeric(22,5)
+          // set the size in the tableschema
+          tableschema.findColumn(name).setLength(schema.getMetric(name).getMaximumStringLength());
+
           //DatabaseDialect.alterTable()
         }
       }
