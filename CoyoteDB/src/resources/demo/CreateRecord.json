@@ -3,25 +3,21 @@
 	"Job": {
 		"Name": "HttpReader",
 		"Description": "Test configuration for CreateRecord listener, creating just one record at a time.",
-		"Database": {
-			"H2": {
-				"library": "file:[#$app.home#]/lib/h2-1.4.196.jar",
-				"driver": "org.h2.Driver",
-				"target": "jdbc:h2:tcp://localhost/~/demodb",
-				"autocreate": true,
-				"username": "sa",
-				"password": ""
+
+		"Task": {
+			"DatabaseFixture": {
+				"name": "H2",
+				"target": "jdbc:h2:./service",
+				"driver": "org.h2.jdbcx.JdbcDataSource",
+				"username": "sa"
 			}
 		},
-
 		"Reader": { "class": "StaticReader" },
-
-		"Transform": {
+		"Transform": { 
 			"Set": { "field": "Message", "value": "Create Record" },
 			"Guid": { "field": "ID" },
 			"Timestamp": { "field": "Received" }
 		},
-
 		"Listener": {
 			"CreateRecord": { "source": "H2", "table": "CRLISTEN" }
 		}
