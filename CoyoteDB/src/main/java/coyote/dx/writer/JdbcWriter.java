@@ -1,8 +1,8 @@
 /*
  * Copyright (c) 2015 Stephan D. Cote' - All rights reserved.
- * 
- * This program and the accompanying materials are made available under the 
- * terms of the MIT License which accompanies this distribution, and is 
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the MIT License which accompanies this distribution, and is
  * available at http://creativecommons.org/licenses/MIT/
  */
 package coyote.dx.writer;
@@ -62,25 +62,25 @@ import coyote.loader.log.LogMsg;
 
 
 /**
- * <p>There is an inherent loss of fidelity with this class in that not all SQL 
- * types are replicated faithfully through the writer. For example, the 
- * differences between VARCHAR, VARCHAR2, STRING are merged into a String type. 
- * NUMERIC and LONG are simply the Long type. The goal of this writer is to 
- * support the widest number of types across not only different data bases, but 
- * data storage technologies and network protocols. The core intermediate 
- * format (DataFrame) is designed to support data types common to many 
- * different technologies and therefore dictates what the framework 
- * supports.</p> 
+ * <p>There is an inherent loss of fidelity with this class in that not all SQL
+ * types are replicated faithfully through the writer. For example, the
+ * differences between VARCHAR, VARCHAR2, STRING are merged into a String type.
+ * NUMERIC and LONG are simply the Long type. The goal of this writer is to
+ * support the widest number of types across not only different data bases, but
+ * data storage technologies and network protocols. The core intermediate
+ * format (DataFrame) is designed to support data types common to many
+ * different technologies and therefore dictates what the framework
+ * supports.</p>
  */
 public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, ConfigurableComponent {
+
+  protected static final SymbolTable symbolTable = new SymbolTable();
 
   /** The thing we use to get connections to the database */
   private DatabaseConnector connector = null;
 
-  protected static final SymbolTable symbolTable = new SymbolTable();
-
   /** The schema of all the frames we have read in so far. */
-  private DataSetMetrics schema = new DataSetMetrics();
+  private final DataSetMetrics schema = new DataSetMetrics();
 
   /** The database table definition */
   private TableDefinition tableschema = null;
@@ -109,16 +109,105 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
 
 
   /**
-   * @see coyote.dx.AbstractConfigurableComponent#setConfiguration(coyote.loader.cfg.Config)
+   *
    */
-  @Override
-  public void setConfiguration(Config cfg) throws ConfigurationException {
-    super.setConfiguration(cfg);
+  private void checkSchema() {
+    Log.debug("Looking for schema '" + getSchema() + "'");
+    if (!DatabaseUtil.schemaExists(getSchema(), getConnection())) {
+      if (isAutoCreate()) {
+        final String username = getConnector().getUserName();
+        final String sql = DatabaseDialect.getCreateSchema(database, getSchema(), username);
+        Log.debug("Schema '" + getSchema() + "' not found in database, creating it with:\n" + sql);
+        try (Statement stmt = connection.createStatement()) {
+          stmt.executeUpdate(sql);
+          Log.debug("Schema created.");
 
-    String token = getString(ConfigTag.TABLE);
-    if (StringUtil.isBlank(token)) {
-      throw new ConfigurationException("Invalid '" + ConfigTag.TABLE + "' configuration attribute of '" + token + "'");
+          if (DatabaseUtil.schemaExists(getSchema(), getConnection())) {
+            Log.debug("Schema creation verified");
+          } else {
+            Log.error("Could not verify the creation of schema '" + getSchema() + "'");
+          }
+
+        } catch (final SQLException e) {
+          Log.error("Schema creation failed!");
+          e.printStackTrace();
+        }
+      } else {
+        Log.warn("The schema '" + getSchema() + "' does not exist in the database and autocreate is set to '" + isAutoCreate() + "', expect subsequent database operations to fail.");
+      }
     }
+  }
+
+
+
+
+  /**
+   * This checks the database for the table to exist.
+   *
+   * <p>If the table does not exist and autocreate is set to true, this method
+   * will attempt to create the table based on the schema generated for the
+   * records observed so far.</p>
+   *
+   * @return true if the table exists and is ready to insert data, false otherwise
+   */
+  @SuppressWarnings("unchecked")
+  private boolean checkTable() {
+
+    checkSchema();
+
+    // check to see if the table exists
+    if (!DatabaseUtil.tableExists(getTable(), getConnection())) {
+
+      if (isAutoCreate()) {
+        final Connection conn = getConnection();
+
+        if (conn == null) {
+          Log.error("Cannot get database connection");
+          context.setError("Could not connect to the database");
+          return false;
+        }
+
+        symbolTable.put(DatabaseDialect.TABLE_NAME_SYM, getTable());
+        symbolTable.put(DatabaseDialect.DB_SCHEMA_SYM, getSchema());
+
+        final String command = DatabaseDialect.getCreate(database, schema, symbolTable);
+
+        Log.debug(LogMsg.createMsg(CDX.MSG, "Writer.creating_table", getClass().getSimpleName(), getTable(), command));
+
+        Statement stmt = null;
+        try {
+          stmt = conn.createStatement();
+          stmt.executeUpdate(command);
+
+        } catch (final Exception e) {
+          Log.error(LogMsg.createMsg(CDX.MSG, "Writer.jdbc_table_create_error", getTable(), e.getMessage()));
+        } finally {
+          try {
+            stmt.close();
+          } catch (final Exception e) {
+            Log.warn(LogMsg.createMsg(CDX.MSG, "Problems closing create {} statement: {}", getTable(), e.getMessage()));
+          }
+        }
+
+        try {
+          commit();
+        } catch (final SQLException e) {
+          Log.warn("Couldnt commit table creation: " + e.getMessage());
+        }
+
+        if (DatabaseUtil.tableExists(getTable(), getSchema(), getConnection())) {
+          Log.debug("Table creation verified");
+        } else {
+          Log.error("Could not verifiy the creation of '" + getTable() + "." + getSchema() + "' table, expect subsequent database operations to fail.");
+        }
+      }
+
+    }
+
+    // get the schema for the database table we are using
+    tableschema = getTableSchema(getTable());
+
+    return true;
   }
 
 
@@ -154,7 +243,7 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
     }
 
     if (connection != null) {
-      // if it looks like we created the connection ourselves (e.g. we have a 
+      // if it looks like we created the connection ourselves (e.g. we have a
       // configured target) close the connection
       if (StringUtil.isNotBlank(getTarget())) {
         Log.debug(LogMsg.createMsg(CDX.MSG, "Writer.closing_connection", getClass().getSimpleName(), getTarget()));
@@ -236,8 +325,8 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
 
         if (connection != null) {
           Log.debug(LogMsg.createMsg(CDX.MSG, "Writer.connected_to", getClass().getSimpleName(), getTarget()));
-          DatabaseMetaData meta = connection.getMetaData();
-          String product = meta.getDatabaseProductName();
+          final DatabaseMetaData meta = connection.getMetaData();
+          final String product = meta.getDatabaseProductName();
           database = product.toUpperCase();
 
           // update the symbols with database information
@@ -258,7 +347,7 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
         } else {
           getContext().setError("Connector could not get a connection to the database");
         }
-      } catch (SQLException e) {
+      } catch (final SQLException e) {
         getContext().setError("Could not connect to database: " + e.getClass().getSimpleName() + " - " + e.getMessage());
       }
     }
@@ -268,8 +357,12 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
 
 
 
-  public String getTable() {
-    return configuration.getString(ConfigTag.TABLE);
+  /**
+   * Return the connector we use for
+   * @return the connector
+   */
+  public DatabaseConnector getConnector() {
+    return connector;
   }
 
 
@@ -286,11 +379,173 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
 
 
 
-  public boolean isAutoCreate() {
-    try {
-      return configuration.getAsBoolean(ConfigTag.AUTO_CREATE);
-    } catch (final DataFrameException ignore) {}
-    return false;
+  public String getTable() {
+    return configuration.getString(ConfigTag.TABLE);
+  }
+
+
+
+
+  /**
+   * <p>Mappings are generally those suggested in the Oracle JDBC mapping guide
+   * with minor exceptions for DECIMAL and NUMERIC as BigDecimal is not
+   * supported by Data Frame at this time.</p>
+   *
+   * @param tablename name of the table being generated
+   *
+   * @return a table schema for the database table to which this writer is writing.
+   */
+  private TableDefinition getTableSchema(final String tablename) {
+    TableDefinition retval = null;
+    if (StringUtil.isNotBlank(tablename)) {
+      final Connection conn = getConnection();
+      if (conn == null) {
+        context.setError("Could not connect to the database");
+        return null;
+      }
+
+      String tableSchemaName = null;
+
+      ResultSet rs = null;
+      try {
+        final DatabaseMetaData meta = conn.getMetaData();
+
+        // get all the tables so we can perform a case insensitive search
+        rs = meta.getTables(null, null, "%", null);
+        while (rs.next()) {
+          if (StringUtil.equalsIgnoreCase(tablename, rs.getString("TABLE_NAME"))) {
+            tableSchemaName = rs.getString("TABLE_NAME");
+            break;
+          }
+        }
+      } catch (final SQLException e) {
+        e.printStackTrace();
+        context.setError("Problems confirming table name: " + e.getMessage());
+      } finally {
+        if (rs != null) {
+          try {
+            rs.close();
+          } catch (final SQLException ignore) {
+            //ignore.printStackTrace();
+          }
+        }
+      }
+
+      if (StringUtil.isNotEmpty(tableSchemaName)) {
+        retval = new TableDefinition(tableSchemaName);
+
+        rs = null;
+        try {
+          final DatabaseMetaData meta = conn.getMetaData();
+          rs = meta.getColumns(null, null, tableSchemaName, "%");
+
+          String name;
+          ColumnType type;
+          int length;
+          boolean readOnly;
+          boolean mandatory;
+          boolean primaryKey;
+          boolean unique;
+          boolean nullable;
+          int pos;
+          String remarks;
+
+          while (rs.next()) {
+            readOnly = nullable = mandatory = primaryKey = unique = false;
+            length = pos = 0;
+            name = remarks = null;
+
+            // If there is a catalog name and it is not already set, set it
+            if (rs.getString("TABLE_CAT") != null && retval.getCatalogName() == null) {
+              retval.setCatalogName(rs.getString("TABLE_CAT"));
+            }
+
+            // If there is a schema name and it is not already set, set it
+            if (rs.getString("TABLE_SCHEM") != null && retval.getSchemaName() == null) {
+              retval.setSchemaName(rs.getString("TABLE_SCHEM"));
+            }
+
+            // Retrieve data about the column
+            name = rs.getString("COLUMN_NAME");
+            length = rs.getInt("COLUMN_SIZE");
+            pos = rs.getInt("ORDINAL_POSITION");
+            remarks = rs.getString("REMARKS");
+
+            switch (rs.getInt("DATA_TYPE")) {
+              case TIME:
+              case TIMESTAMP:
+              case DATE:
+                type = ColumnType.DATE;
+                break;
+              case BOOLEAN:
+                type = ColumnType.BOOLEAN;
+                break;
+              case TINYINT:
+                type = ColumnType.BYTE;
+                break;
+              case SMALLINT:
+                type = ColumnType.SHORT;
+                break;
+              case INTEGER:
+                type = ColumnType.INT;
+                break;
+              case FLOAT:
+              case DOUBLE:
+              case REAL:
+                type = ColumnType.FLOAT;
+                break;
+              case DECIMAL:
+              case NUMERIC:
+                type = ColumnType.DOUBLE;
+                break;
+              case BIGINT:
+                type = ColumnType.LONG;
+                break;
+              case DISTINCT:
+                unique = true;
+                type = ColumnType.STRING;
+                break;
+              default:
+                type = ColumnType.STRING;
+                break;
+            }
+
+            switch (rs.getInt("NULLABLE")) {
+              case DatabaseMetaData.columnNoNulls:
+                nullable = false;
+                break;
+              case DatabaseMetaData.columnNullable:
+                nullable = true;
+                break;
+              case DatabaseMetaData.columnNullableUnknown:
+                nullable = false;
+                break;
+              default:
+                nullable = false;
+                break;
+            }
+
+            retval.addColumn(new ColumnDefinition(name, type, length, nullable, readOnly, mandatory, primaryKey, unique, remarks, pos));
+
+          }
+
+        } catch (final SQLException e) {
+          e.printStackTrace();
+          context.setError("Problems confirming table columns: " + e.getMessage());
+        } finally {
+          if (rs != null) {
+            try {
+              rs.close();
+            } catch (final SQLException ignore) {
+              //ignore.printStackTrace();
+            }
+          }
+        }
+
+      }
+
+    }
+    return retval;
   }
 
 
@@ -298,6 +553,16 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
 
   public boolean isAutoAdjust() {
     return autoAdjust;
+  }
+
+
+
+
+  public boolean isAutoCreate() {
+    try {
+      return configuration.getAsBoolean(ConfigTag.AUTO_CREATE);
+    } catch (final DataFrameException ignore) {}
+    return false;
   }
 
 
@@ -316,7 +581,7 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
       // Look for a database connector in the context bound with the name specified in the TARGET attribute
       String target = getConfiguration().getString(ConfigTag.TARGET);
       target = Template.preProcess(target, context.getSymbols());
-      Object obj = getContext().get(target);
+      final Object obj = getContext().get(target);
       if (obj != null && obj instanceof DatabaseConnector) {
         setConnector((DatabaseConnector)obj);
         Log.debug("Using database connector found in context bound to '" + target + "'");
@@ -324,29 +589,36 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
 
       if (getConnector() == null) {
         // we have to create a Database based on our configuration
-        Database database = new Database();
-        Config cfg = new Config();
+        final Database database = new Database();
+        final Config cfg = new Config();
 
-        if (StringUtil.isNotBlank(getString(ConfigTag.TARGET)))
+        if (StringUtil.isNotBlank(getString(ConfigTag.TARGET))) {
           cfg.put(ConfigTag.TARGET, getString(ConfigTag.TARGET));
+        }
 
-        if (StringUtil.isNotBlank(getString(ConfigTag.DRIVER)))
+        if (StringUtil.isNotBlank(getString(ConfigTag.DRIVER))) {
           cfg.put(ConfigTag.DRIVER, getString(ConfigTag.DRIVER));
+        }
 
-        if (StringUtil.isNotBlank(getString(ConfigTag.LIBRARY)))
+        if (StringUtil.isNotBlank(getString(ConfigTag.LIBRARY))) {
           cfg.put(ConfigTag.LIBRARY, getString(ConfigTag.LIBRARY));
+        }
 
-        if (StringUtil.isNotBlank(getString(ConfigTag.USERNAME)))
+        if (StringUtil.isNotBlank(getString(ConfigTag.USERNAME))) {
           cfg.put(ConfigTag.USERNAME, getString(ConfigTag.USERNAME));
+        }
 
-        if (StringUtil.isNotBlank(getString(Loader.ENCRYPT_PREFIX + ConfigTag.USERNAME)))
+        if (StringUtil.isNotBlank(getString(Loader.ENCRYPT_PREFIX + ConfigTag.USERNAME))) {
           cfg.put(Loader.ENCRYPT_PREFIX + ConfigTag.USERNAME, getString(Loader.ENCRYPT_PREFIX + ConfigTag.USERNAME));
+        }
 
-        if (StringUtil.isNotBlank(getString(ConfigTag.PASSWORD)))
+        if (StringUtil.isNotBlank(getString(ConfigTag.PASSWORD))) {
           cfg.put(ConfigTag.PASSWORD, getString(ConfigTag.PASSWORD));
+        }
 
-        if (StringUtil.isNotBlank(getString(Loader.ENCRYPT_PREFIX + ConfigTag.PASSWORD)))
+        if (StringUtil.isNotBlank(getString(Loader.ENCRYPT_PREFIX + ConfigTag.PASSWORD))) {
           cfg.put(Loader.ENCRYPT_PREFIX + ConfigTag.PASSWORD, getString(Loader.ENCRYPT_PREFIX + ConfigTag.PASSWORD));
+        }
 
         setConnector(database);
 
@@ -359,7 +631,7 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
             Log.debug(LogMsg.createMsg(CDX.MSG, "Component.using_user", getClass().getSimpleName(), database.getUserName()));
             Log.debug(LogMsg.createMsg(CDX.MSG, "Component.using_password", getClass().getSimpleName(), StringUtil.isBlank(database.getPassword()) ? 0 : database.getPassword().length()));
           }
-        } catch (ConfigurationException e) {
+        } catch (final ConfigurationException e) {
           context.setError("Could not configure database connector: " + e.getClass().getSimpleName() + " - " + e.getMessage());
         }
 
@@ -406,21 +678,21 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
 
 
   /**
-   * @param value true to automatically create the table based on the sizes of data observed so far, false to fail with an error if the table does not exist.
+   * @param value true to automatically adjust column sizes to accommodate data, false to throw error
    */
-  public void setAutoCreate(final boolean value) {
-    configuration.put(ConfigTag.AUTO_CREATE, value);
+  public void setAutoAdjust(final boolean value) {
+    autoAdjust = value;
+    configuration.put(ConfigTag.AUTO_ADJUST, value);
   }
 
 
 
 
   /**
-   * @param value true to automatically adjust column sizes to accommodate data, false to throw error
+   * @param value true to automatically create the table based on the sizes of data observed so far, false to fail with an error if the table does not exist.
    */
-  public void setAutoAdjust(final boolean value) {
-    autoAdjust = value;
-    configuration.put(ConfigTag.AUTO_ADJUST, value);
+  public void setAutoCreate(final boolean value) {
+    configuration.put(ConfigTag.AUTO_CREATE, value);
   }
 
 
@@ -438,6 +710,22 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
 
 
   /**
+   * @see coyote.dx.AbstractConfigurableComponent#setConfiguration(coyote.loader.cfg.Config)
+   */
+  @Override
+  public void setConfiguration(final Config cfg) throws ConfigurationException {
+    super.setConfiguration(cfg);
+
+    final String token = getString(ConfigTag.TABLE);
+    if (StringUtil.isBlank(token)) {
+      throw new ConfigurationException("Invalid '" + ConfigTag.TABLE + "' configuration attribute of '" + token + "'");
+    }
+  }
+
+
+
+
+  /**
    * @param conn
    */
   public void setConnection(final Connection conn) {
@@ -448,14 +736,24 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
 
 
   /**
-   * Set the given data file into the given prepared statement at the given 
+   * @param connector the connector to set
+   */
+  public void setConnector(final DatabaseConnector connector) {
+    this.connector = connector;
+  }
+
+
+
+
+  /**
+   * Set the given data file into the given prepared statement at the given
    * index in the statement.
-   * 
-   * <p>This ensures the correct data is placed in the prepared statement with 
+   *
+   * <p>This ensures the correct data is placed in the prepared statement with
    * the appropriate type. This also checks for nulls.</p>
-   * 
+   *
    * @param pstmt the prepared statement to which to add data
-   * @param indx the index into the value set 
+   * @param indx the index into the value set
    * @param field the field containing the value to add
    */
   private void setData(final PreparedStatement pstmt, final int indx, final DataField field) {
@@ -644,13 +942,13 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
     if (isAutoAdjust()) {
       for (final String name : frameset.getColumns()) {
         if (schema.getMetric(name).getMaximumStringLength() > tableschema.findColumn(name).getLength()) {
-          // if auto adjust, check the size of the string and issue an 
-          // "alter table" command to adjust the size of the column if the 
+          // if auto adjust, check the size of the string and issue an
+          // "alter table" command to adjust the size of the column if the
           // string is too large to fit
           Log.debug("The " + database + " table '" + tableschema.getName() + "' must be altered to fit the '" + name + "' value; table allows a size of " + tableschema.findColumn(name).getLength() + " but data requires " + schema.getMetric(name).getMaximumStringLength());
 
           PreparedStatement aps = null;
-          String alterSql = "ALTER TABLE " + getSchema() + "." + getTable() + " ALTER COLUMN " + name + " VARCHAR2(" + schema.getMetric(name).getMaximumStringLength() + ")";
+          final String alterSql = "ALTER TABLE " + getSchema() + "." + getTable() + " ALTER COLUMN " + name + " VARCHAR2(" + schema.getMetric(name).getMaximumStringLength() + ")";
           try {
             aps = connection.prepareStatement(alterSql);
             aps.execute();
@@ -660,7 +958,7 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
             if (aps != null) {
               try {
                 aps.close();
-              } catch (SQLException ignore) {
+              } catch (final SQLException ignore) {
                 // quiet
               }
             }
@@ -669,8 +967,6 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
           // alter table Employee alter column salary numeric(22,5)
           // set the size in the tableschema
           tableschema.findColumn(name).setLength(schema.getMetric(name).getMaximumStringLength());
-
-          //DatabaseDialect.alterTable()
         }
       }
     }
@@ -738,280 +1034,8 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
 
 
   /**
-   * This checks the database for the table to exist.
-   * 
-   * <p>If the table does not exist and autocreate is set to true, this method 
-   * will attempt to create the table based on the schema generated for the 
-   * records observed so far.</p>
-   * 
-   * @return true if the table exists and is ready to insert data, false otherwise
-   */
-  @SuppressWarnings("unchecked")
-  private boolean checkTable() {
-
-    checkSchema();
-
-    // check to see if the table exists
-    if (!DatabaseUtil.tableExists(getTable(), getConnection())) {
-
-      if (isAutoCreate()) {
-        Connection conn = getConnection();
-
-        if (conn == null) {
-          Log.error("Cannot get database connection");
-          context.setError("Could not connect to the database");
-          return false;
-        }
-
-        symbolTable.put(DatabaseDialect.TABLE_NAME_SYM, getTable());
-        symbolTable.put(DatabaseDialect.DB_SCHEMA_SYM, getSchema());
-
-        String command = DatabaseDialect.getCreate(database, schema, symbolTable);
-
-        Log.debug(LogMsg.createMsg(CDX.MSG, "Writer.creating_table", getClass().getSimpleName(), getTable(), command));
-
-        Statement stmt = null;
-        try {
-          stmt = conn.createStatement();
-          stmt.executeUpdate(command);
-
-        } catch (Exception e) {
-          Log.error(LogMsg.createMsg(CDX.MSG, "Writer.jdbc_table_create_error", getTable(), e.getMessage()));
-        } finally {
-          try {
-            stmt.close();
-          } catch (Exception e) {
-            Log.warn(LogMsg.createMsg(CDX.MSG, "Problems closing create {} statement: {}", getTable(), e.getMessage()));
-          }
-        }
-
-        try {
-          commit();
-        } catch (final SQLException e) {
-          Log.warn("Couldnt commit table creation: " + e.getMessage());
-        }
-
-        if (DatabaseUtil.tableExists(getTable(), getSchema(), getConnection())) {
-          Log.debug("Table creation verified");
-        } else {
-          Log.error("Could not verifiy the creation of '" + getTable() + "." + getSchema() + "' table, expect subsequent database operations to fail.");
-        }
-      }
-
-    }
-
-    // get the schema for the database table we are using
-    tableschema = getTableSchema(getTable());
-
-    return true;
-  }
-
-
-
-
-  /**
-   * 
-   */
-  private void checkSchema() {
-    Log.debug("Looking for schema '" + getSchema() + "'");
-    if (!DatabaseUtil.schemaExists(getSchema(), getConnection())) {
-      if (isAutoCreate()) {
-        String username = getConnector().getUserName();
-        String sql = DatabaseDialect.getCreateSchema(database, getSchema(), username);
-        Log.debug("Schema '" + getSchema() + "' not found in database, creating it with:\n" + sql);
-        try (Statement stmt = connection.createStatement()) {
-          stmt.executeUpdate(sql);
-          Log.debug("Schema created.");
-
-          if (DatabaseUtil.schemaExists(getSchema(), getConnection())) {
-            Log.debug("Schema creation verified");
-          } else {
-            Log.error("Could not verify the creation of schema '" + getSchema() + "'");
-          }
-
-        } catch (final SQLException e) {
-          Log.error("Schema creation failed!");
-          e.printStackTrace();
-        }
-      } else {
-        Log.warn("The schema '" + getSchema() + "' does not exist in the database and autocreate is set to '" + isAutoCreate() + "', expect subsequent database operations to fail.");
-      }
-    }
-  }
-
-
-
-
-  /**
-   * <p>Mappings are generally those suggested in the Oracle JDBC mapping guide 
-   * with minor exceptions for DECIMAL and NUMERIC as BigDecimal is not 
-   * supported by Data Frame at this time.</p>
-   * 
-   * @param tablename name of the table being generated
-   * 
-   * @return a table schema for the database table to which this writer is writing.
-   */
-  private TableDefinition getTableSchema(String tablename) {
-    TableDefinition retval = null;
-    if (StringUtil.isNotBlank(tablename)) {
-      Connection conn = getConnection();
-      if (conn == null) {
-        context.setError("Could not connect to the database");
-        return null;
-      }
-
-      String tableSchemaName = null;
-
-      ResultSet rs = null;
-      try {
-        DatabaseMetaData meta = conn.getMetaData();
-
-        // get all the tables so we can perform a case insensitive search
-        rs = meta.getTables(null, null, "%", null);
-        while (rs.next()) {
-          if (StringUtil.equalsIgnoreCase(tablename, rs.getString("TABLE_NAME"))) {
-            tableSchemaName = rs.getString("TABLE_NAME");
-            break;
-          }
-        }
-      } catch (SQLException e) {
-        e.printStackTrace();
-        context.setError("Problems confirming table name: " + e.getMessage());
-      } finally {
-        if (rs != null) {
-          try {
-            rs.close();
-          } catch (SQLException ignore) {
-            //ignore.printStackTrace();
-          }
-        }
-      }
-
-      if (StringUtil.isNotEmpty(tableSchemaName)) {
-        retval = new TableDefinition(tableSchemaName);
-
-        rs = null;
-        try {
-          DatabaseMetaData meta = conn.getMetaData();
-          rs = meta.getColumns(null, null, tableSchemaName, "%");
-
-          String name;
-          ColumnType type;
-          int length;
-          boolean readOnly;
-          boolean mandatory;
-          boolean primaryKey;
-          boolean unique;
-          boolean nullable;
-          int pos;
-          String remarks;
-
-          while (rs.next()) {
-            readOnly = nullable = mandatory = primaryKey = unique = false;
-            length = pos = 0;
-            name = remarks = null;
-
-            // If there is a catalog name and it is not already set, set it
-            if (rs.getString("TABLE_CAT") != null && retval.getCatalogName() == null) {
-              retval.setCatalogName(rs.getString("TABLE_CAT"));
-            }
-
-            // If there is a schema name and it is not already set, set it
-            if (rs.getString("TABLE_SCHEM") != null && retval.getSchemaName() == null) {
-              retval.setSchemaName(rs.getString("TABLE_SCHEM"));
-            }
-
-            // Retrieve data about the column
-            name = rs.getString("COLUMN_NAME");
-            length = rs.getInt("COLUMN_SIZE");
-            pos = rs.getInt("ORDINAL_POSITION");
-            remarks = rs.getString("REMARKS");
-
-            switch (rs.getInt("DATA_TYPE")) {
-              case TIME:
-              case TIMESTAMP:
-              case DATE:
-                type = ColumnType.DATE;
-                break;
-              case BOOLEAN:
-                type = ColumnType.BOOLEAN;
-                break;
-              case TINYINT:
-                type = ColumnType.BYTE;
-                break;
-              case SMALLINT:
-                type = ColumnType.SHORT;
-                break;
-              case INTEGER:
-                type = ColumnType.INT;
-                break;
-              case FLOAT:
-              case DOUBLE:
-              case REAL:
-                type = ColumnType.FLOAT;
-                break;
-              case DECIMAL:
-              case NUMERIC:
-                type = ColumnType.DOUBLE;
-                break;
-              case BIGINT:
-                type = ColumnType.LONG;
-                break;
-              case DISTINCT:
-                unique = true;
-                type = ColumnType.STRING;
-                break;
-              default:
-                type = ColumnType.STRING;
-                break;
-            }
-
-            switch (rs.getInt("NULLABLE")) {
-              case DatabaseMetaData.columnNoNulls:
-                nullable = false;
-                break;
-              case DatabaseMetaData.columnNullable:
-                nullable = true;
-                break;
-              case DatabaseMetaData.columnNullableUnknown:
-                nullable = false;
-                break;
-              default:
-                nullable = false;
-                break;
-            }
-
-            retval.addColumn(new ColumnDefinition(name, type, length, nullable, readOnly, mandatory, primaryKey, unique, remarks, pos));
-
-          }
-
-          //System.out.println(retval);
-
-        } catch (SQLException e) {
-          e.printStackTrace();
-          context.setError("Problems confirming table columns: " + e.getMessage());
-        } finally {
-          if (rs != null) {
-            try {
-              rs.close();
-            } catch (SQLException ignore) {
-              //ignore.printStackTrace();
-            }
-          }
-        }
-
-      }
-
-    }
-    return retval;
-  }
-
-
-
-
-  /**
    * This is where we actually write the frame.
-   * 
+   *
    * @param frame the frame to be written
    */
   private void writeFrame(final DataFrame frame) {
@@ -1023,27 +1047,6 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
       writeBatch();
     }
 
-  }
-
-
-
-
-  /**
-   * Return the connector we use for 
-   * @return the connector
-   */
-  public DatabaseConnector getConnector() {
-    return connector;
-  }
-
-
-
-
-  /**
-   * @param connector the connector to set
-   */
-  public void setConnector(DatabaseConnector connector) {
-    this.connector = connector;
   }
 
 }
