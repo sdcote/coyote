@@ -16,6 +16,7 @@ import static org.junit.Assert.fail;
 import java.io.IOException;
 import java.net.URL;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import coyote.commons.StreamUtil;
@@ -84,7 +85,7 @@ public class ContentTest {
 
 
 
-  @Test
+  @Ignore
   public void bootstrap() {
 
     String target = "/js/bootstrap.js";
