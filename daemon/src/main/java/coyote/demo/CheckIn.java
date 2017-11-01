@@ -37,13 +37,13 @@ import coyote.loader.log.Log;
 
 
 /**
- * This component runs at regular interfaces and checks in with a server 
+ * This component runs at regular intervals and checks in with a server 
  * publishing data used to discover and manage the component where ever it may 
  * be running.
  * 
- * <p>Consider running TinyDX on an embedded device which gets its address via 
- * DHCP. The address may change regularly and this component will publish its 
- * address and port to to a central server so it can be found.
+ * <p>Consider running CoyoteDX on an embedded device which gets its address 
+ * via DHCP. The address may change regularly and this component will publish 
+ * its address and port to to a central server so it can be found.
  * 
  * <p>This is how this component can be configure to run every 5 minutes:<pre>
  * {"Class":"coyote.demo.CheckIn","target":"https://coyote.systems/api/checkin","Schedule":{"Pattern":"/5 * * * *"}}</pre>
