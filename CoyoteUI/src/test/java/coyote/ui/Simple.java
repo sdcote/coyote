@@ -101,7 +101,7 @@ static TestingLoader loader = null;
 
 
 
-  @Test
+  //@Test
   public void test() {
     //driver.get("http://the-internet.herokuapp.com/login");
     //assertEquals(driver.getTitle(), "The Internet");
