@@ -76,7 +76,7 @@ public class WebGetTest extends AbstractTest {
 
     Config cfg = new Config();
 
-    cfg.put(ConfigTag.SOURCE, "http://mirrors.ibiblio.org/apache//commons/pool/binaries/commons-pool2-2.4.2-bin.tar.gz");
+    cfg.put(ConfigTag.SOURCE, "http://www-us.apache.org/dist//xerces/xml-commons/xml-commons-external-1.2.06-bin.tar.gz");
     try (WebGet task = new WebGet()) {
       task.setConfiguration(cfg);
       task.open(context);
@@ -84,7 +84,7 @@ public class WebGetTest extends AbstractTest {
       assertFalse(context.getErrorMessage(), context.isInError());
     }
 
-    cfg.put(ConfigTag.SOURCE, "https://www.apache.org/dist/commons/pool/binaries/commons-pool2-2.4.2-bin.tar.gz.md5");
+    cfg.put(ConfigTag.SOURCE, "http://www-us.apache.org/dist//xerces/xml-commons/xml-commons-external-1.2.06-bin.tar.gz.md5");
     try (WebGet task = new WebGet()) {
       task.setConfiguration(cfg);
       task.open(context);
@@ -92,7 +92,7 @@ public class WebGetTest extends AbstractTest {
       assertFalse(context.getErrorMessage(), context.isInError());
     }
 
-    String testFile = new File(testDir, "commons-pool2-2.4.2-bin.tar.gz").getAbsolutePath();
+    String testFile = new File(testDir, "xml-commons-external-1.2.06-bin.tar.gz").getAbsolutePath();
 
     cfg = new Config();
     cfg.put(ConfigTag.FILE, testFile);
