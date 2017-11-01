@@ -99,9 +99,11 @@ public abstract class AbstractBatchLoader extends AbstractLoader {
 
     // if the override work directory command line argument is present, set 
     // the app.work system property to the current working directory.
-    for (int x = 0; x < commandLineArguments.length; x++) {
-      if (OVERRIDE_WORK_DIR_ARG.equalsIgnoreCase(commandLineArguments[x])) {
-        System.setProperty(Job.APP_WORK, System.getProperty("user.dir"));        
+    if (commandLineArguments != null) {
+      for (int x = 0; x < commandLineArguments.length; x++) {
+        if (OVERRIDE_WORK_DIR_ARG.equalsIgnoreCase(commandLineArguments[x])) {
+          System.setProperty(Job.APP_WORK, System.getProperty("user.dir"));
+        }
       }
     }
 
