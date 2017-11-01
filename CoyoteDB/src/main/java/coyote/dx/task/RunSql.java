@@ -264,20 +264,20 @@ public class RunSql extends AbstractTransformTask implements TransformTask {
         String nextLine = getNextLine();
         if (StringUtil.isNotBlank(nextLine)) {
           nextLine = nextLine.trim();
-          
+
           // Handle Multi-line comments /* this is commented out */
-          
           // Handle EOL comments  -- this is commented out
-          
-          
-          
+          // Use StringParser to parse comments out of the file
+          // SqlReader extends StringParser
+          // parser.getNextCommand()
+
           int delimiter = nextLine.indexOf(';');
           if (delimiter >= 0) {
             buffer.append(' ');
-            buffer.append(nextLine.substring(0, delimiter+1));
+            buffer.append(nextLine.substring(0, delimiter + 1));
             processCommand(buffer.toString().trim(), linePointer);
             buffer.delete(0, buffer.length());
-            buffer.append(nextLine.substring(delimiter+1));
+            buffer.append(nextLine.substring(delimiter + 1));
           } else {
             buffer.append(nextLine);
           }

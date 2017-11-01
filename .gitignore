@@ -22,6 +22,7 @@ csharp/
 ######################
 *.class
 *.dll
+#*.exe
 
 
 # Eclipse IDE Artifacts #
@@ -59,3 +60,4 @@ test.zip
 CoyoteInstaller.jar
 
 CoyoteDX/hprof/
+CoyoteUI/src/html/

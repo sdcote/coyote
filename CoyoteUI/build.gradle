@@ -12,9 +12,11 @@ jar {
 
 ext {
 	junitVersion = '4.12'
+	seleniumVersion = '3.6.0'
 }
 dependencies {
 	compile project(':CoyoteDX')
 	compile "coyote:CoyoteDX:$version"
+	compile "org.seleniumhq.selenium:selenium-java:$seleniumVersion"
 	testCompile "junit:junit:$junitVersion"	
 }

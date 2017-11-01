@@ -9,8 +9,8 @@
 	],
 	
 	"Logging": {
-		"ConsoleAppender": { "target": "STDOUT", "categories": "info" },
-		"SysErrAppender": { "target": "STDERR", "categories": "error, fatal, warn" },
+		"StandardOutput": { "categories": "info" },
+		"StandardError": { "categories": "error, fatal, warn" },
 		"FileAppender": { "target": "error.log", "categories": "error, fatal, warn" },
 		"FileAppender": { "target": "scheduler.log", "categories": "scheduler, thread" }
 	}
