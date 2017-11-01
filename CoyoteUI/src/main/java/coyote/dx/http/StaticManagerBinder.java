@@ -11,11 +11,9 @@
  */
 package coyote.dx.http;
 
+import coyote.dataframe.DataField;
 import coyote.dx.ConfigTag;
 import coyote.dx.Service;
-import coyote.dx.http.HttpManager;
-import coyote.dx.http.ManagerFactoryBinder;
-import coyote.dataframe.DataField;
 import coyote.loader.cfg.Config;
 import coyote.loader.cfg.ConfigurationException;
 import coyote.loader.log.Log;
