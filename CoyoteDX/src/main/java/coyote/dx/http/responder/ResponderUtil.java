@@ -15,7 +15,7 @@ import coyote.commons.network.http.IHTTPSession;
 
 
 /**
- * Utilities for web handlers
+ * Utilities for HTTP responders
  */
 public class ResponderUtil {
 

@@ -44,7 +44,7 @@ public class CoyoteHttpManager extends HTTPDRouter implements HttpManager {
     removeRoute("/");
     removeRoute("/index.html");
 
-    // It is suggested that the responder from the Batch package be used to 
+    // It is suggested that responders from the Coyote package be used to
     // handle standard, expected functions for consistency across managers.
     // REST interfaces with a default priority of 100
     addRoute("/api/cmd/:command", CommandResponder.class, service);
