@@ -47,14 +47,10 @@ public class ContentTest {
 
   @Test
   public void favicon() {
-
     String target = "/favicon.ico";
-
     String localPath = ROOT + target;
-
     // System.out.println( "Locating '" + localPath + "'" );
     URL rsc = cLoader.getResource( localPath );
-
     if ( rsc == null ) {
       fail( "Could not find '" + localPath + "'" );
     } else {
@@ -67,13 +63,9 @@ public class ContentTest {
 
   @Test
   public void index() {
-
     String target = "/index.html";
-
     String localPath = ROOT + target;
-
     URL rsc = cLoader.getResource( localPath );
-
     if ( rsc == null ) {
       fail( "Could not find '" + localPath + "'" );
     } else {
@@ -85,21 +77,16 @@ public class ContentTest {
 
 
 
-  @Ignore
+  @Test
   public void bootstrap() {
-
-    String target = "/js/bootstrap.js";
-
+    String target = "/js/bootstrap.min.js";
     String localPath = ROOT + target;
-
     URL rsc = cLoader.getResource( localPath );
-
     if ( rsc == null ) {
       fail( "Could not find '" + localPath + "'" );
     } else {
       show( rsc );
     }
-
   }
 
 }

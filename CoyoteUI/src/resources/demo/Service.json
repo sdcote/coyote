@@ -9,7 +9,7 @@
 	],
 	
 	"Logging": {
-		"StandardOutput": { "categories": "info" },
+		"StandardOutput": { "categories": "info,notice,httpd" },
 		"StandardError": { "categories": "error, fatal, warn" },
 		"FileAppender": { "target": "error.log", "categories": "error, fatal, warn" },
 		"FileAppender": { "target": "scheduler.log", "categories": "scheduler, thread" }
