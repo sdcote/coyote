@@ -1,8 +1,8 @@
 /*
  * Copyright (c) 2017 Stephan D. Cote' - All rights reserved.
- * 
- * This program and the accompanying materials are made available under the 
- * terms of the MIT License which accompanies this distribution, and is 
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the MIT License which accompanies this distribution, and is
  * available at http://creativecommons.org/licenses/MIT/
  */
 package coyote.dx.http.responder;
@@ -28,21 +28,21 @@ import coyote.loader.log.Log;
 
 
 /**
- * 
+ *
  */
 public abstract class ViewResponder extends DefaultResponder implements Responder {
   private static final String HTML_EXTENSION = ".html";
   private static final String TEMPLATE_DIRECTORY = "views/";
-  protected Status status = Status.OK;
-  protected String template = "";
-  protected MimeType mimetype = MimeType.HTML;
+  private Status status = Status.OK;
+  private String template = "";
+  private MimeType mimetype = MimeType.HTML;
   private SymbolTable symbolTable = new SymbolTable();
 
 
 
 
   @Override
-  public Response delete(Resource resource, Map<String, String> urlParams, IHTTPSession session) {
+  public Response delete(final Resource resource, final Map<String, String> urlParams, final IHTTPSession session) {
     return Response.createFixedLengthResponse(getStatus(), getMimeType(), getText());
   }
 
@@ -50,40 +50,8 @@ public abstract class ViewResponder extends DefaultResponder implements Responde
 
 
   @Override
-  public Response get(Resource resource, Map<String, String> urlParams, IHTTPSession session) {
+  public Response get(final Resource resource, final Map<String, String> urlParams, final IHTTPSession session) {
     return Response.createFixedLengthResponse(getStatus(), getMimeType(), getText());
-  }
-
-
-
-
-  @Override
-  public Response other(String method, Resource resource, Map<String, String> urlParams, IHTTPSession session) {
-    return Response.createFixedLengthResponse(getStatus(), getMimeType(), getText());
-  }
-
-
-
-
-  @Override
-  public Response post(Resource resource, Map<String, String> urlParams, IHTTPSession session) {
-    return Response.createFixedLengthResponse(getStatus(), getMimeType(), getText());
-  }
-
-
-
-
-  @Override
-  public Response put(Resource resource, Map<String, String> urlParams, IHTTPSession session) {
-    return Response.createFixedLengthResponse(getStatus(), getMimeType(), getText());
-  }
-
-
-
-
-  @Override
-  public IStatus getStatus() {
-    return status;
   }
 
 
@@ -97,67 +65,81 @@ public abstract class ViewResponder extends DefaultResponder implements Responde
 
 
 
-  @Override
-  public String getMimeType() {
-    return mimetype.getType();
+  /**
+   * Loads the resource from the classpath as a string.
+   *
+   * <p>This assumes ISO 8859-1 (latin 1) encoding.
+   *
+   * @param name the exact name of the resource to load including any path
+   *        required to find the resource (i.e. fully qualified name).
+   *
+   * @return a string representing the data found at the given loaction or
+   *         null if the data could not be loaded.
+   */
+  private String loadResource(final String name) {
+    final String resource = name;
+    String retval = null;
+
+    final ClassLoader cLoader = this.getClass().getClassLoader();
+    final InputStream inputStream = cLoader.getResourceAsStream(resource);
+    if (inputStream != null) {
+      final int bufferSize = 1024;
+      final char[] buffer = new char[bufferSize];
+      final StringBuilder out = new StringBuilder();
+      try {
+        final Reader in = new InputStreamReader(inputStream, StringUtil.ISO8859_1);
+        for (;;) {
+          final int rsz = in.read(buffer, 0, buffer.length);
+          if (rsz < 0) {
+            break;
+          }
+          out.append(buffer, 0, rsz);
+        }
+        retval = out.toString();
+      } catch (final IOException e) {
+        Log.error("Could not load template from " + resource, e);
+      }
+    } else {
+      Log.error("Could not find template in " + resource);
+    }
+    return retval;
   }
 
 
 
 
   /**
-   * @param status the status to set
+   * Loads a section of content from the classpath resolving any found data as
+   * a template with the current state of the symbol table.
+   *
+   * <p>The name must be fully qualified. For example, the section {@code
+   * alerts.txt} will be loaded from the root while {@code sections/alerts.txt}
+   * will be loaded from the {@code sections} namespace/directory.
+   *
+   * @param name the exact name of the section to load
+   *
+   * @return the resolved section or an empty string if the section was not
+   *         found. This method call will not return null.
    */
-  protected void setStatus(Status status) {
-    this.status = status;
+  protected String loadSection(final String name) {
+    String section = loadResource(name);
+    if (section != null) {
+      section = Template.resolve(section, symbolTable);
+    } else {
+      section = "";
+    }
+    return section;
   }
 
 
 
 
   /**
-   * @param type the mimetype to set
+   * Load a template from the templates namespace/directory of the classpath.
+   *
+   * @param name the name of the template to load.
    */
-  protected void setMimetype(MimeType type) {
-    mimetype = type;
-  }
-
-
-
-
-  /**
-   * Merge the given symbol table into our table.
-   * @param symbols the table to merge into our table 
-   */
-  protected void mergeSymbols(SymbolTable symbols) {
-    symbolTable.merge(symbols);
-  }
-
-
-
-
-  /**
-   * Replace our symbol table with the given table
-   * @param symbols the symbol table to use in this responder.
-   */
-  protected void setSymbols(SymbolTable symbols) {
-    symbolTable = symbols;
-  }
-
-
-
-
-  protected SymbolTable getSymbolTable() {
-    return symbolTable;
-  }
-
-
-
-
-  /**
-   * @param name
-   */
-  protected void loadTemplate(String name) {
+  protected void loadTemplate(final String name) {
     String resource = TEMPLATE_DIRECTORY + name;
     String result = loadResource(resource);
 
@@ -182,34 +164,129 @@ public abstract class ViewResponder extends DefaultResponder implements Responde
 
 
 
-  private String loadResource(String name) {
-    String resource = name;
-    String retval = null;
+  /**
+   * Merge the given symbol table into our table.
+   * @param symbols the table to merge into our table
+   */
+  protected void mergeSymbols(final SymbolTable symbols) {
+    symbolTable.merge(symbols);
+  }
 
-    // From ClassLoader, all paths are "absolute" already - there's no context
-    // from which they could be relative. Therefore you don't need a leading slash.
-    ClassLoader cLoader = this.getClass().getClassLoader();
-    InputStream inputStream = cLoader.getResourceAsStream(resource);
-    if (inputStream != null) {
-      final int bufferSize = 1024;
-      final char[] buffer = new char[bufferSize];
-      final StringBuilder out = new StringBuilder();
-      try {
-        Reader in = new InputStreamReader(inputStream, StringUtil.ISO8859_1);
-        for (;;) {
-          int rsz = in.read(buffer, 0, buffer.length);
-          if (rsz < 0)
-            break;
-          out.append(buffer, 0, rsz);
-        }
-        retval = out.toString();
-      } catch (IOException e) {
-        Log.error("Could not load template from " + resource, e);
-      }
+
+
+
+  @Override
+  public Response other(final String method, final Resource resource, final Map<String, String> urlParams, final IHTTPSession session) {
+    return Response.createFixedLengthResponse(getStatus(), getMimeType(), getText());
+  }
+
+
+
+
+  @Override
+  public Response post(final Resource resource, final Map<String, String> urlParams, final IHTTPSession session) {
+    return Response.createFixedLengthResponse(getStatus(), getMimeType(), getText());
+  }
+
+
+
+
+  @Override
+  public Response put(final Resource resource, final Map<String, String> urlParams, final IHTTPSession session) {
+    return Response.createFixedLengthResponse(getStatus(), getMimeType(), getText());
+  }
+
+
+
+
+  /**
+   * @param status the status to set
+   */
+  protected void setStatus(final Status status) {
+    this.status = status;
+  }
+
+
+
+
+  /**
+   * Replace our symbol table with the given table
+   * @param symbols the symbol table to use in this responder.
+   */
+  protected void setSymbols(final SymbolTable symbols) {
+    if (symbols != null) {
+      symbolTable = symbols;
     } else {
-      Log.error("Could not find template in " + resource);
+      symbolTable = new SymbolTable();
     }
-    return retval;
+  }
+
+
+
+
+  /**
+   * @return the template string or an empty string {@code ""} if the template 
+   *         is not set. This method will not return null.
+   */
+  protected String getTemplate() {
+    return template;
+  }
+
+
+
+
+  /**
+   * @param template the template to set
+   */
+  protected void setTemplate(final String template) {
+    if (template != null) {
+      this.template = template;
+    } else {
+      this.template = "";
+    }
+  }
+
+
+
+
+  /**
+   * @return the mimetype
+   */
+  protected MimeType getRawMimeType() {
+    return mimetype;
+  }
+
+
+
+
+  /**
+   * @param type the mimetype to set
+   */
+  protected void setRawMimetype(final MimeType type) {
+    mimetype = type;
+  }
+
+
+
+
+  @Override
+  public String getMimeType() {
+    return mimetype.getType();
+  }
+
+
+
+
+  @Override
+  public IStatus getStatus() {
+    return status;
+  }
+
+
+
+
+  protected SymbolTable getSymbols() {
+    return symbolTable;
   }
 
 }

@@ -29,15 +29,17 @@ public class Dashboard extends ViewResponder implements Responder {
 
     // populate our symbols with those of the service
     mergeSymbols(service.getContext().getSymbols());
-    
 
-    // load the template
+    // load the template matching this class
     loadTemplate(this.getClass().getSimpleName());
 
     // if there is no session cookie, then send the login page
     // if(session.getCookies().getCookie("session")){ loadTemplate("login"); }
 
     //
+
+    // Add more symbols to our table, like other sections:
+    getSymbols().put("Menu", loadSection("sections/menu2.html"));
 
     // modify the template as we see fit
 
