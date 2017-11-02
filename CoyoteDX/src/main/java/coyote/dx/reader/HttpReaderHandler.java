@@ -28,7 +28,7 @@ import coyote.dataframe.marshal.JSONMarshaler;
 import coyote.dataframe.marshal.MarshalException;
 import coyote.dataframe.marshal.XMLMarshaler;
 import coyote.dx.http.HttpFuture;
-import coyote.dx.http.responder.AbstractBatchResponder;
+import coyote.dx.http.responder.AbstractCoyoteResponder;
 import coyote.loader.log.Log;
 
 
@@ -46,14 +46,14 @@ import coyote.loader.log.Log;
  * transaction is complete. This class will then retrieve a response from the 
  * HttpFuture then send it back to the client. 
  */
-public class HttpReaderHandler extends AbstractBatchResponder implements Responder {
+public class HttpReaderHandler extends AbstractCoyoteResponder implements Responder {
   private static final int TWO_MINUTES = 120000;
 
 
 
 
   /**
-   * @see coyote.dx.http.responder.AbstractBatchResponder#delete(coyote.commons.network.http.responder.Resource, java.util.Map, coyote.commons.network.http.IHTTPSession)
+   * @see coyote.dx.http.responder.AbstractCoyoteResponder#delete(coyote.commons.network.http.responder.Resource, java.util.Map, coyote.commons.network.http.IHTTPSession)
    */
   @Override
   public Response delete(final Resource resource, final Map<String, String> urlParams, final IHTTPSession session) {
@@ -67,7 +67,7 @@ public class HttpReaderHandler extends AbstractBatchResponder implements Respond
 
 
   /**
-   * @see coyote.dx.http.responder.AbstractBatchResponder#get(coyote.commons.network.http.responder.Resource, java.util.Map, coyote.commons.network.http.IHTTPSession)
+   * @see coyote.dx.http.responder.AbstractCoyoteResponder#get(coyote.commons.network.http.responder.Resource, java.util.Map, coyote.commons.network.http.IHTTPSession)
    */
   @Override
   public Response get(final Resource resource, final Map<String, String> urlParams, final IHTTPSession session) {
@@ -81,7 +81,7 @@ public class HttpReaderHandler extends AbstractBatchResponder implements Respond
 
 
   /**
-   * @see coyote.dx.http.responder.AbstractBatchResponder#other(java.lang.String, coyote.commons.network.http.responder.Resource, java.util.Map, coyote.commons.network.http.IHTTPSession)
+   * @see coyote.dx.http.responder.AbstractCoyoteResponder#other(java.lang.String, coyote.commons.network.http.responder.Resource, java.util.Map, coyote.commons.network.http.IHTTPSession)
    */
   @Override
   public Response other(final String method, final Resource resource, final Map<String, String> urlParams, final IHTTPSession session) {
@@ -95,7 +95,7 @@ public class HttpReaderHandler extends AbstractBatchResponder implements Respond
 
 
   /**
-   * @see coyote.dx.http.responder.AbstractBatchResponder#post(coyote.commons.network.http.responder.Resource, java.util.Map, coyote.commons.network.http.IHTTPSession)
+   * @see coyote.dx.http.responder.AbstractCoyoteResponder#post(coyote.commons.network.http.responder.Resource, java.util.Map, coyote.commons.network.http.IHTTPSession)
    */
   @Override
   public Response post(final Resource resource, final Map<String, String> urlParams, final IHTTPSession session) {
@@ -109,7 +109,7 @@ public class HttpReaderHandler extends AbstractBatchResponder implements Respond
 
 
   /**
-   * @see coyote.dx.http.responder.AbstractBatchResponder#put(coyote.commons.network.http.responder.Resource, java.util.Map, coyote.commons.network.http.IHTTPSession)
+   * @see coyote.dx.http.responder.AbstractCoyoteResponder#put(coyote.commons.network.http.responder.Resource, java.util.Map, coyote.commons.network.http.IHTTPSession)
    */
   @Override
   public Response put(final Resource resource, final Map<String, String> urlParams, final IHTTPSession session) {

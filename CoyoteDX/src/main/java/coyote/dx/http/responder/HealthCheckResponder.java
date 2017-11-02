@@ -22,7 +22,7 @@ import coyote.commons.network.http.responder.Responder;
  * <p>It is designed to be called repeatedly. If anything else but a 200 status 
  * code is received, the client can assume there are problems. 
  */
-public class HealthCheckResponder extends AbstractBatchResponder implements Responder {
+public class HealthCheckResponder extends AbstractCoyoteResponder implements Responder {
 
   @Override
   public Response get(Resource resource, Map<String, String> urlParams, IHTTPSession session) {

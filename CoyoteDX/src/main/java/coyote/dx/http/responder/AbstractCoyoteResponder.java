@@ -25,7 +25,7 @@ import coyote.dataframe.marshal.XMLMarshaler;
 /**
  * Base class for all DX responders.
  */
-public abstract class AbstractBatchResponder extends DefaultResponder implements Responder {
+public abstract class AbstractCoyoteResponder extends DefaultResponder implements Responder {
 
   protected Status status = Status.OK;
   protected DataFrame results = new DataFrame();

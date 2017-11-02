@@ -16,6 +16,6 @@ import coyote.commons.network.http.responder.Responder;
  * <p>Ping/:id returns the metrics for the identified component (e.g. 
  * job) running in the service.
  */
-public class PingResponder extends AbstractBatchResponder implements Responder {
+public class PingResponder extends AbstractCoyoteResponder implements Responder {
 
 }

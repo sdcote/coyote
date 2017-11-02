@@ -24,7 +24,7 @@ import coyote.loader.thread.Scheduler;
  * This is the command responder for the management interface.
  */
 @Auth(groups = "devop,sysop", requireSSL = false)
-public class CommandResponder extends AbstractBatchResponder implements Responder {
+public class CommandResponder extends AbstractCoyoteResponder implements Responder {
 
   private static final String SHUTDOWN = "shutdown";
 

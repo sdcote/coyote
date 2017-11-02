@@ -16,6 +16,7 @@ import coyote.commons.network.http.responder.HTTPDRouter;
 import coyote.commons.network.http.responder.ResourceResponder;
 import coyote.dx.Service;
 import coyote.dx.http.responder.CommandResponder;
+import coyote.dx.http.responder.Dashboard;
 import coyote.dx.http.responder.HealthCheckResponder;
 import coyote.dx.http.responder.PingResponder;
 import coyote.loader.cfg.Config;
@@ -51,9 +52,10 @@ public class CoyoteHttpManager extends HTTPDRouter implements HttpManager {
     addRoute("/api/ping/:id", PingResponder.class, service);
     addRoute("/api/health", HealthCheckResponder.class, service);
 
+    addRoute("/", Dashboard.class, service);
+
     // Content handler - higher priority value (evaluated later) allows it to 
     // be a catch-all
-    addRoute("/", Integer.MAX_VALUE, ResourceResponder.class, "content");
     addRoute("/(.)+", Integer.MAX_VALUE, ResourceResponder.class, "content");
   }
 
