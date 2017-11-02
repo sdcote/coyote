@@ -16,7 +16,6 @@ import static org.junit.Assert.fail;
 import java.io.IOException;
 import java.net.URL;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
 import coyote.commons.StreamUtil;
@@ -33,12 +32,12 @@ public class ContentTest {
 
 
 
-  private static void show( URL rsc ) {
+  private static void show(URL rsc) {
     try {
-      byte[] data = StreamUtil.loadBytes( rsc.openStream() );
-      System.out.println( rsc + " is " + data.length + " bytes in length (" + MimeType.get( rsc.toString() ).get( 0 ) + ")" );
-    } catch ( IOException e ) {
-      fail( e.getMessage() );
+      byte[] data = StreamUtil.loadBytes(rsc.openStream());
+      System.out.println(rsc + " is " + data.length + " bytes in length (" + MimeType.get(rsc.toString()).get(0) + ")");
+    } catch (IOException e) {
+      fail(e.getMessage());
     }
   }
 
@@ -50,11 +49,11 @@ public class ContentTest {
     String target = "/favicon.ico";
     String localPath = ROOT + target;
     // System.out.println( "Locating '" + localPath + "'" );
-    URL rsc = cLoader.getResource( localPath );
-    if ( rsc == null ) {
-      fail( "Could not find '" + localPath + "'" );
+    URL rsc = cLoader.getResource(localPath);
+    if (rsc == null) {
+      fail("Could not find '" + localPath + "'");
     } else {
-      show( rsc );
+      show(rsc);
     }
   }
 
@@ -63,13 +62,12 @@ public class ContentTest {
 
   @Test
   public void index() {
-    String target = "/index.html";
-    String localPath = ROOT + target;
-    URL rsc = cLoader.getResource( localPath );
-    if ( rsc == null ) {
-      fail( "Could not find '" + localPath + "'" );
+    String localPath = "views/Dashboard.html";
+    URL rsc = cLoader.getResource(localPath);
+    if (rsc == null) {
+      fail("Could not find '" + localPath + "'");
     } else {
-      show( rsc );
+      show(rsc);
     }
 
   }
@@ -81,11 +79,11 @@ public class ContentTest {
   public void bootstrap() {
     String target = "/js/bootstrap.min.js";
     String localPath = ROOT + target;
-    URL rsc = cLoader.getResource( localPath );
-    if ( rsc == null ) {
-      fail( "Could not find '" + localPath + "'" );
+    URL rsc = cLoader.getResource(localPath);
+    if (rsc == null) {
+      fail("Could not find '" + localPath + "'");
     } else {
-      show( rsc );
+      show(rsc);
     }
   }
 
