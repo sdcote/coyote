@@ -9,6 +9,7 @@ package coyote.dx.http.responder;
 
 import java.util.Map;
 
+import coyote.commons.network.MimeType;
 import coyote.commons.network.http.IHTTPSession;
 import coyote.commons.network.http.Response;
 import coyote.commons.network.http.responder.Resource;
@@ -25,7 +26,7 @@ public class HealthCheckResponder extends AbstractBatchResponder implements Resp
 
   @Override
   public Response get(Resource resource, Map<String, String> urlParams, IHTTPSession session) {
-    return Response.createFixedLengthResponse(getStatus(), getMimeType(), "UP");
+    return Response.createFixedLengthResponse(getStatus(), MimeType.TEXT.getType(), "UP");
   }
 
 }
