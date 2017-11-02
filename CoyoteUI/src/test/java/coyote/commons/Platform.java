@@ -14,6 +14,10 @@ public class Platform {
 
   /** The prefix String for all Windows OS. */
   private static final String NAME_WINDOWS_PREFIX = "Windows";
+  private static final String JAVA_VERSION_PROPERTY = "java.specification.version";
+
+
+
 
   /**
    * The {@code os.name} System Property. Operating system name.
@@ -26,8 +30,98 @@ public class Platform {
    * System#setProperties(java.util.Properties)} is called after this class is 
    * loaded, the value will be out of sync with that System property.
    */
-  public static final String getOpSysName(){
+  public static final String getOpSysName() {
     return getSystemProperty("os.name");
+  }
+
+
+
+
+  /**
+   * Is {@code true} if this is Java version 1.1 (also 1.1.x versions).
+   */
+  public static final boolean isJava1() {
+    return getJavaVersionMatches("1.1");
+  }
+
+
+
+
+  /**
+   * Is {@code true} if this is Java version 1.2 (also 1.2.x versions).
+   */
+  public static final boolean isJava2() {
+    return getJavaVersionMatches("1.2");
+  }
+
+
+
+
+  /**
+   * Is {@code true} if this is Java version 1.3 (also 1.3.x versions).
+   */
+  public static final boolean isJava3() {
+    return getJavaVersionMatches("1.3");
+  }
+
+
+
+
+  /**
+   * Is {@code true} if this is Java version 1.4 (also 1.4.x versions).
+   */
+  public static final boolean isJava4() {
+    return getJavaVersionMatches("1.4");
+  }
+
+
+
+
+  /**
+   * Is {@code true} if this is Java version 1.5 (also 1.5.x versions).
+   */
+  public static final boolean isJava5() {
+    return getJavaVersionMatches("1.5");
+  }
+
+
+
+
+  /**
+   * Is {@code true} if this is Java version 1.6 (also 1.6.x versions).
+   */
+  public static final boolean isJava6() {
+    return getJavaVersionMatches("1.6");
+  }
+
+
+
+
+  /**
+   * Is {@code true} if this is Java version 1.7 (also 1.7.x versions).
+   */
+  public static final boolean isJava7() {
+    return getJavaVersionMatches("1.7");
+  }
+
+
+
+
+  /**
+   * Is {@code true} if this is Java version 1.8 (also 1.8.x versions).
+   */
+  public static final boolean isJava8() {
+    return getJavaVersionMatches("1.8");
+  }
+
+
+
+
+  /**
+   * Is {@code true} if this is Java version 9 (also 9.x versions).
+   */
+  public static final boolean isJava91() {
+    return getJavaVersionMatches("9");
   }
 
 
@@ -241,6 +335,38 @@ public class Platform {
    */
   private static boolean getOSMatchesName(final String osNamePrefix) {
     return isOSNameMatch(getOpSysName(), osNamePrefix);
+  }
+
+
+
+
+  /**
+   * Decides if the Java version matches.
+   *
+   * @param versionPrefix the prefix for the java version
+   * 
+   * @return true if matches, or false if not or can't determine
+   */
+  private static boolean getJavaVersionMatches(final String versionPrefix) {
+    return isJavaVersionMatch(getSystemProperty(JAVA_VERSION_PROPERTY), versionPrefix);
+  }
+
+
+
+
+  /**
+   * Decides if the Java version matches.
+   *
+   * @param version the actual Java version
+   * @param versionPrefix the prefix for the expected Java version
+   * 
+   * @return true if matches, or false if not or can't determine
+   */
+  private static boolean isJavaVersionMatch(final String version, final String versionPrefix) {
+    if (version == null) {
+      return false;
+    }
+    return version.startsWith(versionPrefix);
   }
 
 }
