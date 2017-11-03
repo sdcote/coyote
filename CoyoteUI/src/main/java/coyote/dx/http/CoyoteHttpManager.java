@@ -11,15 +11,21 @@
  */
 package coyote.dx.http;
 
+import coyote.commons.network.http.SessionManager;
 import coyote.commons.network.http.auth.GenericAuthProvider;
 import coyote.commons.network.http.responder.HTTPDRouter;
 import coyote.commons.network.http.responder.ResourceResponder;
 import coyote.dx.Service;
 import coyote.dx.http.responder.CommandResponder;
+import coyote.dx.http.responder.Commands;
 import coyote.dx.http.responder.Dashboard;
 import coyote.dx.http.responder.HealthCheckResponder;
+import coyote.dx.http.responder.Logging;
+import coyote.dx.http.responder.Login;
+import coyote.dx.http.responder.Logout;
 import coyote.dx.http.responder.PingResponder;
 import coyote.loader.cfg.Config;
+import coyote.loader.log.Log;
 
 
 /**
@@ -38,6 +44,13 @@ public class CoyoteHttpManager extends HTTPDRouter implements HttpManager {
     if (service == null)
       throw new IllegalArgumentException("Cannot create HttpManager without a service reference");
 
+    // Try to load any session data from the file system
+    try {
+      SessionManager.load();
+    } catch (Exception e) {
+      Log.notice("Could not load sessions from file system", e);
+    }
+
     // Set the default routes
     addDefaultRoutes();
 
@@ -53,6 +66,12 @@ public class CoyoteHttpManager extends HTTPDRouter implements HttpManager {
     addRoute("/api/health", HealthCheckResponder.class, service);
 
     addRoute("/", Dashboard.class, service);
+    addRoute("/login", Login.class, service);
+    addRoute("/logout", Logout.class, service);
+    addRoute("/logging", Logging.class, service);
+    addRoute("/logging/:logger", Logging.class, service);
+    addRoute("/commands", Commands.class, service);
+    addRoute("/commands/:command", Commands.class, service);
 
     // Content handler - higher priority value (evaluated later) allows it to 
     // be a catch-all
@@ -77,6 +96,22 @@ public class CoyoteHttpManager extends HTTPDRouter implements HttpManager {
     // Setup auth provider from configuration - No configuration results in deny-all operation
     setAuthProvider(new GenericAuthProvider(authConfig));
 
+  }
+
+
+
+
+  /**
+   * @see coyote.commons.network.http.HTTPD#stop()
+   */
+  @Override
+  public void stop() {
+    try {
+      SessionManager.save();
+    } catch (Exception e) {
+      Log.notice("Could not save sessions to file system", e);
+    }
+    super.stop();
   }
 
 }

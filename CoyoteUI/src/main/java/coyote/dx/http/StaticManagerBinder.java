@@ -39,27 +39,27 @@ public class StaticManagerBinder implements ManagerFactoryBinder {
    * @see coyote.dx.http.ManagerFactoryBinder#createManager(coyote.loader.cfg.Config, coyote.dx.Service)
    */
   @Override
-  public HttpManager createManager( Config cfg, Service svc ) throws ConfigurationException {
+  public HttpManager createManager(Config cfg, Service svc) throws ConfigurationException {
 
     // we need to get the port first as part of the constructor
-    if ( cfg != null ) {
-      for ( DataField field : cfg.getFields() ) {
-        if ( ConfigTag.PORT.equalsIgnoreCase( field.getName() ) ) {
+    if (cfg != null) {
+      for (DataField field : cfg.getFields()) {
+        if (ConfigTag.PORT.equalsIgnoreCase(field.getName())) {
           try {
-            port = Integer.parseInt( field.getStringValue() );
-          } catch ( NumberFormatException e ) {
+            port = Integer.parseInt(field.getStringValue());
+          } catch (NumberFormatException e) {
             port = DEFAULT_PORT;
-            Log.error( "Port configuration option was not a valid integer" );
+            Log.error("Port configuration option was not a valid integer");
           }
         }
       }
     }
 
     // create the manager
-    CoyoteHttpManager retval = new CoyoteHttpManager( port, svc );
+    CoyoteHttpManager retval = new CoyoteHttpManager(port, svc);
 
     // configure the instance based on the config frame
-    retval.setConfiguration( cfg );
+    retval.setConfiguration(cfg);
 
     // return the manager
     return retval;

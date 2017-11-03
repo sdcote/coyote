@@ -37,6 +37,7 @@ public abstract class ViewResponder extends DefaultResponder implements Responde
   private String template = "";
   private MimeType mimetype = MimeType.HTML;
   private SymbolTable symbolTable = new SymbolTable();
+  private boolean preProcessing = false;
 
 
 
@@ -59,7 +60,7 @@ public abstract class ViewResponder extends DefaultResponder implements Responde
 
   @Override
   public String getText() {
-    return Template.resolve(template, symbolTable);
+    return resolve(template);
   }
 
 
@@ -88,19 +89,19 @@ public abstract class ViewResponder extends DefaultResponder implements Responde
       final StringBuilder out = new StringBuilder();
       try {
         final Reader in = new InputStreamReader(inputStream, StringUtil.ISO8859_1);
-        for (;;) {
-          final int rsz = in.read(buffer, 0, buffer.length);
-          if (rsz < 0) {
-            break;
+        int ncr = 0;
+        while (ncr > -1) {
+          ncr = in.read(buffer, 0, buffer.length);
+          if (ncr > 0) {
+            out.append(buffer, 0, ncr);
           }
-          out.append(buffer, 0, rsz);
         }
         retval = out.toString();
       } catch (final IOException e) {
-        Log.error("Could not load template from " + resource, e);
+        Log.warn("Could not load resource from " + resource, e);
       }
     } else {
-      Log.error("Could not find template in " + resource);
+      Log.warn("Could not find resource in " + resource);
     }
     return retval;
   }
@@ -109,7 +110,7 @@ public abstract class ViewResponder extends DefaultResponder implements Responde
 
 
   /**
-   * Loads a section of content from the classpath resolving any found data as
+   * Loads a fragment of content from the classpath resolving any found data as
    * a template with the current state of the symbol table.
    *
    * <p>The name must be fully qualified. For example, the section {@code
@@ -121,14 +122,31 @@ public abstract class ViewResponder extends DefaultResponder implements Responde
    * @return the resolved section or an empty string if the section was not
    *         found. This method call will not return null.
    */
-  protected String loadSection(final String name) {
+  protected String loadFragment(final String name) {
     String section = loadResource(name);
     if (section != null) {
-      section = Template.resolve(section, symbolTable);
+      section = resolve(section);
     } else {
       section = "";
     }
     return section;
+  }
+
+
+
+
+  /**
+   * @param template
+   * @return
+   */
+  private String resolve(String template) {
+    String retval;
+    if (this.isPreProcessing()) {
+      retval = Template.preProcess(template, symbolTable);
+    } else {
+      retval = Template.resolve(template, symbolTable);
+    }
+    return retval;
   }
 
 
@@ -287,6 +305,40 @@ public abstract class ViewResponder extends DefaultResponder implements Responde
 
   protected SymbolTable getSymbols() {
     return symbolTable;
+  }
+
+
+
+
+  /**
+   * @return true if template resolution is only pre-processing; leaving 
+   *         unresolved variables in the template, false indicates full 
+   *         resolution where unresolved variables are resolved to an empty 
+   *         string.
+   */
+  public boolean isPreProcessing() {
+    return preProcessing;
+  }
+
+
+
+
+  /**
+   * Set the resolution of templates to pre-processing mode.
+   * 
+   * <p>In pre-processing mode, the template leaves any unresolved tokens in 
+   * the template text so as to allow subsequent processing and potential 
+   * resolution with an updated or different symbol table. Otherwise, any 
+   * unresolved tokens in the template text are resolved to an empty string.
+   * 
+   * <p>This is useful in testing as it is easy to see where unresolved values
+   * occur.
+   * 
+   * @param preProcessing true sets resolution to preprocessing mode, false 
+   *        fully resolves symbols.
+   */
+  public void setPreProcessing(boolean preProcessing) {
+    this.preProcessing = preProcessing;
   }
 
 }
