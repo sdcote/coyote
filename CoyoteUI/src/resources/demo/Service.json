@@ -1,12 +1,58 @@
 {
 	"Class": "coyote.dx.Service",
 
-	"Component": [
-		{
-			"Class": "coyote.loader.Wedge",
-			"Notes": "This just keeps the the service open."
+	"Manager" : {
+		"Port": 80,
+		"Auth": {
+			"Users":[ 
+				{ "Name" : "admin", 
+				  "Password" : "secret", 
+				  "Groups" : "sysop,devop"
+				},
+				{ "Name" : "sysop", 
+				  "Password" : "secret", 
+				  "Groups" : "sysop"
+				},
+				{ "Name" : "devop", 
+				  "Password" : "secret", 
+				  "Groups" : "devop"
+				},
+				{ "Name" : "user", 
+				  "Password" : "secret"
+				}
+			]
+		},
+		"IPACL" : {
+			"default" : "deny",
+			"127.0.0.1" : "allow",
+			"172.28.147.6/0" : "allow",
+			"192.168/16" : "allow",
+			"10/8" : "deny"
 		}
-	],
+	},
+
+	"Job" : {
+		"Name" : "Simple",
+		"Schedule": { "Minutes": "*/5" },
+		
+		"Reader" : {
+			"class" : "CsvReader",
+			"source" : "[#$app.home#]/demo/users.csv",
+			"header" : true
+		},
+
+		"Writer" : {
+			"class" : "FlatFileWriter",
+			"target" : "users.txt",
+			"fields" : {
+				"Role" : { "start" : 0, "length" : 6 },
+				"FirstName" : { "start" : 7, "length" : 11 },
+				"LastName" : { "start" : 19, "length" : 16 },
+				"MiddleInitial" : { "start" : 36, "length" : 1 }
+			}    
+		}
+	},
+
 	
 	"Logging": {
 		"StandardOutput": { "categories": "info,notice,httpd" },

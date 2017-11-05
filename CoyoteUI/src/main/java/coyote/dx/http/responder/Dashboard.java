@@ -12,8 +12,8 @@ import java.util.Map;
 import coyote.commons.StringUtil;
 import coyote.commons.network.http.IHTTPSession;
 import coyote.commons.network.http.Response;
-import coyote.commons.network.http.SessionManager;
 import coyote.commons.network.http.SessionProfile;
+import coyote.commons.network.http.SessionProfileManager;
 import coyote.commons.network.http.responder.Resource;
 import coyote.commons.network.http.responder.Responder;
 import coyote.dx.Service;
@@ -28,10 +28,9 @@ public class Dashboard extends ViewResponder implements Responder {
   @Override
   public Response get(Resource resource, Map<String, String> urlParams, IHTTPSession session) {
 
-    SessionProfile profile = SessionManager.retrieveOrCreate(session.getCookies());
-System.out.println("Profile: "+profile.getIdentifier());
-    
-    
+    SessionProfile profile = SessionProfileManager.retrieveOrCreateProfile(session);
+    Log.debug("Profile: " + profile.getIdentifier());
+
     if (StringUtil.isBlank(session.getUserName())) {
       Log.info("No user");
     }
