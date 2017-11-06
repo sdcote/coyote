@@ -20,6 +20,7 @@ import coyote.commons.StringUtil;
 import coyote.commons.template.Template;
 import coyote.dataframe.DataField;
 import coyote.dataframe.DataFrame;
+import coyote.dataframe.selector.FrameSelector;
 import coyote.dx.CWS;
 import coyote.dx.ConfigTag;
 import coyote.dx.ConfigurableComponent;
@@ -63,6 +64,7 @@ public class WebServiceReader extends AbstractFrameReader implements FrameReader
   private Response lastResponse = null;
   List<DataFrame> dataframes = null;
   //private String selectorPattern = null;
+
 
 
 
@@ -251,9 +253,18 @@ public class WebServiceReader extends AbstractFrameReader implements FrameReader
     if (lastResponse != null) {
       DataFrame result = lastResponse.getResult();
 
-      //TODO apply the selector to the results
+      // apply the selector to the results
+      String pattern = getString(ConfigTag.SELECTOR);
+      if (StringUtil.isNotBlank(pattern)) {
+        FrameSelector selector = new FrameSelector(pattern);
+        List<DataFrame> results = selector.select(result);
+        Log.debug("Selected " + results.size() + " frames");
+        // add the selected frames to the return value list
+        for (DataFrame frame : results) {
+          retval.add(DataFrameUtil.flatten(frame));
+        }
+      }
 
-      retval.add(DataFrameUtil.flatten(result));
     }
     return retval;
   }
