@@ -26,6 +26,7 @@ import coyote.dx.web.auth.Authenticator;
 import coyote.dx.web.decorator.AbstractDecorator;
 import coyote.dx.web.decorator.RequestDecorator;
 import coyote.loader.Loader;
+import coyote.loader.cfg.Config;
 import coyote.loader.cfg.ConfigurationException;
 import coyote.loader.log.Log;
 import coyote.loader.log.LogMsg;
@@ -59,9 +60,13 @@ public class CWS {
 
   // for the reader
   public static final String SELECTOR = "Selector";
+  public static final String PAGINATION = "Pagination";
+  private static final String STEP = "Step";
+  private static final String START = "Start";
 
   // Message bundle for i18n
   public static final BundleBaseName MSG;
+
   static {
     MSG = new BundleBaseName("CWSMsg");
   }
@@ -297,6 +302,57 @@ public class CWS {
    */
   public String getVersion() {
     return VERSION.toString();
+  }
+
+
+
+
+  /**
+   * Create a Pagination object out of the given configuration data frame.
+   * 
+   * @param cfg configuration data frame
+   * 
+   * @return the Pagination object created from the config data or null if the 
+   *         conf dataframe was null
+   * 
+   * @throws ConfigurationException if the step value is missing or if the 
+   *         step or start could not be parsed into a valid long value.
+   */
+  public static Pagination configPagination(DataFrame cfg) throws ConfigurationException {
+    Pagination retval = null;
+    if (cfg != null) {
+      Config config = new Config(cfg);
+
+      long step = 0;
+      
+      // Case in-sensitive search for field value
+      DataField field = cfg.getFieldIgnoreCase(STEP);
+      if (field!=null) {
+        try {
+          // get the name of the field exactly as it appears in the frame
+          step = config.getAsLong(field.getName());
+        } catch (DataFrameException e) {
+          throw new ConfigurationException("Configuration value '" + field.getName() + "' could not be parsed into a numeric value");
+        }
+      } else {
+        throw new ConfigurationException("Pagination must contain a '" + STEP + "' value");
+      }
+
+      long start = 0;
+      field = cfg.getFieldIgnoreCase(START);
+      if (field!=null) {
+        try {
+          start = config.getAsLong(field.getName());
+        } catch (DataFrameException e) {
+          throw new ConfigurationException("Configuration value '" + field.getName() + "' could not be parsed into a numeric value");
+        }
+      }
+
+      String name = config.getName();
+      retval = new Pagination(name, start, step);
+
+    }
+    return retval;
   }
 
 }

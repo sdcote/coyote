@@ -12,11 +12,13 @@
 package coyote.dx.reader;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
 import coyote.commons.DataFrameUtil;
 import coyote.commons.StringUtil;
+import coyote.commons.template.SymbolTable;
 import coyote.commons.template.Template;
 import coyote.dataframe.DataField;
 import coyote.dataframe.DataFrame;
@@ -25,6 +27,7 @@ import coyote.dx.CWS;
 import coyote.dx.ConfigTag;
 import coyote.dx.ConfigurableComponent;
 import coyote.dx.FrameReader;
+import coyote.dx.Pagination;
 import coyote.dx.context.TransactionContext;
 import coyote.dx.context.TransformContext;
 import coyote.dx.web.InvocationException;
@@ -62,8 +65,9 @@ public class WebServiceReader extends AbstractFrameReader implements FrameReader
   private Resource resource = null;
   private Authenticator authenticator = new NullAuthenticator();
   private Response lastResponse = null;
-  List<DataFrame> dataframes = null;
-  //private String selectorPattern = null;
+  private List<DataFrame> dataframes = null;
+  private Pagination pagination = null;
+  private String resourceUrl = null;
 
 
 
@@ -77,7 +81,6 @@ public class WebServiceReader extends AbstractFrameReader implements FrameReader
   public void open(TransformContext context) {
     setContext(context);
 
-    String resourceUrl = null;
     Proxy proxy = null;
 
     // Get the resource - this is usually the host as in https://host.com
@@ -145,6 +148,25 @@ public class WebServiceReader extends AbstractFrameReader implements FrameReader
       }
     }
 
+    // Get pagination settings if defined
+    for (DataField field : getConfiguration().getFields()) {
+      if ((field.getName() != null) && field.getName().equalsIgnoreCase(CWS.PAGINATION)) {
+        if (field.isFrame()) {
+          try {
+            pagination = CWS.configPagination((DataFrame)field.getObjectValue());
+            Log.debug("Using pagination settings: " + pagination.toString());
+          } catch (ConfigurationException e) {
+            Log.fatal(e);
+            context.setError("Could not configure pagination: " + e.getMessage());
+            return;
+          }
+          break;
+        } else {
+          Log.error("Invalid pagination configuration, expected a section not a scalar");
+        }
+      }
+    }
+
     // Get the request body (a.k.a. the payload or message) and place it in 
     // our request parameters
     for (DataField field : getConfiguration().getFields()) {
@@ -158,9 +180,6 @@ public class WebServiceReader extends AbstractFrameReader implements FrameReader
         }
       }
     }
-
-    // Get the selector pattern
-    //selectorPattern = getConfiguration().getAsString(CWS.SELECTOR);
 
     try {
 
@@ -238,34 +257,60 @@ public class WebServiceReader extends AbstractFrameReader implements FrameReader
   private List<DataFrame> retrieveData() {
     List<DataFrame> retval = new ArrayList<DataFrame>();
 
-    try {
-      lastResponse = resource.request();
-    } catch (InvocationException e) {
-      e.printStackTrace();
+    // If there is no pagination, create one
+    if (pagination == null) {
+      // use max long so only one read will occur
+      pagination = new Pagination(Long.MAX_VALUE);
     }
 
-    if (lastResponse != null) {
-      while (!lastResponse.isComplete()) {
-        Thread.yield();
+    // Create a symbol table to resolve the resource URI 
+    SymbolTable symbols = new SymbolTable();
+    symbols.merge(getContext().getSymbols());
+
+    long retrieved;
+    do {
+      retrieved = 0;
+      symbols.merge(pagination.toSymbolTable());
+      String uri = Template.preProcess(resourceUrl, symbols);
+      Log.debug("Retrieving batch for " + uri);
+      try {
+        resource.setBaseUri(uri);
+      } catch (URISyntaxException e) {
+        e.printStackTrace();
       }
-    }
 
-    if (lastResponse != null) {
-      DataFrame result = lastResponse.getResult();
+      try {
+        lastResponse = resource.request();
+      } catch (InvocationException e) {
+        e.printStackTrace();
+      }
 
-      // apply the selector to the results
-      String pattern = getString(ConfigTag.SELECTOR);
-      if (StringUtil.isNotBlank(pattern)) {
-        FrameSelector selector = new FrameSelector(pattern);
-        List<DataFrame> results = selector.select(result);
-        Log.debug("Selected " + results.size() + " frames");
-        // add the selected frames to the return value list
-        for (DataFrame frame : results) {
-          retval.add(DataFrameUtil.flatten(frame));
+      if (lastResponse != null) {
+        while (!lastResponse.isComplete()) {
+          Thread.yield();
         }
       }
 
+      if (lastResponse != null) {
+        DataFrame result = lastResponse.getResult();
+        // apply the selector to the results
+        String pattern = getString(ConfigTag.SELECTOR);
+        if (StringUtil.isNotBlank(pattern)) {
+          FrameSelector selector = new FrameSelector(pattern);
+          List<DataFrame> results = selector.select(result);
+          retrieved = results.size();
+          Log.debug("Selected " + retrieved + " frames");
+          // add the selected frames to the return value list
+          for (DataFrame frame : results) {
+            retval.add(DataFrameUtil.flatten(frame));
+          }
+        }
+      }
+      // set the variable to the next batch
+      pagination.step();
     }
+    while (retrieved == pagination.getStep());
+
     return retval;
   }
 

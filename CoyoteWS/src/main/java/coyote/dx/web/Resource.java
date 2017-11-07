@@ -33,7 +33,7 @@ import coyote.dx.web.worker.ResourceWorker;
 public class Resource implements Closeable {
 
   /** The Uniform Resource Locator for the resource this instance represents */
-  private URI baseurl;
+  private URI baseuri;
 
   /** optional decorators which enrich the requests before they are submitted */
   private final List<RequestDecorator> requestDecorators = new ArrayList<RequestDecorator>();
@@ -59,12 +59,12 @@ public class Resource implements Closeable {
   /**
    * Simple constructor which only wraps the URL.
    * 
-   * @param url Complete URL to the physical resource
+   * @param uri Complete URI to the physical resource
    * 
-   * @throws IOException if the URL is invalid
+   * @throws IOException if the URI is invalid
    */
-  public Resource( final String url ) throws IOException {
-    this( url, new Parameters(), null );
+  public Resource(final String uri) throws IOException {
+    this(uri, new Parameters(), null);
   }
 
 
@@ -73,29 +73,29 @@ public class Resource implements Closeable {
   /**
    * Constructor which wraps the URL and specifies a proxy to access resource.
    * 
-   * @param url Complete URL to the physical resource
+   * @param uri Complete URI to the physical resource
    * @param proxy The HTTP Proxy workers should use to access the resource
    * 
-   * @throws IOException if the URL is invalid
+   * @throws IOException if the URI is invalid
    */
-  public Resource( String url, Proxy proxy ) throws IOException {
-    this( url, new Parameters(), proxy );
+  public Resource(String uri, Proxy proxy) throws IOException {
+    this(uri, new Parameters(), proxy);
   }
 
 
 
 
   /**
-   * Simple constructor which only wraps the URL.
+   * Simple constructor which only wraps the URI.
    * 
-   * @param url Complete URL to the physical resource
+   * @param uri Complete URI to the physical resource
    * @param parameters the default parameters this resource will use for all requests 
    *        unless overridden by request arguments 
    * 
-   * @throws IOException if the URL is invalid
+   * @throws IOException if the URI is invalid
    */
-  public Resource( final String url, final Parameters parameters ) throws IOException {
-    this( url, parameters, null );
+  public Resource(final String uri, final Parameters parameters) throws IOException {
+    this(uri, parameters, null);
   }
 
 
@@ -104,16 +104,16 @@ public class Resource implements Closeable {
   /**
    * Primary constructor.
    * 
-   * @param url Complete URL to the physical resource
+   * @param uri Complete URI to the physical resource
    * @param parameters the default parameters this resource will use for all requests 
    *        unless overridden by request arguments
    * @param prxy The HTTP Proxy workers should use to access the resource
    * 
-   * @throws IOException if the URL is invalid
+   * @throws IOException if the URI is invalid
    */
-  public Resource( final String url, final Parameters parameters, final Proxy prxy ) throws IOException {
+  public Resource(final String uri, final Parameters parameters, final Proxy prxy) throws IOException {
 
-    if ( parameters != null ) {
+    if (parameters != null) {
       defaultParameters = parameters;
     } else {
       defaultParameters = new Parameters();
@@ -123,12 +123,12 @@ public class Resource implements Closeable {
     // defined by creating a new proxy and checking the value of proxy host set
     // by system properties. If there are proxy settings in the system 
     // properties, use them
-    if ( prxy == null ) {
+    if (prxy == null) {
       // create an empty proxy object
       Proxy proxyCheck = new Proxy();
 
       // check to see if system properties have set the proxy host
-      if ( StringUtil.isNotBlank( proxyCheck.getHost() ) ) {
+      if (StringUtil.isNotBlank(proxyCheck.getHost())) {
         proxy = proxyCheck;
       } else {
         proxy = null;
@@ -137,13 +137,50 @@ public class Resource implements Closeable {
       proxy = prxy;
     }
 
-    // Make sure the URL ends with a slash
     try {
-      baseurl = new URI( url );
-    } catch ( final URISyntaxException e ) {
-      throw new IOException( e );
+      setBaseUri(uri);
+    } catch (final URISyntaxException e) {
+      throw new IOException(e);
     }
 
+  }
+
+
+
+
+  /**
+   * Retrieve the base URI of the resource.
+   * 
+   * @return the base URI for this resource
+   */
+  public URI getBaseUri() {
+    return baseuri;
+  }
+
+
+
+
+  /**
+   * Set the base URI of the resource.
+   * 
+   * @param uri the baseurl to set
+   */
+  public void setBaseUri(URI uri) {
+    this.baseuri = uri;
+  }
+
+
+
+
+  /**
+   * Set the base URI of the resource.
+   * 
+   * @param uri the URI string to parse into a URI and set.
+   * 
+   * @throws URISyntaxException if the given string is not a valid URI
+   */
+  public void setBaseUri(String uri) throws URISyntaxException {
+    baseuri = new URI(uri);
   }
 
 
@@ -157,8 +194,8 @@ public class Resource implements Closeable {
    */
   public void open() throws IOException, AuthenticationException {
     // Perform the appropriate authentication processing now
-    if ( authenticator != null ) {
-      authenticator.init( this );
+    if (authenticator != null) {
+      authenticator.init(this);
     }
   }
 
@@ -172,7 +209,7 @@ public class Resource implements Closeable {
    */
   @Override
   public void close() throws IOException {
-    if ( worker != null ) {
+    if (worker != null) {
       worker.close();
     }
   }
@@ -194,7 +231,7 @@ public class Resource implements Closeable {
    * @return return the hostname based on the currently set URL
    */
   public String getHost() {
-    return baseurl.getHost();
+    return baseuri.getHost();
   }
 
 
@@ -204,11 +241,11 @@ public class Resource implements Closeable {
    * @return return the port used to connect to the resource based on the currently set URL
    */
   public int getPort() {
-    int retval = baseurl.getPort();
-    if ( retval < 1 ) {
-      if ( "HTTP".equalsIgnoreCase( baseurl.getScheme() ) ) {
+    int retval = baseuri.getPort();
+    if (retval < 1) {
+      if ("HTTP".equalsIgnoreCase(baseuri.getScheme())) {
         retval = 80;
-      } else if ( "HTTPS".equalsIgnoreCase( baseurl.getScheme() ) ) {
+      } else if ("HTTPS".equalsIgnoreCase(baseuri.getScheme())) {
         retval = 443;
 
       }
@@ -223,7 +260,7 @@ public class Resource implements Closeable {
    * @return return the scheme used to connect to the resource based on the currently set URL
    */
   public String getScheme() {
-    return baseurl.getScheme();
+    return baseuri.getScheme();
   }
 
 
@@ -233,7 +270,7 @@ public class Resource implements Closeable {
    * @return return the currently set URI
    */
   public URI getURI() {
-    return baseurl;
+    return baseuri;
   }
 
 
@@ -243,21 +280,17 @@ public class Resource implements Closeable {
    * @return return the currently set URI with the currently set path appended
    */
   public URI getFullURI() {
-    if ( StringUtil.isNotBlank( requestPath ) ) {
+    if (StringUtil.isNotBlank(requestPath)) {
       try {
-        return new URI( baseurl + requestPath );
-      } catch ( URISyntaxException e ) {
+        return new URI(baseuri + requestPath);
+      } catch (URISyntaxException e) {
         // Should not happen since setPath performs this check
         e.printStackTrace();
       }
     }
-    return baseurl;
+    return baseuri;
   }
 
-
-
-
- 
 
 
 
@@ -272,9 +305,9 @@ public class Resource implements Closeable {
    * @param decorator the component to add to the list of decorators used by 
    *        workers to this resource.
    */
-  public void addRequestDecorator( RequestDecorator decorator ) {
-    if ( decorator != null ) {
-      requestDecorators.add( decorator );
+  public void addRequestDecorator(RequestDecorator decorator) {
+    if (decorator != null) {
+      requestDecorators.add(decorator);
     }
   }
 
@@ -310,7 +343,7 @@ public class Resource implements Closeable {
    * @throws InvocationException 
    */
   public Response request() throws InvocationException {
-    return request( defaultParameters );
+    return request(defaultParameters);
   }
 
 
@@ -331,8 +364,8 @@ public class Resource implements Closeable {
    * 
    * @throws InvocationException 
    */
-  public Response request( Parameters params ) throws InvocationException {
-    return getWorker( params ).request( params );
+  public Response request(Parameters params) throws InvocationException {
+    return getWorker(params).request(params);
   }
 
 
@@ -348,11 +381,11 @@ public class Resource implements Closeable {
    *         parameters are null or there is no exchange type set in the given 
    *         parameters.
    */
-  private ResourceWorker getWorker( Parameters params ) {
-    if ( params != null && params.getExchangeType() != null ) {
-      return params.getExchangeType().getWorker( this );
+  private ResourceWorker getWorker(Parameters params) {
+    if (params != null && params.getExchangeType() != null) {
+      return params.getExchangeType().getWorker(this);
     } else {
-      return getWorker( defaultParameters );
+      return getWorker(defaultParameters);
     }
   }
 
@@ -364,8 +397,8 @@ public class Resource implements Closeable {
    * 
    * @param params the variables of the event being sent
    */
-  public void send( Parameters params ) {
-    getWorker( params ).send( params );
+  public void send(Parameters params) {
+    getWorker(params).send(params);
   }
 
 
@@ -384,8 +417,8 @@ public class Resource implements Closeable {
    *  
    * @param auth The Authenticator to set.
    */
-  public void setAuthenticator( Authenticator auth ) {
-    if ( auth == null ) {
+  public void setAuthenticator(Authenticator auth) {
+    if (auth == null) {
       authenticator = new NullAuthenticator();
     } else {
       authenticator = auth;
@@ -410,11 +443,11 @@ public class Resource implements Closeable {
    */
   @Override
   public String toString() {
-    StringBuffer b = new StringBuffer( "WebResource: " );
-    b.append( baseurl );
-    if ( StringUtil.isNotBlank( requestPath ) ) {
-      b.append( " path: " );
-      b.append( requestPath );
+    StringBuffer b = new StringBuffer("WebResource: ");
+    b.append(baseuri);
+    if (StringUtil.isNotBlank(requestPath)) {
+      b.append(" path: ");
+      b.append(requestPath);
     }
     return b.toString();
   }
@@ -464,10 +497,10 @@ public class Resource implements Closeable {
    * 
    * @throws URISyntaxException if the path causes the request URI to be come invalid. 
    */
-  public void setPath( String path ) throws URISyntaxException {
+  public void setPath(String path) throws URISyntaxException {
     // perform a test to make sure the result is valid
-    if ( StringUtil.isNotBlank( path ) ) {
-      new URI( baseurl + requestPath );
+    if (StringUtil.isNotBlank(path)) {
+      new URI(baseuri + requestPath);
     }
     requestPath = path;
   }
