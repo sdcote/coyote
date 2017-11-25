@@ -153,7 +153,8 @@ public abstract class ViewResponder extends DefaultResponder implements Responde
 
 
   /**
-   * Load a template from the templates namespace/directory of the classpath.
+   * Load a template from the {@code templates} namespace/directory of the 
+   * classpath.
    *
    * @param name the name of the template to load.
    */

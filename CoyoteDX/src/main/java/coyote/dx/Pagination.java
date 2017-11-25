@@ -22,7 +22,12 @@ import coyote.commons.template.SymbolTable;
  * element of the pagination. The {@code batch} pagination will have the 
  * variables of {@code batch.start} indicating the first record of the batch,
  * {@code batch.size}, which is the absolute value of the increment and {@code 
- * batch.end} which is the last record in the batch.   
+ * batch.end} which is the last record in the batch.
+ * 
+ * <p>The idea is that a reader (or writer) will create a dedicated symbol 
+ * table and merge the symbols of the context and the pagination object into 
+ * this table and use it to resolve symbols in the soure (or target) string. A 
+ * good example of this can be seen in the CoyoteWS WebServiceReader.
  */
 public class Pagination {
   protected static final String DEFAULT_NAME = "page";
