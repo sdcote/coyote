@@ -13,6 +13,7 @@ package coyote.dx.web;
 
 import coyote.dx.web.worker.BasicWorker;
 import coyote.dx.web.worker.HtmlWorker;
+import coyote.dx.web.worker.JsonHttpWorker;
 import coyote.dx.web.worker.JsonRestWorker;
 import coyote.dx.web.worker.ResourceWorker;
 import coyote.dx.web.worker.SoapWorker;
@@ -32,6 +33,7 @@ import coyote.loader.log.Log;
 public enum ExchangeType {
   SOAP( "SOAP", SoapWorker.class), 
   JSON_REST( "JSON_REST", JsonRestWorker.class), 
+  JSON_HTTP( "JSON_HTTP", JsonHttpWorker.class), 
   XML_REST( "XML_REST", XmlRestWorker.class), 
   BASIC( "BASIC", BasicWorker.class), 
   HTML( "HTML", HtmlWorker.class);

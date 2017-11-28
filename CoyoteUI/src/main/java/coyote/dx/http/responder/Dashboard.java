@@ -29,7 +29,7 @@ public class Dashboard extends ViewResponder implements Responder {
   public Response get(Resource resource, Map<String, String> urlParams, IHTTPSession session) {
 
     SessionProfile profile = SessionProfileManager.retrieveOrCreateProfile(session);
-    Log.debug("Profile: " + profile.getIdentifier());
+    Log.info("Profile: " + profile);
 
     if (StringUtil.isBlank(session.getUserName())) {
       Log.info("No user");

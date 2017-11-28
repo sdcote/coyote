@@ -17,9 +17,8 @@ public class ConfigTag {
   public static final String CIPHER_NAME = "cipher.name";
   public static final String CIPHER_KEY = "cipher.key";
 
-  
   // General Configuration Tags
-  
+
   public static final String ALIGN = "align";
   public static final String AUTO_ADJUST = "autoadjust";
   public static final String AUTO_CREATE = "autocreate";
@@ -27,6 +26,7 @@ public class ConfigTag {
   public static final String CHARACTER = "character";
   public static final String CLASS = "class";
   public static final String CONDITION = "condition";
+  public static final String DATA = "data";
   public static final String DATEFORMAT = "dateformat";
   public static final String DEFAULT = "default";
   public static final String DELETE = "delete";
@@ -67,6 +67,7 @@ public class ConfigTag {
   public static final String RENAME = "rename";
   public static final String REPLACE = "replace";
   public static final String SCHEMA = "schema";
+  public static final String SECRET = "secret";
   public static final String SECURE = "secure";
   public static final String SELECTOR = "Selector";
   public static final String SET_SYMBOL = "SetSymbol";
@@ -83,8 +84,8 @@ public class ConfigTag {
   public static final String VALUE = "value";
   public static final String WRITE = "write";
 
-
   // Networking proxy tags used by several components
+
   public static final String PROXY = "proxy";
   public static final String PROXY_HOST = "proxyHost";
   public static final String PROXY_PORT = "proxyPort";
@@ -99,6 +100,7 @@ public class ConfigTag {
   public static final String FIELD_FORMAT = "fieldFormat";
 
   // Transform engine
+
   public static final String CONTEXT = "context";
   public static final String TASK = "task";
   public static final String PREPROCESS = "preprocess";
@@ -116,6 +118,7 @@ public class ConfigTag {
   public static final String ENABLED = "enabled";
 
   // Tasks
+
   public static final String TODIR = "todir";
   public static final String FROMDIR = "fromdir";
   public static final String HALT_ON_ERROR = "haltonerror";
@@ -129,6 +132,7 @@ public class ConfigTag {
   public static final String PARAMETERS = "parameters";
 
   // Validations
+
   public static final String FIELD = "field";
   public static final String MATCH = "match";
   public static final String AVOID = "avoid";
@@ -138,6 +142,7 @@ public class ConfigTag {
   public static final String IGNORE_CASE = "ignoreCase";
 
   // Scheduler
+
   public static final String SCHEDULE = "schedule";
   public static final String MINUTES = "minutes";
   public static final String HOURS = "hours";
@@ -148,6 +153,7 @@ public class ConfigTag {
   public static final String SECONDS = "seconds";
 
   // Manager
+
   public static final String IPACL = "ipacl";
   public static final String FREQUENCY = "frequency";
 

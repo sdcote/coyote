@@ -12,15 +12,15 @@
 package coyote.dx.web.decorator;
 
 import coyote.dataframe.DataFrame;
+import coyote.loader.cfg.Config;
 
 
 /**
  * 
  */
 public abstract class AbstractDecorator implements RequestDecorator {
-  protected static final String HEADER = "header";
 
-  protected DataFrame configuration = new DataFrame();
+  protected Config configuration = new Config();
 
 
 
@@ -29,8 +29,10 @@ public abstract class AbstractDecorator implements RequestDecorator {
    * @see coyote.dx.web.decorator.RequestDecorator#setConfiguration(coyote.dataframe.DataFrame)
    */
   @Override
-  public void setConfiguration( DataFrame frame ) {
-    this.configuration = frame;
+  public void setConfiguration(DataFrame frame) {
+    if (frame != null) {
+      configuration = new Config(frame);
+    }
   }
 
 }

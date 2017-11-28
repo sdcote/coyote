@@ -17,6 +17,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import coyote.commons.FileUtil;
+import coyote.commons.template.SymbolTable;
 import coyote.dataframe.DataFrame;
 import coyote.dx.DefaultTransformEngine;
 import coyote.dx.Symbols;
@@ -74,6 +75,16 @@ public class FileContextTest extends AbstractContextTest {
     assertTrue(obj instanceof Long);
     long runcount = (Long)obj;
     assertTrue(runcount > 0);
+    
+    SymbolTable symbols = engine.getSymbolTable();
+    obj = symbols.get(Symbols.CURRENT_RUN_MILLIS);
+    assertTrue(obj instanceof Long);
+    long millis = (Long)obj;
+
+    obj = symbols.get(Symbols.CURRENT_RUN_SECONDS);
+    assertTrue(obj instanceof Long);
+    long seconds = (Long)obj;
+    assertTrue( seconds == (millis/1000));
 
     turnOver(engine);
 

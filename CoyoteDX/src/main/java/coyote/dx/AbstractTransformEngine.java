@@ -69,7 +69,7 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
   protected List<ContextListener> listeners = new ArrayList<ContextListener>();
 
   /** A symbol table to support basic template functions */
-  protected static final SymbolTable symbols = new SymbolTable();
+  protected final SymbolTable symbols = new SymbolTable();
 
   /** The directory this engine uses for file operations */
   private File jobDirectory = null;
@@ -689,6 +689,8 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
       symbols.put(Symbols.CURRENT_RUN_DATE, formatDate(rundate));
       symbols.put(Symbols.CURRENT_RUN_TIME, formatTime(rundate));
       symbols.put(Symbols.CURRENT_RUN_DATETIME, formatTime(rundate));
+      symbols.put(Symbols.CURRENT_RUN_MILLIS, rundate.getTime());
+      symbols.put(Symbols.CURRENT_RUN_SECONDS, rundate.getTime() / 1000);
 
       symbols.put(Symbols.MONTH, String.valueOf(cal.get(Calendar.MONTH) + 1));
       symbols.put(Symbols.DAY, String.valueOf(cal.get(Calendar.DAY_OF_MONTH)));

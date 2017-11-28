@@ -25,11 +25,11 @@ public interface RequestDecorator {
    * Modify the given request message.
    * 
    * <p>This method is called on a HTTP request message just before it is sent 
-   * to the SaaS instance. It is the final change for the message to be 
-   * customized before being sent through the web service infrastructure.</p>
+   * to the service instance. It is the final change for the message to be 
+   * customized before being sent through the web service infrastructure.
    * 
-   * <p>Another common use case is to generate a message has or some other 
-   * signature to verify the integrity of the request message exchange.</p>
+   * <p>Another common use case is to generate a message hash or some other 
+   * signature to verify the integrity of the request message exchange.
    * 
    * @param request the message to be queried and modified by this decorator.
    */

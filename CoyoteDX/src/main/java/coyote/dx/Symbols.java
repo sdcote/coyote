@@ -53,6 +53,8 @@ public class Symbols {
   public static final String CURRENT_RUN_DATE = "CurrentRunDate";
   public static final String CURRENT_RUN_TIME = "CurrentRunTime";
   public static final String CURRENT_RUN_DATETIME = "CurrentRunDateTime";
+  public static final String CURRENT_RUN_MILLIS = "CurrentRunEpochMillis";
+  public static final String CURRENT_RUN_SECONDS = "CurrentRunEpochSeconds";
 
   public static final String CURRENT_FRAME = "CurrentFrame";
   public static final String LAST_FRAME = "LastFrame";

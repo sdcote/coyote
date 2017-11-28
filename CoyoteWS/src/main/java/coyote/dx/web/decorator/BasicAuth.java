@@ -16,8 +16,7 @@ import org.apache.http.HttpMessage;
 import coyote.commons.ByteUtil;
 import coyote.commons.CipherUtil;
 import coyote.commons.StringUtil;
-import coyote.dataframe.DataField;
-import coyote.dataframe.DataFrame;
+import coyote.dx.ConfigTag;
 import coyote.loader.Loader;
 
 
@@ -38,32 +37,26 @@ import coyote.loader.Loader;
  * Authorization: Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==</pre>
  * 
  */
-public class BasicAuth extends AbstractDecorator implements RequestDecorator {
-  protected static final String DATA = "data";
-  protected static final String USERNAME = "username";
-  protected static final String PASSWORD = "password";
-  protected static final String ENC_DATA = Loader.ENCRYPT_PREFIX + "data";
-  protected static final String ENC_USERNAME = Loader.ENCRYPT_PREFIX + "username";
-  protected static final String ENC_PASSWORD = Loader.ENCRYPT_PREFIX + "password";
+public class BasicAuth extends HeaderDecorator implements RequestDecorator {
   protected static final String BASIC = "Basic";
   protected static final String DEFAULT_HEADER = "Authorization";
 
-  private String headerName = DEFAULT_HEADER;
-  private String headerData = "";
-  private String username = null;
-  private String password = null;
+
+
+
+  public BasicAuth(String user, String pswd) {
+    setUsername(user);
+    setPassword(pswd);
+  }
 
 
 
 
-  public BasicAuth() {}
-
-
-
-
-  public BasicAuth( String user, String pswd ) {
-    setUsername( user );
-    setPassword( pswd );
+  /**
+   * Constructor used for testing
+   */
+  public BasicAuth() {
+    // used for testing
   }
 
 
@@ -73,40 +66,20 @@ public class BasicAuth extends AbstractDecorator implements RequestDecorator {
    * 
    */
   void calculateHeaderData() {
-    if ( StringUtil.isNotBlank( username ) || StringUtil.isNotBlank( password ) ) {
+    if (StringUtil.isNotBlank(getUsername()) || StringUtil.isNotBlank(getPassword())) {
       StringBuffer b = new StringBuffer();
 
-      if ( StringUtil.isNotBlank( username ) ) {
-        b.append( username );
+      if (StringUtil.isNotBlank(getUsername())) {
+        b.append(getUsername());
       }
-      b.append( ":" );
+      b.append(":");
 
-      if ( StringUtil.isNotBlank( password ) ) {
-        b.append( password );
+      if (StringUtil.isNotBlank(getPassword())) {
+        b.append(getPassword());
       }
 
-      headerData = BASIC + " " + ByteUtil.toBase64( StringUtil.getBytes( b.toString() ) );
+      setHeaderData(BASIC + " " + ByteUtil.toBase64(StringUtil.getBytes(b.toString())));
     }
-  }
-
-
-
-
-  /**
-   * @return the headerName
-   */
-  public String getHeaderName() {
-    return headerName;
-  }
-
-
-
-
-  /**
-   * @param headerName the headerName to set
-   */
-  public void setHeaderName( String headerName ) {
-    this.headerName = headerName;
   }
 
 
@@ -116,7 +89,13 @@ public class BasicAuth extends AbstractDecorator implements RequestDecorator {
    * @return the headerData
    */
   public String getHeaderData() {
-    return headerData;
+    String retval = null;
+    if (configuration.containsIgnoreCase(ConfigTag.DATA)) {
+      retval = configuration.getString(ConfigTag.DATA);
+    } else if (configuration.containsIgnoreCase(Loader.ENCRYPT_PREFIX + ConfigTag.DATA)) {
+      retval = configuration.getString(Loader.ENCRYPT_PREFIX + ConfigTag.DATA);
+    }
+    return retval;
   }
 
 
@@ -125,8 +104,8 @@ public class BasicAuth extends AbstractDecorator implements RequestDecorator {
   /**
    * @param headerData the headerData to set
    */
-  public void setHeaderData( String headerData ) {
-    this.headerData = headerData;
+  public void setHeaderData(String headerData) {
+    configuration.set(ConfigTag.DATA, headerData);
   }
 
 
@@ -136,7 +115,13 @@ public class BasicAuth extends AbstractDecorator implements RequestDecorator {
    * @return the username
    */
   public String getUsername() {
-    return username;
+    String retval = null;
+    if (configuration.containsIgnoreCase(ConfigTag.USERNAME)) {
+      retval = configuration.getString(ConfigTag.USERNAME);
+    } else if (configuration.containsIgnoreCase(Loader.ENCRYPT_PREFIX + ConfigTag.USERNAME)) {
+      retval = CipherUtil.decryptString(configuration.getAsString(Loader.ENCRYPT_PREFIX + ConfigTag.USERNAME));
+    }
+    return retval;
   }
 
 
@@ -145,9 +130,9 @@ public class BasicAuth extends AbstractDecorator implements RequestDecorator {
   /**
    * @param username the username to set
    */
-  public void setUsername( String username ) {
-    this.username = username;
-    headerData = null; // force recalculation of data
+  public void setUsername(String username) {
+    configuration.set(ConfigTag.USERNAME, username);
+    setHeaderData(null); // force recalculation of data
   }
 
 
@@ -157,7 +142,13 @@ public class BasicAuth extends AbstractDecorator implements RequestDecorator {
    * @return the password
    */
   public String getPassword() {
-    return password;
+    String retval = null;
+    if (configuration.containsIgnoreCase(ConfigTag.PASSWORD)) {
+      retval = configuration.getString(ConfigTag.PASSWORD);
+    } else if (configuration.containsIgnoreCase(Loader.ENCRYPT_PREFIX + ConfigTag.PASSWORD)) {
+      retval = CipherUtil.decryptString(configuration.getAsString(Loader.ENCRYPT_PREFIX + ConfigTag.PASSWORD));
+    }
+    return retval;
   }
 
 
@@ -166,42 +157,9 @@ public class BasicAuth extends AbstractDecorator implements RequestDecorator {
   /**
    * @param password the password to set
    */
-  public void setPassword( String password ) {
-    this.password = password;
-    headerData = null; // force recalculation of data
-  }
-
-
-
-
-  /**
-   * @see coyote.dx.web.decorator.AbstractDecorator#setConfiguration(coyote.dataframe.DataFrame)
-   */
-  @Override
-  public void setConfiguration( DataFrame frame ) {
-    super.setConfiguration( frame );
-
-    //look for all configuration parameters
-    for ( DataField field : frame.getFields() ) {
-      if ( field.getName() != null ) {
-        if ( field.getName().equalsIgnoreCase( HEADER ) ) {
-          setHeaderName( field.getStringValue() );
-        } else if ( field.getName().equalsIgnoreCase( DATA ) ) {
-          setHeaderData( field.getStringValue() );
-        } else if ( field.getName().equalsIgnoreCase( ENC_DATA ) ) {
-          setHeaderData( CipherUtil.decryptString( field.getStringValue() ) );
-        } else if ( field.getName().equalsIgnoreCase( USERNAME ) ) {
-          setUsername( field.getStringValue() );
-        } else if ( field.getName().equalsIgnoreCase( PASSWORD ) ) {
-          setPassword( field.getStringValue() );
-        } else if ( field.getName().equalsIgnoreCase( ENC_USERNAME ) ) {
-          setUsername( CipherUtil.decryptString( field.getStringValue() ) );
-        } else if ( field.getName().equalsIgnoreCase( ENC_PASSWORD ) ) {
-          setPassword( CipherUtil.decryptString( field.getStringValue() ) );
-        }
-      } // header name ! null
-    } // for each field
-
+  public void setPassword(String password) {
+    configuration.set(ConfigTag.PASSWORD, password);
+    setHeaderData(null); // force recalculation of data
   }
 
 
@@ -211,18 +169,34 @@ public class BasicAuth extends AbstractDecorator implements RequestDecorator {
    * @see coyote.dx.web.decorator.RequestDecorator#process(org.apache.http.HttpMessage)
    */
   @Override
-  public void process( HttpMessage request ) {
+  public void process(HttpMessage request) {
 
     // if we don't have any data to place in the header...
-    if ( StringUtil.isBlank( headerData ) ) {
+    if (StringUtil.isBlank(getHeaderData())) {
       // ... calculate it from the username and password
       calculateHeaderData();
     }
 
     // Set the header if data exists
-    if ( StringUtil.isNotBlank( headerData ) ) {
-      request.setHeader( headerName, headerData );
+    if (StringUtil.isNotBlank(getHeaderData())) {
+      request.setHeader(getHeaderName(), getHeaderData());
     }
+  }
+
+
+
+
+  /**
+   * @see coyote.dx.web.decorator.HeaderDecorator#getHeaderName()
+   */
+  @Override
+  public String getHeaderName() {
+    String retval = super.getHeaderName();
+    if (StringUtil.isBlank(retval)) {
+      setHeaderName(DEFAULT_HEADER);
+      retval = DEFAULT_HEADER;
+    }
+    return retval;
   }
 
 }
