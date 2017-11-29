@@ -1,0 +1,28 @@
+{
+	"Class": "coyote.dx.Job",
+	"Job": {
+		"Name": "PoloniexBalance",
+		"Description": "Retrive your total balances for each coin",
+		"Context": {
+			"ApiKey": "XXXXXXXX-XXXXXXXX-XXXXXXXX-XXXXXXXX",
+			"PrivateKey": "3BI2Qn4zy8-YOUR-ENCRYPTED-PRIVATE-KEY-W/CzVpV"
+		},
+		"Reader": {
+			"Class": "WebServiceReader",
+			"Source": "https://poloniex.com/tradingApi",
+			"Protocol": { "ExchangeType": "JSON_HTTP", "Method": "POST" },
+			"Body": {
+				"command": "returnBalances",
+				"nonce": "[#$CurrentRunEpochMillis#]"
+			},
+			"Decorator": {
+				"StaticValue": { "header": "Key", "value": "ApiKey" },
+				"HmacSha512": { "header": "Sign", "ENC:secret": "PrivateKey" }
+			}
+		},
+		"Writer": { "class": "ConsoleWriter", "format": "json", "indent": true }
+	},
+	"Logging": {
+		"StandardOutput": { "categories": "info, notice, warn, error, fatal" }
+	}
+}
