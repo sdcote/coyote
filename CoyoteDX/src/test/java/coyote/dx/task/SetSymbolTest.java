@@ -45,12 +45,13 @@ public class SetSymbolTest {
 
   @Test
   public void setValue() throws ConfigurationException, TaskException, IOException {
-
+    // Test numeric
     Config cfg = new Config();
     cfg.put(ConfigTag.SYMBOL, "lucky");
     cfg.put(ConfigTag.VALUE, 7);
-    System.out.println(cfg);
+    //System.out.println(cfg);
 
+    context.getSymbols().clear();
     try (SetSymbol task = new SetSymbol()) {
       task.setConfiguration(cfg);
       task.open(context);
@@ -60,6 +61,103 @@ public class SetSymbolTest {
       assertEquals("7", symbol);
     }
 
+    // test string
+    cfg = new Config();
+    cfg.put(ConfigTag.SYMBOL, "interval");
+    cfg.put(ConfigTag.VALUE, "300");
+    //System.out.println(cfg);
+
+    context.getSymbols().clear();
+    try (SetSymbol task = new SetSymbol()) {
+      task.setConfiguration(cfg);
+      task.open(context);
+      task.execute();
+      String symbol = context.getSymbols().getString("interval");
+      assertNotNull(symbol);
+      assertEquals("300", symbol);
+    }
+
+    // test boolean
+    cfg = new Config();
+    cfg.put(ConfigTag.SYMBOL, "flag");
+    cfg.put(ConfigTag.VALUE, true);
+    //System.out.println(cfg);
+
+    context.getSymbols().clear();
+    try (SetSymbol task = new SetSymbol()) {
+      task.setConfiguration(cfg);
+      task.open(context);
+      task.execute();
+      String symbol = context.getSymbols().getString("flag");
+      assertNotNull(symbol);
+      assertEquals("true", symbol);
+    }
+
+  }
+
+
+
+
+  @Test
+  public void evaluateNumeric() throws ConfigurationException, TaskException, IOException {
+    Config cfg = new Config();
+    cfg.put(ConfigTag.SYMBOL, "lucky");
+    cfg.put(ConfigTag.EVALUATE, "3+4");
+    //System.out.println(cfg);
+
+    context.getSymbols().clear();
+    try (SetSymbol task = new SetSymbol()) {
+      task.setConfiguration(cfg);
+      task.open(context);
+      task.execute();
+      String symbol = context.getSymbols().getString("lucky");
+      assertNotNull(symbol);
+      assertEquals("7", symbol);
+    }
+
+  }
+
+
+
+
+  @Test
+  public void evaluateBoolean() throws ConfigurationException, TaskException, IOException {
+    Config cfg = new Config();
+    cfg.put(ConfigTag.SYMBOL, "flag");
+    cfg.put(ConfigTag.EVALUATE, "true || false");
+    //System.out.println(cfg);
+
+    context.getSymbols().clear();
+    try (SetSymbol task = new SetSymbol()) {
+      task.setConfiguration(cfg);
+      task.open(context);
+      task.execute();
+      String symbol = context.getSymbols().getString("flag");
+      assertNotNull(symbol);
+      assertEquals("true", symbol);
+    }
+  }
+
+
+
+
+  @Test
+  public void evaluateTemplate() throws ConfigurationException, TaskException, IOException {
+    Config cfg = new Config();
+    cfg.put(ConfigTag.SYMBOL, "start");
+    cfg.put(ConfigTag.EVALUATE, "[#$CurrentRunEpochSeconds#] - (60 * 60 * 2)");
+    //System.out.println(cfg);
+
+    context.getSymbols().clear();
+    context.getSymbols().put("CurrentRunEpochSeconds", 1511916611);
+    try (SetSymbol task = new SetSymbol()) {
+      task.setConfiguration(cfg);
+      task.open(context);
+      task.execute();
+      String symbol = context.getSymbols().getString("start");
+      assertNotNull(symbol);
+      assertEquals("1511909411", symbol);
+    }
   }
 
 }

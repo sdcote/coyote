@@ -8,17 +8,22 @@
 package coyote.dx.task;
 
 import coyote.commons.StringUtil;
-import coyote.commons.template.SymbolTable;
+import coyote.commons.template.Template;
 import coyote.dx.ConfigTag;
 import coyote.dx.TaskException;
 import coyote.dx.TransformTask;
-import coyote.dx.context.TransformContext;
 import coyote.loader.log.Log;
 
 
 /**
  * This sets a value in the symbol table with either a static value or the 
- * result of an evaluation. 
+ * result of an evaluation.
+ * 
+ * <p>This task can be configured thusly:<pre>
+ * "SetSymbol":{"symbol":"lucky","value":7}
+ * "SetSymbol":{"symbol":"interval","value":"300"}
+ * "SetSymbol":{"symbol":"flag","value":true}
+ * </pre>
  */
 public class SetSymbol extends AbstractTransformTask implements TransformTask {
 
@@ -28,14 +33,21 @@ public class SetSymbol extends AbstractTransformTask implements TransformTask {
   @SuppressWarnings("unchecked")
   @Override
   protected void performTask() throws TaskException {
-    Log.info("Setting the symbol");
     if (StringUtil.isBlank(getSymbolValue())) {
       if (StringUtil.isNotBlank(getEvaluationExpression())) {
         String expression = getEvaluationExpression();
         try {
           Double result = evaluator.evaluateNumeric(expression);
-          getContext().getSymbols().put(getSymbolName(), result);
-          Log.debug(getClass().getSimpleName() + " Set '" + getSymbolName() + "' to numeric value of '" + result + "' with expression: '" + expression + "'");
+
+          // if it is a whole number (no fractional part) cast it into a long
+          if (result % 1 == 0) {
+            long longValue = new Double(result).longValue();
+            getContext().getSymbols().put(getSymbolName(), longValue);
+            Log.debug(getClass().getSimpleName() + " Set '" + getSymbolName() + "' to numeric value of '" + longValue + "' with expression: '" + expression + "'");
+          } else {
+            getContext().getSymbols().put(getSymbolName(), result);
+            Log.debug(getClass().getSimpleName() + " Set '" + getSymbolName() + "' to numeric value of '" + result + "' with expression: '" + expression + "'");
+          }
         } catch (Exception e) {
           // maybe it is a boolean expression
           try {
@@ -50,10 +62,7 @@ public class SetSymbol extends AbstractTransformTask implements TransformTask {
         Log.error(getClass().getSimpleName() + " did not have a value nor expression configured, value not set");
       }
     } else {
-      TransformContext context = getContext();
-      SymbolTable symbols = context.getSymbols();
-      symbols.put(getSymbolName(), resolveArgument(getSymbolValue()));
-      //getContext().getSymbols().put(getSymbolName(), resolveArgument(getSymbolValue()));
+      getContext().getSymbols().put(getSymbolName(), resolveArgument(getSymbolValue()));
     }
   }
 
@@ -66,7 +75,14 @@ public class SetSymbol extends AbstractTransformTask implements TransformTask {
   private String getEvaluationExpression() {
     String retval = null;
     if (getConfiguration().containsIgnoreCase(ConfigTag.EVALUATE)) {
-      retval = getConfiguration().getString(ConfigTag.EVALUATE);
+      String value = getConfiguration().getString(ConfigTag.EVALUATE);
+      if (StringUtil.isNotBlank(value)) {
+        String cval = getContext().getAsString(retval, true);
+        if (cval != null) {
+          value = cval;
+        }
+        retval = Template.preProcess(value, getContext().getSymbols());
+      }
     }
     return retval;
   }
