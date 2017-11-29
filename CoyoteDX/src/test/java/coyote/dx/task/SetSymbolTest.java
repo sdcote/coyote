@@ -7,6 +7,7 @@
  */
 package coyote.dx.task;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 import java.io.IOException;
@@ -14,6 +15,7 @@ import java.io.IOException;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import coyote.commons.template.SymbolTable;
 import coyote.dx.ConfigTag;
 import coyote.dx.TaskException;
 import coyote.dx.context.TransformContext;
@@ -27,13 +29,15 @@ import coyote.loader.log.Log;
  * 
  */
 public class SetSymbolTest {
-  private final TransformContext context = new TransformContext();
+  private static final TransformContext context = new TransformContext();
+
 
 
 
   @BeforeClass
   public static void setUpBeforeClass() throws Exception {
     Log.addLogger(Log.DEFAULT_LOGGER_NAME, new ConsoleAppender(Log.TRACE_EVENTS | Log.DEBUG_EVENTS | Log.INFO_EVENTS | Log.WARN_EVENTS | Log.ERROR_EVENTS | Log.FATAL_EVENTS));
+    context.setSymbols(new SymbolTable());
   }
 
 
@@ -42,8 +46,6 @@ public class SetSymbolTest {
   @Test
   public void setValue() throws ConfigurationException, TaskException, IOException {
 
-    context.open();
-    
     Config cfg = new Config();
     cfg.put(ConfigTag.SYMBOL, "lucky");
     cfg.put(ConfigTag.VALUE, 7);
@@ -55,6 +57,7 @@ public class SetSymbolTest {
       task.execute();
       String symbol = context.getSymbols().getString("lucky");
       assertNotNull(symbol);
+      assertEquals("7", symbol);
     }
 
   }
