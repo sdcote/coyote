@@ -16,7 +16,6 @@ import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
-import org.apache.http.entity.StringEntity;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 
@@ -64,6 +63,7 @@ public class JsonHttpWorker extends AbstractWorker implements ResourceWorker {
           if (field.isFrame()) {
             Log.error("Cannot add object to request body - field name: " + field.getName() + " - " + field.getStringValue());
           } else {
+            // TODO: marshal values against context variables and symbol table
             formParams.add(new BasicNameValuePair(field.getName(), field.getStringValue()));
           }
         }

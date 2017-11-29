@@ -13,9 +13,11 @@ import java.lang.reflect.InvocationTargetException;
 import coyote.commons.CipherUtil;
 import coyote.commons.StringUtil;
 import coyote.commons.Version;
+import coyote.commons.template.Template;
 import coyote.dataframe.DataField;
 import coyote.dataframe.DataFrame;
 import coyote.dataframe.DataFrameException;
+import coyote.dx.context.TransformContext;
 import coyote.dx.web.ExchangeType;
 import coyote.dx.web.Method;
 import coyote.dx.web.Parameters;
@@ -136,12 +138,15 @@ public class CWS {
 
 
   /**
-   * 
-   * @param className
-   * @param cfg
-   * @param resource
+   * Add a request decorator to the resource.
+   *  
+   * @param className the class name of the decorator to create
+   * @param cfg the configuration of the decorator
+   * @param resource the resource to which the decorator will be added
+   * @param context the transform context which contains variables and symbols
+   *                used to resolve variable values in the configuration
    */
-  public static void configDecorator(String className, DataFrame cfg, Resource resource) {
+  public static void configDecorator(String className, DataFrame cfg, Resource resource, TransformContext context) {
     Log.debug(LogMsg.createMsg(CWS.MSG, "Decorator.configuring_decorator", className, cfg));
 
     if (className != null && StringUtil.countOccurrencesOf(className, ".") < 1) {
@@ -157,8 +162,9 @@ public class CWS {
 
       if (object instanceof RequestDecorator) {
         if (cfg != null) {
+          DataFrame resolvedFrame = resolveDataFrame(cfg, context);
           try {
-            ((RequestDecorator)object).setConfiguration(cfg);
+            ((RequestDecorator)object).setConfiguration(resolvedFrame);
           } catch (Exception e) {
             Log.error(LogMsg.createMsg(CWS.MSG, "Decorator.configuration_error", object.getClass().getName(), e.getClass().getSimpleName(), e.getMessage()));
           }
@@ -181,20 +187,21 @@ public class CWS {
   /**
    * Return a configured set of parameters from the given dataframe
    * 
-   * TODO: Support setting request headers, although decorators can also do this.
-   * 
    * @param cfg configuration data
+   * @param context the transform context which contains variables and symbols
+   *                used to resolve variable values in the configuration
    * 
    * @return a configured protocol parameters object, or null if configuration frame was null
    */
-  public static Parameters configParameters(DataFrame cfg) throws ConfigurationException {
+  public static Parameters configParameters(DataFrame cfg, TransformContext context) throws ConfigurationException {
     Parameters retval = null;
     if (cfg != null) {
       retval = new Parameters();
       String prefix = null;
       String namespace = null;
 
-      for (DataField field : cfg.getFields()) {
+      DataFrame resolvedFrame = resolveDataFrame(cfg, context);
+      for (DataField field : resolvedFrame.getFields()) {
         if (METHOD.equalsIgnoreCase(field.getName())) {
           Method method = Method.getMethodByName(field.getStringValue());
           if (method != null) {
@@ -235,9 +242,71 @@ public class CWS {
         retval.setExchangeType(ExchangeType.SOAP);
       }
 
-      Log.debug(LogMsg.createMsg(MSG, "BatchWS.resource_protocol", retval));
+      Log.debug(LogMsg.createMsg(MSG, "CoyoteWS.resource_protocol", retval));
     } else {
-      Log.debug(LogMsg.createMsg(MSG, "BatchWS.null_protocol_config"));
+      Log.debug(LogMsg.createMsg(MSG, "CoyoteWS.null_protocol_config"));
+    }
+    return retval;
+  }
+
+
+
+
+  /**
+   * Resolve all the string fields in the given data frame against the given 
+   * context.
+   * 
+   * <p>This performs a two stage resolution. First, the value of the string 
+   * field is used to perform a case sensitive search of the context for a 
+   * variable with the given name. If a variable with that name is found, the 
+   * value of that context variable is used. Next, the value is resolved 
+   * against the symbol table in the given context. The resolved values are 
+   * pre-processed against the template, meaning that any unresolved variables 
+   * are left in the value for easier debugging.
+   * 
+   * <p>Only string values are processed. All other data types are simply 
+   * cloned resulting in a deep copy of the given frame.
+   * 
+   * <p>The fields of the given DataFrame are processed breadth first, with 
+   * any nested frames being processed recursively. The final result is a 
+   * separate, mutable copy of the given frame.
+   * 
+   * @param cfg the frame to resolve
+   * @param context the transform context which contains variables and symbols
+   *                used to resolve variable values in the configuration
+   * 
+   * @return a copy of the dataframe with the string fields resolved.
+   */
+  public static DataFrame resolveDataFrame(DataFrame cfg, TransformContext context) {
+    DataFrame retval = null;
+    if (cfg != null) {
+      retval = new DataFrame();
+      if (context != null) {
+        for (DataField field : cfg.getFields()) {
+          if (field.isFrame()) {
+            retval.add(field.getName(), resolveDataFrame((DataFrame)field.getObjectValue(), context));
+          } else if (field.getType() == DataField.STRING) {
+            String value = field.getStringValue();
+            if (StringUtil.isNotBlank(value)) {
+              String cval = context.getAsString(value, true);
+              if (cval != null) {
+                value = cval;
+              }
+              value = Template.preProcess(value, context.getSymbols());
+            }
+            retval.add(field.getName(), value);
+            // Only log if the value changed
+            if (Log.isLogging(Log.DEBUG_EVENTS) && value != null && !value.equals(field.getStringValue())) {
+              Log.debug(LogMsg.createMsg(CDX.MSG, "Component.resolved_value", value, retval));
+            }
+          } else {
+            retval.add((DataField)field.clone());
+          }
+        }
+      } else {
+        Log.warn("Cannot resolve dataframe: null context");
+        retval = (DataFrame)cfg.clone();
+      }
     }
     return retval;
   }
@@ -324,10 +393,10 @@ public class CWS {
       Config config = new Config(cfg);
 
       long step = 0;
-      
+
       // Case in-sensitive search for field value
       DataField field = cfg.getFieldIgnoreCase(STEP);
-      if (field!=null) {
+      if (field != null) {
         try {
           // get the name of the field exactly as it appears in the frame
           step = config.getAsLong(field.getName());
@@ -340,7 +409,7 @@ public class CWS {
 
       long start = 0;
       field = cfg.getFieldIgnoreCase(START);
-      if (field!=null) {
+      if (field != null) {
         try {
           start = config.getAsLong(field.getName());
         } catch (DataFrameException e) {

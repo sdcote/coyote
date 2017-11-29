@@ -56,7 +56,7 @@ public abstract class AbstractFrameTransform extends AbstractConfigurableCompone
   /**
    * Resolve the argument.
    * 
-   * <p>This has the transform context resolve the argument.</p>
+   * <p>This has the transform context resolve the argument.
    * 
    * @param value the value to resolve (or use as a literal)
    * 

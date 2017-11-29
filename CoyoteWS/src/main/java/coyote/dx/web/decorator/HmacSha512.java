@@ -7,6 +7,7 @@
  */
 package coyote.dx.web.decorator;
 
+import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 
@@ -14,17 +15,26 @@ import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 
 import org.apache.commons.codec.binary.Hex;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpMessage;
 
 import coyote.commons.CipherUtil;
+import coyote.commons.StreamUtil;
 import coyote.commons.StringUtil;
 import coyote.dataframe.DataFrame;
 import coyote.dx.ConfigTag;
 import coyote.loader.Loader;
+import coyote.loader.log.Log;
 
 
 /**
+ * This generates a SHA-512 message authentication code for the body of the 
+ * request message.
  * 
+ * <p>If a data configuration attribute is given, the MAC will be generated 
+ * for that string instead of the body. This helps when the service does not 
+ * parse the body as expected or if only a portion of the body is to be signed.
  */
 public class HmacSha512 extends HeaderDecorator implements RequestDecorator {
 
@@ -92,12 +102,12 @@ public class HmacSha512 extends HeaderDecorator implements RequestDecorator {
       throw new IllegalArgumentException(getClass().getSimpleName() + " decorator must contain a '" + ConfigTag.SECRET + "' configuration element");
     }
 
-    // Make sure we have data to digest
+    // If no data value is provided, the entire request body will be signed with the secret
     if (StringUtil.isBlank(getData())) {
-      throw new IllegalArgumentException(getClass().getSimpleName() + " decorator must contain a '" + ConfigTag.DATA + "' configuration element");
+      Log.debug(getClass().getSimpleName() + " decorator will only sign messages which contain a body");
     }
 
-    // Make sure we have a a header defined
+    // Make sure we have a header defined
     if (StringUtil.isBlank(getHeaderName())) {
       throw new IllegalArgumentException(getClass().getSimpleName() + " decorator must contain a header name to populate");
     }
@@ -112,16 +122,35 @@ public class HmacSha512 extends HeaderDecorator implements RequestDecorator {
    */
   @Override
   public void process(HttpMessage request) {
-    
-    // TODO: If there is no data config element, get the body of the message and sign th whole thing
-    
+
+    // TODO: If there is no data config element, get the body of the message and sign the whole thing
+
     try {
       Mac shaMac = Mac.getInstance("HmacSHA512");
       SecretKeySpec keySpec = new SecretKeySpec(getSecret().getBytes(), "HmacSHA512");
       shaMac.init(keySpec);
-      final byte[] macData = shaMac.doFinal(getData().getBytes());
+      final byte[] macData;
+      if (StringUtil.isBlank(getData())) {
+        if (request instanceof HttpEntityEnclosingRequest) {
+          HttpEntityEnclosingRequest req = (HttpEntityEnclosingRequest)request;
+          HttpEntity body = req.getEntity();
+          try {
+            macData = shaMac.doFinal(StreamUtil.loadBytes(body.getContent()));
+          } catch (UnsupportedOperationException | IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+            return;
+          }
+        } else {
+          Log.error("No data specified for decorator and could not retrieve body entity to sign from: " + request.getClass().getName());
+          return;
+        }
+      } else {
+        macData = shaMac.doFinal(getData().getBytes());
+      }
+
       String sign = Hex.encodeHexString(macData);
-      request.setHeader( getHeaderName(), sign );
+      request.setHeader(getHeaderName(), sign);
     } catch (NoSuchAlgorithmException e) {
       // TODO Auto-generated catch block
       e.printStackTrace();

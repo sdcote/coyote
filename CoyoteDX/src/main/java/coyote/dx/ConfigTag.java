@@ -34,6 +34,7 @@ public class ConfigTag {
   public static final String DOMAIN = "domain";
   public static final String DRIVER = "driver";
   public static final String ENCODING = "Encoding";
+  public static final String EVALUATE = "evaluate";
   public static final String FIELDS = "fields";
   public static final String FOOTER = "footer";
   public static final String FORMAT = "format";
@@ -74,6 +75,7 @@ public class ConfigTag {
   public static final String SOURCE = "source";
   public static final String START = "start";
   public static final String STOP = "stop";
+  public static final String SYMBOL = "symbol";
   public static final String TABLE = "table";
   public static final String TARGET = "target";
   public static final String TOPIC = "Topic";

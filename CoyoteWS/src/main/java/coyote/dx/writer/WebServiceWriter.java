@@ -61,25 +61,25 @@ public class WebServiceWriter extends AbstractConfigurableComponent implements F
 
 
   @Override
-  public void setConfiguration( Config cfg ) throws ConfigurationException {
-    super.setConfiguration( cfg );
+  public void setConfiguration(Config cfg) throws ConfigurationException {
+    super.setConfiguration(cfg);
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     // Look for a conditional statement the writer may use to control if it is 
     // to write the record or not
-    expression = getConfiguration().getString( ConfigTag.CONDITION );
-    if ( StringUtil.isNotBlank( expression ) ) {
+    expression = getConfiguration().getString(ConfigTag.CONDITION);
+    if (StringUtil.isNotBlank(expression)) {
       expression = expression.trim();
 
       try {
-        evaluator.evaluateBoolean( expression );
-      } catch ( final IllegalArgumentException e ) {
-        context.setError( "Invalid boolean expression in writer: " + e.getMessage() );
+        evaluator.evaluateBoolean(expression);
+      } catch (final IllegalArgumentException e) {
+        context.setError("Invalid boolean expression in writer: " + e.getMessage());
       }
     }
 
     // look for a path
-    servicePath = getConfiguration().getString( ConfigTag.PATH );
+    servicePath = getConfiguration().getString(ConfigTag.PATH);
   }
 
 
@@ -89,129 +89,129 @@ public class WebServiceWriter extends AbstractConfigurableComponent implements F
    * @see coyote.dx.Component#open(coyote.dx.context.TransformContext)
    */
   @Override
-  public void open( TransformContext context ) {
-    setContext( context );
+  public void open(TransformContext context) {
+    setContext(context);
 
     // get the resource from the context, and if it does not exist, create one 
     // for subsequent use.
-    if ( resource == null ) {
+    if (resource == null) {
 
       // If we don't have an existing instance, create our own
-      if ( resource == null ) {
-        String targetUrl = getString( ConfigTag.TARGET );
-        Log.debug( LogMsg.createMsg( CDX.MSG, "Writer.using_target", this.getClass().getSimpleName(), targetUrl ) );
+      if (resource == null) {
+        String targetUrl = getString(ConfigTag.TARGET);
+        Log.debug(LogMsg.createMsg(CDX.MSG, "Writer.using_target", this.getClass().getSimpleName(), targetUrl));
 
-        if ( StringUtil.isBlank( targetUrl ) ) {
-          context.setError( "The Writer configuration did not contain the '" + ConfigTag.TARGET + "' element" );
-          context.setState( "Configuration Error" );
+        if (StringUtil.isBlank(targetUrl)) {
+          context.setError("The Writer configuration did not contain the '" + ConfigTag.TARGET + "' element");
+          context.setState("Configuration Error");
           return;
         }
 
         // Get authenticator, if defined
-        for ( DataField field : getConfiguration().getFields() ) {
-          if ( ( field.getName() != null ) && field.getName().equalsIgnoreCase( CWS.AUTHENTICATOR ) ) {
-            if ( field.isFrame() ) {
+        for (DataField field : getConfiguration().getFields()) {
+          if ((field.getName() != null) && field.getName().equalsIgnoreCase(CWS.AUTHENTICATOR)) {
+            if (field.isFrame()) {
               DataFrame cfg = (DataFrame)field.getObjectValue();
               try {
-                authenticator = CWS.configAuthenticator( cfg );
+                authenticator = CWS.configAuthenticator(cfg);
                 break;
-              } catch ( ConfigurationException e ) {
-                Log.fatal( e );
-                context.setError( "Could not create authenticator: " + e.getMessage() );
+              } catch (ConfigurationException e) {
+                Log.fatal(e);
+                context.setError("Could not create authenticator: " + e.getMessage());
                 return;
               }
             } else {
-              Log.error( "Invalid authenticator configuration, expected a section not an attribute" );
+              Log.error("Invalid authenticator configuration, expected a section not an attribute");
             }
           }
         }
 
         // Look for the proxy section
-        for ( DataField field : getConfiguration().getFields() ) {
-          if ( ( field.getName() != null ) && field.getName().equalsIgnoreCase( CWS.PROXY ) ) {
-            if ( field.isFrame() ) {
+        for (DataField field : getConfiguration().getFields()) {
+          if ((field.getName() != null) && field.getName().equalsIgnoreCase(CWS.PROXY)) {
+            if (field.isFrame()) {
               try {
-                proxy = CWS.configProxy( (DataFrame)field.getObjectValue() );
-              } catch ( ConfigurationException e ) {
-                Log.fatal( e );
-                context.setError( "Could not configure proxy: " + e.getMessage() );
+                proxy = CWS.configProxy((DataFrame)field.getObjectValue());
+              } catch (ConfigurationException e) {
+                Log.fatal(e);
+                context.setError("Could not configure proxy: " + e.getMessage());
                 return;
               }
-              Log.debug( "Found a proxy: " + proxy.toString() );
+              Log.debug("Found a proxy: " + proxy.toString());
               break;
             } else {
-              context.setError( "Invalid proxy configuration, expected a section not a scalar" );
-              context.setState( "Configuration Error" );
+              context.setError("Invalid proxy configuration, expected a section not a scalar");
+              context.setState("Configuration Error");
               return;
             }
           }
         }
 
         // look for a Protocol section
-        for ( DataField field : getConfiguration().getFields() ) {
-          if ( ( field.getName() != null ) && field.getName().equalsIgnoreCase( CWS.PROTOCOL ) ) {
-            if ( field.isFrame() ) {
+        for (DataField field : getConfiguration().getFields()) {
+          if ((field.getName() != null) && field.getName().equalsIgnoreCase(CWS.PROTOCOL)) {
+            if (field.isFrame()) {
               try {
-                parameters = CWS.configParameters( (DataFrame)field.getObjectValue() );
-              } catch ( ConfigurationException e ) {
-                Log.fatal( e );
-                context.setError( "Could not configure protocol: " + e.getMessage() );
+                parameters = CWS.configParameters((DataFrame)field.getObjectValue(), getContext());
+              } catch (ConfigurationException e) {
+                Log.fatal(e);
+                context.setError("Could not configure protocol: " + e.getMessage());
                 return;
               }
-              Log.debug( "Found a protocol: " + parameters.toString() );
+              Log.debug("Found a protocol: " + parameters.toString());
               break;
             } else {
-              context.setError( "Invalid protocol configuration, expected a section not an attribute" );
-              context.setState( "Configuration Error" );
+              context.setError("Invalid protocol configuration, expected a section not an attribute");
+              context.setState("Configuration Error");
               return;
             }
           }
         }
         try {
-          resource = new Resource( targetUrl, parameters, proxy );
+          resource = new Resource(targetUrl, parameters, proxy);
 
-          resource.setAuthenticator( authenticator );
+          resource.setAuthenticator(authenticator);
 
           // Now look for Request Decorators 
-          for ( DataField field : getConfiguration().getFields() ) {
-            if ( field.getName() != null && field.getName().equalsIgnoreCase( CWS.DECORATOR ) ) {
-              if ( field.isFrame() ) {
+          for (DataField field : getConfiguration().getFields()) {
+            if (field.getName() != null && field.getName().equalsIgnoreCase(CWS.DECORATOR)) {
+              if (field.isFrame()) {
                 DataFrame cfgFrame = (DataFrame)field.getObjectValue();
-                for ( DataField cfgfield : cfgFrame.getFields() ) {
-                  if ( cfgfield.isFrame() ) {
-                    if ( StringUtil.isNotBlank( cfgfield.getName() ) ) {
-                      CWS.configDecorator( cfgfield.getName(), (DataFrame)cfgfield.getObjectValue(), resource );
+                for (DataField cfgfield : cfgFrame.getFields()) {
+                  if (cfgfield.isFrame()) {
+                    if (StringUtil.isNotBlank(cfgfield.getName())) {
+                      CWS.configDecorator(cfgfield.getName(), (DataFrame)cfgfield.getObjectValue(), resource, getContext());
                     } else {
-                      Log.error( LogMsg.createMsg( CWS.MSG, "Decorator.configuration_must_be_named" ) );
+                      Log.error(LogMsg.createMsg(CWS.MSG, "Decorator.configuration_must_be_named"));
                     }
                   } else {
-                    Log.error( LogMsg.createMsg( CWS.MSG, "Decorator.invalid_decorator_configuration_section" ) );
+                    Log.error(LogMsg.createMsg(CWS.MSG, "Decorator.invalid_decorator_configuration_section"));
                   }
                 }
               } else {
-                Log.error( LogMsg.createMsg( CWS.MSG, "Decorator.invalid_decorator_configuration_section" ) );
+                Log.error(LogMsg.createMsg(CWS.MSG, "Decorator.invalid_decorator_configuration_section"));
               }
             }
           }
 
           resource.open();
 
-        } catch ( IOException e ) {
-          context.setError( "The Writer could not connect the resource: " + e.getMessage() );
-          context.setState( "Connection Error" );
+        } catch (IOException e) {
+          context.setError("The Writer could not connect the resource: " + e.getMessage());
+          context.setState("Connection Error");
           return;
-        } catch ( AuthenticationException e ) {
-          context.setError( "The Writer could not authenticate the resource: " + e.getMessage() );
-          context.setState( "Authentication Error" );
+        } catch (AuthenticationException e) {
+          context.setError("The Writer could not authenticate the resource: " + e.getMessage());
+          context.setState("Authentication Error");
         }
       } else {
-        Log.debug( "Using resource set in the transform context" );
+        Log.debug("Using resource set in the transform context");
       }
     } else {
-      Log.debug( "Using existing resource" );
+      Log.debug("Using existing resource");
     }
 
-    Log.debug( LogMsg.createMsg( CWS.MSG, "Writer.init_complete", resource ) );
+    Log.debug(LogMsg.createMsg(CWS.MSG, "Writer.init_complete", resource));
   }
 
 
@@ -221,26 +221,26 @@ public class WebServiceWriter extends AbstractConfigurableComponent implements F
    * @see coyote.dx.FrameWriter#write(coyote.dataframe.DataFrame)
    */
   @Override
-  public void write( DataFrame frame ) {
+  public void write(DataFrame frame) {
     // If there is a conditional expression
-    if ( expression != null ) {
+    if (expression != null) {
 
       try {
         // if the condition evaluates to true
-        if ( evaluator.evaluateBoolean( expression ) ) {
-          Log.debug( "Condition is true...writing frame to resource" );
-          writeFrame( frame );
+        if (evaluator.evaluateBoolean(expression)) {
+          Log.debug("Condition is true...writing frame to resource");
+          writeFrame(frame);
         } else {
-          if ( Log.isLogging( Log.DEBUG_EVENTS ) ) {
-            Log.debug( "Expression evaluated to false - frame not written" );
+          if (Log.isLogging(Log.DEBUG_EVENTS)) {
+            Log.debug("Expression evaluated to false - frame not written");
           }
         }
-      } catch ( final IllegalArgumentException e ) {
-        Log.warn( LogMsg.createMsg( CWS.MSG, "Writer.boolean_evaluation_error", e.getMessage() ) );
+      } catch (final IllegalArgumentException e) {
+        Log.warn(LogMsg.createMsg(CWS.MSG, "Writer.boolean_evaluation_error", e.getMessage()));
       }
     } else {
-      Log.debug( "Unconditionally writing frame" );
-      writeFrame( frame );
+      Log.debug("Unconditionally writing frame");
+      writeFrame(frame);
     }
   }
 
@@ -254,64 +254,64 @@ public class WebServiceWriter extends AbstractConfigurableComponent implements F
    * 
    * @return the number of bytes written
    */
-  private int writeFrame( DataFrame frame ) {
+  private int writeFrame(DataFrame frame) {
     int bytesWritten = 0;
     lastRequest = frame;
 
-    Log.info( frame.toString() );
+    Log.info(frame.toString());
     // Set up an object to hold our request parameters these will over-ride 
     // the default protocol parameters
     Parameters params = new Parameters();
 
     // Place the request payload in the request parameters
-    params.setPayload( frame );
+    params.setPayload(frame);
 
     // Treat the resource URI as a template, substituting variables in the URI 
     // (e.g. ReST identifiers in the path) for data in the transaction context
     // which may heve been changed by listeners or other components to ensure 
     // the data was written to the correct ReSTful resource URI.
     // This sets the path portion of the resource using a template
-    if ( StringUtil.isNotBlank( servicePath ) ) {
+    if (StringUtil.isNotBlank(servicePath)) {
       try {
-        resource.setPath( Template.resolve( servicePath, getContext().getTransaction().getSymbols() ) );
-      } catch ( URISyntaxException e ) {
-        super.context.setError( "The Writer could not generate URI path: " + e.getMessage() );
-        super.context.setState( "Resource Path Error" );
+        resource.setPath(Template.resolve(servicePath, getContext().getTransaction().getSymbols()));
+      } catch (URISyntaxException e) {
+        super.context.setError("The Writer could not generate URI path: " + e.getMessage());
+        super.context.setState("Resource Path Error");
         return bytesWritten;
       }
     }
     try {
       // invoke the operation and receive an object representing our results
-      lastResponse = resource.request( params );
+      lastResponse = resource.request(params);
 
       // wait for results (invocation may be asynchronous)
-      while ( !lastResponse.isComplete() ) {
-        if ( lastResponse.isTimedOut() ) {
+      while (!lastResponse.isComplete()) {
+        if (lastResponse.isTimedOut()) {
           // nothing happened
-          System.err.println( "Operation timed-out" );
-          System.exit( 1 );
-        } else if ( lastResponse.isInError() ) {
+          System.err.println("Operation timed-out");
+          System.exit(1);
+        } else if (lastResponse.isInError()) {
           // we received one or more errors
-          System.err.println( "Operation failed" );
-          System.exit( 2 );
+          System.err.println("Operation failed");
+          System.exit(2);
         } else {
           // wait for the results to arrive
-          lastResponse.wait( 100 );
+          lastResponse.wait(100);
         }
       }
 
-      if ( Log.isLogging( Log.DEBUG_EVENTS ) ) {
-        Log.debug( "Performance Metric: Write " + lastResponse.getOperationTime() );
-        Log.debug( "Performance Metric: Transaction " + lastResponse.getTransactionTime() );
-        Log.debug( "Performance Metric: WebResponse " + lastResponse.getRequestTime() );
-        Log.debug( "Performance Metric: Parsing " + lastResponse.getParsingTime() );
+      if (Log.isLogging(Log.DEBUG_EVENTS)) {
+        Log.debug("Performance Metric: Write " + lastResponse.getOperationTime());
+        Log.debug("Performance Metric: Transaction " + lastResponse.getTransactionTime());
+        Log.debug("Performance Metric: WebResponse " + lastResponse.getRequestTime());
+        Log.debug("Performance Metric: Parsing " + lastResponse.getParsingTime());
       }
 
       rowCounter++;
-    } catch ( InvocationException e ) {
+    } catch (InvocationException e) {
       // TODO Auto-generated catch block
       e.printStackTrace();
-    } catch ( InterruptedException e ) {
+    } catch (InterruptedException e) {
       // TODO Auto-generated catch block
       e.printStackTrace();
     }
@@ -328,13 +328,13 @@ public class WebServiceWriter extends AbstractConfigurableComponent implements F
   @Override
   public void close() throws IOException {
     // close our stuff first
-    Log.debug( LogMsg.createMsg( CWS.MSG, "Writer.records_processed", rowCounter, ( context != null ) ? context.getRow() : 0 ) );
+    Log.debug(LogMsg.createMsg(CWS.MSG, "Writer.records_processed", rowCounter, (context != null) ? context.getRow() : 0));
 
-    if ( resource != null ) {
+    if (resource != null) {
       try {
         resource.close();
-      } catch ( Exception e ) {
-        Log.warn( LogMsg.createMsg( CWS.MSG, "Writer.close_error", e.getLocalizedMessage() ) );
+      } catch (Exception e) {
+        Log.warn(LogMsg.createMsg(CWS.MSG, "Writer.close_error", e.getLocalizedMessage()));
       }
     }
 

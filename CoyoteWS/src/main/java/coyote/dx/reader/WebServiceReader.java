@@ -132,7 +132,7 @@ public class WebServiceReader extends AbstractFrameReader implements FrameReader
       if ((field.getName() != null) && field.getName().equalsIgnoreCase(CWS.PROTOCOL)) {
         if (field.isFrame()) {
           try {
-            protocol = CWS.configParameters((DataFrame)field.getObjectValue());
+            protocol = CWS.configParameters((DataFrame)field.getObjectValue(), getContext());
           } catch (ConfigurationException e) {
             Log.fatal(e);
             context.setError("Could not configure protocol: " + e.getMessage());
@@ -173,7 +173,8 @@ public class WebServiceReader extends AbstractFrameReader implements FrameReader
       if ((field.getName() != null) && field.getName().equalsIgnoreCase(CWS.BODY)) {
         if (field.isFrame()) {
           DataFrame cfg = (DataFrame)field.getObjectValue();
-          protocol.setPayload(cfg);
+          DataFrame resolvedFrame = CWS.resolveDataFrame(cfg, context);
+          protocol.setPayload(resolvedFrame);
           break;
         } else {
           protocol.setBody(field.getStringValue());
@@ -201,7 +202,7 @@ public class WebServiceReader extends AbstractFrameReader implements FrameReader
             for (DataField cfgfield : cfgFrame.getFields()) {
               if (cfgfield.isFrame()) {
                 if (StringUtil.isNotBlank(cfgfield.getName())) {
-                  CWS.configDecorator(cfgfield.getName(), (DataFrame)cfgfield.getObjectValue(), resource);
+                  CWS.configDecorator(cfgfield.getName(), (DataFrame)cfgfield.getObjectValue(), resource, getContext());
                 } else {
                   Log.error(LogMsg.createMsg(CWS.MSG, "Decorator.configuration_must_be_named"));
                 }
@@ -304,6 +305,9 @@ public class WebServiceReader extends AbstractFrameReader implements FrameReader
           for (DataFrame frame : results) {
             retval.add(DataFrameUtil.flatten(frame));
           }
+        } else {
+          // if no selector, place the entire result in the return value
+          retval.add(DataFrameUtil.flatten(result));
         }
       }
       // set the variable to the next batch
