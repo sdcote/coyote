@@ -65,6 +65,12 @@ public class StaticReader extends AbstractFrameReader {
    * <p>This scans through all the string fields and resolves them against the 
    * currently set symbol table.
    * 
+   * <p>This method purposely does not pre-process the template since the 
+   * static reader is very often used to retrieve data from the command line 
+   * and uses validators to check to see if fields are empty. If preprocessing 
+   * the template, there will always be a value (e.g. [#$cmd.arg.1#]) in the 
+   * field and the validation will alwasy pass.
+   * 
    * @param frame the frame to resolve.
    * 
    * @return a frame will all the string templates resolved to the current 
@@ -76,7 +82,7 @@ public class StaticReader extends AbstractFrameReader {
       retval = new DataFrame();
       for (final DataField field : frame.getFields()) {
         if (field.getType() == DataField.STRING) {
-          retval.add(field.getName(), Template.preProcess(field.getStringValue(), getContext().getSymbols()));
+          retval.add(field.getName(), Template.resolve(field.getStringValue(), getContext().getSymbols()));
         } else {
           retval.add(field);
         }

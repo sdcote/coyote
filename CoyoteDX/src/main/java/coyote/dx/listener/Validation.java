@@ -47,10 +47,10 @@ public class Validation extends FileRecorder {
    */
   @Override
   public void onValidationFailed(OperationalContext context, FrameValidator validator, String errorMessage) {
-
     StringBuffer b = new StringBuffer();
+    b.append("Field '");
     b.append(validator.getFieldName());
-    b.append(" did not pass '");
+    b.append("' did not pass '");
     b.append(validator.getClass().getSimpleName());
     b.append("' check: ");
     b.append(validator.getDescription());
@@ -60,17 +60,14 @@ public class Validation extends FileRecorder {
 
 
 
+  /**
+   * Write the errors out with the record.
+   * 
+   * @see coyote.dx.listener.AbstractListener#onFrameValidationFailed(coyote.dx.context.TransactionContext)
+   */
   public void onFrameValidationFailed(TransactionContext context) {
-
-    // write the record out with the errors
-
     StringBuffer b = new StringBuffer();
-
     b.append(context.getRow());
-    b.append(": ");
-
-    // show the frame which failed validation
-    b.append(context.getWorkingFrame().toString());
     b.append(": ");
 
     // Show the validation errors
@@ -80,6 +77,10 @@ public class Validation extends FileRecorder {
         b.append(", ");
       }
     }
+
+    // show the frame which failed validation
+    b.append(": ");
+    b.append(context.getWorkingFrame().toString());
     b.append(StringUtil.LINE_FEED);
 
     // clear out the collected errors

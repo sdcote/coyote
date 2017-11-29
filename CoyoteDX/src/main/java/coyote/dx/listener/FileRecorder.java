@@ -7,6 +7,7 @@
  */
 package coyote.dx.listener;
 
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -32,6 +33,10 @@ import coyote.loader.log.LogMsg;
  */
 public abstract class FileRecorder extends ContextRecorder {
 
+  private static final String STDOUT = "stdout";
+
+  private static final String STDERR = "stderr";
+
   protected Writer log_writer;
 
   protected File targetFile = null;
@@ -56,45 +61,51 @@ public abstract class FileRecorder extends ContextRecorder {
 
       target = getTarget().trim();
 
-      // Try to parse the target as a URI, failures result in a null
-      if (UriUtil.parse(target) == null) {
-        // Windows systems often have a drive letter in fully qualified filenames
-        if (target.charAt(1) == ':') {
-          // convert it to a file URI
-          File f = new File(target);
-          URI u = f.toURI();
-          setTarget(u.toString());
-        }
-      }
-
-      try {
-        URI uri = new URI(getTarget());
-
-        // Make sure we have a complete path to the target file
-        File dest = new File(UriUtil.getFilePath(uri));
-
-        // if not absolute, use the current working directory
-        if (!dest.isAbsolute()) {
-          dest = new File(getJobDirectory(), UriUtil.getFilePath(uri));
+      if (STDOUT.equalsIgnoreCase(target)) {
+        log_writer = new BufferedWriter(new OutputStreamWriter(System.out));
+      } else if (STDERR.equalsIgnoreCase(target)) {
+        log_writer = new BufferedWriter(new OutputStreamWriter(System.err));
+      } else {
+        // Try to parse the target as a URI, failures result in a null
+        if (UriUtil.parse(target) == null) {
+          // Windows systems often have a drive letter in fully qualified filenames
+          if (target.charAt(1) == ':') {
+            // convert it to a file URI
+            File f = new File(target);
+            URI u = f.toURI();
+            setTarget(u.toString());
+          }
         }
 
-        // make any directories as necessary
-        dest.getParentFile().mkdirs();
+        try {
+          URI uri = new URI(getTarget());
 
-        // 
-        targetFile = dest;
-        Log.debug(LogMsg.createMsg(CDX.MSG, "DX.listener_using_target", targetFile.toString()));
+          // Make sure we have a complete path to the target file
+          File dest = new File(UriUtil.getFilePath(uri));
 
-        // Create the writer
-        log_writer = new OutputStreamWriter(new FileOutputStream(targetFile.toString(), false));
+          // if not absolute, use the current working directory
+          if (!dest.isAbsolute()) {
+            dest = new File(getJobDirectory(), UriUtil.getFilePath(uri));
+          }
 
-      } catch (final URISyntaxException e) {
-        context.setError("Invalid target URI (" + e.getMessage() + ") - '" + getTarget() + "'");
-      } catch (FileNotFoundException e) {
-        context.setError("Could not write to target URI (" + e.getMessage() + ") - '" + getTarget() + "'");
-      } catch (Exception e) {
-        context.setError("Processing exception (" + e.getMessage() + ") during open ");
-        e.printStackTrace();
+          // make any directories as necessary
+          dest.getParentFile().mkdirs();
+
+          // 
+          targetFile = dest;
+          Log.debug(LogMsg.createMsg(CDX.MSG, "DX.listener_using_target", targetFile.toString()));
+
+          // Create the writer
+          log_writer = new OutputStreamWriter(new FileOutputStream(targetFile.toString(), false));
+
+        } catch (final URISyntaxException e) {
+          context.setError("Invalid target URI (" + e.getMessage() + ") - '" + getTarget() + "'");
+        } catch (FileNotFoundException e) {
+          context.setError("Could not write to target URI (" + e.getMessage() + ") - '" + getTarget() + "'");
+        } catch (Exception e) {
+          context.setError("Processing exception (" + e.getMessage() + ") during open ");
+          e.printStackTrace();
+        }
       }
 
     } else {
@@ -108,12 +119,9 @@ public abstract class FileRecorder extends ContextRecorder {
 
 
   protected void write(String text) {
-
     if (targetFile != null && !targetFile.exists()) {
       try {
         log_writer = new OutputStreamWriter(new FileOutputStream(targetFile.toString(), false));
-        //final byte[] header = getFormatter().initialize();
-        //if ( header != null ) { log_writer.write( new String( header ) ); }
       } catch (final Exception ex) {
         System.err.println("Could not recreate " + targetFile.getAbsolutePath() + " - " + ex.getMessage());
         if (log_writer != null) {

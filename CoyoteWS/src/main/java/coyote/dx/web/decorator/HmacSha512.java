@@ -134,12 +134,17 @@ public class HmacSha512 extends HeaderDecorator implements RequestDecorator {
         if (request instanceof HttpEntityEnclosingRequest) {
           HttpEntityEnclosingRequest req = (HttpEntityEnclosingRequest)request;
           HttpEntity body = req.getEntity();
-          try {
-            macData = shaMac.doFinal(StreamUtil.loadBytes(body.getContent()));
-          } catch (UnsupportedOperationException | IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-            return;
+          if (body != null) {
+            try {
+              macData = shaMac.doFinal(StreamUtil.loadBytes(body.getContent()));
+            } catch (UnsupportedOperationException | IOException e) {
+              // TODO Auto-generated catch block
+              e.printStackTrace();
+              return;
+            }
+          } else {
+            Log.error("The HTTP message did not contain a body to sign");
+            macData = new byte[0];
           }
         } else {
           Log.error("No data specified for decorator and could not retrieve body entity to sign from: " + request.getClass().getName());

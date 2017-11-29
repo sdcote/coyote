@@ -274,7 +274,7 @@ public abstract class AbstractWorker implements ResourceWorker {
         params.setMethod( Method.GET );
         Log.notice( "No HTTP method specified and no default set: using HTTP " + params.getMethod() );
       } else {
-        Log.debug( "Using default HTTP method of " + params.getMethod() );
+        Log.debug( "Using HTTP method of " + params.getMethod() );
       }
     }
 

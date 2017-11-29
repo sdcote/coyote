@@ -261,10 +261,10 @@ public class WebServiceWriter extends AbstractConfigurableComponent implements F
     Log.info(frame.toString());
     // Set up an object to hold our request parameters these will over-ride 
     // the default protocol parameters
-    Parameters params = new Parameters();
+    //Parameters params = new Parameters();
 
     // Place the request payload in the request parameters
-    params.setPayload(frame);
+    parameters.setPayload(frame);
 
     // Treat the resource URI as a template, substituting variables in the URI 
     // (e.g. ReST identifiers in the path) for data in the transaction context
@@ -281,30 +281,25 @@ public class WebServiceWriter extends AbstractConfigurableComponent implements F
       }
     }
     try {
-      // invoke the operation and receive an object representing our results
-      lastResponse = resource.request(params);
+      // invoke the operation and receive a future object representing our results
+      lastResponse = resource.request(parameters);
 
       // wait for results (invocation may be asynchronous)
       while (!lastResponse.isComplete()) {
         if (lastResponse.isTimedOut()) {
           // nothing happened
           System.err.println("Operation timed-out");
-          System.exit(1);
+          rowCounter--; // FIXME: hack!
+          break;
         } else if (lastResponse.isInError()) {
           // we received one or more errors
           System.err.println("Operation failed");
-          System.exit(2);
+          rowCounter--; // FIXME: hack!
+          break;
         } else {
           // wait for the results to arrive
-          lastResponse.wait(100);
+          Thread.sleep(100);
         }
-      }
-
-      if (Log.isLogging(Log.DEBUG_EVENTS)) {
-        Log.debug("Performance Metric: Write " + lastResponse.getOperationTime());
-        Log.debug("Performance Metric: Transaction " + lastResponse.getTransactionTime());
-        Log.debug("Performance Metric: WebResponse " + lastResponse.getRequestTime());
-        Log.debug("Performance Metric: Parsing " + lastResponse.getParsingTime());
       }
 
       rowCounter++;
@@ -314,6 +309,13 @@ public class WebServiceWriter extends AbstractConfigurableComponent implements F
     } catch (InterruptedException e) {
       // TODO Auto-generated catch block
       e.printStackTrace();
+    } finally {
+      if (Log.isLogging(Log.DEBUG_EVENTS)) {
+        Log.debug("Performance Metric: Write " + lastResponse.getOperationTime());
+        Log.debug("Performance Metric: Transaction " + lastResponse.getTransactionTime());
+        Log.debug("Performance Metric: WebResponse " + lastResponse.getRequestTime());
+        Log.debug("Performance Metric: Parsing " + lastResponse.getParsingTime());
+      }
     }
 
     return bytesWritten;

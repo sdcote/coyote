@@ -290,6 +290,8 @@ public class WebServiceReader extends AbstractFrameReader implements FrameReader
         while (!lastResponse.isComplete()) {
           Thread.yield();
         }
+        // TODO: what about time-outs?
+        // TODO: What about errors?
       }
 
       if (lastResponse != null) {
