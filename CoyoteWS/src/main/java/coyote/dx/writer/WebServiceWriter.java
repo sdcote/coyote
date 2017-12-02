@@ -13,7 +13,11 @@ package coyote.dx.writer;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.List;
 
+import coyote.commons.DataFrameUtil;
+import coyote.commons.ExceptionUtil;
 import coyote.commons.StringUtil;
 import coyote.commons.template.Template;
 import coyote.dataframe.DataField;
@@ -41,21 +45,30 @@ import coyote.loader.log.LogMsg;
 
 
 /**
- * This component simply PUTs or POSTs the data frame to a particular service endpoint.
+ * This component simply PUTs or POSTs the data frame to a particular service 
+ * endpoint.
+ * 
+ * <p>All responses can be written to a file (or other transport) through the 
+ * ResposeWriter. The results of making web service calls then become the 
+ * input for other jobs. Any transform writer can be specified as it will be 
+ * called in the exact same manner as it would be within a transform as a top-
+ * level writer.
  */
 public class WebServiceWriter extends AbstractConfigurableComponent implements FrameWriter, ConfigurableComponent {
+  /** Constant to assist in determining the full class name of writers */
+  private static final String WRITER_PKG = AbstractFrameWriter.class.getPackage().getName();
+
   private Evaluator evaluator = new Evaluator();
   private String expression = null;
   private String servicePath = null;
   private int rowCounter = 0;
   private DataFrame lastRequest = null;
-
   private Response lastResponse = null;
-
   private Resource resource = null;
   private Authenticator authenticator = new NullAuthenticator();
   private Proxy proxy = null;
   private Parameters parameters = null;
+  protected List<FrameWriter> writers = new ArrayList<FrameWriter>();
 
 
 
@@ -194,6 +207,57 @@ public class WebServiceWriter extends AbstractConfigurableComponent implements F
             }
           }
 
+          for (DataField field : getConfiguration().getFields()) {
+            if (StringUtil.equalsIgnoreCase(CWS.RESPONSE_WRITER, field.getName())) {
+              if (field.isFrame()) {
+                DataFrame cfg = (DataFrame)field.getObjectValue();
+                if (cfg != null) {
+                  String className = DataFrameUtil.findString(ConfigTag.CLASS, cfg);
+                  if (className != null && StringUtil.countOccurrencesOf(className, ".") < 1) {
+                    className = WRITER_PKG + "." + className;
+                    cfg.put(ConfigTag.CLASS, className);
+                  }
+                  Object object = CDX.createComponent(cfg);
+                  if (object != null) {
+                    if (object instanceof FrameWriter) {
+                      writers.add((FrameWriter)object);
+                      Log.debug(LogMsg.createMsg(CWS.MSG, "Writer.created_writer", object.getClass().getName()));
+                    } else {
+                      Log.error(LogMsg.createMsg(CWS.MSG, "Writer.specified_class_is_not_a_writer", object.getClass().getName()));
+                    }
+                  } else {
+                    Log.error(LogMsg.createMsg(CWS.MSG, "Writer.could_not_create_instance_of_specified_writer", className));
+                  }
+                }
+              } else {
+                Log.error("Invalid writer configuration section");
+              }
+            }
+
+            if (field.getName() != null && field.getName().equalsIgnoreCase(CWS.DECORATOR)) {
+              if (field.isFrame()) {
+                DataFrame cfgFrame = (DataFrame)field.getObjectValue();
+                for (DataField cfgfield : cfgFrame.getFields()) {
+                  if (cfgfield.isFrame()) {
+                    if (StringUtil.isNotBlank(cfgfield.getName())) {
+                      CWS.configDecorator(cfgfield.getName(), (DataFrame)cfgfield.getObjectValue(), resource, getContext());
+                    } else {
+                      Log.error(LogMsg.createMsg(CWS.MSG, "Decorator.configuration_must_be_named"));
+                    }
+                  } else {
+                    Log.error(LogMsg.createMsg(CWS.MSG, "Decorator.invalid_decorator_configuration_section"));
+                  }
+                }
+              } else {
+                Log.error(LogMsg.createMsg(CWS.MSG, "Decorator.invalid_decorator_configuration_section"));
+              }
+            }
+          }
+
+          for (FrameWriter writer : writers) {
+            writer.open(getContext());
+          }
+
           resource.open();
 
         } catch (IOException e) {
@@ -258,7 +322,7 @@ public class WebServiceWriter extends AbstractConfigurableComponent implements F
     int bytesWritten = 0;
     lastRequest = frame;
 
-    Log.info(frame.toString());
+    Log.debug(frame.toString());
     // Set up an object to hold our request parameters these will over-ride 
     // the default protocol parameters
     //Parameters params = new Parameters();
@@ -302,6 +366,21 @@ public class WebServiceWriter extends AbstractConfigurableComponent implements F
         }
       }
 
+      // TODO: What do we do with the response of other than a 200?
+
+      // Write the response frame to all the configured sub-writers
+      if (writers.size() > 0) {
+        for (FrameWriter writer : writers) {
+          try {
+            // Write the target (new) frame
+            writer.write(lastResponse.getResult());
+          } catch (Exception e) {
+            Log.error(LogMsg.createMsg(CDX.MSG, "Engine.write_error", e.getClass().getSimpleName(), e.getMessage(), ExceptionUtil.stackTrace(e)));
+            e.printStackTrace();
+          }
+        }
+      }
+
       rowCounter++;
     } catch (InvocationException e) {
       // TODO Auto-generated catch block
@@ -337,6 +416,14 @@ public class WebServiceWriter extends AbstractConfigurableComponent implements F
         resource.close();
       } catch (Exception e) {
         Log.warn(LogMsg.createMsg(CWS.MSG, "Writer.close_error", e.getLocalizedMessage()));
+      }
+    }
+
+    for (FrameWriter writer : writers) {
+      try {
+        writer.close();
+      } catch (Exception e) {
+        Log.warn(LogMsg.createMsg(CDX.MSG, "Engine.problems_closing_writer", writer.getClass().getName(), e.getClass().getSimpleName(), e.getMessage()));
       }
     }
 

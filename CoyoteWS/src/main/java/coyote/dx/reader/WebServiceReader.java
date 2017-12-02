@@ -50,7 +50,9 @@ import coyote.loader.log.LogMsg;
  * <p>This means the first read call will detect that there is no data and a 
  * web service request will be performed to create a data set. That set will 
  * be used for that read and all subsequent reads. Data is removed from the 
- * data set on each read and EOF is true when the data set is empty.
+ * data set on each read and EOF is true when the data set is empty. This 
+ * implies that the entire set of data is read into memory and subsequent 
+ * reads are served from this response set.
  * 
  * <p>Some API support the concept of pagination, only returning a set of X 
  * records even though the result set is larger. For example, a web service 
@@ -59,6 +61,11 @@ import coyote.loader.log.LogMsg;
  * each with a different offset or page number. These cases are rare, but when 
  * they do occur, it is often easier to subclass this reader and handle 
  * pagination according to the particular API being called. 
+ * 
+ * <p>Note: pagination is used to retrieve the entire set into memory for 
+ * those APIs which limit result limits. All results, regardless of the number 
+ * of pages, are retrieved into memory before the read method returns the 
+ * first data frame.
  */
 public class WebServiceReader extends AbstractFrameReader implements FrameReader, ConfigurableComponent {
 
@@ -235,15 +242,20 @@ public class WebServiceReader extends AbstractFrameReader implements FrameReader
 
   @Override
   public DataFrame read(TransactionContext context) {
+    DataFrame retval = null;
 
     if (dataframes == null) {
       dataframes = retrieveData();
     }
 
-    if (dataframes.size() > 0)
-      return dataframes.remove(0);
+    if (dataframes.size() > 0) {
+      retval = dataframes.remove(0);
+      if (dataframes.size() == 0) {
+        context.setLastFrame(true);
+      }
+    }
 
-    return null;
+    return retval;
   }
 
 

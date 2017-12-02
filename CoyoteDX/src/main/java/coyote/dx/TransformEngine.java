@@ -62,6 +62,16 @@ public interface TransformEngine extends RunnableComponent {
 
 
   /**
+   * Add the given aggregator to the engine.
+   * 
+   * @param aggregator the aggregator to add
+   */
+  public void addAggregator(FrameAggregator aggregator);
+
+
+
+
+  /**
    * @return the name of the transform engine
    */
   public String getName();

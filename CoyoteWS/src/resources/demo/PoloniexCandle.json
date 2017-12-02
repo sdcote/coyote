@@ -18,6 +18,6 @@
 		"Writer": { "class": "ConsoleWriter", "format": "json", "indent": true }
 	},
 	"Logging": {
-		"StandardOutput": { "categories": "info, notice, warn, error, fatal" }
+		"StandardOutput": { "categories": "trace, debug, info, notice, warn, error, fatal" }
 	}
 }

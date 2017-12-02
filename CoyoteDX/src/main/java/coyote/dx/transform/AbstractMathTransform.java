@@ -7,6 +7,8 @@
  */
 package coyote.dx.transform;
 
+import java.math.BigDecimal;
+
 import coyote.commons.StringUtil;
 import coyote.dataframe.DataField;
 import coyote.dx.TransformException;
@@ -28,7 +30,7 @@ public abstract class AbstractMathTransform extends AbstractFieldTransform {
 
 
 
-  protected double getAsDouble(DataField field) throws TransformException {
+  protected double getAsDoubleBroke(DataField field) throws TransformException {
     double retval = 0D;
     if (field != null && field.isNotFrame() && field.isNotNull()) {
       Object val = field.getObjectValue();
@@ -37,7 +39,8 @@ public abstract class AbstractMathTransform extends AbstractFieldTransform {
           retval = ((Double)val).doubleValue();
         } else {
           try {
-            retval = Double.parseDouble(val.toString());
+            BigDecimal bd = new BigDecimal(val.toString());
+            retval = bd.doubleValue();
           } catch (Exception e) {
             throw new TransformException("Value could not be converted into a double");
           }

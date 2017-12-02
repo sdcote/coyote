@@ -1,21 +1,24 @@
-engines:
-  checkstyle:
+version: "2"
+checks:
+  argument-count:
+    enabled: false
+  complex-logic:
     enabled: true
-    channel: "beta"
-    checks:
-      com.puppycrawl.tools.checkstyle.checks.imports.CustomImportOrderCheck:
-        enabled: false
-      com.puppycrawl.tools.checkstyle.checks.javadoc.SummaryJavadocCheck:
-        enabled: false
-      com.puppycrawl.tools.checkstyle.checks.sizes.LineLengthCheck:
-        enabled: false
-      com.puppycrawl.tools.checkstyle.checks.whitespace.EmptyLineSeparatorCheck:
-        enabled: false
-  pmd:
+  file-lines:
+    enabled: false
+  method-complexity:
     enabled: true
-    channel: "beta"
-ratings:
-  paths:
-  - "**.java"
-exclude_paths:
-- CoyoteUI/**/*
+  method-count:
+    enabled: false
+  method-lines:
+    enabled: false
+  nested-control-flow:
+    enabled: true
+  return-statements:
+    enabled: true
+  similar-code:
+    enabled: true
+  identical-code:
+    enabled: true
+exclude_patterns:
+  - "CoyoteUI/**/*"

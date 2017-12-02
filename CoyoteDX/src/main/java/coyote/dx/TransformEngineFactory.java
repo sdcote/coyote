@@ -17,6 +17,7 @@ import coyote.commons.StringUtil;
 import coyote.dataframe.DataField;
 import coyote.dataframe.DataFrame;
 import coyote.dataframe.marshal.JSONMarshaler;
+import coyote.dx.aggregate.AbstractFrameAggregator;
 import coyote.dx.context.ContextListener;
 import coyote.dx.context.OperationalContext;
 import coyote.dx.context.TransformContext;
@@ -61,6 +62,8 @@ public class TransformEngineFactory {
   private static final String MAPPER_PKG = AbstractFrameMapper.class.getPackage().getName();
   /** Constant to assist in determining the full class name of frame filters */
   private static final String FILTER_PKG = AbstractFrameFilter.class.getPackage().getName();
+  /** Constant to assist in determining the full class name of frame aggregators */
+  private static final String AGGREGATOR_PKG = AbstractFrameAggregator.class.getPackage().getName();
 
 
 
@@ -145,6 +148,12 @@ public class TransformEngineFactory {
           } else {
             Log.error("Invalid mapper configuration section");
           }
+        } else if (StringUtil.equalsIgnoreCase(ConfigTag.AGGREGATOR, field.getName())) {
+          if (field.isFrame()) {
+            configAggregator((DataFrame)field.getObjectValue(), retval);
+          } else {
+            Log.error("Invalid aggregator configuration section");
+          }
         } else if (StringUtil.equalsIgnoreCase(ConfigTag.WRITER, field.getName())) {
           if (field.isFrame()) {
             configWriter((DataFrame)field.getObjectValue(), retval);
@@ -221,6 +230,39 @@ public class TransformEngineFactory {
 
     return retval;
   }
+
+
+
+
+  /**
+   * @param cfg
+   * @param engine
+   */
+  private static void configAggregator(DataFrame cfg, TransformEngine engine) {
+    if (cfg != null) {
+      // Make sure the class is fully qualified 
+      String className = findString(ConfigTag.CLASS, cfg);
+      if (className != null && StringUtil.countOccurrencesOf(className, ".") < 1) {
+        className = AGGREGATOR_PKG + "." + className;
+        cfg.put(ConfigTag.CLASS, className);
+      }
+      Object object = CDX.createComponent(cfg);
+      if (object != null) {
+        if (object instanceof FrameAggregator) {
+          engine.addAggregator((FrameAggregator)object);
+          Log.debug(LogMsg.createMsg(CDX.MSG, "EngineFactory.created_aggregator", object.getClass().getName()));
+        } else {
+          Log.error(LogMsg.createMsg(CDX.MSG, "EngineFactory.specified_class_is_not_an_aggregatorr", object.getClass().getName()));
+        }
+      } else {
+        Log.error(LogMsg.createMsg(CDX.MSG, "EngineFactory.could_not_create_instance_of_specified_aggregator", className));
+      }
+    } // cfg !null    
+  }
+  
+  
+  
+  
 
 
 

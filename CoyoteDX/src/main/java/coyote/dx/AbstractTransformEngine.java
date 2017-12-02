@@ -53,6 +53,8 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
   /** The list of transformations to be applied to the frame. */
   protected List<FrameTransform> transformers = new ArrayList<FrameTransform>();
 
+  protected List<FrameAggregator> aggregators = new ArrayList<FrameAggregator>();
+
   /** The mapping of the frame to a new frame; the component which create the desired frame. */
   protected FrameMapper mapper = null;
 
@@ -159,6 +161,7 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
   /**
    * @see java.lang.Runnable#run()
    */
+  @SuppressWarnings("unchecked")
   @Override
   public void run() {
     Log.info("Engine '" + getName() + "' (" + getInstanceId() + ") running...");
@@ -179,23 +182,13 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
 
     symbols.put(Symbols.JOB_NAME, getName());
 
-    if (reader == null && writers.size() > 0)
+    // Throw an error if there are writers but no reader
+    if (reader == null && writers.size() > 0) {
       throw new IllegalStateException("No reader configured, nothing to write");
+    }
 
     // Make sure we have a context
-    if (getContext() == null) {
-      // Create a transformation context for components to share data
-      setContext(new TransformContext());
-    } else {
-      // reset the context in case is was used previously
-      getContext().reset();
-
-      // place any existing context variables in the symbol table
-      for (String name : getContext().getKeys()) {
-        symbols.put(name, getContext().getAsString(name));
-        Log.debug("Populating symbols with existing context property '" + name + "', value = '" + getContext().getAsString(name) + "'");
-      }
-    }
+    initContext();
 
     // get the command line arguments from the symbol table and post the array
     // in the context for other components to use
@@ -218,51 +211,23 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
     getContext().open();
 
     // Open all the listeners first so the transform context will trigger
-    for (ContextListener listener : listeners) {
-      listener.open(getContext());
-      if (getContext().isInError()) {
-        getContext().setState("Listener Initialization Error");
-        reportTransformContextError(getContext());
-        return;
-      }
-    }
+    initListeners();
 
     // Set the run date in the context after it was opened (possibly loaded)
     getContext().set(Symbols.DATETIME, rundate);
 
     // Open the log manager with the current transform context
-    if (logManager != null)
+    if (logManager != null) {
       logManager.open(getContext());
+    }
 
     Log.trace("Engine '" + getName() + "' starting transform; rundate:" + rundate);
 
     // fire the transformation start event
     getContext().start();
 
-    getContext().setState("Pre-Process");
-
     // Execute all the pre-processing tasks
-    for (TransformTask task : preProcesses) {
-      try {
-        if (task.isEnabled()) {
-          task.open(getContext());
-          task.execute();
-        }
-      } catch (TaskException e) {
-        getContext().setError(e.getMessage());
-        break;
-      }
-    }
-    // Close all the tasks after pre-processing is done regardless of outcome
-    for (TransformTask task : preProcesses) {
-      try {
-        if (task.isEnabled()) {
-          task.close();
-        }
-      } catch (IOException e) {
-        Log.warn(LogMsg.createMsg(CDX.MSG, "Engine.problems_closing_preprocess_task", task.getClass().getName(), e.getClass().getSimpleName(), e.getMessage()));
-      }
-    }
+    preprocess();
 
     try {
       // If pre-processing completed without error, start opening the rest of the 
@@ -273,62 +238,16 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
         // to share data. If the reader is null, there is no need to open the 
         // mapper and the writer
         if (reader != null) {
-          getContext().setState("Reader Init");
-          reader.open(getContext());
-          if (getContext().isInError()) {
-            reportTransformContextError(getContext());
-            return;
-          }
-
-          // if no mapper, just use the default mapper with default settings
-          if (mapper == null) {
-            Log.debug("No mapper defined...using default settings");
-            mapper = new DefaultFrameMapper();
-          }
-
-          getContext().setState("Mapper Init");
-          mapper.open(getContext());
-          if (getContext().isInError()) {
-            reportTransformContextError(getContext());
-            return;
-          }
-
-          getContext().setState("Writer Init");
-          for (FrameWriter writer : writers) {
-            writer.open(getContext());
-            if (getContext().isInError()) {
-              reportTransformContextError(getContext());
-              return;
-            }
-          }
+          readerInit();
+          mapperInit();
+          aggregatorInit();
+          writerInit();
         }
 
-        getContext().setState("Filter Init");
-        for (FrameFilter filter : filters) {
-          filter.open(getContext());
-          if (getContext().isInError()) {
-            reportTransformContextError(getContext());
-            return;
-          }
-        }
+        filterInit();
+        validatorInit();
+        transformInit();
 
-        getContext().setState("Validator Init");
-        for (FrameValidator validator : validators) {
-          validator.open(getContext());
-          if (getContext().isInError()) {
-            reportTransformContextError(getContext());
-            return;
-          }
-        }
-
-        getContext().setState("Transform Init");
-        for (FrameTransform transformer : transformers) {
-          transformer.open(getContext());
-          if (getContext().isInError()) {
-            reportTransformContextError(getContext());
-            return;
-          }
-        }
         Log.trace("Engine '" + getName() + "' entering read loop");
 
         // loop through all data read in by the reader until EOF or an error in 
@@ -339,6 +258,7 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
           // Create a new Transaction context with the list of listeners to react 
           // to events in the transaction.
           TransactionContext txnContext = new TransactionContext(getContext());
+
           // place a reference to the transaction in the transform context
           getContext().setTransaction(txnContext);
 
@@ -363,132 +283,25 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
             getContext().setRow(++currentFrameNumber);
             getContext().getSymbols().put(Symbols.CURRENT_FRAME, currentFrameNumber);
             getContext().getSymbols().put(Symbols.LAST_FRAME, txnContext.isLastFrame());
-
-            // fire the read event in all the listeners
             txnContext.fireRead(txnContext, reader);
 
-            // ...pass it through the filters...
-            txnContext.setState("Filter");
-            for (FrameFilter filter : filters) {
-              if (filter.isEnabled()) {
-                if (!filter.process(txnContext)) {
-                  // filter signaled to discontinue filter checks (early exit)
-                  break;
-                }
-                if (txnContext.getWorkingFrame() == null) {
-                  // no need to continue, the working record was removed from 
-                  // the transaction context
-                  break;
-                }
-              }
-            }
+            filter(txnContext);
 
             // If the working frame did not get filtered out...
             if (txnContext.getWorkingFrame() != null) {
-
-              // pass it through the validation rules
-              txnContext.setState("Validate");
-              boolean passed = true;
-              List<String> errors = new ArrayList<String>();
-              for (FrameValidator validator : validators) {
-                try {
-                  if (!validator.process(txnContext)) {
-                    passed = false;
-                    String error = validator.getDescription();
-                    if (StringUtil.isBlank(error)) {
-                      error = validator.getClass().getName();
-                    }
-                    errors.add(error);
-                  }
-                } catch (ValidationException e) {
-                  txnContext.setError(e.getMessage());
-                }
-              }
-
-              // if there were validation errors
-              if (!passed) {
-                StringBuffer b = new StringBuffer("Validation errors:");
-                for (int x = 0; x < errors.size(); x++) {
-                  b.append(errors.get(x));
-                  if (x + 1 < errors.size()) {
-                    b.append(", ");
-                  }
-                }
-                txnContext.setError(b.toString());
-                getContext().fireFrameValidationFailed(txnContext);
-              }
-
+              validate(txnContext);
               if (txnContext.isNotInError()) {
-
-                txnContext.setState("Transform");
-                // Pass the working frame through the transformers
-                for (FrameTransform transformer : transformers) {
-                  try {
-                    // Have the transformer process the frame
-                    DataFrame resultFrame = transformer.process(txnContext.getWorkingFrame());
-
-                    // place the results of the transformation in the context
-                    txnContext.setWorkingFrame(resultFrame);
-
-                  } catch (Exception e) {
-                    StringBuilder b = new StringBuilder(txnContext.getErrorMessage());
-                    if (b.length() > 0) {
-                      b.append(", ");
-                    }
-                    b.append(transformer.getClass().getSimpleName());
-                    b.append(": ");
-                    b.append(e.getMessage());
-                    txnContext.setError(b.toString());
-                  }
+                transform(txnContext);
+                map(txnContext);
+                if (aggregators.size() > 0) {
+                  aggregateAndwrite(txnContext);
+                } else {
+                  write(txnContext);
                 }
-                if (txnContext.isInError()) {
-                  Log.debug("TRANSFORM ERRORS: " + txnContext.getErrorMessage());
-                }
-
-                // Pass it through the mapper - only the required fields should 
-                // exist in the target frame after the mapper is done.
-                if (txnContext.isNotInError()) {
-
-                  // We need to create a target frame into which the mapper will 
-                  // place fields...
-                  if (txnContext.getTargetFrame() == null) {
-                    txnContext.setTargetFrame(new DataFrame());
-                  }
-
-                  txnContext.setState("Map");
-
-                  // Map / Move fields from the working to the target frame
-                  try {
-                    mapper.process(txnContext);
-                    txnContext.fireMap(txnContext);
-                  } catch (MappingException e) {
-                    txnContext.setError(e.getMessage());
-                  }
-                }
-
-                // It is possible that a transform has been configured to simply
-                // read and validate data so the writer may be null
-                if (txnContext.isNotInError() && writers.size() > 0) {
-                  txnContext.setState("Write");
-                  // Pass the frame to all the writers
-                  for (FrameWriter writer : writers) {
-                    try {
-                      // Write the target (new) frame
-                      writer.write(txnContext.getTargetFrame());
-                      txnContext.fireWrite(txnContext, writer);
-                    } catch (Exception e) {
-                      Log.error(LogMsg.createMsg(CDX.MSG, "Engine.write_error", e.getClass().getSimpleName(), e.getMessage(), ExceptionUtil.stackTrace(e)));
-                      txnContext.setError(e.getMessage());
-                    }
-                  }
-                }
-
               } // passed validators
-
             } // passed filters
 
-            // Now end the transaction which should fire any listeners in the 
-            // context to record the transaction if so configured
+            // Now end the transaction which should fire any context listeners
             txnContext.end();
 
             if (txnContext.isInError()) {
@@ -562,6 +375,387 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
       Log.info("Engine '" + getName() + "' (" + getInstanceId() + ") completed successfully");
     }
 
+  }
+
+
+
+
+  /**
+   * 
+   */
+  private void initContext() {
+    if (getContext() == null) {
+      // Create a transformation context for components to share data
+      setContext(new TransformContext());
+    } else {
+      // reset the context in case is was used previously
+      getContext().reset();
+
+      // place any existing context variables in the symbol table
+      for (String name : getContext().getKeys()) {
+        symbols.put(name, getContext().getAsString(name));
+        Log.debug("Populating symbols with existing context property '" + name + "', value = '" + getContext().getAsString(name) + "'");
+      }
+    }
+  }
+
+
+
+
+  /**
+   * 
+   */
+  private void initListeners() {
+    for (ContextListener listener : listeners) {
+      listener.open(getContext());
+      if (getContext().isInError()) {
+        getContext().setState("Listener Initialization Error");
+        reportTransformContextError(getContext());
+        return;
+      }
+    }
+  }
+
+
+
+
+  /**
+   * 
+   */
+  private void preprocess() {
+    getContext().setState("Pre-Process");
+    for (TransformTask task : preProcesses) {
+      try {
+        if (task.isEnabled()) {
+          task.open(getContext());
+          task.execute();
+        }
+      } catch (TaskException e) {
+        getContext().setError(e.getMessage());
+        break;
+      }
+    }
+    // Close all the tasks after pre-processing is done regardless of outcome
+    for (TransformTask task : preProcesses) {
+      try {
+        if (task.isEnabled()) {
+          task.close();
+        }
+      } catch (IOException e) {
+        Log.warn(LogMsg.createMsg(CDX.MSG, "Engine.problems_closing_preprocess_task", task.getClass().getName(), e.getClass().getSimpleName(), e.getMessage()));
+      }
+    }
+  }
+
+
+
+
+  /**
+   * 
+   */
+  private void readerInit() {
+    getContext().setState("Reader Init");
+    reader.open(getContext());
+    if (getContext().isInError()) {
+      reportTransformContextError(getContext());
+      return;
+    }
+  }
+
+
+
+
+  /**
+   * 
+   */
+  private void transformInit() {
+    getContext().setState("Transform Init");
+    for (FrameTransform transformer : transformers) {
+      transformer.open(getContext());
+      if (getContext().isInError()) {
+        reportTransformContextError(getContext());
+        return;
+      }
+    }
+  }
+
+
+
+
+  /**
+   * 
+   */
+  private void validatorInit() {
+    getContext().setState("Validator Init");
+    for (FrameValidator validator : validators) {
+      validator.open(getContext());
+      if (getContext().isInError()) {
+        reportTransformContextError(getContext());
+        return;
+      }
+    }
+  }
+
+
+
+
+  /**
+   * 
+   */
+  private void filterInit() {
+    getContext().setState("Filter Init");
+    for (FrameFilter filter : filters) {
+      filter.open(getContext());
+      if (getContext().isInError()) {
+        reportTransformContextError(getContext());
+        return;
+      }
+    }
+  }
+
+
+
+
+  /**
+   * 
+   */
+  private void writerInit() {
+    getContext().setState("Writer Init");
+    for (FrameWriter writer : writers) {
+      writer.open(getContext());
+      if (getContext().isInError()) {
+        reportTransformContextError(getContext());
+        return;
+      }
+    }
+  }
+
+
+
+
+  /**
+   * 
+   */
+  private void aggregatorInit() {
+    getContext().setState("Aggregator Init");
+    for (FrameAggregator aggregator : aggregators) {
+      aggregator.open(getContext());
+      if (getContext().isInError()) {
+        reportTransformContextError(getContext());
+        return;
+      }
+    }
+  }
+
+
+
+
+  /**
+   * 
+   */
+  private void mapperInit() {
+    getContext().setState("Mapper Init");
+    if (mapper == null) {
+      Log.debug("No mapper defined...using default settings");
+      mapper = new DefaultFrameMapper();
+    }
+    mapper.open(getContext());
+    if (getContext().isInError()) {
+      reportTransformContextError(getContext());
+      return;
+    }
+  }
+
+
+
+
+  /**
+   * Filter out working frames.
+   * 
+   * @param txnContext the transaction context containing the data to filter
+   */
+  private void filter(TransactionContext txnContext) {
+    txnContext.setState("Filter");
+    for (FrameFilter filter : filters) {
+      if (filter.isEnabled()) {
+        if (!filter.process(txnContext)) {
+          // filter signaled to discontinue filter checks (early exit)
+          break;
+        }
+        if (txnContext.getWorkingFrame() == null) {
+          // no need to continue, the working record was removed from 
+          // the transaction context
+          break;
+        }
+      }
+    }
+  }
+
+
+
+
+  /**
+   * Validate the data in the transaction context.
+   * 
+   * @param txnContext the transaction context containing the data to validate
+   */
+  private void validate(TransactionContext txnContext) {
+    // pass it through the validation rules
+    txnContext.setState("Validate");
+    boolean passed = true;
+    List<String> errors = new ArrayList<String>();
+    for (FrameValidator validator : validators) {
+      try {
+        if (!validator.process(txnContext)) {
+          passed = false;
+          String error = validator.getDescription();
+          if (StringUtil.isBlank(error)) {
+            error = validator.getClass().getName();
+          }
+          errors.add(error);
+        }
+      } catch (ValidationException e) {
+        txnContext.setError(e.getMessage());
+      }
+    }
+
+    // if there were validation errors
+    if (!passed) {
+      StringBuffer b = new StringBuffer("Validation errors:");
+      for (int x = 0; x < errors.size(); x++) {
+        b.append(errors.get(x));
+        if (x + 1 < errors.size()) {
+          b.append(", ");
+        }
+      }
+      txnContext.setError(b.toString());
+      getContext().fireFrameValidationFailed(txnContext);
+    }
+  }
+
+
+
+
+  /**
+   * Transform the working frame contained in the given transaction context
+   * with the currently configured transformers.
+   * 
+   * @param txnContext the transaction context containing the data to transform
+   */
+  private void transform(TransactionContext txnContext) {
+    txnContext.setState("Transform");
+    // Pass the working frame through the transformers
+    for (FrameTransform transformer : transformers) {
+      try {
+        // Have the transformer process the frame
+        DataFrame resultFrame = transformer.process(txnContext.getWorkingFrame());
+
+        // place the results of the transformation in the context
+        txnContext.setWorkingFrame(resultFrame);
+
+      } catch (Exception e) {
+        StringBuilder b = new StringBuilder(txnContext.getErrorMessage());
+        if (b.length() > 0) {
+          b.append(", ");
+        }
+        b.append(transformer.getClass().getSimpleName());
+        b.append(": ");
+        b.append(e.getMessage());
+        txnContext.setError(b.toString());
+      }
+    }
+    if (txnContext.isInError()) {
+      Log.debug("TRANSFORM ERRORS: " + txnContext.getErrorMessage());
+    }
+  }
+
+
+
+
+  /**
+   * Map the working frame to the target frame.
+   * 
+   * @param txnContext the transaction context containing the data to map
+   */
+  private void map(TransactionContext txnContext) {
+    // Pass it through the mapper - only the required fields should 
+    // exist in the target frame after the mapper is done.
+    if (txnContext.isNotInError()) {
+      txnContext.setState("Map");
+      // Map / Move fields from the working to the target frame
+      try {
+        mapper.process(txnContext);
+        txnContext.fireMap(txnContext);
+      } catch (MappingException e) {
+        txnContext.setError(e.getMessage());
+      }
+    }
+  }
+
+
+
+
+  /**
+   * Pass the target frame in the given transaction context to the aggregators 
+   * and write out any frames the aggregators emit.
+   * 
+   * @param txnContext the transaction context containing the data to 
+   *        aggregate and write
+   */
+  private void aggregateAndwrite(TransactionContext txnContext) {
+    // Aggregators process each frame and emit a frame to pass on to the next 
+    // aggregator and the writers. 
+    if (txnContext.isNotInError() && aggregators.size() > 0) {
+      txnContext.setState("Aggregation");
+      List<DataFrame> frames = new ArrayList<DataFrame>();
+      frames.add(txnContext.getTargetFrame());
+      for (FrameAggregator aggregator : aggregators) {
+        if (frames != null) {
+          try {
+            // process the frames emitted from the previous aggregators
+            frames = aggregator.process(frames, txnContext);
+          } catch (Exception e) {
+            Log.error(LogMsg.createMsg(CDX.MSG, "Engine.aggregation_error", e.getClass().getSimpleName(), e.getMessage(), ExceptionUtil.stackTrace(e)));
+            e.printStackTrace();
+            txnContext.setError(e.getMessage());
+            frames = null;
+          } // try-catch
+        } // if frame !null
+      } // for each aggregator
+
+      // write each of the frames
+      for (DataFrame frame : frames) {
+        txnContext.setTargetFrame(frame);
+        write(txnContext);
+      }
+
+    } // if no errors and aggregators exist
+  }
+
+
+
+
+  /**
+   * Write the given transaction context to all the writers.
+   * 
+   * @param txnContext the transaction context containing the data to write
+   */
+  private void write(TransactionContext txnContext) {
+    if (txnContext.isNotInError() && txnContext.getTargetFrame() != null && writers.size() > 0) {
+      txnContext.setState("Write");
+      // Pass the frame to all the writers
+      for (FrameWriter writer : writers) {
+        try {
+          // Write the target (new) frame
+          writer.write(txnContext.getTargetFrame());
+          txnContext.fireWrite(txnContext, writer);
+        } catch (Exception e) {
+          Log.error(LogMsg.createMsg(CDX.MSG, "Engine.write_error", e.getClass().getSimpleName(), e.getMessage(), ExceptionUtil.stackTrace(e)));
+          e.printStackTrace();
+          txnContext.setError(e.getMessage());
+        }
+      }
+    }
   }
 
 
@@ -971,6 +1165,17 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
   @Override
   public void addWriter(FrameWriter writer) {
     writers.add(writer);
+  }
+
+
+
+
+  /**
+   * @see coyote.dx.TransformEngine#addAggregator(coyote.dx.FrameAggregator)
+   */
+  @Override
+  public void addAggregator(FrameAggregator aggregator) {
+    aggregators.add(aggregator);
   }
 
 

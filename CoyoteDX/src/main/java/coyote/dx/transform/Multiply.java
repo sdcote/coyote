@@ -7,6 +7,8 @@
  */
 package coyote.dx.transform;
 
+import java.math.BigDecimal;
+
 import coyote.commons.StringUtil;
 import coyote.dataframe.DataField;
 import coyote.dataframe.DataFrame;
@@ -123,9 +125,9 @@ public class Multiply extends AbstractMathTransform implements FrameTransform {
 
   private double multiplyDouble(DataField field, String factor) throws TransformException {
     double retval = 0D;
-    double val = getAsDouble(field);
-    double ftr = getDouble(factor);
-    retval = val * ftr;
+    BigDecimal val = new BigDecimal(field.getStringValue());
+    BigDecimal ftr = new BigDecimal(factor);
+    retval = val.multiply(ftr).doubleValue();
     return retval;
   }
 

@@ -66,6 +66,9 @@ public class CWS {
   private static final String STEP = "Step";
   private static final String START = "Start";
 
+  // For the WebServiceWriter
+  public static final String RESPONSE_WRITER = "ResponseWriter";
+
   // Message bundle for i18n
   public static final BundleBaseName MSG;
 

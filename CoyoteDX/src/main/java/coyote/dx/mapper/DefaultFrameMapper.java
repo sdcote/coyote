@@ -26,6 +26,11 @@ public class DefaultFrameMapper extends AbstractFrameMapper implements FrameMapp
   public void process(TransactionContext context) throws MappingException {
 
     if (fields.size() > 0) {
+      // Ensure there is a target frame into which the fields will be placed
+      if (context.getTargetFrame() == null) {
+        context.setTargetFrame(new DataFrame());
+      }
+
       // for each frame in the list (insertion order)
       for (SourceToTarget mapping : fields) {
 

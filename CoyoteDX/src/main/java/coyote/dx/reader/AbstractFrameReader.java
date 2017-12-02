@@ -47,7 +47,9 @@ public abstract class AbstractFrameReader extends AbstractConfigurableComponent 
    * @see java.io.Closeable#close()
    */
   @Override
-  public void close() throws IOException {}
+  public void close() throws IOException {
+    // no-op implementation
+  }
 
 
 

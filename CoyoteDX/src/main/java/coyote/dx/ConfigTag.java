@@ -19,6 +19,7 @@ public class ConfigTag {
 
   // General Configuration Tags
 
+  public static final String AGGREGATOR = "aggregator";
   public static final String ALIGN = "align";
   public static final String AUTO_ADJUST = "autoadjust";
   public static final String AUTO_CREATE = "autocreate";

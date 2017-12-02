@@ -375,8 +375,12 @@ public abstract class OperationalContext {
 
 
   /**
-   * Set the end time to now.
+   * Signal the tontext to end.
+   * 
+   * <p>This sets the 'end time' to now and fires the listeners the context 
+   * has ended.
    */
+  @SuppressWarnings("unchecked")
   public void end() {
     endTime = System.currentTimeMillis();
     if (symbols != null) {
@@ -422,6 +426,7 @@ public abstract class OperationalContext {
 
 
 
+
   /**
    * @param txnContext
    */
@@ -433,6 +438,9 @@ public abstract class OperationalContext {
       listener.onMap(txnContext);
     }
   }
+
+
+
 
   public void fireWrite(TransactionContext context, FrameWriter writer) {
     if (parent != null)
