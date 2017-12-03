@@ -23,6 +23,7 @@ import coyote.commons.template.Template;
 import coyote.dataframe.DataField;
 import coyote.dataframe.DataFrame;
 import coyote.dataframe.selector.FrameSelector;
+import coyote.dx.CDX;
 import coyote.dx.CWS;
 import coyote.dx.ConfigTag;
 import coyote.dx.ConfigurableComponent;
@@ -311,7 +312,7 @@ public class WebServiceReader extends AbstractFrameReader implements FrameReader
         // apply the selector to the results
         String pattern = getString(ConfigTag.SELECTOR);
         if (StringUtil.isNotBlank(pattern)) {
-          FrameSelector selector = new FrameSelector(pattern);
+          FrameSelector selector = new FrameSelector(pattern, CDX.DEFAULT_FRAMEPATH_NAME);
           List<DataFrame> results = selector.select(result);
           retrieved = results.size();
           Log.debug("Selected " + retrieved + " frames");

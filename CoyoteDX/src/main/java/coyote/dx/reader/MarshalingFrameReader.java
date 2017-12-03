@@ -140,7 +140,7 @@ public abstract class MarshalingFrameReader extends AbstractFrameReader implemen
 
         String pattern = getString(ConfigTag.SELECTOR);
         if (StringUtil.isNotBlank(pattern)) {
-          FrameSelector selector = new FrameSelector(pattern);
+          FrameSelector selector = new FrameSelector(pattern, CDX.DEFAULT_FRAMEPATH_NAME);
           List<DataFrame> results = selector.select(frame);
           Log.debug("Selected " + results.size() + " frames");
           frames = results;
