@@ -28,8 +28,8 @@ import coyote.loader.log.Log;
  * Anything larger and it may be more efficient to use the file system.
  * 
  * <p>The replace mode of operation is more efficient, but only saves the last 
- * dataframe. In this mode the writer overwrite the context variable with each 
- * write. It is intended for those applications where only one record is 
+ * dataframe. In this mode the writer overwrites the context variable with 
+ * each write. It is intended for those applications where only one record is 
  * expected.
  */
 public class ContextWriter extends AbstractFrameWriter {
