@@ -167,61 +167,10 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
     Log.info("Engine '" + getName() + "' (" + getInstanceId() + ") running...");
     int transactionErrors = 0;
 
-    symbols.put(Symbols.JOB_ID, getInstanceId());
-
-    // figure out our job directory
-    determineJobDirectory();
-
-    // prime the symbol table with the run date/time
-    Date rundate = setRunDate();
-
-    // Make sure the engine has a name
-    if (StringUtil.isBlank(getName())) {
-      setName(instanceId);
-    }
-
-    symbols.put(Symbols.JOB_NAME, getName());
-
-    // Throw an error if there are writers but no reader
-    if (reader == null && writers.size() > 0) {
-      throw new IllegalStateException("No reader configured, nothing to write");
-    }
-
-    // Make sure we have a context
-    initContext();
-
-    // get the command line arguments from the symbol table and post the array
-    // in the context for other components to use
-    getCommandLineArguments();
-
-    // set our list of listeners in the context 
-    getContext().setListeners(listeners);
-
-    // Set this engine as the context's engine
-    getContext().setEngine(this);
-
-    // Set the symbol table to the one this engine uses
-    getContext().setSymbols(symbols);
-
-    // Open / initialize the context - This is done before the listeners are 
-    // opened so the listeners can be opened within an initialized context and 
-    // have their configuration arguments resolved. The trade-off is that 
-    // listeners will never have their open event fired on the opening of the 
-    // Transform Context, only Transaction Contexts.  
-    getContext().open();
-
-    // Open all the listeners first so the transform context will trigger
-    initListeners();
-
-    // Set the run date in the context after it was opened (possibly loaded)
-    getContext().set(Symbols.DATETIME, rundate);
-
-    // Open the log manager with the current transform context
-    if (logManager != null) {
-      logManager.open(getContext());
-    }
-
-    Log.trace("Engine '" + getName() + "' starting transform; rundate:" + rundate);
+    // Initialize the context
+    contextInit();
+   
+    Log.trace("Engine '" + getName() + "' starting transform");
 
     // fire the transformation start event
     getContext().start();
@@ -375,6 +324,73 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
       Log.info("Engine '" + getName() + "' (" + getInstanceId() + ") completed successfully");
     }
 
+  }
+
+
+
+
+  /**
+   * Initialize the transform context
+   */
+  @SuppressWarnings("unchecked")
+  @Override
+  public TransformContext contextInit() {
+
+    symbols.put(Symbols.JOB_ID, getInstanceId());
+
+    // figure out our job directory
+    determineJobDirectory();
+
+    // prime the symbol table with the run date/time
+    Date rundate = setRunDate();
+
+    // Make sure the engine has a name
+    if (StringUtil.isBlank(getName())) {
+      setName(instanceId);
+    }
+
+    symbols.put(Symbols.JOB_NAME, getName());
+
+    // Throw an error if there are writers but no reader
+    if (reader == null && writers.size() > 0) {
+      throw new IllegalStateException("No reader configured, nothing to write");
+    }
+
+    // Make sure we have a context
+    initContext();
+
+    // get the command line arguments from the symbol table and post the array
+    // in the context for other components to use
+    getCommandLineArguments();
+
+    // set our list of listeners in the context 
+    getContext().setListeners(listeners);
+
+    // Set this engine as the context's engine
+    getContext().setEngine(this);
+
+    // Set the symbol table to the one this engine uses
+    getContext().setSymbols(symbols);
+
+    // Open / initialize the context - This is done before the listeners are 
+    // opened so the listeners can be opened within an initialized context and 
+    // have their configuration arguments resolved. The trade-off is that 
+    // listeners will never have their open event fired on the opening of the 
+    // Transform Context, only Transaction Contexts.  
+    getContext().open();
+
+    // Open all the listeners first so the transform context will trigger
+    initListeners();
+
+    // Set the run date in the context after it was opened (possibly loaded)
+    getContext().set(Symbols.DATETIME, rundate);
+
+    // Open the log manager with the current transform context
+    if (logManager != null) {
+      logManager.open(getContext());
+    }
+    
+    return getContext();
   }
 
 

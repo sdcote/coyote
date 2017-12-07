@@ -284,4 +284,13 @@ public interface TransformEngine extends RunnableComponent {
    */
   public String getInstanceId();
 
+
+
+
+  /**
+   * Initialize the transform context
+   * @return the initialized context
+   */
+  public TransformContext contextInit();
+
 }
