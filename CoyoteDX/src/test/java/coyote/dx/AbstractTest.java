@@ -64,6 +64,15 @@ public class AbstractTest {
 
 
 
+  protected TransformEngine createEngine(DataFrame config) {
+    TransformEngine retval = null;
+    retval = TransformEngineFactory.getInstance(config);
+    return retval;
+  }
+
+
+
+
   /**
    * Loads a configuration file and set of properties from the class path
    * 
@@ -140,8 +149,7 @@ public class AbstractTest {
   protected void turnOver(TransformEngine engine) {
     try {
       engine.run();
-    }
-    finally {
+    } finally {
       try {
         engine.close();
       } catch (Exception ignore) {}

@@ -15,6 +15,7 @@ import java.text.ParseException;
 
 import coyote.commons.StringUtil;
 import coyote.commons.UriUtil;
+import coyote.commons.csv.CSVReader;
 import coyote.dataframe.DataFrame;
 import coyote.dataframe.DataFrameException;
 import coyote.dx.CDX;
@@ -37,7 +38,7 @@ import coyote.loader.log.LogMsg;
 public class CsvReader extends AbstractFrameReader implements FrameReader, ConfigurableComponent {
 
   /** The component responsible for reading CSV files into frames */
-  private coyote.commons.csv.CSVReader reader = null;
+  private CSVReader reader = null;
 
   /** Flag indicating all data should be loaded into and read from memory. */
   private boolean preload = false;
@@ -48,6 +49,9 @@ public class CsvReader extends AbstractFrameReader implements FrameReader, Confi
   /** The column names read in from the first line */
   private String[] header = new String[0];
 
+  private volatile String[] nextLine = null;
+
+  /** The default separator character */
   public char SEPARATOR = ',';
 
 
@@ -111,31 +115,19 @@ public class CsvReader extends AbstractFrameReader implements FrameReader, Confi
   @Override
   public DataFrame read(TransactionContext context) {
     DataFrame retval = null;
-    try {
-
-      // sometimes there are blank lines in data, keep reading until data is 
-      // returned or EOF
-      while (!eof()) {
-        String[] data = reader.readNext();
-
-        // Deal with empty lines which may be in the file
-        reader.consumeEmptyLines();
-
-        if (data != null) {
-          retval = new DataFrame();
-          for (int x = 0; x < data.length; x++) {
-            retval.add(x < header.length ? header[x] : new String("COL" + x), data[x]);
-          }
-          break;
-        }
+    String[] data = nextLine;
+    if (data != null) {
+      retval = new DataFrame();
+      for (int x = 0; x < data.length; x++) {
+        retval.add(x < header.length ? header[x] : new String("COL" + x), data[x]);
       }
-    } catch (IOException | ParseException e) {
-      context.setError(e.getMessage());
-    }
+      // read the next line of data (if it exists)
+      readNext();
 
-    // Support the concept of last frame    
-    if (reader.eof()) {
-      context.setLastFrame(true);
+      // if there is no next line, this is the last frame
+      if (eof()) {
+        context.setLastFrame(true);
+      }
     }
 
     return retval;
@@ -149,7 +141,7 @@ public class CsvReader extends AbstractFrameReader implements FrameReader, Confi
    */
   @Override
   public boolean eof() {
-    return reader.eof();
+    return nextLine == null;
   }
 
 
@@ -173,7 +165,7 @@ public class CsvReader extends AbstractFrameReader implements FrameReader, Confi
    */
   @Override
   public void open(TransformContext context) {
-    super.context = context;
+    super.open(context);
 
     // check for a source in our configuration, if not there use the transform 
     // context as it may have been set by a previous operation
@@ -212,10 +204,7 @@ public class CsvReader extends AbstractFrameReader implements FrameReader, Confi
       // Basic checks
       if (sourceFile.exists() && sourceFile.canRead()) {
         try {
-          reader = new coyote.commons.csv.CSVReader(new FileReader(sourceFile), SEPARATOR);
-          if (hasHeader) {
-            header = reader.readNext();
-          }
+          setReader(new CSVReader(new FileReader(sourceFile), SEPARATOR));
         } catch (Exception e) {
           Log.error("Could not create reader: " + e.getMessage());
           context.setError(e.getMessage());
@@ -228,6 +217,46 @@ public class CsvReader extends AbstractFrameReader implements FrameReader, Confi
       context.setError(getClass().getName() + " could not determine source");
     }
 
+  }
+
+
+
+
+  /**
+   * Placed in a separate method to facilitate testing with different sources.
+   * 
+   * @param csvReader the reader to set
+   * 
+   * @throws IOException if there is problems with the streams
+   * @throws ParseException if there are problems parsing the data
+   */
+  protected void setReader(CSVReader csvReader) throws IOException, ParseException {
+    reader = csvReader;
+    if (hasHeader) {
+      header = reader.readNext();
+    }
+    readNext();
+  }
+
+
+
+
+  /**
+   * This reads the next line of data, skipping any empty rows.
+   */
+  private void readNext() {
+    nextLine = null;
+    try {
+      while (nextLine == null) {
+        nextLine = reader.readNext();
+        reader.consumeEmptyLines();
+        if( reader.eof()){
+          break;
+        }
+      }
+    } catch (Exception ignore) {
+      // no more lines
+    }
   }
 
 
