@@ -74,10 +74,12 @@ public class CsvReaderTest extends AbstractTest {
     assertFalse(reader.eof());
     TransactionContext context = new TransactionContext(engineContext);
     DataFrame frame = reader.read(context);
+    assertNotNull(frame);
     assertFalse(reader.eof());
     assertFalse(context.isLastFrame());
 
     frame = reader.read(context);
+    assertNotNull(frame);
     assertTrue(reader.eof());
     assertTrue(context.isLastFrame());
 
