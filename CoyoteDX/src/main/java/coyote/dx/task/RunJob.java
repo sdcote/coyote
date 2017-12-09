@@ -235,6 +235,7 @@ public class RunJob extends AbstractTransformTask {
         Config params = getConfiguration().getSection(ConfigTag.PARAMETERS);
         if (params != null) {
           TransformContext childContext = new TransformContext();
+
           for (DataField field : params.getFields()) {
             String parameterName = field.getName();
             if (field.getType() == DataField.STRING) {
@@ -242,24 +243,30 @@ public class RunJob extends AbstractTransformTask {
               // Parameters need to be resolved. They may represent context values
               String parameterValue = field.getStringValue();
 
-              // perform a simple context resolve
-              String resolvedValue = getContext().resolveToString(parameterValue);
+              // The value of the parameter may refer to context value 
+              Object obj = getContext().resolveToValue(parameterValue);
+              if (obj != null) {
+                childContext.set(parameterName, obj);
+                Log.debug("Runjob setting parameter '" + parameterName + "' to context reference " + obj.toString());
+              } else {
+                // perform a simple context resolve
+                String resolvedValue = getContext().resolveToString(parameterValue);
 
-              // If it did not result, it is probably a literal value
-              if (resolvedValue == null) {
-                resolvedValue = parameterValue;
+                // If it did not result, it is probably a literal value
+                if (resolvedValue == null) {
+                  resolvedValue = parameterValue;
+                }
+
+                // preprocess - so any unresolved variables will be resolved in the child job
+                String pval = Template.preProcess(resolvedValue, getContext().getSymbols());
+                childContext.set(parameterName, pval);
+                Log.debug("Runjob setting parameter '" + parameterName + "' to '" + pval + "'");
               }
-
-              // preprocess - so any unresolved variables will be resolved in 
-              // the child job ;)
-              String pval = Template.preProcess(resolvedValue, getContext().getSymbols());
-              childContext.set(parameterName, pval);
-              Log.debug("Runjob setting parameter '" + parameterName + "' to '" + pval + "'");
             } else {
               childContext.set(parameterName, field.getObjectValue());
               Log.debug("Runjob setting parameter '" + parameterName + "' to " + field.getStringValue());
             }
-          }
+          } // for each parameter
 
           engine.setContext(childContext);
         }

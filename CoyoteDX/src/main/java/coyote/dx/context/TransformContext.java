@@ -391,7 +391,7 @@ public class TransformContext extends OperationalContext {
       } else {
         final Object obj = searchForValue(token);
         if (obj != null) {
-          retval = obj.toString();
+          retval = obj;
         } else {
           if (symbols != null && symbols.containsKey(token)) {
             retval = symbols.get(token);
