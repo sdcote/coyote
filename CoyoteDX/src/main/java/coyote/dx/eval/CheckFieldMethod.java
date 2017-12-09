@@ -98,6 +98,9 @@ public final class CheckFieldMethod extends AbstractBooleanMethod {
     if (expected == null) {
       throw new IllegalArgumentException("Null expected value parameter");
     }
+    if (context == null) {
+      throw new IllegalArgumentException("Null transform context parameter");
+    }
 
     String key = sanitize(field);
     final Object fieldObject = context.resolveToValue(key);
