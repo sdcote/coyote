@@ -62,12 +62,6 @@ public abstract class AbstractFieldTransform extends AbstractFrameTransform impl
     String token = getConfiguration().getString(ConfigTag.CONDITION);
     if (StringUtil.isNotBlank(token)) {
       expression = token.trim();
-
-      try {
-        evaluator.evaluateBoolean(expression);
-      } catch (final IllegalArgumentException e) {
-        throw new ConfigurationException("Invalid boolean expression in transform: " + e.getMessage());
-      }
     }
 
   }
