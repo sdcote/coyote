@@ -5,13 +5,15 @@ package coyote.commons.network.http.wsc;
  * >RFC 1951</a>).
  */
 class Huffman {
-  
+
   private final int mMinCodeLen;
   private final int mMaxCodeLen;
   private final int[] mMaxCodeValsFromCodeLen;
   private final int[] mSymsFromCodeVal;
-  
-  
+
+
+
+
   private static int[] createCountsFromCodeLen(final int[] codeLensFromSym, final int maxCodeLen) {
     final int[] countsFromCodeLen = new int[maxCodeLen + 1];
 
@@ -95,8 +97,6 @@ class Huffman {
 
     return symsFromCodeVal;
   }
-
-
 
 
 

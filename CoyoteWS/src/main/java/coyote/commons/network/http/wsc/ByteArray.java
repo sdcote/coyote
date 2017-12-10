@@ -134,20 +134,16 @@ class ByteArray {
 
     // Convert consecutive bits into a number.
     //
-    // Note that 'i' is initialized by 'nBits - 1', not by 1.
-    // This is because "3.1.1. Packing into bytes" in RFC 1951
-    // says as follows:
-    //
-    //     Huffman codes are packed starting with the most
-    //     significant bit of the code.
-    //
+    // Note that 'i' is initialized by 'nBits - 1', not by 1. This is because 
+    // "3.1.1. Packing into bytes" in RFC 1951 says the following:
+    //     Huffman codes are packed starting with the most significant bit of 
+    //     the code.
     for (int i = nBits - 1; 0 <= i; --i, weight *= 2) {
       // getBit() returns true if the bit is set.
       if (getBit(bitIndex + i)) {
         number += weight;
       }
     }
-
     return number;
   }
 
@@ -325,5 +321,5 @@ class ByteArray {
 
     return bytes;
   }
-  
+
 }

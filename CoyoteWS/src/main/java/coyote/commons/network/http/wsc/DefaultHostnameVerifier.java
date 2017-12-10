@@ -20,7 +20,7 @@ import javax.security.auth.x500.X500Principal;
  * A HostnameVerifier consistent with <a
  * href="http://www.ietf.org/rfc/rfc2818.txt">RFC 2818</a>.
  */
-final class OkHostnameVerifier implements HostnameVerifier {
+final class DefaultHostnameVerifier implements HostnameVerifier {
 
   /**
    * Quick and dirty pattern to differentiate IP addresses from hostnames. This
@@ -34,14 +34,14 @@ final class OkHostnameVerifier implements HostnameVerifier {
    * verification).
    */
   private static final Pattern VERIFY_AS_IP_ADDRESS = Pattern.compile("([0-9a-fA-F]*:[0-9a-fA-F:.]*)|([\\d.]+)");
-  public static final OkHostnameVerifier INSTANCE = new OkHostnameVerifier();
+  public static final DefaultHostnameVerifier INSTANCE = new DefaultHostnameVerifier();
   private static final int ALT_DNS_NAME = 2;
   private static final int ALT_IPA_NAME = 7;
 
 
 
 
-  private OkHostnameVerifier() {
+  private DefaultHostnameVerifier() {
     // no external instances
   }
 

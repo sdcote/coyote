@@ -191,7 +191,7 @@ class SocketConnector {
     }
 
     // Hostname verifier.
-    final OkHostnameVerifier verifier = OkHostnameVerifier.INSTANCE;
+    final DefaultHostnameVerifier verifier = DefaultHostnameVerifier.INSTANCE;
 
     // The SSL session.
     final SSLSession session = socket.getSession();

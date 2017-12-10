@@ -36,7 +36,6 @@ final class DistinguishedNameParser {
 
 
 
-  
   private String escapedAV() {
     beg = pos;
     end = pos;
@@ -229,6 +228,7 @@ final class DistinguishedNameParser {
 
 
 
+
   /**
    * Decodes UTF-8 char.
    * 
@@ -281,7 +281,6 @@ final class DistinguishedNameParser {
 
 
 
- 
   /**
    * @return hex string attribute value: "#" hexstring for the current 
    *         position in the character array.
@@ -424,5 +423,5 @@ final class DistinguishedNameParser {
 
     return new String(chars, beg, end - beg);
   }
-  
+
 }

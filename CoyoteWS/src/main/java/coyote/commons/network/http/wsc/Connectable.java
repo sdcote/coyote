@@ -24,5 +24,5 @@ class Connectable implements Callable<WebSocket> {
   public WebSocket call() throws WebSocketException {
     return webSocket.connect();
   }
-  
+
 }

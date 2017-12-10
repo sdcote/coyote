@@ -27,5 +27,5 @@ class InsufficientDataException extends WebSocketException {
   public int getRequestedByteCount() {
     return requestedByteCount;
   }
-  
+
 }

@@ -20,5 +20,5 @@ class PingSender extends AbstractFrameSender {
   protected WebSocketFrame createFrame(final byte[] payload) {
     return WebSocketFrame.createPingFrame(payload);
   }
-  
+
 }

@@ -1,7 +1,7 @@
 package coyote.commons.network.http.wsc;
 
 class ConnectThread extends WebSocketThread {
-  
+
   public ConnectThread(final WebSocket ws) {
     super("ConnectThread", ws, ThreadType.CONNECT_THREAD);
   }
@@ -26,5 +26,5 @@ class ConnectThread extends WebSocketThread {
       handleError(e);
     }
   }
-  
+
 }

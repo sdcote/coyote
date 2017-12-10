@@ -6,9 +6,8 @@ import javax.net.ssl.SSLSocket;
 /**
  * The certificate of the peer does not match the expected hostname.
  *
- * <p>
- * {@link #getError()} of this class returns {@link WebSocketError#HOSTNAME_UNVERIFIED
- * HOSTNAME_UNVERIFIED}.
+ * <p>{@link #getError()} of this class returns 
+ * {@link WebSocketError#HOSTNAME_UNVERIFIED}.
  */
 public class HostnameUnverifiedException extends WebSocketException {
   private static final long serialVersionUID = 6642711380453778218L;

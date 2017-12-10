@@ -35,9 +35,9 @@ public class WebSocketFrame {
       // Compress the data.
       return pmce.compress(data);
     } catch (final WebSocketException e) {
-      // Failed to compress the data. Ignore this error and use
-      // the plain original data. The current implementation
-      // does not call any listener callback method for this error.
+      // Failed to compress the data. Ignore this error and use the plain 
+      // original data. The current implementation does not call any listener 
+      // callback method for this error.
       return data;
     }
   }

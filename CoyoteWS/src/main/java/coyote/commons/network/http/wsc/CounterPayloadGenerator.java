@@ -31,5 +31,5 @@ class CounterPayloadGenerator implements PayloadGenerator {
     count = Math.max(count + 1, 1);
     return count;
   }
-  
+
 }

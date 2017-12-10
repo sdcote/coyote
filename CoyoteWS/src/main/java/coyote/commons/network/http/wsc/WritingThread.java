@@ -327,9 +327,8 @@ class WritingThread extends WebSocketThread {
     if (closeFrame != null) {
       // Frames should not be sent to the server.
       unsent = true;
-    }
-    // If the frame is a close frame.
-    else if (frame.isCloseFrame()) {
+    } else if (frame.isCloseFrame()) {
+      // If the frame is a close frame.
       closeFrame = frame;
     }
 

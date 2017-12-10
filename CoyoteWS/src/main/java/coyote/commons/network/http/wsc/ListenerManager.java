@@ -492,5 +492,5 @@ class ListenerManager {
       }
     }
   }
-  
+
 }
