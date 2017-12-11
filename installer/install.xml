@@ -166,6 +166,7 @@ xsi:schemaLocation="http://izpack.org/schema/installation http://izpack.org/sche
 			<fileset dir="CoyoteWS\src\resources\licenses" targetdir="$INSTALL_PATH/doc/licenses" override="true"/>
 			<fileset dir="CoyoteWS\build\install\CoyoteWS\lib" targetdir="$INSTALL_PATH/lib" includes="CoyoteWS*.jar" override="true"/>
 			<fileset dir="CoyoteWS\build\install\CoyoteWS\lib" targetdir="$INSTALL_PATH/lib" includes="commons-net-*.jar" override="true"/>
+			<fileset dir="CoyoteWS\build\install\CoyoteWS\lib" targetdir="$INSTALL_PATH/lib" includes="commons-codec-*.jar" override="true"/>
 			<fileset dir="CoyoteWS\build\install\CoyoteWS\lib" targetdir="$INSTALL_PATH/lib" includes="http*.jar" override="true"/>
 			<fileset dir="CoyoteWS\build\install\CoyoteWS\lib" targetdir="$INSTALL_PATH/lib" includes="jcl*.jar" override="true"/>
 			<fileset dir="CoyoteWS\build\install\CoyoteWS\lib" targetdir="$INSTALL_PATH/lib" includes="jsoup*.jar" override="true"/>
