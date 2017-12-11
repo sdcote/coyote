@@ -98,11 +98,17 @@ public abstract class AbstractBatchLoader extends AbstractLoader {
     File result = null;
 
     // if the override work directory command line argument is present, set 
-    // the app.work system property to the current working directory.
+    // the app.work system property to the same directory of the configuration 
+    // file or the current working directory if it does not exist as a file.
     if (commandLineArguments != null) {
       for (int x = 0; x < commandLineArguments.length; x++) {
         if (OVERRIDE_WORK_DIR_ARG.equalsIgnoreCase(commandLineArguments[x])) {
-          System.setProperty(Job.APP_WORK, System.getProperty("user.dir"));
+          String path = getConfigDir();
+          if (path == null) {
+            path = System.getProperty("user.dir");
+          }
+          System.setProperty(Job.APP_WORK, path);
+          break;
         }
       }
     }
@@ -162,6 +168,27 @@ public abstract class AbstractBatchLoader extends AbstractLoader {
     // Remove all the relations and extra slashes from the home path
     System.setProperty(Job.APP_WORK, FileUtil.normalizePath(System.getProperty(Job.APP_WORK)));
     Log.debug(LogMsg.createMsg(CDX.MSG, "Job.work_dir_set", System.getProperty(Job.APP_WORK)));
+  }
+
+
+
+
+  /**
+   * @return
+   */
+  private String getConfigDir() {
+    String retval = null;
+    URI cfgUri = UriUtil.parse(System.getProperty(coyote.loader.ConfigTag.CONFIG_URI));
+    if (cfgUri != null && UriUtil.isFile(cfgUri)) {
+      File cfgFile = UriUtil.getFile(cfgUri);
+      if (cfgFile != null) {
+        File workingDir = new File(cfgFile.getParent());
+        if (workingDir.exists() && workingDir.isDirectory() && workingDir.canWrite()) {
+          retval = workingDir.getAbsolutePath();
+        }
+      }
+    }
+    return retval;
   }
 
 }
