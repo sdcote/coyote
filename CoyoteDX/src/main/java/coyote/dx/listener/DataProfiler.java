@@ -14,10 +14,10 @@ import java.util.Date;
 import coyote.commons.StringUtil;
 import coyote.commons.template.SymbolTable;
 import coyote.dataframe.DataFrame;
+import coyote.dx.DataSetMetrics;
 import coyote.dx.FieldMetrics;
 import coyote.dx.FrameReader;
 import coyote.dx.FrameWriter;
-import coyote.dx.DataSetMetrics;
 import coyote.dx.context.ContextListener;
 import coyote.dx.context.OperationalContext;
 import coyote.dx.context.TransactionContext;
@@ -87,9 +87,6 @@ public class DataProfiler extends FileRecorder implements ContextListener {
       writeOutputSummary();
     }
   }
-
-
-
 
 
 
@@ -427,11 +424,12 @@ public class DataProfiler extends FileRecorder implements ContextListener {
   /**
    * Get a formatted string representing the difference between the two times.
    * 
-   * @param millis number of elapsed milliseconds.
+   * @param time number of elapsed milliseconds.
    * 
    * @return formatted string representing weeks, days, hours minutes and seconds.
    */
-  private static String formatElapsed(long millis) {
+  private static String formatElapsed(final long time) {
+    long millis = time;
     if (millis < 0 || millis == Long.MAX_VALUE) {
       return "?";
     }
