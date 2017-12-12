@@ -134,7 +134,7 @@ xsi:schemaLocation="http://izpack.org/schema/installation http://izpack.org/sche
 			<fileset dir="CoyoteDB\src\resources\licenses" targetdir="$INSTALL_PATH/doc/licenses" override="true"/>
 			<fileset dir="CoyoteDB\build\install\CoyoteDB\lib" targetdir="$INSTALL_PATH/lib" includes="CoyoteDB*.jar" override="true"/>
 		</pack>
-		<pack name="CoyoteFT Source" required="no" preselected="no" >
+		<pack name="CoyoteDB Source" required="no" preselected="no" >
 			<description>The source code and javadoc files for the Coyote Database toolkit.</description>
 			<fileset dir="CoyoteDB\build\libs" targetdir="$INSTALL_PATH/doc/CoyoteDB" includes="*-javadoc.jar" override="true"/>
 			<fileset dir="CoyoteDB\build\libs" targetdir="$INSTALL_PATH/doc/CoyoteDB" includes="*-sources.jar" override="true"/>
