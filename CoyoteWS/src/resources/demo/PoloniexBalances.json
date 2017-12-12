@@ -4,15 +4,16 @@
 		"Name": "PoloniexBalance",
 		"Description": "Retrive your total balances for each coin",
 		"Context": {
-			"ApiKey": "XXXXXXXX-XXXXXXXX-XXXXXXXX-XXXXXXXX",
-			"PrivateKey": "3BI2Qn4zy8-YOUR-ENCRYPTED-PRIVATE-KEY-W/CzVpV"
+            "ApiKey": "XXXXXXXX-XXXXXXXX-XXXXXXXX-XXXXXXXX",
+            "PrivateKey": "3BI2Qn4zy8-YOUR-ENCRYPTED-PRIVATE-KEY-W/CzVpV"
 		},
 		"Reader": {
 			"Class": "WebServiceReader",
 			"Source": "https://poloniex.com/tradingApi",
+			"Selector": "*",
 			"Protocol": { "ExchangeType": "JSON_HTTP", "Method": "POST" },
 			"Body": {
-				"command": "returnBalances",
+				"command": "returnCompleteBalances",
 				"nonce": "[#$CurrentRunEpochMillis#]"
 			},
 			"Decorator": {
@@ -20,7 +21,8 @@
 				"HmacSha512": { "header": "Sign", "ENC:secret": "PrivateKey" }
 			}
 		},
-		"Writer": { "class": "ConsoleWriter", "format": "json", "indent": true }
+		"Writer": { "class": "CsvWriter", "target": "balances.csv", "header": false },
+		"Writer": { "class": "ConsoleWriter", "format": "json", "indent": false }
 	},
 	"Logging": {
 		"StandardOutput": { "categories": "info, notice, warn, error, fatal" }
