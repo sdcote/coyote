@@ -16,10 +16,13 @@ import java.net.URI;
 
 import coyote.commons.StringUtil;
 import coyote.commons.UriUtil;
+import coyote.dataframe.DataFrameException;
 import coyote.dx.CDX;
 import coyote.dx.ConfigTag;
 import coyote.dx.FrameWriter;
 import coyote.dx.context.TransformContext;
+import coyote.loader.cfg.Config;
+import coyote.loader.cfg.ConfigurationException;
 import coyote.loader.log.Log;
 import coyote.loader.log.LogMsg;
 
@@ -33,6 +36,27 @@ public abstract class AbstractFrameFileWriter extends AbstractFrameWriter implem
   protected static final String STDERR = "STDERR";
   protected int rowNumber = 0;
   protected PrintWriter printwriter = null;
+
+
+
+
+  /**
+   * @see coyote.dx.ConfigurableComponent#setConfiguration(coyote.loader.cfg.Config)
+   */
+  @Override
+  public void setConfiguration(Config cfg) throws ConfigurationException {
+    super.setConfiguration(cfg);
+
+    // Check if we are to append data to existing files
+    if (cfg.contains(ConfigTag.APPEND)) {
+      try {
+        setAppendFlag(cfg.getAsBoolean(ConfigTag.APPEND));
+      } catch (final DataFrameException e) {
+        Log.info(LogMsg.createMsg(CDX.MSG, "Writer.append_flag_is_not_valid " + cfg.getAsString(ConfigTag.APPEND)));
+      }
+    }
+    Log.debug(LogMsg.createMsg(CDX.MSG, "Writer.append_flag_is_set_as", isAppending()));
+  }
 
 
 
@@ -118,9 +142,8 @@ public abstract class AbstractFrameFileWriter extends AbstractFrameWriter implem
         Log.debug("Using a target file of " + targetFile.getAbsolutePath());
 
         try {
-          final Writer fwriter = new FileWriter(targetFile);
-          printwriter = new PrintWriter(fwriter);
-
+          final Writer fwriter = new FileWriter(targetFile, isAppending());
+          printwriter = new PrintWriter(fwriter, isAppending());
         } catch (final Exception e) {
           Log.error("Could not create writer: " + e.getMessage());
           context.setError(e.getMessage());
@@ -144,6 +167,32 @@ public abstract class AbstractFrameFileWriter extends AbstractFrameWriter implem
    */
   public void setPrintwriter(final PrintWriter writer) {
     printwriter = writer;
+  }
+
+
+
+
+  /**
+   * Set whether or not the writer should append output to existing files.
+   * 
+   * @param flag true to instruct the writer to append data to files, false to overwrite existing data.
+   */
+  public void setAppendFlag(final boolean flag) {
+    configuration.put(ConfigTag.APPEND, flag);
+  }
+
+
+
+
+  /**
+   * @return true indicates the writer will append data to existing files, false to overwrite existing data.
+   */
+  public boolean isAppending() {
+    try {
+      return configuration.getAsBoolean(ConfigTag.APPEND);
+    } catch (final DataFrameException e) {
+      return false;
+    }
   }
 
 }
