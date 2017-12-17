@@ -113,6 +113,8 @@ public abstract class PersistentContext extends TransformContext {
             symbols.put(Symbols.PREVIOUS_RUN_DATE, new SimpleDateFormat(CDX.DEFAULT_DATE_FORMAT).format(prevrun));
             symbols.put(Symbols.PREVIOUS_RUN_TIME, new SimpleDateFormat(CDX.DEFAULT_TIME_FORMAT).format(prevrun));
             symbols.put(Symbols.PREVIOUS_RUN_DATETIME, new SimpleDateFormat(CDX.DEFAULT_DATETIME_FORMAT).format(prevrun));
+            symbols.put(Symbols.PREVIOUS_RUN_EPOCH_SECONDS, prevrun.getTime() / 1000);
+            symbols.put(Symbols.PREVIOUS_RUN_EPOCH_MILLIS, prevrun.getTime());
           }
         } else {
           Log.warn(LogMsg.createMsg(CDX.MSG, "Context.previous_run_date_parsing_error", value, "Unknown Format", "Ignored"));
@@ -129,6 +131,7 @@ public abstract class PersistentContext extends TransformContext {
   /**
    * Increments the run counter by 1
    */
+  @SuppressWarnings("unchecked")
   protected void incrementRunCount() {
 
     // Get the current value

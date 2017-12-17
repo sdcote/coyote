@@ -49,6 +49,8 @@ public class Symbols {
   public static final String PREVIOUS_RUN_DATE = "PreviousRunDate";
   public static final String PREVIOUS_RUN_TIME = "PreviousRunTime";
   public static final String PREVIOUS_RUN_DATETIME = "PreviousRunDateTime";
+  public static final String PREVIOUS_RUN_EPOCH_SECONDS = "PreviousRunEpochSeconds";
+  public static final String PREVIOUS_RUN_EPOCH_MILLIS = "PreviousRunEpochMillis";
 
   public static final String CURRENT_RUN_DATE = "CurrentRunDate";
   public static final String CURRENT_RUN_TIME = "CurrentRunTime";
