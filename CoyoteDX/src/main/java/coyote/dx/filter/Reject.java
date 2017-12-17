@@ -7,6 +7,7 @@
  */
 package coyote.dx.filter;
 
+import coyote.commons.template.Template;
 import coyote.dx.CDX;
 import coyote.dx.FrameFilter;
 import coyote.dx.context.TransactionContext;
@@ -47,12 +48,16 @@ public class Reject extends AbstractFrameFilter implements FrameFilter {
     // If there is a conditional expression
     if (expression != null) {
 
+      // Treat expressions as templates
+      String resolvedExpression = Template.preProcess(expression, getContext().getSymbols());
+
       try {
         // if the condition evaluates to true
-        if (evaluator.evaluateBoolean(expression)) {
+        if (evaluator.evaluateBoolean(resolvedExpression)) {
 
-          if (Log.isLogging(Log.DEBUG_EVENTS))
+          if (Log.isLogging(Log.DEBUG_EVENTS)) {
             Log.debug("Rejected frame " + context.getRow());
+          }
 
           // remove the working frame from the context
           context.setWorkingFrame(null);

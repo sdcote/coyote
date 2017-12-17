@@ -62,6 +62,7 @@ public abstract class AbstractFrameFilter extends AbstractConfigurableComponent 
    */
   @Override
   public void open(TransformContext context) {
+    super.context = context;
     evaluator.setContext(context);
 
     String token = getConfiguration().getString(ConfigTag.CONDITION);

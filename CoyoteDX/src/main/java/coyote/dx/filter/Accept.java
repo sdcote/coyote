@@ -7,6 +7,7 @@
  */
 package coyote.dx.filter;
 
+import coyote.commons.template.Template;
 import coyote.dx.CDX;
 import coyote.dx.FrameFilter;
 import coyote.dx.context.TransactionContext;
@@ -41,16 +42,22 @@ public class Accept extends AbstractFrameFilter implements FrameFilter {
     // If there is a conditional expression
     if (expression != null) {
 
+      // Treat expressions as templates
+      String resolvedExpression = Template.preProcess(expression, getContext().getSymbols());
+
       try {
         // if the condition evaluates to true
-        if (evaluator.evaluateBoolean(expression)) {
-
-          if (Log.isLogging(Log.DEBUG_EVENTS))
+        if (evaluator.evaluateBoolean(resolvedExpression)) {
+          if (Log.isLogging(Log.DEBUG_EVENTS)) {
             Log.debug("Accepted frame " + context.getRow());
+          }
 
           // signal that other filters should not run
           return false;
-
+        } else {
+          if (Log.isLogging(Log.DEBUG_EVENTS)) {
+            Log.debug("Did not pass accept expression of '" + resolvedExpression + "'");
+          }
         }
       } catch (IllegalArgumentException e) {
         Log.warn(LogMsg.createMsg(CDX.MSG, "Filter.accept_boolean_evaluation_error", e.getMessage()));

@@ -15,6 +15,7 @@ import static org.junit.Assert.assertTrue;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import coyote.commons.template.SymbolTable;
 import coyote.dataframe.DataFrame;
 import coyote.dx.FrameFilter;
 import coyote.dx.context.TransactionContext;
@@ -39,6 +40,7 @@ public class AcceptTest {
 
     // Create simple transformation context
     transformContext = new TransformContext();
+    transformContext .setSymbols(new SymbolTable());
     transformContext.set("string", "Nylon");
 
     // create a transaction context within the transformation context  
