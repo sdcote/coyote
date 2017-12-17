@@ -364,7 +364,11 @@ public class CsvWriter extends AbstractFrameFileWriter implements FrameWriter, C
         }
       }
       if (isUsingHeader()) {
-        writeHeader();
+        if (isAppending() && getTargetSize() > 0) {
+          Log.debug(this.getClass().getSimpleName() + " is not writing header to existing file");
+        } else {
+          writeHeader();
+        }
       }
     }
 
