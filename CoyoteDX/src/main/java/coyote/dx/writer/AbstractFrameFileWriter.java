@@ -37,6 +37,9 @@ public abstract class AbstractFrameFileWriter extends AbstractFrameWriter implem
   protected int rowNumber = 0;
   protected PrintWriter printwriter = null;
 
+  //size of the target file when this componet was opened
+  private long targetSize = -1;
+
 
 
 
@@ -141,6 +144,13 @@ public abstract class AbstractFrameFileWriter extends AbstractFrameWriter implem
         }
         Log.debug("Using a target file of " + targetFile.getAbsolutePath());
 
+        // Determine the size of the file if it exists
+        if (!targetFile.exists() || targetFile.length() <= 0) {
+          setTargetSize(0);
+        } else {
+          setTargetSize(targetFile.length());
+        }
+
         try {
           final Writer fwriter = new FileWriter(targetFile, isAppending());
           printwriter = new PrintWriter(fwriter, isAppending());
@@ -155,6 +165,49 @@ public abstract class AbstractFrameFileWriter extends AbstractFrameWriter implem
       }
     }
 
+  }
+
+
+
+
+  /**
+   * Set the length of the target content when the target was open.
+   * 
+   * <p>This is useful for those writers which may generate headers depending 
+   * on its append setting. For example, if appending is set to true and the 
+   * writer is configured to generate a header, then it may not be appropriate 
+   * if there is already a header in the existing file.
+   * 
+   * <p>A size of 0 means the target was created new. A negative size 
+   * indicates the size could not be determined when the writer was opened. 
+   * The console (STDERR and STDOUT) will be negative. A positive value over 
+   * zero indicates the file existed when opened and contained data.
+   *  
+   * @param size the size of the target content when the target was opened.
+   */
+  protected void setTargetSize(long size) {
+    targetSize = size;
+  }
+
+
+
+
+  /**
+   * Return the size of the target file at the time the component was opened.
+   * 
+   * <p>This is useful for detecting potential loss of data and the treatement 
+   * of headers and footers when the writer is opened.
+   * 
+   * <p>If the number is negative, then the size of the file could not be 
+   * determined or the target is the console (i.e.STDERR or STDOUT). If the 
+   * size is zero, then the target file did not exist before this component 
+   * opened it. A size greater than zero indicates the file existed before the
+   * component was opened.
+   * 
+   * @return the size of the target file when this component was opened.
+   */
+  protected long getTargetSize() {
+    return targetSize;
   }
 
 
