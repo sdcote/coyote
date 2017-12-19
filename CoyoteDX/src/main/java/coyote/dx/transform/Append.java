@@ -67,7 +67,7 @@ public class Append extends AbstractFieldTransform implements FrameTransform {
 
     String token = getConfiguration().getString(ConfigTag.VALUE);
     if (token == null) {
-      Log.warn(LogMsg.createMsg(CDX.MSG, "Transform.Append_setting_null_to_field", fieldName));
+      Log.warn(LogMsg.createMsg(CDX.MSG, "Transform.Append_setting_null_to_field", getFieldName()));
     } else {
       fieldValue = token;
     }

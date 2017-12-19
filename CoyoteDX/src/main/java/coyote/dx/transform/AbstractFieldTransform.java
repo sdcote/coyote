@@ -27,7 +27,7 @@ import coyote.loader.log.LogMsg;
 public abstract class AbstractFieldTransform extends AbstractFrameTransform implements FrameTransform {
 
   protected java.util.regex.Pattern fieldPattern = null;
-  protected String fieldName = null;
+  private String fieldName = null;
   protected Evaluator evaluator = new Evaluator();
   protected String expression = null;
   protected boolean setSymbol = false;
@@ -42,11 +42,12 @@ public abstract class AbstractFieldTransform extends AbstractFrameTransform impl
   public void setConfiguration(Config cfg) throws ConfigurationException {
     super.setConfiguration(cfg);
 
-    fieldName = getConfiguration().getString(ConfigTag.FIELD);
-    if (StringUtil.isBlank(fieldName)) {
+    String fname = getConfiguration().getString(ConfigTag.FIELD);
+    if (StringUtil.isBlank(fname)) {
       throw new ConfigurationException("Transforms require a field name or pattern.");
     } else {
-      fieldPattern = java.util.regex.Pattern.compile(fieldName.trim());
+      setFieldName(fname.trim());
+      fieldPattern = java.util.regex.Pattern.compile(fname.trim());
     }
 
     if (getConfiguration().containsIgnoreCase(ConfigTag.SET_SYMBOL)) {

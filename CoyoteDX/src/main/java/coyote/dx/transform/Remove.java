@@ -40,7 +40,7 @@ public class Remove extends AbstractFieldTransform implements FrameTransform {
 
           // remove the named field
           if (frame != null) {
-            frame.remove(fieldName);
+            frame.remove(getFieldName());
           }
 
         }
@@ -65,7 +65,7 @@ public class Remove extends AbstractFieldTransform implements FrameTransform {
           // remove the named field
           if (context != null) {
             if (context.getWorkingFrame() != null) {
-              context.getWorkingFrame().remove(fieldName);
+              context.getWorkingFrame().remove(getFieldName());
             }
           } else {
             Log.warn(LogMsg.createMsg(CDX.MSG, "Transform.context not set"));

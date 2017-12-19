@@ -19,7 +19,7 @@ import coyote.loader.log.LogMsg;
 
 
 /**
- * This sets the value of a field  to a particular value based on some 
+ * This sets the value of a field to a particular value based on some 
  * condition.
  * 
  * <p>The field will be added if it does not exist and if it does exist, the 
@@ -76,7 +76,7 @@ public class Set extends AbstractFieldTransform implements FrameTransform {
 
     String token = getConfiguration().getString(ConfigTag.VALUE);
     if (token == null) {
-      Log.warn(LogMsg.createMsg(CDX.MSG, "Transform.Set_setting_null_to_field", fieldName));
+      Log.warn(LogMsg.createMsg(CDX.MSG, "Transform.Set_setting_null_to_field", getFieldName()));
     } else {
       fieldValue = token;
     }
@@ -84,7 +84,7 @@ public class Set extends AbstractFieldTransform implements FrameTransform {
     if (StringUtil.isNotBlank(getExpression())) {
       token = getConfiguration().getString(ConfigTag.DEFAULT);
       if (token == null) {
-        Log.warn(LogMsg.createMsg(CDX.MSG, "Transform.Set_setting_null_by_default", fieldName));
+        Log.warn(LogMsg.createMsg(CDX.MSG, "Transform.Set_setting_null_by_default", getFieldName()));
       } else {
         defaultValue = token;
       }
