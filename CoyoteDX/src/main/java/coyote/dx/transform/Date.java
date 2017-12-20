@@ -73,6 +73,7 @@ public class Date extends AbstractFieldTransform implements FrameTransform {
             break;
           default:
             field = setFormatDate(field, token);
+            break;
         }
       } else {
         field = processField(field);

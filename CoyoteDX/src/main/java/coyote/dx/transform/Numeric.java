@@ -58,6 +58,7 @@ public class Numeric extends AbstractFieldTransform implements FrameTransform {
           break;
         default:
           field = processField(field);
+          break;
       }
     } else
 
@@ -75,11 +76,12 @@ public class Numeric extends AbstractFieldTransform implements FrameTransform {
 
 
 
+
   private DataField processField(DataField field) {
-    return null;
+    DataField retval = null;
+    retval = field; // for now
+    return retval;
   }
-
-
 
 
 
