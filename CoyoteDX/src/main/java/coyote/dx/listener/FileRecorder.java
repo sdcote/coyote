@@ -166,4 +166,14 @@ public abstract class FileRecorder extends ContextRecorder {
     super.close();
   }
 
+
+
+
+  /**
+   * @return the target file for this listener
+   */
+  public File getTargetFile() {
+    return targetFile;
+  }
+
 }
