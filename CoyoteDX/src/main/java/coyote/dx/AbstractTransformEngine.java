@@ -169,7 +169,7 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
 
     // Initialize the context
     contextInit();
-   
+
     Log.trace("Engine '" + getName() + "' starting transform");
 
     // fire the transformation start event
@@ -389,7 +389,7 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
     if (logManager != null) {
       logManager.open(getContext());
     }
-    
+
     return getContext();
   }
 
@@ -670,7 +670,10 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
         txnContext.setWorkingFrame(resultFrame);
 
       } catch (Exception e) {
-        StringBuilder b = new StringBuilder(txnContext.getErrorMessage());
+        StringBuilder b = new StringBuilder();
+        if (StringUtil.isNotBlank(txnContext.getErrorMessage())) {
+          b.append(txnContext.getErrorMessage());
+        }
         if (b.length() > 0) {
           b.append(", ");
         }
