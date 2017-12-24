@@ -29,6 +29,13 @@ import coyote.loader.log.LogMsg;
  * in the expressions. Fields in the source, working and target frames are also 
  * accessible through a simple naming convention.</p>
  * 
+ * <p>One example is to set a field to the current run time. This is 
+ * accomplished by setting the value to DateTime, which matches a context 
+ * variable that contains the DateTime the transform was run:<pre>
+ * "Set": { "field": "time", "value": "DateTime" }</pre> The implication is
+ * the Set transform cannot set the field to any value which exactly matches a 
+ * key in the context.
+ * 
  * <p>The following is a real life example which sets the {@code terminator} to 
  * a value of "2" if the context is processing the last record or "1" otherwise
  * which indicates more records (frames) are to be expected:

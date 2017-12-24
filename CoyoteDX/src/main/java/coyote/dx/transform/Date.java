@@ -21,7 +21,7 @@ import coyote.dx.TransformException;
 /**
  * Create a native date object from the data existing in the field.
  * 
- * <p>This converst the field from one date format (e.g. unix timestamp) to 
+ * <p>This converts the field from one date format (e.g. unix timestamp) to 
  * another or parse string data into a date object.
  * 
  * <p>The primary use case is to take epoch time in milliseconds (Java) or 
@@ -159,7 +159,7 @@ public class Date extends AbstractFieldTransform implements FrameTransform {
 
 
   /**
-   * @param field the filed to convert into a date
+   * @param field the field to convert into a date
    */
   private DataField processField(DataField field) {
     DataField retval = null;
