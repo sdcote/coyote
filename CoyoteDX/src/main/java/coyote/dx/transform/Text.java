@@ -27,7 +27,18 @@ import coyote.loader.log.Log;
  * 
  * <p>The primary use case is to prevent formatting objects in writers and 
  * formatting them in one location for all the writers. For example, a Date 
- * field can be converted to just the time portion with the format pattern. 
+ * field can be converted to just the time portion with the format pattern.
+ * 
+ * <p>THe following configuration:<pre>
+ * "Text": { "field": "date", "format": "YYYY-MM-dd" }</pre>
+ * Converts the Date field named "date" to a text (String) field with the date
+ * formatted in year-month-day format. BTW, even if the underlying field is 
+ * not a date, this transform will try to parse it into a date tyape and apply 
+ * the formatting.
+ * 
+ * <p>The same works with number formatting. The underlying numeric is 
+ * formatted with the given pattern and if the underlying field is a String, 
+ * this transform will try to convert it into the proper type and format it.
  */
 public class Text extends AbstractFieldTransform implements FrameTransform {
 
