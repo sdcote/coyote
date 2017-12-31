@@ -28,7 +28,6 @@ import coyote.loader.log.LogMsg;
  */
 public abstract class AbstractFrameAggregator extends AbstractConfigurableComponent implements FrameAggregator {
   protected Evaluator evaluator = new Evaluator();
-  protected static final List<DataFrame> EMPTY_LIST = new ArrayList<DataFrame>();
 
 
 

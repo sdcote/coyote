@@ -29,7 +29,7 @@ public abstract class AbstractFieldTransform extends AbstractFrameTransform impl
   protected java.util.regex.Pattern fieldPattern = null;
   private String fieldName = null;
   protected Evaluator evaluator = new Evaluator();
-  protected String expression = null;
+  private String expression = null;
   protected boolean setSymbol = false;
 
 

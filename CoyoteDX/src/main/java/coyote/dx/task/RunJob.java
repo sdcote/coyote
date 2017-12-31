@@ -222,6 +222,8 @@ public class RunJob extends AbstractTransformTask {
         final String jobName = getString(ConfigTag.NAME);
         if (StringUtil.isNotBlank(jobName)) {
           engine.setName(jobName);
+        } else {
+          engine.setName(FileUtil.getBase(cfgUri.toString()));
         }
 
         String contextKey = getString(ConfigTag.CONTEXT);

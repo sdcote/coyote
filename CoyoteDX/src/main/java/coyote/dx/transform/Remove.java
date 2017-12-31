@@ -32,11 +32,11 @@ public class Remove extends AbstractFieldTransform implements FrameTransform {
   @Override
   public DataFrame process(final DataFrame frame) throws TransformException {
     // If there is a conditional expression
-    if (expression != null) {
+    if (getCondition() != null) {
 
       try {
         // if the condition evaluates to true
-        if (evaluator.evaluateBoolean(expression)) {
+        if (evaluator.evaluateBoolean(getCondition())) {
 
           // remove the named field
           if (frame != null) {
@@ -56,11 +56,11 @@ public class Remove extends AbstractFieldTransform implements FrameTransform {
 
   public boolean process(final TransactionContext context) {
     // If there is a conditional expression
-    if (expression != null) {
+    if (getCondition() != null) {
 
       try {
         // if the condition evaluates to true
-        if (evaluator.evaluateBoolean(expression)) {
+        if (evaluator.evaluateBoolean(getCondition())) {
 
           // remove the named field
           if (context != null) {

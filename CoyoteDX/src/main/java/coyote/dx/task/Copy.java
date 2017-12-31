@@ -75,7 +75,7 @@ public class Copy extends AbstractFileTask {
       if (StringUtil.isNotBlank(target)) {
         // this is a file to file copy
         final String tgt = resolveArgument(target);
-        Log.debug(LogMsg.createMsg(CDX.MSG, "Task.Copying file named {%s} to file named {%s}", src, tgt));
+        Log.debug(LogMsg.createMsg(CDX.MSG, "Task.copy_file_to_file", src, tgt));
 
         try {
           FileUtil.copyFile(src, tgt);

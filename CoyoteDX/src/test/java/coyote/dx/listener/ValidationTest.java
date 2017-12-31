@@ -46,7 +46,6 @@ public class ValidationTest extends AbstractTest {
     Config listenerCfg = new Config();
     listenerCfg.put(ConfigTag.TARGET, "STDOUT");
 
-    String checksumFile = null;
     try (Validation listener = new Validation(); FrameValidator validator = new NotEmpty()) {
 
       validator.setConfiguration(validatorCfg);

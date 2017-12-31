@@ -16,6 +16,7 @@ import java.util.List;
 
 import coyote.commons.FileUtil;
 import coyote.commons.SystemPropertyUtil;
+import coyote.commons.template.SymbolTable;
 import coyote.dataframe.DataFrame;
 import coyote.dataframe.marshal.JSONMarshaler;
 import coyote.dx.context.TransactionContext;
@@ -27,7 +28,15 @@ import coyote.loader.cfg.Config;
  * 
  */
 public class AbstractTest {
-  TransformContext transformContext = new TransformContext();
+  TransformContext transformContext;
+
+
+
+
+  public AbstractTest() {
+    transformContext = new TransformContext();
+    transformContext.setSymbols(new SymbolTable());
+  }
 
 
 
