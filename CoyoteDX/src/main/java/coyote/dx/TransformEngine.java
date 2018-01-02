@@ -293,4 +293,12 @@ public interface TransformEngine extends RunnableComponent {
    */
   public TransformContext contextInit();
 
+
+
+
+  /**
+   * @param reader the reader to be used for preloading data into some components.
+   */
+  public void setPreloader(FrameReader reader);
+
 }

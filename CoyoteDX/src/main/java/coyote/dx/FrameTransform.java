@@ -42,4 +42,20 @@ public interface FrameTransform extends ConfigurableComponent {
    */
   public DataFrame process( DataFrame frame ) throws TransformException;
 
+  /**
+   * Preload the transformer with historic data.
+   * 
+   * <p>Some transformers may require prior frames to determine how to set 
+   * values. An example of this is a transformer which sets the moving average 
+   * of a field. The generated average will be more accurate if the 
+   * transformer has the prior values before the first frame is read in by the 
+   * reader. This method allows the transformer to preload thise historic 
+   * frames if they are provided.
+   * 
+   * <p>Oldest frames are expected to be loaded first.
+   * 
+   * @param frame the historic frame to preload
+   */
+  public void preload(DataFrame frame);
+
 }

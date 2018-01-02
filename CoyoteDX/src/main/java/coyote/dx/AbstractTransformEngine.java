@@ -44,6 +44,9 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
   /** The component which will read frames into the transformation engine.*/
   protected FrameReader reader = null;
 
+  /** The component which will read (history) frames into components to provide them with pervious/historic values on which to base their calculations.*/
+  protected FrameReader preloader = null;
+
   /** List of filters which will remove unwanted frames from the transformation stream */
   protected List<FrameFilter> filters = new ArrayList<FrameFilter>();
 
@@ -197,6 +200,10 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
         validatorInit();
         transformInit();
 
+        // run the preload reader and pass read-in frames to components to
+        // prime them with historic records
+        preLoad();
+
         Log.trace("Engine '" + getName() + "' entering read loop");
 
         // loop through all data read in by the reader until EOF or an error in 
@@ -323,6 +330,64 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
     } else {
       Log.info("Engine '" + getName() + "' (" + getInstanceId() + ") completed successfully");
     }
+
+  }
+
+
+
+
+  /**
+   * Read in historic data to prime (preload) components so they can base 
+   * their calculations based on previous / historic frames.
+   */
+  private void preLoad() {
+    getContext().setState("Preload");
+    while (getContext().isNotInError() && preloader != null && !preloader.eof()) {
+      TransactionContext txnContext = new TransactionContext(getContext());
+      DataFrame frame = preloader.read(txnContext);
+      preloadListeners(frame);
+      preloadTransformers(frame);
+    }
+  }
+
+
+
+
+  /**
+   * @param frame
+   */
+  private void preloadTransformers(DataFrame frame) {
+    for (FrameTransform transformer : transformers) {
+      try {
+        transformer.preload(frame);
+      } catch (Exception e) {
+        StringBuilder b = new StringBuilder();
+        if (StringUtil.isNotBlank(getContext().getErrorMessage())) {
+          b.append(getContext().getErrorMessage());
+        }
+        if (b.length() > 0) {
+          b.append(", ");
+        }
+        b.append(transformer.getClass().getSimpleName());
+        b.append(": ");
+        b.append(e.getMessage());
+        getContext().setError(b.toString());
+      }
+    }
+    if (getContext().isInError()) {
+      Log.debug("TRANSFORM PRELOAD ERRORS: " + getContext().getErrorMessage());
+    }
+
+  }
+
+
+
+
+  /**
+   * @param frame
+   */
+  private void preloadListeners(DataFrame frame) {
+    // TODO Auto-generated method stub
 
   }
 
@@ -1173,6 +1238,16 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
   @Override
   public void setReader(FrameReader reader) {
     this.reader = reader;
+  }
+
+
+
+
+  /**
+   * @see coyote.dx.TransformEngine#setPreloader(coyote.dx.FrameReader)
+   */
+  public void setPreloader(FrameReader reader) {
+    this.preloader = reader;
   }
 
 

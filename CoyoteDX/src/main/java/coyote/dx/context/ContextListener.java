@@ -7,6 +7,7 @@
  */
 package coyote.dx.context;
 
+import coyote.dataframe.DataFrame;
 import coyote.dx.ConfigurableComponent;
 import coyote.dx.FrameReader;
 import coyote.dx.FrameValidator;
@@ -129,5 +130,21 @@ public interface ContextListener extends ConfigurableComponent {
    * @param txnContext the transaction context containing the data frames.
    */
   void onMap(TransactionContext txnContext);
+
+  /**
+   * Preload the listener with historic data.
+   * 
+   * <p>Some listeners may require prior frames to determine how to operate. 
+   * An example of this is a listener which generates an event when frame 
+   * values breach an averaged threshold. The generated average will be more 
+   * accurate if the listener has the prior values before the first frame is 
+   * read in by the reader. This method allows the listener to preload these 
+   * historic frames if they are provided.
+   * 
+   * <p>Oldest frames are expected to be loaded first.
+   * 
+   * @param frame the historic frame to preload
+   */
+  public void preload(DataFrame frame);
 
 }

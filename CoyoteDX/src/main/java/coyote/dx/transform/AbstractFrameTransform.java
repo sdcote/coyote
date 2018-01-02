@@ -9,6 +9,7 @@ package coyote.dx.transform;
 
 import java.io.IOException;
 
+import coyote.dataframe.DataFrame;
 import coyote.dx.AbstractConfigurableComponent;
 import coyote.dx.ConfigurableComponent;
 import coyote.dx.FrameTransform;
@@ -47,7 +48,6 @@ public abstract class AbstractFrameTransform extends AbstractConfigurableCompone
   @Override
   public void open(final TransformContext context) {
     super.setContext(context);
-
   }
 
 
@@ -64,6 +64,17 @@ public abstract class AbstractFrameTransform extends AbstractConfigurableCompone
    */
   protected String resolveArgument(final String value) {
     return context.resolveArgument(value);
+  }
+
+
+
+
+  /**
+   * @see coyote.dx.FrameTransform#preload(coyote.dataframe.DataFrame)
+   */
+  @Override
+  public void preload(DataFrame frame) {
+    // override to receive historic data, if the job is configured with a preloader    
   }
 
 }

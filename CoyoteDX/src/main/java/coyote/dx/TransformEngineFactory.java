@@ -136,6 +136,12 @@ public class TransformEngineFactory {
           } else {
             Log.error("Invalid reader configuration section");
           }
+        } else if (StringUtil.equalsIgnoreCase(ConfigTag.PRELOAD, field.getName())) {
+          if (field.isFrame()) {
+            configPreloader((DataFrame)field.getObjectValue(), retval);
+          } else {
+            Log.error("Invalid filters configuration section");
+          }
         } else if (StringUtil.equalsIgnoreCase(ConfigTag.FILTER, field.getName())) {
           if (field.isFrame()) {
             configFilters((DataFrame)field.getObjectValue(), retval);
@@ -238,6 +244,37 @@ public class TransformEngineFactory {
    * @param cfg
    * @param engine
    */
+  private static void configPreloader(DataFrame cfg, TransformEngine engine) {
+    if (cfg != null) {
+      // Make sure the class is fully qualified 
+      String className = findString(ConfigTag.CLASS, cfg);
+      if (className != null && StringUtil.countOccurrencesOf(className, ".") < 1) {
+        className = READER_PKG + "." + className;
+        cfg.put(ConfigTag.CLASS, className);
+      } else {
+        Log.error("NO Reader Class in configuration: " + cfg.toString());
+      }
+      Object object = CDX.createComponent(cfg);
+      if (object != null) {
+        if (object instanceof FrameReader) {
+          engine.setPreloader((FrameReader)object);
+          Log.debug(LogMsg.createMsg(CDX.MSG, "EngineFactory.created_preloader", object.getClass().getName()));
+        } else {
+          Log.error(LogMsg.createMsg(CDX.MSG, "EngineFactory.specified_class_is_not_a_preloader", object.getClass().getName()));
+        }
+      } else {
+        Log.error(LogMsg.createMsg(CDX.MSG, "EngineFactory.could_not_create_instance_of_specified_preloader", className));
+      }
+    } // cfg !null    
+  }
+
+
+
+
+  /**
+   * @param cfg
+   * @param engine
+   */
   private static void configAggregator(DataFrame cfg, TransformEngine engine) {
     if (cfg != null) {
       // Make sure the class is fully qualified 
@@ -259,10 +296,6 @@ public class TransformEngineFactory {
       }
     } // cfg !null    
   }
-  
-  
-  
-  
 
 
 

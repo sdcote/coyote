@@ -15,7 +15,6 @@ import java.util.Map;
 
 import coyote.commons.network.http.IHTTPSession;
 import coyote.commons.network.http.Response;
-import coyote.commons.network.http.responder.HTTPDRouter;
 import coyote.commons.network.http.responder.Resource;
 import coyote.commons.network.http.responder.Responder;
 import coyote.dataframe.DataFrame;
@@ -267,7 +266,6 @@ public class WebServerReader extends AbstractFrameReader implements FrameReader,
   @Override
   public void onMap(TransactionContext txnContext) {
     // TODO Auto-generated method stub
-
   }
 
 
@@ -280,6 +278,17 @@ public class WebServerReader extends AbstractFrameReader implements FrameReader,
   public Config getConfiguration() {
     // TODO Auto-generated method stub
     return null;
+  }
+
+
+
+
+  /**
+   * @see coyote.dx.context.ContextListener#preload(coyote.dataframe.DataFrame)
+   */
+  @Override
+  public void preload(DataFrame frame) {
+    // No needed    
   }
 
 }

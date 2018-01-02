@@ -10,6 +10,7 @@ package coyote.dx.listener;
 import java.io.IOException;
 
 import coyote.commons.StringUtil;
+import coyote.dataframe.DataFrame;
 import coyote.dx.AbstractConfigurableComponent;
 import coyote.dx.ConfigTag;
 import coyote.dx.ConfigurableComponent;
@@ -163,6 +164,17 @@ public abstract class AbstractListener extends AbstractConfigurableComponent imp
   @Override
   public void onMap(TransactionContext txnContext) {
     // listeners should override this method to perform processing after mapping and before writing.
+  }
+
+
+
+
+  /**
+   * @see coyote.dx.context.ContextListener#preload(coyote.dataframe.DataFrame)
+   */
+  @Override
+  public void preload(DataFrame frame) {
+    // override to receive historic data, if the job is configured with a preloader    
   }
 
 }
