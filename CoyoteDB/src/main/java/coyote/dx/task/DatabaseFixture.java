@@ -11,7 +11,6 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
 import coyote.commons.StringUtil;
-import coyote.dataframe.DataFrame;
 import coyote.dx.ConfigTag;
 import coyote.dx.TaskException;
 import coyote.dx.context.OperationalContext;
@@ -136,17 +135,6 @@ public class DatabaseFixture extends AbstractDatabaseFixtureTask {
     if (context instanceof TransformContext) {
       Log.info("Closing database fixture");
     }
-  }
-
-
-
-
-  /**
-   * @see coyote.dx.context.ContextListener#preload(coyote.dataframe.DataFrame)
-   */
-  @Override
-  public void preload(DataFrame frame) {
-    //  not needed
   }
 
 }

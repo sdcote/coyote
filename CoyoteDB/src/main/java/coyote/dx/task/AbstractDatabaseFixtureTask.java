@@ -7,6 +7,7 @@
  */
 package coyote.dx.task;
 
+import coyote.dataframe.DataFrame;
 import coyote.dx.FrameReader;
 import coyote.dx.FrameValidator;
 import coyote.dx.FrameWriter;
@@ -115,8 +116,18 @@ public abstract class AbstractDatabaseFixtureTask extends AbstractTransformTask 
    */
   @Override
   public void onMap(TransactionContext txnContext) {
-    // TODO Auto-generated method stub
+    // no-op
+  }
 
+
+
+
+  /**
+   * @see coyote.dx.context.ContextListener#preload(coyote.dataframe.DataFrame)
+   */
+  @Override
+  public void preload(DataFrame frame) {
+    //  not needed
   }
 
 }

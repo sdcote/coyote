@@ -131,6 +131,9 @@ public interface ContextListener extends ConfigurableComponent {
    */
   void onMap(TransactionContext txnContext);
 
+
+
+
   /**
    * Preload the listener with historic data.
    * 
