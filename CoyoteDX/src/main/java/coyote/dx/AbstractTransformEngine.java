@@ -342,11 +342,18 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
    */
   private void preLoad() {
     getContext().setState("Preload");
-    while (getContext().isNotInError() && preloader != null && !preloader.eof()) {
-      TransactionContext txnContext = new TransactionContext(getContext());
-      DataFrame frame = preloader.read(txnContext);
-      preloadListeners(frame);
-      preloadTransformers(frame);
+    if (preloader != null) {
+      preloader.open(getContext());
+      if (getContext().isInError()) {
+        reportTransformContextError(getContext());
+      } else {
+        while (getContext().isNotInError() && !preloader.eof()) {
+          TransactionContext txnContext = new TransactionContext(getContext());
+          DataFrame frame = preloader.read(txnContext);
+          preloadListeners(frame);
+          preloadTransformers(frame);
+        }
+      }
     }
   }
 
@@ -377,7 +384,6 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
     if (getContext().isInError()) {
       Log.debug("TRANSFORM PRELOAD ERRORS: " + getContext().getErrorMessage());
     }
-
   }
 
 
@@ -387,8 +393,26 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
    * @param frame
    */
   private void preloadListeners(DataFrame frame) {
-    // TODO Auto-generated method stub
-
+    for (ContextListener listener : listeners) {
+      try {
+        listener.preload(frame);
+      } catch (Exception e) {
+        StringBuilder b = new StringBuilder();
+        if (StringUtil.isNotBlank(getContext().getErrorMessage())) {
+          b.append(getContext().getErrorMessage());
+        }
+        if (b.length() > 0) {
+          b.append(", ");
+        }
+        b.append(listener.getClass().getSimpleName());
+        b.append(": ");
+        b.append(e.getMessage());
+        getContext().setError(b.toString());
+      }
+    }
+    if (getContext().isInError()) {
+      Log.debug("LISTENER PRELOAD ERRORS: " + getContext().getErrorMessage());
+    }
   }
 
 
