@@ -149,7 +149,7 @@ public class RunJob extends AbstractTransformTask {
             final File cfgFile = new File(wrkDir, cfgLoc);
             final File alternativeFile = new File(wrkDir, cfgLoc + JSON_EXT);
 
-            if (cfgFile.exists()) {
+            if (cfgFile.exists() && !cfgFile.isDirectory()) {
               retval = FileUtil.getFileURI(cfgFile);
             } else {
               if (alternativeFile.exists()) {
@@ -219,10 +219,14 @@ public class RunJob extends AbstractTransformTask {
 
         final TransformEngine engine = TransformEngineFactory.getInstance(engineConfig.toString());
 
+        // if we have a name in our (RunJob) config, it overrides that in jobConfig file
         final String jobName = getString(ConfigTag.NAME);
         if (StringUtil.isNotBlank(jobName)) {
           engine.setName(jobName);
-        } else {
+        }
+
+        // If there was no name in the jobConfig or our (RunJob) config, set the name to the basename of the config file
+        if (StringUtil.isBlank(engine.getName())) {
           engine.setName(FileUtil.getBase(cfgUri.toString()));
         }
 
@@ -236,7 +240,10 @@ public class RunJob extends AbstractTransformTask {
 
         Config params = getConfiguration().getSection(ConfigTag.PARAMETERS);
         if (params != null) {
-          TransformContext childContext = new TransformContext();
+          TransformContext childContext = engine.getContext();
+          if (childContext == null) {
+            childContext = new TransformContext();
+          }
 
           for (DataField field : params.getFields()) {
             String parameterName = field.getName();
