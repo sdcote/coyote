@@ -35,7 +35,6 @@ public class TransformContext extends OperationalContext {
   private static final String TARGET = "Target.";
   private static final String CONTEXT = "Context.";
   private static final String TRANSFORM = "Transform.";
-
   private static final String WORKING = "Working.";
   private volatile TransactionContext transactionContext = null;
   protected Config configuration = new Config();
