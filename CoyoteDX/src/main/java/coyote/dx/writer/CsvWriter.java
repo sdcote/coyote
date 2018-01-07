@@ -438,7 +438,7 @@ public class CsvWriter extends AbstractFrameFileWriter implements FrameWriter, C
           token = "";
         }
       } else {
-        // handle null fields with an empty strin value
+        // handle null fields with an empty string value
         token = "";
       }
 
