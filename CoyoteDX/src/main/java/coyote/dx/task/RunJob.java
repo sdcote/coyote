@@ -89,7 +89,7 @@ public class RunJob extends AbstractTransformTask {
               Log.error(errMsg.toString());
             }
           } else {
-            Log.info(LogMsg.createMsg(CDX.MSG, "Task.runjob.cfg_reading_from_file", test.getAbsolutePath()));
+            Log.debug(LogMsg.createMsg(CDX.MSG, "Task.runjob.cfg_reading_from_file", test.getAbsolutePath()));
           }
         }
       } else {
