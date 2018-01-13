@@ -19,15 +19,12 @@ import coyote.dx.TransformException;
  * Copy one field to another.
  * 
  * <p>This can be configured thusly:<pre>
- * "Copy": { "field": "oldField", "target":"newField"}
+ * "Copy": { "source": "oldField", "field":"newField"}
  * "Copy": { "source": "oldField", "target":"newField"}
  * </pre>
  */
 public class Copy extends AbstractFieldTransform implements FrameTransform {
 
-  
-  
-  
   /**
    * @see coyote.dx.transform.AbstractFieldTransform#performTransform(coyote.dataframe.DataFrame)
    */
@@ -51,18 +48,18 @@ public class Copy extends AbstractFieldTransform implements FrameTransform {
 
 
   private String getTarget() {
-    return getConfiguration().getString(ConfigTag.TARGET);
+    String retval = getFieldName();
+    if (StringUtil.isBlank(retval)) {
+      retval = getConfiguration().getString(ConfigTag.TARGET);
+    }
+    return retval;
   }
 
 
 
 
   private String getSource() {
-    String retval = getFieldName();
-    if (StringUtil.isBlank(retval)) {
-      retval = getConfiguration().getString(ConfigTag.SOURCE);
-    }
-    return retval;
+    return getConfiguration().getString(ConfigTag.SOURCE);
   }
 
 }
