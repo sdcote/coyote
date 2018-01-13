@@ -25,8 +25,7 @@ import coyote.loader.log.LogMsg;
  * given named field.
  * 
  * <p><strong>NOTE:</strong> This will result with the field being represented 
- * as a string type in the working frame. If this is not desired, the Convert 
- * transform should be used to convert it to the desired type.
+ * as a string type in the working frame.
  * 
  * <p>If a {@code target} is specified, the Java String Replace method is used 
  * to perform the transformation. If the {@code pattern} attribute is used 
