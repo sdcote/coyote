@@ -11,7 +11,7 @@ import coyote.dx.FrameTransform;
 
 
 /**
- * Alias for the Test transform. 
+ * Alias for the Text transform. 
  */
 public class Format extends Text implements FrameTransform {
 
