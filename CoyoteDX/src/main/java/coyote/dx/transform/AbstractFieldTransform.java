@@ -44,7 +44,11 @@ public abstract class AbstractFieldTransform extends AbstractFrameTransform impl
 
     String fname = getConfiguration().getString(ConfigTag.FIELD);
     if (StringUtil.isBlank(fname)) {
-      throw new ConfigurationException("Transforms require a field name or pattern.");
+      fname = getConfiguration().getString(ConfigTag.TARGET);
+    }
+
+    if (StringUtil.isBlank(fname)) {
+      throw new ConfigurationException("Transforms require a field name or pattern");
     } else {
       setFieldName(fname.trim());
       fieldPattern = java.util.regex.Pattern.compile(fname.trim());
