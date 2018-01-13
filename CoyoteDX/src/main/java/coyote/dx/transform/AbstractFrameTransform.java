@@ -70,6 +70,24 @@ public abstract class AbstractFrameTransform extends AbstractConfigurableCompone
 
 
   /**
+  * Resolve the argument by looking for fields in the various holding areas.
+  * 
+  * <p>This method will assume that the name of the file is prepended with a 
+  * locator token such as "Working.", "Source.", "Context.", etc.
+  * 
+  * @param arg the locator pattern for the field.
+  * 
+  * @return the resolved value of the argument or null if a field with that 
+  *         name could not be found. 
+  */
+  protected String resolveField(final String arg) {
+    return context.resolveField(arg);
+  }
+
+
+
+
+  /**
    * @see coyote.dx.FrameTransform#preload(coyote.dataframe.DataFrame)
    */
   @Override
