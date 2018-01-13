@@ -42,6 +42,12 @@ import coyote.loader.log.Log;
  */
 public class Text extends AbstractFieldTransform implements FrameTransform {
 
+  private static final String UPPERCASE = "UpperCase";
+  private static final String LOWERCASE = "LowerCase";
+
+
+
+
   /**
    * @see coyote.dx.FrameTransform#process(coyote.dataframe.DataFrame)
    */
@@ -80,7 +86,19 @@ public class Text extends AbstractFieldTransform implements FrameTransform {
             text = new SimpleDateFormat(format).format((java.util.Date)field.getObjectValue());
             break;
           case DataField.STRING:
-            text = guess(field, format);
+            if (UPPERCASE.equals(format)) {
+              text = field.getStringValue();
+              if (StringUtil.isNotBlank(text)) {
+                text = text.toUpperCase();
+              }
+            } else if (LOWERCASE.equals(format)) {
+              text = field.getStringValue();
+              if (StringUtil.isNotBlank(text)) {
+                text = text.toLowerCase();
+              }
+            } else {
+              text = guess(field, format);
+            }
             if (text == null) {
               Log.error("Data field '" + field.getName() + "' of type 'String' could not be converted into a formattable type - Value: '" + field.getStringValue() + "'");
             }
