@@ -22,6 +22,7 @@ import coyote.dx.ConfigTag;
 import coyote.dx.TaskException;
 import coyote.dx.TransformEngine;
 import coyote.dx.TransformEngineFactory;
+import coyote.dx.TransformTask;
 import coyote.dx.context.TransformContext;
 import coyote.loader.Loader;
 import coyote.loader.cfg.Config;
@@ -31,9 +32,23 @@ import coyote.loader.log.LogMsg;
 
 
 /**
- *
+ * This task runs a a data transfer job using the current context.
+ * 
+ * <p>Using this task, it is possible to run several jobs as one, each with a 
+ * set of conditions determining if it should run. This give allow for more 
+ * complex processing scenarios.
+ * 
+ * <p>This task can be configured thusly:<pre>
+ * "RunJob" : { "file": "somejob.json", "name": "jobname" }</pre>
+ * 
+ * <p>The {@code file} parameter specifies the data transfer job configuration 
+ * to run.
+ * 
+ * <p>The {@code name} parameter specifies the name to use for the job. This
+ * allows for the publication of data in different locations than those 
+ * specified in the configuration file or the default values.
  */
-public class RunJob extends AbstractTransformTask {
+public class RunJob extends AbstractTransformTask implements TransformTask {
   private static final String JSON_EXT = ".json";
 
 
