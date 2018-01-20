@@ -111,6 +111,9 @@ public class Text extends AbstractFieldTransform implements FrameTransform {
         if (StringUtil.isNotBlank(text)) {
           retval.put(field.getName(), text);
         }
+      } else {
+        // no format...just get the string value of the field and place it back in the frame
+        retval.put(field.getName(), field.getStringValue());
       }
 
     }
