@@ -84,6 +84,7 @@ public class ReadIntoContext extends AbstractFileTask {
   /**
    * @see coyote.dx.task.AbstractTransformTask#performTask()
    */
+  @SuppressWarnings("unchecked")
   @Override
   protected void performTask() throws TaskException {
     final String delimiter = getDelimiter();
@@ -101,6 +102,9 @@ public class ReadIntoContext extends AbstractFileTask {
               final String[] kvp = divide(line, delimiter);
               if (StringUtil.isNotEmpty(kvp[1])) {
                 getContext().set(kvp[0], kvp[1]);
+                if (isPopulatingSymbols()) {
+                  getContext().getSymbols().put(kvp[0], kvp[1]);
+                }
                 Log.debug("Recording '" + kvp[0] + "' in contex as '" + kvp[1] + "'");
               } else {
                 Log.warn("No delimiter for line: '" + line + "'");
@@ -136,6 +140,20 @@ public class ReadIntoContext extends AbstractFileTask {
         return;
       }
     }
+  }
+
+
+
+
+  /**
+   * @return
+   */
+  private boolean isPopulatingSymbols() {
+    boolean retval = false;
+    if (getConfiguration().containsIgnoreCase(ConfigTag.SET_SYMBOL)) {
+      retval = getBoolean(ConfigTag.SET_SYMBOL);
+    }
+    return retval;
   }
 
 }
