@@ -28,7 +28,7 @@ import coyote.loader.log.Log;
  * <p>The FileJob enables the ability to scan a directory and run a job for 
  * each of the files found in that directory. This is a common use case for 
  * jobs which store job data in a directory and a FileJob to process them when
- * those files appear. This is usefule for buffering jobs during an outage and
+ * those files appear. This is useful for buffering jobs during an outage and
  * processing them when the system comes back up.
  * 
  * <p>A group of FIleJobs can be set up to "watch" a dedicated directory and a 
@@ -38,6 +38,19 @@ import coyote.loader.log.Log;
  * suspend processing while the jobs collect in the "dispatching" directory. 
  * The "dispatcher" can then be started at a later time, sending jobs to other
  * directories for processing.
+ * 
+ * <p>This "dispatcher" pattern has the benefit of being fault tolerant in 
+ * that if the dispatcher fails, work file will continue to buffer in the, 
+ * directory until the dispatcher is restarted. At that time, all the files 
+ * will be processed in turn without data loss. Addidtionally, by using 
+ * separate file jobs to actually process the data, the file processing can 
+ * scale by increasing the number of workers. By moving files to a separate 
+ * "work" directory and publishing a "job" message to a message queue, it is 
+ * possible to dynamically scale the number of workers without modifying the 
+ * dispatching file job. Any failing workers can be recovered by simply moving 
+ * the file out of the work directory and into the dispatcher directory to be 
+ * re-queued for processing. This enables very high throughput with fault 
+ * tolerance and data loss protection.     
  * 
  * <p>Another use case is the analytics of data in batches. Each batch of data 
  * can be set in a separate file and and an analytic job run on each batch 
@@ -65,7 +78,7 @@ import coyote.loader.log.Log;
  * listing is taken. It is mandatory and always best to specify an absolute 
  * path to eliminate confusion.
  * 
- * <p>The {@code pattern} is the RegEx pattern filenames art to match. If not
+ * <p>The {@code pattern} is the RegEx pattern filenames are to match. If not
  * specified, all files in the directory will be returned.
  * 
  * <p>The {@code context} configuration attribute specified the name of the 
