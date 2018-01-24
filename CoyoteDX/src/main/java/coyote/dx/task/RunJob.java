@@ -245,15 +245,19 @@ public class RunJob extends AbstractTransformTask implements TransformTask {
           engine.setName(FileUtil.getBase(cfgUri.toString()));
         }
 
-        String contextKey = getString(ConfigTag.CONTEXT);
-        if (StringUtil.isBlank(contextKey)) {
-          contextKey = engine.getName();
-        }
+        // place the jobs context in our context under the name of the job being run
+        String contextKey = engine.getName();
 
         // Set the engine's work directory to this task's job directory  
         engine.setWorkDirectory(getJobDirectory());
 
         Config params = getConfiguration().getSection(ConfigTag.PARAMETERS);
+        if (params != null) {
+          Log.warn("The configuration section '"+ConfigTag.PARAMETERS+"' has been deprecated. use '"+ConfigTag.CONTEXT+"' instead");
+        } else {
+          params = getConfiguration().getSection(ConfigTag.CONTEXT);
+        }
+        
         if (params != null) {
           TransformContext childContext = engine.getContext();
           if (childContext == null) {
