@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 
+import coyote.commons.ExceptionUtil;
 import coyote.commons.FileUtil;
 import coyote.commons.StringUtil;
 import coyote.commons.UriUtil;
@@ -198,7 +199,7 @@ public class RunJob extends AbstractTransformTask implements TransformTask {
     File localfile = new File(cfgLoc);
     File alternativeFile = new File(cfgLoc + JSON_EXT);
 
-    if (localfile.exists()) {
+    if (localfile.exists() && !localfile.isDirectory() ) {
       retval = FileUtil.getFileURI(localfile);
     } else {
       if (alternativeFile.exists()) {
@@ -253,11 +254,11 @@ public class RunJob extends AbstractTransformTask implements TransformTask {
 
         Config params = getConfiguration().getSection(ConfigTag.PARAMETERS);
         if (params != null) {
-          Log.warn("The configuration section '"+ConfigTag.PARAMETERS+"' has been deprecated. use '"+ConfigTag.CONTEXT+"' instead");
+          Log.warn("The configuration section '" + ConfigTag.PARAMETERS + "' has been deprecated. use '" + ConfigTag.CONTEXT + "' instead");
         } else {
           params = getConfiguration().getSection(ConfigTag.CONTEXT);
         }
-        
+
         if (params != null) {
           TransformContext childContext = engine.getContext();
           if (childContext == null) {
@@ -302,7 +303,10 @@ public class RunJob extends AbstractTransformTask implements TransformTask {
         try {
           engine.run();
         } catch (final Throwable t) {
-          final String errMsg = "Processing exception running Job: " + t.getMessage();
+          String errMsg = "Processing exception running Job: " + t.getMessage();
+          if (t instanceof NullPointerException) {
+            errMsg = errMsg.concat(ExceptionUtil.stackTrace(t));
+          }
           if (haltOnError) {
             throw new TaskException(errMsg);
           } else {
