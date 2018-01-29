@@ -851,16 +851,22 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
   private void write(TransactionContext txnContext) {
     if (txnContext.isNotInError() && txnContext.getTargetFrame() != null && writers.size() > 0) {
       txnContext.setState("Write");
-      // Pass the frame to all the writers
+      // Pass the frame to all the enabled writers
       for (FrameWriter writer : writers) {
-        try {
-          // Write the target (new) frame
-          writer.write(txnContext.getTargetFrame());
-          txnContext.fireWrite(txnContext, writer);
-        } catch (Exception e) {
-          Log.error(LogMsg.createMsg(CDX.MSG, "Engine.write_error", e.getClass().getSimpleName(), e.getMessage(), ExceptionUtil.stackTrace(e)));
-          e.printStackTrace();
-          txnContext.setError(e.getMessage());
+        if (writer.isEnabled()) {
+          try {
+            // Write the target (new) frame
+            writer.write(txnContext.getTargetFrame());
+            txnContext.fireWrite(txnContext, writer);
+          } catch (Exception e) {
+            Log.error(LogMsg.createMsg(CDX.MSG, "Engine.write_error", e.getClass().getSimpleName(), e.getMessage(), ExceptionUtil.stackTrace(e)));
+            e.printStackTrace();
+            txnContext.setError(e.getMessage());
+          }
+        } else {
+          if (Log.isLogging(Log.DEBUG_EVENTS)) {
+            Log.error(LogMsg.createMsg(CDX.MSG, "Engine.writer_skipped_disabled", writer.getClass().getSimpleName()));
+          }
         }
       }
     }
