@@ -92,8 +92,11 @@ public class ReadIntoContext extends AbstractFileTask {
     if (StringUtil.isNotBlank(source)) {
       Log.debug("Using a filename of '" + source + "'");;
       final File file = getExistingFile(source);
-      Log.debug("Using absolute filename of '" + file.getAbsolutePath() + "'");;
-
+      if (file == null) {
+        throw new TaskException("Cannot read file into context - does not exist: " + source);
+      } else {
+        Log.debug("Using absolute filename of '" + file.getAbsolutePath() + "'");;
+      }
       if (file.exists()) {
         if (file.canRead()) {
           if (file.length() > 0) {
