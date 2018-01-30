@@ -199,7 +199,7 @@ public class RunJob extends AbstractTransformTask implements TransformTask {
     File localfile = new File(cfgLoc);
     File alternativeFile = new File(cfgLoc + JSON_EXT);
 
-    if (localfile.exists() && !localfile.isDirectory() ) {
+    if (localfile.exists() && !localfile.isDirectory()) {
       retval = FileUtil.getFileURI(localfile);
     } else {
       if (alternativeFile.exists()) {
@@ -302,11 +302,19 @@ public class RunJob extends AbstractTransformTask implements TransformTask {
 
         try {
           engine.run();
+        } catch (NullPointerException npe) {
+          String errMsg = "Processing exception (NPE) running Job: " + npe.getMessage();
+          errMsg = errMsg.concat(ExceptionUtil.stackTrace(npe));
+
+          if (haltOnError) {
+            throw new TaskException(errMsg);
+          } else {
+            Log.error(errMsg);
+            return;
+          }
+
         } catch (final Throwable t) {
           String errMsg = "Processing exception running Job: " + t.getMessage();
-          if (t instanceof NullPointerException) {
-            errMsg = errMsg.concat(ExceptionUtil.stackTrace(t));
-          }
           if (haltOnError) {
             throw new TaskException(errMsg);
           } else {
