@@ -52,8 +52,6 @@ public abstract class FileRecorder extends ContextRecorder {
     super.open(context);
 
     String target = getString(ConfigTag.TARGET);
-
-    // get our configuration data
     setTarget(target);
     Log.debug(LogMsg.createMsg(CDX.MSG, "DX.listener_validating_target", getTarget()));
 
