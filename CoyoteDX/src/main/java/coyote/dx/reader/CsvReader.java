@@ -65,32 +65,22 @@ public class CsvReader extends AbstractFrameReader implements FrameReader, Confi
     super.setConfiguration(cfg);
 
     // Check if we are to load all the data into memory and read from there
-    if (cfg.contains(ConfigTag.PRELOAD)) {
-      try {
-        preload = cfg.getAsBoolean(ConfigTag.PRELOAD);
-      } catch (DataFrameException e) {
-        Log.info("Preload not valid " + e.getMessage());
-        preload = false;
-      }
+    if (cfg.containsIgnoreCase(ConfigTag.PRELOAD)) {
+      preload = cfg.getBoolean(ConfigTag.PRELOAD);
     }
     Log.debug(LogMsg.createMsg(CDX.MSG, "Reader.preload_is", preload));
 
     // Check if we are to treat the first line as the header names
-    if (cfg.contains(ConfigTag.HEADER)) {
-      try {
-        hasHeader = cfg.getAsBoolean(ConfigTag.HEADER);
-      } catch (DataFrameException e) {
-        Log.info("Header flag not valid " + e.getMessage());
-        hasHeader = false;
-      }
+    if (cfg.containsIgnoreCase(ConfigTag.HEADER)) {
+      hasHeader = cfg.getBoolean(ConfigTag.HEADER);
     } else {
       Log.debug("No header config");
     }
     Log.debug(LogMsg.createMsg(CDX.MSG, "Reader.header_flag_is", hasHeader));
 
     // Check if we are to use a different separator than the default ',' (comma)
-    if (cfg.contains(ConfigTag.CHARACTER)) {
-      String value = cfg.getAsString(ConfigTag.HEADER);
+    if (cfg.containsIgnoreCase(ConfigTag.CHARACTER)) {
+      String value = cfg.getString(ConfigTag.CHARACTER);
 
       if (StringUtil.isNotEmpty(value)) {
         SEPARATOR = value.charAt(0);
@@ -250,7 +240,7 @@ public class CsvReader extends AbstractFrameReader implements FrameReader, Confi
       while (nextLine == null) {
         nextLine = reader.readNext();
         reader.consumeEmptyLines();
-        if( reader.eof()){
+        if (reader.eof()) {
           break;
         }
       }
