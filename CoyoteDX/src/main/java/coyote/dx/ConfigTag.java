@@ -52,6 +52,7 @@ public class ConfigTag {
   public static final String LINEMAP = "linemap";
   public static final String LISTEN = "Listen";
   public static final String MESSAGE = "Message";
+  public static final String MODE = "mode";
   public static final String NAME = "name";
   public static final String OVERWRITE = "overwrite";
   public static final String PASSWORD = "password";
@@ -73,6 +74,7 @@ public class ConfigTag {
   public static final String SECURE = "secure";
   public static final String SELECTOR = "Selector";
   public static final String SET_SYMBOL = "SetSymbol";
+  public static final String SORT = "sort";
   public static final String SOURCE = "source";
   public static final String START = "start";
   public static final String STOP = "stop";
@@ -159,5 +161,14 @@ public class ConfigTag {
 
   public static final String IPACL = "ipacl";
   public static final String FREQUENCY = "frequency";
+  
+  // Sorting Options
+  
+  public static final String ASCEND = "Ascend";
+  public static final String DESCEND = "Descend";
+  public static final String NONE = "None";
+  public static final String ASCEND_CI = "AscendNoCase";
+  public static final String DESCEND_CI = "DescendNoCase";
+
 
 }

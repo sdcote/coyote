@@ -15,6 +15,8 @@ import java.util.Map;
 
 import coyote.commons.StringUtil;
 import coyote.dataframe.DataFrame;
+import coyote.dx.CDX;
+import coyote.dx.ConfigTag;
 import coyote.dx.FrameAggregator;
 import coyote.dx.context.TransactionContext;
 import coyote.dx.context.TransformContext;
@@ -43,16 +45,16 @@ import coyote.loader.log.Log;
  * <p>The aggregator has the ability to limit the number of frames it returns 
  * for each of the groups. This enables the ability to self-maintain the size 
  * of the data sets. For example, if we retrieved the prices of securities 
- * from an exchange for a variety of products over the past 24 hour, this 
+ * from an exchange for a variety of products over the past 24 hours, this 
  * aggregator can keep all the prices grouped together by the security and 
  * limit the number of price records retained for each security to only 1 hour
  * to ensure we only keep the latest hours price records for each security.
  * 
  * <p>Another key use case for which this aggregator was designed it where
  * readings are taken from devices at regular intervals and appended to a file
- * for intermetiary storage for processing by one or more other jobs. To
+ * for intermediary storage for processing by one or more other jobs. To
  * prevent unbounded growth of the intermediary file, a limit is placed on the
- * number of frames retained for each key. This keeps the sixe of the file
+ * number of frames retained for each key. This keeps the size of the file
  * deterministic: file size &lt;= number of devices * {@code limit} * the
  * number of samples. Subsequent processing jobs will always get the last
  * {@code limit} number of samples for each device all grouped by device key
@@ -64,21 +66,10 @@ import coyote.loader.log.Log;
  */
 public class Grouping extends AbstractFrameAggregator implements FrameAggregator {
 
-  private enum Sort {
-    ASCEND, DESCEND, NONE, ASCEND_CI, DESCEND_CI
-  }
-
   private static final String KEY = "Key";
-  private static final String LIMIT = "Limit";
-  private static final String SORT = "Sort";
-  private static final String ASCEND = "Ascend";
-  private static final String DESCEND = "Descent";
-  private static final String NONE = "None";
-  private static final String ASCEND_CI = "AscendNoCase";
-  private static final String DESCEND_CI = "DescendNoCase";
 
   private final List<String> keys = new ArrayList<>();
-  private Sort sort = Sort.NONE;
+  private CDX.Sort sort = CDX.Sort.NONE;
   private Map<String, List<DataFrame>> dataMap = new HashMap<>();
 
 
@@ -91,24 +82,24 @@ public class Grouping extends AbstractFrameAggregator implements FrameAggregator
   public void open(TransformContext context) {
     super.open(context);
 
-    String sortMode = getString(SORT);
+    String sortMode = getString(ConfigTag.SORT);
     if (StringUtil.isNotBlank(sortMode)) {
-      if (ASCEND.equalsIgnoreCase(sortMode)) {
-        sort = Sort.ASCEND;
-      } else if (DESCEND.equalsIgnoreCase(sortMode)) {
-        sort = Sort.DESCEND;
-      } else if (ASCEND_CI.equalsIgnoreCase(sortMode)) {
-        sort = Sort.ASCEND_CI;
-      } else if (DESCEND_CI.equalsIgnoreCase(sortMode)) {
-        sort = Sort.DESCEND_CI;
-      } else if (NONE.equalsIgnoreCase(sortMode)) {
-        sort = Sort.NONE;
+      if (ConfigTag.ASCEND.equalsIgnoreCase(sortMode)) {
+        sort = CDX.Sort.ASCEND;
+      } else if (ConfigTag.DESCEND.equalsIgnoreCase(sortMode)) {
+        sort = CDX.Sort.DESCEND;
+      } else if (ConfigTag.ASCEND_CI.equalsIgnoreCase(sortMode)) {
+        sort = CDX.Sort.ASCEND_CI;
+      } else if (ConfigTag.DESCEND_CI.equalsIgnoreCase(sortMode)) {
+        sort = CDX.Sort.DESCEND_CI;
+      } else if (ConfigTag.NONE.equalsIgnoreCase(sortMode)) {
+        sort = CDX.Sort.NONE;
       } else {
         Log.warn("Unrecognized sourt parameter '" + sortMode + "' - no sorting will occur");
-        sort = Sort.NONE;
+        sort = CDX.Sort.NONE;
       }
     } else {
-      sort = Sort.NONE;
+      sort = CDX.Sort.NONE;
     }
 
   }
@@ -222,12 +213,12 @@ public class Grouping extends AbstractFrameAggregator implements FrameAggregator
    */
   private int getLimit() {
     int retval = 0;
-    String value = getString(LIMIT);
+    String value = getString(ConfigTag.LIMIT);
     if (StringUtil.isNotBlank(value)) {
       try {
         retval = Integer.parseInt(value);
       } catch (NumberFormatException e) {
-        Log.error("Could not parse limit config (" + LIMIT + ") into an integer - value: '" + value + "'");
+        Log.error("Could not parse limit config (" + ConfigTag.LIMIT + ") into an integer - value: '" + value + "'");
       }
     }
     return retval;
@@ -272,14 +263,14 @@ public class Grouping extends AbstractFrameAggregator implements FrameAggregator
    * 
    * @param mode How to sort the keys
    */
-  private void sortKeys(Sort mode) {
-    if (mode != Sort.NONE) {
-      if (mode == Sort.ASCEND || mode == Sort.DESCEND) {
+  private void sortKeys(CDX.Sort mode) {
+    if (mode != CDX.Sort.NONE) {
+      if (mode == CDX.Sort.ASCEND || mode == CDX.Sort.DESCEND) {
         Collections.sort(keys);
       } else {
         Collections.sort(keys, String.CASE_INSENSITIVE_ORDER);
       }
-      if (mode == Sort.DESCEND || mode == Sort.DESCEND_CI) {
+      if (mode == CDX.Sort.DESCEND || mode == CDX.Sort.DESCEND_CI) {
         Collections.reverse(keys);
       }
     }

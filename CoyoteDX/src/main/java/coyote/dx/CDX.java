@@ -43,6 +43,9 @@ public class CDX {
   }
 
 
+  public static enum Sort {
+    ASCEND, DESCEND, NONE, ASCEND_CI, DESCEND_CI
+  }
 
 
   /**
