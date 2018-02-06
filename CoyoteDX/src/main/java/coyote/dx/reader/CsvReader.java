@@ -244,6 +244,12 @@ public class CsvReader extends AbstractFrameReader implements FrameReader, Confi
           break;
         }
       }
+      if (nextLine != null) {
+        super.recordCounter++;
+        if (super.readLimit > 0 && super.recordCounter > super.readLimit) {
+          nextLine = null;
+        }
+      }
     } catch (Exception ignore) {
       // no more lines
     }

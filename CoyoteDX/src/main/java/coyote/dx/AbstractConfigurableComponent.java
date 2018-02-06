@@ -333,6 +333,26 @@ public abstract class AbstractConfigurableComponent implements ConfigurableCompo
 
 
   /**
+   * @param name the name of the property to retrieve
+   * 
+   * @return the value of the named property as a long or 0 if it was not found.
+   */
+  public long getLong(String name) {
+    String value = getString(name);
+    if (StringUtil.isNotBlank(value)) {
+      try {
+        return Long.parseLong(value);
+      } catch (NumberFormatException ignore) {}
+      return 0;
+    }
+
+    return 0;
+  }
+
+
+
+
+  /**
    * @return true if this task is enabled to run, false if the tasks is not to be executed
    */
   public boolean isEnabled() {
