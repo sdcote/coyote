@@ -80,7 +80,7 @@ public abstract class AbstractMathTransform extends AbstractFieldTransform {
 
 
 
-  protected long getLong(String token) throws TransformException {
+  protected long getLongNumber(String token) throws TransformException {
     long retval = 0L;
     try {
       retval = Long.parseLong(token);

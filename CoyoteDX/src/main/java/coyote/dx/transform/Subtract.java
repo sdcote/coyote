@@ -119,8 +119,8 @@ public class Subtract extends AbstractMathTransform implements FrameTransform {
 
   private long subtractLong(String minuend, String subtrahend) throws TransformException {
     long retval = 0L;
-    long min = getLong(minuend);
-    long sub = getLong(subtrahend);
+    long min = getLongNumber(minuend);
+    long sub = getLongNumber(subtrahend);
     retval = min - sub;
     return retval;
   }

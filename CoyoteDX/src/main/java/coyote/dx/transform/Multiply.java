@@ -115,7 +115,7 @@ public class Multiply extends AbstractMathTransform implements FrameTransform {
   private long multiplyLong(DataField field, String factor) throws TransformException {
     long retval = 0L;
     long val = getAsLong(field);
-    long ftr = getLong(factor);
+    long ftr = getLongNumber(factor);
     retval = val * ftr;
     return retval;
   }
