@@ -14,6 +14,7 @@ package coyote.dx.writer;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import coyote.commons.DataFrameUtil;
@@ -368,12 +369,21 @@ public class WebServiceWriter extends AbstractConfigurableComponent implements F
 
       // TODO: What do we do with the response of other than a 200?
 
+      DataFrame auditFrame = new DataFrame();
+      auditFrame.add("Start", new Date(lastResponse.getOperationStart()));
+      auditFrame.add("ElapsedTime", lastResponse.getOperationElapsed());
+      auditFrame.add("WriteTime",lastResponse.getOperationTime());
+      auditFrame.add("TransactionTime", lastResponse.getTransactionTime());
+      auditFrame.add("WebResponseTime", lastResponse.getRequestTime());
+      auditFrame.add("ParsingTime", lastResponse.getParsingTime());
+      auditFrame.add("Result",lastResponse.getResult());
+
       // Write the response frame to all the configured sub-writers
       if (writers.size() > 0) {
         for (FrameWriter writer : writers) {
           try {
             // Write the target (new) frame
-            writer.write(lastResponse.getResult());
+            writer.write(auditFrame);
           } catch (Exception e) {
             Log.error(LogMsg.createMsg(CDX.MSG, "Engine.write_error", e.getClass().getSimpleName(), e.getMessage(), ExceptionUtil.stackTrace(e)));
             e.printStackTrace();
