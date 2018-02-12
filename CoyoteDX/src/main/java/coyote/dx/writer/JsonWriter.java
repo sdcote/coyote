@@ -9,6 +9,7 @@ package coyote.dx.writer;
 
 import coyote.commons.StringUtil;
 import coyote.dataframe.DataFrame;
+import coyote.dataframe.marshal.JSONMarshaler;
 import coyote.dx.CDX;
 import coyote.dx.ConfigurableComponent;
 import coyote.dx.FrameWriter;
@@ -56,7 +57,7 @@ public class JsonWriter extends AbstractFrameFileWriter implements FrameWriter, 
    */
   private void writeFrame(final DataFrame frame) {
 
-    printwriter.write(frame.toString());
+    printwriter.write(JSONMarshaler.toFormattedString(frame));
     printwriter.write(StringUtil.LINE_FEED);
     printwriter.flush();
 
