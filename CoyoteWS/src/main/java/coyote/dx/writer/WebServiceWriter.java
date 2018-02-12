@@ -370,13 +370,15 @@ public class WebServiceWriter extends AbstractConfigurableComponent implements F
       // TODO: What do we do with the response of other than a 200?
 
       DataFrame auditFrame = new DataFrame();
+      auditFrame.add("RequestUrl", resource.getFullURI().toString());
+      auditFrame.add("RequestBody", frame);
       auditFrame.add("Start", new Date(lastResponse.getOperationStart()));
       auditFrame.add("ElapsedTime", lastResponse.getOperationElapsed());
-      auditFrame.add("WriteTime",lastResponse.getOperationTime());
+      auditFrame.add("WriteTime", lastResponse.getOperationTime());
       auditFrame.add("TransactionTime", lastResponse.getTransactionTime());
       auditFrame.add("WebResponseTime", lastResponse.getRequestTime());
       auditFrame.add("ParsingTime", lastResponse.getParsingTime());
-      auditFrame.add("Result",lastResponse.getResult());
+      auditFrame.add("Result", lastResponse.getResult());
 
       // Write the response frame to all the configured sub-writers
       if (writers.size() > 0) {
