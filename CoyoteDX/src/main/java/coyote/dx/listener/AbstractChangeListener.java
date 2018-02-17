@@ -59,8 +59,32 @@ public abstract class AbstractChangeListener extends AbstractMonitoringListener 
   private String groupingFieldName = null;
   private final Map<String, List<Decimal>> sampleMap = new HashMap<>();
 
+  protected String DIRECTION_TAG = "Direction";
+  protected Direction direction = Direction.BOTH;
 
-  
+  protected enum Direction {
+    UP("Up"), DOWN("Down"), BOTH("Both)");
+    // Member to hold the name
+    private String name;
+
+
+
+
+    // constructor to set the string
+    Direction(String name) {
+      this.name = name;
+    }
+
+
+
+
+    // the toString just returns the given name
+    @Override
+    public String toString() {
+      return name;
+    }
+  }
+
 
 
 
@@ -84,8 +108,44 @@ public abstract class AbstractChangeListener extends AbstractMonitoringListener 
       setGroupingFieldName(gname.trim());
     }
 
+    String dir = getConfiguration().getString(DIRECTION_TAG);
+    if (StringUtil.isNotBlank(dir)) {
+      String ldir = dir.toLowerCase();
+      if (ldir.startsWith("up")) {
+        setDirection(Direction.UP);
+      } else if (ldir.startsWith("down")) {
+        setDirection(Direction.DOWN);
+      } else {
+        Log.warn("Unrecognized '" + DIRECTION_TAG + "' argument: " + dir);
+      }
+    }
+
   }
 
+
+
+
+  /**
+   * The the direction of change to monitor.
+   * 
+   * <p>Not all subclasses use this and those that do, may use it differently 
+   * from others.
+   * 
+   * @param dir The direction of change to monitor.
+   */
+  protected void setDirection(Direction dir) {
+    direction = dir;
+  }
+
+
+
+
+  /**
+   * @return The direction of change to monitor.
+   */
+  protected Direction getDirection() {
+    return direction;
+  }
 
 
 
@@ -353,8 +413,7 @@ public abstract class AbstractChangeListener extends AbstractMonitoringListener 
    */
   @Override
   public void onMap(final TransactionContext txnContext) {
-    
-    
+
     if (isEnabled()) {
       if (getCondition() != null) {
         try {
@@ -374,8 +433,7 @@ public abstract class AbstractChangeListener extends AbstractMonitoringListener 
         localSample(txnContext);
       }
     }
-    
-    
+
   }
 
 
@@ -387,7 +445,6 @@ public abstract class AbstractChangeListener extends AbstractMonitoringListener 
   protected void sample(TransactionContext txnContext) {
     // to be overridden by subclasses
   }
-
 
 
 
@@ -411,10 +468,6 @@ public abstract class AbstractChangeListener extends AbstractMonitoringListener 
       }
     }
   }
-  
-  
-  
-
 
 
 
@@ -553,6 +606,7 @@ public abstract class AbstractChangeListener extends AbstractMonitoringListener 
 
 
 
+
   /**
    * @param name the name of the field being sampled
    */
@@ -674,7 +728,7 @@ public abstract class AbstractChangeListener extends AbstractMonitoringListener 
       try {
         retval = Decimal.valueOf(str);
       } catch (Exception e) {
-        Log.warn("The value could not be parsed into a decimal: '"+value+"'");
+        Log.warn("The value could not be parsed into a decimal: '" + value + "'");
       }
     }
     return retval;

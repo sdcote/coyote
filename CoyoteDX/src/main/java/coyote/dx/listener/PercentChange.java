@@ -12,9 +12,18 @@ import coyote.loader.log.Log;
 
 
 /**
- * The default mode is to compare the current reading against the last. 
+ * This is a listener which compares the current frame against the last frame
+ * cached from a subsequent read/mapping event or the average of all previous
+ * cached frames.
  * 
- * Averaging mode averages all prior samples and compares the current reading against the average.
+ * <p>The main use case is for this listener to observe a series of numeric 
+ * field values and perform some action when the values differ. The transform 
+ * may be a long-running job in a service or handling batch transfers.
+ * 
+ * <p>The default mode is to compare the current reading against the last. 
+ * 
+ * <p>Averaging mode averages all prior samples and compares the current 
+ * reading against the average.
  * 
  * <p>the {@code Exceeds} config parameter is required and defines the percentage of change
  * 
@@ -22,13 +31,13 @@ import coyote.loader.log.Log;
  * 
  * <p>the {@code Enabled} flag determine if the listener runs at all
  * 
- * <p>The {@code field} configuration parameter is the required minimum
+ * <p>The {@code Ffield} configuration parameter is the required minimum
  * configuration attribute as it directs the listener to which file to sample.
  * This field must always contain a numeric value.
  * 
  * <p>This listener supports grouping in that separate lists of samples will 
  * be tracked mased on the value of a spacific field. By specifyinf a field 
- * name in the {@code group} configuration attribute, the listener will track
+ * name in the {@code Group} configuration attribute, the listener will track
  * data in a group named by that fields value. For example, if a data transfer 
  * job is streaming in metrics from a device, and the identifier of that 
  * device is specified in the {@code ID} field, metrics will be collected and
@@ -119,7 +128,15 @@ public class PercentChange extends AbstractChangeListener implements ContextList
             }
             Log.debug(group + "  Current: " + currentSample + "  Difference: " + difference + "  Percentage: " + percentage);
 
-            if (percentage.abs().isGreaterThan(sentinel)) {
+            if (
+                percentage.abs().isGreaterThan(sentinel) 
+                && (
+                    getDirection() == Direction.BOTH || 
+                    (getDirection() == Direction.UP && difference.isGreaterThan(Decimal.ZERO)) || 
+                    (getDirection() == Direction.DOWN && difference.isLessThan(Decimal.ZERO))
+            )
+
+            ) {
               DataFrame taskframe = (DataFrame)frame.clone();
               taskframe.put(GROUP, group);
               taskframe.put(CURRENT_SAMPLE, currentSample.toDouble());

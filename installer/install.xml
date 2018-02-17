@@ -6,7 +6,7 @@ xsi:schemaLocation="http://izpack.org/schema/installation http://izpack.org/sche
 
 	<info>
 		<appname>Coyote DX Framework and Toolkit</appname>
-		<appversion>0.8.0</appversion>
+		<appversion>0.8.1</appversion>
 		<authors>
 			<author name="Steve Cote" email="sdcote@gmail.com"/>
 		</authors>
@@ -43,7 +43,6 @@ xsi:schemaLocation="http://izpack.org/schema/installation http://izpack.org/sche
 	<!-- The panels in a classic order -->
 	<panels>
 		<panel classname="HelloPanel" id="hellopanel"/>
-		<panel classname="HTMLInfoPanel" id="infopanel" encoding="ISO-8859-1"/>
 		<panel classname="HTMLLicencePanel" id="licensepanel"/>
 		<panel classname="TargetPanel" id="targetpanel"/>
 		<panel classname="PacksPanel" id="packspanel"/>
@@ -58,7 +57,6 @@ xsi:schemaLocation="http://izpack.org/schema/installation http://izpack.org/sche
 	<!--The resources section. The ids must be these ones if you want to use the LicencePanel and/or the InfoPanel.-->
 	<resources>
 		<res id="HTMLLicencePanel.licensepanel" src="./installer/license.html"/>
-        <res id="HTMLInfoPanel.info" src="./installer/install-readme.html"/>
 		<res id="Installer.image.0" src="./installer/info-border.png"/>
 		<res id="Installer.image.hellopanel" src="./installer/info-border.png"/>
 		<res id="Installer.image.infopanel" src="./installer/info-border.png"/>
