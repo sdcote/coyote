@@ -88,7 +88,6 @@ public class PercentChange extends AbstractChangeListener implements ContextList
     } else {
       throw new ConfigurationException(getClass().getSimpleName() + " requires the '" + EXCEEDS + "' configuration parameter");
     }
-
   }
 
 
@@ -116,7 +115,6 @@ public class PercentChange extends AbstractChangeListener implements ContextList
           }
 
           if (lastSample != null) {
-
             Decimal currentSample = getTargetFieldValue(frame);
             Decimal difference = currentSample.minus(lastSample);
 
@@ -128,15 +126,7 @@ public class PercentChange extends AbstractChangeListener implements ContextList
             }
             Log.debug(group + "  Current: " + currentSample + "  Difference: " + difference + "  Percentage: " + percentage);
 
-            if (
-                percentage.abs().isGreaterThan(sentinel) 
-                && (
-                    getDirection() == Direction.BOTH || 
-                    (getDirection() == Direction.UP && difference.isGreaterThan(Decimal.ZERO)) || 
-                    (getDirection() == Direction.DOWN && difference.isLessThan(Decimal.ZERO))
-            )
-
-            ) {
+            if (percentage.abs().isGreaterThan(sentinel) && (getDirection() == Direction.BOTH || (getDirection() == Direction.UP && difference.isGreaterThan(Decimal.ZERO)) || (getDirection() == Direction.DOWN && difference.isLessThan(Decimal.ZERO)))) {
               DataFrame taskframe = (DataFrame)frame.clone();
               taskframe.put(GROUP, group);
               taskframe.put(CURRENT_SAMPLE, currentSample.toDouble());
@@ -155,7 +145,6 @@ public class PercentChange extends AbstractChangeListener implements ContextList
               } else {
                 taskframe.put(ACTION, INCREASED);
               }
-
               executeTask(taskframe);
             }
 
