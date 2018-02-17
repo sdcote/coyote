@@ -115,6 +115,10 @@ public abstract class AbstractChangeListener extends AbstractMonitoringListener 
         setDirection(Direction.UP);
       } else if (ldir.startsWith("down")) {
         setDirection(Direction.DOWN);
+      } else if (ldir.startsWith("both")) {
+        setDirection(Direction.BOTH);
+      } else if (ldir.startsWith("either")) {
+        setDirection(Direction.BOTH);
       } else {
         Log.warn("Unrecognized '" + DIRECTION_TAG + "' argument: " + dir);
       }
