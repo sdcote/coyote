@@ -63,7 +63,7 @@ public class LogEntry extends AbstractTransformTask {
         } else if (StringUtil.equalsIgnoreCase("trace", level)) {
           Log.trace(message);
         } else {
-          Log.info(message);
+          Log.append(level.toUpperCase(), message);
         }
       } else {
         Log.info(message);
