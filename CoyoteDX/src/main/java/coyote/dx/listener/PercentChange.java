@@ -23,15 +23,23 @@ import coyote.loader.log.Log;
  * <p>The default mode is to compare the current reading against the last. 
  * 
  * <p>Averaging mode averages all prior samples and compares the current 
- * reading against the average.
+ * reading against the average. By setting the {@code Average} configuration 
+ * attribute to true, the percent increase will be based on the average of all 
+ * prior cached samples. The number of prior samples can be limited with the 
+ * {@code Limit} configuration parameter with any integer greater than zero 
+ * allowed.
  * 
- * <p>the {@code Exceeds} config parameter is required and defines the percentage of change
+ * <p>The {@code Exceeds} config parameter is required and defines the 
+ * percentage of change to check. This is a positive, non-zero value with 1.0 
+ * representing 100% and 0.5 representing 50%.
  * 
- * <p>the {@code Condition} determines if the listener samples the packet
+ * <p>The {@code Condition} expression determines if the listener samples the 
+ * packet. Normal value for this expression relate to checkig the existence of 
+ * fields.
  * 
- * <p>the {@code Enabled} flag determine if the listener runs at all
+ * <p>The {@code Enabled} flag determine if the listener runs at all.
  * 
- * <p>The {@code Ffield} configuration parameter is the required minimum
+ * <p>The {@code Field} configuration parameter is the required minimum
  * configuration attribute as it directs the listener to which file to sample.
  * This field must always contain a numeric value.
  * 
@@ -50,12 +58,15 @@ import coyote.loader.log.Log;
  */
 public class PercentChange extends AbstractChangeListener implements ContextListener {
 
-  private static final String EXCEEDS = "Exceeds";
-  private static final String GROUP = "Group";
+  private static final String EXCEEDS_TAG = "Exceeds";
+  private static final String GROUP_TAG = "Group";
+  private static final String AVERAGE_TAG = "Average";
+  private static final String DECAY_TAG = "Decay";
+  
   private static final String CURRENT_SAMPLE = "CurrentSample";
-  private static final String LAST_SAMPLE = "LastSample";
+  private static final String BASE_SAMPLE = "BaseSample";
   private static final String CURRENT_SAMPLE_WHOLE = "CurrentSampleWhole";
-  private static final String LAST_SAMPLE_WHOLE = "LastSampleWhole";
+  private static final String BASE_SAMPLE_WHOLE = "BaseSampleWhole";
   private static final String DIFFERENCE = "Difference";
   private static final String DIFFERENCE_WHOLE = "DifferenceWhole";
   private static final String PERCENTAGE = "Percentage";
@@ -78,15 +89,15 @@ public class PercentChange extends AbstractChangeListener implements ContextList
   public void setConfiguration(final Config cfg) throws ConfigurationException {
     super.setConfiguration(cfg);
 
-    if (getConfiguration().containsIgnoreCase(EXCEEDS)) {
-      String percentChange = getString(EXCEEDS);
+    if (getConfiguration().containsIgnoreCase(EXCEEDS_TAG)) {
+      String percentChange = getString(EXCEEDS_TAG);
       try {
         sentinel = Decimal.valueOf(percentChange);
       } catch (Exception e) {
-        throw new ConfigurationException(getClass().getSimpleName() + ": The '" + EXCEEDS + "' configuration parameter must be a numeric value");
+        throw new ConfigurationException(getClass().getSimpleName() + ": The '" + EXCEEDS_TAG + "' configuration parameter must be a numeric value");
       }
     } else {
-      throw new ConfigurationException(getClass().getSimpleName() + " requires the '" + EXCEEDS + "' configuration parameter");
+      throw new ConfigurationException(getClass().getSimpleName() + " requires the '" + EXCEEDS_TAG + "' configuration parameter");
     }
   }
 
@@ -102,37 +113,57 @@ public class PercentChange extends AbstractChangeListener implements ContextList
     if (frame != null) {
       if (getFieldName() != null) {
         try {
-          Decimal lastSample = null;
+          Decimal baseSample = null;
           String group = null;
           // if there is a grouping fieldname        
           if (StringUtil.isNotEmpty(getGroupingFieldName())) {
             group = frame.getAsString(getGroupingFieldName());
             if (group != null) {
-              lastSample = getLastSample(group);
+              if (isAveraging()) {
+                Decimal decayFactor = getDecay();
+                if (decayFactor != null && !decayFactor.isNaN()) {
+                  baseSample = super.getExponentialAverage(decayFactor, group);
+                } else {
+                  baseSample = getSimpleAverage(group);
+                }
+              } else {
+                baseSample = getLastSample(group);
+              }
+            } else {
+              Log.warn("Could not determine group from field value - skipping");
             }
           } else {
-            lastSample = getLastSample();
+            if (isAveraging()) {
+              Decimal decayFactor = getDecay();
+              if (decayFactor != null && !decayFactor.isNaN()) {
+                baseSample = super.getExponentialAverage(decayFactor, group);
+              } else {
+                baseSample = getSimpleAverage();
+              }
+            } else {
+              baseSample = getLastSample();
+            }
           }
 
-          if (lastSample != null) {
+          if (baseSample != null) {
             Decimal currentSample = getTargetFieldValue(frame);
-            Decimal difference = currentSample.minus(lastSample);
+            Decimal difference = currentSample.minus(baseSample);
 
             Decimal percentage;
             if (difference.isEqual(Decimal.ZERO)) {
               percentage = Decimal.ZERO;
             } else {
-              percentage = difference.dividedBy(lastSample);
+              percentage = difference.dividedBy(baseSample);
             }
             Log.debug(group + "  Current: " + currentSample + "  Difference: " + difference + "  Percentage: " + percentage);
 
             if (percentage.abs().isGreaterThan(sentinel) && (getDirection() == Direction.BOTH || (getDirection() == Direction.UP && difference.isGreaterThan(Decimal.ZERO)) || (getDirection() == Direction.DOWN && difference.isLessThan(Decimal.ZERO)))) {
               DataFrame taskframe = (DataFrame)frame.clone();
-              taskframe.put(GROUP, group);
+              taskframe.put(GROUP_TAG, group);
               taskframe.put(CURRENT_SAMPLE, currentSample.toDouble());
-              taskframe.put(LAST_SAMPLE, lastSample.toDouble());
+              taskframe.put(BASE_SAMPLE, baseSample.toDouble());
               taskframe.put(CURRENT_SAMPLE_WHOLE, currentSample.getWholePart().toDouble());
-              taskframe.put(LAST_SAMPLE_WHOLE, lastSample.getWholePart().toDouble());
+              taskframe.put(BASE_SAMPLE_WHOLE, baseSample.getWholePart().toDouble());
               taskframe.put(DIFFERENCE, difference.toDouble());
               taskframe.put(DIFFERENCE_WHOLE, difference.getWholePart().toDouble());
               taskframe.put(PERCENTAGE, percentage.toDouble());
@@ -160,6 +191,31 @@ public class PercentChange extends AbstractChangeListener implements ContextList
     } else {
       Log.error("No frame to sample");
     }
+  }
+
+
+
+
+  /**
+   * @return
+   */
+  private Decimal getDecay() {
+    Decimal retval = null;
+    if (getConfiguration().containsIgnoreCase(DECAY_TAG)) {
+      retval = Decimal.valueOf(getString(DECAY_TAG));
+    }
+    return retval;
+  }
+
+
+
+
+  private boolean isAveraging() {
+    boolean retval = false;
+    if (getConfiguration().containsIgnoreCase(AVERAGE_TAG)) {
+      retval = getBoolean(AVERAGE_TAG);
+    }
+    return retval;
   }
 
 }
