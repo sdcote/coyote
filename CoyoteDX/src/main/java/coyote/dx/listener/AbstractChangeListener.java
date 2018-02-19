@@ -37,6 +37,10 @@ import coyote.loader.log.LogMsg;
  * configuration attribute as it directs the listener to which file to sample.
  * This field must always contain a numeric value.
  * 
+ * <p>The {@code Limit} configuration parameter limits the number of previous 
+ * samples are stored. The default is no limit, but any integer value above 
+ * zero can be set.
+ * 
  * <p>This listener supports grouping in that separate lists of samples will 
  * be tracked mased on the value of a spacific field. By specifyinf a field 
  * name in the {@code group} configuration attribute, the listener will track
@@ -49,6 +53,13 @@ import coyote.loader.log.LogMsg;
  * are not tracked as this would double the memory requirements. If a complete
  * sample list is required, a separate listener with no grouping should be 
  * used with no grouping specified.
+ * 
+ * <p>Some listeners support the concept of a {@code Direction} and operate 
+ * only when data trends up or down. The {@code Direction} configuration 
+ * parameter can be set to 'up', 'upwards', 'positive' or 'positively' to 
+ * indicate {@code UP}. Values of 'down', 'downwards', 'negative' or 
+ * 'negatively' indicate {@code DOWN}. The default setting is {@code BOTH} and 
+ * can be configured with 'both' or 'either'. 
  */
 public abstract class AbstractChangeListener extends AbstractMonitoringListener implements ContextListener {
 
@@ -108,16 +119,23 @@ public abstract class AbstractChangeListener extends AbstractMonitoringListener 
       setGroupingFieldName(gname.trim());
     }
 
+    if (getConfiguration().containsIgnoreCase(ConfigTag.LIMIT)) {
+      int limit = getInteger(ConfigTag.LIMIT);
+      if (limit > 0) {
+        this.setMaximumSampleSize(limit);
+      } else {
+        throw new ConfigurationException("Limit parameter must be greater than zero");
+      }
+    }
+
     String dir = getConfiguration().getString(DIRECTION_TAG);
     if (StringUtil.isNotBlank(dir)) {
       String ldir = dir.toLowerCase();
-      if (ldir.startsWith("up")) {
+      if (ldir.startsWith("up") || ldir.startsWith("positive")) {
         setDirection(Direction.UP);
-      } else if (ldir.startsWith("down")) {
+      } else if (ldir.startsWith("down") || ldir.startsWith("negative")) {
         setDirection(Direction.DOWN);
-      } else if (ldir.startsWith("both")) {
-        setDirection(Direction.BOTH);
-      } else if (ldir.startsWith("either")) {
+      } else if (ldir.startsWith("both") || ldir.startsWith("either")) {
         setDirection(Direction.BOTH);
       } else {
         Log.warn("Unrecognized '" + DIRECTION_TAG + "' argument: " + dir);
