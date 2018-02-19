@@ -4,7 +4,6 @@
 @rem  Coyote DX startup script for Windows
 @rem
 @rem ##########################################################################
-@rem # set JAVA_HOME=C:\Program Files\Java\jdk1.8.0_92 - Required for task scheduler?
 
 if "%HOME%"=="" goto homeDrivePathPre
 if exist "%HOME%\cdx_pre.bat" call "%HOME%\cdx_pre.bat"
