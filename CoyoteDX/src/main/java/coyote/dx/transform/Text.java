@@ -29,7 +29,7 @@ import coyote.loader.log.Log;
  * formatting them in one location for all the writers. For example, a Date 
  * field can be converted to just the time portion with the format pattern.
  * 
- * <p>THe following configuration:<pre>
+ * <p>The following configuration:<pre>
  * "Text": { "field": "date", "format": "YYYY-MM-dd" }</pre>
  * Converts the Date field named "date" to a text (String) field with the date
  * formatted in year-month-day format. BTW, even if the underlying field is 

@@ -13,7 +13,7 @@ import coyote.dx.TransformException;
 
 
 /**
- * 
+ * Places the current data-time in the configured field.
  */
 public class Timestamp extends AbstractFieldTransform implements FrameTransform {
 
