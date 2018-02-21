@@ -7,11 +7,12 @@
  */
 package coyote.commons;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import org.junit.Test;
+import java.math.RoundingMode;
 
-import coyote.commons.Decimal;
+import org.junit.Test;
 
 
 /**
@@ -108,6 +109,21 @@ public class DecimalTest {
     expected = Decimal.valueOf("-1");
     assertTrue(expected.isEqual(result));
 
+  }
+
+
+
+
+  @Test
+  public void roundDouble() {
+    Decimal pi = Decimal.valueOf(Math.PI);
+    assertEquals("3.1415926536", Double.toString(pi.toDouble(10)));
+    assertEquals("3.141592654", Double.toString(pi.toDouble(9)));
+
+    Decimal fives = Decimal.valueOf("5.555");
+    assertEquals("5.55", Double.toString(fives.toDouble(2, RoundingMode.HALF_DOWN)));
+    assertEquals("5.56", Double.toString(fives.toDouble(2, RoundingMode.HALF_UP)));
+    assertEquals("5.56", Double.toString(fives.toDouble(2, RoundingMode.HALF_EVEN)));
   }
 
 }

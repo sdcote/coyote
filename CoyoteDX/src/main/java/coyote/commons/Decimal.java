@@ -563,9 +563,12 @@ public final class Decimal implements Comparable<Decimal>, Serializable {
 
 
 
+  
   /**
    * Converts this {@code Decimal} to a {@code double}.
+   * 
    * @return this {@code Decimal} converted to a {@code double}
+   * 
    * @see BigDecimal#doubleValue()
    */
   public double toDouble() {
@@ -573,6 +576,79 @@ public final class Decimal implements Comparable<Decimal>, Serializable {
       return Double.NaN;
     }
     return value.doubleValue();
+  }
+
+
+
+
+  /**
+   * Converts this {@code Decimal} to a {@code double} with only the given 
+   * number of decimal places.
+   * 
+   * <p>This uses Half-Up rounding mode.
+   * 
+   * @param places the number of decimal places (i.e. precision) to return.
+   * 
+   * @return this {@code Decimal} converted to a {@code double}
+   * 
+   * @throws IllegalArgumentException if places contains a negative value
+   * 
+   * @see BigDecimal#doubleValue()
+   */
+  public double toDouble(int places) {
+    return toDouble(places, RoundingMode.HALF_UP);
+  }
+
+
+
+
+  /**
+   * Converts this {@code Decimal} to a {@code double} with only the given 
+   * number of decimal places.
+   * 
+   * @param places the number of decimal places (i.e. precision) to return.
+   * @param mode the rounding mode to use
+   * 
+   * @return this {@code Decimal} converted to a {@code double}
+   * 
+   * @throws IllegalArgumentException if places contains a negative value
+   * 
+   * @see BigDecimal#doubleValue()
+   */
+  public double toDouble(int places, RoundingMode mode) {
+    if (places < 0) {
+      throw new IllegalArgumentException();
+    }
+
+    if (this == NaN) {
+      return Double.NaN;
+    }
+
+    BigDecimal bd = new BigDecimal(Double.toString(value.doubleValue()));
+    bd = bd.setScale(places, mode);
+    return bd.doubleValue();
+  }
+
+
+
+
+  /**
+   * This returns only the given number of decimal places WITHOUT ROUNDING.
+   * 
+   * @param places the number of decimal places to return
+   * 
+   * @return the value to only the given number of places.
+   */
+  public double toTruncatedDouble(int places) {
+    if (places < 0) {
+      throw new IllegalArgumentException();
+    }
+
+    if (this == NaN) {
+      return Double.NaN;
+    }
+    double scale = Math.pow(10, places);
+    return Math.round(value.doubleValue() * scale) / scale;
   }
 
 
