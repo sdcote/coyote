@@ -760,20 +760,18 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
 
       } catch (Exception e) {
         StringBuilder b = new StringBuilder();
-        if (StringUtil.isNotBlank(txnContext.getErrorMessage())) {
-          b.append(txnContext.getErrorMessage());
-        }
-        if (b.length() > 0) {
-          b.append(", ");
-        }
         b.append(transformer.getClass().getSimpleName());
         b.append(": ");
         b.append(e.getMessage());
+        if (e instanceof NullPointerException) {
+          b.append("\n");
+          b.append(ExceptionUtil.stackTrace(e));
+        }
         txnContext.setError(b.toString());
       }
     }
     if (txnContext.isInError()) {
-      Log.debug("TRANSFORM ERRORS: " + txnContext.getErrorMessage());
+      Log.error("TRANSFORM ERRORS: " + txnContext.getErrorMessage());
     }
   }
 
