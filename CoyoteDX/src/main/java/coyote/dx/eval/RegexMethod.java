@@ -29,7 +29,10 @@ public class RegexMethod extends AbstractBooleanMethod {
   public static Boolean execute(TransformContext context, String token, String regex) {
     boolean retval = false;
     String key = sanitize(token);
-    String value = context.resolveToString(key);
+    String value = null;
+    if (context != null) {
+      value = context.resolveToString(key);
+    }
     if (value != null)
       retval = Pattern.compile(regex).matcher(value).find();
     return retval;

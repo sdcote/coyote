@@ -29,7 +29,10 @@ public class ExistsMethod extends AbstractBooleanMethod {
    */
   public static Boolean execute(TransformContext context, String token) {
     String fieldname = sanitize(token);
-    boolean retval = context.containsField(fieldname);
+    boolean retval = false;
+    if (context != null) {
+      retval = context.containsField(fieldname);
+    }
     return retval;
   }
 
