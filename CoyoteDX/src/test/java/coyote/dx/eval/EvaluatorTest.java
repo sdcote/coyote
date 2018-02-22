@@ -122,8 +122,7 @@ public class EvaluatorTest {
     } catch (final Exception e) {
       e.printStackTrace();
       fail(e.getMessage());
-    }
-    finally {
+    } finally {
       transformContext.setError(false);
       transformContext.setRow(42);
     }
@@ -157,8 +156,7 @@ public class EvaluatorTest {
     } catch (final Exception e) {
       e.printStackTrace();
       fail(e.getMessage());
-    }
-    finally {
+    } finally {
       transformContext.setError(false);
     }
   }
@@ -374,8 +372,7 @@ public class EvaluatorTest {
     } catch (final Exception e) {
       e.printStackTrace();
       fail(e.getMessage());
-    }
-    finally {
+    } finally {
       context.setError(false);
     }
   }
