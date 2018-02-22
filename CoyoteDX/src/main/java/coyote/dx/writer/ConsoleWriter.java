@@ -13,7 +13,10 @@ import coyote.dataframe.DataFrame;
 import coyote.dataframe.marshal.CSVMarshaler;
 import coyote.dataframe.marshal.JSONMarshaler;
 import coyote.dataframe.marshal.XMLMarshaler;
+import coyote.dx.CDX;
 import coyote.dx.ConfigTag;
+import coyote.loader.log.Log;
+import coyote.loader.log.LogMsg;
 
 
 /**
@@ -68,6 +71,26 @@ public class ConsoleWriter extends AbstractFrameWriter {
    */
   @Override
   public void write(DataFrame frame) {
+    if (expression != null) {
+      try {
+        if (evaluator.evaluateBoolean(expression)) {
+          writeFrame(frame);
+        }
+      } catch (final IllegalArgumentException e) {
+        Log.warn(LogMsg.createMsg(CDX.MSG, "Writer.boolean_evaluation_error", expression, e.getMessage()));
+      }
+    } else {
+      writeFrame(frame);
+    }
+  }
+
+
+
+
+  /**
+   * @param frame
+   */
+  private void writeFrame(DataFrame frame) {
     if (!StringUtil.equalsIgnoreCase(NO_FORMAT, getFormat())) {
       if (isIndented()) {
         if (StringUtil.equalsIgnoreCase(JSON_FORMAT, getFormat())) {
@@ -96,7 +119,6 @@ public class ConsoleWriter extends AbstractFrameWriter {
       String message = Template.resolve(getMessage(), getContext().getSymbols());
       System.out.println(message);
     }
-
   }
 
 }

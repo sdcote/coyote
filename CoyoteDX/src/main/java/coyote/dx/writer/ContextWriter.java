@@ -9,9 +9,11 @@ package coyote.dx.writer;
 
 import coyote.commons.StringUtil;
 import coyote.dataframe.DataFrame;
+import coyote.dx.CDX;
 import coyote.dx.ConfigTag;
 import coyote.dx.context.TransformContext;
 import coyote.loader.log.Log;
+import coyote.loader.log.LogMsg;
 
 
 /**
@@ -68,6 +70,26 @@ public class ContextWriter extends AbstractFrameWriter {
    */
   @Override
   public void write(DataFrame frame) {
+    if (expression != null) {
+      try {
+        if (evaluator.evaluateBoolean(expression)) {
+          writeFrame(frame);
+        }
+      } catch (final IllegalArgumentException e) {
+        Log.warn(LogMsg.createMsg(CDX.MSG, "Writer.boolean_evaluation_error", expression, e.getMessage()));
+      }
+    } else {
+      writeFrame(frame);
+    }
+  }
+
+
+
+
+  /**
+   * @param frame
+   */
+  private void writeFrame(DataFrame frame) {
     if (replace) {
       getContext().set(contextFieldName, frame);
     } else {
