@@ -153,7 +153,7 @@ public class FileContextTest extends AbstractContextTest {
     Object obj = nextcontext.get("State");
     assertNotNull(obj);
     assertTrue(obj instanceof DataFrame);
-    assertFalse(state == obj); // should be two different data frames
+    assertFalse(state.equals(obj)); // should be two different data frames
 
     DataFrame orders = ((DataFrame)obj).getAsFrame("Orders");
     assertTrue(orders.getFieldCount() == 3);
