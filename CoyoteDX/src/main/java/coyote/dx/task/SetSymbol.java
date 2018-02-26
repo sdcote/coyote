@@ -21,7 +21,7 @@ import coyote.loader.log.Log;
  * 
  * <p>This task can be configured thusly:<pre>
  * "SetSymbol":{"symbol":"lucky","value":7}
- * "SetSymbol":{"symbol":"interval","value":"300"}
+ * "SetSymbol":{"context":"offset","evaluate":"300+[#$counter#]"}
  * "SetSymbol":{"symbol":"flag","value":true}
  * </pre>
  */

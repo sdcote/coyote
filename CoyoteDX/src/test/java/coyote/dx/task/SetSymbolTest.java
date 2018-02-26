@@ -160,4 +160,27 @@ public class SetSymbolTest {
     }
   }
 
+
+
+
+  @Test
+  public void contextVariable() throws ConfigurationException, TaskException, IOException {
+    Config cfg = new Config();
+    cfg.put(ConfigTag.SYMBOL, "sku");
+    cfg.put(ConfigTag.VALUE, "ProductSKU");
+    // System.out.println(cfg);
+
+    context.getSymbols().clear();
+    context.set("ProductSKU", "1029384756");
+
+    try (SetSymbol task = new SetSymbol()) {
+      task.setConfiguration(cfg);
+      task.open(context);
+      task.execute();
+      String symbol = context.getSymbols().getString("sku");
+      assertNotNull(symbol);
+      assertEquals("1029384756", symbol);
+    }
+  }
+
 }
