@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
+import java.util.Map;
 
 import coyote.commons.ExceptionUtil;
 import coyote.commons.StringUtil;
@@ -83,6 +84,12 @@ public class Job extends AbstractBatchLoader implements Loader {
       // store the command line arguments in the symbol table of the engine
       for (int x = 0; x < commandLineArguments.length; x++) {
         engine.getSymbolTable().put(Symbols.COMMAND_LINE_ARG_PREFIX + x, commandLineArguments[x]);
+      }
+
+      // store environment variables in the symbol table
+      Map<String, String> env = System.getenv();
+      for (String envName : env.keySet()) {
+        engine.getSymbolTable().put(Symbols.ENVIRONMENT_VAR_PREFIX + envName, env.get(envName));
       }
 
       if (StringUtil.isBlank(engine.getName())) {

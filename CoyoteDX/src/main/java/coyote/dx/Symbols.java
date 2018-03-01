@@ -61,6 +61,7 @@ public class Symbols {
   public static final String CURRENT_FRAME = "CurrentFrame";
   public static final String LAST_FRAME = "LastFrame";
   public static final String COMMAND_LINE_ARG_PREFIX = "cmd.arg.";
+  public static final String ENVIRONMENT_VAR_PREFIX = "env.";
 
   public static final String CONTEXT_STATUS = "ContextStatus"; // status description of the context
   public static final String CONTEXT_ERROR = "ContextError"; // error message in the context
