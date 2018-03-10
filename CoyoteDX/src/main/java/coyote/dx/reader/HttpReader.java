@@ -33,6 +33,7 @@ import coyote.dx.context.TransformContext;
 import coyote.dx.http.HttpFuture;
 import coyote.dx.http.HttpManager;
 import coyote.dx.listener.AbstractListener;
+import coyote.loader.Context;
 import coyote.loader.cfg.Config;
 import coyote.loader.cfg.ConfigurationException;
 import coyote.loader.log.Log;
@@ -156,40 +157,47 @@ public class HttpReader extends AbstractFrameReader implements FrameReader {
    * @see coyote.dx.reader.AbstractFrameReader#open(coyote.dx.context.TransformContext)
    */
   @Override
-  public void open(TransformContext context) {
-    super.open(context);
+  public void open(TransformContext transformContext) {
+    super.open(transformContext);
 
+    String listenerKey = HTTP_LISTENER + ":" + getPort();
     HttpListener lstnr = null;
+
     try {
-      lstnr = (HttpListener)context.get(HTTP_LISTENER);
+      lstnr = (HttpListener)transformContext.get(listenerKey);
     } catch (Throwable ball) {
       // apparently there is no existing server 
     }
 
-    // try to use any listener cached in the Loader context. This allows for 
-    // one HTTP listener to be shared amongst many jobs as might be the case
-    // in a Service with multiple Jobs
-    try {
-      lstnr = (HttpListener)context.getEngine().getContext().get(HTTP_LISTENER);
-    } catch (Throwable ball) {
-      // apparently there is no existing server 
-    }
+    Context loaderContext = transformContext.getEngine().getLoader().getContext();
 
-    if (lstnr == null) {
+    synchronized (loaderContext) {
+      // try to use any listener cached in the Loader context. This allows for 
+      // one HTTP listener to be shared amongst many jobs as might be the case
+      // in a Service with multiple Jobs
       try {
-        listener = new HttpListener(getPort(), getConfiguration());
-        listener.start();
-        context.set(HTTP_LISTENER, listener); // transform context
-        context.getEngine().getContext().set(HTTP_LISTENER, listener); // loader context
-        Log.debug("Listening on port " + listener.getPort());
-      } catch (IOException e) {
-        getContext().setError("Could not start HTTP reader: " + e.getMessage());
-        e.printStackTrace();
-        return;
+        lstnr = (HttpListener)loaderContext.get(listenerKey);
+      } catch (Throwable ball) {
+        // apparently there is no existing server 
       }
-    } else {
-      listener = lstnr;
-      Log.debug("Reusing HTTP Listener on port " + listener.getPort());
+
+      if (lstnr == null) {
+        try {
+          listener = new HttpListener(getPort(), getConfiguration());
+          transformContext.set(listenerKey, listener); // transform context
+          loaderContext.set(listenerKey, listener);
+          System.out.println(Thread.currentThread() + " Set!");
+          listener.start();
+          Log.debug("Listening on port " + listener.getPort());
+        } catch (IOException e) {
+          getContext().setError("Could not start HTTP reader: " + e.getMessage());
+          e.printStackTrace();
+          return;
+        }
+      } else {
+        listener = lstnr;
+        Log.debug("Reusing HTTP Listener on port " + listener.getPort());
+      }
     }
 
     int timeout = getTimeout();
@@ -200,7 +208,9 @@ public class HttpReader extends AbstractFrameReader implements FrameReader {
     if (values.length > 0) {
       for (int x = 0; x < values.length; x++) {
         if (StringUtil.isNotBlank(values[x])) {
-          listener.addRoute(values[x], HttpReaderHandler.class, queue, timeout);
+          synchronized (listener) {
+            listener.addRoute(values[x], HttpReaderHandler.class, queue, timeout);
+          }
           Log.debug("Servicing endpoint '" + values[x] + "'");
 
           // because there may be optional parameters, also listen to the root
@@ -221,7 +231,7 @@ public class HttpReader extends AbstractFrameReader implements FrameReader {
       // other listeners should have already been added and initialized. This 
       // means this listener should run after all the other listeners defined in 
       // the configuration file.
-      context.addListener(new ResponseGenerator());
+      transformContext.addListener(new ResponseGenerator());
 
     } else {
       getContext().setError("No Endpoints for HTTP listener");

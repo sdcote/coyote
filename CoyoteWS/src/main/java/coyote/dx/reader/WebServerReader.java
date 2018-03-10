@@ -13,8 +13,10 @@ package coyote.dx.reader;
 
 import java.util.Map;
 
+import coyote.commons.network.MimeType;
 import coyote.commons.network.http.IHTTPSession;
 import coyote.commons.network.http.Response;
+import coyote.commons.network.http.Status;
 import coyote.commons.network.http.responder.Resource;
 import coyote.commons.network.http.responder.Responder;
 import coyote.dataframe.DataFrame;
@@ -46,15 +48,12 @@ import coyote.loader.log.Log;
  * with the WebServer so it can place ResponseFuture objects in a queue for 
  * processing which them block the request thread until a listener notifies 
  * that processing is complete which allows the response to be sent after the 
- * request has been processed by the transform engine. 
+ * request has been processed by the transform engine.
+ * 
+ *  @deprecated - This may be duplicated functionality of the HttpReader
  */
+@Deprecated
 public class WebServerReader extends AbstractFrameReader implements FrameReader, ConfigurableComponent, Responder, ContextListener {
-
-  //private static final int DEFAULT_PORT = 80;
-
-  //private static final String PORT = "Port";
-
-  //private HTTPDRouter server = null;
 
   private ResponseFutureQueue futureQueue = new ResponseFutureQueue(1024);
 
@@ -95,12 +94,11 @@ public class WebServerReader extends AbstractFrameReader implements FrameReader,
       } catch (InterruptedException e) {}
 
       if (future == null) {
-        //Check to see if we should shutdown
+        // TODO: Check to see if we should shutdown
       } else {
         future.setTransactionContext(context);
         // TODO: retrieve data from it
         // TODO: make sure it is valid - if not update the future with the error and go back to blocking
-        // 
       }
 
     } // while - blocking read
@@ -127,7 +125,7 @@ public class WebServerReader extends AbstractFrameReader implements FrameReader,
    */
   @Override
   public Response delete(Resource resource, Map<String, String> urlParams, IHTTPSession session) {
-    return null;
+    return Response.createFixedLengthResponse(Status.NOT_IMPLEMENTED, MimeType.TEXT.getType(), Status.NOT_IMPLEMENTED.getDescription());
   }
 
 
@@ -138,7 +136,7 @@ public class WebServerReader extends AbstractFrameReader implements FrameReader,
    */
   @Override
   public Response get(Resource resource, Map<String, String> urlParams, IHTTPSession session) {
-    return null;
+    return Response.createFixedLengthResponse(Status.NOT_IMPLEMENTED, MimeType.TEXT.getType(), Status.NOT_IMPLEMENTED.getDescription());
   }
 
 
@@ -149,7 +147,7 @@ public class WebServerReader extends AbstractFrameReader implements FrameReader,
    */
   @Override
   public Response other(String method, Resource resource, Map<String, String> urlParams, IHTTPSession session) {
-    return null;
+    return Response.createFixedLengthResponse(Status.NOT_IMPLEMENTED, MimeType.TEXT.getType(), Status.NOT_IMPLEMENTED.getDescription());
   }
 
 
@@ -160,7 +158,7 @@ public class WebServerReader extends AbstractFrameReader implements FrameReader,
    */
   @Override
   public Response post(Resource resource, Map<String, String> urlParams, IHTTPSession session) {
-    return null;
+    return Response.createFixedLengthResponse(Status.NOT_IMPLEMENTED, MimeType.TEXT.getType(), Status.NOT_IMPLEMENTED.getDescription());
   }
 
 
@@ -177,16 +175,19 @@ public class WebServerReader extends AbstractFrameReader implements FrameReader,
    */
   @Override
   public Response put(Resource resource, Map<String, String> urlParams, IHTTPSession session) {
+    Response retval = Response.createFixedLengthResponse(Status.OK, MimeType.TEXT.getType(), Status.OK.getDescription());
     try {
       ResponseFuture future = new ResponseFuture(session);
       futureQueue.put(future);
       future.wait(120000);
       TransactionContext txnctx = future.getTransactionContext();
-      // TODO: create a response based on the state of the transaction context
+      if (txnctx.isInError()) {
+        retval = Response.createFixedLengthResponse(Status.BAD_REQUEST, MimeType.TEXT.getType(), txnctx.getErrorMessage());
+      }
     } catch (InterruptedException e) {
-      e.printStackTrace();
+      retval = Response.createFixedLengthResponse(Status.INTERNAL_ERROR, MimeType.TEXT.getType(), "Interrupted");
     }
-    return null;
+    return retval;
   }
 
 
@@ -265,7 +266,7 @@ public class WebServerReader extends AbstractFrameReader implements FrameReader,
    */
   @Override
   public void onMap(TransactionContext txnContext) {
-    // TODO Auto-generated method stub
+    // no-op
   }
 
 
@@ -276,7 +277,7 @@ public class WebServerReader extends AbstractFrameReader implements FrameReader,
    */
   @Override
   public Config getConfiguration() {
-    // TODO Auto-generated method stub
+    // no-op
     return null;
   }
 
@@ -288,7 +289,7 @@ public class WebServerReader extends AbstractFrameReader implements FrameReader,
    */
   @Override
   public void preload(DataFrame frame) {
-    // No needed    
+    // Not needed    
   }
 
 }

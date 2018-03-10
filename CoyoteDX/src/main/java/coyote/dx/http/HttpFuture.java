@@ -32,6 +32,7 @@ public class HttpFuture {
   private String contentType = null;
   private String requestUri = null;
   private String resource = null;
+  private DataFrame errorFrame = null;
 
 
 
@@ -238,6 +239,38 @@ public class HttpFuture {
    */
   public String getResource() {
     return resource;
+  }
+
+
+
+
+  /**
+   * @return the data frame containing the error information to be sent to the requester
+   */
+  public DataFrame getErrorFrame() {
+    return errorFrame;
+  }
+
+
+
+
+  /**
+   * @param frame the error frame to set
+   */
+  public void setErrorFrame(DataFrame frame) {
+    errorFrame = frame;
+  }
+
+
+
+
+  /**
+   * Indicates the processing resulted in an error.
+   * 
+   * @return true if there is an error frame, false if there is no frame.
+   */
+  public boolean isInError() {
+    return errorFrame != null;
   }
 
 }

@@ -91,6 +91,9 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
   /** Globally unique identifier for this instance. */
   private final String instanceId = GUID.randomGUID().toString();
 
+  /** the loader which loaded this engine */
+  private Loader loader = null;
+
 
 
 
@@ -1556,6 +1559,28 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
   @Override
   public String getInstanceId() {
     return instanceId;
+  }
+
+
+
+
+  /**
+   * @see coyote.dx.TransformEngine#getLoader()
+   */
+  @Override
+  public Loader getLoader() {
+    return loader;
+  }
+
+
+
+
+  /**
+   * @see coyote.dx.TransformEngine#setLoader(coyote.loader.Loader)
+   */
+  @Override
+  public void setLoader(Loader loader) {
+    this.loader = loader;
   }
 
 }

@@ -36,6 +36,12 @@ public class ScheduledBatchJob extends ScheduledJob implements ManagedComponent 
   Config configuration = null;
   CronEntry cronentry = null;
   Context context = null;
+  private Loader loader = null;
+
+
+
+
+  public ScheduledBatchJob() {}
 
 
 
@@ -55,6 +61,8 @@ public class ScheduledBatchJob extends ScheduledJob implements ManagedComponent 
       // have the Engine Factory create a transformation engine based on the
       // configuration 
       engine = TransformEngineFactory.getInstance(config);
+
+      engine.setLoader(getLoader());
 
       if (StringUtil.isBlank(engine.getName())) {
         Log.trace(LogMsg.createMsg(CDX.MSG, "Job.unnamed_engine_configured"));
@@ -174,8 +182,10 @@ public class ScheduledBatchJob extends ScheduledJob implements ManagedComponent 
 
       // this sets our execution time to the exact millisecond based on when 
       // this job ACTUALLY ran. This is to ensure slow running jobs don't cause
-      // execution delays 
-      setExecutionTime(cronentry.getNextTime());
+      // execution delays
+      if (cronentry != null) {
+        setExecutionTime(cronentry.getNextTime());
+      }
 
       // run the transformation
       // Note that depending on the configuration, this could be placed in the 
@@ -186,6 +196,11 @@ public class ScheduledBatchJob extends ScheduledJob implements ManagedComponent 
       } catch (final Exception e) {
         Log.fatal(LogMsg.createMsg(CDX.MSG, "Job.exception_running_engine", e.getClass().getSimpleName(), e.getMessage(), getName(), engine.getName()));
         Log.fatal(ExceptionUtil.toString(e));
+        Log.fatal(ExceptionUtil.stackTrace(e));
+        if (Log.isLogging(Log.DEBUG_EVENTS)) {
+          Log.debug(ExceptionUtil.stackTrace(e));
+        }
+
 
         // If we blowup, set the active flag false, so the service will remove 
         // us from the scheduler. We will be reloaded if our reload flag is set
@@ -281,12 +296,6 @@ public class ScheduledBatchJob extends ScheduledJob implements ManagedComponent 
 
 
   @Override
-  public void setLoader(Loader loader) {}
-
-
-
-
-  @Override
   public void quiesce() {}
 
 
@@ -325,6 +334,28 @@ public class ScheduledBatchJob extends ScheduledJob implements ManagedComponent 
   @Override
   public void setContext(Context context) {
     this.context = context;
+  }
+
+
+
+
+  /**
+   * @see coyote.loader.component.ManagedComponent#getLoader()
+   */
+  @Override
+  public Loader getLoader() {
+    return loader;
+  }
+
+
+
+
+  /**
+   * @see coyote.loader.component.ManagedComponent#setLoader(coyote.loader.Loader)
+   */
+  @Override
+  public void setLoader(Loader loader) {
+    this.loader = loader;
   }
 
 }

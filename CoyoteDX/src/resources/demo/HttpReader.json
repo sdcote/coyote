@@ -1,13 +1,15 @@
 {
 	"Class": "coyote.dx.Job",
+
 	"Job": {
-		"Name": "HttpReader",
-		"Description": "Shows how to listen to HTTP events",
+		"Description": [
+			"Shows how to listen to HTTP events"
+		],
 
 		"Reader": {
 			"class": "HttpReader",
 			"port": 80,
-			"timeout":5000,
+			"timeout": 5000,
 			"endpoint": "/coyote"
 		},
 
@@ -23,5 +25,7 @@
 			"indent": false,
 			"message": "Record [#$CurrentFrame#] received."
 		}
+
 	}
+
 }

@@ -58,7 +58,7 @@ import coyote.loader.log.LogMsg;
  * <p>Some API support the concept of pagination, only returning a set of X 
  * records even though the result set is larger. For example, a web service 
  * query may result in 100 records being found, but the API will only return 
- * 20 at a time. THis means the same query may have to be executed 5 times, 
+ * 20 at a time. This means the same query may have to be executed 5 times, 
  * each with a different offset or page number. These cases are rare, but when 
  * they do occur, it is often easier to subclass this reader and handle 
  * pagination according to the particular API being called. 

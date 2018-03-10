@@ -40,7 +40,7 @@ import coyote.loader.log.Log;
  * HttpFuture object to be placed in the HttpReader's queue. Each time the 
  * reader "reads", it pulls a future off the queue that this class created and
  * processes it. When the transaction ends, the HttpReader generates a 
- * response and placeds it in the HttpFuture and marks it as complete.
+ * response and places it in the HttpFuture and marks it as complete.
  * 
  * <p>This handler waits for the reader to complete the HttpFuture when the 
  * transaction is complete. This class will then retrieve a response from the 
@@ -215,7 +215,10 @@ public class HttpReaderHandler extends AbstractCoyoteResponder implements Respon
         // wait for a response, but only for the timeout period
         retval = future.getResponse(millis);
 
-        if (retval == null) {
+        if (future.isInError()) {
+          setResults(future.getErrorFrame());
+          retval = Response.createFixedLengthResponse(Status.BAD_REQUEST, getMimeType(), getText());
+        } else if (retval == null) {
           setResults(new DataFrame().set(HttpReader.STATUS, HttpReader.ERROR).set(HttpReader.MESSAGE, "Transform did not return a result within the time-out period"));
           retval = Response.createFixedLengthResponse(Status.UNAVAILABLE, getMimeType(), getText());
         }

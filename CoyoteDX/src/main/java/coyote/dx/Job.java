@@ -81,6 +81,12 @@ public class Job extends AbstractBatchLoader implements Loader {
       // configuration 
       engine = TransformEngineFactory.getInstance(job);
 
+      if (getLoader() != null) {
+        engine.setLoader(getLoader()); 
+      } else {
+        engine.setLoader(this);
+      }
+
       // store the command line arguments in the symbol table of the engine
       for (int x = 0; x < commandLineArguments.length; x++) {
         engine.getSymbolTable().put(Symbols.COMMAND_LINE_ARG_PREFIX + x, commandLineArguments[x]);

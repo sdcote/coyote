@@ -13,6 +13,7 @@ import coyote.commons.template.SymbolTable;
 import coyote.dataframe.DataFrame;
 import coyote.dx.context.ContextListener;
 import coyote.dx.context.TransformContext;
+import coyote.loader.Loader;
 
 
 /**
@@ -300,5 +301,21 @@ public interface TransformEngine extends RunnableComponent {
    * @param reader the reader to be used for preloading data into some components.
    */
   public void setPreloader(FrameReader reader);
+
+
+
+
+  /**
+   * @return the loader which loaded this engine.
+   */
+  public Loader getLoader();
+
+
+
+
+  /**
+   * @param loader the loader which loaded this engine.
+   */
+  public void setLoader(Loader loader);
 
 }
