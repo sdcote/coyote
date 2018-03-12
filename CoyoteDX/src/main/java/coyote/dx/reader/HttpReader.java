@@ -8,6 +8,8 @@
 package coyote.dx.reader;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import coyote.commons.NetUtil;
@@ -26,6 +28,7 @@ import coyote.dataframe.marshal.JSONMarshaler;
 import coyote.dataframe.marshal.XMLMarshaler;
 import coyote.dx.ConfigTag;
 import coyote.dx.FrameReader;
+import coyote.dx.FrameValidator;
 import coyote.dx.context.ContextListener;
 import coyote.dx.context.OperationalContext;
 import coyote.dx.context.TransactionContext;
@@ -337,13 +340,17 @@ public class HttpReader extends AbstractFrameReader implements FrameReader {
 
     if (future != null) {
       retval = future.getDataFrame();
+
+      // Set request arguments in the transaction context
       context.set(HTTP_FUTURE, future);
       context.set(HTTP_METHOD, future.getMethod().toUpperCase());
       context.set(HTTP_ACCEPT_TYPE, future.getAcceptType());
       context.set(HTTP_CONTENT_TYPE, future.getContentType());
       context.set(HTTP_RESOURCE, future.getResource());
       context.set(HTTP_REQUEST_URI, future.getRequestUri());
-      Log.debug("Processing request for '" + future.getRequestUri() + "'");
+      if (Log.isLogging(Log.DEBUG_EVENTS)) {
+        Log.debug("Processing request for '" + future.getRequestUri() + "'");
+      }
     }
     return retval;
   }
@@ -434,6 +441,10 @@ public class HttpReader extends AbstractFrameReader implements FrameReader {
    * missing, an empty string is returned. 
    */
   private class ResponseGenerator extends AbstractListener implements ContextListener {
+    List<String> validationErrors = new ArrayList<String>();
+
+
+
 
     /**
      * @see coyote.dx.listener.AbstractListener#onEnd(coyote.dx.context.OperationalContext)
@@ -485,6 +496,74 @@ public class HttpReader extends AbstractFrameReader implements FrameReader {
           }
         }
       }
+    }
+
+
+
+
+    /**
+     * @see coyote.dx.listener.AbstractListener#onError(coyote.dx.context.OperationalContext)
+     */
+    @Override
+    public void onError(OperationalContext context) {
+      super.onError(context);
+    }
+
+
+
+
+    /**
+     * @see coyote.dx.listener.AbstractListener#onValidationFailed(coyote.dx.context.OperationalContext, coyote.dx.FrameValidator, java.lang.String)
+     */
+    @Override
+    public void onValidationFailed(OperationalContext context, FrameValidator validator, String msg) {
+      StringBuffer b = new StringBuffer();
+      b.append("Field '");
+      b.append(validator.getFieldName());
+      b.append("' did not pass '");
+      b.append(validator.getClass().getSimpleName());
+      b.append("' check: ");
+      b.append(validator.getDescription());
+      validationErrors.add(b.toString());
+    }
+
+
+
+
+    /**
+     * @see coyote.dx.listener.AbstractListener#onFrameValidationFailed(coyote.dx.context.TransactionContext)
+     */
+    @Override
+    public void onFrameValidationFailed(TransactionContext context) {
+      DataFrame errorFrame = getOrCreateErrorFrame(context);
+
+      // add each validation error to the validation error field in the error frame
+      DataFrame errors = new DataFrame();
+      for (int x = 0; x < validationErrors.size(); x++) {
+        errors.add(validationErrors.get(x));
+      }
+      errorFrame.put("ValidationError", errors);
+
+      // clear out the collected errors
+      validationErrors.clear();
+    }
+
+
+
+
+    private DataFrame getOrCreateErrorFrame(TransactionContext context) {
+      DataFrame retval = null;
+      HttpFuture future = (HttpFuture)context.get(HTTP_FUTURE);
+      if (future != null) {
+        retval = future.getErrorFrame();
+        if (retval == null) {
+          retval = new DataFrame();
+          future.setErrorFrame(retval);
+        }
+      } else {
+        retval = new DataFrame();
+      }
+      return retval;
     }
 
   }
