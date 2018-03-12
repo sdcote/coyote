@@ -1,0 +1,22 @@
+{
+	"Class": "coyote.dx.Service",
+	"Description":[
+		"This demonstrates how to have 2 HTTP servers on 2 different ports."
+	],
+
+	"Job": {
+		"Reader": { "class": "HttpReader", "port": 80, "timeout": 5000, "endpoint": "/coyote" },
+		"Transform": {
+			"Counter": { "field": "RecNum" },
+			"Guid": { "field": "ID" },
+			"Timestamp": { "field": "Received" }
+		},
+		"Writer": { "class": "ConsoleWriter", "format": "json", "indent": false, "message": "Record [#$CurrentFrame#] received." }
+	},
+
+	"Job": {
+		"Reader": { "class": "HttpReader", "port": 81, "timeout": 5000, "endpoint": "/daffy" },
+		"Writer": { "class": "ConsoleWriter", "format": "json", "indent": false, "message": "Rabbit Season!" }
+	}
+
+}

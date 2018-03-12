@@ -1,13 +1,13 @@
 {
 	"Class": "coyote.dx.Service",
+	"Description":[
+		"This demonstrates how to have multiple service endpoints listening on the same HTTP server port."
+	],
+
 
 	"Job": {
-		"Reader": {
-			"class": "HttpReader",
-			"port": 80,
-			"timeout": 5000,
-			"endpoint": "/coyote"
-		},
+		"name":"Coyote1",
+		"Reader": { "class": "HttpReader", "port": 80, "timeout": 5000, "endpoint": "/coyote" },
 
 		"Transform": {
 			"Counter": { "field": "RecNum" },
@@ -15,22 +15,13 @@
 			"Timestamp": { "field": "Received" }
 		},
 
-		"Writer": {
-			"class": "ConsoleWriter",
-			"format": "json",
-			"indent": false,
-			"message": "Record [#$CurrentFrame#] received."
-		}
+		"Writer": { "class": "ConsoleWriter", "format": "json", "indent": false, "message": "Record [#$CurrentFrame#] received." }
 
 	},
 
 	"Job": {
-		"Reader": {
-			"class": "HttpReader",
-			"port": 80,
-			"timeout": 5000,
-			"endpoint": "/roadrunner"
-		},
+		"name":"RoadRunner2",
+		"Reader": { "class": "HttpReader", "port": 80, "timeout": 5000, "endpoint": "/roadrunner" },
 
 		"Transform": {
 			"Counter": { "field": "RecNum" },
@@ -38,46 +29,24 @@
 			"Timestamp": { "field": "Received" }
 		},
 
-		"Writer": {
-			"class": "ConsoleWriter",
-			"format": "json",
-			"indent": false,
-			"message": "Meep! Meep!"
-		}
-
+		"Writer": { "class": "ConsoleWriter", "format": "json", "indent": false, "message": "Meep! Meep!" }
 	},
 
 	"Job": {
-		"Reader": {
-			"class": "HttpReader",
-			"port": 80,
-			"timeout": 5000,
-			"endpoint": "/acme"
-		},
-		"Writer": {
-			"class": "ConsoleWriter",
-			"format": "json",
-			"indent": false
-		}
+		"name":"Acme3",
+		"Reader": { "class": "HttpReader", "port": 80, "timeout": 5000, "endpoint": "/acme" },
+		"Writer": { "class": "ConsoleWriter", "format": "json", "indent": false }
 	},
 
 	"Job": {
-		"Reader": {
-			"class": "HttpReader",
-			"port": 80,
-			"timeout": 5000,
-			"endpoint": "/zenith"
-		},
-		"Writer": {
-			"class": "ConsoleWriter",
-			"format": "json",
-			"indent": false
-		}
+		"name":"Zenith4",
+		"Reader": { "class": "HttpReader", "port": 80, "timeout": 5000, "endpoint": "/zenith" },
+		"Writer": { "class": "ConsoleWriter", "format": "json", "indent": false }
 	},
 	
 	
 	"Logging": { 
-		"StandardOutput": { "categories": "scheduler, info, notice, warn, error, fatal" } 
+		"StandardOutput": { "categories": "schedulerX, threadX, traceX, infoX, notice, warn, error, fatal" } 
 	}
 
 }

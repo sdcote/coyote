@@ -41,11 +41,6 @@ public class ScheduledBatchJob extends ScheduledJob implements ManagedComponent 
 
 
 
-  public ScheduledBatchJob() {}
-
-
-
-
   /**
    * Set the configuration of this component.
    * 
@@ -120,7 +115,8 @@ public class ScheduledBatchJob extends ScheduledJob implements ManagedComponent 
         Log.debug(cronentry.toString());
       }
     } else {
-      Log.warn(LogMsg.createMsg(CDX.MSG, "Job.schedule_no_cron_entry", getExecutionInterval()));
+      // no cron entry implies the job runs continually in its own thread - e.g. HTTP listeners
+      Log.debug(LogMsg.createMsg(CDX.MSG, "Job.schedule_no_cron_entry", getExecutionInterval()));
       setRepeatable(false);
       setExecutionTime(System.currentTimeMillis() + 1000);
     }
@@ -166,6 +162,7 @@ public class ScheduledBatchJob extends ScheduledJob implements ManagedComponent 
   @Override
   public void initialize() {
     setActiveFlag(true);
+    Log.trace("Initializing job " + getName() + " engine:" + engine.getName());
   }
 
 
@@ -195,12 +192,10 @@ public class ScheduledBatchJob extends ScheduledJob implements ManagedComponent 
         engine.run();
       } catch (final Exception e) {
         Log.fatal(LogMsg.createMsg(CDX.MSG, "Job.exception_running_engine", e.getClass().getSimpleName(), e.getMessage(), getName(), engine.getName()));
-        Log.fatal(ExceptionUtil.toString(e));
         Log.fatal(ExceptionUtil.stackTrace(e));
         if (Log.isLogging(Log.DEBUG_EVENTS)) {
           Log.debug(ExceptionUtil.stackTrace(e));
         }
-
 
         // If we blowup, set the active flag false, so the service will remove 
         // us from the scheduler. We will be reloaded if our reload flag is set
@@ -356,6 +351,16 @@ public class ScheduledBatchJob extends ScheduledJob implements ManagedComponent 
   @Override
   public void setLoader(Loader loader) {
     this.loader = loader;
+  }
+
+
+
+
+  /**
+   * @return the cron entry for this job or null of this is not a repeatable job.
+   */
+  public CronEntry getCronEntry() {
+    return cronentry;
   }
 
 }

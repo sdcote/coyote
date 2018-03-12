@@ -186,7 +186,6 @@ public class HttpReader extends AbstractFrameReader implements FrameReader {
           listener = new HttpListener(getPort(), getConfiguration());
           transformContext.set(listenerKey, listener); // transform context
           loaderContext.set(listenerKey, listener);
-          System.out.println(Thread.currentThread() + " Set!");
           listener.start();
           Log.debug("Listening on port " + listener.getPort());
         } catch (IOException e) {

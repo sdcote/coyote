@@ -202,6 +202,13 @@ public class Service extends AbstractBatchLoader implements Loader {
               engine.getSymbolTable().put(Symbols.COMMAND_LINE_ARG_PREFIX + x, commandLineArguments[x]);
             }
 
+            // Ensure that those jobs with no schedules (which run continually)
+            // have enough threads available in the pool to keep them running 
+            // and enough for a couple of other jobs if needed
+            if (((ScheduledBatchJob)cmpnt).getCronEntry() == null) {
+              getScheduler().getThreadpool().setMinWorkerCount(getScheduler().getThreadpool().getMinWorkerCount() + 1);
+            }
+
             // schedule the component for execution; some may remain running indefinitely
             getScheduler().schedule((ScheduledBatchJob)cmpnt);
           }
