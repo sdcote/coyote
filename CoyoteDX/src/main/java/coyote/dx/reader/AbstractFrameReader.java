@@ -31,9 +31,6 @@ public abstract class AbstractFrameReader extends AbstractConfigurableComponent 
 
 
 
-
-
-
   /**
    * @return true of the reader has a limit on the number of records it reads, 
    *         false otherwise
