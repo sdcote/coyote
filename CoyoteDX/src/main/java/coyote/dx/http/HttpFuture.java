@@ -245,7 +245,8 @@ public class HttpFuture {
 
 
   /**
-   * @return the data frame containing the error information to be sent to the requester
+   * @return the data frame containing the error information to be sent to the 
+   *         requester
    */
   public DataFrame getErrorFrame() {
     return errorFrame;

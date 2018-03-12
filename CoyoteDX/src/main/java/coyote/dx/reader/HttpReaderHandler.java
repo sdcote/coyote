@@ -38,9 +38,9 @@ import coyote.loader.log.Log;
  * 
  * <p>The purpose of this class is to convert a HTTP request into an 
  * HttpFuture object to be placed in the HttpReader's queue. Each time the 
- * reader "reads", it pulls a future off the queue that this class created and
+ * Reader "reads", it pulls a future off the queue that this class created and
  * processes it. When the transaction ends, the HttpReader generates a 
- * response and places it in the HttpFuture and marks it as complete.
+ * response and places it in the HttpFuture and marks the future as complete.
  * 
  * <p>This handler waits for the reader to complete the HttpFuture when the 
  * transaction is complete. This class will then retrieve a response from the 
@@ -153,7 +153,7 @@ public class HttpReaderHandler extends AbstractCoyoteResponder implements Respon
 
   /**
    * This creates a future object and places it in the queue for the reader to
-   * process.
+   * process the data in that future.
    *
    * <p>This method will then block for for a timeout period waiting for the
    * results.
