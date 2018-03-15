@@ -17,7 +17,7 @@ import coyote.commons.StringUtil;
 import coyote.commons.network.MimeType;
 import coyote.commons.network.http.Body;
 import coyote.commons.network.http.HTTP;
-import coyote.commons.network.http.IHTTPSession;
+import coyote.commons.network.http.HTTPSession;
 import coyote.commons.network.http.Response;
 import coyote.commons.network.http.ResponseException;
 import coyote.commons.network.http.Status;
@@ -53,90 +53,90 @@ public class HttpReaderHandler extends AbstractCoyoteResponder implements Respon
 
 
   /**
-   * @see coyote.dx.http.responder.AbstractCoyoteResponder#delete(coyote.commons.network.http.responder.Resource, java.util.Map, coyote.commons.network.http.IHTTPSession)
+   * @see coyote.dx.http.responder.AbstractCoyoteResponder#delete(coyote.commons.network.http.responder.Resource, java.util.Map, coyote.commons.network.http.HTTPSession)
    */
   @Override
-  public Response delete(final Resource resource, final Map<String, String> urlParams, final IHTTPSession session) {
+  public Response delete(final Resource resource, final Map<String, String> urlParams, final HTTPSession session) {
     @SuppressWarnings("unchecked")
     final ConcurrentLinkedQueue<HttpFuture> queue = resource.initParameter(0, ConcurrentLinkedQueue.class);
     final int timeout = resource.initParameter(1, Integer.class);
-    return handleRequest("DELETE", determineEndpoint(resource.getUri()), session, urlParams, queue, timeout);
+    return handleRequest(HTTP.METHOD_DELETE, determineEndpoint(resource.getUri()), session, urlParams, queue, timeout);
   }
 
 
 
 
   /**
-   * @see coyote.dx.http.responder.AbstractCoyoteResponder#get(coyote.commons.network.http.responder.Resource, java.util.Map, coyote.commons.network.http.IHTTPSession)
+   * @see coyote.dx.http.responder.AbstractCoyoteResponder#get(coyote.commons.network.http.responder.Resource, java.util.Map, coyote.commons.network.http.HTTPSession)
    */
   @Override
-  public Response get(final Resource resource, final Map<String, String> urlParams, final IHTTPSession session) {
+  public Response get(final Resource resource, final Map<String, String> urlParams, final HTTPSession session) {
     @SuppressWarnings("unchecked")
     final ConcurrentLinkedQueue<HttpFuture> queue = resource.initParameter(0, ConcurrentLinkedQueue.class);
     final int timeout = resource.initParameter(1, Integer.class);
-    return handleRequest("GET", determineEndpoint(resource.getUri()), session, urlParams, queue, timeout);
+    return handleRequest(HTTP.METHOD_GET, determineEndpoint(resource.getUri()), session, urlParams, queue, timeout);
   }
 
 
 
 
   /**
-   * @see coyote.dx.http.responder.AbstractCoyoteResponder#other(java.lang.String, coyote.commons.network.http.responder.Resource, java.util.Map, coyote.commons.network.http.IHTTPSession)
+   * @see coyote.dx.http.responder.AbstractCoyoteResponder#other(java.lang.String, coyote.commons.network.http.responder.Resource, java.util.Map, coyote.commons.network.http.HTTPSession)
    */
   @Override
-  public Response other(final String method, final Resource resource, final Map<String, String> urlParams, final IHTTPSession session) {
+  public Response other(final String method, final Resource resource, final Map<String, String> urlParams, final HTTPSession session) {
     @SuppressWarnings("unchecked")
     final ConcurrentLinkedQueue<HttpFuture> queue = resource.initParameter(0, ConcurrentLinkedQueue.class);
     final int timeout = resource.initParameter(1, Integer.class);
-    return handleRequest(method, determineEndpoint(resource.getUri()), session, urlParams, queue, timeout);
+    return handleRequest(method.toUpperCase(), determineEndpoint(resource.getUri()), session, urlParams, queue, timeout);
   }
 
 
 
 
   /**
-   * @see coyote.dx.http.responder.AbstractCoyoteResponder#post(coyote.commons.network.http.responder.Resource, java.util.Map, coyote.commons.network.http.IHTTPSession)
+   * @see coyote.dx.http.responder.AbstractCoyoteResponder#post(coyote.commons.network.http.responder.Resource, java.util.Map, coyote.commons.network.http.HTTPSession)
    */
   @Override
-  public Response post(final Resource resource, final Map<String, String> urlParams, final IHTTPSession session) {
+  public Response post(final Resource resource, final Map<String, String> urlParams, final HTTPSession session) {
     @SuppressWarnings("unchecked")
     final ConcurrentLinkedQueue<HttpFuture> queue = resource.initParameter(0, ConcurrentLinkedQueue.class);
     final int timeout = resource.initParameter(1, Integer.class);
-    return handleRequest("POST", determineEndpoint(resource.getUri()), session, urlParams, queue, timeout);
+    return handleRequest(HTTP.METHOD_POST, determineEndpoint(resource.getUri()), session, urlParams, queue, timeout);
   }
 
 
 
 
   /**
-   * @see coyote.dx.http.responder.AbstractCoyoteResponder#put(coyote.commons.network.http.responder.Resource, java.util.Map, coyote.commons.network.http.IHTTPSession)
+   * @see coyote.dx.http.responder.AbstractCoyoteResponder#put(coyote.commons.network.http.responder.Resource, java.util.Map, coyote.commons.network.http.HTTPSession)
    */
   @Override
-  public Response put(final Resource resource, final Map<String, String> urlParams, final IHTTPSession session) {
+  public Response put(final Resource resource, final Map<String, String> urlParams, final HTTPSession session) {
     @SuppressWarnings("unchecked")
     final ConcurrentLinkedQueue<HttpFuture> queue = resource.initParameter(0, ConcurrentLinkedQueue.class);
     final int timeout = resource.initParameter(1, Integer.class);
-    return handleRequest("PUT", determineEndpoint(resource.getUri()), session, urlParams, queue, timeout);
+    return handleRequest(HTTP.METHOD_PUT, determineEndpoint(resource.getUri()), session, urlParams, queue, timeout);
   }
 
 
 
 
-  private String getAcceptType(final IHTTPSession session) {
+  private String getAcceptType(final HTTPSession session) {
     return getPreferredHeaderValue(session, HTTP.HDR_ACCEPT);
   }
 
 
 
 
-  private String getContentType(final IHTTPSession session) {
+  private String getContentType(final HTTPSession session) {
     return getPreferredHeaderValue(session, HTTP.HDR_CONTENT_TYPE);
   }
 
 
 
 
-  private String getPreferredHeaderValue(final IHTTPSession session, final String headerName) {
+  private String getPreferredHeaderValue(final HTTPSession session, final String headerName) {
     String retval = null;
     if (session != null && StringUtil.isNotBlank(headerName)) {
       final String value = session.getRequestHeaders().get(headerName.toLowerCase());
@@ -165,7 +165,7 @@ public class HttpReaderHandler extends AbstractCoyoteResponder implements Respon
    *
    * @return the HTTP response with the results of processing.
    */
-  private Response handleRequest(final String method, final String resource, final IHTTPSession session, final Map<String, String> urlParams, final ConcurrentLinkedQueue<HttpFuture> queue, final int timeout) {
+  private Response handleRequest(final String method, final String resource, final HTTPSession session, final Map<String, String> urlParams, final ConcurrentLinkedQueue<HttpFuture> queue, final int timeout) {
     int millis = timeout;
 
     // prevent infinite and excessive blocking
@@ -181,7 +181,7 @@ public class HttpReaderHandler extends AbstractCoyoteResponder implements Respon
     future.setRequestUri(session.getUri());
     future.setResource(resource);
 
-    // set out mimetype based on the future object
+    // set our mimetype based on the future object
     setMimetype(future.determineResponseType());
 
     DataFrame dframe = null;
@@ -198,6 +198,7 @@ public class HttpReaderHandler extends AbstractCoyoteResponder implements Respon
       retval = Response.createFixedLengthResponse(Status.BAD_REQUEST, getMimeType(), getText());
     }
 
+    // no retval (response) means no error
     if (retval == null) {
       // next, use request parameters overriding what may be in the body
       dframe = populateRequestParameters(dframe, session);
@@ -205,20 +206,15 @@ public class HttpReaderHandler extends AbstractCoyoteResponder implements Respon
       // finally, URL parameters override the body and the request params
       dframe = populateUrlParameters(dframe, urlParams);
 
-      // set the results in the future
       future.setFrame(dframe);
 
-      // if there is data to process add it to the queue, otherwise report a bad (empty) request
       if (future.getFrame().getFieldCount() > 0) {
         queue.add(future);
 
         // wait for a response, but only for the timeout period
         retval = future.getResponse(millis);
 
-        if (future.isInError()) {
-          setResults(future.getErrorFrame());
-          retval = Response.createFixedLengthResponse(Status.BAD_REQUEST, getMimeType(), getText());
-        } else if (retval == null) {
+        if (retval == null) {
           setResults(new DataFrame().set(HttpReader.STATUS, HttpReader.ERROR).set(HttpReader.MESSAGE, "Transform did not return a result within the time-out period"));
           retval = Response.createFixedLengthResponse(Status.UNAVAILABLE, getMimeType(), getText());
         }
@@ -266,7 +262,7 @@ public class HttpReaderHandler extends AbstractCoyoteResponder implements Respon
    *
    * @throws IllegalArgumentException if there were problems parsing the body
    */
-  private DataFrame populateBody(IHTTPSession session) throws IllegalArgumentException {
+  private DataFrame populateBody(HTTPSession session) throws IllegalArgumentException {
     DataFrame retval;
     Body body = null;
     try {
@@ -325,7 +321,7 @@ public class HttpReaderHandler extends AbstractCoyoteResponder implements Respon
    * 
    * @return a data frame with the parameters added
    */
-  private DataFrame populateRequestParameters(DataFrame frame, IHTTPSession session) {
+  private DataFrame populateRequestParameters(DataFrame frame, HTTPSession session) {
     DataFrame retval = frame;
     if (session.getParms() != null && session.getParms().size() > 0) {
       for (Map.Entry<String, String> entry : session.getParms().entrySet()) {
@@ -348,7 +344,7 @@ public class HttpReaderHandler extends AbstractCoyoteResponder implements Respon
    * 
    * @throws MarshalException if the JSON or XML data could not be parsed
    */
-  private DataFrame parseBody(Body body, IHTTPSession session) throws MarshalException {
+  private DataFrame parseBody(Body body, HTTPSession session) throws MarshalException {
     DataFrame retval = null;
     for (final String key : body.keySet()) {
       final Object obj = body.get(key);

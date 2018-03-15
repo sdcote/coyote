@@ -10,8 +10,7 @@ package coyote.dx.http.responder;
 import java.util.Map;
 
 import coyote.commons.network.MimeType;
-import coyote.commons.network.http.IHTTPSession;
-import coyote.commons.network.http.IStatus;
+import coyote.commons.network.http.HTTPSession;
 import coyote.commons.network.http.Response;
 import coyote.commons.network.http.Status;
 import coyote.commons.network.http.responder.DefaultResponder;
@@ -35,7 +34,7 @@ public abstract class AbstractCoyoteResponder extends DefaultResponder implement
 
 
   @Override
-  public Response delete(Resource resource, Map<String, String> urlParams, IHTTPSession session) {
+  public Response delete(Resource resource, Map<String, String> urlParams, HTTPSession session) {
     return Response.createFixedLengthResponse(getStatus(), getMimeType(), getText());
   }
 
@@ -43,7 +42,7 @@ public abstract class AbstractCoyoteResponder extends DefaultResponder implement
 
 
   @Override
-  public Response get(Resource resource, Map<String, String> urlParams, IHTTPSession session) {
+  public Response get(Resource resource, Map<String, String> urlParams, HTTPSession session) {
     return Response.createFixedLengthResponse(getStatus(), getMimeType(), getText());
   }
 
@@ -51,7 +50,7 @@ public abstract class AbstractCoyoteResponder extends DefaultResponder implement
 
 
   @Override
-  public Response other(String method, Resource resource, Map<String, String> urlParams, IHTTPSession session) {
+  public Response other(String method, Resource resource, Map<String, String> urlParams, HTTPSession session) {
     return Response.createFixedLengthResponse(getStatus(), getMimeType(), getText());
   }
 
@@ -59,7 +58,7 @@ public abstract class AbstractCoyoteResponder extends DefaultResponder implement
 
 
   @Override
-  public Response post(Resource resource, Map<String, String> urlParams, IHTTPSession session) {
+  public Response post(Resource resource, Map<String, String> urlParams, HTTPSession session) {
     return Response.createFixedLengthResponse(getStatus(), getMimeType(), getText());
   }
 
@@ -67,7 +66,7 @@ public abstract class AbstractCoyoteResponder extends DefaultResponder implement
 
 
   @Override
-  public Response put(Resource resource, Map<String, String> urlParams, IHTTPSession session) {
+  public Response put(Resource resource, Map<String, String> urlParams, HTTPSession session) {
     return Response.createFixedLengthResponse(getStatus(), getMimeType(), getText());
   }
 
@@ -75,7 +74,7 @@ public abstract class AbstractCoyoteResponder extends DefaultResponder implement
 
 
   @Override
-  public IStatus getStatus() {
+  public Status getStatus() {
     return status;
   }
 

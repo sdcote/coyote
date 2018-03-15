@@ -10,7 +10,7 @@ package coyote.dx.http.responder;
 import java.util.Map;
 
 import coyote.commons.StringUtil;
-import coyote.commons.network.http.IHTTPSession;
+import coyote.commons.network.http.HTTPSession;
 import coyote.commons.network.http.Response;
 import coyote.commons.network.http.auth.Auth;
 import coyote.commons.network.http.responder.Resource;
@@ -32,7 +32,7 @@ public class CommandResponder extends AbstractCoyoteResponder implements Respond
 
 
   @Override
-  public Response get(Resource resource, Map<String, String> urlParams, IHTTPSession session) {
+  public Response get(Resource resource, Map<String, String> urlParams, HTTPSession session) {
 
     // The first init parameter should be the service in which everything is running
     Service service = resource.initParameter(0, Service.class);

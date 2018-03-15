@@ -175,6 +175,9 @@ public class Service extends AbstractBatchLoader implements Loader {
     // load generic/general components
     super.initComponents();
 
+    // Wait for the schedule to start
+    getScheduler().waitForActive(500);
+
     // Now load "Jobs" sections representing individual transform engines
     for (Config section : configuration.getSections(ConfigTag.JOB)) {
 

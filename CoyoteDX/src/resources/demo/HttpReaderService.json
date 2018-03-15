@@ -37,7 +37,7 @@
 	
 	
 	"Logging": { 
-		"StandardOutput": { "categories": "schedulerX, threadX, traceX, infoX, notice, warn, error, fatal" } 
+		"StandardOutput": { "categories": "schedulerX, threadX, debugX, traceX, infoX, notice, warn, error, fatal" } 
 	}
 
 }

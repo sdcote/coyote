@@ -15,6 +15,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import coyote.commons.NetUtil;
 import coyote.commons.StringUtil;
 import coyote.commons.network.MimeType;
+import coyote.commons.network.http.HTTP;
 import coyote.commons.network.http.HTTPD;
 import coyote.commons.network.http.Response;
 import coyote.commons.network.http.Status;
@@ -29,6 +30,7 @@ import coyote.dataframe.marshal.XMLMarshaler;
 import coyote.dx.ConfigTag;
 import coyote.dx.FrameReader;
 import coyote.dx.FrameValidator;
+import coyote.dx.FrameWriter;
 import coyote.dx.context.ContextListener;
 import coyote.dx.context.OperationalContext;
 import coyote.dx.context.TransactionContext;
@@ -441,6 +443,7 @@ public class HttpReader extends AbstractFrameReader implements FrameReader {
    * missing, an empty string is returned. 
    */
   private class ResponseGenerator extends AbstractListener implements ContextListener {
+
     List<String> validationErrors = new ArrayList<String>();
 
 
@@ -456,42 +459,45 @@ public class HttpReader extends AbstractFrameReader implements FrameReader {
         HttpFuture future = (HttpFuture)context.get(HTTP_FUTURE);
 
         if (future != null) {
+          DataFrame result = future.getDataFrame();
+
           MimeType type = future.determineResponseType();
 
           if (context.isInError()) {
             String errorText = HttpReader.getErrorText(context.getErrorMessage(), type);
             future.setResponse(Response.createFixedLengthResponse(Status.BAD_REQUEST, type.getType(), errorText));
           } else {
-            Object result = context.getProcessingResult();
 
-            if (result == null) {
-              result = ((TransactionContext)context).getTargetFrame();
-            }
+            if (future.isProcessed()) {
 
-            String results;
-            if (result != null) {
-              if (result instanceof DataFrame) {
-                if (type.equals(MimeType.XML)) {
-                  results = XMLMarshaler.marshal((DataFrame)result);
+              String results;
+              if (result != null) {
+                if (result instanceof DataFrame) {
+                  if (type.equals(MimeType.XML)) {
+                    results = XMLMarshaler.marshal((DataFrame)result);
+                  } else {
+                    results = JSONMarshaler.marshal((DataFrame)result);
+                  }
                 } else {
-                  results = JSONMarshaler.marshal((DataFrame)result);
+                  results = result.toString();
                 }
               } else {
-                results = result.toString();
+                results = "";
               }
-            } else {
-              results = "";
-            }
 
-            // package the results
-            if (StringUtil.isBlank(results)) {
-              if (future.getMethod().equalsIgnoreCase("GET")) {
-                future.setResponse(Response.createFixedLengthResponse(Status.NOT_FOUND, type.getType(), results));
+              // package the results
+              if (StringUtil.isBlank(results)) {
+                if (future.getMethod().equalsIgnoreCase(HTTP.METHOD_GET)) {
+                  future.setResponse(Response.createFixedLengthResponse(Status.NOT_FOUND, type.getType(), results));
+                } else {
+                  future.setResponse(Response.createFixedLengthResponse(Status.NO_CONTENT, type.getType(), results));
+                }
               } else {
-                future.setResponse(Response.createFixedLengthResponse(Status.NO_CONTENT, type.getType(), results));
+                future.setResponse(Response.createFixedLengthResponse(Status.OK, type.getType(), results));
               }
+
             } else {
-              future.setResponse(Response.createFixedLengthResponse(Status.OK, type.getType(), results));
+              future.setResponse(Response.createFixedLengthResponse(Status.NOT_IMPLEMENTED, type.getType(), null));
             }
           }
         }
@@ -502,11 +508,45 @@ public class HttpReader extends AbstractFrameReader implements FrameReader {
 
 
     /**
-     * @see coyote.dx.listener.AbstractListener#onError(coyote.dx.context.OperationalContext)
+     * This is where the listener can populate the result which is sent to the 
+     * requester.
+     * @see coyote.dx.listener.AbstractListener#onMap(coyote.dx.context.TransactionContext)
      */
     @Override
-    public void onError(OperationalContext context) {
-      super.onError(context);
+    public void onMap(TransactionContext txnContext) {
+      DataFrame result = txnContext.getTargetFrame();
+
+      HttpFuture future = (HttpFuture)txnContext.get(HTTP_FUTURE);
+      if (future != null) {
+        String method = future.getMethod();
+        method = (StringUtil.isNotBlank(method)) ? method.toUpperCase() : "";
+        switch (method) {
+          case HTTP.METHOD_GET: {
+            // place the retrieved frame in the future
+            future.setFrame(txnContext.getTargetFrame());
+            break;
+          }
+          case HTTP.METHOD_POST: {
+            // check the config to determine what fields from the target should be placed in the future
+            future.setFrame(null); // remove the existing request frame
+            break;
+          }
+          case HTTP.METHOD_PUT: {
+            // check the config to determine what fields from the target should be placed in the future
+            future.setFrame(null); // remove the existing request frame
+            break;
+          }
+          case HTTP.METHOD_DELETE: {
+            // place the deleted frame in the future
+            future.setFrame(txnContext.getTargetFrame());
+            break;
+          }
+          default: {
+            future.setFrame(null); // remove the existing request frame
+            break;
+          }
+        }
+      }
     }
 
 
@@ -564,6 +604,34 @@ public class HttpReader extends AbstractFrameReader implements FrameReader {
         retval = new DataFrame();
       }
       return retval;
+    }
+
+
+
+
+    /**
+     * @see coyote.dx.listener.AbstractListener#onWrite(coyote.dx.context.TransactionContext, coyote.dx.FrameWriter)
+     */
+    @Override
+    public void onWrite(TransactionContext context, FrameWriter writer) {
+      HttpFuture future = (HttpFuture)context.get(HTTP_FUTURE);
+      if (future != null) {
+        String method = future.getMethod();
+        method = (StringUtil.isNotBlank(method)) ? method.toUpperCase() : "";
+        switch (method) {
+          case HTTP.METHOD_POST: {
+            future.setProcessed(true);
+            break;
+          }
+          case HTTP.METHOD_PUT: {
+            future.setProcessed(true);
+            break;
+          }
+          default: {
+            break;
+          }
+        }
+      }
     }
 
   }

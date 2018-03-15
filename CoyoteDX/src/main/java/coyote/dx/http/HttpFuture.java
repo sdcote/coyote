@@ -33,6 +33,7 @@ public class HttpFuture {
   private String requestUri = null;
   private String resource = null;
   private DataFrame errorFrame = null;
+  private volatile boolean processedFlag = false;
 
 
 
@@ -75,7 +76,7 @@ public class HttpFuture {
 
 
   /**
-   * @return the method
+   * @return the HTTP request method or null if it was not set.
    */
   public String getMethod() {
     return method;
@@ -272,6 +273,39 @@ public class HttpFuture {
    */
   public boolean isInError() {
     return errorFrame != null;
+  }
+
+
+
+
+  /**
+   * This is a flag indicating this future and the data it contains has been 
+   * processed.
+   * 
+   * <p>Processing simply means a component examined the future and performed 
+   * processing as configured. Even if processing ended in error, this flag 
+   * should still indicate processing did occur.
+   * 
+   * <p>A return value of false indicate no component processed this future 
+   * and that the request is not supported by this configuration. In such 
+   * cases a 501 (Not Implemented) may be returned indicating this system 
+   * instance does not support the request.
+   * 
+   * @return true of the future was processed by a component, false otherwise.
+   */
+  public boolean isProcessed() {
+    return processedFlag;
+  }
+
+
+
+
+  /**
+   * @param processed true indicates a component examined this request and 
+   *        processed it, false indicates this future has not been processed.
+   */
+  public void setProcessed(boolean processed) {
+    this.processedFlag = processed;
   }
 
 }

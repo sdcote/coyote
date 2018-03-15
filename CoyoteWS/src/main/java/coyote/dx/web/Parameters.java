@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import coyote.commons.network.MimeType;
+import coyote.commons.network.http.Method;
 import coyote.dataframe.DataFrame;
 import coyote.dx.web.worker.Namespace;
 

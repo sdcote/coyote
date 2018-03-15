@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.Map;
 
 import coyote.commons.StringUtil;
-import coyote.commons.network.http.IHTTPSession;
+import coyote.commons.network.http.HTTPSession;
 
 
 /**
@@ -50,7 +50,7 @@ public class ResponderUtil {
    * 
    * @return text suitable for inclusion on an HTML page.
    */
-  public static String getDebugText(Map<String, String> urlParams, IHTTPSession session) {
+  public static String getDebugText(Map<String, String> urlParams, HTTPSession session) {
 
     final StringBuilder text = new StringBuilder("<html><body>");
 

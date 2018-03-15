@@ -44,10 +44,10 @@ import org.slf4j.LoggerFactory;
 
 import coyote.commons.StringUtil;
 import coyote.commons.network.MimeType;
+import coyote.commons.network.http.Method;
 import coyote.dataframe.marshal.JSONMarshaler;
 import coyote.dataframe.marshal.XMLMarshaler;
 import coyote.dx.web.InvocationException;
-import coyote.dx.web.Method;
 import coyote.dx.web.Parameters;
 import coyote.dx.web.Resource;
 import coyote.dx.web.decorator.RequestDecorator;
