@@ -11,7 +11,7 @@
  */
 package coyote.dx.web;
 
-import coyote.commons.network.http.IHTTPSession;
+import coyote.commons.network.http.HTTPSession;
 import coyote.dx.context.TransactionContext;
 
 
@@ -30,13 +30,13 @@ import coyote.dx.context.TransactionContext;
 public class ResponseFuture {
 
   private TransactionContext context = null;
-  private IHTTPSession session;
+  private HTTPSession session;
   private volatile boolean complete = false;
 
 
 
 
-  public ResponseFuture( IHTTPSession session ) {
+  public ResponseFuture(HTTPSession session) {
     this.session = session;
   }
 
@@ -46,7 +46,7 @@ public class ResponseFuture {
   /**
    * @return the HTTP request session
    */
-  public IHTTPSession getSession() {
+  public HTTPSession getSession() {
     return session;
   }
 
@@ -56,7 +56,7 @@ public class ResponseFuture {
   /**
    * @param session the session to set
    */
-  public void setSession( IHTTPSession session ) {
+  public void setSession(HTTPSession session) {
     this.session = session;
   }
 
@@ -76,7 +76,7 @@ public class ResponseFuture {
   /**
    * @param flag the complete to set
    */
-  public synchronized void setComplete( boolean flag ) {
+  public synchronized void setComplete(boolean flag) {
     this.complete = flag;
   }
 
@@ -102,7 +102,7 @@ public class ResponseFuture {
    * @param context The context the transformation engine is using while 
    *        processing this transaction data. 
    */
-  public void setTransactionContext( TransactionContext context ) {
+  public void setTransactionContext(TransactionContext context) {
     this.context = context;
   }
 

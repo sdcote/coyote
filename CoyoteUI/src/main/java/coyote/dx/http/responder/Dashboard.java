@@ -10,7 +10,7 @@ package coyote.dx.http.responder;
 import java.util.Map;
 
 import coyote.commons.StringUtil;
-import coyote.commons.network.http.IHTTPSession;
+import coyote.commons.network.http.HTTPSession;
 import coyote.commons.network.http.Response;
 import coyote.commons.network.http.SessionProfile;
 import coyote.commons.network.http.SessionProfileManager;
@@ -26,7 +26,7 @@ import coyote.loader.log.Log;
 public class Dashboard extends ViewResponder implements Responder {
 
   @Override
-  public Response get(Resource resource, Map<String, String> urlParams, IHTTPSession session) {
+  public Response get(Resource resource, Map<String, String> urlParams, HTTPSession session) {
 
     SessionProfile profile = SessionProfileManager.retrieveOrCreateProfile(session);
     Log.info("Profile: " + profile);

@@ -15,8 +15,7 @@ import java.util.Map;
 
 import coyote.commons.StringUtil;
 import coyote.commons.network.MimeType;
-import coyote.commons.network.http.IHTTPSession;
-import coyote.commons.network.http.IStatus;
+import coyote.commons.network.http.HTTPSession;
 import coyote.commons.network.http.Response;
 import coyote.commons.network.http.Status;
 import coyote.commons.network.http.responder.DefaultResponder;
@@ -43,7 +42,7 @@ public abstract class ViewResponder extends DefaultResponder implements Responde
 
 
   @Override
-  public Response delete(final Resource resource, final Map<String, String> urlParams, final IHTTPSession session) {
+  public Response delete(final Resource resource, final Map<String, String> urlParams, final HTTPSession session) {
     return Response.createFixedLengthResponse(getStatus(), getMimeType(), getText());
   }
 
@@ -51,7 +50,7 @@ public abstract class ViewResponder extends DefaultResponder implements Responde
 
 
   @Override
-  public Response get(final Resource resource, final Map<String, String> urlParams, final IHTTPSession session) {
+  public Response get(final Resource resource, final Map<String, String> urlParams, final HTTPSession session) {
     return Response.createFixedLengthResponse(getStatus(), getMimeType(), getText());
   }
 
@@ -195,7 +194,7 @@ public abstract class ViewResponder extends DefaultResponder implements Responde
 
 
   @Override
-  public Response other(final String method, final Resource resource, final Map<String, String> urlParams, final IHTTPSession session) {
+  public Response other(final String method, final Resource resource, final Map<String, String> urlParams, final HTTPSession session) {
     return Response.createFixedLengthResponse(getStatus(), getMimeType(), getText());
   }
 
@@ -203,7 +202,7 @@ public abstract class ViewResponder extends DefaultResponder implements Responde
 
 
   @Override
-  public Response post(final Resource resource, final Map<String, String> urlParams, final IHTTPSession session) {
+  public Response post(final Resource resource, final Map<String, String> urlParams, final HTTPSession session) {
     return Response.createFixedLengthResponse(getStatus(), getMimeType(), getText());
   }
 
@@ -211,7 +210,7 @@ public abstract class ViewResponder extends DefaultResponder implements Responde
 
 
   @Override
-  public Response put(final Resource resource, final Map<String, String> urlParams, final IHTTPSession session) {
+  public Response put(final Resource resource, final Map<String, String> urlParams, final HTTPSession session) {
     return Response.createFixedLengthResponse(getStatus(), getMimeType(), getText());
   }
 
@@ -297,7 +296,7 @@ public abstract class ViewResponder extends DefaultResponder implements Responde
 
 
   @Override
-  public IStatus getStatus() {
+  public Status getStatus() {
     return status;
   }
 
