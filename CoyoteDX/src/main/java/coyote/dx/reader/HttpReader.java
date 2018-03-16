@@ -514,8 +514,6 @@ public class HttpReader extends AbstractFrameReader implements FrameReader {
      */
     @Override
     public void onMap(TransactionContext txnContext) {
-      DataFrame result = txnContext.getTargetFrame();
-
       HttpFuture future = (HttpFuture)txnContext.get(HTTP_FUTURE);
       if (future != null) {
         String method = future.getMethod();
@@ -527,12 +525,10 @@ public class HttpReader extends AbstractFrameReader implements FrameReader {
             break;
           }
           case HTTP.METHOD_POST: {
-            // check the config to determine what fields from the target should be placed in the future
             future.setFrame(null); // remove the existing request frame
             break;
           }
           case HTTP.METHOD_PUT: {
-            // check the config to determine what fields from the target should be placed in the future
             future.setFrame(null); // remove the existing request frame
             break;
           }
