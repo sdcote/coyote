@@ -43,9 +43,9 @@ import coyote.loader.log.Log;
  * hierarchy. This is slower as it generates a batch of inserts for each of 
  * the fields and then sends the batch to the database. Simple mode can be 
  * used for 90% of applications since this type of data transfer is normally 
- * the first stage of integration. The "non-simple" mode is only used when the 
- * data frames are stored in their final location and there is a need to edit 
- * fields of the frame individually.  
+ * the first stage of integration. The "non-simple" mode is normally used only 
+ * when the data frames are stored in their final location and there is a need 
+ * to edit* fields of the frame individually.  
  *  
  * <p>The structure of the table is a normalized attribute table. This allows 
  * any structure to be modeled and enables the table to support different 
