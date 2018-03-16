@@ -9,6 +9,13 @@ The primary deciding factor for locating a feature is its applicability. If any 
 
 The secondary consideration for placing something in a separate module is its dependencies. If an external library is required, then it will go in a separate project / module. This gives the user the choice of using the third party library. 
 
+## ReST Use Cases
+Web Services, particularly microservices, are insanely popular at the moment and Coyote has the ability to implement simple web services backed by some data store such as a relational database. By using the HttpReader, it is possible to handle web service requests in a very small footprint. Combine this with containers and you have a very scalable way to ingest large amounts of data from a large number of external entities. Hundreds of thousands of devices can send data to your system through a scalable number Coyote jobs running in your cloud provider of choice.
+
+The goal is to run scalable CRUD operations on relational data via ReST patterns using HTTP. This will enable teams to stand up web services to collect and manage data with a simple configuration file (data transfer job) and allow for the creation of PoC projects with a minimum of back-office development. Just run the services locally, and point your web application to use those services. This might be something along the lines of `cdx backoffice.json` which would stand up the web service endpoints.
+
+This involves the CoyoteDX and CoyoteDB modules waith some adjustments expected in the Loader which contains the core HTTP and threading components. 
+
 ## CoyoteML
 The Machine Learning (ML) sub-project contributes tools to assist with processing data sets and performing machine learning processing. Much of what is specific to machine learning is encapsulated in this project, but the actual algorithms are contributed by well-established external libraries. CoyoteML provides a simple way to plug these third-party algorithms into Coyote data flows.
 
