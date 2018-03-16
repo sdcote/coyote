@@ -456,92 +456,48 @@ public class HttpReader extends AbstractFrameReader implements FrameReader {
     public void onEnd(OperationalContext context) {
       if (context instanceof TransactionContext) {
         Log.debug("Completing HTTP request");
+
         HttpFuture future = (HttpFuture)context.get(HTTP_FUTURE);
 
         if (future != null) {
-          DataFrame result = future.getDataFrame();
-
-          MimeType type = future.determineResponseType();
-
-          if (context.isInError()) {
-            String errorText = HttpReader.getErrorText(context.getErrorMessage(), type);
-            future.setResponse(Response.createFixedLengthResponse(Status.BAD_REQUEST, type.getType(), errorText));
-          } else {
-
+          DataFrame result = ((TransactionContext)context).getProcessingResult();
+          if (result == null) {
             if (future.isProcessed()) {
+              future.setResponse(Response.createFixedLengthResponse(Status.NO_CONTENT, MimeType.TEXT.getType(), null));
+            } else {
+              future.setResponse(Response.createFixedLengthResponse(Status.NOT_FOUND, MimeType.TEXT.getType(), null));
+            }
+          } else {
+            MimeType type = future.determineResponseType();
 
+            if (context.isInError()) {
+              String errorText = HttpReader.getErrorText(context.getErrorMessage(), type);
+              future.setResponse(Response.createFixedLengthResponse(Status.BAD_REQUEST, type.getType(), errorText));
+            } else {
               String results;
-              if (result != null) {
-                if (result instanceof DataFrame) {
-                  if (type.equals(MimeType.XML)) {
-                    results = XMLMarshaler.marshal((DataFrame)result);
-                  } else {
-                    results = JSONMarshaler.marshal((DataFrame)result);
-                  }
+
+              // format results
+              if (result instanceof DataFrame) {
+                if (type.equals(MimeType.XML)) {
+                  results = XMLMarshaler.marshal((DataFrame)result);
                 } else {
-                  results = result.toString();
+                  results = JSONMarshaler.marshal((DataFrame)result);
                 }
               } else {
-                results = "";
+                results = result.toString(); // JSON
               }
 
               // package the results
               if (StringUtil.isBlank(results)) {
-                if (future.getMethod().equalsIgnoreCase(HTTP.METHOD_GET)) {
-                  future.setResponse(Response.createFixedLengthResponse(Status.NOT_FOUND, type.getType(), results));
-                } else {
-                  future.setResponse(Response.createFixedLengthResponse(Status.NO_CONTENT, type.getType(), results));
-                }
+                future.setResponse(Response.createFixedLengthResponse(Status.NO_CONTENT, type.getType(), results));
               } else {
                 future.setResponse(Response.createFixedLengthResponse(Status.OK, type.getType(), results));
               }
-
-            } else {
-              future.setResponse(Response.createFixedLengthResponse(Status.NOT_IMPLEMENTED, type.getType(), null));
             }
+
           }
         }
-      }
-    }
 
-
-
-
-    /**
-     * This is where the listener can populate the result which is sent to the 
-     * requester.
-     * @see coyote.dx.listener.AbstractListener#onMap(coyote.dx.context.TransactionContext)
-     */
-    @Override
-    public void onMap(TransactionContext txnContext) {
-      HttpFuture future = (HttpFuture)txnContext.get(HTTP_FUTURE);
-      if (future != null) {
-        String method = future.getMethod();
-        method = (StringUtil.isNotBlank(method)) ? method.toUpperCase() : "";
-        switch (method) {
-          case HTTP.METHOD_GET: {
-            // place the retrieved frame in the future
-            future.setFrame(txnContext.getTargetFrame());
-            break;
-          }
-          case HTTP.METHOD_POST: {
-            future.setFrame(null); // remove the existing request frame
-            break;
-          }
-          case HTTP.METHOD_PUT: {
-            future.setFrame(null); // remove the existing request frame
-            break;
-          }
-          case HTTP.METHOD_DELETE: {
-            // place the deleted frame in the future
-            future.setFrame(txnContext.getTargetFrame());
-            break;
-          }
-          default: {
-            future.setFrame(null); // remove the existing request frame
-            break;
-          }
-        }
       }
     }
 

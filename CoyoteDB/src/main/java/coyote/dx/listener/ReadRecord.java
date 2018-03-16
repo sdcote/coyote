@@ -38,17 +38,17 @@ public class ReadRecord extends AbstractDatabaseListener implements ContextListe
     Log.info("Read Record Listener handling target frame of " + cntxt.getTargetFrame());
     Connection connection = getConnector().getConnection();
 
-    // look for the SysId of the record to read
     DataFrame frame = cntxt.getTargetFrame();
     if (frame != null) {
       if (frame.containsIgnoreCase(FrameStore.SYSID)) {
         String sysid = frame.getFieldIgnoreCase(FrameStore.SYSID).getStringValue();
-        // Use the static methods in the FrameStore to encapsulate and standardize all SQL processing
+
         DataFrame result = FrameStore.read(sysid, connection, getIdentity(), determineSchema(), getTable(), getDatabaseProduct());
+
         if (result == null) {
           Log.warn("No results for frame with a SysId of '" + sysid + "'");
         }
-        cntxt.setTargetFrame(result); // replace the target frame with the results
+        cntxt.setProcessingResult(result);
       }
     } else {
       Log.error("No frame from which to retrive the system identifier");

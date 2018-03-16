@@ -14,6 +14,7 @@ import java.util.Map;
 
 import coyote.commons.StringUtil;
 import coyote.commons.template.SymbolTable;
+import coyote.dataframe.DataFrame;
 import coyote.dx.FrameReader;
 import coyote.dx.FrameValidator;
 import coyote.dx.FrameWriter;
@@ -719,7 +720,7 @@ public abstract class OperationalContext {
    * 
    * @see #getProcessingResult()
    */
-  public void setProcessingResult(Object value) {
+  public void setProcessingResult(DataFrame value) {
     set(RESULT_KEY, value);
   }
 
@@ -735,9 +736,15 @@ public abstract class OperationalContext {
    *  
    * @return what is stored in this context under the common key.
    * 
-   * @see #setProcessingResult(Object)
+   * @see #setProcessingResult(DataFrame)
    */
-  public Object getProcessingResult() {
-    return get(RESULT_KEY);
+  public DataFrame getProcessingResult() {
+    DataFrame retval = null;
+    Object obj = get(RESULT_KEY);
+    if (obj instanceof DataFrame) {
+      retval = (DataFrame)obj;
+    }
+    return retval;
   }
+
 }

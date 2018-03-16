@@ -263,7 +263,7 @@ public class HttpReaderHandler extends AbstractCoyoteResponder implements Respon
    * @throws IllegalArgumentException if there were problems parsing the body
    */
   private DataFrame populateBody(HTTPSession session) throws IllegalArgumentException {
-    DataFrame retval;
+    DataFrame retval = null;
     Body body = null;
     try {
       body = session.parseBody();
@@ -277,9 +277,12 @@ public class HttpReaderHandler extends AbstractCoyoteResponder implements Respon
       } catch (final Exception e) {
         throw new IllegalArgumentException("Problems parsing body data: " + e.getMessage());
       }
-    } else {
+    }
+
+    if (retval == null) {
       retval = new DataFrame();
     }
+
     return retval;
   }
 
@@ -360,7 +363,7 @@ public class HttpReaderHandler extends AbstractCoyoteResponder implements Respon
         throw new MarshalException("Problems parsing request body. Check logs for details.");
       }
 
-      if (data != null) {
+      if (data != null && StringUtil.isNotEmpty(data)) {
         List<DataFrame> frames = null;
         String contentType = session.getRequestHeaders().get(HTTP.HDR_CONTENT_TYPE.toLowerCase());
         if (StringUtil.isNotEmpty(contentType) && contentType.contains(MimeType.XML.getType())) {

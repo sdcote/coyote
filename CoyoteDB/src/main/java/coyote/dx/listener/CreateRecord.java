@@ -10,6 +10,8 @@ package coyote.dx.listener;
 import java.sql.Connection;
 import java.sql.SQLException;
 
+import coyote.dataframe.DataFrame;
+import coyote.dx.ConfigTag;
 import coyote.dx.context.ContextListener;
 import coyote.dx.context.TransactionContext;
 import coyote.dx.db.FrameStore;
@@ -33,20 +35,6 @@ import coyote.loader.log.Log;
  * <p>Transforms can be used to perform lookups and alter the state of the 
  * working frame to enable conditions for the listener to be run.
  * 
- * <p>This listener operates at the end of the transaction context, giving all 
- * other components a chance to process the working frame and the mapper to 
- * generate a properly formatted record for insertion into the database.
- * 
- * <p>This has 2 modes of operation. Simple, the fastest, just serializes the 
- * data frame as a JSON string and places it in a row. The other mode (not 
- * simple?) saves each field in a separate row, preserving order and 
- * hierarchy. This is slower as it generates a batch of inserts for each of 
- * the fields and then sends the batch to the database. Simple mode can be 
- * used for 90% of applications since this type of data transfer is normally 
- * the first stage of integration. The "non-simple" mode is normally used only 
- * when the data frames are stored in their final location and there is a need 
- * to edit* fields of the frame individually.  
- *  
  * <p>The structure of the table is a normalized attribute table. This allows 
  * any structure to be modeled and enables the table to support different 
  * record types. Each key-value pair is assigned a parent to which it belongs.
@@ -61,18 +49,13 @@ public class CreateRecord extends AbstractDatabaseListener implements ContextLis
   public void execute(TransactionContext cntxt) {
     Log.info("Create Record Listener handling target frame of " + cntxt.getTargetFrame());
     Connection conn = getConnector().getConnection();
-
-    // Use the static methods in the FrameStore to encapsulate and standardize all SQL processing
+    
     String guid = FrameStore.create(cntxt.getTargetFrame(), conn, getIdentity(), determineSchema(), getTable(), getDatabaseProduct());
+    
+    cntxt.setProcessingResult(new DataFrame().set(ConfigTag.ID, guid));
 
-    // HttpListener uses this along with maybe other async readers
-    cntxt.setProcessingResult(guid);
-
-    // if the connector pools connections, it is safe to close the connection
-    // otherwise, we should keep it open for later use by this component.
     if (getConnector().isPooled()) {
       try {
-        // closing a pooled connection returns it to the pool
         conn.close();
       } catch (SQLException e) {
         Log.warn(this.getClass().getName() + " experienced problems closing the database connection: " + e.getMessage());
