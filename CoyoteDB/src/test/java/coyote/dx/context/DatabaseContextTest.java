@@ -14,6 +14,7 @@ import java.io.File;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import coyote.dataframe.DataFrame;
@@ -123,7 +124,7 @@ public class DatabaseContextTest extends AbstractContextTest {
 
 
 
-  @Test
+  @Ignore
   public void msqltests() {
     String jobName = "ContextTest";
 
