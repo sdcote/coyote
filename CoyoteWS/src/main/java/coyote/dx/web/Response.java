@@ -383,11 +383,19 @@ public class Response {
 
 
   /**
-     * @return formatted time of how long the request payload took to parse.
+   * @return formatted time of how long the request payload took to parse.
    */
   public String getParsingTime() {
-    return formatElapsedMillis( parseEnd - parseStart, true );
+    return formatElapsedMillis( getParsingElapsed(), true );
   }
+
+
+
+
+  /**
+   * @return nuber of milliseconds the request payload took to parse.
+   */
+  public long getParsingElapsed() { return parseEnd - parseStart; }
 
 
 
