@@ -14,7 +14,7 @@
 		},
 
 		"Writer" : {
-			"class" : "CSVWriter",
+			"class" : "CsvWriter",
 			"target" : "static_reader.csv",
 			"header" : true
 		}

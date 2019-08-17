@@ -84,7 +84,6 @@ public class CsvWriter extends AbstractFrameFileWriter implements FrameWriter, C
 
   SimpleDateFormat DATEFORMAT = new SimpleDateFormat(DEFAULT_DATE_FORMAT);
 
-  private boolean writeHeaders = true;
 
   /** The list of fields we are to write in the order they are to be written */
   private final List<FieldDefinition> fields = new ArrayList<FieldDefinition>();
@@ -165,9 +164,9 @@ public class CsvWriter extends AbstractFrameFileWriter implements FrameWriter, C
    * @return true indicates the writer will write a header before the data, false otherwise
    */
   public boolean isUsingHeader() {
-    try {
-      return configuration.getAsBoolean(ConfigTag.HEADER);
-    } catch (final DataFrameException e) {
+    if(configuration.containsIgnoreCase(ConfigTag.HEADER)){
+      return configuration.getBoolean(ConfigTag.HEADER);
+    } else{
       return false;
     }
   }
@@ -233,21 +232,10 @@ public class CsvWriter extends AbstractFrameFileWriter implements FrameWriter, C
   public void setConfiguration(final Config cfg) throws ConfigurationException {
     super.setConfiguration(cfg);
 
-    // Check if we are to treat the first line as the header names
-    if (cfg.contains(ConfigTag.HEADER)) {
-      try {
-        writeHeaders = cfg.getAsBoolean(ConfigTag.HEADER);
-      } catch (final DataFrameException e) {
-        Log.info(LogMsg.createMsg(CDX.MSG, "Writer.header_flag_is_not_valid " + cfg.getAsString(ConfigTag.HEADER)));
-        writeHeaders = false;
-      }
-    } else {
-      Log.debug("No header config");
-    }
-    Log.debug(LogMsg.createMsg(CDX.MSG, "Writer.header_flag_is_set_as", writeHeaders));
+    Log.debug(LogMsg.createMsg(CDX.MSG, "Writer.header_flag_is_set_as", this.isUsingHeader()));
 
     // Check to see if a different date format is to be used
-    if (cfg.contains(ConfigTag.DATEFORMAT)) {
+    if (cfg.containsIgnoreCase(ConfigTag.DATEFORMAT)) {
       try {
         DATEFORMAT = new SimpleDateFormat(cfg.getAsString(ConfigTag.DATEFORMAT));
       } catch (final Exception e) {
