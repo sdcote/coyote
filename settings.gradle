@@ -1,5 +1,6 @@
 rootProject.name = 'Coyote'
 include 'CoyoteDX'
+include 'CoyoteMC'
 include 'CoyoteDB'
 include 'CoyoteFT'
 include 'CoyoteWS'
