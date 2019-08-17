@@ -13,7 +13,8 @@ jar {
 ext {
 	junitVersion = '4.12'
 	rabbitVersion = '4.1.0'
-	qpidVersion = '6.1.2'}
+	qpidVersion = '6.1.2'
+}
 dependencies {
 	compile project(':CoyoteDX')
 	compile "coyote:CoyoteDX:$version"
