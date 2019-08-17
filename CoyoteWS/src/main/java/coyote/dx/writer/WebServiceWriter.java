@@ -50,7 +50,7 @@ import coyote.loader.log.LogMsg;
  * endpoint.
  * 
  * <p>All responses can be written to a file (or other transport) through the 
- * ResposeWriter. The results of making web service calls then become the 
+ * ResponseWriter. The results of making web service calls then become the
  * input for other jobs. Any transform writer can be specified as it will be 
  * called in the exact same manner as it would be within a transform as a top-
  * level writer.
@@ -349,7 +349,7 @@ public class WebServiceWriter extends AbstractConfigurableComponent implements F
 
     // Treat the resource URI as a template, substituting variables in the URI 
     // (e.g. ReST identifiers in the path) for data in the transaction context
-    // which may heve been changed by listeners or other components to ensure 
+    // which may have been changed by listeners or other components to ensure
     // the data was written to the correct ReSTful resource URI.
     // This sets the path portion of the resource using a template
     if (StringUtil.isNotBlank(servicePath)) {
@@ -387,14 +387,19 @@ public class WebServiceWriter extends AbstractConfigurableComponent implements F
 
       DataFrame auditFrame = new DataFrame();
       auditFrame.add("RequestUrl", resource.getFullURI().toString());
-      auditFrame.add("RequestBody", frame);
+      auditFrame.add("RequestBody", (frame!=null)? frame.toString():"");
       auditFrame.add("Start", new Date(lastResponse.getOperationStart()));
-      auditFrame.add("ElapsedTime", lastResponse.getOperationElapsed());
       auditFrame.add("WriteTime", lastResponse.getOperationTime());
+      auditFrame.add("WriteElapsed", lastResponse.getOperationElapsed());
       auditFrame.add("TransactionTime", lastResponse.getTransactionTime());
+      auditFrame.add("TransactionElapsed", lastResponse.getTransactionElapsed());
       auditFrame.add("WebResponseTime", lastResponse.getRequestTime());
+      auditFrame.add("WebResponseElapsed", lastResponse.getRequestElapsed());
       auditFrame.add("ParsingTime", lastResponse.getParsingTime());
-      auditFrame.add("Result", lastResponse.getResult());
+      auditFrame.add("ParsingElapsed", lastResponse.getParsingElapsed());
+      auditFrame.add( "ResponseCode", lastResponse.getHttpStatusCode());
+      auditFrame.add( "ResponsePhrase", lastResponse.getHttpStatusPhrase());
+      auditFrame.add("Result",  (lastResponse.getResult()!=null) ? lastResponse.getResult().toString() : "");
 
       // Write the response frame to all the configured sub-writers
       if (writers.size() > 0) {
