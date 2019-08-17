@@ -126,6 +126,21 @@ xsi:schemaLocation="http://izpack.org/schema/installation http://izpack.org/sche
 			<fileset dir="daemon\build\install\daemon\lib" targetdir="$INSTALL_PATH/lib" includes="ServiceDemo*.jar" override="true"/>
 			<fileset dir="daemon\src\resources\demo" targetdir="$INSTALL_PATH/demo" override="true"/>
 		</pack>
+		<pack name="CoyoteMC" required="no" preselected="yes" >
+			<description>Installs the Coyote Metric Collection Tools for monitoring.</description>
+			<fileset dir="CoyoteMC\build\install\CoyoteMC\doc" targetdir="$INSTALL_PATH/doc" override="true"/>
+			<fileset dir="CoyoteMC\src\resources\licenses" targetdir="$INSTALL_PATH/doc/licenses" override="true"/>
+			<fileset dir="CoyoteMC\build\install\CoyoteMC\lib" targetdir="$INSTALL_PATH/lib" includes="CoyoteMC*.jar" override="true"/>
+		</pack>
+		<pack name="CoyoteMC Source" required="no" preselected="no" >
+			<description>The source code and javadoc files for the Coyote Metric Collection Tools.</description>
+			<fileset dir="CoyoteMC\build\libs" targetdir="$INSTALL_PATH/doc/CoyoteMC" includes="*-javadoc.jar" override="true"/>
+			<fileset dir="CoyoteMC\build\libs" targetdir="$INSTALL_PATH/doc/CoyoteMC" includes="*-sources.jar" override="true"/>
+		</pack>
+		<pack name="CoyoteMC Demo" required="no" preselected="no" >
+			<description>A collection of configuration files demonstrating how to use the metric collection tools.</description>
+			<fileset dir="CoyoteMC\src\resources\demo" targetdir="$INSTALL_PATH/demo" override="true"/>
+		</pack>
 		<pack name="CoyoteDB" required="no" preselected="yes" >
 			<description>Installs the Coyote Database toolkit.</description>
 			<fileset dir="CoyoteDB\build\install\CoyoteDB\doc" targetdir="$INSTALL_PATH/doc" override="true"/>
