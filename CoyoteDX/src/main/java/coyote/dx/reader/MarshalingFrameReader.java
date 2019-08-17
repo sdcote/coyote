@@ -7,11 +7,6 @@
  */
 package coyote.dx.reader;
 
-import java.io.File;
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.List;
-
 import coyote.commons.DataFrameUtil;
 import coyote.commons.FileUtil;
 import coyote.commons.StringUtil;
@@ -28,6 +23,11 @@ import coyote.dx.context.TransformContext;
 import coyote.loader.log.Log;
 import coyote.loader.log.LogMsg;
 
+import java.io.File;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
+
 
 /**
  * TODO: Make into a streaming reader with preload optional.
@@ -41,7 +41,8 @@ public abstract class MarshalingFrameReader extends AbstractFrameReader implemen
   /** Flag indicating all data should be loaded into and read from memory. */
   private final boolean preload = true; // we only support buffered reads
 
-
+  /** Flag indicating the frame should be be flattened to a single level of fields. */
+  private boolean flatten = true;
 
 
   /**
@@ -51,7 +52,11 @@ public abstract class MarshalingFrameReader extends AbstractFrameReader implemen
   public DataFrame read(TransactionContext context) {
     DataFrame retval;
     if (nextFrame != null) {
-      retval = DataFrameUtil.flatten(nextFrame);
+      if(flatten){
+        retval = DataFrameUtil.flatten(nextFrame);
+      } else {
+        retval = nextFrame;
+      }
     } else {
       retval = null;
     }
@@ -94,6 +99,10 @@ public abstract class MarshalingFrameReader extends AbstractFrameReader implemen
   @Override
   public void open(TransformContext context) {
     setContext(context);
+
+    if(getConfiguration().containsIgnoreCase(ConfigTag.FLATTEN)){
+      flatten = getBoolean(ConfigTag.FLATTEN);
+    }
 
     // check for a source in our configuration, if not there use the transform 
     // context as it may have been set by a previous operation

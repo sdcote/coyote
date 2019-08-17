@@ -88,6 +88,7 @@ public class ConfigTag {
   public static final String USE_SSL = "usessl";
   public static final String VALUE = "value";
   public static final String WRITE = "write";
+  public static final String FLATTEN = "flatten";
 
   // Networking proxy tags used by several components
 
