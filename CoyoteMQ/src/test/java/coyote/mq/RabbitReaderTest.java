@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import coyote.dataframe.DataFrame;
@@ -34,7 +35,7 @@ import coyote.loader.log.Log;
  */
 public class RabbitReaderTest extends AbstractMessagingTest {
 
-  @Test
+  @Ignore("This is an integration test")
   public void externalTest() throws ConfigurationException {
     final String QUEUE_NAME = "test/work";
 
