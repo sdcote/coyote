@@ -26,7 +26,7 @@ import coyote.loader.log.LogMsg;
 public abstract class AbstractBatchLoader extends AbstractLoader {
 
   /**
-   * If there is no specified directory in the HOMDIR system property, just use the current working directory
+   * If there is no specified directory in the APP_HOME system property, just use the current working directory
    */
   public static final String DEFAULT_HOME = System.getProperty("user.dir");
   private static final String OVERRIDE_WORK_DIR_ARG = "-owd";
@@ -107,6 +107,7 @@ public abstract class AbstractBatchLoader extends AbstractLoader {
           if (path == null) {
             path = System.getProperty("user.dir");
           }
+          Log.debug("Overriding APP.WORK of '"+System.getProperties().getProperty(Job.APP_WORK)+"' with '"+path+"'");
           System.setProperty(Job.APP_WORK, path);
           break;
         }
@@ -117,9 +118,11 @@ public abstract class AbstractBatchLoader extends AbstractLoader {
     String path = System.getProperties().getProperty(Job.APP_WORK);
 
     if (StringUtil.isNotBlank(path)) {
+      Log.debug("Initializing APP.WORK directory '"+path+"'");
       String workDir = FileUtil.normalizePath(path);
       File workingDir = new File(workDir);
       if (workingDir.exists()) {
+        Log.debug("APP.WORK directory '"+path+"' already exists");
         if (workingDir.isDirectory()) {
           if (workingDir.canWrite()) {
             result = workingDir;
@@ -130,7 +133,7 @@ public abstract class AbstractBatchLoader extends AbstractLoader {
           Log.warn("The app.work property does not specify a directory: " + workDir);
         }
       } else {
-        // Try making it
+        Log.debug("Creating APP.WORK directory '"+path+"'");
         try {
           FileUtil.makeDirectory(workingDir);
           result = workingDir;
@@ -138,9 +141,8 @@ public abstract class AbstractBatchLoader extends AbstractLoader {
           Log.error("Could not create working directory specified in app.work property: " + workDir + " - " + e.getMessage());
         }
       }
-
     } else {
-      // No app.work defined, so try to locate the configuration file used to 
+      // No app.work defined, so try to locate the configuration file used to
       // create this job
       Log.debug(LogMsg.createMsg(CDX.MSG, "Job.no_work_dir_set", Job.APP_WORK, System.getProperty(coyote.loader.ConfigTag.CONFIG_URI)));
 
@@ -163,6 +165,7 @@ public abstract class AbstractBatchLoader extends AbstractLoader {
     } else {
       // else just use the current working directory
       System.setProperty(Job.APP_WORK, DEFAULT_HOME);
+      Log.debug("No usable configuration directory found, using current working directory");
     }
 
     // Remove all the relations and extra slashes from the home path
