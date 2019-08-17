@@ -42,9 +42,13 @@ import coyote.loader.log.Log;
  * processes it. When the transaction ends, the HttpReader generates a 
  * response and places it in the HttpFuture and marks the future as complete.
  * 
- * <p>This handler waits for the reader to complete the HttpFuture when the 
- * transaction is complete. This class will then retrieve a response from the 
- * HttpFuture then send it back to the client. 
+ * <p>This class will be used by the HTTP Server Request thread, marshaling 
+ * the request into a data frame and placing it in a future object. This then 
+ * blocks on that future while the single threaded engine processes the 
+ * futures in its queue. The Reader in the engine generates Responses based on 
+ * the results of the engine processing the data frame inside the future. The 
+ * result is many threads blocking while the engine thread processes each data 
+ * frame in the order it was received. 
  */
 public class HttpReaderHandler extends AbstractCoyoteResponder implements Responder {
   private static final int TWO_MINUTES = 120000;

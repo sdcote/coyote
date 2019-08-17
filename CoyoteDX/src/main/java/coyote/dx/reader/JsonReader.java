@@ -16,7 +16,10 @@ import coyote.dx.FrameReader;
 
 
 /**
- * 
+ * This reader reads in JSON records and makes them available to the transform engine.
+ *
+ * Ths reader support the ability to flatten hierarchical records (complex objects) into a single flat (single level)
+ * record format. This is turned on by default. This capability is provided by the MarshalingFrameReader super class.
  */
 public class JsonReader extends MarshalingFrameReader implements FrameReader, ConfigurableComponent {
 
