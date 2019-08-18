@@ -50,7 +50,7 @@ import coyote.loader.log.Log;
  * 
  * <p>HttpReader is an event-based reader, never returning EOF, it listens for 
  * HTTP requests (i.e. HttpFuture) and generates data frames from the request 
- * data conatined therein. The {@code read(TransactionContext)} method then
+ * data contained therein. The {@code read(TransactionContext)} method then
  * binds the future to the {@code TransactionContext} and returns that data 
  * frame to be processed by the rest of the components.
  * 
