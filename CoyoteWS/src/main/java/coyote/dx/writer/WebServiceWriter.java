@@ -303,11 +303,8 @@ public class WebServiceWriter extends AbstractConfigurableComponent implements F
    */
   @Override
   public void write(DataFrame frame) {
-    // If there is a conditional expression
     if (expression != null) {
-
       try {
-        // if the condition evaluates to true
         if (evaluator.evaluateBoolean(expression)) {
           Log.debug("Condition is true...writing frame to resource");
           writeFrame(frame);
