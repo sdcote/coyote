@@ -14,6 +14,7 @@ import java.io.IOException;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import coyote.commons.FileUtil;
@@ -70,7 +71,7 @@ public class WebGetTest extends AbstractTest {
 
 
 
-  @Test
+  @Ignore("This is an integration test")
   public void primaryUseCase() throws ConfigurationException, IOException, TaskException {
     resetDirectory(testDir);
 
@@ -103,6 +104,6 @@ public class WebGetTest extends AbstractTest {
       task.execute();
       assertFalse(context.getErrorMessage(), context.isInError());
     }
-
   }
+
 }
