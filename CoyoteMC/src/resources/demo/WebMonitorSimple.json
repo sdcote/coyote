@@ -1,6 +1,5 @@
 {
   "Class": "coyote.dx.Service",
-
   "Manager" : {
     "Port": 80
   },
@@ -21,14 +20,6 @@
       "indent" : false,
       "message" : "Record [#$CurrentFrame#] received."
     }
-  },
-
-  "Logging": {
-    "FileAppender": { "target": "[#$work.dir#][#$FS#]log[#$FS#]cdx.log", "categories": "info" },
-    "FileAppender": { "target": "[#$work.dir#][#$FS#]log[#$FS#]error.log", "categories": "error, fatal, warn" },
-    "CyclingFileAppender": { "target": "[#$work.dir#][#$FS#]log[#$FS#]debug.log", "categories": "trace, debug, error, fatal, warn", "generations": 10, "maxsize": "2MB", "enabled": true },
-    "CyclingFileAppender": { "target": "[#$work.dir#][#$FS#]log[#$FS#]scheduler.log", "categories": "scheduler, thread", "generations": 10, "maxsize": "2MB" },
-    "CyclingFileAppender": { "target": "[#$work.dir#][#$FS#]log[#$FS#]httpd.log", "categories": "httpd", "generations": 7, "interval": "1d", "cycletime": "00:03", "maxsize": "10MB" }
   }
-
 }
+
