@@ -1,0 +1,28 @@
+{
+	"Class" : "coyote.dx.Job",
+	"Job" : {
+		"Name" : "StaticReader",
+		
+		"Reader" : {
+			"class" : "StaticReader",
+			"fields" : {
+				"JobId": "EB00C166-9972-4147-9453-735E7EB15C60",
+				"Delay": 1000,
+				"Log": true
+			}    
+		},
+
+		"Writer" : {
+			"class" : "PushGatewayWriter",
+			"target" : "http://localhost:9091",
+			"fields": []
+		}
+	},
+
+
+	"Logging": {
+		"StandardError": {"categories": "error, fatal, warn" },
+		"StandardOutput": { "categories": "info, notice, debug" }
+	}
+
+}
