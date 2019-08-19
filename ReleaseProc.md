@@ -23,4 +23,4 @@ To build a new installer for Coyote run the following:
 
 The self-executing JAR (`CoyoteInstaller.jar`) Will be in the root of the project.
 
-BTW, Use the `compile.sh` if you are running on a *nix machine.
+BTW, Use the `compile` if you are running on a *nix machine.
