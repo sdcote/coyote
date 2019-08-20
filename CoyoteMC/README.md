@@ -53,3 +53,15 @@ A metric `Reader` component performs an operation and generates a series of metr
 
 When components notice the last of the metrics have been sent through the pipeline, components then perform processing on the set of metrics as a collection. A `Writer`, for example, may collect all the metric records and send the entire batch to a Time Series Data Base for storage.
 
+## PushGatewayWriter
+This writer operates like the `WebServiceWriter` but for calculating the service path based on contents of the record and not using a protocol section since the protocol is dictated by the Push Gateway service. 
+
+The `target` configuration parameter points to the host and port of the Prometheus Push Gateway. It is assumed that metrics will be sent to the gateway via HTTP POST operation and the payload will be OpenMetric text as described above. Each record received by the writer will potentially result in an HTTP POST to the `target` web service.
+
+A `fields` section describe how the individual fields of records are converted into individual metrics. The name of the field is the matcher for the name of the record to be written. Once matched, the `help` and `type` fields are used to craft the OpenMetric.
+
+At present, only `counter` and `gauge` are supported. The `histogram` and `summary` metric types are currently under design and development.
+
+All other fields in the record are treated as labels with the name of the field being treated as the name of the label and the value of the field being treated as the label value. These additional fields are also used to calculate the service endpoint called. Be sure to create the appropriately formatted record in you writer or "transform" the record in the pipeline to meet your needs.
+
+Labels should include the `job` field as this is required by the push gateway. If omitted `coyote` will be used.  See the Push Gateway [README](https://github.com/prometheus/pushgateway/blob/master/README.md#url) for more details on the required URL for pushing metrics.

@@ -15,7 +15,10 @@
 		"Writer" : {
 			"class" : "PushGatewayWriter",
 			"target" : "http://localhost:9091",
-			"fields": []
+			"fields" : {
+				"cpu_percentage" : { "help" : "Current CPU utilization", "type" : "gauge" },
+				"fault_count" : { "help" : "Count of system faults", "type" : "counter" }
+			}
 		}
 	},
 

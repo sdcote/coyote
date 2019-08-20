@@ -29,7 +29,6 @@ public class PushGatewayWriter extends AbstractFrameWriter implements FrameWrite
   private DataFrame lastRequest = null;
   private Response lastResponse = null;
   private Resource resource = null;
-  private String servicePath = null;
 
   private Authenticator authenticator = new NullAuthenticator();
   private Proxy proxy = null;
@@ -43,7 +42,6 @@ public class PushGatewayWriter extends AbstractFrameWriter implements FrameWrite
     String target = getTarget();
     Log.debug("Using a target of: " + target);
 
-    servicePath = getConfiguration().getString(ConfigTag.PATH);
 
 
     String targetUrl = getString(ConfigTag.TARGET);
@@ -212,10 +210,10 @@ public class PushGatewayWriter extends AbstractFrameWriter implements FrameWrite
     String requestBody = convertDataFrameToOpenMetric(frame);
     parameters.setBody(requestBody);
 
-    // Treat the resource URI as a template, substituting variables in the URI (e.g. ReST identifiers in the path) for
-    // data in the transaction context which may have been changed by listeners or other components to ensure the data
-    // was written to the correct ReSTful resource URI.
-    // This sets the path portion of the resource using a template
+    String servicePath = "/metrics/job/";
+
+    String labelPath = "";// concatenate labels here
+
     if (StringUtil.isNotBlank(servicePath)) {
       try {
         resource.setPath(Template.resolve(servicePath, getContext().getTransaction().getSymbols()));
