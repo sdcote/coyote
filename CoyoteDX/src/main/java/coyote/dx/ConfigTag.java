@@ -41,6 +41,7 @@ public class ConfigTag {
   public static final String FORMAT = "format";
   public static final String GROUP = "Group";
   public static final String HEADER = "header";
+  public static final String HELP = "help";
   public static final String ID = "id";
   public static final String IDENTITY = "identity";
   public static final String INDENT = "indent";
@@ -170,6 +171,5 @@ public class ConfigTag {
   public static final String NONE = "None";
   public static final String ASCEND_CI = "AscendNoCase";
   public static final String DESCEND_CI = "DescendNoCase";
-
 
 }

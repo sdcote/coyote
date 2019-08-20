@@ -358,7 +358,7 @@ public class CWS {
       }
 
     } catch (ClassNotFoundException | NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-      Log.error(LogMsg.createMsg(CDX.MSG, "Batch.instantiation_error", className, e.getClass().getName(), e.getMessage()));
+      Log.error(LogMsg.createMsg(CDX.MSG, "DX.instantiation_error", className, e.getClass().getName(), e.getMessage()));
     }
 
     return retval;

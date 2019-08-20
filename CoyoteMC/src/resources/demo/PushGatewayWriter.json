@@ -1,20 +1,28 @@
 {
 	"Class" : "coyote.dx.Job",
+	"Description": [
+		"This is a simple posting of a metric to a push gateway.",
+		"The PushGatewayWriter uses a basic authenticator to get past the revers proxy into the locally hosted docker",
+		"containers. Since the containers are operating on their own subnet within the Docker host, the reverse proxy ",
+		"is required for outside outsize access into the Docker subnet. This provides a layer of security over the ",
+		"normally open push gateway service and the other monitoring components."
+	],
 	"Job" : {
 		"Name" : "StaticReader",
 		
 		"Reader" : {
 			"class" : "StaticReader",
 			"fields" : {
-				"JobId": "EB00C166-9972-4147-9453-735E7EB15C60",
-				"Delay": 1000,
-				"Log": true
+				"name": "cpu_percentage",
+				"value": 42,
+				"instance": "P2026071"
 			}    
 		},
 
 		"Writer" : {
 			"class" : "PushGatewayWriter",
 			"target" : "http://localhost:9091",
+			"authenticator": {"class": "BasicAuthentication", "username": "admin","password": "admin", "preemptive": true},
 			"fields" : {
 				"cpu_percentage" : { "help" : "Current CPU utilization", "type" : "gauge" },
 				"fault_count" : { "help" : "Count of system faults", "type" : "counter" }
@@ -25,7 +33,7 @@
 
 	"Logging": {
 		"StandardError": {"categories": "error, fatal, warn" },
-		"StandardOutput": { "categories": "info, notice, debug" }
+		"StandardOutput": { "categories": "info, notice" }
 	}
 
 }
