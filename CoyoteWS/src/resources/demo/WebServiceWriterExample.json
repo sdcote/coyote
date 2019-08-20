@@ -1,0 +1,28 @@
+{
+  "Class" : "coyote.dx.Job",
+  "Description":[
+    "This is a job which takes the output of another stock analytics program",
+    "and issues offers through a trading API via REST web service POSTs"
+  ],
+
+  "Job" : {
+
+    "Reader" : {
+      "class" : "CsvReader",
+      "source" : "[#$wrkdir#][#$FS#]/RecommendOffers/Requests.csv",
+      "header": true
+    },
+
+    "Writer": { "class": "ConsoleWriter", "format": "json" },
+
+    "Writer": {
+      "Class": "WebServiceWriter",
+      "Target": "https://poloniex.com/tradingApi",
+      "Protocol": { "ExchangeType": "JSON_HTTP", "Method": "POST" },
+      "ResponseWriter": { "Class": "CsvWriter", "target": "Results.csv" }
+    },
+
+    "Listener": { "Validation": { "target": "STDERR" } }
+  }
+
+}
