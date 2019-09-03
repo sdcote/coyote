@@ -11,7 +11,6 @@ import coyote.loader.log.Log;
 import coyote.loader.log.LogMsg;
 import coyote.mc.Browser;
 import coyote.mc.WebDriverBuilder;
-import coyote.mc.WebTimings;
 
 public class WebPageMetricReader extends AbstractFrameReader implements FrameReader {
 

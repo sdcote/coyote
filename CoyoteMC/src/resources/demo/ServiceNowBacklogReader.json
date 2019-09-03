@@ -1,0 +1,42 @@
+{
+  "Class": "coyote.dx.Job",
+
+  "Job": {
+    "Name": "WebPageMetricReader",
+
+
+    "Reader" : {
+      "class" : "SnowBacklogReader",
+      "source" : "https://servicenow.aepsc.com/",
+      "authentication": {
+        "class" : "BasicAuthentication",
+        "encrypted_username" : "zPzKAGYBWbVRCDqmV4DXvYrFrtQn/QXi",
+        "encrypted_password" : "KBSfnRv5kh0UO/dcwkHYck/0zSb2fqnl",
+        "preemptive" : true
+      },
+      "Protocol" : {
+        "ExchangeType" : "JSON_HTTP"
+      },
+      "request" : {
+        "query" : "install_status!=7^install_status!=8^ci.sys_class_name=u_notebook_pc^ORci.sys_class_name=u_tablet_pc^ORci.sys_class_name=u_thin_client_pc^ORci.sys_class_name=cmdb_ci_desktop_pc^ORci.sys_class_name=u_computer_pc^ORci.sys_class_name=u_cmdb_virtual_pc^ci.u_compensation_codeSTARTSWITH8",
+        "view" : "asset_billing_view",
+        "limit" : 10
+      },
+      "selector": "getRecordsResponse.response.>"
+    },
+
+    "Writer" : {
+      "class" : "ConsoleWriter",
+      "format" : "json",
+      "indent" : false,
+      "message" : "Record [#$CurrentFrame#] received."
+    }
+  },
+
+
+  "Logging": {
+    "StandardError": {"categories": "error, fatal, warn" },
+    "StandardOutput": { "categories": "info, notice, debug" }
+  }
+
+}

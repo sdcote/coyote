@@ -30,9 +30,9 @@
 				"namespace": "http://www.service-now.com/alm_hardware"
 			},
 			"request" : {
-				"__query" : "install_status!=7^install_status!=8^ci.sys_class_name=u_notebook_pc^ORci.sys_class_name=u_tablet_pc^ORci.sys_class_name=u_thin_client_pc^ORci.sys_class_name=cmdb_ci_desktop_pc^ORci.sys_class_name=u_computer_pc^ORci.sys_class_name=u_cmdb_virtual_pc^ci.u_compensation_codeSTARTSWITH8",
-				"__view" : "asset_billing_view",
-				"__limit" : 100000
+				"query" : "install_status!=7^install_status!=8^ci.sys_class_name=u_notebook_pc^ORci.sys_class_name=u_tablet_pc^ORci.sys_class_name=u_thin_client_pc^ORci.sys_class_name=cmdb_ci_desktop_pc^ORci.sys_class_name=u_computer_pc^ORci.sys_class_name=u_cmdb_virtual_pc^ci.u_compensation_codeSTARTSWITH8",
+				"view" : "asset_billing_view",
+				"limit" : 10
 			},
 			"selector": "getRecordsResponse.response.>"
 		},
