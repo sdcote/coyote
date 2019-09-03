@@ -20,7 +20,7 @@ The use of Selenium also opens the door to performing a few more checks and extr
 The goal is to enable the collection of the metrics and data which represent actual operation in a browser, not just page download times which can be misleading particularly when many resources are required to be downloaded and processed along with any AJAX-style calls a page may require to be completely rendered. This allows for the collection of metrics which most accurately represents user experience.
 
 ## OpenMetrics
-This project support the [OpenMetrics](https://openmetrics.io/) text format. Metrics can be exposed via web services, written to a file or pushed to an external web service. The initial goal is to support the popular [Prometheus](https://prometheus.io/) time series database along with it internal [AlertManager](https://prometheus.io/docs/alerting/alertmanager/) and the well-known [Grafana](https://grafana.com/) open-source dashboard system. There are many examples of installing a fully operational, production-ready monitoring system in a few minutes using both products. Combined with CoyoteCM, it is possible to begin detailed monitoring of your systems in literally under an hour.
+This project supports the [OpenMetrics](https://openmetrics.io/) text format. Metrics can be exposed via web services, written to a file or pushed to an external web service. The initial goal is to support the popular [Prometheus](https://prometheus.io/) time series database along with it internal [AlertManager](https://prometheus.io/docs/alerting/alertmanager/) and the well-known [Grafana](https://grafana.com/) open-source dashboard system. There are many examples of installing a fully operational, production-ready monitoring system in a few minutes using both products. Combined with CoyoteCM, it is possible to begin detailed monitoring of your systems in literally under an hour.
 
 ## Metric Format
 CoyoteDX is a record-based processing system. Each record contains a set to key-value pairs which are processed by multiple components in a pipeline. Each record is expected to have a unique name so it is unambiguously addressable and each value is expected to have a single primitive type, including a character string.
@@ -31,7 +31,12 @@ All metrics have a name. The value in the `name` field is the name of the metric
 ### Metric Value
 All metrics have a value. The value in the `value` field is the value of the metric.
 
-## Metric Tags
+### Metric Job
+The Coyote platform is a batch processing system. A job runs at some point in time and terminates when all the records are processed. Coyote jobs don't normally last long enough for a monitoring system to poll it for metrics. The `Writer` "pushes" data to the monitoring system representing the results of the job.
+
+If a metric contains a `job` field, the value in that field will be used as the name of the job. If not job field is specified, the `Writer` will assume the name of current job.
+
+### Metric Tags
 A metric may have one or more additional name-value pairs. These fields represent metadata about the metric. For example, a field name of `env` may represent the environment of the resource being monitored. It value may be "development", "test" or "production". Another field may be named `server` and represent the server on which resource is being monitored is located.
 
 Consider the following JSON representation of a metric record in the CoyoteDX transformation context:
@@ -39,13 +44,13 @@ Consider the following JSON representation of a metric record in the CoyoteDX tr
 {
   "name":"http_requests_total",
   "value":8264,
-  "server":"pod22",
+  "instance":"pod22",
   "env":"production"
 }
 ```
-The above metric can be read as there are currently 8,264 total HTTP requests on production server "pod22". filed other than `name` and `value` are considered tags and used to generate a more complete description of the metric value. The following is an OpenMetric format of the above example:
+The above metric can be read as there are currently 8,264 total HTTP requests on production server instance "pod22". filed other than `name` and `value` are considered tags and used to generate a more complete description of the metric value. The following is an OpenMetric format of the above example:
 ```
-http_requests_total{server="pod22",env="production"} 8264
+http_requests_total{instance="pod22",env="production"} 8264
 ```
 
 ## Metric Readers
