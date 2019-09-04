@@ -20,12 +20,10 @@ public interface Component extends Closeable {
   /**
    * Open the component using the given transformation context.
    * 
-   * <p>Components can use the data in the context to alter their operation at 
-   * the last moment and initialize themselves using data from pervious 
-   * operations.</p>
+   * <p>Components can use the data in the context to alter their operation at the last moment and initialize
+   * themselves using data from previous operations.</p>
    *  
-   * @param context The transformation context in which this component should 
-   *        be opened.
+   * @param context The transformation context in which this component should be opened.
    */
   public void open(TransformContext context);
 

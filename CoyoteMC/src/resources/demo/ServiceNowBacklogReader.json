@@ -8,21 +8,14 @@
     "Reader" : {
       "class" : "SnowBacklogReader",
       "source" : "https://servicenow.aepsc.com/",
-      "authentication": {
+      "project": "EAF - Enterprise Authentication Framework",
+      "authenticator": {
         "class" : "BasicAuthentication",
-        "encrypted_username" : "zPzKAGYBWbVRCDqmV4DXvYrFrtQn/QXi",
-        "encrypted_password" : "KBSfnRv5kh0UO/dcwkHYck/0zSb2fqnl",
+        "ENC:username" : "zPzKAGYBWbVRCDqmV4DXvYrFrtQn/QXi",
+        "ENC:password" : "KBSfnRv5kh0UO/dcwkHYck/0zSb2fqnl",
         "preemptive" : true
       },
-      "Protocol" : {
-        "ExchangeType" : "JSON_HTTP"
-      },
-      "request" : {
-        "query" : "install_status!=7^install_status!=8^ci.sys_class_name=u_notebook_pc^ORci.sys_class_name=u_tablet_pc^ORci.sys_class_name=u_thin_client_pc^ORci.sys_class_name=cmdb_ci_desktop_pc^ORci.sys_class_name=u_computer_pc^ORci.sys_class_name=u_cmdb_virtual_pc^ci.u_compensation_codeSTARTSWITH8",
-        "view" : "asset_billing_view",
-        "limit" : 10
-      },
-      "selector": "getRecordsResponse.response.>"
+      "Protocol" : { "ExchangeType" : "JSON_HTTP" }
     },
 
     "Writer" : {

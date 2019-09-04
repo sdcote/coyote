@@ -73,7 +73,7 @@ public class WebServiceReader extends AbstractFrameReader implements FrameReader
   private Resource resource = null;
   private Authenticator authenticator = new NullAuthenticator();
   private Response lastResponse = null;
-  private List<DataFrame> dataframes = null;
+  protected List<DataFrame> dataframes = null;
   private Pagination pagination = null;
   private String resourceUrl = null;
 
@@ -355,6 +355,16 @@ public class WebServiceReader extends AbstractFrameReader implements FrameReader
    */
   public Response getLastResponse() {
     return lastResponse;
+  }
+
+
+
+
+  /**
+   * @return the resource representing the web service endpoint.
+   */
+  protected Resource getResource(){
+    return resource;
   }
 
 }

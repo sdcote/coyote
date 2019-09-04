@@ -8,7 +8,7 @@
 package coyote.mc.snow;
 
 /**
- * https://docs.servicenow.com/bundle/jakarta-servicenow-platform/page/use/common-ui-elements/reference/r_OpAvailableFiltersQueries.html?title=Operators_Available_for_Filters_and_Queries
+ * https://docs.servicenow.com/bundle/newyork-platform-user-interface/page/use/common-ui-elements/reference/r_OpAvailableFiltersQueries.html
  */
 public enum Predicate {
   BETWEEN("BETWEEN", 2),
@@ -28,7 +28,9 @@ public enum Predicate {
   KEYWORDS("123TEXTQUERY321", 1),
   LESS_THAN("<", 1),
   LESS_THAN_EQUALS("<=", 1),
+  LIKE("LIKE", 1),
   NOT_IN("NOT IN", 1),
+  NOT_LIKE("NOT LIKE", 1),
   SAME_AS("SAMEAS", 1),
   STARTS_WITH("STARTSWITH", 1);
 
