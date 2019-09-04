@@ -1,6 +1,7 @@
 package coyote.dx.reader;
 
 import coyote.commons.StringUtil;
+import coyote.dataframe.DataField;
 import coyote.dataframe.DataFrame;
 import coyote.dx.CDX;
 import coyote.dx.ConfigTag;
@@ -12,8 +13,7 @@ import coyote.loader.log.LogMsg;
 import coyote.mc.snow.SnowFilter;
 
 import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 import static coyote.mc.snow.Predicate.IS;
 import static coyote.mc.snow.Predicate.LIKE;
@@ -21,6 +21,8 @@ import static coyote.mc.snow.Predicate.LIKE;
 public class SnowBacklogReader extends WebServiceReader implements FrameReader {
 
   public static final String PROJECT = "project";
+  private static final String CLASSIFICATION = "classification";
+  private static final String UNKNOWN = "Unknown";
   private List<DataFrame> stories = null;
 
   /**
@@ -66,7 +68,6 @@ public class SnowBacklogReader extends WebServiceReader implements FrameReader {
       stories = new ArrayList<>();
       for (DataFrame frame = super.read(context); frame != null; frame = super.read(context)) {
         stories.add(frame);
-        Log.info(frame);
       }
       Log.info("...read in " + stories.size() + " stories...");
       Log.info("...completed reading.");
@@ -84,7 +85,38 @@ public class SnowBacklogReader extends WebServiceReader implements FrameReader {
    */
   private List<DataFrame> generateMetrics(List<DataFrame> stories) {
     List<DataFrame> metrics = new ArrayList<>();
+    metrics.addAll( generateClassificationCounts(stories));
 
+    return metrics;
+  }
+
+  private List<DataFrame> generateClassificationCounts(List<DataFrame> stories) {
+    List<DataFrame> metrics = new ArrayList<>();
+    Map<String,Integer> counts = new HashMap<>();
+    for(DataFrame frame: stories){
+      String token = frame.getAsString(CLASSIFICATION);
+      if( StringUtil.isNotEmpty(token)){
+        String classification = token.toLowerCase();
+        if( counts.get(classification) != null){
+          counts.put(classification, counts.get(classification)+1);
+        } else{
+          counts.put(classification,1);
+        }
+      } else {
+        if( counts.get(UNKNOWN) != null){
+          counts.put(UNKNOWN, counts.get(UNKNOWN)+1);
+        } else{
+          counts.put(UNKNOWN,1);
+        }
+      }
+    }
+
+    for(Map.Entry<String,Integer> entry: counts.entrySet()){
+      DataFrame metric = new DataFrame();
+      metric.set("name",entry.getKey()+"_count");
+      metric.set("value",entry.getValue());
+      metrics.add(metric);
+    }
     return metrics;
   }
 
