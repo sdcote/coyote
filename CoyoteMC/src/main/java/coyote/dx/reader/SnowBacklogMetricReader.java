@@ -2,12 +2,11 @@ package coyote.dx.reader;
 
 import coyote.commons.StringUtil;
 import coyote.dataframe.DataFrame;
-import coyote.dx.CDX;
-import coyote.dx.CMC;
-import coyote.dx.ConfigTag;
-import coyote.dx.FrameReader;
+import coyote.dx.*;
 import coyote.dx.context.TransactionContext;
 import coyote.dx.context.TransformContext;
+import coyote.dx.web.ExchangeType;
+import coyote.loader.cfg.Config;
 import coyote.loader.log.Log;
 import coyote.loader.log.LogMsg;
 import coyote.mc.snow.SnowException;
@@ -45,8 +44,7 @@ import static coyote.mc.snow.Predicate.LIKE;
  *     "ENC:username" : "DXvYrFrtzPzKAGYBWbVRCDqmV4Qn/QXi",
  *     "ENC:password" : "UO/dcwkHYck/0zSKBSfnRv5kh0b2fqnl",
  *     "preemptive" : true
- *   },
- *   "Protocol" : { "ExchangeType" : "JSON_HTTP" }
+ *   }
  * },
  * </pre>
  */
@@ -60,6 +58,12 @@ public class SnowBacklogMetricReader extends WebServiceReader implements FrameRe
    */
   @Override
   public void open(TransformContext context) {
+    if(getConfiguration().getSection(ConfigTag.PROTOCOL) == null){
+      Config protocolSection = new Config();
+      protocolSection.set(CWS.EXCHANGE_TYPE, ExchangeType.JSON_HTTP.toString());
+      getConfiguration().put(ConfigTag.PROTOCOL,protocolSection);
+    }
+
     super.open(context);
     String source = getString(ConfigTag.SOURCE);
     Log.debug(LogMsg.createMsg(CDX.MSG, "Reader.using_source_uri", source));

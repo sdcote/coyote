@@ -14,8 +14,7 @@
         "ENC:username" : "zPzKAGYBWbVRCDqmV4DXvYrFrtQn/QXi",
         "ENC:password" : "KBSfnRv5kh0UO/dcwkHYck/0zSb2fqnl",
         "preemptive" : true
-      },
-      "Protocol" : { "ExchangeType" : "JSON_HTTP" }
+      }
     },
 
     "Writer" : {
