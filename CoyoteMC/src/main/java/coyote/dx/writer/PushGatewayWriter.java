@@ -139,7 +139,7 @@ public class PushGatewayWriter extends AbstractFrameWriter implements FrameWrite
       Log.debug("Field: " + name + ":" + cfg.toString());
       MetricDefinition metricDef = new MetricDefinition(name);
       metricMap.put(metricDef.getName(), metricDef);
-      metricDef.setHelpText(cfg.getString(ConfigTag.HELP));
+      metricDef.setHelpText(cfg.getString(ConfigTag.DESCRIPTION));
       metricDef.setMetricType(cfg.getString(ConfigTag.TYPE));
     }
 

@@ -19,6 +19,8 @@ import coyote.loader.log.LogMsg.BundleBaseName;
 public class CMC {
   public static final Version VERSION = new Version(0, 0, 1, Version.EXPERIMENTAL);
   public static final String NAME = "CMC";
+  public static final String COUNTER = "counter"; // monotonically increasing value
+  public static final String GAUGE = "gauge"; // cane increase or decrease between readings
 
 
   public static final BundleBaseName MSG;

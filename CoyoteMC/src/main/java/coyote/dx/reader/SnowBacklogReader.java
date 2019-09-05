@@ -3,6 +3,7 @@ package coyote.dx.reader;
 import coyote.commons.StringUtil;
 import coyote.dataframe.DataFrame;
 import coyote.dx.CDX;
+import coyote.dx.CMC;
 import coyote.dx.ConfigTag;
 import coyote.dx.FrameReader;
 import coyote.dx.context.TransactionContext;
@@ -90,7 +91,11 @@ public class SnowBacklogReader extends WebServiceReader implements FrameReader {
    */
   private List<DataFrame> generateMetrics(List<SnowStory> stories) {
     List<DataFrame> metrics = new ArrayList<>();
+
+    // TODO: we can reuse the resource to get other records, like sprints and releases for xref
+
     metrics.addAll(generateClassificationCounts(stories));
+
     return metrics;
   }
 
@@ -111,9 +116,10 @@ public class SnowBacklogReader extends WebServiceReader implements FrameReader {
     }
     for (Map.Entry<String, Integer> entry : counts.entrySet()) {
       DataFrame metric = new DataFrame();
-      metric.set("name", entry.getKey() + "_count");
-      metric.set("value", entry.getValue());
-      metric.set("description", "The number of backlog items with the classification of '" + entry.getKey() + "'");
+      metric.set(ConfigTag.NAME, entry.getKey() + "_count");
+      metric.set(ConfigTag.VALUE, entry.getValue());
+      metric.set(ConfigTag.DESCRIPTION, "The number of active backlog items with the classification of '" + entry.getKey() + "'");
+      metric.set(ConfigTag.TYPE, CMC.GAUGE);
       metrics.add(metric);
     }
     return metrics;
