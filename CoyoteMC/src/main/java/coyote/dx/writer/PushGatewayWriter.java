@@ -25,6 +25,33 @@ import java.util.Map;
 /**
  * This writer collects all the metric sample and generates an OpenMetric payload to sent to a Prometheus PushGateway.
  * You can see the metrics on the PushGateway by going to its "metric" endpoint: http://localhost:9091/metrics
+ *
+ * <p>The basic operation is the writer will look for an "action" field which will either be "POST" or "DELETE". If no
+ * action field is found, a POST will be assumed.</p>
+ *
+ * <p>Received dataframes will be processed in the following manner:<ul>
+ *   <li>The "name" field will be used as the name of the metric.</li>
+ *   <li>The "value" field will be used as the value of the of the metric.</li>
+ *   <li>The "type" field will be used as the type of the metric.</li>
+ *   <li>The "job" field(optional)  will be used as the job grouping key with "coyotemc" being used as the default.</li>
+ *   <li>The "help" field (optional) will be used as help description of the metric.</li>
+ *   <li>The "instance" field (optional) will be used for the instance grouping key with the local hostname being used as the default.</li>
+ *   <li>The "action" field (optional) will be used to control the HTTP method used. The default is "POST" but "DELETE" and "PUT" is also supported.</li>
+ *   <li>All other fields will be used as labels if they contain non-blank data in both name and value.</li>
+ * </ul></p>
+ *
+ * <p>The basic configuration is as follows:<pre>
+ * "Writer" : {
+ *   "class" : "PushGatewayWriter",
+ * 	 "target" : "http://localhost:9091",
+ *   "authenticator": {
+ * 	   "class": "BasicAuthentication",
+ * 	   "username": "coyotemc",
+ * 	   "password": "th15Sh0u1dB3enc4ypt3D",
+ * 	   "preemptive": true
+ *   }
+ * }
+ * </pre></p>
  */
 public class PushGatewayWriter extends AbstractFrameWriter implements FrameWriter {
 
@@ -37,16 +64,16 @@ public class PushGatewayWriter extends AbstractFrameWriter implements FrameWrite
   private Proxy proxy = null;
   private Parameters parameters = null;
   private int rowCounter = 0;
-  Map<String, MetricDefinition> metricMap = new HashMap<>();
+  private Map<String, MetricDefinition> metricMap = new HashMap<>();
 
   @Override
   public void open(TransformContext context) {
     super.open(context);
 
 
-    // $ echo "cpu_utilization 20.25" | curl --data-binary @- http://localhost:9091/metrics/job/my_custom_metrics/instance/10.20.0.1:9000/provider/hetzner
+    // $ echo "cpu_utilization 20.25" | curl --data-binary @- http://localhost:9091/metrics/job/my_custom_metrics/instance/10.20.0.1:9000/provider/coyote
     // target = http://localhost:9091/metrics
-    // servicePath = /job/my_custom_metrics/instance/10.20.0.1:9000/provider/hetzner  this is the part we calculate based on the labels
+    // servicePath = /job/my_custom_metrics/instance/10.20.0.1:9000/provider/coyote  this is the part we calculate based on the labels
     // see: https://blog.ruanbekker.com/blog/2019/05/17/install-pushgateway-to-expose-metrics-to-prometheus/
     //  https://prometheus.io/docs/instrumenting/exposition_formats/
 

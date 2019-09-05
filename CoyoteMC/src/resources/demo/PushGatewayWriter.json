@@ -22,10 +22,11 @@
 		"Writer" : {
 			"class" : "PushGatewayWriter",
 			"target" : "http://localhost:9091",
-			"authenticator": {"class": "BasicAuthentication", "username": "admin","password": "admin", "preemptive": true},
-			"fields" : {
-				"cpu_percentage" : { "help" : "Current CPU utilization", "type" : "gauge" },
-				"fault_count" : { "help" : "Count of system faults", "type" : "counter" }
+			"authenticator": {
+				"class": "BasicAuthentication",
+				"username": "admin",
+				"password": "admin",
+				"preemptive": true
 			}
 		}
 	},
