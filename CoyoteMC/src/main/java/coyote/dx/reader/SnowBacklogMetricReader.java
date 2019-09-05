@@ -23,7 +23,34 @@ import java.util.Map;
 import static coyote.mc.snow.Predicate.IS;
 import static coyote.mc.snow.Predicate.LIKE;
 
-public class SnowBacklogReader extends WebServiceReader implements FrameReader {
+/**
+ * This is a reader which connects to a ServiceNow instance and queries data via URL export and generates metrics based
+ * on the stories in the "rm_story" table.
+ *
+ * <p>The goal of this reader is to generate metrics for sending backlog metrics to a writer for reporting or
+ * publication to a database for later reporting.</p>
+ *
+ * <p>This reader extends the WebServiceReader to make use of a common configuration and HTTP client framework. It
+ * differs from other readers of this type by performing a read of all records from the source system on the first read
+ * request at which time it consumes all the records, generates all its metrics then replaces the read-in records
+ * (dataframes) with the generated metric dataframes.</p>
+ *
+ * <p>The following is a sample configuration:<pre>
+ * "Reader" : {
+ *   "class" : "SnowBacklogMetricReader",
+ *   "source" : "https://myinstance.service-now.com/",
+ *   "project": "My Project Name",
+ *   "authenticator": {
+ *     "class" : "BasicAuthentication",
+ *     "ENC:username" : "DXvYrFrtzPzKAGYBWbVRCDqmV4Qn/QXi",
+ *     "ENC:password" : "UO/dcwkHYck/0zSKBSfnRv5kh0b2fqnl",
+ *     "preemptive" : true
+ *   },
+ *   "Protocol" : { "ExchangeType" : "JSON_HTTP" }
+ * },
+ * </pre>
+ */
+public class SnowBacklogMetricReader extends WebServiceReader implements FrameReader {
 
   public static final String PROJECT = "project";
   private List<SnowStory> stories = null;
