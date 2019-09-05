@@ -1,7 +1,6 @@
 package coyote.dx.reader;
 
 import coyote.commons.StringUtil;
-import coyote.dataframe.DataField;
 import coyote.dataframe.DataFrame;
 import coyote.dx.CDX;
 import coyote.dx.ConfigTag;
@@ -10,10 +9,15 @@ import coyote.dx.context.TransactionContext;
 import coyote.dx.context.TransformContext;
 import coyote.loader.log.Log;
 import coyote.loader.log.LogMsg;
+import coyote.mc.snow.SnowException;
 import coyote.mc.snow.SnowFilter;
+import coyote.mc.snow.SnowStory;
 
 import java.net.URISyntaxException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static coyote.mc.snow.Predicate.IS;
 import static coyote.mc.snow.Predicate.LIKE;
@@ -21,9 +25,7 @@ import static coyote.mc.snow.Predicate.LIKE;
 public class SnowBacklogReader extends WebServiceReader implements FrameReader {
 
   public static final String PROJECT = "project";
-  private static final String CLASSIFICATION = "classification";
-  private static final String UNKNOWN = "Unknown";
-  private List<DataFrame> stories = null;
+  private List<SnowStory> stories = null;
 
   /**
    * @param context The transformation context in which this component should operate
@@ -56,7 +58,7 @@ public class SnowBacklogReader extends WebServiceReader implements FrameReader {
   }
 
   /**
-   * Read in all the data via the web service reader, and replace its read in data with our own, the metrics.
+   * Read in all the data via the web service reader, and replace its "read-in" data with our own, the metrics.
    *
    * @param context the context containing data related to the current transaction.
    * @return the metrics generated from the stories read in from ServiceNow
@@ -64,13 +66,16 @@ public class SnowBacklogReader extends WebServiceReader implements FrameReader {
   @Override
   public DataFrame read(TransactionContext context) {
     if (stories == null) {
-      Log.info("Reading all the stories from the backlog...");
       stories = new ArrayList<>();
       for (DataFrame frame = super.read(context); frame != null; frame = super.read(context)) {
-        stories.add(frame);
+        try {
+          stories.add(new SnowStory(frame));
+        } catch (SnowException e) {
+          Log.error("Received an invalid data at record #" + (stories.size() + 1) + ": " + e.getMessage(), e);
+        }
       }
-      Log.info("...read in " + stories.size() + " stories...");
-      Log.info("...completed reading.");
+      Log.debug("...read in " + stories.size() + " stories.");
+
       // replace the dataframes with our metrics
       dataframes = generateMetrics(stories);
     }
@@ -83,38 +88,32 @@ public class SnowBacklogReader extends WebServiceReader implements FrameReader {
    * @param stories the stories read in from the backlog
    * @return a set of metrics describing the characteristics of the backlog stories
    */
-  private List<DataFrame> generateMetrics(List<DataFrame> stories) {
+  private List<DataFrame> generateMetrics(List<SnowStory> stories) {
     List<DataFrame> metrics = new ArrayList<>();
-    metrics.addAll( generateClassificationCounts(stories));
-
+    metrics.addAll(generateClassificationCounts(stories));
     return metrics;
   }
 
-  private List<DataFrame> generateClassificationCounts(List<DataFrame> stories) {
+  /**
+   * @param stories the SnowStories representing the backlog to analyze
+   * @return a set of metrics relating to the classification of active stories
+   */
+  private List<DataFrame> generateClassificationCounts(List<SnowStory> stories) {
     List<DataFrame> metrics = new ArrayList<>();
-    Map<String,Integer> counts = new HashMap<>();
-    for(DataFrame frame: stories){
-      String token = frame.getAsString(CLASSIFICATION);
-      if( StringUtil.isNotEmpty(token)){
-        String classification = token.toLowerCase();
-        if( counts.get(classification) != null){
-          counts.put(classification, counts.get(classification)+1);
-        } else{
-          counts.put(classification,1);
-        }
+    Map<String, Integer> counts = new HashMap<>();
+    for (SnowStory frame : stories) {
+      String classification = frame.getClassification().toLowerCase();
+      if (counts.get(classification) != null) {
+        counts.put(classification, counts.get(classification) + 1);
       } else {
-        if( counts.get(UNKNOWN) != null){
-          counts.put(UNKNOWN, counts.get(UNKNOWN)+1);
-        } else{
-          counts.put(UNKNOWN,1);
-        }
+        counts.put(classification, 1);
       }
     }
-
-    for(Map.Entry<String,Integer> entry: counts.entrySet()){
+    for (Map.Entry<String, Integer> entry : counts.entrySet()) {
       DataFrame metric = new DataFrame();
-      metric.set("name",entry.getKey()+"_count");
-      metric.set("value",entry.getValue());
+      metric.set("name", entry.getKey() + "_count");
+      metric.set("value", entry.getValue());
+      metric.set("description", "The number of backlog items with the classification of '" + entry.getKey() + "'");
       metrics.add(metric);
     }
     return metrics;

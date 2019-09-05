@@ -7,13 +7,10 @@
  */
 package coyote.mc.snow;
 
-
-
 import coyote.commons.StringParseException;
 import coyote.commons.StringParser;
 
 import java.io.IOException;
-
 
 /**
  * <p>This is a very forgiving parser and supports more than just the query string syntax. It will accept a variety of
@@ -112,7 +109,7 @@ public class FilterParser extends StringParser {
           default:
             token = parser.readToken();
             if ("LIKE".equalsIgnoreCase(token)) {
-              predicate = Predicate.CONTAINS;
+              predicate = Predicate.LIKE;
             } else if ("IS".equalsIgnoreCase(token)) {
               predicate = Predicate.IS;
             } else if ("CONTAINS".equalsIgnoreCase(token)) {
@@ -122,11 +119,11 @@ public class FilterParser extends StringParser {
             } else if ("NOT%20LIKE".equalsIgnoreCase(token)) {
               predicate = Predicate.DOES_NOT_CONTAIN;
             } else if ("NOTLIKE".equalsIgnoreCase(token)) {
-              predicate = Predicate.DOES_NOT_CONTAIN;
+              predicate = Predicate.NOT_LIKE;
             } else if ("NOT".equalsIgnoreCase(token)) {
               token = parser.readAndPeekToken();
               if ("LIKE".equalsIgnoreCase(token)) {
-                predicate = Predicate.DOES_NOT_CONTAIN;
+                predicate = Predicate.NOT_LIKE;
               } else if ("EMPTY".equalsIgnoreCase(token)) {
                 predicate = Predicate.IS_NOT_EMPTY;
               }
@@ -219,7 +216,7 @@ public class FilterParser extends StringParser {
               }
               break;
             default:
-              // looking for AND or OR; if not either, then default to anding and treat this as the name of the next clause
+              // looking for AND or OR; if not either, then default to ANDing and treat this as the name of the next clause
               token = parser.peekToken();
               if ("and".equalsIgnoreCase(token)) {
                 isAnd = true;
