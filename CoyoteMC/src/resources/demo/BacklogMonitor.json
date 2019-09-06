@@ -20,8 +20,8 @@
     "Writer": {
       "class": "PushGatewayWriter",
       "target": "http://p4002384:9091",
-      "ENC:username": "gYXVi3CnIRuVLJTNJTyyUkgkTdMFuOYF",
-      "ENC:password": "FgIqy/Ax4SiVLJTNJTyyUkgkTdMFuOYF"
+      "ENC:username": "Emfh2SXtctlGrtCbYrfAaCpZEOK6recq",
+      "ENC:password": "zCRMZyN7G/YpdV8TyhQTEcthIXKGwTNz"
     },
     "Writer" : {
       "class" : "ConsoleWriter",
