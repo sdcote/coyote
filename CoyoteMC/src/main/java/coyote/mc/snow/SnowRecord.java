@@ -170,7 +170,7 @@ public class SnowRecord extends DataFrame {
    */
   public String getFieldValue(final String fieldname) {
     String retval = getAsString(fieldname);
-    if (retval != null || retval.length() == 0) {
+    if (retval != null && retval.length() == 0) {
       retval = null;
     }
     return retval;

@@ -1,26 +1,30 @@
 package coyote.dx.writer;
 
-import coyote.commons.DataFrameUtil;
+import coyote.commons.CipherUtil;
+import coyote.commons.ExceptionUtil;
 import coyote.commons.StringUtil;
-import coyote.commons.network.http.Method;
 import coyote.dataframe.DataField;
 import coyote.dataframe.DataFrame;
-import coyote.dx.*;
+import coyote.dx.CDX;
+import coyote.dx.CMC;
+import coyote.dx.ConfigTag;
+import coyote.dx.FrameWriter;
 import coyote.dx.context.TransformContext;
-import coyote.dx.web.*;
-import coyote.dx.web.auth.AuthenticationException;
-import coyote.dx.web.auth.Authenticator;
-import coyote.dx.web.auth.NullAuthenticator;
-import coyote.loader.cfg.Config;
-import coyote.loader.cfg.ConfigurationException;
+import coyote.loader.Loader;
 import coyote.loader.log.Log;
 import coyote.loader.log.LogMsg;
+import coyote.mc.prom.BasicAuthHttpConnectionFactory;
+import coyote.mc.prom.DefaultHttpConnectionFactory;
+import coyote.mc.prom.HttpConnectionFactory;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import javax.xml.bind.DatatypeConverter;
+import java.io.*;
+import java.net.HttpURLConnection;
+import java.net.URI;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
+
 
 /**
  * This writer collects all the metric sample and generates an OpenMetric payload to sent to a Prometheus PushGateway.
@@ -30,14 +34,14 @@ import java.util.Map;
  * action field is found, a POST will be assumed.</p>
  *
  * <p>Received dataframes will be processed in the following manner:<ul>
- *   <li>The "name" field will be used as the name of the metric.</li>
- *   <li>The "value" field will be used as the value of the of the metric.</li>
- *   <li>The "type" field will be used as the type of the metric.</li>
- *   <li>The "job" field(optional)  will be used as the job grouping key with "coyotemc" being used as the default.</li>
- *   <li>The "help" field (optional) will be used as help description of the metric.</li>
- *   <li>The "instance" field (optional) will be used for the instance grouping key with the local hostname being used as the default.</li>
- *   <li>The "action" field (optional) will be used to control the HTTP method used. The default is "POST" but "DELETE" and "PUT" is also supported.</li>
- *   <li>All other fields will be used as labels if they contain non-blank data in both name and value.</li>
+ * <li>The "name" field will be used as the name of the metric.</li>
+ * <li>The "value" field will be used as the value of the of the metric.</li>
+ * <li>The "type" field will be used as the type of the metric.</li>
+ * <li>The "job" field(optional)  will be used as the job grouping key with "coyotemc" being used as the default.</li>
+ * <li>The "help" field (optional) will be used as help description of the metric.</li>
+ * <li>The "instance" field (optional) will be used for the instance grouping key with the local hostname being used as the default.</li>
+ * <li>The "action" field (optional) will be used to control the HTTP method used. The default is "POST" but "DELETE" and "PUT" is also supported.</li>
+ * <li>All other fields will be used as labels if they contain non-blank data in both name and value.</li>
  * </ul></p>
  *
  * <p>The basic configuration is as follows:<pre>
@@ -54,29 +58,81 @@ import java.util.Map;
  * </pre></p>
  */
 public class PushGatewayWriter extends AbstractFrameWriter implements FrameWriter {
-
+  public final static String CONTENT_TYPE_004 = "text/plain; version=0.0.4; charset=utf-8";
   private static final String DEFAULT_JOB_NAME = "coyotemc";
-  private DataFrame lastRequest = null;
-  private Response lastResponse = null;
-  private Resource resource = null;
+  private static final String DELETE = "DELETE";
+  private static final String POST = "POST";
+  private static final String DEFAULT_ACTION = POST;
+  private static final String JOB_FIELD = "job";
+  private static final String ACTION_FIELD = "action";
+  private static final String NAME_FIELD = "name";
+  private static final String HELP_FIELD = "help";
+  private static final String TYPE_FIELD = "type";
+  private static final String VALUE_FIELD = "value";
+  private static final String INSTANCE_FIELD = "instance";
 
-  private Authenticator authenticator = new NullAuthenticator();
-  private Proxy proxy = null;
-  private Parameters parameters = null;
+  private String gatewayUrl;
+  private HttpConnectionFactory connectionFactory = new DefaultHttpConnectionFactory();
+
   private int rowCounter = 0;
-  private Map<String, MetricDefinition> metricMap = new HashMap<>();
 
+  private static String base64url(String value) {
+    return DatatypeConverter.printBase64Binary(value.getBytes(StandardCharsets.UTF_8)).replace("+", "-").replace("/", "_");
+  }
+
+  private static String readFromStream(InputStream is) throws IOException {
+    ByteArrayOutputStream result = new ByteArrayOutputStream();
+    byte[] buffer = new byte[1024];
+    int length;
+    while ((length = is.read(buffer)) != -1) {
+      result.write(buffer, 0, length);
+    }
+    return result.toString("UTF-8");
+  }
+
+  private static void writeEscapedHelp(Writer writer, String s) throws IOException {
+    for (int i = 0; i < s.length(); i++) {
+      char c = s.charAt(i);
+      switch (c) {
+        case '\\':
+          writer.append("\\\\");
+          break;
+        case '\n':
+          writer.append("\\n");
+          break;
+        default:
+          writer.append(c);
+      }
+    }
+  }
+
+  private static void writeEscapedLabelValue(Writer writer, String s) throws IOException {
+    for (int i = 0; i < s.length(); i++) {
+      char c = s.charAt(i);
+      switch (c) {
+        case '\\':
+          writer.append("\\\\");
+          break;
+        case '\"':
+          writer.append("\\\"");
+          break;
+        case '\n':
+          writer.append("\\n");
+          break;
+        default:
+          writer.append(c);
+      }
+    }
+  }
+
+  /**
+   * Initialize the writer
+   *
+   * @param context The transformation context in which this component should be opened.
+   */
   @Override
   public void open(TransformContext context) {
     super.open(context);
-
-
-    // $ echo "cpu_utilization 20.25" | curl --data-binary @- http://localhost:9091/metrics/job/my_custom_metrics/instance/10.20.0.1:9000/provider/coyote
-    // target = http://localhost:9091/metrics
-    // servicePath = /job/my_custom_metrics/instance/10.20.0.1:9000/provider/coyote  this is the part we calculate based on the labels
-    // see: https://blog.ruanbekker.com/blog/2019/05/17/install-pushgateway-to-expose-metrics-to-prometheus/
-    //  https://prometheus.io/docs/instrumenting/exposition_formats/
-
 
     String targetUrl = getTarget();
     if (StringUtil.isBlank(targetUrl)) {
@@ -84,121 +140,36 @@ public class PushGatewayWriter extends AbstractFrameWriter implements FrameWrite
       context.setState("Configuration Error");
       return;
     } else {
+      gatewayUrl = URI.create(targetUrl + "/metrics/").normalize().toString();
       Log.debug(LogMsg.createMsg(CDX.MSG, "Writer.using_target", this.getClass().getSimpleName(), targetUrl));
     }
 
-    // Get authenticator, if defined
-    for (DataField field : getConfiguration().getFields()) {
-      if ((field.getName() != null) && field.getName().equalsIgnoreCase(CWS.AUTHENTICATOR)) {
-        if (field.isFrame()) {
-          DataFrame cfg = (DataFrame) field.getObjectValue();
-          try {
-            authenticator = CWS.configAuthenticator(cfg);
-            break;
-          } catch (ConfigurationException e) {
-            Log.fatal(e);
-            context.setError("Could not create authenticator: " + e.getMessage());
-            return;
-          }
-        } else {
-          Log.error("Invalid authenticator configuration, expected a section not an attribute");
-        }
-      }
+    // Look for credentials
+    String username = getConfiguration().getString(ConfigTag.USERNAME);
+    if (username == null) {
+      String encryptedUsername = getConfiguration().getString(Loader.ENCRYPT_PREFIX + ConfigTag.USERNAME);
+      if (encryptedUsername != null) username = CipherUtil.decryptString(encryptedUsername);
+    }
+    String password = getConfiguration().getString(ConfigTag.PASSWORD);
+    if (password == null) {
+      String encryptedPassword = getConfiguration().getString(Loader.ENCRYPT_PREFIX + ConfigTag.PASSWORD);
+      if (encryptedPassword != null) password = CipherUtil.decryptString(encryptedPassword);
+    }
+    if (StringUtil.isNotEmpty(username)) {
+      connectionFactory = new BasicAuthHttpConnectionFactory(connectionFactory, username, password);
     }
 
-    // Look for the proxy section
-    for (DataField field : getConfiguration().getFields()) {
-      if ((field.getName() != null) && field.getName().equalsIgnoreCase(CWS.PROXY)) {
-        if (field.isFrame()) {
-          try {
-            proxy = CWS.configProxy((DataFrame) field.getObjectValue());
-          } catch (ConfigurationException e) {
-            Log.fatal(e);
-            context.setError("Could not configure proxy: " + e.getMessage());
-            return;
-          }
-          Log.debug("Found a proxy: " + proxy.toString());
-          break;
-        } else {
-          context.setError("Invalid proxy configuration, expected a section not a scalar");
-          context.setState("Configuration Error");
-          return;
-        }
-      }
-    }
-
-    try {
-      resource = new Resource(targetUrl, parameters, proxy);
-      resource.setAuthenticator(authenticator);
-      for (DataField field : getConfiguration().getFields()) {
-        if (field.getName() != null && field.getName().equalsIgnoreCase(CWS.DECORATOR)) {
-          if (field.isFrame()) {
-            DataFrame cfgFrame = (DataFrame) field.getObjectValue();
-            for (DataField cfgfield : cfgFrame.getFields()) {
-              if (cfgfield.isFrame()) {
-                if (StringUtil.isNotBlank(cfgfield.getName())) {
-                  CWS.configDecorator(cfgfield.getName(), (DataFrame) cfgfield.getObjectValue(), resource, getContext());
-                } else {
-                  Log.error(LogMsg.createMsg(CWS.MSG, "Decorator.configuration_must_be_named"));
-                }
-              } else {
-                Log.error(LogMsg.createMsg(CWS.MSG, "Decorator.invalid_decorator_configuration_section"));
-              }
-            }
-          } else {
-            Log.error(LogMsg.createMsg(CWS.MSG, "Decorator.invalid_decorator_configuration_section"));
-          }
-        }
-      }
-      resource.open();
-    } catch (IOException e) {
-      context.setError("The Writer could not connect the resource: " + e.getMessage());
-      context.setState("Connection Error");
-      return;
-    } catch (AuthenticationException e) {
-      context.setError("The Writer could not authenticate the resource: " + e.getMessage());
-      context.setState("Authentication Error");
-    }
-
-    Config section = getConfiguration().getSection(ConfigTag.FIELDS);
-    for (String name : section.getNames()) {
-      Config cfg = section.getSection(name);
-      Log.debug("Field: " + name + ":" + cfg.toString());
-      MetricDefinition metricDef = new MetricDefinition(name);
-      metricMap.put(metricDef.getName(), metricDef);
-      metricDef.setHelpText(cfg.getString(ConfigTag.DESCRIPTION));
-      metricDef.setMetricType(cfg.getString(ConfigTag.TYPE));
-    }
-
-    if (metricMap.size() == 0) {
-      context.setError("The " + this.getClass().getSimpleName() + " did not have any metric field definitions");
-      context.setState("Configuration Error");
-    }
-
-    parameters = new Parameters().setExchangeType(ExchangeType.BASIC).setMethod(Method.POST);
-
-    Log.debug(LogMsg.createMsg(CWS.MSG, "Writer.init_complete", resource));
+    Log.debug(LogMsg.createMsg(CMC.MSG, "Writer.init_complete"));
   }
-
 
   /**
    * @see java.io.Closeable#close()
    */
   @Override
   public void close() throws IOException {
-    // close our stuff first
     Log.debug(LogMsg.createMsg(CMC.MSG, "Writer.records_processed", rowCounter, (context != null) ? context.getRow() : 0));
-
-    if (resource != null) {
-      try {
-        resource.close();
-      } catch (Exception e) {
-        Log.warn(LogMsg.createMsg(CMC.MSG, "Writer.close_error", e.getLocalizedMessage()));
-      }
-    }
-
+    super.close();
   }
-
 
   /**
    * @see coyote.dx.FrameWriter#write(coyote.dataframe.DataFrame)
@@ -222,227 +193,171 @@ public class PushGatewayWriter extends AbstractFrameWriter implements FrameWrite
     }
   }
 
-
   /**
    * This is where we actually write a frame to the web service endpoint
    *
    * @param frame the frame to write
    * @return the number of bytes written
    */
-  private int writeFrame(DataFrame frame) {
-    int bytesWritten = 0;
-    lastRequest = frame;
+  private void writeFrame(DataFrame frame) {
+    String jobName = frame.getAsString(JOB_FIELD);
+    if (StringUtil.isBlank(jobName)) jobName = DEFAULT_JOB_NAME;
 
-    if (Log.isLogging(Log.DEBUG_EVENTS)) Log.debug(frame.toString());
-    parameters.setBody(convertDataFrameToOpenMetric(frame));
-    String servicePath = calculateServicePath(frame);
+    String action = frame.getAsString(ACTION_FIELD);
+    if (StringUtil.isBlank(action)) action = DEFAULT_ACTION;
+    action = action.toUpperCase();
 
-    try {
-      resource.setPath(servicePath);
-    } catch (URISyntaxException e) {
-      super.context.setError("The Writer could not generate URI path: " + e.getMessage());
-      super.context.setState("Resource Path Error");
-      return bytesWritten;
+    if (!frame.contains(NAME_FIELD)) {
+      Log.error("Cannot write metric without the '" + NAME_FIELD + "' field");
+      return;
+    }
+    if (!frame.contains(VALUE_FIELD)) {
+      Log.error("Cannot write metric without the '" + VALUE_FIELD + "' field");
+      return;
+    }
+    if (!frame.contains(TYPE_FIELD)) {
+      Log.error("Cannot write metric without the '" + TYPE_FIELD + "' field");
+      return;
     }
 
+    Map<String, String> groupingKey = new HashMap<>();
+    if (frame.contains(INSTANCE_FIELD) && StringUtil.isNotBlank(frame.getAsString(INSTANCE_FIELD)))
+      groupingKey.put(INSTANCE_FIELD, frame.getAsString(INSTANCE_FIELD));
+
     try {
-      lastResponse = resource.request(parameters);
-      while (!lastResponse.isComplete()) {
-        if (lastResponse.isTimedOut()) {
-          System.err.println("Operation timed-out");
-          rowCounter--; // FIXME: hack!
-          break;
-        } else if (lastResponse.isInError()) {
-          System.err.println("Operation failed");
-          rowCounter--; // FIXME: hack!
-          break;
+      publishMetric(jobName, groupingKey, action, frame);
+    } catch (IOException e) {
+      Log.error("Could not push metric: " + ExceptionUtil.toString(e));
+    }
+    rowCounter++;
+  }
+
+  /**
+   * Publish the given frame as an OpenMetrics formatted metric.
+   *
+   * @param job         primary grouping element representing the name of the job to which these metrics apply.
+   * @param groupingKey additional grouping pairs such as "instance-myhost"
+   * @param method      One of the HTTP methods (e.g. POST, PUT, and DELETE)
+   * @param frame       the dataframe containing the metric to push.
+   * @throws IOException if there were problems sending metrics to the push gateway
+   */
+  void publishMetric(String job, Map<String, String> groupingKey, String method, DataFrame frame) throws IOException {
+    String url = gatewayUrl;
+    if (job.contains("/")) {
+      url += "job@base64/" + base64url(job);
+    } else {
+      url += "job/" + URLEncoder.encode(job, "UTF-8");
+    }
+
+    if (groupingKey != null) {
+      for (Map.Entry<String, String> entry : groupingKey.entrySet()) {
+        if (entry.getValue().contains("/")) {
+          url += "/" + entry.getKey() + "@base64/" + base64url(entry.getValue());
         } else {
-          Thread.sleep(100);
+          url += "/" + entry.getKey() + "/" + URLEncoder.encode(entry.getValue(), "UTF-8");
         }
       }
+    }
 
-      // TODO: What do we do with the response of other than a 200?
+    HttpURLConnection connection = connectionFactory.create(url);
+    connection.setRequestProperty("Content-Type", CONTENT_TYPE_004);
+    if (!method.equals(DELETE)) {
+      connection.setDoOutput(true);
+    }
+    connection.setRequestMethod(method);
+    connection.setConnectTimeout(10000);
+    connection.setReadTimeout(10000);
+    connection.connect();
 
-      if (Log.isLogging(Log.DEBUG_EVENTS)) {
-        DataFrame auditFrame = new DataFrame();
-        auditFrame.add("RequestUrl", resource.getFullURI().toString());
-        auditFrame.add("RequestBody", (frame != null) ? frame.toString() : "");
-        auditFrame.add("Start", new Date(lastResponse.getOperationStart()));
-        auditFrame.add("WriteTime", lastResponse.getOperationTime());
-        auditFrame.add("WriteElapsed", lastResponse.getOperationElapsed());
-        auditFrame.add("TransactionTime", lastResponse.getTransactionTime());
-        auditFrame.add("TransactionElapsed", lastResponse.getTransactionElapsed());
-        auditFrame.add("WebResponseTime", lastResponse.getRequestTime());
-        auditFrame.add("WebResponseElapsed", lastResponse.getRequestElapsed());
-        auditFrame.add("ParsingTime", lastResponse.getParsingTime());
-        auditFrame.add("ParsingElapsed", lastResponse.getParsingElapsed());
-        auditFrame.add("ResponseCode", lastResponse.getHttpStatusCode());
-        auditFrame.add("ResponsePhrase", lastResponse.getHttpStatusPhrase());
-        auditFrame.add("Result", (lastResponse.getResult() != null) ? lastResponse.getResult().toString() : "");
-        Log.debug(auditFrame.toString());
+    try {
+      if (!method.equals(DELETE)) {
+        BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(connection.getOutputStream(), StandardCharsets.UTF_8));
+        convertToOpenMetrics(writer, frame);
+        writer.flush();
+        writer.close();
       }
 
-      rowCounter++;
-    } catch (InvocationException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    } catch (InterruptedException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
+      int response = connection.getResponseCode();
+      if (response != HttpURLConnection.HTTP_ACCEPTED) {
+        String errorMessage;
+        InputStream errorStream = connection.getErrorStream();
+        if (response >= 400 && errorStream != null) {
+          String errBody = readFromStream(errorStream);
+          errorMessage = "Response code from " + url + " was " + response + ", response body: " + errBody;
+        } else {
+          errorMessage = "Response code from " + url + " was " + response;
+        }
+        throw new IOException(errorMessage);
+      }
     } finally {
-      if (Log.isLogging(Log.DEBUG_EVENTS)) {
-        Log.debug("Performance Metric: Write " + lastResponse.getOperationTime());
-        Log.debug("Performance Metric: Transaction " + lastResponse.getTransactionTime());
-        Log.debug("Performance Metric: WebResponse " + lastResponse.getRequestTime());
-        Log.debug("Performance Metric: Parsing " + lastResponse.getParsingTime());
-      }
+      connection.disconnect();
     }
-
-    return bytesWritten;
   }
 
   /**
-   * @param frame the frame containing the record data
-   * @return a push gateway URL path representing the values in the record
+   * Convert the given frame into an OpenMetrics formatted representation
+   *
+   * @param writer the writer to use in outputing the representation
+   * @param frame  the frame to format
+   * @throws IOException if problems were encountered writing the data
    */
-  private String calculateServicePath(DataFrame frame) {
-    StringBuffer retval = new StringBuffer("/metrics/job/");
-    retval.append(findString(ConfigTag.JOB, frame, DEFAULT_JOB_NAME));
-    for (String name : frame.getNames()) {
-      if (!ConfigTag.JOB.equalsIgnoreCase(name) && !ConfigTag.NAME.equalsIgnoreCase(name) && !ConfigTag.VALUE.equalsIgnoreCase(name)) {
-        retval.append('/');
-        retval.append(name);
-        retval.append('/');
-        retval.append(frame.getAsString(name));
-      }
-    }
-    return retval.toString();
-  }
+  private void convertToOpenMetrics(BufferedWriter writer, DataFrame frame) throws IOException {
+    String metricName = frame.getAsString(NAME_FIELD);
 
-  private String convertDataFrameToOpenMetric(DataFrame frame) {
-    StringBuffer retval = new StringBuffer();
-    String metricName = DataFrameUtil.findString(ConfigTag.NAME, frame);
-    if (metricName != null) {
-      MetricDefinition metricDef = metricMap.get(metricName);
-      if (metricDef != null) {
-        if (metricDef.getHelpText() != null) {
-          retval.append("# HELP ");
-          retval.append(metricName);
-          retval.append(" ");
-          retval.append(metricDef.getHelpText());
-          retval.append("\n");
-        }
-        if (metricDef.getMetricType() != null) {
-          retval.append("# TYPE ");
-          retval.append(metricName);
-          retval.append(" ");
-          retval.append(metricDef.getMetricType());
-          retval.append("\n");
-        }
-        retval.append(metricName);
-        retval.append(getMetricLabels(frame));
-        retval.append(" ");
-        retval.append(DataFrameUtil.findString(ConfigTag.VALUE, frame));
-        retval.append("\n");
-      } else {
-        Log.error(this.getClass().getSimpleName() + " did not have a file definition for named metric: " + metricName);
-      }
-    } else {
-      Log.error("Cannot convert anonymous frame into OpenMetric: " + frame.toString());
+    if (frame.contains(HELP_FIELD) && frame.getAsString(HELP_FIELD).trim().length() > 0) {
+      writer.append("# HELP ");
+      writer.append(metricName);
+      writer.write(' ');
+      writeEscapedHelp(writer, frame.getAsString(HELP_FIELD).trim());
+      writer.append("\n");
     }
-    return retval.toString();
-  }
+    writer.append("# TYPE ");
+    writer.append(metricName);
+    writer.append(" ");
+    writer.append(frame.getAsString(TYPE_FIELD).trim());
+    writer.append("\n");
+    writer.append(metricName);
+    writer.append(" ");
 
-
-  private String getMetricLabels(DataFrame frame) {
-    StringBuilder sb = new StringBuilder();
-    Map<String, String> labelMap = new HashMap<>();
-    for (String name : frame.getNames()) {
-      if (StringUtil.isNotBlank(name) && !ConfigTag.JOB.equalsIgnoreCase(name) && !ConfigTag.NAME.equalsIgnoreCase(name) && !ConfigTag.VALUE.equalsIgnoreCase(name)) {
-        String value = frame.getAsString(name);
-        if (StringUtil.isNotBlank(value)) {
-          labelMap.put(name, value);
-        }
+    List<String> names = getLabelNames(frame);
+    if (names.size() > 0) {
+      writer.write('{');
+      for (int i = 0; i < names.size(); ++i) {
+        writer.write(names.get(i));
+        writer.write("=\"");
+        writeEscapedLabelValue(writer, frame.getAsString(names.get(i)));
+        writer.write("\"");
+        if (i + 1 < names.size()) writer.write(",");
       }
+      writer.write("} ");
     }
-    if( labelMap.size()>0){
-      sb.append('{');
-      int labelCount = labelMap.size();
-      int count =0;
-      for( String label: labelMap.keySet()){
-        count++;
-        sb.append(label);
-        sb.append("=\"");
-        sb.append(labelMap.get(label));
-        sb.append('"');
-        if( count<labelCount) sb.append(',');
-      }
-      sb.append('}');
-    }
-    return sb.toString();
-  }
 
-
-  public static String findString(String name, DataFrame frame, String defaultValue) {
-    String retval = defaultValue;
-    if (name != null) {
-      for (DataField field : frame.getFields()) {
-        if (equalsIgnoreCase(name, field.getName())) {
-          retval = field.getStringValue();
-          break;
-        }
-      }
-    }
-    return retval;
-  }
-
-  private static boolean equalsIgnoreCase(String source, String target) {
-    boolean retval;
-    if (source == null) {
-      retval = target == null;
-    } else {
-      if (target == null) {
-        retval = false;
-      } else {
-        retval = source.equalsIgnoreCase(target);
-      }
-    }
-    return retval;
+    writer.append(frame.getAsString(VALUE_FIELD));
+    writer.append("\n");
   }
 
   /**
-   * Class to hold information about a named metric
+   * Get all the "other" fileds in the frame and use them as label named.
+   *
+   * @param frame the frame to examine
+   * @return a list o label names
    */
-  private class MetricDefinition {
-    private String name;
-    private String helpText = null;
-    private String metricType = null;
-
-    MetricDefinition(String name) {
-      this.name = name;
+  private List<String> getLabelNames(DataFrame frame) {
+    HashSet<String> hset = new HashSet<String>();
+    for (DataField field : frame.getFields()) {
+      String name = field.getName();
+      if (name != null &&
+              !NAME_FIELD.equals(name) &&
+              !VALUE_FIELD.equals(name) &&
+              !TYPE_FIELD.equals(name) &&
+              !JOB_FIELD.equals(name) &&
+              !HELP_FIELD.equals(name) &&
+              !INSTANCE_FIELD.equals(name) &&
+              !ACTION_FIELD.equals(name)) hset.add(field.getName());
     }
-
-    public String getHelpText() {
-      return helpText;
-    }
-
-    public MetricDefinition setHelpText(String helpText) {
-      this.helpText = helpText;
-      return this;
-    }
-
-    public String getMetricType() {
-      return metricType;
-    }
-
-    public MetricDefinition setMetricType(String metricType) {
-      this.metricType = metricType;
-      return this;
-    }
-
-    public String getName() {
-      return name;
-    }
+    return new ArrayList<String>(hset);
   }
-
 }
+
+
+

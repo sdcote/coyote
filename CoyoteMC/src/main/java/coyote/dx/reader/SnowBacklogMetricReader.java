@@ -47,21 +47,26 @@ import static coyote.mc.snow.Predicate.LIKE;
  *   }
  * },
  * </pre>
+ *
+ * <p>The instance name for all the metrics is set to the name of the project by default, but can be overridden by
+ * adding the {@code instance} configuration property with the name to be used for the metric instance.</p>
  */
 public class SnowBacklogMetricReader extends WebServiceReader implements FrameReader {
 
   public static final String PROJECT = "project";
+  private static final String INSTANCE = "instance";
   private List<SnowStory> stories = null;
+  private String instanceName = null;
 
   /**
    * @param context The transformation context in which this component should operate
    */
   @Override
   public void open(TransformContext context) {
-    if(getConfiguration().getSection(ConfigTag.PROTOCOL) == null){
+    if (getConfiguration().getSection(ConfigTag.PROTOCOL) == null) {
       Config protocolSection = new Config();
       protocolSection.set(CWS.EXCHANGE_TYPE, ExchangeType.JSON_HTTP.toString());
-      getConfiguration().put(ConfigTag.PROTOCOL,protocolSection);
+      getConfiguration().put(ConfigTag.PROTOCOL, protocolSection);
     }
 
     super.open(context);
@@ -70,6 +75,15 @@ public class SnowBacklogMetricReader extends WebServiceReader implements FrameRe
 
     // we need the project name from the configuration
     String project = getConfiguration().getString(PROJECT);
+    if (StringUtil.isBlank(project)) {
+      context.setError("The " + getClass().getSimpleName() + " configuration did not contain the '" + PROJECT + "' element");
+      context.setState("Configuration Error");
+      return;
+    }
+
+    // the instance name is important grouping key for other metrics of this type
+    instanceName = getConfiguration().getString(INSTANCE);
+    if (StringUtil.isBlank(instanceName)) instanceName = project;
 
     SnowFilter filter = new SnowFilter("active", IS, "true")
             .and("product.name", LIKE, project);
@@ -137,8 +151,8 @@ public class SnowBacklogMetricReader extends WebServiceReader implements FrameRe
   private List<DataFrame> generateClassificationCounts(List<SnowStory> stories) {
     List<DataFrame> metrics = new ArrayList<>();
     Map<String, Integer> counts = new HashMap<>();
-    for (SnowStory frame : stories) {
-      String classification = frame.getClassification().toLowerCase();
+    for (SnowStory story : stories) {
+      String classification = story.getClassification().toLowerCase();
       if (counts.get(classification) != null) {
         counts.put(classification, counts.get(classification) + 1);
       } else {
@@ -149,8 +163,9 @@ public class SnowBacklogMetricReader extends WebServiceReader implements FrameRe
       DataFrame metric = new DataFrame();
       metric.set(ConfigTag.NAME, entry.getKey() + "_count");
       metric.set(ConfigTag.VALUE, entry.getValue());
-      metric.set(ConfigTag.DESCRIPTION, "The number of active backlog items with the classification of '" + entry.getKey() + "'");
+      metric.set(ConfigTag.HELP, "The number of active backlog items with the classification of '" + entry.getKey() + "'");
       metric.set(ConfigTag.TYPE, CMC.GAUGE);
+      metric.set(INSTANCE, instanceName);
       metrics.add(metric);
     }
     return metrics;
