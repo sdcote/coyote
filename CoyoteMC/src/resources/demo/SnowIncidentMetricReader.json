@@ -1,0 +1,32 @@
+{
+  "Class": "coyote.dx.Job",
+
+  "Job": {
+    "Name": "IncidentMetricReader",
+
+    "Reader" : {
+      "class" : "SnowIncidentMetricReader",
+      "source" : "https://dev75088.service-now.com/",
+      "filter": "active IS true and Category is Software",
+      "authenticator": {
+        "class" : "BasicAuthentication",
+        "username" : "sdcote",
+        "password" : "coyote",
+        "preemptive" : true
+      }
+    },
+
+    "Writer" : {
+      "class" : "ConsoleWriter",
+      "format" : "json",
+      "indent" : false,
+      "message" : "Record [#$CurrentFrame#] received."
+    }
+  },
+
+  "Logging": {
+    "StandardError": {"categories": "error, fatal, warn" },
+    "StandardOutput": { "categories": "info, notice, debug" }
+  }
+
+}

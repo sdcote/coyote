@@ -85,8 +85,8 @@ public class SnowBacklogMetricReader extends WebServiceReader implements FrameRe
     instanceName = getConfiguration().getString(INSTANCE);
     if (StringUtil.isBlank(instanceName)) instanceName = project;
 
-    SnowFilter filter = new SnowFilter("active", IS, "true")
-            .and("product.name", LIKE, project);
+    // get all backlog items for the configured project
+    SnowFilter filter = new SnowFilter("product.name", LIKE, project);
 
     if (StringUtil.isEmpty(getString(ConfigTag.SELECTOR))) {
       getConfiguration().set(ConfigTag.SELECTOR, "records.*");
@@ -117,7 +117,7 @@ public class SnowBacklogMetricReader extends WebServiceReader implements FrameRe
         try {
           stories.add(new SnowStory(frame));
         } catch (SnowException e) {
-          Log.error("Received an invalid data at record #" + (stories.size() + 1) + ": " + e.getMessage(), e);
+          Log.error("Received invalid data at record #" + (stories.size() + 1) + ": " + e.getMessage(), e);
         }
       }
       Log.debug("...read in " + stories.size() + " stories.");
@@ -145,6 +145,8 @@ public class SnowBacklogMetricReader extends WebServiceReader implements FrameRe
   }
 
   /**
+   * Generate counts for each of the classification types (e.g., feature, defect, etc.) for active stories.
+   *
    * @param stories the SnowStories representing the backlog to analyze
    * @return a set of metrics relating to the classification of active stories
    */
@@ -152,11 +154,13 @@ public class SnowBacklogMetricReader extends WebServiceReader implements FrameRe
     List<DataFrame> metrics = new ArrayList<>();
     Map<String, Integer> counts = new HashMap<>();
     for (SnowStory story : stories) {
-      String classification = story.getClassification().toLowerCase();
-      if (counts.get(classification) != null) {
-        counts.put(classification, counts.get(classification) + 1);
-      } else {
-        counts.put(classification, 1);
+      if( story.isActive()) {
+        String classification = story.getClassification().toLowerCase();
+        if (counts.get(classification) != null) {
+          counts.put(classification, counts.get(classification) + 1);
+        } else {
+          counts.put(classification, 1);
+        }
       }
     }
     for (Map.Entry<String, Integer> entry : counts.entrySet()) {

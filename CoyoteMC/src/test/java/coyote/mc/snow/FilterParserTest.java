@@ -20,6 +20,7 @@ import static org.junit.Assert.*;
 public class FilterParserTest {
 
   String[] testdata = {
+          "active is true and category is Software",
           "name is REQ123",
           "name = REQ123",
           "name=REQ123",

@@ -37,7 +37,7 @@ import java.util.*;
  * <li>The "name" field will be used as the name of the metric.</li>
  * <li>The "value" field will be used as the value of the of the metric.</li>
  * <li>The "type" field will be used as the type of the metric.</li>
- * <li>The "job" field(optional)  will be used as the job grouping key with "coyotemc" being used as the default.</li>
+ * <li>The "job" field(optional) will be used as the job grouping key with "coyotemc" being used as the default.</li>
  * <li>The "help" field (optional) will be used as help description of the metric.</li>
  * <li>The "instance" field (optional) will be used for the instance grouping key with the local hostname being used as the default.</li>
  * <li>The "action" field (optional) will be used to control the HTTP method used. The default is "POST" but "DELETE" and "PUT" is also supported.</li>
@@ -45,17 +45,18 @@ import java.util.*;
  * </ul></p>
  *
  * <p>The basic configuration is as follows:<pre>
- * "Writer" : {
- *   "class" : "PushGatewayWriter",
- * 	 "target" : "http://localhost:9091",
- *   "authenticator": {
- * 	   "class": "BasicAuthentication",
- * 	   "username": "coyotemc",
- * 	   "password": "th15Sh0u1dB3enc4ypt3D",
- * 	   "preemptive": true
- *   }
- * }
- * </pre></p>
+ * "Writer": {
+ * 	  "class": "PushGatewayWriter",
+ * 	  "target": "http://localhost:9091",
+ * }</pre>
+ * <p>If you want to use Basic Authentication when posting metrics, use the following format:<pre>
+ * "Writer": {
+ * 	  "class": "PushGatewayWriter",
+ * 	  "target": "http://localhost:9091",
+ *   "username": "jqpublic",
+ *   "password": "s0mep4s5word"
+ * }</pre>
+ * <p>The above will send a preemptive basic authentication header with each request.</p>
  */
 public class PushGatewayWriter extends AbstractFrameWriter implements FrameWriter {
   public final static String CONTENT_TYPE_004 = "text/plain; version=0.0.4; charset=utf-8";

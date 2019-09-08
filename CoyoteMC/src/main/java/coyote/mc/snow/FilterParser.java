@@ -217,16 +217,14 @@ public class FilterParser extends StringParser {
               break;
             default:
               // looking for AND or OR; if not either, then default to ANDing and treat this as the name of the next clause
-              token = parser.peekToken();
+              token = parser.readToken();
               if ("and".equalsIgnoreCase(token)) {
                 isAnd = true;
-                parser.readToken();
               }
               if ("or".equalsIgnoreCase(token)) {
                 isAnd = false;
                 parser.readToken();
               } else {
-
                 // must be part of next name, default to AND
                 isAnd = true;
               }
