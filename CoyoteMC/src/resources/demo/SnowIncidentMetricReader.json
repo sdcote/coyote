@@ -6,12 +6,13 @@
 
     "Reader" : {
       "class" : "SnowIncidentMetricReader",
-      "source" : "https://dev75088.service-now.com/",
-      "filter": "active IS true and Category is Software",
+      "source" : "https://servicenow.aepsc.com/",
+      "filter": "active IS true and cmdb_ci LIKE https://iforgot.aep.com",
+      "instance": "iforgot",
       "authenticator": {
         "class" : "BasicAuthentication",
-        "username" : "sdcote",
-        "password" : "coyote",
+        "ENC:username" : "zPzKAGYBWbVRCDqmV4DXvYrFrtQn/QXi",
+        "ENC:password" : "KBSfnRv5kh0UO/dcwkHYck/0zSb2fqnl",
         "preemptive" : true
       }
     },

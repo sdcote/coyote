@@ -18,10 +18,10 @@ import coyote.mc.snow.SnowFilter;
  * This is a reader which connects to a ServiceNow instance and queries data via URL export and generates metrics based
  * on the incidents in the "incident" table.
  */
-public class SnowReader extends WebServiceReader implements FrameReader {
+public class SnowMetricReader extends WebServiceReader implements FrameReader {
 
   public static final String PROJECT = "project";
-  private static final String INSTANCE = "instance";
+  public static final String INSTANCE = "instance";
   SnowFilter filter = null;
 
   /**
@@ -54,7 +54,6 @@ public class SnowReader extends WebServiceReader implements FrameReader {
         context.setState("Configuration Error");
       }
     }
-
 
     if (StringUtil.isEmpty(getString(ConfigTag.SELECTOR))) {
       getConfiguration().set(ConfigTag.SELECTOR, "records.*");

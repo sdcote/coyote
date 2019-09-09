@@ -37,4 +37,60 @@ public class ServiceNow {
   public static final String SYS_CREATED_BY_FIELD = "sys_created_by";
   public static final String SYS_MOD_COUNT_FIELD = "sys_mod_count";
   public static final String SYS_UPDATED_BY_FIELD = "sys_updated_by";
+  private static final String CRITICAL = "Critical";
+  private static final String HIGH = "High";
+  private static final String MODERATE = "Moderate";
+  private static final String LOW = "Low";
+  private static final String PLANNING = "Planning";
+  private static final String MEDIUM = "Medium";
+
+
+  /**
+   * @param number the value of 1,2,3,4 or 5. All other values will be returned as "Planning"
+   * @return the string value for the priority level number
+   */
+  public static String getPriorityValue(String number) {
+    String retval;
+    String str = "two";
+    switch (number) {
+      case "1":
+        retval = CRITICAL;
+        break;
+      case "2":
+        retval = HIGH;
+        break;
+      case "3":
+        retval = MODERATE;
+        break;
+      case "4":
+        retval = LOW;
+        break;
+      default:
+        retval = PLANNING;
+    }
+    return retval;
+  }
+
+
+  public static String getUrgencyValue(String number) {
+    String retval;
+    String str = "two";
+    switch (number) {
+      case "1":
+        retval = HIGH;
+        break;
+      case "2":
+        retval = MEDIUM;
+        break;
+      case "3":
+      default:
+        retval = LOW;
+    }
+    return retval;
+  }
+
+  public static String getImpactValue(String number) {
+    return getUrgencyValue(number);
+  }
+
 }

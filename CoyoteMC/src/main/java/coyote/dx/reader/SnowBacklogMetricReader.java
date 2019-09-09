@@ -86,7 +86,7 @@ public class SnowBacklogMetricReader extends WebServiceReader implements FrameRe
     if (StringUtil.isBlank(instanceName)) instanceName = project;
 
     // get all backlog items for the configured project
-    SnowFilter filter = new SnowFilter("product.name", LIKE, project);
+    SnowFilter filter = new SnowFilter("product.name", LIKE, project).and("active", IS, "true");
 
     if (StringUtil.isEmpty(getString(ConfigTag.SELECTOR))) {
       getConfiguration().set(ConfigTag.SELECTOR, "records.*");
@@ -96,7 +96,7 @@ public class SnowBacklogMetricReader extends WebServiceReader implements FrameRe
 
     // We need to set the request path to that of the rm_story table
     try {
-      getResource().setPath("rm_story_list.do?JSON&displayvalue=all&sysparm_query=" + filter.toEncodedString());
+      getResource().setPath("rm_story.do?JSON&displayvalue=all&&sysparam_limit=2000&sysparm_query=" + filter.toEncodedString());
     } catch (URISyntaxException e) {
       e.printStackTrace();
     }
