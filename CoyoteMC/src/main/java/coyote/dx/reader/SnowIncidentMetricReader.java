@@ -37,9 +37,9 @@ public class SnowIncidentMetricReader extends SnowMetricReader implements FrameR
     if (context.isNotInError()) {
       Log.info("Encoded " + filter.toEncodedString());
 
-      // We need to set the request path to that of the rm_story table
+      // It is possible that we need either JSON or JSONv2...New Yor may require the latter.
       try {
-        getResource().setPath("incident_list.do?JSON&sysparm_query=" + filter.toEncodedString());
+        getResource().setPath("incident_list.do?JSONv2&sysparm_query=" + filter.toEncodedString());
       } catch (URISyntaxException e) {
         e.printStackTrace();
       }
