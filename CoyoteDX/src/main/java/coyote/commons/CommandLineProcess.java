@@ -39,7 +39,7 @@ public class CommandLineProcess {
    * 
    * <p>This is a blocking call and will not return until the process returns. 
    * It has therefore been made thread-safe so that may different threads can 
-   * make calls to this fixture to improce performance.
+   * make calls to this fixture to improve performance.
    * 
    * <p>Each call spawns another thread in the JRE to handle reading the 
    * STDERR stream while the calling thread reads the STDOUT stream.
