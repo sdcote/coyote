@@ -100,7 +100,7 @@ public class SnowIncidentMetricReader extends SnowMetricReader implements FrameR
     }
     for (Map.Entry<String, Integer> entry : counts.entrySet()) {
       DataFrame metric = new DataFrame();
-      metric.set(ConfigTag.NAME, entry.getKey() + "_incident_count");
+      metric.set(ConfigTag.NAME, "incident_count_"+entry.getKey());
       metric.set(ConfigTag.VALUE, entry.getValue());
       metric.set(ConfigTag.HELP, "The number of active incidents items with the priority of '" + entry.getKey() + "'");
       metric.set(ConfigTag.TYPE, CMC.GAUGE);
