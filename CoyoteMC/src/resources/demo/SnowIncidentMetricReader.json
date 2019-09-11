@@ -7,7 +7,7 @@
     "Reader" : {
       "class" : "SnowIncidentMetricReader",
       "source" : "https://servicenow.aepsc.com/",
-      "filter": "active IS true and cmdb_ci LIKE https://iforgot.aep.com",
+      "ConfigurationItem": "https://iforgot.aep.com",
       "instance": "iforgot",
       "authenticator": {
         "class" : "BasicAuthentication",
@@ -17,6 +17,12 @@
       }
     },
 
+    "Writer": {
+      "class": "PushGatewayWriter",
+      "target": "http://p4002384:9091",
+      "ENC:username": "Emfh2SXtctlGrtCbYrfAaCpZEOK6recq",
+      "ENC:password": "zCRMZyN7G/YpdV8TyhQTEcthIXKGwTNz"
+    },
     "Writer" : {
       "class" : "ConsoleWriter",
       "format" : "json",
