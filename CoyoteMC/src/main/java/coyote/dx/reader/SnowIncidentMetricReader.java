@@ -10,6 +10,7 @@ import coyote.dx.context.TransformContext;
 import coyote.loader.log.Log;
 import coyote.mc.snow.ServiceNow;
 import coyote.mc.snow.SnowException;
+import coyote.mc.snow.SnowFilter;
 import coyote.mc.snow.SnowIncident;
 
 import java.net.URISyntaxException;
@@ -18,6 +19,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static coyote.mc.snow.Predicate.IS;
+import static coyote.mc.snow.Predicate.LIKE;
+
 /**
  * This is a reader which connects to a ServiceNow instance and queries data via URL export and generates metrics based
  * on the incidents in the "incident" table.
@@ -25,6 +29,7 @@ import java.util.Map;
  * <p>This counts the current number of open incidents</p>
  */
 public class SnowIncidentMetricReader extends SnowMetricReader implements FrameReader {
+
   private List<SnowIncident> incidents = null;
   private String instanceName = null;
 
@@ -34,25 +39,32 @@ public class SnowIncidentMetricReader extends SnowMetricReader implements FrameR
   @Override
   public void open(TransformContext context) {
     super.open(context);
-    if (context.isNotInError()) {
-      Log.info("Encoded " + filter.toEncodedString());
 
-      // It is possible that we need either JSON or JSONv2...New Yor may require the latter.
+    // the instance name is important grouping key for other metrics of this type
+    instanceName = getConfiguration().getString(INSTANCE);
+    if (StringUtil.isBlank(instanceName)) {
+      context.setError("The " + getClass().getSimpleName() + " configuration did not contain the '" + INSTANCE + "' element");
+      context.setState("Configuration Error");
+      return;
+    }
+
+    if (context.isNotInError()) {
+      if( filter == null){
+        String configurationItem = getConfiguration().getString(CONFIG_ITEM);
+        if (StringUtil.isBlank(configurationItem)) {
+          context.setError("The " + getClass().getSimpleName() + " configuration did not contain the '" + CONFIG_ITEM + "' or '"+ConfigTag.FILTER+"' element");
+          context.setState("Configuration Error");
+          return;
+        }
+        filter = new SnowFilter("cmdb_ci", LIKE, configurationItem).and("active", IS, "true");
+      }
+
       try {
         getResource().setPath("incident_list.do?JSONv2&sysparm_query=" + filter.toEncodedString());
       } catch (URISyntaxException e) {
         e.printStackTrace();
       }
-      Log.info("Connecting to " + getResource().getFullURI());
-
-      // the instance name is important grouping key for other metrics of this type
-      instanceName = getConfiguration().getString(INSTANCE);
-      if (StringUtil.isBlank(instanceName)) {
-        context.setError("The " + getClass().getSimpleName() + " configuration did not contain the '" + INSTANCE + "' element");
-        context.setState("Configuration Error");
-        return;
-      }
-    }
+    } // context not in error
   }
 
   /**

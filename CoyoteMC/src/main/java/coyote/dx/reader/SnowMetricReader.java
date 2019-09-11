@@ -22,6 +22,8 @@ public class SnowMetricReader extends WebServiceReader implements FrameReader {
 
   public static final String PROJECT = "project";
   public static final String INSTANCE = "instance";
+  public static final String CONFIG_ITEM = "ConfigurationItem";
+
   SnowFilter filter = null;
 
   /**
@@ -39,14 +41,8 @@ public class SnowMetricReader extends WebServiceReader implements FrameReader {
     String source = getString(ConfigTag.SOURCE);
     Log.debug(LogMsg.createMsg(CDX.MSG, "Reader.using_source_uri", source));
 
-    // we need the project name from the configuration
     String query = getConfiguration().getString(ConfigTag.FILTER);
-    if (StringUtil.isBlank(query)) {
-      context.setError("The " + getClass().getSimpleName() + " configuration did not contain the '" + ConfigTag.FILTER + "' element");
-      context.setState("Configuration Error");
-      return;
-    } else {
-      // Parse the query into the filter
+    if (StringUtil.isNotBlank(query)) {
       try {
         filter = FilterParser.parse(query);
       } catch (StringParseException e) {
@@ -58,8 +54,6 @@ public class SnowMetricReader extends WebServiceReader implements FrameReader {
     if (StringUtil.isEmpty(getString(ConfigTag.SELECTOR))) {
       getConfiguration().set(ConfigTag.SELECTOR, "records.*");
     }
-
   }
-
 
 }

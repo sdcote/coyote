@@ -1,6 +1,7 @@
 package coyote.dx.reader;
 
 import coyote.commons.StringUtil;
+import coyote.commons.network.http.Method;
 import coyote.dataframe.DataFrame;
 import coyote.dx.*;
 import coyote.dx.context.TransactionContext;
@@ -92,11 +93,11 @@ public class SnowBacklogMetricReader extends WebServiceReader implements FrameRe
       getConfiguration().set(ConfigTag.SELECTOR, "records.*");
     }
 
-    Log.info("Encoded " + filter.toEncodedString());
+    getResource().getDefaultParameters().setMethod( Method.GET );
 
     // We need to set the request path to that of the rm_story table
     try {
-      getResource().setPath("rm_story.do?JSON&displayvalue=all&&sysparam_limit=2000&sysparm_query=" + filter.toEncodedString());
+      getResource().setPath("rm_story.do?JSONv2&displayvalue=all&&sysparam_limit=2000&sysparm_query=" + filter.toEncodedString());
     } catch (URISyntaxException e) {
       e.printStackTrace();
     }
