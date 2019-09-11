@@ -42,7 +42,7 @@ import java.util.*;
  * <li>The "instance" field (optional) will be used for the instance grouping key with the local hostname being used as the default.</li>
  * <li>The "action" field (optional) will be used to control the HTTP method used. The default is "POST" but "DELETE" and "PUT" is also supported.</li>
  * <li>All other fields will be used as labels if they contain non-blank data in both name and value.</li>
- * </ul></p>
+ * </ul>
  *
  * <p>The basic configuration is as follows:<pre>
  * "Writer": {
