@@ -53,7 +53,6 @@ import static coyote.mc.snow.Predicate.LIKE;
  * adding the {@code instance} configuration property with the name to be used for the metric instance.</p>
  */
 public class SnowBacklogMetricReader extends WebServiceReader implements FrameReader {
-
   public static final String PROJECT = "project";
   private static final String INSTANCE = "instance";
   private List<SnowStory> stories = null;
@@ -93,7 +92,7 @@ public class SnowBacklogMetricReader extends WebServiceReader implements FrameRe
       getConfiguration().set(ConfigTag.SELECTOR, "records.*");
     }
 
-    getResource().getDefaultParameters().setMethod( Method.GET );
+    getResource().getDefaultParameters().setMethod(Method.GET);
 
     // We need to set the request path to that of the rm_story table
     try {
@@ -155,7 +154,7 @@ public class SnowBacklogMetricReader extends WebServiceReader implements FrameRe
     List<DataFrame> metrics = new ArrayList<>();
     Map<String, Integer> counts = new HashMap<>();
     for (SnowStory story : stories) {
-      if( story.isActive()) {
+      if (story.isActive()) {
         String classification = story.getClassification().toLowerCase();
         if (counts.get(classification) != null) {
           counts.put(classification, counts.get(classification) + 1);

@@ -76,7 +76,6 @@ public abstract class AbstractFrameReader extends AbstractConfigurableComponent 
       readLimit = getLong(ConfigTag.LIMIT);
     }
     Log.debug(LogMsg.createMsg(CDX.MSG, "Reader.limit_is", readLimit));
-
   }
 
 
