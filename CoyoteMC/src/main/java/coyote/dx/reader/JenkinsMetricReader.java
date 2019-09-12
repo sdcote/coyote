@@ -20,6 +20,22 @@ import java.util.*;
 /**
  * This is a reader which connects to a Jenkins instance and queries data via its REST API and generates metrics based
  * on the build data.
+ * <p>A sample configuration for a multi-branch pipeline looks like this:<pre>
+ * "Reader" : {
+ *   "class" : "JenkinsMetricReader",
+ *   "source" : "http://ecdp3:8080",
+ *   "job": "/job/Coyote-multibranch-pipeline/job/develop",
+ *   "interval": "14d",
+ *   "instance": "develop",
+ *   "authenticator": {
+ *     "class" : "BasicAuthentication",
+ *     "ENC:username" : "zPz4DXvYrFrKAGYBWbVRCDqmVtQn/QXi",
+ *     "ENC:password" : "KcwkH5kh0UO/dzSb2Yck/0BSfnRvfqnl",
+ *     "preemptive" : true
+ *   }
+ * },
+ * </pre>
+ * <p>Just pull the path specifying the job from the API link at the bottom right-hand corner of the page.</p>
  */
 public class JenkinsMetricReader extends WebServiceReader implements FrameReader {
   public static final String SUCCESS = "SUCCESS";
