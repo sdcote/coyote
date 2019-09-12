@@ -105,7 +105,7 @@ public class BasicAuth extends HeaderDecorator implements RequestDecorator {
    * @param headerData the headerData to set
    */
   public void setHeaderData(String headerData) {
-    configuration.set(ConfigTag.DATA, headerData);
+    configuration.put(ConfigTag.DATA, headerData);
   }
 
 
