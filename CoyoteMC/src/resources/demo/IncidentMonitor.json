@@ -1,0 +1,32 @@
+{
+  "Class": "coyote.dx.Job",
+
+  "Job": {
+    "Name": "IncidentMetricReader",
+
+    "Reader" : {
+      "class" : "SnowIncidentMetricReader",
+      "source" : "https://servicenow.aepsc.com/",
+      "ConfigurationItem": "https://iforgot.aep.com",
+      "instance": "iforgot",
+      "authenticator": {
+        "class" : "BasicAuthentication",
+        "ENC:username": "bYrfmfhAaCpZEOK6recqE2SXtctlGrtC",
+        "ENC:password": "V8TyhQTEcZyhIXKGwTNzN7zCRMpdG/Yt",
+        "preemptive" : true
+      }
+    },
+
+    "Writer" : {
+      "class" : "ConsoleWriter",
+      "format" : "json",
+      "indent" : true
+    }
+  },
+
+  "Logging": {
+    "StandardError": {"categories": "error, fatal, warn" },
+    "StandardOutput": { "categories": "info, notice" }
+  }
+
+}
