@@ -866,7 +866,7 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
           }
         } else {
           if (Log.isLogging(Log.DEBUG_EVENTS)) {
-            Log.error(LogMsg.createMsg(CDX.MSG, "Engine.writer_skipped_disabled", writer.getClass().getSimpleName()));
+            Log.notice(LogMsg.createMsg(CDX.MSG, "Engine.writer_skipped_disabled", writer.getClass().getSimpleName()));
           }
         }
       }
