@@ -180,7 +180,7 @@ public class Resource implements Closeable {
    * @throws URISyntaxException if the given string is not a valid URI
    */
   public void setBaseUri(String uri) throws URISyntaxException {
-    baseuri = new URI(uri);
+    baseuri = new URI(uri).normalize();
   }
 
 
