@@ -15,16 +15,14 @@ import java.util.Collection;
 /**
  * Instances of classes that implement this interface provide various ways of
  * recursively finding all files in a directory.
- * 
- * @version $Revision:$
  */
 public interface IFileFinder {
 
   /**
    * Method accumulateFiles
-   * 
-   * @param src
-   * @param fileList
+   *
+   * @param src source file
+   * @param fileList the collection of files to accumulate
    */
   void accumulateFiles(File src, Collection fileList);
 
@@ -33,10 +31,10 @@ public interface IFileFinder {
 
   /**
    * Method accumulateFiles
-   * 
-   * @param src
-   * @param fileList
-   * @param filter
+   *
+   * @param src source file
+   * @param fileList the collection of files to accumulate
+   * @param filter the filter to select which files to accumulate
    */
   void accumulateFiles(File src, Collection fileList, FilenameFilter filter);
 
@@ -46,7 +44,7 @@ public interface IFileFinder {
   /**
    * Method setBaseDirectory
    * 
-   * @param baseDir
+   * @param baseDir the base directory for the finder
    */
   void setBaseDirectory(File baseDir);
 }

@@ -75,8 +75,8 @@ public abstract class AbstractFileTask extends AbstractTransformTask {
   /**
    * Get a file reference which should exist.
    * 
-   * @param source
-   * @return
+   * @param source the name of the file to create
+   * @return a fully-qualified file, possibly created in the job directory if it is not fully-qualified
    */
   protected File getExistingFile(String source) {
     final File file = new File(source);
@@ -98,9 +98,8 @@ public abstract class AbstractFileTask extends AbstractTransformTask {
    * Get a file reference and resolve it to the job directory if it is not 
    * absolute.
    * 
-   * @param name
-   * 
-   * @return
+   * @param name the file name to create
+   * @return a fully-qualified file, possibly created in the job directory if it is not fully-qualified
    */
   protected File getAbsoluteFile(String name) {
     final File file = new File(name);

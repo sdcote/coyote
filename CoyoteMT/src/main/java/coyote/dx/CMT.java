@@ -83,7 +83,7 @@ public class CMT {
   /**
    * Called by other classes to get our version number.
    * 
-   * @return a string represing our version.
+   * @return a string representing our version.
    */
   public String getVersion() {
     return VERSION.toString();

@@ -169,7 +169,7 @@ public abstract class AbstractTransformTask extends AbstractConfigurableComponen
    * AbstractTransfromTask to handle all checks in a uniform manner for all 
    * subclasses.
    * 
-   * @throws TaskException
+   * @throws TaskException if there were problems performing the task
    */
   protected void performTask() throws TaskException {
     // do nothing method

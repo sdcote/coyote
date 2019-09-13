@@ -31,6 +31,7 @@ public class LoaderVersion {
   public LoaderVersion() {
     modules.put("Coyote  ", CDX.VERSION.toString());
     checkVersion("CoyoteFT", "coyote.dx.CFT", modules);
+    checkVersion("CoyoteMC", "coyote.dx.CMC", modules);
     checkVersion("CoyoteMT", "coyote.dx.CMT", modules);
     checkVersion("CoyoteMQ", "coyote.dx.CMQ", modules);
     checkVersion("CoyoteUI", "coyote.dx.CUI", modules);

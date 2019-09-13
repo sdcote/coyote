@@ -21,9 +21,9 @@ import coyote.loader.log.Log;
 public class DebugAggregator extends AbstractFrameAggregator implements FrameAggregator {
 
   /**
-   * @param frames
-   * @param txnContext
-   * @return
+   * @param frames the frames to aggregate
+   * @param txnContext the transaction context
+   * @return aggregated frames
    */
   @Override
   protected List<DataFrame> aggregate(List<DataFrame> frames, TransactionContext txnContext) {

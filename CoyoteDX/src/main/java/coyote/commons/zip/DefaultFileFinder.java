@@ -37,7 +37,7 @@ public class DefaultFileFinder implements IFileFinder {
   /**
    * Constructor DefaultFileFinder
    * 
-   * @param includeDirs
+   * @param includeDirs flag to include subdirectories
    */
   public DefaultFileFinder(final boolean includeDirs) {
     this.includeDirs = includeDirs;
@@ -49,8 +49,8 @@ public class DefaultFileFinder implements IFileFinder {
   /**
    * Method accumulateFiles
    * 
-   * @param src
-   * @param fileList
+   * @param src source file
+   * @param fileList the collection of files to accumulate
    */
   @Override
   public void accumulateFiles(final File src, final Collection fileList) {
@@ -62,10 +62,10 @@ public class DefaultFileFinder implements IFileFinder {
 
   /**
    * Method accumulateFiles
-   * 
-   * @param src
-   * @param fileList
-   * @param filter
+   *
+   * @param src source file
+   * @param fileList the collection of files to accumulate
+   * @param filter filename filter to select the file to accumulate
    */
   @Override
   public void accumulateFiles(final File src, final Collection fileList, final FilenameFilter filter) {
@@ -124,7 +124,7 @@ public class DefaultFileFinder implements IFileFinder {
   /**
    * Method setBaseDirectory
    * 
-   * @param baseDir
+   * @param baseDir the base directory for this finder
    */
   @Override
   public void setBaseDirectory(final File baseDir) {

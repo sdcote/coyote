@@ -242,9 +242,9 @@ public class WaitForFile extends AbstractFileTask {
 
   /**
    * Test of the WatchService concept.
-   * @param args
-   * @throws IOException
-   * @throws InterruptedException
+   * @param args command line arguments
+   * @throws IOException If an I/O error occurs
+   * @throws InterruptedException if interrupted while waiting
    */
   public static void main(String[] args) throws IOException, InterruptedException {
     WatchService watchService = FileSystems.getDefault().newWatchService();
