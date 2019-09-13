@@ -83,7 +83,7 @@ public class CWS {
    * This handles Proxy configuration in a uniform manner across BatchWS 
    * components.
    * 
-   * @param cfg
+   * @param cfg the configuration to use for creating the proxy
    * 
    * @return a configured proxy object through which components can use to navigate request calls
    * 
@@ -195,6 +195,7 @@ public class CWS {
    *                used to resolve variable values in the configuration
    * 
    * @return a configured protocol parameters object, or null if configuration frame was null
+   * @throws ConfigurationException if there were problems configuring the parameters
    */
   public static Parameters configParameters(DataFrame cfg, TransformContext context) throws ConfigurationException {
     Parameters retval = null;

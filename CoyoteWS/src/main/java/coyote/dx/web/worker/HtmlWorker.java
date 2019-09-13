@@ -30,7 +30,7 @@ import coyote.loader.log.Log;
 public class HtmlWorker extends BasicWorker implements ResourceWorker {
 
   /**
-   * @param resource
+   * @param resource the resource this worker is to manage
    */
   public HtmlWorker( final Resource resource ) {
     super( resource );

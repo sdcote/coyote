@@ -45,10 +45,9 @@ public class SnowRecord extends DataFrame {
 
 
   /**
-   * called
    *
-   * @param dataframe
-   * @throws SnowException
+   * @param dataframe the source of the data for this record
+   * @throws SnowException if the naming of fields or their data is incorrect
    */
   protected SnowRecord(final DataFrame dataframe) throws SnowException {
 
@@ -96,6 +95,7 @@ public class SnowRecord extends DataFrame {
 
   /**
    * Get sys_created_on from a SnowRecord object.
+   * @return the timestamp when this record was created
    */
   public SnowDateTime getCreatedTimestamp() {
     return createdTimestamp;
@@ -106,6 +106,10 @@ public class SnowRecord extends DataFrame {
    * Return a DateTime field as a SnowDateTime.
    *
    * <p>For a Java date use getDateTime(fieldname).toDate().
+   *
+   * @param fieldname the field name to parse
+   * @throws ParseException if there were issues parsing the date time value
+   * @return a SnowDateTime reference
    */
   public SnowDateTime getDateTime(final String fieldname) throws ParseException {
     final String value = getFieldValue(fieldname);
@@ -210,6 +214,7 @@ public class SnowRecord extends DataFrame {
 
   /**
    * Get sys_updated_on from a SnowRecord object.
+   * @return the timestamp when this record was updated
    */
   public SnowDateTime getUpdatedTimestamp() {
     return updatedTimestamp;

@@ -245,6 +245,7 @@ public class ProxySettings {
 
   /**
    * Get the associated {@link WebSocketFactory} instance.
+   * @return the websocket factory instance for this proxy
    */
   public WebSocketFactory getWebSocketFactory() {
     return webSocketFactory;

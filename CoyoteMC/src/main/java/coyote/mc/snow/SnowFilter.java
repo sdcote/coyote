@@ -76,7 +76,7 @@ public class SnowFilter {
   /**
    * Perform URL encoding.
    *
-   * @param string
+   * @param string the URL string to encode
    * @return encoded string.
    */
   public static String encode(final String string) {
@@ -149,7 +149,7 @@ public class SnowFilter {
 
 
   /**
-   * @param clause
+   * @param clause the clause to add to this filter as an AND operation
    * @return a reference to this filter for method chaining
    */
   public SnowFilter and(final SnowClause clause) {
@@ -159,9 +159,9 @@ public class SnowFilter {
 
 
   /**
-   * @param column
-   * @param predicate
-   * @param value
+   * @param column    the column to check
+   * @param predicate how to check the given column
+   * @param value     the value to query
    * @return a reference to this filter for method chaining
    */
   public SnowFilter and(final String column, final Predicate predicate, final String value) {
@@ -170,8 +170,8 @@ public class SnowFilter {
 
 
   /**
-   * @param column
-   * @param predicate
+   * @param column    the column to check
+   * @param predicate how to check the given column
    * @return a reference to this filter for method chaining
    */
   public SnowFilter and(final String column, final Predicate predicate) {
@@ -185,7 +185,7 @@ public class SnowFilter {
 
 
   /**
-   * @param clause
+   * @param clause a query clause to add to the filter as an OR operation
    * @return a reference to this filter for method chaining
    */
   public SnowFilter or(final SnowClause clause) {
@@ -196,26 +196,13 @@ public class SnowFilter {
 
 
   /**
-   * @param column
-   * @param predicate
-   * @param value
+   * @param column    the name of the field to query
+   * @param predicate the predicate
+   * @param value     the value to query
    * @return a reference to this filter for method chaining
    */
   public SnowFilter or(final String column, final Predicate predicate, final String value) {
     return or(new SnowClause(column, predicate, value));
-  }
-
-
-  List<SnowClause> parseEncodedQuery(final String query) {
-    final List<SnowClause> retval = new ArrayList<SnowClause>();
-
-    // normalize encoded characters (e.g. %20 to the ' ' character)
-
-    // Split line into tokens on the ^character
-
-    // for each token, search for predicates and split into 3 respective parts
-
-    return retval;
   }
 
 

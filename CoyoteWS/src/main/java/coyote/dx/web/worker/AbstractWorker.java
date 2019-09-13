@@ -83,7 +83,7 @@ public abstract class AbstractWorker implements ResourceWorker {
   /**
    * This is is the default constructor for all workers.
    *
-   * @param resource
+   * @param resource the resource this worker is to manage
    */
   public AbstractWorker( final Resource resource ) {
     this.resource = resource;

@@ -24,7 +24,7 @@ import java.io.IOException;
 public class FilterParser extends StringParser {
 
   /**
-   * @param string
+   * @param string the filter string to parse
    */
   public FilterParser(String string) {
     super(string);

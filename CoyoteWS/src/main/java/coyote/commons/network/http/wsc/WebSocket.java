@@ -1,10 +1,6 @@
 package coyote.commons.network.http.wsc;
 
-import static coyote.commons.network.http.wsc.WebSocketState.CLOSED;
-import static coyote.commons.network.http.wsc.WebSocketState.CLOSING;
-import static coyote.commons.network.http.wsc.WebSocketState.CONNECTING;
-import static coyote.commons.network.http.wsc.WebSocketState.CREATED;
-import static coyote.commons.network.http.wsc.WebSocketState.OPEN;
+import coyote.commons.network.http.wsc.StateManager.CloseInitiator;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -18,7 +14,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.RejectedExecutionException;
 
-import coyote.commons.network.http.wsc.StateManager.CloseInitiator;
+import static coyote.commons.network.http.wsc.WebSocketState.*;
 
 
 /**
@@ -1043,11 +1039,12 @@ public class WebSocket {
   private final WebSocketFactory webSocketFactory;
   private final SocketConnector socketConnector;
   private final StateManager stateManager;
-  private HandshakeBuilder handshakeBuilder;
   private final ListenerManager listenerManager;
   private final PingSender pingSender;
   private final PongSender pongSender;
   private final Object threadMutex = new Object();
+  private final Object onConnectedCalledMutex = new Object();
+  private HandshakeBuilder handshakeBuilder;
   private WebSocketInputStream socketInput;
   private WebSocketOutputStream socketOutput;
   private ReadingThread readThread;
@@ -1061,7 +1058,6 @@ public class WebSocket {
   private int frameQueueSize;
   private int maxPayloadSize;
   private boolean onConnectedCalled;
-  private final Object onConnectedCalledMutex = new Object();
   private boolean readingThreadStarted;
   private boolean writingThreadStarted;
   private boolean readingThreadFinished;
@@ -1069,8 +1065,6 @@ public class WebSocket {
   private WebSocketFrame serverCloseFrame;
   private WebSocketFrame clientCloseFrame;
   private PerMessageCompressionExtension perMessageCompressionExtension;
-
-
 
 
   WebSocket(final WebSocketFactory factory, final boolean secure, final String userInfo, final String host, final String path, final SocketConnector connector) {
@@ -1084,16 +1078,14 @@ public class WebSocket {
   }
 
 
-
-
   /**
    * Generate a value for Sec-WebSocket-Key.
    *
    * <blockquote>
-   * <p><i>The request MUST include a header field with the name 
-   * Sec-WebSocket-Key. The value of this header field MUST be a nonce 
+   * <p><i>The request MUST include a header field with the name
+   * Sec-WebSocket-Key. The value of this header field MUST be a nonce
    * consisting of a randomly selected 16-byte value that has been base64-
-   * encoded (see Section 4 of RFC 4648). The nonce MUST be selected randomly 
+   * encoded (see Section 4 of RFC 4648). The nonce MUST be selected randomly
    * for each connection.</i>
    * </blockquote>
    *
@@ -1111,20 +1103,17 @@ public class WebSocket {
   }
 
 
-
-
   /**
-   * Add a value for {@code Sec-WebSocket-Extension}. 
-   * 
-   * <p>The input string should comply with the format described in 
-   * <a href= "https://tools.ietf.org/html/rfc6455#section-9.1">9.1. 
-   * Negotiating Extensions</a> in 
+   * Add a value for {@code Sec-WebSocket-Extension}.
+   *
+   * <p>The input string should comply with the format described in
+   * <a href= "https://tools.ietf.org/html/rfc6455#section-9.1">9.1.
+   * Negotiating Extensions</a> in
    * <a href="https://tools.ietf.org/html/rfc6455">RFC 6455</a>.
    *
-   * @param extension A string that represents a WebSocket extension. If it 
-   *        does not comply with RFC 6455, no value is added to {@code
-   *        Sec-WebSocket-Extension}.
-   *
+   * @param extension A string that represents a WebSocket extension. If it
+   *                  does not comply with RFC 6455, no value is added to {@code
+   *                  Sec-WebSocket-Extension}.
    * @return {@code this} object.
    */
   public WebSocket addExtension(final String extension) {
@@ -1133,13 +1122,10 @@ public class WebSocket {
   }
 
 
-
-
   /**
    * Add a value for {@code Sec-WebSocket-Extension}.
    *
    * @param extension An extension. {@code null} is silently ignored.
-   *
    * @return {@code this} object.
    */
   public WebSocket addExtension(final WebSocketExtension extension) {
@@ -1148,15 +1134,12 @@ public class WebSocket {
   }
 
 
-
-
   /**
    * Add a pair of extra HTTP header.
    *
-   * @param name An HTTP header name. When {@code null} or an empty string is 
-   *        given, no header is added.
+   * @param name  An HTTP header name. When {@code null} or an empty string is
+   *              given, no header is added.
    * @param value The value of the HTTP header.
-   *
    * @return {@code this} object.
    */
   public WebSocket addHeader(final String name, final String value) {
@@ -1165,13 +1148,10 @@ public class WebSocket {
   }
 
 
-
-
   /**
    * Add a listener to receive events on this WebSocket.
    *
    * @param listener A listener to add.
-   *
    * @return {@code this} object.
    */
   public WebSocket addListener(final WebSocketListener listener) {
@@ -1180,14 +1160,11 @@ public class WebSocket {
   }
 
 
-
-
   /**
    * Add listeners.
    *
    * @param listeners Listeners to add. {@code null} is silently ignored.
-   *         {@code null} elements in the list are also ignored.
-   *
+   *                  {@code null} elements in the list are also ignored.
    * @return {@code this} object.
    */
   public WebSocket addListeners(final List<WebSocketListener> listeners) {
@@ -1196,25 +1173,19 @@ public class WebSocket {
   }
 
 
-
-
   /**
    * Add a value for {@code Sec-WebSocket-Protocol}.
    *
    * @param protocol A protocol name.
-   *
    * @return {@code this} object.
-   *
-   * @throws IllegalArgumentException The protocol name is invalid. A protocol 
-   *         name must be a non-empty string with characters in the range 
-   *         U+0021 to U+007E not including separator characters.
+   * @throws IllegalArgumentException The protocol name is invalid. A protocol
+   *                                  name must be a non-empty string with characters in the range
+   *                                  U+0021 to U+007E not including separator characters.
    */
   public WebSocket addProtocol(final String protocol) {
     handshakeBuilder.addProtocol(protocol);
     return this;
   }
-
-
 
 
   /**
@@ -1238,8 +1209,6 @@ public class WebSocket {
   }
 
 
-
-
   private void changeStateOnConnect() throws WebSocketException {
     synchronized (stateManager) {
       // If the current state is not CREATED.
@@ -1256,8 +1225,6 @@ public class WebSocket {
   }
 
 
-
-
   /**
    * Remove all extensions from {@code Sec-WebSocket-Extension}.
    *
@@ -1267,8 +1234,6 @@ public class WebSocket {
     handshakeBuilder.clearExtensions();
     return this;
   }
-
-
 
 
   /**
@@ -1282,8 +1247,6 @@ public class WebSocket {
   }
 
 
-
-
   /**
    * Remove all the listeners from this WebSocket.
    *
@@ -1293,8 +1256,6 @@ public class WebSocket {
     listenerManager.clearListeners();
     return this;
   }
-
-
 
 
   /**
@@ -1308,8 +1269,6 @@ public class WebSocket {
   }
 
 
-
-
   /**
    * Clear the credentials to connect to the WebSocket endpoint.
    *
@@ -1321,46 +1280,43 @@ public class WebSocket {
   }
 
 
-
-
   /**
-   * Connect to the server, send an opening handshake to the server, receive 
+   * Connect to the server, send an opening handshake to the server, receive
    * the response and then start threads to communicate with the server.
    *
-   * <p> As necessary, {@link #addProtocol(String)}, {@link 
-   * #addExtension(WebSocketExtension)} {@link #addHeader(String, String)} 
-   * should be called before you call this method. It is because the 
+   * <p> As necessary, {@link #addProtocol(String)}, {@link
+   * #addExtension(WebSocketExtension)} {@link #addHeader(String, String)}
+   * should be called before you call this method. It is because the
    * parameters set by these methods are used in the opening handshake.
    *
-   * <p>Also, as necessary, {@link #getSocket()} should be used to set up 
-   * socket parameters before you call this method. For example, you can set 
+   * <p>Also, as necessary, {@link #getSocket()} should be used to set up
+   * socket parameters before you call this method. For example, you can set
    * the socket timeout like the following.<pre>
    * WebSocket websocket = ......;
    * websocket.{@link #getSocket() getSocket()}.{@link Socket#setSoTimeout(int)
    * setSoTimeout}(5000);
    * </pre>
    *
-   * <p> If the WebSocket endpoint requires Basic Authentication, you can set 
-   * credentials by {@link #setUserInfo(String) setUserInfo(userInfo)} or 
-   * {@link #setUserInfo(String, String) setUserInfo(id, password)} before you 
+   * <p> If the WebSocket endpoint requires Basic Authentication, you can set
+   * credentials by {@link #setUserInfo(String) setUserInfo(userInfo)} or
+   * {@link #setUserInfo(String, String) setUserInfo(id, password)} before you
    * call this method. Note that if the URI passed to {@link WebSocketFactory}
-   * {@code .createSocket} method contains the user-info part, you don't have 
+   * {@code .createSocket} method contains the user-info part, you don't have
    * to call {@code setUserInfo} method.
    *
-   * <p> Note that this method can be called at most only once regardless of 
-   * whether this method succeeded or failed. If you want to re-connect to the 
-   * WebSocket endpoint, you have to create a new {@code WebSocket} instance 
-   * again by calling one of {@code createSocket} methods of a {@link 
-   * WebSocketFactory}. You may find {@link #recreate()} method useful if you 
-   * want to create a new {@code WebSocket} instance that has the same 
-   * settings as this instance. (But settings you made on the raw socket are 
+   * <p> Note that this method can be called at most only once regardless of
+   * whether this method succeeded or failed. If you want to re-connect to the
+   * WebSocket endpoint, you have to create a new {@code WebSocket} instance
+   * again by calling one of {@code createSocket} methods of a {@link
+   * WebSocketFactory}. You may find {@link #recreate()} method useful if you
+   * want to create a new {@code WebSocket} instance that has the same
+   * settings as this instance. (But settings you made on the raw socket are
    * not copied.)
    *
-   * @return  {@code this} object.
-   *
-   * @throws WebSocketException The current state of the WebSocket is 
-   *         not {@link WebSocketState#CREATED CREATED}. Connecting the 
-   *         server failed. The opening handshake failed.
+   * @return {@code this} object.
+   * @throws WebSocketException The current state of the WebSocket is
+   *                            not {@link WebSocketState#CREATED CREATED}. Connecting the
+   *                            server failed. The opening handshake failed.
    */
   public WebSocket connect() throws WebSocketException {
     // Change the state to CONNECTING. If the state before
@@ -1409,26 +1365,20 @@ public class WebSocket {
   }
 
 
-
-
   /**
-   * Execute {@link #connect()} asynchronously using the given {@link 
+   * Execute {@link #connect()} asynchronously using the given {@link
    * ExecutorService}. This method is just an alias of the following:
    * <blockquote>
    * executorService.{@link ExecutorService#submit(Callable) submit}({@link #connectable()})
    * </blockquote>
    *
-   * @param executorService An {@link ExecutorService} to execute a task 
-   *        created by {@link #connectable()}.
-   *
+   * @param executorService An {@link ExecutorService} to execute a task
+   *                        created by {@link #connectable()}.
    * @return The value returned from {@link ExecutorService#submit(Callable)}.
-   *
-   * @throws NullPointerException If the given {@link ExecutorService} is 
-   *         {@code null}.
-   *
-   * @throws RejectedExecutionException If the given {@link ExecutorService} 
-   *         rejected the task created by {@link #connectable()}.
-   *
+   * @throws NullPointerException       If the given {@link ExecutorService} is
+   *                                    {@code null}.
+   * @throws RejectedExecutionException If the given {@link ExecutorService}
+   *                                    rejected the task created by {@link #connectable()}.
    * @see #connectAsynchronously()
    */
   public Future<WebSocket> connect(final ExecutorService executorService) {
@@ -1436,23 +1386,18 @@ public class WebSocket {
   }
 
 
-
-
   /**
    * Get a new {@link Callable}{@code <}{@link WebSocket}{@code >} instance
    * whose {@link Callable#call() call()} method calls {@link #connect()}
    * method of this {@code WebSocket} instance.
    *
-   * @return A new {@link Callable}{@code <}{@link WebSocket}{@code >} 
-   *         instance for asynchronous {@link #connect()}.
-   *
+   * @return A new {@link Callable}{@code <}{@link WebSocket}{@code >}
+   * instance for asynchronous {@link #connect()}.
    * @see #connect(ExecutorService)
    */
   public Callable<WebSocket> connectable() {
     return new Connectable(this);
   }
-
-
 
 
   /**
@@ -1479,8 +1424,6 @@ public class WebSocket {
   }
 
 
-
-
   /**
    * Disconnect the WebSocket.
    *
@@ -1494,18 +1437,15 @@ public class WebSocket {
   }
 
 
-
-
   /**
    * Disconnect the WebSocket.
    *
    * <p> This method is an alias of {@link #disconnect(int, String) disconnect}
    * {@code (closeCode, null)}.
    *
-   * @param closeCode The close code embedded in a <a href= 
-   *        "https://tools.ietf.org/html/rfc6455#section-5.5.1">close frame</a> 
-   *        which this WebSocket client will send to the server.
-   *
+   * @param closeCode The close code embedded in a <a href=
+   *                  "https://tools.ietf.org/html/rfc6455#section-5.5.1">close frame</a>
+   *                  which this WebSocket client will send to the server.
    * @return {@code this} object.
    */
   public WebSocket disconnect(final int closeCode) {
@@ -1513,30 +1453,24 @@ public class WebSocket {
   }
 
 
-
-
   /**
    * Disconnect the WebSocket.
    *
-   * <p> This method is an alias of {@link #disconnect(int, String, long) 
+   * <p> This method is an alias of {@link #disconnect(int, String, long)
    * disconnect}{@code (closeCode, reason, 10000L)}.
    *
    * @param closeCode The close code embedded in a <a href=
-   *         "https://tools.ietf.org/html/rfc6455#section-5.5.1">close frame</a>
-   *         which this WebSocket client will send to the server.
-   *
-   * @param reason The reason embedded in a <a href= 
-   *        "https://tools.ietf.org/html/rfc6455#section-5.5.1">close frame</a> 
-   *        which this WebSocket client will send to the server. Note that the 
-   *        length of the bytes which represents the given reason must not 
-   *        exceed 125. In other words, {@code (reason.}{@link
-   *         String#getBytes(String) getBytes}{@code ("UTF-8").length <= 125)}
-   *         must be true.
-   *
+   *                  "https://tools.ietf.org/html/rfc6455#section-5.5.1">close frame</a>
+   *                  which this WebSocket client will send to the server.
+   * @param reason    The reason embedded in a <a href=
+   *                  "https://tools.ietf.org/html/rfc6455#section-5.5.1">close frame</a>
+   *                  which this WebSocket client will send to the server. Note that the
+   *                  length of the bytes which represents the given reason must not
+   *                  exceed 125. In other words, {@code (reason.}{@link
+   *                  String#getBytes(String) getBytes}{@code ("UTF-8").length <= 125)}
+   *                  must be true.
    * @return {@code this} object.
-   *
    * @see WebSocketCloseCode
-   *
    * @see <a href="https://tools.ietf.org/html/rfc6455#section-5.5.1">RFC 6455, 5.5.1. Close</a>
    */
   public WebSocket disconnect(final int closeCode, final String reason) {
@@ -1544,42 +1478,35 @@ public class WebSocket {
   }
 
 
-
-
   /**
    * Disconnect the WebSocket.
    *
-   * @param closeCode The close code embedded in a <a href=
-   *         "https://tools.ietf.org/html/rfc6455#section-5.5.1">close frame</a>
-   *         which this WebSocket client will send to the server.
-   *
-   * @param reason The reason embedded in a <a href=
-   *         "https://tools.ietf.org/html/rfc6455#section-5.5.1">close frame</a>
-   *         which this WebSocket client will send to the server. Note that the 
-   *         length of the bytes which represents the given reason must not 
-   *         exceed 125. In other words, {@code (reason.}{@link 
-   *         String#getBytes(String) getBytes}{@code ("UTF-8").length <= 125)} 
-   *         must be true.
-   *
-   * @param closeDelay Delay in milliseconds before calling {@link 
-   *        Socket#close()} forcibly. This safeguard is needed for the case 
-   *        where the server fails to send back a close frame. The default 
-   *        value is 10000 (= 10 seconds). When a negative value is given, the 
-   *        default value is used.<p>If a very short time (e.g. 0) is given, 
-   *        it is likely to happen either (1) that this client will fail to 
-   *        send a close frame to the server (in this case, you will probably 
-   *        see an error message "Flushing frames to the server failed: Socket 
-   *        closed") or (2) that the WebSocket connection will be closed 
-   *        before this client receives a close frame from the server (in this 
-   *        case, the second argument of {@link 
-   *        WebSocketListener#onDisconnected(WebSocket, WebSocketFrame,
-   *         WebSocketFrame, boolean) WebSocketListener.onDisconnected} will be
-   *         {@code null}).
-   *
+   * @param closeCode  The close code embedded in a <a href=
+   *                   "https://tools.ietf.org/html/rfc6455#section-5.5.1">close frame</a>
+   *                   which this WebSocket client will send to the server.
+   * @param reason     The reason embedded in a <a href=
+   *                   "https://tools.ietf.org/html/rfc6455#section-5.5.1">close frame</a>
+   *                   which this WebSocket client will send to the server. Note that the
+   *                   length of the bytes which represents the given reason must not
+   *                   exceed 125. In other words, {@code (reason.}{@link
+   *                   String#getBytes(String) getBytes}{@code ("UTF-8").length <= 125)}
+   *                   must be true.
+   * @param closeDelay Delay in milliseconds before calling {@link
+   *                   Socket#close()} forcibly. This safeguard is needed for the case
+   *                   where the server fails to send back a close frame. The default
+   *                   value is 10000 (= 10 seconds). When a negative value is given, the
+   *                   default value is used.<p>If a very short time (e.g. 0) is given,
+   *                   it is likely to happen either (1) that this client will fail to
+   *                   send a close frame to the server (in this case, you will probably
+   *                   see an error message "Flushing frames to the server failed: Socket
+   *                   closed") or (2) that the WebSocket connection will be closed
+   *                   before this client receives a close frame from the server (in this
+   *                   case, the second argument of {@link
+   *                   WebSocketListener#onDisconnected(WebSocket, WebSocketFrame,
+   *                   WebSocketFrame, boolean) WebSocketListener.onDisconnected} will be
+   *                   {@code null}).
    * @return {@code this} object.
-   *
    * @see WebSocketCloseCode
-   *
    * @see <a href="https://tools.ietf.org/html/rfc6455#section-5.5.1">RFC 6455, 5.5.1. Close</a>
    */
   public WebSocket disconnect(final int closeCode, final String reason, long closeDelay) {
@@ -1631,8 +1558,6 @@ public class WebSocket {
   }
 
 
-
-
   /**
    * Disconnect the WebSocket.
    *
@@ -1640,20 +1565,17 @@ public class WebSocket {
    * disconnect}{@code (}{@link WebSocketCloseCode#NORMAL}{@code , reason)}.
    *
    * @param reason The reason embedded in a <a href=
-   *        "https://tools.ietf.org/html/rfc6455#section-5.5.1">close frame</a>
-   *        which this WebSocket client will send to the server. Note that the 
-   *        length of the bytes which represents the given reason must not 
-   *        exceed 125. In other words, {@code (reason.}{@link
-   *        String#getBytes(String) getBytes}{@code ("UTF-8").length <= 125)}
-   *        must be true.
-   *
+   *               "https://tools.ietf.org/html/rfc6455#section-5.5.1">close frame</a>
+   *               which this WebSocket client will send to the server. Note that the
+   *               length of the bytes which represents the given reason must not
+   *               exceed 125. In other words, {@code (reason.}{@link
+   *               String#getBytes(String) getBytes}{@code ("UTF-8").length <= 125)}
+   *               must be true.
    * @return {@code this} object.
    */
   public WebSocket disconnect(final String reason) {
     return disconnect(WebSocketCloseCode.NORMAL, reason);
   }
-
-
 
 
   @Override
@@ -1667,8 +1589,6 @@ public class WebSocket {
   }
 
 
-
-
   /**
    * Find a per-message compression extension from among the agreed extensions.
    */
@@ -1679,14 +1599,12 @@ public class WebSocket {
 
     for (final WebSocketExtension extension : agreedExtensions) {
       if (extension instanceof PerMessageCompressionExtension) {
-        return (PerMessageCompressionExtension)extension;
+        return (PerMessageCompressionExtension) extension;
       }
     }
 
     return null;
   }
-
-
 
 
   void finish() {
@@ -1714,8 +1632,6 @@ public class WebSocket {
   }
 
 
-
-
   /**
    * Call {@link #finish()} from within a separate thread.
    */
@@ -1727,8 +1643,6 @@ public class WebSocket {
 
     thread.start();
   }
-
-
 
 
   /**
@@ -1758,8 +1672,6 @@ public class WebSocket {
   }
 
 
-
-
   /**
    * Get the agreed extensions.
    *
@@ -1772,13 +1684,17 @@ public class WebSocket {
     return agreedExtensions;
   }
 
-
-
+  /**
+   * Set the agreed extensions. {@link HandshakeReader} uses this method.
+   */
+  void setAgreedExtensions(final List<WebSocketExtension> extensions) {
+    agreedExtensions = extensions;
+  }
 
   /**
    * Get the agreed protocol.
    *
-   * <p>This method works correctly only after {@link #connect()} succeeds (= 
+   * <p>This method works correctly only after {@link #connect()} succeeds (=
    * after the opening handshake succeeds).
    *
    * @return The agreed protocol.
@@ -1787,12 +1703,16 @@ public class WebSocket {
     return agreedProtocol;
   }
 
-
-
+  /**
+   * Set the agreed protocol. {@link HandshakeReader} uses this method.
+   */
+  void setAgreedProtocol(final String protocol) {
+    agreedProtocol = protocol;
+  }
 
   /**
-   * Get the size of the frame queue. 
-   * 
+   * Get the size of the frame queue.
+   *
    * <p>The default value is 0 and it means there is no limit on the queue size.
    *
    * @return The size of the frame queue.
@@ -1801,20 +1721,45 @@ public class WebSocket {
     return frameQueueSize;
   }
 
-
-
+  /**
+   * Set the size of the frame queue.
+   *
+   * <p>The default value is 0 and it means there is no limit on the queue
+   * size.
+   *
+   * <p>{@code send<i>Xxx</i>} methods queue a {@link WebSocketFrame} instance
+   * to the internal queue. If the number of frames in the queue has reached
+   * the upper limit (which has been set by this method) when a {@code
+   * send<i>Xxx</i>} method is called, the method blocks until the queue gets
+   * spaces.
+   *
+   * <p> Under some conditions, even if the queue is full, {@code
+   * send<i>Xxx</i>} methods do not block. For example, in the case where the
+   * thread to send frames ({@code WritingThread}) is going to stop or has
+   * already stopped. In addition, method calls to send a <a href=
+   * "https://tools.ietf.org/html/rfc6455#section-5.5">control frame</a> (e.g.
+   * {@link #sendClose()} and {@link #sendPing()}) do not block.
+   *
+   * @param size The queue size. 0 means no limit. Negative numbers are not allowed.
+   * @return {@code this} object.
+   * @throws IllegalArgumentException if {@code size} is negative.
+   */
+  public WebSocket setFrameQueueSize(final int size) throws IllegalArgumentException {
+    if (size < 0) {
+      throw new IllegalArgumentException("size must not be negative.");
+    }
+    frameQueueSize = size;
+    return this;
+  }
 
   /**
    * Get the handshake builder.
-   *  
+   *
    * <p>{@link HandshakeReader} uses this method.
    */
   HandshakeBuilder getHandshakeBuilder() {
     return handshakeBuilder;
   }
-
-
-
 
   /**
    * Get the input stream of the WebSocket connection.
@@ -1823,9 +1768,6 @@ public class WebSocket {
     return socketInput;
   }
 
-
-
-
   /**
    * Get the manager that manages registered listeners.
    */
@@ -1833,22 +1775,38 @@ public class WebSocket {
     return listenerManager;
   }
 
-
-
-
   /**
-   * Get the maximum payload size. The default value is 0 which means that the 
+   * Get the maximum payload size. The default value is 0 which means that the
    * maximum payload size is not set and as a result frames are not split.
    *
-   * @return The maximum payload size. 0 means that the maximum payload size 
+   * @return The maximum payload size. 0 means that the maximum payload size
    * is not set.
    */
   public int getMaxPayloadSize() {
     return maxPayloadSize;
   }
 
-
-
+  /**
+   * Set the maximum payload size.
+   *
+   * <p>Text, binary and continuation frames whose payload size is bigger than
+   * the maximum payload size will be split into multiple frames. Note that
+   * control frames (close, ping and pong frames) are not split as per the
+   * specification even if their payload size exceeds the maximum payload
+   * size.
+   *
+   * @param size The maximum payload size. 0 to unset the maximum payload
+   *             size.
+   * @return {@code this} object.
+   * @throws IllegalArgumentException if {@code size} is negative.
+   */
+  public WebSocket setMaxPayloadSize(final int size) throws IllegalArgumentException {
+    if (size < 0) {
+      throw new IllegalArgumentException("size must not be negative.");
+    }
+    maxPayloadSize = size;
+    return this;
+  }
 
   /**
    * Get the output stream of the WebSocket connection.
@@ -1856,9 +1814,6 @@ public class WebSocket {
   WebSocketOutputStream getOutput() {
     return socketOutput;
   }
-
-
-
 
   /**
    * Get the PerMessageCompressionExtension in the agreed extensions.
@@ -1868,9 +1823,6 @@ public class WebSocket {
   PerMessageCompressionExtension getPerMessageCompressionExtension() {
     return perMessageCompressionExtension;
   }
-
-
-
 
   /**
    * Get the interval of periodical
@@ -1883,8 +1835,23 @@ public class WebSocket {
     return pingSender.getInterval();
   }
 
-
-
+  /**
+   * Set the interval of periodical
+   * <a href="https://tools.ietf.org/html/rfc6455#section-5.5.2">ping</a>
+   * frames.
+   *
+   * <p>Setting a positive number starts sending ping frames periodically.
+   * Setting zero stops the periodical sending. This method can be called
+   * both before and after {@link #connect()} method.
+   *
+   * @param interval The interval in milliseconds. A negative value is
+   *                 regarded as zero.
+   * @return {@code this} object.
+   */
+  public WebSocket setPingInterval(final long interval) {
+    pingSender.setInterval(interval);
+    return this;
+  }
 
   /**
    * Get the generator of payload of ping frames that are sent automatically.
@@ -1895,8 +1862,17 @@ public class WebSocket {
     return pingSender.getPayloadGenerator();
   }
 
-
-
+  /**
+   * Set the generator of payload of ping frames that are sent automatically.
+   *
+   * @param generator The generator of payload ping frames that are sent
+   *                  automatically.
+   * @return the websocket
+   */
+  public WebSocket setPingPayloadGenerator(final PayloadGenerator generator) {
+    pingSender.setPayloadGenerator(generator);
+    return this;
+  }
 
   /**
    * Get the interval of periodical
@@ -1909,8 +1885,39 @@ public class WebSocket {
     return pongSender.getInterval();
   }
 
-
-
+  /**
+   * Set the interval of periodical
+   * <a href="https://tools.ietf.org/html/rfc6455#section-5.5.3">pong</a>
+   * frames.
+   *
+   * <p>Setting a positive number starts sending pong frames periodically.
+   * Setting zero stops the periodical sending. This method can be called
+   * both before and after {@link #connect()} method.
+   *
+   * <blockquote>
+   * <dl>
+   * <dt>
+   * <span style="font-weight: normal;">An excerpt from <a href=
+   * "https://tools.ietf.org/html/rfc6455#section-5.5.3"
+   * >RFC 6455, 5.5.3. Pong</a></span>
+   * </dt>
+   * <dd>
+   * <p><i>A Pong frame MAY be sent <b>unsolicited</b>. This serves as a
+   * unidirectional heartbeat.  A response to an unsolicited Pong
+   * frame is not expected.
+   * </i></p>
+   * </dd>
+   * </dl>
+   * </blockquote>
+   *
+   * @param interval The interval in milliseconds. A negative value is
+   *                 regarded as zero.
+   * @return {@code this} object.
+   */
+  public WebSocket setPongInterval(final long interval) {
+    pongSender.setInterval(interval);
+    return this;
+  }
 
   /**
    * Get the generator of payload of pong frames that are sent automatically.
@@ -1921,8 +1928,17 @@ public class WebSocket {
     return pongSender.getPayloadGenerator();
   }
 
-
-
+  /**
+   * Set the generator of payload of pong frames that are sent automatically.
+   *
+   * @param generator The generator of payload ppng frames that are sent
+   *                  automatically.
+   * @return the websocket
+   */
+  public WebSocket setPongPayloadGenerator(final PayloadGenerator generator) {
+    pongSender.setPayloadGenerator(generator);
+    return this;
+  }
 
   /**
    * Get the raw socket which this WebSocket uses internally.
@@ -1933,24 +1949,20 @@ public class WebSocket {
     return socketConnector.getSocket();
   }
 
-
-
-
   /**
    * Get the current state of this WebSocket.
    *
-   * <p> The initial state is {@link WebSocketState#CREATED CREATED}. When 
-   * {@link #connect()} is called, the state is changed to {@link 
-   * WebSocketState#CONNECTING CONNECTING}, and then to {@link 
-   * WebSocketState#OPEN OPEN} after a successful opening handshake. The state 
-   * is changed to {@link WebSocketState#CLOSING CLOSING} when a closing 
-   * handshake is started, and then to {@link WebSocketState#CLOSED CLOSED} 
+   * <p> The initial state is {@link WebSocketState#CREATED CREATED}. When
+   * {@link #connect()} is called, the state is changed to {@link
+   * WebSocketState#CONNECTING CONNECTING}, and then to {@link
+   * WebSocketState#OPEN OPEN} after a successful opening handshake. The state
+   * is changed to {@link WebSocketState#CLOSING CLOSING} when a closing
+   * handshake is started, and then to {@link WebSocketState#CLOSED CLOSED}
    * when the closing handshake finished.
    *
    * <p> See the description of {@link WebSocketState} for details.
    *
    * @return The current state.
-   *
    * @see WebSocketState
    */
   public WebSocketState getState() {
@@ -1959,18 +1971,12 @@ public class WebSocket {
     }
   }
 
-
-
-
   /**
    * Get the manager that manages the state of this {@code WebSocket} instance.
    */
   StateManager getStateManager() {
     return stateManager;
   }
-
-
-
 
   /**
    * Get the URI of the WebSocket endpoint. The scheme part is either
@@ -1982,9 +1988,6 @@ public class WebSocket {
     return handshakeBuilder.getURI();
   }
 
-
-
-
   /**
    * Check if flush is performed automatically after {@link
    * #sendFrame(WebSocketFrame)} is done. The default value is {@code true}.
@@ -1995,18 +1998,27 @@ public class WebSocket {
     return autoFlush;
   }
 
-
-
+  /**
+   * Enable or disable auto-flush of sent frames.
+   *
+   * @param auto {@code true} to enable auto-flush. {@code false} to disable
+   *             it.
+   * @return {@code this} object.
+   */
+  public WebSocket setAutoFlush(final boolean auto) {
+    autoFlush = auto;
+    return this;
+  }
 
   /**
    * Check if extended use of WebSocket frames are allowed.
    *
-   * <p> When extended use is allowed, values of RSV1/RSV2/RSV3 bits and 
-   * opcode of frames are not checked. On the other hand, if not allowed 
-   * (default), non-zero values for RSV1/RSV2/RSV3 bits and unknown opcodes 
-   * cause an error. In such a case, {@link 
-   * WebSocketListener#onFrameError(WebSocket, WebSocketException, 
-   * WebSocketFrame) onFrameError} method of listeners are called and the 
+   * <p> When extended use is allowed, values of RSV1/RSV2/RSV3 bits and
+   * opcode of frames are not checked. On the other hand, if not allowed
+   * (default), non-zero values for RSV1/RSV2/RSV3 bits and unknown opcodes
+   * cause an error. In such a case, {@link
+   * WebSocketListener#onFrameError(WebSocket, WebSocketException,
+   * WebSocketFrame) onFrameError} method of listeners are called and the
    * WebSocket is eventually closed.
    *
    * @return {@code true} if extended use of WebSocket frames are allowed.
@@ -2015,8 +2027,16 @@ public class WebSocket {
     return mExtended;
   }
 
-
-
+  /**
+   * Allow or disallow extended use of WebSocket frames.
+   *
+   * @param extended {@code true} to allow extended use of WebSocket frames.
+   * @return {@code this} object.
+   */
+  public WebSocket setExtended(final boolean extended) {
+    mExtended = extended;
+    return this;
+  }
 
   /**
    * Check if the current state is equal to the specified state.
@@ -2027,33 +2047,45 @@ public class WebSocket {
     }
   }
 
-
-
-
   /**
    * Check if this instance allows the server to close the WebSocket
    * connection without sending a <a href=
    * "https://tools.ietf.org/html/rfc6455#section-5.5.1">close frame</a>
    * to this client. The default value is {@code true}.
    *
-   * @return {@code true} if the configuration allows for the server to close 
-   *         the WebSocket connection without sending a close frame to this 
-   *         client. {@code false} if the configuration requires that an error 
-   *         be reported via {@link WebSocketListener#onError(WebSocket, 
-   *         WebSocketException) onError()} method and {@link 
-   *         WebSocketListener#onFrameError(WebSocket, WebSocketException, 
-   *         WebSocketFrame) onFrameError()} method of {@link 
-   *         WebSocketListener}.
+   * @return {@code true} if the configuration allows for the server to close
+   * the WebSocket connection without sending a close frame to this
+   * client. {@code false} if the configuration requires that an error
+   * be reported via {@link WebSocketListener#onError(WebSocket,
+   * WebSocketException) onError()} method and {@link
+   * WebSocketListener#onFrameError(WebSocket, WebSocketException,
+   * WebSocketFrame) onFrameError()} method of {@link
+   * WebSocketListener}.
    */
   public boolean isMissingCloseFrameAllowed() {
     return missingCloseFrameAllowed;
   }
 
-
-
+  /**
+   * Set whether to allow the server to close the WebSocket connection
+   * without sending a <a href=
+   * "https://tools.ietf.org/html/rfc6455#section-5.5.1">close frame</a>
+   * to this client.
+   *
+   * @param allowed {@code true} to allow the server to close the WebSocket
+   *                connection without sending a close frame to this client. {@code
+   *                false} to make this instance report an error when the end of the
+   *                input stream of the WebSocket connection is reached before a close
+   *                frame is read.
+   * @return {@code this} object.
+   */
+  public WebSocket setMissingCloseFrameAllowed(final boolean allowed) {
+    missingCloseFrameAllowed = allowed;
+    return this;
+  }
 
   /**
-   * Check if the current state of this WebSocket is {@link WebSocketState#OPEN 
+   * Check if the current state of this WebSocket is {@link WebSocketState#OPEN
    * OPEN}.
    *
    * @return {@code true} if the current state is OPEN.
@@ -2061,9 +2093,6 @@ public class WebSocket {
   public boolean isOpen() {
     return isInState(OPEN);
   }
-
-
-
 
   /**
    * Called by the reading thread as its last step.
@@ -2082,9 +2111,6 @@ public class WebSocket {
     // Both the reading thread and the writing thread have finished.
     onThreadsFinished();
   }
-
-
-
 
   /**
    * Called by the reading thread as its first step.
@@ -2110,12 +2136,9 @@ public class WebSocket {
     }
   }
 
-
-
-
   /**
    * Called when both the reading thread and the writing thread have finished.
-   * 
+   *
    * <p>This method is called in the context of either the reading thread or
    * the writing thread.
    */
@@ -2123,12 +2146,9 @@ public class WebSocket {
     finish();
   }
 
-
-
-
   /**
    * Called when both the reading thread and the writing thread have started.
-   * 
+   *
    * <p>This method is called in the context of either the reading thread or
    * the writing thread.
    */
@@ -2140,9 +2160,6 @@ public class WebSocket {
     // Likewise, start the pong sender.
     pongSender.start();
   }
-
-
-
 
   /**
    * Called by the writing thread as its last step.
@@ -2161,9 +2178,6 @@ public class WebSocket {
     // Both the reading thread and the writing thread have finished.
     onThreadsFinished();
   }
-
-
-
 
   /**
    * Called by the writing thread as its first step.
@@ -2189,12 +2203,9 @@ public class WebSocket {
     }
   }
 
-
-
-
   /**
    * Open the input stream of the WebSocket connection.
-   * 
+   *
    * <p>The stream is used by the reading thread.
    */
   private WebSocketInputStream openInputStream(final Socket socket) throws WebSocketException {
@@ -2208,12 +2219,9 @@ public class WebSocket {
     }
   }
 
-
-
-
   /**
    * Open the output stream of the WebSocket connection.
-   * 
+   *
    * <p>The stream is used by the writing thread.
    */
   private WebSocketOutputStream openOutputStream(final Socket socket) throws WebSocketException {
@@ -2227,9 +2235,6 @@ public class WebSocket {
     }
   }
 
-
-
-
   /**
    * Receive an opening handshake response from the WebSocket server.
    */
@@ -2237,33 +2242,26 @@ public class WebSocket {
     return new HandshakeReader(this).readHandshake(input, key);
   }
 
-
-
-
   /**
-   * Create a new {@code WebSocket} instance that has the same settings as this 
-   * instance. Note that, however, settings you made on the raw socket are not 
+   * Create a new {@code WebSocket} instance that has the same settings as this
+   * instance. Note that, however, settings you made on the raw socket are not
    * copied.
    *
    * <p>The {@link WebSocketFactory} instance that you used to create this
    * {@code WebSocket} instance is used again.
    *
    * <p>This method calls {@link #recreate(int)} with the timeout value that
-   * was used when this instance was created. If you want to create a socket 
-   * connection with a different timeout value, use {@link #recreate(int)} 
+   * was used when this instance was created. If you want to create a socket
+   * connection with a different timeout value, use {@link #recreate(int)}
    * method instead.
    *
    * @return A new {@code WebSocket} instance.
-   *
-   * @throws IOException {@link WebSocketFactory#createSocket(URI)} threw an 
-   *         exception.
+   * @throws IOException {@link WebSocketFactory#createSocket(URI)} threw an
+   *                     exception.
    */
   public WebSocket recreate() throws IOException {
     return recreate(socketConnector.getConnectionTimeout());
   }
-
-
-
 
   /**
    * Create a new {@code WebSocket} instance that has the same settings
@@ -2273,15 +2271,12 @@ public class WebSocket {
    * <p> The {@link WebSocketFactory} instance that you used to create this
    * {@code WebSocket} instance is used again.
    *
+   * @param timeout The timeout value in milliseconds for socket timeout. A
+   *                timeout of zero is interpreted as an infinite timeout.
    * @return A new {@code WebSocket} instance.
-   *
-   * @param timeout The timeout value in milliseconds for socket timeout. A 
-   *        timeout of zero is interpreted as an infinite timeout.
-   *
    * @throws IllegalArgumentException The given timeout value is negative.
-   *
-   * @throws IOException {@link WebSocketFactory#createSocket(URI)} threw an 
-   *         exception.
+   * @throws IOException              {@link WebSocketFactory#createSocket(URI)} threw an
+   *                                  exception.
    */
   public WebSocket recreate(final int timeout) throws IOException {
     if (timeout < 0) {
@@ -2310,14 +2305,10 @@ public class WebSocket {
     return instance;
   }
 
-
-
-
   /**
    * Remove an extension from {@code Sec-WebSocket-Extension}.
    *
    * @param extension An extension to remove. {@code null} is silently ignored.
-   *
    * @return {@code this} object.
    */
   public WebSocket removeExtension(final WebSocketExtension extension) {
@@ -2325,15 +2316,11 @@ public class WebSocket {
     return this;
   }
 
-
-
-
   /**
    * Remove extensions from {@code Sec-WebSocket-Extension} by
    * an extension name.
    *
    * @param name An extension name. {@code null} is silently ignored.
-   *
    * @return {@code this} object.
    */
   public WebSocket removeExtensions(final String name) {
@@ -2341,14 +2328,10 @@ public class WebSocket {
     return this;
   }
 
-
-
-
   /**
    * Remove pairs of extra HTTP headers.
    *
    * @param name An HTTP header name. {@code null} is silently ignored.
-   *
    * @return {@code this} object.
    */
   public WebSocket removeHeaders(final String name) {
@@ -2356,14 +2339,10 @@ public class WebSocket {
     return this;
   }
 
-
-
-
   /**
    * Remove a listener from this WebSocket.
    *
    * @param listener A listener to remove. {@code null} won't cause an error.
-   *
    * @return {@code this} object.
    */
   public WebSocket removeListener(final WebSocketListener listener) {
@@ -2371,15 +2350,11 @@ public class WebSocket {
     return this;
   }
 
-
-
-
   /**
    * Remove listeners.
    *
    * @param listeners Listeners to remove. {@code null} is silently ignored.
-   *        {@code null} elements in the list are ignored, too.
-   *
+   *                  {@code null} elements in the list are ignored, too.
    * @return {@code this} object.
    */
   public WebSocket removeListeners(final List<WebSocketListener> listeners) {
@@ -2387,23 +2362,16 @@ public class WebSocket {
     return this;
   }
 
-
-
-
   /**
    * Remove a protocol from {@code Sec-WebSocket-Protocol}.
    *
    * @param protocol A protocol name. {@code null} is silently ignored.
-   *
    * @return {@code this} object.
    */
   public WebSocket removeProtocol(final String protocol) {
     handshakeBuilder.removeProtocol(protocol);
     return this;
   }
-
-
-
 
   /**
    * Send a binary message to the server.
@@ -2413,41 +2381,32 @@ public class WebSocket {
    * WebSocketFrame#createBinaryFrame(byte[])
    * createBinaryFrame}{@code (message))}.
    *
-   * <p> If you want to send a binary frame that is to be followed by 
+   * <p> If you want to send a binary frame that is to be followed by
    * continuation frames, use {@link #sendBinary(byte[], boolean)
    * setBinary(byte[] payload, boolean fin)} with {@code fin=false}.
    *
    * @param message A binary message to be sent to the server.
-   *
    * @return {@code this} object.
    */
   public WebSocket sendBinary(final byte[] message) {
     return sendFrame(WebSocketFrame.createBinaryFrame(message));
   }
 
-
-
-
   /**
    * Send a binary frame to the server.
    *
    * <p>This method is an alias of {@link #sendFrame(WebSocketFrame) sendFrame}
    * {@code (WebSocketFrame.}{@link WebSocketFrame#createBinaryFrame(byte[])
-   * createBinaryFrame}{@code (payload).}{@link WebSocketFrame#setFin(boolean) 
+   * createBinaryFrame}{@code (payload).}{@link WebSocketFrame#setFin(boolean)
    * setFin}{@code (fin))}.
    *
    * @param payload The payload of a binary frame.
-   *
-   * @param fin The FIN bit value.
-   *
+   * @param fin     The FIN bit value.
    * @return {@code this} object.
    */
   public WebSocket sendBinary(final byte[] payload, final boolean fin) {
     return sendFrame(WebSocketFrame.createBinaryFrame(payload).setFin(fin));
   }
-
-
-
 
   /**
    * Send a close frame to the server.
@@ -2462,9 +2421,6 @@ public class WebSocket {
     return sendFrame(WebSocketFrame.createCloseFrame());
   }
 
-
-
-
   /**
    * Send a close frame to the server.
    *
@@ -2474,17 +2430,12 @@ public class WebSocket {
    * createCloseFrame}{@code (closeCode))}.
    *
    * @param closeCode The close code.
-   *
    * @return {@code this} object.
-   *
    * @see WebSocketCloseCode
    */
   public WebSocket sendClose(final int closeCode) {
     return sendFrame(WebSocketFrame.createCloseFrame(closeCode));
   }
-
-
-
 
   /**
    * Send a close frame to the server.
@@ -2495,22 +2446,16 @@ public class WebSocket {
    * createCloseFrame}{@code (closeCode, reason))}.
    *
    * @param closeCode The close code.
-   *
-   * @param reason The close reason. Note that a control frame's payload 
-   *        length must be 125 bytes or less (RFC 6455, 
-   *        <a href="https://tools.ietf.org/html/rfc6455#section-5.5">5.5. 
-   *        Control Frames</a>).
-   *
+   * @param reason    The close reason. Note that a control frame's payload
+   *                  length must be 125 bytes or less (RFC 6455,
+   *                  <a href="https://tools.ietf.org/html/rfc6455#section-5.5">5.5.
+   *                  Control Frames</a>).
    * @return {@code this} object.
-   *
    * @see WebSocketCloseCode
    */
   public WebSocket sendClose(final int closeCode, final String reason) {
     return sendFrame(WebSocketFrame.createCloseFrame(closeCode, reason));
   }
-
-
-
 
   /**
    * Send a continuation frame to the server.
@@ -2530,9 +2475,6 @@ public class WebSocket {
     return sendFrame(WebSocketFrame.createContinuationFrame());
   }
 
-
-
-
   /**
    * Send a continuation frame to the server.
    *
@@ -2543,15 +2485,11 @@ public class WebSocket {
    * WebSocketFrame#setFin(boolean) setFin}{@code (fin))}.
    *
    * @param fin The FIN bit value.
-   *
    * @return {@code this} object.
    */
   public WebSocket sendContinuation(final boolean fin) {
     return sendFrame(WebSocketFrame.createContinuationFrame().setFin(fin));
   }
-
-
-
 
   /**
    * Send a continuation frame to the server.
@@ -2567,15 +2505,11 @@ public class WebSocket {
    * fin=true}.
    *
    * @param payload The payload of a continuation frame.
-   *
    * @return {@code this} object.
    */
   public WebSocket sendContinuation(final byte[] payload) {
     return sendFrame(WebSocketFrame.createContinuationFrame(payload));
   }
-
-
-
 
   /**
    * Send a continuation frame to the server.
@@ -2587,17 +2521,12 @@ public class WebSocket {
    * WebSocketFrame#setFin(boolean) setFin}{@code (fin))}.
    *
    * @param payload The payload of a continuation frame.
-   *
-   * @param fin The FIN bit value.
-   *
+   * @param fin     The FIN bit value.
    * @return {@code this} object.
    */
   public WebSocket sendContinuation(final byte[] payload, final boolean fin) {
     return sendFrame(WebSocketFrame.createContinuationFrame(payload).setFin(fin));
   }
-
-
-
 
   /**
    * Send a continuation frame to the server.
@@ -2613,15 +2542,11 @@ public class WebSocket {
    * fin=true}.
    *
    * @param payload The payload of a continuation frame.
-   *
    * @return {@code this} object.
    */
   public WebSocket sendContinuation(final String payload) {
     return sendFrame(WebSocketFrame.createContinuationFrame(payload));
   }
-
-
-
 
   /**
    * Send a continuation frame to the server.
@@ -2633,17 +2558,12 @@ public class WebSocket {
    * WebSocketFrame#setFin(boolean) setFin}{@code (fin))}.
    *
    * @param payload The payload of a continuation frame.
-   *
-   * @param fin The FIN bit value.
-   *
+   * @param fin     The FIN bit value.
    * @return {@code this} object.
    */
   public WebSocket sendContinuation(final String payload, final boolean fin) {
     return sendFrame(WebSocketFrame.createContinuationFrame(payload).setFin(fin));
   }
-
-
-
 
   /**
    * Send a WebSocket frame to the server.
@@ -2666,9 +2586,8 @@ public class WebSocket {
    * frame is a control frame, this method accepts the given
    * frame.
    *
-   * @param frame A WebSocket frame to be sent to the server. If {@code null} 
-   *        is given, nothing is done.
-   *
+   * @param frame A WebSocket frame to be sent to the server. If {@code null}
+   *              is given, nothing is done.
    * @return {@code this} object.
    */
   public WebSocket sendFrame(final WebSocketFrame frame) {
@@ -2720,9 +2639,6 @@ public class WebSocket {
     return this;
   }
 
-
-
-
   /**
    * Send a ping frame to the server.
    *
@@ -2736,9 +2652,6 @@ public class WebSocket {
     return sendFrame(WebSocketFrame.createPingFrame());
   }
 
-
-
-
   /**
    * Send a ping frame to the server.
    *
@@ -2747,19 +2660,15 @@ public class WebSocket {
    * WebSocketFrame#createPingFrame(byte[])
    * createPingFrame}{@code (payload))}.
    *
-   * @param payload The payload for a ping frame. Note that a control frames 
-   *        payload length must be 125 bytes or less (RFC 6455, 
-   *        <a href="https://tools.ietf.org/html/rfc6455#section-5.5">5.5. 
-   *        Control Frames</a>).
-   *
+   * @param payload The payload for a ping frame. Note that a control frames
+   *                payload length must be 125 bytes or less (RFC 6455,
+   *                <a href="https://tools.ietf.org/html/rfc6455#section-5.5">5.5.
+   *                Control Frames</a>).
    * @return {@code this} object.
    */
   public WebSocket sendPing(final byte[] payload) {
     return sendFrame(WebSocketFrame.createPingFrame(payload));
   }
-
-
-
 
   /**
    * Send a ping frame to the server.
@@ -2769,19 +2678,15 @@ public class WebSocket {
    * WebSocketFrame#createPingFrame(String)
    * createPingFrame}{@code (payload))}.
    *
-   * @param payload The payload for a ping frame. Note that a control frames 
-   *        payload length must be 125 bytes or less (RFC 6455, 
-   *        <a href="https://tools.ietf.org/html/rfc6455#section-5.5">5.5. 
-   *        Control Frames</a>).
-   *
+   * @param payload The payload for a ping frame. Note that a control frames
+   *                payload length must be 125 bytes or less (RFC 6455,
+   *                <a href="https://tools.ietf.org/html/rfc6455#section-5.5">5.5.
+   *                Control Frames</a>).
    * @return {@code this} object.
    */
   public WebSocket sendPing(final String payload) {
     return sendFrame(WebSocketFrame.createPingFrame(payload));
   }
-
-
-
 
   /**
    * Send a pong frame to the server.
@@ -2796,9 +2701,6 @@ public class WebSocket {
     return sendFrame(WebSocketFrame.createPongFrame());
   }
 
-
-
-
   /**
    * Send a pong frame to the server.
    *
@@ -2807,19 +2709,15 @@ public class WebSocket {
    * WebSocketFrame#createPongFrame(byte[])
    * createPongFrame}{@code (payload))}.
    *
-   * @param payload The payload for a pong frame. Note that a control frames 
-   *        payload length must be 125 bytes or less (RFC 6455, 
-   *        <a href="https://tools.ietf.org/html/rfc6455#section-5.5">5.5. 
-   *        Control Frames</a>).
-   *
+   * @param payload The payload for a pong frame. Note that a control frames
+   *                payload length must be 125 bytes or less (RFC 6455,
+   *                <a href="https://tools.ietf.org/html/rfc6455#section-5.5">5.5.
+   *                Control Frames</a>).
    * @return {@code this} object.
    */
   public WebSocket sendPong(final byte[] payload) {
     return sendFrame(WebSocketFrame.createPongFrame(payload));
   }
-
-
-
 
   /**
    * Send a pong frame to the server.
@@ -2829,19 +2727,15 @@ public class WebSocket {
    * WebSocketFrame#createPongFrame(String)
    * createPongFrame}{@code (payload))}.
    *
-   * @param payload The payload for a pong frame. Note that a control frames 
-   *        payload length must be 125 bytes or less (RFC 6455, 
-   *        <a href="https://tools.ietf.org/html/rfc6455#section-5.5">5.5. 
-   *        Control Frames</a>).
-   *
+   * @param payload The payload for a pong frame. Note that a control frames
+   *                payload length must be 125 bytes or less (RFC 6455,
+   *                <a href="https://tools.ietf.org/html/rfc6455#section-5.5">5.5.
+   *                Control Frames</a>).
    * @return {@code this} object.
    */
   public WebSocket sendPong(final String payload) {
     return sendFrame(WebSocketFrame.createPongFrame(payload));
   }
-
-
-
 
   /**
    * Send a text message to the server.
@@ -2856,15 +2750,11 @@ public class WebSocket {
    * setText(String payload, boolean fin)} with {@code fin=false}.
    *
    * @param message A text message to be sent to the server.
-   *
    * @return {@code this} object.
    */
   public WebSocket sendText(final String message) {
     return sendFrame(WebSocketFrame.createTextFrame(message));
   }
-
-
-
 
   /**
    * Send a text frame to the server.
@@ -2876,248 +2766,18 @@ public class WebSocket {
    * WebSocketFrame#setFin(boolean) setFin}{@code (fin))}.
    *
    * @param payload The payload of a text frame.
-   *
-   * @param fin The FIN bit value.
-   *
+   * @param fin     The FIN bit value.
    * @return {@code this} object.
    */
   public WebSocket sendText(final String payload, final boolean fin) {
     return sendFrame(WebSocketFrame.createTextFrame(payload).setFin(fin));
   }
 
-
-
-
-  /**
-   * Set the agreed extensions. {@link HandshakeReader} uses this method.
-   */
-  void setAgreedExtensions(final List<WebSocketExtension> extensions) {
-    agreedExtensions = extensions;
-  }
-
-
-
-
-  /**
-   * Set the agreed protocol. {@link HandshakeReader} uses this method.
-   */
-  void setAgreedProtocol(final String protocol) {
-    agreedProtocol = protocol;
-  }
-
-
-
-
-  /**
-   * Enable or disable auto-flush of sent frames.
-   *
-   * @param auto {@code true} to enable auto-flush. {@code false} to disable 
-   *        it.
-   *
-   * @return {@code this} object.
-   */
-  public WebSocket setAutoFlush(final boolean auto) {
-    autoFlush = auto;
-    return this;
-  }
-
-
-
-
-  /**
-   * Allow or disallow extended use of WebSocket frames.
-   *
-   * @param extended {@code true} to allow extended use of WebSocket frames.
-   *
-   * @return {@code this} object.
-   */
-  public WebSocket setExtended(final boolean extended) {
-    mExtended = extended;
-    return this;
-  }
-
-
-
-
-  /**
-   * Set the size of the frame queue. 
-   * 
-   * <p>The default value is 0 and it means there is no limit on the queue 
-   * size.
-   *
-   * <p>{@code send<i>Xxx</i>} methods queue a {@link WebSocketFrame} instance 
-   * to the internal queue. If the number of frames in the queue has reached 
-   * the upper limit (which has been set by this method) when a {@code 
-   * send<i>Xxx</i>} method is called, the method blocks until the queue gets 
-   * spaces.
-   *
-   * <p> Under some conditions, even if the queue is full, {@code 
-   * send<i>Xxx</i>} methods do not block. For example, in the case where the 
-   * thread to send frames ({@code WritingThread}) is going to stop or has 
-   * already stopped. In addition, method calls to send a <a href=
-   * "https://tools.ietf.org/html/rfc6455#section-5.5">control frame</a> (e.g.
-   * {@link #sendClose()} and {@link #sendPing()}) do not block.
-   *
-   * @param size The queue size. 0 means no limit. Negative numbers are not allowed.
-   *
-   * @return {@code this} object.
-   *
-   * @throws IllegalArgumentException if {@code size} is negative.
-   */
-  public WebSocket setFrameQueueSize(final int size) throws IllegalArgumentException {
-    if (size < 0) {
-      throw new IllegalArgumentException("size must not be negative.");
-    }
-    frameQueueSize = size;
-    return this;
-  }
-
-
-
-
-  /**
-   * Set the maximum payload size.
-   *
-   * <p>Text, binary and continuation frames whose payload size is bigger than
-   * the maximum payload size will be split into multiple frames. Note that
-   * control frames (close, ping and pong frames) are not split as per the
-   * specification even if their payload size exceeds the maximum payload 
-   * size.
-   *
-   * @param size The maximum payload size. 0 to unset the maximum payload 
-   *        size.
-   *
-   * @return {@code this} object.
-   *
-   * @throws IllegalArgumentException if {@code size} is negative.
-   */
-  public WebSocket setMaxPayloadSize(final int size) throws IllegalArgumentException {
-    if (size < 0) {
-      throw new IllegalArgumentException("size must not be negative.");
-    }
-    maxPayloadSize = size;
-    return this;
-  }
-
-
-
-
-  /**
-   * Set whether to allow the server to close the WebSocket connection
-   * without sending a <a href=
-   * "https://tools.ietf.org/html/rfc6455#section-5.5.1">close frame</a>
-   * to this client.
-   *
-   * @param allowed {@code true} to allow the server to close the WebSocket 
-   *        connection without sending a close frame to this client. {@code 
-   *        false} to make this instance report an error when the end of the 
-   *        input stream of the WebSocket connection is reached before a close 
-   *        frame is read.
-   *
-   * @return {@code this} object.
-   */
-  public WebSocket setMissingCloseFrameAllowed(final boolean allowed) {
-    missingCloseFrameAllowed = allowed;
-    return this;
-  }
-
-
-
-
-  /**
-   * Set the interval of periodical
-   * <a href="https://tools.ietf.org/html/rfc6455#section-5.5.2">ping</a>
-   * frames.
-   *
-   * <p>Setting a positive number starts sending ping frames periodically.
-   * Setting zero stops the periodical sending. This method can be called
-   * both before and after {@link #connect()} method.
-   *
-   * @param interval The interval in milliseconds. A negative value is 
-   *        regarded as zero.
-   *
-   * @return {@code this} object.
-   */
-  public WebSocket setPingInterval(final long interval) {
-    pingSender.setInterval(interval);
-    return this;
-  }
-
-
-
-
-  /**
-   * Set the generator of payload of ping frames that are sent automatically.
-   *
-   * @param generator The generator of payload ping frames that are sent 
-   *        automatically.
-   */
-  public WebSocket setPingPayloadGenerator(final PayloadGenerator generator) {
-    pingSender.setPayloadGenerator(generator);
-    return this;
-  }
-
-
-
-
-  /**
-   * Set the interval of periodical
-   * <a href="https://tools.ietf.org/html/rfc6455#section-5.5.3">pong</a>
-   * frames.
-   *
-   * <p>Setting a positive number starts sending pong frames periodically.
-   * Setting zero stops the periodical sending. This method can be called
-   * both before and after {@link #connect()} method.
-   *
-   * <blockquote>
-   * <dl>
-   * <dt>
-   * <span style="font-weight: normal;">An excerpt from <a href=
-   * "https://tools.ietf.org/html/rfc6455#section-5.5.3"
-   * >RFC 6455, 5.5.3. Pong</a></span>
-   * </dt>
-   * <dd>
-   * <p><i>A Pong frame MAY be sent <b>unsolicited</b>. This serves as a
-   * unidirectional heartbeat.  A response to an unsolicited Pong
-   * frame is not expected.
-   * </i></p>
-   * </dd>
-   * </dl>
-   * </blockquote>
-   *
-   * @param interval The interval in milliseconds. A negative value is 
-   *        regarded as zero.
-   *
-   * @return {@code this} object.
-   */
-  public WebSocket setPongInterval(final long interval) {
-    pongSender.setInterval(interval);
-    return this;
-  }
-
-
-
-
-  /**
-   * Set the generator of payload of pong frames that are sent automatically.
-   *
-   * @param generator The generator of payload ppng frames that are sent 
-   *        automatically.
-   */
-  public WebSocket setPongPayloadGenerator(final PayloadGenerator generator) {
-    pongSender.setPayloadGenerator(generator);
-    return this;
-  }
-
-
-
-
   /**
    * Set the credentials to connect to the WebSocket endpoint.
    *
    * @param userInfo The credentials for Basic Authentication. The format
-   *         should be {@code <i>id</i>:<i>password</i>}.
-   *
+   *                 should be {@code <i>id</i>:<i>password</i>}.
    * @return {@code this} object.
    */
   public WebSocket setUserInfo(final String userInfo) {
@@ -3126,23 +2786,17 @@ public class WebSocket {
   }
 
 
-
-
   /**
    * Set the credentials to connect to the WebSocket endpoint.
    *
-   * @param id The ID.
-   *
+   * @param id       The ID.
    * @param password The password.
-   *
    * @return {@code this} object.
    */
   public WebSocket setUserInfo(final String id, final String password) {
     handshakeBuilder.setUserInfo(id, password);
     return this;
   }
-
-
 
 
   /**
@@ -3177,21 +2831,17 @@ public class WebSocket {
   }
 
 
-
-
   private List<WebSocketFrame> splitIfNecessary(final WebSocketFrame frame) {
     return WebSocketFrame.splitIfNecessary(frame, maxPayloadSize, perMessageCompressionExtension);
   }
 
 
-
-
   /**
    * Start both the reading thread and the writing thread.
    *
-   * <p>The reading thread will call {@link #onReadingThreadStarted()} as its 
-   * first step. Likewise, the writing thread will call {@link 
-   * #onWritingThreadStarted()} as its first step. After both the threads have 
+   * <p>The reading thread will call {@link #onReadingThreadStarted()} as its
+   * first step. Likewise, the writing thread will call {@link
+   * #onWritingThreadStarted()} as its first step. After both the threads have
    * started, {@link #onThreadsStarted()} is called.
    */
   private void startThreads() {
@@ -3212,15 +2862,13 @@ public class WebSocket {
   }
 
 
-
-
   /**
    * Stop both the reading thread and the writing thread.
    *
-   * <p>The reading thread will call {@link 
-   * #onReadingThreadFinished(WebSocketFrame)} as its last step. Likewise, the 
-   * writing thread will call {@link #onWritingThreadFinished(WebSocketFrame)} 
-   * as its last step. After both the threads have stopped, {@link 
+   * <p>The reading thread will call {@link
+   * #onReadingThreadFinished(WebSocketFrame)} as its last step. Likewise, the
+   * writing thread will call {@link #onWritingThreadFinished(WebSocketFrame)}
+   * as its last step. After both the threads have stopped, {@link
    * #onThreadsFinished()} is called.
    */
   private void stopThreads(final long closeDelay) {
@@ -3243,8 +2891,6 @@ public class WebSocket {
       writingThread.requestStop();
     }
   }
-
-
 
 
   /**

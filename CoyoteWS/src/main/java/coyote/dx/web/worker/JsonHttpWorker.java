@@ -38,7 +38,7 @@ import coyote.loader.log.Log;
 public class JsonHttpWorker extends AbstractWorker implements ResourceWorker {
 
   /**
-   * @param resource
+   * @param resource the resource this worker is to manage
    */
   public JsonHttpWorker(Resource resource) {
     super(resource);
