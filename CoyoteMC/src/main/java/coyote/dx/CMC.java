@@ -17,7 +17,7 @@ import coyote.loader.log.LogMsg.BundleBaseName;
  * <p>Constants are placed here along with any static method useful across multiple classes in the project.</p>
  */
 public class CMC {
-  public static final Version VERSION = new Version(0, 0, 1, Version.EXPERIMENTAL);
+  public static final Version VERSION = new Version(0, 0, 1, Version.DEVELOPMENT);
   public static final String NAME = "CMC";
   public static final String COUNTER = "counter"; // monotonically increasing value
   public static final String GAUGE = "gauge"; // cane increase or decrease between readings
@@ -33,7 +33,7 @@ public class CMC {
   /**
    * Called by other classes to get our version number.
    *
-   * @return a string represing our version.
+   * @return a string representing our version.
    */
   public String getVersion() {
     return VERSION.toString();

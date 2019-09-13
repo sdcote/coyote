@@ -39,7 +39,7 @@ import coyote.loader.log.LogMsg.BundleBaseName;
  * 
  */
 public class CWS {
-  public static final Version VERSION = new Version(0, 0, 1, Version.EXPERIMENTAL);
+  public static final Version VERSION = new Version(0, 1, 0, Version.DEVELOPMENT);
   public static final String NAME = "CoyoteWS";
 
   /** Constant to assist in determining the full class name of authenticators */
@@ -370,7 +370,7 @@ public class CWS {
   /**
    * Called by other classes to get our version number.
    * 
-   * @return a string represing our version.
+   * @return a string representing our version.
    */
   public String getVersion() {
     return VERSION.toString();
