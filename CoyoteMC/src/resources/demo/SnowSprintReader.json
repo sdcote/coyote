@@ -1,0 +1,32 @@
+{
+  "Class": "coyote.dx.Job",
+
+  "Job": {
+
+    "Reader" : {
+      "class" : "SnowSprintReader",
+      "source" : "https://servicenow.aepsc.com/",
+      "release": "RLSE0010497",
+      "instance": "EAF",
+      "authenticator": {
+        "class" : "BasicAuthentication",
+        "ENC:username" : "zPzKAGYBWbVRCDqmV4DXvYrFrtQn/QXi",
+        "ENC:password" : "KBSfnRv5kh0UO/dcwkHYck/0zSb2fqnl",
+        "preemptive" : true
+      }
+    },
+
+    "Writer" : {
+      "class" : "ConsoleWriter",
+      "format" : "json",
+      "indent" : false,
+      "message" : "Record [#$CurrentFrame#] received."
+    }
+  },
+
+  "Logging": {
+    "StandardError": {"categories": "error, fatal, warn" },
+    "StandardOutput": { "categories": "info, notice, debug" }
+  }
+
+}

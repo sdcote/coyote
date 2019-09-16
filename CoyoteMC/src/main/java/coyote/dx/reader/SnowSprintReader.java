@@ -1,18 +1,18 @@
 package coyote.dx.reader;
 
-import coyote.commons.StringParseException;
-import coyote.commons.StringUtil;
-import coyote.dx.CDX;
-import coyote.dx.CWS;
-import coyote.dx.ConfigTag;
+import coyote.commons.network.http.Method;
+import coyote.dataframe.DataFrame;
 import coyote.dx.FrameReader;
+import coyote.dx.context.TransactionContext;
 import coyote.dx.context.TransformContext;
-import coyote.dx.web.ExchangeType;
-import coyote.loader.cfg.Config;
 import coyote.loader.log.Log;
-import coyote.loader.log.LogMsg;
-import coyote.mc.snow.FilterParser;
+import coyote.mc.snow.SnowException;
 import coyote.mc.snow.SnowFilter;
+import coyote.mc.snow.SnowSprint;
+
+import java.net.URISyntaxException;
+
+import static coyote.mc.snow.Predicate.IS;
 
 /**
  * This is a reader which connects to a ServiceNow instance and queries data via URL export to retrieve sprints for a
@@ -23,40 +23,39 @@ import coyote.mc.snow.SnowFilter;
  */
 public class SnowSprintReader extends SnowReader implements FrameReader {
 
-  public static final String PROJECT = "project";
-  public static final String INSTANCE = "instance";
-  public static final String CONFIG_ITEM = "ConfigurationItem";
 
-  SnowFilter filter = null;
+  private static final String RELEASE = "release";
 
   /**
    * @param context The transformation context in which this component should operate
    */
   @Override
   public void open(TransformContext context) {
-    if (getConfiguration().getSection(ConfigTag.PROTOCOL) == null) {
-      Config protocolSection = new Config();
-      protocolSection.set(CWS.EXCHANGE_TYPE, ExchangeType.JSON_HTTP.toString());
-      getConfiguration().put(ConfigTag.PROTOCOL, protocolSection);
-    }
-
     super.open(context);
-    String source = getString(ConfigTag.SOURCE);
-    Log.debug(LogMsg.createMsg(CDX.MSG, "Reader.using_source_uri", source));
+    getResource().getDefaultParameters().setMethod(Method.GET);
+    String release = getConfiguration().getString(RELEASE);
+    SnowFilter filter = new SnowFilter("release.number", IS, release);
+    try {
+      getResource().setPath("rm_sprint.do?JSONv2&sysparm_query=" + filter.toEncodedString());
+    } catch (URISyntaxException e) {
+      e.printStackTrace();
+    }
+    Log.info("Connecting to " + getResource().getFullURI());
+  }
 
-    String query = getConfiguration().getString(ConfigTag.FILTER);
-    if (StringUtil.isNotBlank(query)) {
+
+  @Override
+  public DataFrame read(TransactionContext context) {
+    DataFrame retval = super.read(context);
+    if (retval != null) {
       try {
-        filter = FilterParser.parse(query);
-      } catch (StringParseException e) {
-        context.setError("The " + getClass().getSimpleName() + " configuration contained an invalid filter: " + e.getMessage());
-        context.setState("Configuration Error");
+        SnowSprint sprint = new SnowSprint(retval);
+        if (sprint.isCurrent()) Log.info("Sprint: " + sprint.getShortDescription()+ " ("+sprint.getNumber()+") is the current sprint");
+      } catch (SnowException e) {
+        Log.error("Could not parse retrieved data into a SnowSprint: " + e.getLocalizedMessage());
       }
     }
-
-    if (StringUtil.isEmpty(getString(ConfigTag.SELECTOR))) {
-      getConfiguration().set(ConfigTag.SELECTOR, "records.*");
-    }
+    return retval;
   }
 
 }

@@ -18,7 +18,8 @@ import java.text.ParseException;
  * Represents a single record/row from a table
  */
 public class SnowRecord extends DataFrame {
-
+  public static final String NUMBER = "number";
+  public static final String SHORT_DESCRIPTION = "short_description";
   protected SnowKey key;
   protected SnowDateTime updatedTimestamp;
   protected SnowDateTime createdTimestamp;
@@ -45,7 +46,6 @@ public class SnowRecord extends DataFrame {
 
 
   /**
-   *
    * @param dataframe the source of the data for this record
    * @throws SnowException if the naming of fields or their data is incorrect
    */
@@ -95,6 +95,7 @@ public class SnowRecord extends DataFrame {
 
   /**
    * Get sys_created_on from a SnowRecord object.
+   *
    * @return the timestamp when this record was created
    */
   public SnowDateTime getCreatedTimestamp() {
@@ -108,8 +109,8 @@ public class SnowRecord extends DataFrame {
    * <p>For a Java date use getDateTime(fieldname).toDate().
    *
    * @param fieldname the field name to parse
-   * @throws ParseException if there were issues parsing the date time value
    * @return a SnowDateTime reference
+   * @throws ParseException if there were issues parsing the date time value
    */
   public SnowDateTime getDateTime(final String fieldname) throws ParseException {
     final String value = getFieldValue(fieldname);
@@ -214,6 +215,7 @@ public class SnowRecord extends DataFrame {
 
   /**
    * Get sys_updated_on from a SnowRecord object.
+   *
    * @return the timestamp when this record was updated
    */
   public SnowDateTime getUpdatedTimestamp() {
@@ -240,6 +242,21 @@ public class SnowRecord extends DataFrame {
   @Override
   public String toString() {
     return JSONMarshaler.marshal(this);
+  }
+
+
+  /**
+   * @return return the number of this record or  null if this record does not have a field with the name of "number".
+   */
+  public String getNumber() {
+    return getAsString(NUMBER);
+  }
+
+  /**
+   * @return return the short description of this record or null if this record does not have a field with the name of "short_description".
+   */
+  public String getShortDescription() {
+    return getAsString(SHORT_DESCRIPTION);
   }
 
 }
