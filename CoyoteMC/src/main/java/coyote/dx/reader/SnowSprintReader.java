@@ -1,5 +1,6 @@
 package coyote.dx.reader;
 
+import coyote.commons.StringUtil;
 import coyote.commons.network.http.Method;
 import coyote.dataframe.DataFrame;
 import coyote.dx.FrameReader;
@@ -34,6 +35,12 @@ public class SnowSprintReader extends SnowReader implements FrameReader {
     super.open(context);
     getResource().getDefaultParameters().setMethod(Method.GET);
     String release = getConfiguration().getString(RELEASE);
+    if (StringUtil.isBlank(release)) {
+      context.setError("The " + getClass().getSimpleName() + " configuration did not contain the '" + RELEASE + "' element");
+      context.setState("Configuration Error");
+      return;
+    }
+
     SnowFilter filter = new SnowFilter("release.number", IS, release);
     try {
       getResource().setPath("rm_sprint.do?JSONv2&sysparm_query=" + filter.toEncodedString());
@@ -50,7 +57,8 @@ public class SnowSprintReader extends SnowReader implements FrameReader {
     if (retval != null) {
       try {
         SnowSprint sprint = new SnowSprint(retval);
-        if (sprint.isCurrent()) Log.info("Sprint: " + sprint.getShortDescription()+ " ("+sprint.getNumber()+") is the current sprint");
+        if (sprint.isCurrent())
+          Log.info("Sprint: " + sprint.getShortDescription() + " (" + sprint.getNumber() + ") is the current sprint");
       } catch (SnowException e) {
         Log.error("Could not parse retrieved data into a SnowSprint: " + e.getLocalizedMessage());
       }

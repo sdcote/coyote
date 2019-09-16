@@ -18,8 +18,6 @@ import java.text.ParseException;
  * Represents a single record/row from a table
  */
 public class SnowRecord extends DataFrame {
-  public static final String NUMBER = "number";
-  public static final String SHORT_DESCRIPTION = "short_description";
   protected SnowKey key;
   protected SnowDateTime updatedTimestamp;
   protected SnowDateTime createdTimestamp;
@@ -38,7 +36,7 @@ public class SnowRecord extends DataFrame {
   public SnowRecord(final SnowKey key) {
     if ((key != null) && (key.value != null) && (key.value.length() > 0)) {
       this.key = key;
-      super.put(ServiceNow.SYS_ID_FIELD, key.toString());
+      super.put(ServiceNowFields.SYS_ID, key.toString());
     } else {
       throw new IllegalArgumentException("Record key cannot be null or empty");
     }
@@ -56,7 +54,7 @@ public class SnowRecord extends DataFrame {
       super.fields.add(field);
     }
 
-    final String sysid = getAsString(ServiceNow.SYS_ID_FIELD);
+    final String sysid = getAsString(ServiceNowFields.SYS_ID);
 
     if (sysid != null && sysid.length() > 0) {
       try {
@@ -71,7 +69,7 @@ public class SnowRecord extends DataFrame {
       }
     }
 
-    final String updated_on = getAsString(ServiceNow.SYS_UPDATED_ON_FIELD);
+    final String updated_on = getAsString(ServiceNowFields.SYS_UPDATED_ON);
     if (updated_on != null) {
       try {
         updatedTimestamp = new SnowDateTime(updated_on);
@@ -80,7 +78,7 @@ public class SnowRecord extends DataFrame {
       }
     }
 
-    final String created_on = getAsString(ServiceNow.SYS_CREATED_ON_FIELD);
+    final String created_on = getAsString(ServiceNowFields.SYS_CREATED_ON);
     if (created_on != null) {
       try {
         createdTimestamp = new SnowDateTime(created_on);
@@ -193,13 +191,13 @@ public class SnowRecord extends DataFrame {
 
 
   public String getIdentifier() {
-    return getAsString(ServiceNow.SYS_ID_FIELD);
+    return getAsString(ServiceNowFields.SYS_ID);
   }
 
 
   public void setIdentifier(String value) {
     key = new SnowKey(value);
-    super.put(ServiceNow.SYS_ID_FIELD, key.toString());
+    super.put(ServiceNowFields.SYS_ID, key.toString());
   }
 
 
@@ -249,14 +247,14 @@ public class SnowRecord extends DataFrame {
    * @return return the number of this record or  null if this record does not have a field with the name of "number".
    */
   public String getNumber() {
-    return getAsString(NUMBER);
+    return getAsString(ServiceNowFields.NUMBER);
   }
 
   /**
    * @return return the short description of this record or null if this record does not have a field with the name of "short_description".
    */
   public String getShortDescription() {
-    return getAsString(SHORT_DESCRIPTION);
+    return getAsString(ServiceNowFields.SHORT_DESCRIPTION);
   }
 
 }

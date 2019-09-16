@@ -3,13 +3,12 @@ package coyote.dx.reader;
 import coyote.commons.StringUtil;
 import coyote.commons.network.http.Method;
 import coyote.dataframe.DataFrame;
-import coyote.dx.*;
+import coyote.dx.CMC;
+import coyote.dx.ConfigTag;
+import coyote.dx.FrameReader;
 import coyote.dx.context.TransactionContext;
 import coyote.dx.context.TransformContext;
-import coyote.dx.web.ExchangeType;
-import coyote.loader.cfg.Config;
 import coyote.loader.log.Log;
-import coyote.loader.log.LogMsg;
 import coyote.mc.snow.SnowException;
 import coyote.mc.snow.SnowFilter;
 import coyote.mc.snow.SnowStory;
@@ -53,8 +52,6 @@ import static coyote.mc.snow.Predicate.LIKE;
  * adding the {@code instance} configuration property with the name to be used for the metric instance.</p>
  */
 public class SnowBacklogMetricReader extends SnowMetricReader implements FrameReader {
-  public static final String PROJECT = "project";
-  private static final String INSTANCE = "instance";
   private List<SnowStory> stories = null;
   private String instanceName = null;
 
@@ -63,15 +60,7 @@ public class SnowBacklogMetricReader extends SnowMetricReader implements FrameRe
    */
   @Override
   public void open(TransformContext context) {
-    if (getConfiguration().getSection(ConfigTag.PROTOCOL) == null) {
-      Config protocolSection = new Config();
-      protocolSection.set(CWS.EXCHANGE_TYPE, ExchangeType.JSON_HTTP.toString());
-      getConfiguration().put(ConfigTag.PROTOCOL, protocolSection);
-    }
-
     super.open(context);
-    String source = getString(ConfigTag.SOURCE);
-    Log.debug(LogMsg.createMsg(CDX.MSG, "Reader.using_source_uri", source));
 
     // we need the project name from the configuration
     String project = getConfiguration().getString(PROJECT);

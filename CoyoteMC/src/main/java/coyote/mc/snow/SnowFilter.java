@@ -139,10 +139,10 @@ public class SnowFilter {
    */
   public SnowFilter addUpdatedFilter(final SnowDateTime starting, final SnowDateTime ending) {
     if (starting != null) {
-      this.and(ServiceNow.SYS_UPDATED_ON_FIELD, Predicate.GREATER_THAN_EQUALS, starting.toString());
+      this.and(ServiceNowFields.SYS_UPDATED_ON, Predicate.GREATER_THAN_EQUALS, starting.toString());
     }
     if (ending != null) {
-      this.and(ServiceNow.SYS_UPDATED_ON_FIELD, Predicate.LESS_THAN, ending.toString());
+      this.and(ServiceNowFields.SYS_UPDATED_ON, Predicate.LESS_THAN, ending.toString());
     }
     return this;
   }
