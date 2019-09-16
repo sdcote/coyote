@@ -54,12 +54,12 @@ public class SnowDateTime implements Comparable<SnowDateTime> {
 
 
   /**
-   * Klugey way to support alternate datetime formats...will be removed in
-   * subsequent versions.
+   * Klugey way to support alternate datetime formats...likely to be removed in subsequent versions.
    *
-   * @param value the date value to parse
+   * @param value      the date value to parse
    * @param timeFormat the time format used to parse the value
    * @throws ParseException if the string could not be parsed into a date
+   * @deprecated - this will be removed in future versions
    */
   @Deprecated
   public SnowDateTime(final String value, final DateFormat timeFormat) throws ParseException {

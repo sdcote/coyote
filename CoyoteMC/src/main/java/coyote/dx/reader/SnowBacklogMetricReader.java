@@ -52,7 +52,7 @@ import static coyote.mc.snow.Predicate.LIKE;
  * <p>The instance name for all the metrics is set to the name of the project by default, but can be overridden by
  * adding the {@code instance} configuration property with the name to be used for the metric instance.</p>
  */
-public class SnowBacklogMetricReader extends WebServiceReader implements FrameReader {
+public class SnowBacklogMetricReader extends SnowMetricReader implements FrameReader {
   public static final String PROJECT = "project";
   private static final String INSTANCE = "instance";
   private List<SnowStory> stories = null;
