@@ -14,6 +14,8 @@ public class SnowStory extends SnowRecord {
   private static final String CLASSIFICATION = "classification";
   private static final String UNKNOWN = "Unknown";
   private static final String ACTIVE = "active";
+  private static final String FEATURE = "Feature";
+  private static final String DEFECT = "Defect";
   private boolean active = false;
 
 
@@ -40,6 +42,20 @@ public class SnowStory extends SnowRecord {
    */
   public boolean isActive() {
     return active;
+  }
+
+  /**
+   * @return true if the classification is "Defect", false otherwise.
+   */
+  public boolean isDefect() {
+    return DEFECT.equalsIgnoreCase(getFieldValue(CLASSIFICATION));
+  }
+
+  /**
+   * @return true if the classification is "Feature", false otherwise.
+   */
+  public boolean isFeature() {
+    return FEATURE.equalsIgnoreCase(getFieldValue(CLASSIFICATION));
   }
 
 }
