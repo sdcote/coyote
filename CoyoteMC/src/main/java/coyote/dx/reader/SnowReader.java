@@ -26,7 +26,7 @@ import static coyote.mc.snow.Predicate.LIKE;
  */
 public abstract class SnowReader extends WebServiceReader implements FrameReader {
 
-  public static final String PRODUCT = "project";
+  public static final String PRODUCT = "product";
   public static final String INSTANCE = "instance";
   public static final String CONFIG_ITEM = "ConfigurationItem";
 
