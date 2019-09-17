@@ -2,11 +2,11 @@
   "Class": "coyote.dx.Job",
 
   "Job": {
-    "Name": "IncidentMetricReader",
 
     "Reader" : {
       "class" : "SnowIncidentMetricReader",
       "source" : "https://servicenow.aepsc.com/",
+      "product": "EAF - Enterprise Authentication Framework",
       "ConfigurationItem": "https://iforgot.aep.com",
       "instance": "iforgot",
       "authenticator": {
@@ -18,6 +18,7 @@
     },
 
     "Writer": {
+      "enabled": false,
       "class": "PushGatewayWriter",
       "target": "http://p4002384:9091",
       "ENC:username": "Emfh2SXtctlGrtCbYrfAaCpZEOK6recq",

@@ -8,7 +8,7 @@
     "Reader" : {
       "class" : "SnowBacklogMetricReader",
       "source" : "https://servicenow.aepsc.com/",
-      "project": "EAF - Enterprise Authentication Framework",
+      "product": "EAF - Enterprise Authentication Framework",
       "authenticator": {
         "class" : "BasicAuthentication",
         "ENC:username" : "zPzKAGYBWbVRCDqmV4DXvYrFrtQn/QXi",
