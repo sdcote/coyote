@@ -268,7 +268,7 @@ public class WebServiceReader extends AbstractFrameReader implements FrameReader
    * 
    * @return a list of retrieved data frames; it may be empty but never null.
    */
-  private List<DataFrame> retrieveData() {
+  protected List<DataFrame> retrieveData() {
     List<DataFrame> retval = new ArrayList<DataFrame>();
 
     // If there is no pagination, create one

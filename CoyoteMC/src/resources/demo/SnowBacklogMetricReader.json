@@ -25,7 +25,6 @@
     }
   },
 
-
   "Logging": {
     "StandardError": {"categories": "error, fatal, warn" },
     "StandardOutput": { "categories": "info, notice, debug" }

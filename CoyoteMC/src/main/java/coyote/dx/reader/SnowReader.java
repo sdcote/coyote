@@ -2,6 +2,7 @@ package coyote.dx.reader;
 
 import coyote.commons.StringParseException;
 import coyote.commons.StringUtil;
+import coyote.dataframe.DataFrame;
 import coyote.dx.CDX;
 import coyote.dx.CWS;
 import coyote.dx.ConfigTag;
@@ -11,15 +12,21 @@ import coyote.dx.web.ExchangeType;
 import coyote.loader.cfg.Config;
 import coyote.loader.log.Log;
 import coyote.loader.log.LogMsg;
-import coyote.mc.snow.FilterParser;
-import coyote.mc.snow.SnowFilter;
+import coyote.mc.snow.*;
+
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.List;
+
+import static coyote.mc.snow.Predicate.IS;
+import static coyote.mc.snow.Predicate.LIKE;
 
 /**
  * This is a reader which connects to a ServiceNow instance and queries data via URL export.
  */
 public abstract class SnowReader extends WebServiceReader implements FrameReader {
 
-  public static final String PROJECT = "project";
+  public static final String PRODUCT = "project";
   public static final String INSTANCE = "instance";
   public static final String CONFIG_ITEM = "ConfigurationItem";
 
@@ -55,4 +62,49 @@ public abstract class SnowReader extends WebServiceReader implements FrameReader
     }
   }
 
+  protected List<SnowSprint> getSprints(String product) {
+    List<SnowSprint> retval = new ArrayList<>();
+
+    // get all the releases for the product
+    SnowFilter query = new SnowFilter("model.name", LIKE, product);
+
+    try {
+      getResource().setPath("/m2m_product_release.do?JSONv2&sysparm_query=" + query.toEncodedString());
+      List<DataFrame> xref = retrieveData();
+      if (xref.size() > 0) {
+        query = new SnowFilter();
+        for (DataFrame frame : xref) {
+          query.or(ServiceNowFields.SYS_ID, IS, frame.getAsString(ServiceNowFields.RELEASE));
+        }
+        query.and(ServiceNowFields.STATE, IS, "2"); // current
+        getResource().setPath("/rm_release_scrum.do?JSONv2&sysparm_query=" + query.toEncodedString());
+        List<DataFrame> releases = retrieveData();
+        for (DataFrame frame : releases) {
+          SnowFilter sprintQuery = new SnowFilter(ServiceNowFields.RELEASE + "." + ServiceNowFields.SYS_ID, IS, frame.getAsString(ServiceNowFields.SYS_ID));
+          getResource().setPath("/rm_sprint.do?JSONv2&sysparm_query=" + sprintQuery.toEncodedString());
+          List<DataFrame> sprints = retrieveData();
+          if (sprints.size() > 0) {
+            for (DataFrame sprintFrame : sprints) {
+              try {
+                retval.add(new SnowSprint(sprintFrame));
+              } catch (SnowException e) {
+                e.printStackTrace();
+              }
+            }
+
+          } else {
+            Log.warn("Could not find any sprints for release '" + frame.getAsString(ServiceNowFields.NUMBER) + "'");
+          }
+
+        }
+
+      }
+
+    } catch (URISyntaxException e) {
+      e.printStackTrace();
+    }
+
+
+    return retval;
+  }
 }

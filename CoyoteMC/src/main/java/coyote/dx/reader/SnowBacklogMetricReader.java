@@ -11,6 +11,7 @@ import coyote.dx.context.TransformContext;
 import coyote.loader.log.Log;
 import coyote.mc.snow.SnowException;
 import coyote.mc.snow.SnowFilter;
+import coyote.mc.snow.SnowSprint;
 import coyote.mc.snow.SnowStory;
 
 import java.net.URISyntaxException;
@@ -63,9 +64,9 @@ public class SnowBacklogMetricReader extends SnowMetricReader implements FrameRe
     super.open(context);
 
     // we need the project name from the configuration
-    String project = getConfiguration().getString(PROJECT);
+    String project = getConfiguration().getString(PRODUCT);
     if (StringUtil.isBlank(project)) {
-      context.setError("The " + getClass().getSimpleName() + " configuration did not contain the '" + PROJECT + "' element");
+      context.setError("The " + getClass().getSimpleName() + " configuration did not contain the '" + PRODUCT + "' element");
       context.setState("Configuration Error");
       return;
     }
@@ -75,7 +76,7 @@ public class SnowBacklogMetricReader extends SnowMetricReader implements FrameRe
     if (StringUtil.isBlank(instanceName)) instanceName = project;
 
     // get all backlog items for the configured project
-    SnowFilter filter = new SnowFilter("product.name", LIKE, project).and("active", IS, "true");
+    filter = new SnowFilter("product.name", LIKE, project).and("active", IS, "true");
 
     if (StringUtil.isEmpty(getString(ConfigTag.SELECTOR))) {
       getConfiguration().set(ConfigTag.SELECTOR, "records.*");
@@ -83,12 +84,6 @@ public class SnowBacklogMetricReader extends SnowMetricReader implements FrameRe
 
     getResource().getDefaultParameters().setMethod(Method.GET);
 
-    // We need to set the request path to that of the rm_story table
-    try {
-      getResource().setPath("rm_story.do?JSONv2&displayvalue=all&&sysparam_limit=2000&sysparm_query=" + filter.toEncodedString());
-    } catch (URISyntaxException e) {
-      e.printStackTrace();
-    }
     Log.info("Connecting to " + getResource().getFullURI());
   }
 
@@ -101,6 +96,21 @@ public class SnowBacklogMetricReader extends SnowMetricReader implements FrameRe
   @Override
   public DataFrame read(TransactionContext context) {
     if (stories == null) {
+      List<SnowSprint> sprints = getSprints(getConfiguration().getString(PRODUCT));
+      for (SnowSprint sprint : sprints) {
+        if( sprint.isCurrent()) {
+          Log.debug(sprint);
+          Log.notice("Current sprint scheduled start date: "+ sprint.getScheduledStartDate() +" Sprint: "+sprint.getShortDescription());
+        }
+      }
+
+      // We need to set the request path to that of the rm_story table
+      try {
+        getResource().setPath("rm_story.do?JSONv2&displayvalue=all&&sysparam_limit=2000&sysparm_query=" + filter.toEncodedString());
+      } catch (URISyntaxException e) {
+        e.printStackTrace();
+      }
+
       stories = new ArrayList<>();
       for (DataFrame frame = super.read(context); frame != null; frame = super.read(context)) {
         try {
