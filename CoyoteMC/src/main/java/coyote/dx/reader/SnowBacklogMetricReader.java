@@ -42,7 +42,7 @@ import static coyote.mc.snow.Predicate.LIKE;
  * "Reader" : {
  *   "class" : "SnowBacklogMetricReader",
  *   "source" : "https://myinstance.service-now.com/",
- *   "project": "My Project Name",
+ *   "product": "My Project Name",
  *   "authenticator": {
  *     "class" : "BasicAuthentication",
  *     "ENC:username" : "DXvYrFrtzPzKAGYBWbVRCDqmV4Qn/QXi",
@@ -52,7 +52,10 @@ import static coyote.mc.snow.Predicate.LIKE;
  * },
  * </pre>
  *
- * <p>The instance name for all the metrics is set to the name of the project by default, but can be overridden by
+ * <p>The {@code product} configuration element is used to lookup the backlog items and to retrieve the releases and
+ * sprints for that product to determine the current sprint and a time window for calculating "new" backlog items.</p>
+ *
+ * <p>The instance name for all the metrics is set to the name of the product by default, but can be overridden by
  * adding the {@code instance} configuration property with the name to be used for the metric instance.</p>
  */
 public class SnowBacklogMetricReader extends SnowMetricReader implements FrameReader {
@@ -80,19 +83,20 @@ public class SnowBacklogMetricReader extends SnowMetricReader implements FrameRe
       context.setState("Configuration Error");
       return;
     }
+    if (context.isNotInError()) {
+      // the instance name is important grouping key for other metrics of this type
+      instanceName = getConfiguration().getString(INSTANCE);
+      if (StringUtil.isBlank(instanceName)) instanceName = project;
 
-    // the instance name is important grouping key for other metrics of this type
-    instanceName = getConfiguration().getString(INSTANCE);
-    if (StringUtil.isBlank(instanceName)) instanceName = project;
+      // get all backlog items for the configured project
+      filter = new SnowFilter("product.name", LIKE, project).and("active", IS, "true");
 
-    // get all backlog items for the configured project
-    filter = new SnowFilter("product.name", LIKE, project).and("active", IS, "true");
+      if (StringUtil.isEmpty(getString(ConfigTag.SELECTOR))) {
+        getConfiguration().set(ConfigTag.SELECTOR, "records.*");
+      }
 
-    if (StringUtil.isEmpty(getString(ConfigTag.SELECTOR))) {
-      getConfiguration().set(ConfigTag.SELECTOR, "records.*");
+      getResource().getDefaultParameters().setMethod(Method.GET);
     }
-
-    getResource().getDefaultParameters().setMethod(Method.GET);
   }
 
   /**
