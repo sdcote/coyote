@@ -108,7 +108,7 @@ public class SnowBacklogMetricReader extends SnowMetricReader implements FrameRe
       for (SnowSprint sprint : sprints) {
         if (sprint.isCurrent()) {
           Log.debug(sprint);
-          Log.notice("Current sprint scheduled start date: " + sprint.getScheduledStartDate() + " Sprint: " + sprint.getShortDescription());
+          Log.notice("Current sprint " + sprint.getShortDescription() + " (" + sprint.getScheduledStartDate() + " - " + sprint.getScheduledEndDate() + ")");
           sprintStart = sprint.getScheduledStartDate();
           break;
         }
