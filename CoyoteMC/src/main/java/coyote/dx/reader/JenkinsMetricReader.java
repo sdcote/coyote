@@ -8,6 +8,7 @@
 
 package coyote.dx.reader;
 
+import coyote.commons.DateUtil;
 import coyote.commons.StringUtil;
 import coyote.dataframe.DataFrame;
 import coyote.dataframe.DataFrameException;
@@ -22,12 +23,15 @@ import coyote.loader.cfg.Config;
 import coyote.loader.log.Log;
 
 import java.net.URISyntaxException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 
 /**
  * This is a reader which connects to a Jenkins instance and queries data via its REST API and generates metrics based
  * on the build data.
+ *
  * <p>A sample configuration for a multi-branch pipeline looks like this:<pre>
  * "Reader" : {
  *   "class" : "JenkinsMetricReader",
@@ -43,7 +47,20 @@ import java.util.*;
  *   }
  * },
  * </pre>
- * <p>Just pull the path specifying the job from the API link at the bottom right-hand corner of the page.</p>
+ *
+ * <p>Just pull the path specifying the job from the API link at the bottom right-hand corner of the page to determine
+ * the values for {@code source} and {@code job}.</p>
+ *
+ * <p>The {@code interval} configuration item is optional and will override the default of 14D (14 days). Additionally,
+ * if the context contains an ISO formatted date (YYYY-MM-DD HH:MM:SS) in the context mapped to the key of
+ * {@code new.threshold}, then that date will be used for determining new builds. This value is most often populated by
+ * the {@code ReadIntoContext} task which reads the properties written by a {@code PropertyWriter} after some reader
+ * has determined the start date of the current sprint, for example. One such application of this is the use of the
+ * {@code SnowSprintReader}, a {@code Filter} to spot the current sprint record, and a couple of {@code Transform}
+ * components to create the "name" and "value" fields which the {@code PropertyWriter} writes to a file for this
+ * component's job to read into its context.</p>
+ *
+ * <p>The {@code instance} configuration item is required as the grouping key for the metrics generated</p>
  */
 public class JenkinsMetricReader extends WebServiceReader implements FrameReader {
   public static final String SUCCESS = "SUCCESS";
@@ -54,6 +71,7 @@ public class JenkinsMetricReader extends WebServiceReader implements FrameReader
   private static final String DURATION = "duration";
   private static final String RESULT = "result";
   private static final String TIMESTAMP = "timestamp";
+  private static final String NEW_THRESHOLD = "new.threshold";
 
   private static final long DEFAULT_INTERVAL = 1000 * 60 * 60; //1 hour
   private long window = 0;
@@ -102,8 +120,20 @@ public class JenkinsMetricReader extends WebServiceReader implements FrameReader
       getConfiguration().set(ConfigTag.SELECTOR, "builds.*");
     }
 
-    long interval = DEFAULT_INTERVAL;
+    String threshold = getContext().getAsString(NEW_THRESHOLD);
+    if (StringUtil.isNotBlank(threshold)) {
+      Date thresholdDate = DateUtil.parse(threshold);
+      if (thresholdDate != null) {
+        Log.notice("Found threshold for new builds in context '" + threshold + "' - setting date to " + thresholdDate + " - " + window);
+        window = thresholdDate.getTime();
+      } else {
+        Log.warn("Could not parse threshold for new builds as a date '" + threshold + "' - ignoring");
+      }
+    }
+
+    // configuration overrides context settings
     if (getConfiguration().containsIgnoreCase(INTERVAL_TAG)) {
+      long interval = 0;
       String intervalTag = getConfiguration().getString(INTERVAL_TAG);
       if ((intervalTag != null) && (intervalTag.trim().length() > 0)) {
         intervalTag = intervalTag.trim().toUpperCase();
@@ -123,10 +153,16 @@ public class JenkinsMetricReader extends WebServiceReader implements FrameReader
           System.err.println("Could not parse '" + intervalTag + "' into an interval number - format = X[D|H|M|S]");
         }
       }
+      if (interval > 0) {
+        window = getContext().getStartTime() - interval;
+        Log.debug("Threshold for new builds starts at " + new Date(window).toString() + " - " + window);
+      }
     }
-    if (interval > 0) {
-      window = getContext().getStartTime() - interval;
-      Log.debug("Window starts at " + new Date(window).toString() + " - " + window);
+
+    // if noting in the context and nothing in the configuration, use the default
+    if (window == 0) {
+      window = getContext().getStartTime() - DEFAULT_INTERVAL;
+      Log.debug("Using default interval for for new build threshold: " + new Date(window).toString() + " - " + window);
     }
   }
 
@@ -154,79 +190,66 @@ public class JenkinsMetricReader extends WebServiceReader implements FrameReader
   private List<DataFrame> generateMetrics(List<Build> builds) {
     List<DataFrame> retval = new ArrayList<>();
     Build latest = null;
-    Map<String, Integer> counts = new HashMap<>();
-    int buildCount = 0;
+
+    int successCount = 0;
+    int failedCount = 0;
+    int unknownCount = 0;
+    int recentSuccessCount = 0;
+    int recentFailedCount = 0;
+    int recentUnknownCount = 0;
+
     for (Build build : builds) {
       if (latest == null || build.getTimestamp() > latest.getTimestamp()) latest = build;
-      if (build.getTimestamp() >= window) {
-        buildCount++;
-        String result = build.getResult().toLowerCase();
-        if (counts.get(result) != null) {
-          counts.put(result, counts.get(result) + 1);
-        } else {
-          counts.put(result, 1);
-        }
+      if (SUCCESS.equalsIgnoreCase(build.getResult())) {
+        successCount++;
+        if (build.getTimestamp() >= window) recentSuccessCount++;
+
+      } else if (FAILURE.equalsIgnoreCase(build.getResult())) {
+        failedCount++;
+        if (build.getTimestamp() >= window) recentFailedCount++;
+      } else {
+        unknownCount++;
+        if (build.getTimestamp() >= window) recentUnknownCount++;
       }
     }
 
-    for (Map.Entry<String, Integer> entry : counts.entrySet()) {
-      DataFrame metric = new DataFrame();
-      metric.set(ConfigTag.NAME, "build_" + entry.getKey() + "_count_recent");
-      metric.set(ConfigTag.VALUE, entry.getValue());
-      metric.set(ConfigTag.HELP, "The number recent builds with a result of '" + entry.getKey() + "'");
-      metric.set(ConfigTag.TYPE, CMC.GAUGE);
-      metric.set(INSTANCE, instanceName);
-      retval.add(metric);
-    }
+    retval.add(createMetric("build_success_count", successCount, "The number of successful builds on record", CMC.GAUGE, instanceName));
+    retval.add(createMetric("build_failure_count", failedCount, "The number of failed builds on record", CMC.GAUGE, instanceName));
+    retval.add(createMetric("build_unknown_count", unknownCount, "The number of builds on record with an unknown result", CMC.GAUGE, instanceName));
 
-    DataFrame metric = new DataFrame();
-    metric.set(ConfigTag.NAME, "build_status");
+    retval.add(createMetric("build_success_recent_count", recentSuccessCount, "The number of recent successful builds", CMC.GAUGE, instanceName));
+    retval.add(createMetric("build_failure_recent_count", recentFailedCount, "The number of recent failed builds", CMC.GAUGE, instanceName));
+    retval.add(createMetric("build_unknown_recent_count", recentUnknownCount, "The number of recent builds with an unknown result", CMC.GAUGE, instanceName));
+    retval.add(createMetric("build_recent_count", recentSuccessCount + recentFailedCount + recentUnknownCount, "The latest build number", CMC.GAUGE, instanceName));
+
     int value = 0;
     if (FAILURE.equalsIgnoreCase(latest.getResult())) value = -1;
     if (SUCCESS.equalsIgnoreCase(latest.getResult())) value = 1;
-    metric.set(ConfigTag.VALUE, value);
-    metric.set(ConfigTag.HELP, "The latest build status 1=success, -1=failure, 0=aborted/unknown");
-    metric.set(ConfigTag.TYPE, CMC.GAUGE);
-    metric.set(INSTANCE, instanceName);
-    retval.add(metric);
-
-    metric = new DataFrame()
-            .set(ConfigTag.NAME, "build_duration")
-            .set(ConfigTag.VALUE, latest.getDuration())
-            .set(ConfigTag.HELP, "The latest build duration in milliseconds")
-            .set(ConfigTag.TYPE, CMC.GAUGE)
-            .set(INSTANCE, instanceName);
-    retval.add(metric);
-
-    metric = new DataFrame()
-            .set(ConfigTag.NAME, "build_number")
-            .set(ConfigTag.VALUE, latest.getNumber())
-            .set(ConfigTag.HELP, "The latest build number")
-            .set(ConfigTag.TYPE, CMC.GAUGE)
-            .set(INSTANCE, instanceName);
-    retval.add(metric);
-
-    metric = new DataFrame()
-            .set(ConfigTag.NAME, "build_count_recent")
-            .set(ConfigTag.VALUE, buildCount)
-            .set(ConfigTag.HELP, "The number of recent build attempts")
-            .set(ConfigTag.TYPE, CMC.GAUGE)
-            .set(INSTANCE, instanceName);
-    retval.add(metric);
-
+    retval.add(createMetric("build_status", value, "The latest build status 1=success, -1=failure, 0=aborted/unknown", CMC.GAUGE, instanceName));
+    retval.add(createMetric("build_duration", latest.getDuration(), "The latest build duration in milliseconds", CMC.GAUGE, instanceName));
+    retval.add(createMetric("build_number", latest.getNumber(), "The latest build number", CMC.GAUGE, instanceName));
     return retval;
   }
 
-  private class Build {
+  private DataFrame createMetric(String name, int value, String help, String type, String instance) {
+    DataFrame metric = new DataFrame();
+    metric.set(ConfigTag.NAME, name);
+    metric.set(ConfigTag.VALUE, value);
+    metric.set(ConfigTag.HELP, help);
+    metric.set(ConfigTag.TYPE, type);
+    metric.set(INSTANCE, instance);
+    return metric;
+  }
 
-    long number = 0;
+  private class Build {
+    int number = 0;
     int duration = 0;
     String result;
     long timestamp = 0;
 
     public Build(DataFrame frame) {
       try {
-        number = (frame.containsIgnoreCase(NUMBER)) ? frame.getAsLong(NUMBER) : 0;
+        number = (frame.containsIgnoreCase(NUMBER)) ? frame.getAsInt(NUMBER) : 0;
         duration = (frame.containsIgnoreCase(DURATION)) ? frame.getAsInt(DURATION) : 0;
         timestamp = (frame.containsIgnoreCase(TIMESTAMP)) ? frame.getAsLong(TIMESTAMP) : 0;
       } catch (DataFrameException e) {
@@ -248,8 +271,9 @@ public class JenkinsMetricReader extends WebServiceReader implements FrameReader
       return duration;
     }
 
-    public long getNumber() {
+    public int getNumber() {
       return number;
     }
   }
+
 }
