@@ -52,6 +52,7 @@ public abstract class SnowReader extends WebServiceReader implements FrameReader
     }
 
     super.open(context);
+
     String source = getString(ConfigTag.SOURCE);
     Log.debug(LogMsg.createMsg(CDX.MSG, "Reader.using_source_uri", source));
 
@@ -70,6 +71,12 @@ public abstract class SnowReader extends WebServiceReader implements FrameReader
     }
   }
 
+  /**
+   * Return all the sprints for a named product.
+   *
+   * @param product the name of the product to lookup
+   * @return all the sprints for that product
+   */
   protected List<SnowSprint> getSprints(String product) {
     List<SnowSprint> retval = new ArrayList<>();
 
@@ -99,20 +106,14 @@ public abstract class SnowReader extends WebServiceReader implements FrameReader
                 e.printStackTrace();
               }
             }
-
           } else {
             Log.warn("Could not find any sprints for release '" + frame.getAsString(ServiceNowFields.NUMBER) + "'");
           }
-
-        }
-
-      }
-
+        } // for each release
+      } // xref>0
     } catch (URISyntaxException e) {
       e.printStackTrace();
     }
-
-
     return retval;
   }
 }
