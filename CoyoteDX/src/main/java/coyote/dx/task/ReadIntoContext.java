@@ -42,6 +42,8 @@ public class ReadIntoContext extends AbstractFileTask {
   /**
    * Divide the line into two strings based on the given delimiter.
    *
+   * <p>Both vsalues are trimmed to allow for spaces surrounding the delimiter.</p>
+   *
    * @param line the line to split
    * @param delimiter the delimiter
    *
@@ -53,9 +55,9 @@ public class ReadIntoContext extends AbstractFileTask {
     final String[] retval = new String[2];
     final int indx = line.indexOf(delimiter);
     if (indx != -1) {
-      retval[0] = line.substring(0, indx);
+      retval[0] = line.substring(0, indx).trim();
       if (indx < line.length()) {
-        retval[1] = line.substring(indx + 1, line.length());
+        retval[1] = line.substring(indx + 1, line.length()).trim();
       }
     } else {
       retval[0] = line;
@@ -108,7 +110,7 @@ public class ReadIntoContext extends AbstractFileTask {
                 if (isPopulatingSymbols()) {
                   getContext().getSymbols().put(kvp[0], kvp[1]);
                 }
-                Log.debug("Recording '" + kvp[0] + "' in contex as '" + kvp[1] + "'");
+                Log.debug("Recording '" + kvp[0] + "' in context as '" + kvp[1] + "'");
               } else {
                 Log.warn("No delimiter for line: '" + line + "'");
               }
