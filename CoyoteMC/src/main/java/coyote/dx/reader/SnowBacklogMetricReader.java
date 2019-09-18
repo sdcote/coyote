@@ -85,8 +85,8 @@ public class SnowBacklogMetricReader extends SnowMetricReader implements FrameRe
     super.open(context);
 
     // we need the project name from the configuration
-    String project = getConfiguration().getString(PRODUCT);
-    if (StringUtil.isBlank(project)) {
+    String product = getConfiguration().getString(PRODUCT);
+    if (StringUtil.isBlank(product)) {
       context.setError("The " + getClass().getSimpleName() + " configuration did not contain the '" + PRODUCT + "' element");
       context.setState("Configuration Error");
       return;
@@ -94,10 +94,10 @@ public class SnowBacklogMetricReader extends SnowMetricReader implements FrameRe
     if (context.isNotInError()) {
       // the instance name is important grouping key for other metrics of this type
       instanceName = getConfiguration().getString(INSTANCE);
-      if (StringUtil.isBlank(instanceName)) instanceName = project;
+      if (StringUtil.isBlank(instanceName)) instanceName = product;
 
       // get all backlog items for the configured project
-      filter = new SnowFilter("product.name", LIKE, project).and("active", IS, "true");
+      filter = new SnowFilter("product.name", LIKE, product).and("active", IS, "true");
 
       if (StringUtil.isEmpty(getString(ConfigTag.SELECTOR))) {
         getConfiguration().set(ConfigTag.SELECTOR, "records.*");
