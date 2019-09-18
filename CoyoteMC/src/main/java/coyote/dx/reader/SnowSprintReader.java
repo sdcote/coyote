@@ -20,6 +20,8 @@ import coyote.mc.snow.SnowFilter;
 import coyote.mc.snow.SnowSprint;
 
 import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.List;
 
 import static coyote.mc.snow.Predicate.IS;
 
@@ -34,6 +36,26 @@ import static coyote.mc.snow.Predicate.IS;
  * to the start date of the current sprint. This way the other jobs can generate metrics for the current sprint as they
  * will know when the start date is. When run on a daily basis, other metric collectors will have the latest start date
  * for for any sprint and any time.</p>
+ *
+ * <p>An example configuration is as follows:<pre>
+ * "Reader" : {
+ *    "class" : "SnowSprintReader",
+ *    "source" : "https://servicenow.aepsc.com/",
+ *    "release": "RLSE0010497",
+ *    "instance": "EAF",
+ *    "authenticator": {
+ *      "class" : "BasicAuthentication",
+ *      "ENC:username" : "qmV4DbVRCDasdcAGYBWXvYrFrtQn/QXi",
+ *      "ENC:password" : "/0zSb2K123nkHYckRv5kh0UO/dcwfqnl",
+ *      "preemptive" : true
+ *    }
+ *  },
+ * </pre>
+ *
+ * <p>The {@code release} configuration element is used to more efficiently find the sprints. A more complete way is to
+ * replace the {@code release} element with the {@code product} element. This will scan for all releases related to the
+ * product and then scan for all the sprints for all those releases. Note you cannot have both and at lease one of them
+ * must be specified.</p>
  */
 public class SnowSprintReader extends SnowReader implements FrameReader {
 
@@ -48,28 +70,41 @@ public class SnowSprintReader extends SnowReader implements FrameReader {
     super.open(context);
     getResource().getDefaultParameters().setMethod(Method.GET);
 
-    // TODO: there are two modes, get the sprints by product and get them by release
-
-
+    String product = getConfiguration().getString(PRODUCT);
     String release = getConfiguration().getString(RELEASE);
-    if (StringUtil.isBlank(release)) {
-      context.setError("The " + getClass().getSimpleName() + " configuration did not contain the '" + RELEASE + "' element");
+
+    if (StringUtil.isBlank(release) && StringUtil.isBlank(product)) {
+      context.setError("The " + getClass().getSimpleName() + " configuration did not contain the '" + PRODUCT + "' nor '" + RELEASE + "' element.");
+      context.setState("Configuration Error");
+      return;
+    }
+    if (StringUtil.isNotBlank(release) && StringUtil.isNotBlank(product)) {
+      context.setError("The " + getClass().getSimpleName() + " configuration cannot contain both '" + PRODUCT + "' and '" + RELEASE + "' elements.");
       context.setState("Configuration Error");
       return;
     }
 
-    SnowFilter filter = new SnowFilter("release.number", IS, release);
-    try {
-      getResource().setPath("rm_sprint.do?JSONv2&sysparm_query=" + filter.toEncodedString());
-    } catch (URISyntaxException e) {
-      e.printStackTrace();
+
+    if (StringUtil.isNotBlank(release)) {
+      SnowFilter filter = new SnowFilter("release.number", IS, release);
+      try {
+        getResource().setPath("rm_sprint.do?JSONv2&sysparm_query=" + filter.toEncodedString());
+      } catch (URISyntaxException e) {
+        e.printStackTrace();
+      }
     }
-    Log.info("Connecting to " + getResource().getFullURI());
+
   }
 
 
   @Override
   public DataFrame read(TransactionContext context) {
+// if this is the first time through and we are supposed to search by product...
+    if (dataframes == null && StringUtil.isNotBlank(getConfiguration().getString(PRODUCT))) {
+      dataframes = getData(); // fill the dataframes with sprints
+    }
+
+
     DataFrame retval = super.read(context);
     if (retval != null) {
       try {
@@ -79,6 +114,15 @@ public class SnowSprintReader extends SnowReader implements FrameReader {
       } catch (SnowException e) {
         Log.error("Could not parse retrieved data into a SnowSprint: " + e.getLocalizedMessage());
       }
+    }
+    return retval;
+  }
+
+  private List<DataFrame> getData() {
+    List<DataFrame> retval = new ArrayList<>();
+    List<SnowSprint> sprints = getSprints(getConfiguration().getString(PRODUCT));
+    for (SnowSprint sprint : sprints) {
+      retval.add(sprint);
     }
     return retval;
   }
