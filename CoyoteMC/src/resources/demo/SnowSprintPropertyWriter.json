@@ -24,16 +24,16 @@
       }
     },
     "Filter": {
-      "Accept": { "condition": "regex(state , ^Current )" },
+      "Accept": { "condition": "regex(Source.state , ^2 )" },
       "Reject": { "note": "Empty reject rejects everything by default"}
     },
     "Transform": {
       "Set": { "field": "name", "value": "new.threshold" },
-      "Copy": { "field": "value", "source": "scheduled_start_date" }
+      "Copy": { "field": "value", "source": "schedule_start_date" }
     },
     "Writer" : {
       "class" : "PropertyWriter",
-      "target" : "sprint.properties",
+      "target" : "sprint.properties"
     }
   },
 
