@@ -1,0 +1,45 @@
+{
+  "Class": "coyote.dx.Job",
+
+  "Job": {
+    "description": [
+      "This reads in all the sprints for a product and sends then through the transformation engine for processing.",
+      "The filter only selects the current sprints and rejects everything else. There should only be one current sprint.",
+      "The transforms sets the name of the property to a specific value and the value of the property to the scheduled start date.",
+      "The writer writes the name and value to a file, separating each record (only one) with new lines.",
+      "The expectation is other components will read this file into it context to control the threshold value for 'new' items.",
+      "A job like this should only need be run once a day; sprint dates should not change more often than that."
+    ],
+
+    "Reader" : {
+      "class" : "SnowSprintReader",
+      "source" : "https://servicenow.aepsc.com/",
+      "release": "RLSE0010497",
+      "instance": "EAF",
+      "authenticator": {
+        "class" : "BasicAuthentication",
+        "ENC:username" : "zPzKAGYBWbVRCDqmV4DXvYrFrtQn/QXi",
+        "ENC:password" : "KBSfnRv5kh0UO/dcwkHYck/0zSb2fqnl",
+        "preemptive" : true
+      }
+    },
+    "Filter": {
+      "Accept": { "condition": "regex(state , ^Current )" },
+      "Reject": { "note": "Empty reject rejects everything by default"}
+    },
+    "Transform": {
+      "Set": { "field": "name", "value": "new.threshold" },
+      "Copy": { "field": "value", "source": "scheduled_start_date" }
+    },
+    "Writer" : {
+      "class" : "PropertyWriter",
+      "target" : "sprint.properties",
+    }
+  },
+
+  "Logging": {
+    "StandardError": {"categories": "error, fatal, warn" },
+    "StandardOutput": { "categories": "info, notice, debug" }
+  }
+
+}
