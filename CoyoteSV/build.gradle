@@ -12,7 +12,7 @@ jar {
 
 ext {
 	junitVersion = '4.12'
-    vaultVersion = '0.0.1'
+    vaultVersion = '0.0.2'
 }
 dependencies {
 	compile project(':CoyoteDX')
