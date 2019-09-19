@@ -1,16 +1,11 @@
 /*
  * Copyright (c) 2015 Stephan D. Cote' - All rights reserved.
- * 
- * This program and the accompanying materials are made available under the 
- * terms of the MIT License which accompanies this distribution, and is 
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the MIT License which accompanies this distribution, and is
  * available at http://creativecommons.org/licenses/MIT/
  */
 package coyote.dx;
-
-import java.io.File;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-import java.util.List;
 
 import coyote.commons.FileUtil;
 import coyote.commons.StringUtil;
@@ -29,20 +24,24 @@ import coyote.dx.reader.AbstractFrameReader;
 import coyote.dx.task.AbstractTransformTask;
 import coyote.dx.transform.AbstractFrameTransform;
 import coyote.dx.validate.AbstractValidator;
+import coyote.dx.vault.VaultProxy;
 import coyote.dx.writer.AbstractFrameWriter;
 import coyote.loader.cfg.Config;
 import coyote.loader.log.Log;
 import coyote.loader.log.LogMsg;
 
+import java.io.File;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.util.List;
+
 
 /**
- * This factory uses a JSON string to create and configure the proper instance 
- * of a Transform engine.
- * 
+ * This factory uses a JSON string to create and configure the proper instance of a Transform engine.
+ *
  * <p>The returned engine must be opened and closed by the caller.</p>
- * 
- * <p>Once opened, the caller can invoke {@code run()} to run the engine, 
- * transforming all data in the source.</p>
+ *
+ * <p>Once opened, the caller can invoke {@code run()} to run the engine, transforming all data in the source.</p>
  */
 public class TransformEngineFactory {
 
@@ -64,16 +63,14 @@ public class TransformEngineFactory {
   private static final String FILTER_PKG = AbstractFrameFilter.class.getPackage().getName();
   /** Constant to assist in determining the full class name of frame aggregators */
   private static final String AGGREGATOR_PKG = AbstractFrameAggregator.class.getPackage().getName();
-
-
+  /** Constant to assist in determining the full class name of vault implementations */
+  private static final String VAULT_PKG = VaultProxy.class.getPackage().getName();
 
 
   /**
-   * Read a JSON string in from a file and create a transformation engine to 
-   * the specifications in the file.
-   * 
+   * Read a JSON string in from a file and create a transformation engine to the specifications in the file.
+   *
    * @param cfgFile File containing the JSON configuration
-   * 
    * @return an engine ready to run the transformation
    */
   public static TransformEngine getInstance(File cfgFile) {
@@ -82,14 +79,10 @@ public class TransformEngineFactory {
   }
 
 
-
-
   /**
-   * Create a Transformation engine configured to the specification provided in 
-   * the given configuration string.
-   * 
+   * Create a Transformation engine configured to the specification provided in the given configuration string.
+   *
    * @param cfg The JSON string specifying the configuration
-   * 
    * @return an engine ready to run the transformation
    */
   public static TransformEngine getInstance(String cfg) {
@@ -108,17 +101,13 @@ public class TransformEngineFactory {
   }
 
 
-
-
   /**
-   * Create a Transformation engine configured to the specification provided in 
-   * the given configuration frame.
-   * 
-   * <p>This will determine what component to load in the engine and uses
-   * {@code ConfigurableComponent} to configure each component.</p>
-   * 
+   * Create a Transformation engine configured to the specification provided in the given configuration frame.
+   *
+   * <p>This will determine what component to load in the engine and uses {@code ConfigurableComponent} to configure
+   * each component.</p>
+   *
    * @param frame The DataFrame containing the configuration
-   * 
    * @return an engine ready to run the transformation
    */
   public static TransformEngine getInstance(DataFrame frame) {
@@ -132,79 +121,85 @@ public class TransformEngineFactory {
 
         if (StringUtil.equalsIgnoreCase(ConfigTag.READER, field.getName())) {
           if (field.isFrame()) {
-            configReader((DataFrame)field.getObjectValue(), retval);
+            configReader((DataFrame) field.getObjectValue(), retval);
           } else {
             Log.error("Invalid reader configuration section");
           }
+        } else if (StringUtil.equalsIgnoreCase(ConfigTag.VAULT, field.getName())) {
+          if (field.isFrame()) {
+            configVault((DataFrame) field.getObjectValue(), retval);
+          } else {
+            Log.error("Invalid vault configuration section");
+          }
         } else if (StringUtil.equalsIgnoreCase(ConfigTag.PRELOAD, field.getName())) {
           if (field.isFrame()) {
-            configPreloader((DataFrame)field.getObjectValue(), retval);
+            configPreloader((DataFrame) field.getObjectValue(), retval);
           } else {
             Log.error("Invalid filters configuration section");
           }
         } else if (StringUtil.equalsIgnoreCase(ConfigTag.FILTER, field.getName())) {
           if (field.isFrame()) {
-            configFilters((DataFrame)field.getObjectValue(), retval);
+            configFilters((DataFrame) field.getObjectValue(), retval);
           } else {
             Log.error("Invalid filters configuration section");
           }
         } else if (StringUtil.equalsIgnoreCase(ConfigTag.MAPPER, field.getName())) {
           if (field.isFrame()) {
-            configMapper((DataFrame)field.getObjectValue(), retval);
+            configMapper((DataFrame) field.getObjectValue(), retval);
           } else {
             Log.error("Invalid mapper configuration section");
           }
         } else if (StringUtil.equalsIgnoreCase(ConfigTag.AGGREGATOR, field.getName())) {
           if (field.isFrame()) {
-            configAggregator((DataFrame)field.getObjectValue(), retval);
+            configAggregator((DataFrame) field.getObjectValue(), retval);
           } else {
             Log.error("Invalid aggregator configuration section");
           }
         } else if (StringUtil.equalsIgnoreCase(ConfigTag.WRITER, field.getName())) {
           if (field.isFrame()) {
-            configWriter((DataFrame)field.getObjectValue(), retval);
+            configWriter((DataFrame) field.getObjectValue(), retval);
           } else {
             Log.error("Invalid writer configuration section");
           }
         } else if (StringUtil.equalsIgnoreCase(ConfigTag.VALIDATE, field.getName())) {
           if (field.isFrame()) {
-            configValidation((DataFrame)field.getObjectValue(), retval);
+            configValidation((DataFrame) field.getObjectValue(), retval);
           } else {
             Log.error("Invalid pre-process configuration section");
           }
         } else if (StringUtil.equalsIgnoreCase(ConfigTag.TRANSFORM, field.getName())) {
           if (field.isFrame()) {
-            configTransformer((DataFrame)field.getObjectValue(), retval);
+            configTransformer((DataFrame) field.getObjectValue(), retval);
           } else {
             Log.error("Invalid pre-process configuration section");
           }
         } else if (StringUtil.equalsIgnoreCase(ConfigTag.PREPROCESS, field.getName()) || StringUtil.equalsIgnoreCase(ConfigTag.TASK, field.getName())) {
           if (field.isFrame()) {
-            configPreProcess((DataFrame)field.getObjectValue(), retval);
+            configPreProcess((DataFrame) field.getObjectValue(), retval);
           } else {
             Log.error("Invalid pre-process configuration section");
           }
         } else if (StringUtil.equalsIgnoreCase(ConfigTag.POSTPROCESS, field.getName())) {
           if (field.isFrame()) {
-            configPostProcess((DataFrame)field.getObjectValue(), retval);
+            configPostProcess((DataFrame) field.getObjectValue(), retval);
           } else {
             Log.error("Invalid post-process configuration section");
           }
         } else if (StringUtil.equalsIgnoreCase(ConfigTag.CONTEXT, field.getName())) {
           if (field.isFrame()) {
-            configContext(new Config((DataFrame)field.getObjectValue()), retval);
+            configContext(new Config((DataFrame) field.getObjectValue()), retval);
           } else {
             Log.error("Invalid context configuration section");
           }
         } else if (StringUtil.equalsIgnoreCase(ConfigTag.LISTENER, field.getName())) {
           if (field.isFrame()) {
-            DataFrame cfgFrame = (DataFrame)field.getObjectValue();
+            DataFrame cfgFrame = (DataFrame) field.getObjectValue();
             if (cfgFrame != null) {
               // there can be many listeners
               if (cfgFrame.isArray()) {
                 for (DataField cfgfield : cfgFrame.getFields()) {
                   if (cfgfield.isFrame()) {
-                    configListener((DataFrame)cfgfield.getObjectValue(), retval);
+                    configListener((DataFrame) cfgfield.getObjectValue(), retval);
                   } else {
                     Log.error("Invalid listener configuration section");
                   }
@@ -229,20 +224,23 @@ public class TransformEngineFactory {
         } else {
           Log.debug(LogMsg.createMsg(CDX.MSG, "EngineFactory.unrecognized_configuration_section", field.getName()));
         }
-
       }
-
     }
-
     return retval;
   }
 
 
+  private static void configVault(DataFrame cfg, TransformEngine engine) {
+    // A big todo:
+    // Use the Vault builder to create the vault implementation and place it in the Template via VaultProxy
+  }
 
 
   /**
-   * @param cfg
-   * @param engine
+   * Configure the preloader
+   *
+   * @param cfg the configuration section to use in configuring the components
+   * @param engine the engine to configure
    */
   private static void configPreloader(DataFrame cfg, TransformEngine engine) {
     if (cfg != null) {
@@ -257,7 +255,7 @@ public class TransformEngineFactory {
       Object object = CDX.createComponent(cfg);
       if (object != null) {
         if (object instanceof FrameReader) {
-          engine.setPreloader((FrameReader)object);
+          engine.setPreloader((FrameReader) object);
           Log.debug(LogMsg.createMsg(CDX.MSG, "EngineFactory.created_preloader", object.getClass().getName()));
         } else {
           Log.error(LogMsg.createMsg(CDX.MSG, "EngineFactory.specified_class_is_not_a_preloader", object.getClass().getName()));
@@ -269,11 +267,11 @@ public class TransformEngineFactory {
   }
 
 
-
-
   /**
-   * @param cfg
-   * @param engine
+   * Configure the aggregator
+   *
+   * @param cfg the configuration section to use in configuring the components
+   * @param engine the engine to configure
    */
   private static void configAggregator(DataFrame cfg, TransformEngine engine) {
     if (cfg != null) {
@@ -286,7 +284,7 @@ public class TransformEngineFactory {
       Object object = CDX.createComponent(cfg);
       if (object != null) {
         if (object instanceof FrameAggregator) {
-          engine.addAggregator((FrameAggregator)object);
+          engine.addAggregator((FrameAggregator) object);
           Log.debug(LogMsg.createMsg(CDX.MSG, "EngineFactory.created_aggregator", object.getClass().getName()));
         } else {
           Log.error(LogMsg.createMsg(CDX.MSG, "EngineFactory.specified_class_is_not_an_aggregatorr", object.getClass().getName()));
@@ -298,12 +296,10 @@ public class TransformEngineFactory {
   }
 
 
-
-
   /**
    * Use the given configuration frame to add validators to the engine.
-   *  
-   * @param cfg the dataframe containing the validators
+   *
+   * @param cfg    the dataframe containing the validators
    * @param engine the engine to configure with the validators
    */
   private static void configValidation(DataFrame cfg, TransformEngine engine) {
@@ -316,11 +312,11 @@ public class TransformEngineFactory {
 
         // All tasks must have an object(frame) as its value.
         if (field.isFrame()) {
-          DataFrame validatorConfig = (DataFrame)field.getObjectValue();
+          DataFrame validatorConfig = (DataFrame) field.getObjectValue();
           Object object = CDX.createComponent(className, validatorConfig);
           if (object != null) {
             if (object instanceof FrameValidator) {
-              engine.addValidator((FrameValidator)object);
+              engine.addValidator((FrameValidator) object);
               Log.debug(LogMsg.createMsg(CDX.MSG, "EngineFactory.created_validator", object.getClass().getName(), validatorConfig));
             } else {
               Log.error(LogMsg.createMsg(CDX.MSG, "EngineFactory.specified_class_is_not_a_validator", field.getName()));
@@ -336,8 +332,6 @@ public class TransformEngineFactory {
   }
 
 
-
-
   private static void configTransformer(DataFrame cfg, TransformEngine engine) {
     if (cfg != null) {
       for (DataField field : cfg.getFields()) {
@@ -348,11 +342,11 @@ public class TransformEngineFactory {
 
         // All tasks must have an object(frame) as its value.
         if (field.isFrame()) {
-          DataFrame transformerConfig = (DataFrame)field.getObjectValue();
+          DataFrame transformerConfig = (DataFrame) field.getObjectValue();
           Object object = CDX.createComponent(className, transformerConfig);
           if (object != null) {
             if (object instanceof FrameTransform) {
-              engine.addTransformer((FrameTransform)object);
+              engine.addTransformer((FrameTransform) object);
               Log.debug(LogMsg.createMsg(CDX.MSG, "EngineFactory.created_frame_transformer", object.getClass().getName(), transformerConfig));
             } else {
               Log.error(LogMsg.createMsg(CDX.MSG, "EngineFactory.specified_class_was_not_a_transformer", field.getName()));
@@ -368,8 +362,6 @@ public class TransformEngineFactory {
   }
 
 
-
-
   private static void configFilters(DataFrame cfg, TransformEngine engine) {
     if (cfg != null) {
       for (DataField field : cfg.getFields()) {
@@ -380,11 +372,11 @@ public class TransformEngineFactory {
 
         // All filters must have an object(frame) as its value.
         if (field.isFrame()) {
-          DataFrame taskConfig = (DataFrame)field.getObjectValue();
+          DataFrame taskConfig = (DataFrame) field.getObjectValue();
           Object object = CDX.createComponent(className, taskConfig);
           if (object != null) {
             if (object instanceof FrameFilter) {
-              int seq = engine.addFilter((FrameFilter)object);
+              int seq = engine.addFilter((FrameFilter) object);
               Log.debug(LogMsg.createMsg(CDX.MSG, "EngineFactory.created_filter", object.getClass().getName(), seq, cfg));
             } else {
               Log.error(LogMsg.createMsg(CDX.MSG, "EngineFactory.class_not_filter", object.getClass().getName()));
@@ -400,8 +392,6 @@ public class TransformEngineFactory {
   }
 
 
-
-
   private static void configPreProcess(DataFrame cfg, TransformEngine engine) {
     if (cfg != null) {
       for (DataField field : cfg.getFields()) {
@@ -412,11 +402,11 @@ public class TransformEngineFactory {
 
         // All tasks must have an object(frame) as its value.
         if (field.isFrame()) {
-          DataFrame taskConfig = (DataFrame)field.getObjectValue();
+          DataFrame taskConfig = (DataFrame) field.getObjectValue();
           Object object = CDX.createComponent(className, taskConfig);
           if (object != null) {
             if (object instanceof TransformTask) {
-              int seq = engine.addPreProcessTask((TransformTask)object);
+              int seq = engine.addPreProcessTask((TransformTask) object);
               Log.debug(LogMsg.createMsg(CDX.MSG, "EngineFactory.created_preprocess_task", object.getClass().getName(), seq, taskConfig));
             } else {
               Log.error(LogMsg.createMsg(CDX.MSG, "EngineFactory.preprocess_class_not_transform_task", object.getClass().getName()));
@@ -432,8 +422,6 @@ public class TransformEngineFactory {
   }
 
 
-
-
   private static void configPostProcess(DataFrame cfg, TransformEngine engine) {
     if (cfg != null) {
       for (DataField field : cfg.getFields()) {
@@ -444,11 +432,11 @@ public class TransformEngineFactory {
 
         // All tasks must have an object(frame) as its value.
         if (field.isFrame()) {
-          DataFrame taskConfig = (DataFrame)field.getObjectValue();
+          DataFrame taskConfig = (DataFrame) field.getObjectValue();
           Object object = CDX.createComponent(className, taskConfig);
           if (object != null) {
             if (object instanceof TransformTask) {
-              int seq = engine.addPostProcessTask((TransformTask)object);
+              int seq = engine.addPostProcessTask((TransformTask) object);
               Log.debug(LogMsg.createMsg(CDX.MSG, "EngineFactory.Created postprocess task {} seq={} cfg={}", object.getClass().getName(), seq, cfg));
             } else {
               Log.error(LogMsg.createMsg(CDX.MSG, "EngineFactory.Specified post-process class was not a transform task"));
@@ -464,27 +452,21 @@ public class TransformEngineFactory {
   }
 
 
-
-
   /**
    * This section of the configuration should be simply name-value pairs.
-   * 
-   * <p>The values are treated as templates and parsed into their final values
-   * based on the contents of the symbol table and the systems properties 
-   * contained therein.</p>
-   * 
-   * <p>The name value pairs are placed in the symbol table as well as the 
-   * context so that results of processing can be used in subsequent 
-   * templates.</p>
-   * 
-   * <p>If the configuration contains a "class" attribute, then a custom 
-   * context will be loaded from that class name and passed the 
-   * configuration section to configure it further. In such cases, custom 
-   * context classes use the "fields" attribute to populate the context, by 
-   * convention. If no class attribute is given, each of the attributes are 
-   * loaded into the default context as described above.
-   * 
-   * @param cfg the configuration frame
+   *
+   * <p>The values are treated as templates and parsed into their final values based on the contents of the symbol
+   * table and the systems properties contained therein.</p>
+   *
+   * <p>The name value pairs are placed in the symbol table as well as the context so that results of processing can be
+   * used in subsequent templates.</p>
+   *
+   * <p>If the configuration contains a "class" attribute, then a custom context will be loaded from that class name
+   * and passed the configuration section to configure it further. In such cases, custom context classes use the
+   * "fields" attribute to populate the context, by convention. If no class attribute is given, each of the attributes
+   * are loaded into the default context as described above.</p>
+   *
+   * @param cfg    the configuration frame
    * @param engine the transform engine
    */
   private static void configContext(Config cfg, TransformEngine engine) {
@@ -507,7 +489,7 @@ public class TransformEngineFactory {
 
             if (object instanceof TransformContext) {
               try {
-                context = (TransformContext)object;
+                context = (TransformContext) object;
                 context.setConfiguration(cfg);
                 engine.setContext(context);
                 context.setEngine(engine);
@@ -537,8 +519,6 @@ public class TransformEngineFactory {
   }
 
 
-
-
   private static void configWriter(DataFrame cfg, TransformEngine engine) {
     if (cfg != null) {
       // Make sure the class is fully qualified 
@@ -550,7 +530,7 @@ public class TransformEngineFactory {
       Object object = CDX.createComponent(cfg);
       if (object != null) {
         if (object instanceof FrameWriter) {
-          engine.addWriter((FrameWriter)object);
+          engine.addWriter((FrameWriter) object);
           Log.debug(LogMsg.createMsg(CDX.MSG, "EngineFactory.created_writer", object.getClass().getName()));
         } else {
           Log.error(LogMsg.createMsg(CDX.MSG, "EngineFactory.specified_class_is_not_a_writer", object.getClass().getName()));
@@ -560,8 +540,6 @@ public class TransformEngineFactory {
       }
     } // cfg !null
   }
-
-
 
 
   private static void configMapper(DataFrame cfg, TransformEngine engine) {
@@ -582,7 +560,7 @@ public class TransformEngineFactory {
       Object object = CDX.createComponent(cfg);
       if (object != null) {
         if (object instanceof FrameMapper) {
-          engine.setMapper((FrameMapper)object);
+          engine.setMapper((FrameMapper) object);
           Log.debug(LogMsg.createMsg(CDX.MSG, "EngineFactory.created_mapper", object.getClass().getName()));
         } else {
           Log.error(LogMsg.createMsg(CDX.MSG, "EngineFactory.specified_class_not_framemapper", object.getClass().getName()));
@@ -592,8 +570,6 @@ public class TransformEngineFactory {
       }
     } // cfg !null
   }
-
-
 
 
   private static void configReader(DataFrame cfg, TransformEngine engine) {
@@ -609,7 +585,7 @@ public class TransformEngineFactory {
       Object object = CDX.createComponent(cfg);
       if (object != null) {
         if (object instanceof FrameReader) {
-          engine.setReader((FrameReader)object);
+          engine.setReader((FrameReader) object);
           Log.debug(LogMsg.createMsg(CDX.MSG, "EngineFactory.created_reader", object.getClass().getName()));
         } else {
           Log.error(LogMsg.createMsg(CDX.MSG, "EngineFactory.specified_class_is_not_a_reader", object.getClass().getName()));
@@ -621,17 +597,15 @@ public class TransformEngineFactory {
   }
 
 
-
-
   /**
    * Configure the all the listeners.
-   * 
-   * <p>This method expects listeners to be formatted in a manner similar to 
+   *
+   * <p>This method expects listeners to be formatted in a manner similar to
    * the following:<pre>"Listeners": {
    *   "DataProfiler": { "target": "dataprofile.txt" }
    * }</pre>
-   * 
-   * @param cfg The entire data frame containing the listener configurations
+   *
+   * @param cfg    The entire data frame containing the listener configurations
    * @param engine The engine to which the configured listeners will be added.
    */
   private static void configListener(DataFrame cfg, TransformEngine engine) {
@@ -644,11 +618,11 @@ public class TransformEngineFactory {
 
         // All listeners must have an object(frame) as its value.
         if (field.isFrame()) {
-          DataFrame listenerConfig = (DataFrame)field.getObjectValue();
+          DataFrame listenerConfig = (DataFrame) field.getObjectValue();
           Object object = CDX.createComponent(className, listenerConfig);
           if (object != null) {
             if (object instanceof ContextListener) {
-              engine.addListener((ContextListener)object);
+              engine.addListener((ContextListener) object);
               Log.debug(LogMsg.createMsg(CDX.MSG, "EngineFactory.created_listener", object.getClass().getName()));
             } else {
               Log.error(LogMsg.createMsg(CDX.MSG, "EngineFactory.specified_class_is_not_a_listener", object.getClass().getName()));
@@ -664,18 +638,14 @@ public class TransformEngineFactory {
   }
 
 
-
-
   /**
-   * Convenience method to perform a case insensitive search for a named field 
+   * Convenience method to perform a case insensitive search for a named field
    * in a data frame and return its value as a string.
-   * 
-   * @param name the name of the field to search
+   *
+   * @param name  the name of the field to search
    * @param frame the data frame in which to search
-   * 
-   * @return the string value of the first found field with that name or null 
-   *         if the field is null, the name is null or the field with that 
-   *         name was not found.
+   * @return the string value of the first found field with that name or null if the field is null, the name is null or
+   * the field with that name was not found.
    */
   private static String findString(String name, DataFrame frame) {
     if (name != null) {
