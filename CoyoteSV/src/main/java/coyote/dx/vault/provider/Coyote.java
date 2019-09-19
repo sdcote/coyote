@@ -1,12 +1,13 @@
-package coyote.dx.vault;
+package coyote.dx.vault.provider;
 
-/**
- * Mock vault for our tests
- */
-public class TestVault implements Vault {
+import coyote.dx.vault.Vault;
+import coyote.dx.vault.VaultEntry;
+import coyote.dx.vault.VaultException;
+
+public class Coyote implements Vault {
   @Override
   public boolean isReadOnly() {
-    return true;
+    return false;
   }
 
   @Override

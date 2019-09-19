@@ -1,0 +1,22 @@
+defaultTasks 'clean', 'build', 'publish', 'installDist'
+mainClassName = "coyote.loader.BootStrap"
+
+jar {
+    manifest {
+		attributes  'Implementation-Title' : 'Coyote Secrets Vault Toolkit',
+		'Provider' : 'Coyote Systems',
+		'Main-Class' : "$mainClassName",
+		'Implementation-Version' : version
+	}
+}
+
+ext {
+	junitVersion = '4.12'
+    vaultVersion = '0.0.1'
+}
+dependencies {
+	compile project(':CoyoteDX')
+	compile "coyote:CoyoteDX:$version"
+    compile "coyote:CoyoteVault:$vaultVersion"
+    testCompile "junit:junit:$junitVersion"
+}
