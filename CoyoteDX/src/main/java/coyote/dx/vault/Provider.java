@@ -7,7 +7,6 @@
  */
 package coyote.dx.vault;
 
-
 import java.util.Map;
 
 /**

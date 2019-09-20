@@ -7,7 +7,6 @@
  */
 package coyote.dx.vault;
 
-
 /**
  * This represents a secrets provider implementation.
  *
@@ -21,7 +20,6 @@ package coyote.dx.vault;
  */
 public interface Vault {
 
-
   /**
    * @return true if the vault can only retrieve secrets, false if it can also store them
    */
@@ -31,7 +29,6 @@ public interface Vault {
    * Save the current state of the vault
    */
   void save();
-
 
   /**
    * Close the vault

@@ -7,7 +7,6 @@
  */
 package coyote.dx.vault;
 
-
 /**
  * Represents a processing exception in a {@code Vault} instance.
  */
