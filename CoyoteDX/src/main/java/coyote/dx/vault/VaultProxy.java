@@ -11,7 +11,7 @@ package coyote.dx.vault;
  * The Vault proxy wraps different Vault implementations and makes them uniformly accessible.
  *
  * <p>This is the object which is placed in the template under the name of "Vault" and delegates calls to the
- * underlying Vault implementations. The {@code VaultEntry} is used </p>
+ * underlying Vault implementations.</p>
  */
 public class VaultProxy {
   private final Vault vault;
@@ -27,11 +27,11 @@ public class VaultProxy {
    * "secrets" vaults and the identifier is simply the identifier of the secret. For example, CyberArk only returns a
    * "content" element.</p>
    *
-   * <p>Implementers of this method are encourages to return the password element as a matter of convention, allowing
+   * <p>Implementers of this method are encouraged to return the password element as a matter of convention, allowing
    * more granular access via {@link #get(String, String)} method call.</p>
    *
    * @param entryId the identifier for the vault entry
-   * @return the identified element value or an empty string if not found or if the element is empty. Will never return null.
+   * @return the identified element value or an empty string if not found or if the element is empty. This will never return null.
    */
   public String get(String entryId) {
     return "";
@@ -42,7 +42,7 @@ public class VaultProxy {
    *
    * @param entryId      the identifier for the vault entry
    * @param entryElement the name of the entry element to return.
-   * @return the identified element value or an empty string if not found or if the element is empty. Will never return null.
+   * @return the identified element value or an empty string if not found or if the element is empty. This will never return null.
    */
   public String get(String entryId, String entryElement) {
     return "";

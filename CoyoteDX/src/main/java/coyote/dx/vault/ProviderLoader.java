@@ -27,8 +27,9 @@ public class ProviderLoader {
    * <p>It is assumed this is a classname to be loaded, either simple or fully-qualified. If a simple name is used, the
    * default package for providers will be assumed.</p>
    *
-   * @param className
-   * @return
+   * @param className the name of the class to load
+   * @return an instance of the loaded provider
+   * @throws ProviderLoadException if there were problems loading the provider.
    */
   public static Provider loadProvider(String className) throws ProviderLoadException {
     Provider retval = null;

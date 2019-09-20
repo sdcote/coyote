@@ -14,7 +14,7 @@ import java.util.Map;
  * A VaultEntry represents a collection of data stored in a vault under a given identifier.
  *
  * <p>Vaults can store many different types of information and even a collection of secrets for a given identifier. A
- * vault entry may also contain metadata about the secret such as the list time it was changed or accessed. This
+ * vault entry may also contain metadata about the secret such as the last time it was changed or accessed. This
  * structure allows providers to return a variety of data about the secret to the caller.</p>
  */
 public class VaultEntry {
@@ -23,12 +23,13 @@ public class VaultEntry {
   /**
    * Performs a case insensitive search for the record with the given key.
    *
-   * <p>If the caller wants to retrieve the password record for this entry, then the call may look like the following:<pre>
-   *   String password = entry.get("password");
+   * <p>If the caller wants to retrieve the password record for this entry, then the call may look like the following:
+   * <pre>
+   * String password = entry.get("password");
    * </pre>
    *
-   * @param key
-   * @return
+   * @param key the key to the entry element (e.g. password)
+   * @return the value at that key or null if empty or the key was not found.
    */
   public String get(String key) {
     String retval = null;
