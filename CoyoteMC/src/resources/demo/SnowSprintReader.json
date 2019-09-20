@@ -6,7 +6,8 @@
     "Reader" : {
       "class" : "SnowSprintReader",
       "source" : "https://servicenow.aepsc.com/",
-      "release": "RLSE0010497",
+      "releaseXXX": "RLSE0010497",
+      "product": "EAF - Enterprise Authentication Framework",
       "instance": "EAF",
       "authenticator": {
         "class" : "BasicAuthentication",
