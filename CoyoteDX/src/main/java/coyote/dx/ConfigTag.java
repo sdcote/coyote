@@ -90,6 +90,8 @@ public class ConfigTag {
   public static final String VALUE = "value";
   public static final String WRITE = "write";
   public static final String FLATTEN = "flatten";
+  public static final String PROVIDER = "provider";
+  public static final String METHOD = "method";
 
   // Networking proxy tags used by several components
 

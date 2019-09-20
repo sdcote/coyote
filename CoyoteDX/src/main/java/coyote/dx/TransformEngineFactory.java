@@ -36,6 +36,9 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
+import static coyote.dx.ConfigTag.SOURCE;
+import static javax.xml.transform.OutputKeys.METHOD;
+
 
 /**
  * This factory uses a JSON string to create and configure the proper instance of a Transform engine.
@@ -83,9 +86,6 @@ public class TransformEngineFactory {
    */
   private static final String AGGREGATOR_PKG = AbstractFrameAggregator.class.getPackage().getName();
 
-  private static final String PROVIDER = "Provider";
-  private static final String METHOD = "Method";
-  private static final String SOURCE = "Source";
   private static final String LOCAL = "Local";
   private static final String FILE = "File";
 
@@ -261,11 +261,11 @@ public class TransformEngineFactory {
   private static void configVault(DataFrame cfg) {
     VaultBuilder builder = new VaultBuilder();
     for (DataField field : cfg.getFields()) {
-      if (PROVIDER.equalsIgnoreCase(field.getName())) {
+      if (ConfigTag.PROVIDER.equalsIgnoreCase(field.getName())) {
         builder.setProvider(field.getStringValue());
-      } else if (METHOD.equalsIgnoreCase(field.getName())) {
+      } else if (ConfigTag.METHOD.equalsIgnoreCase(field.getName())) {
         builder.setMethod(field.getStringValue());
-      } else if (SOURCE.equalsIgnoreCase(field.getName())) {
+      } else if (ConfigTag.SOURCE.equalsIgnoreCase(field.getName())) {
         builder.setSource(field.getStringValue());
       } else {
         builder.setProperty(field.getName(), field.getStringValue());

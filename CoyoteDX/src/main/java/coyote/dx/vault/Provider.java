@@ -24,12 +24,13 @@ public interface Provider {
    * <p>VaultProviders should not be stateful; they should build fresh instances of Vaults.</p>
    *
    * @param method     the method to store and retrieve secrets.
+   * @param source     The source of the secrets. This might be a URL or a file path or some other specification understandable by the provider
    * @param properties the configuration properties for the returned vault
    * @return a vault configured and ready to use to store and retrieve secrets
    * @throws ConfigurationException if there were problems configuring the vault during its creation
    * @throws VaultException         it there were problems opening the vault with its set configuration
    */
-  Vault createVault(String method, Map<String, String> properties) throws ConfigurationException, VaultException;
+  Vault createVault(String method, String source, Map<String, String> properties) throws ConfigurationException, VaultException;
 
   /**
    * @return the name of the provider factory

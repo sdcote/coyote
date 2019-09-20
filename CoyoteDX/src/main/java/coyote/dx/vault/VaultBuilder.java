@@ -74,7 +74,7 @@ public class VaultBuilder {
     if (getProvider() != null) {
       Provider vaultProvider = ProviderLoader.loadProvider(getProvider());
       if (vaultProvider != null) {
-        retval = vaultProvider.createVault(getMethod(), getProperties());
+        retval = vaultProvider.createVault(getMethod(),getSource(), getProperties());
       } else {
         throw new ConfigurationException("Could not retrieve vault provider: " + getProvider());
       }
