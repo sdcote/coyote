@@ -7,9 +7,11 @@ ext {
 	provider = 'Coyote Systems'
 	junitVersion = '4.12'
 	loaderVersion = '0.7.20'
+	vaultVersion = '0.0.2'
 }
 dependencies {
 	compile "coyote:Loader:$loaderVersion"
+	compile "coyote:CoyoteVault:$vaultVersion"
 	testCompile "junit:junit:$junitVersion"
 }
 

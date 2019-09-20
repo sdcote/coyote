@@ -1,0 +1,22 @@
+{
+  "Class": "coyote.dx.Job",
+  "Job": {
+    "Vault": {
+      "source": "local.vault"
+    },
+    "Reader": {
+      "class": "StaticReader",
+      "fields": {
+        "JobId": "EB00C166-9972-4147-9453-735E7EB15C60",
+        "Delay": 1000,
+        "Log": true
+      }
+    },
+    "Writer": {
+      "class": "ConsoleWriter",
+      "format": "json",
+      "indent": false,
+      "message": "Record [#$CurrentFrame#] received."
+    }
+  }
+}

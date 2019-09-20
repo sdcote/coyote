@@ -9,6 +9,7 @@ package coyote.dx;
 
 import coyote.commons.FileUtil;
 import coyote.commons.StringUtil;
+import coyote.commons.template.Template;
 import coyote.dataframe.DataField;
 import coyote.dataframe.DataFrame;
 import coyote.dataframe.marshal.JSONMarshaler;
@@ -24,7 +25,7 @@ import coyote.dx.reader.AbstractFrameReader;
 import coyote.dx.task.AbstractTransformTask;
 import coyote.dx.transform.AbstractFrameTransform;
 import coyote.dx.validate.AbstractValidator;
-import coyote.dx.vault.VaultProxy;
+import coyote.dx.vault.*;
 import coyote.dx.writer.AbstractFrameWriter;
 import coyote.loader.cfg.Config;
 import coyote.loader.log.Log;
@@ -45,26 +46,48 @@ import java.util.List;
  */
 public class TransformEngineFactory {
 
-  /** Constant to assist in determining the full class name of readers */
+  /**
+   * Constant to assist in determining the full class name of readers
+   */
   private static final String READER_PKG = AbstractFrameReader.class.getPackage().getName();
-  /** Constant to assist in determining the full class name of writers */
+  /**
+   * Constant to assist in determining the full class name of writers
+   */
   private static final String WRITER_PKG = AbstractFrameWriter.class.getPackage().getName();
-  /** Constant to assist in determining the full class name of listeners */
+  /**
+   * Constant to assist in determining the full class name of listeners
+   */
   private static final String LISTENER_PKG = AbstractListener.class.getPackage().getName();
-  /** Constant to assist in determining the full class name of tasks */
+  /**
+   * Constant to assist in determining the full class name of tasks
+   */
   private static final String TASK_PKG = AbstractTransformTask.class.getPackage().getName();
-  /** Constant to assist in determining the full class name of validators */
+  /**
+   * Constant to assist in determining the full class name of validators
+   */
   private static final String VALIDATOR_PKG = AbstractValidator.class.getPackage().getName();
-  /** Constant to assist in determining the full class name of frame transformers */
+  /**
+   * Constant to assist in determining the full class name of frame transformers
+   */
   private static final String TRANSFORM_PKG = AbstractFrameTransform.class.getPackage().getName();
-  /** Constant to assist in determining the full class name of frame mappers */
+  /**
+   * Constant to assist in determining the full class name of frame mappers
+   */
   private static final String MAPPER_PKG = AbstractFrameMapper.class.getPackage().getName();
-  /** Constant to assist in determining the full class name of frame filters */
+  /**
+   * Constant to assist in determining the full class name of frame filters
+   */
   private static final String FILTER_PKG = AbstractFrameFilter.class.getPackage().getName();
-  /** Constant to assist in determining the full class name of frame aggregators */
+  /**
+   * Constant to assist in determining the full class name of frame aggregators
+   */
   private static final String AGGREGATOR_PKG = AbstractFrameAggregator.class.getPackage().getName();
-  /** Constant to assist in determining the full class name of vault implementations */
-  private static final String VAULT_PKG = VaultProxy.class.getPackage().getName();
+
+  private static final String PROVIDER = "Provider";
+  private static final String METHOD = "Method";
+  private static final String SOURCE = "Source";
+  private static final String LOCAL = "Local";
+  private static final String FILE = "File";
 
 
   /**
@@ -127,7 +150,7 @@ public class TransformEngineFactory {
           }
         } else if (StringUtil.equalsIgnoreCase(ConfigTag.VAULT, field.getName())) {
           if (field.isFrame()) {
-            configVault((DataFrame) field.getObjectValue(), retval);
+            configVault((DataFrame) field.getObjectValue());
           } else {
             Log.error("Invalid vault configuration section");
           }
@@ -230,16 +253,47 @@ public class TransformEngineFactory {
   }
 
 
-  private static void configVault(DataFrame cfg, TransformEngine engine) {
-    // A big todo:
-    // Use the Vault builder to create the vault implementation and place it in the Template via VaultProxy
+  /**
+   * Create a vault and place it in the Template fixture.
+   *
+   * @param cfg the configuration for the vault
+   */
+  private static void configVault(DataFrame cfg) {
+    VaultBuilder builder = new VaultBuilder();
+    for (DataField field : cfg.getFields()) {
+      if (PROVIDER.equalsIgnoreCase(field.getName())) {
+        builder.setProvider(field.getStringValue());
+      } else if (METHOD.equalsIgnoreCase(field.getName())) {
+        builder.setMethod(field.getStringValue());
+      } else if (SOURCE.equalsIgnoreCase(field.getName())) {
+        builder.setSource(field.getStringValue());
+      } else {
+        builder.setProperty(field.getName(), field.getStringValue());
+      }
+    }
+
+    // if no provider, assume local
+    if (StringUtil.isBlank(builder.getProvider())) builder.setProvider(LOCAL);
+
+    // if no method && local provider, assume file
+    if (StringUtil.isBlank(builder.getMethod()) && LOCAL.equalsIgnoreCase(builder.getProvider()))
+      builder.setMethod(FILE);
+
+    try {
+      Vault vault = builder.build();
+      Template.put(new VaultProxy(vault));
+    } catch (ConfigurationException e) {
+      e.printStackTrace();
+    } catch (VaultException e) {
+      e.printStackTrace();
+    }
   }
 
 
   /**
    * Configure the preloader
    *
-   * @param cfg the configuration section to use in configuring the components
+   * @param cfg    the configuration section to use in configuring the components
    * @param engine the engine to configure
    */
   private static void configPreloader(DataFrame cfg, TransformEngine engine) {
@@ -270,7 +324,7 @@ public class TransformEngineFactory {
   /**
    * Configure the aggregator
    *
-   * @param cfg the configuration section to use in configuring the components
+   * @param cfg    the configuration section to use in configuring the components
    * @param engine the engine to configure
    */
   private static void configAggregator(DataFrame cfg, TransformEngine engine) {

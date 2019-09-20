@@ -8,6 +8,7 @@
 package coyote.dx.vault.provider;
 
 import coyote.commons.StringUtil;
+import coyote.dx.ConfigTag;
 import coyote.dx.vault.ConfigurationException;
 import coyote.dx.vault.Provider;
 import coyote.dx.vault.Vault;
@@ -22,16 +23,6 @@ import java.util.Map;
  * <p>This can be used as a reference implementation or template for other providers.</p>
  */
 public class Local implements Provider {
-
-  /**
-   * The name of the property representing the name of the vault file to load.
-   */
-  public static final String FILENAME = "filename";
-
-  /**
-   * The name of the property representing the password used to decrypt the vault
-   */
-  public static final String PASSWORD = "password";
 
   /**
    * Name of this provider
@@ -50,14 +41,14 @@ public class Local implements Provider {
    */
   @Override
   public Vault createVault(String method, Map<String, String> properties) throws ConfigurationException, VaultException {
-    NullVault retval = new NullVault();
-    String filename = getProperty(FILENAME, properties);
+    LocalVault retval = new LocalVault();
+    String filename = getProperty(ConfigTag.SOURCE, properties);
     if (StringUtil.isNotEmpty(filename)) {
       retval.setFilename(filename);
     } else {
       throw new ConfigurationException("Local provider requires a filename");
     }
-    String password = getProperty(PASSWORD, properties);
+    String password = getProperty(ConfigTag.PASSWORD, properties);
     if (StringUtil.isNotEmpty(password)) {
       retval.setPassword(password);
     } else {

@@ -232,24 +232,6 @@ xsi:schemaLocation="http://izpack.org/schema/installation http://izpack.org/sche
 			<description>A collection of configuration files demonstrating how to use the messaging tools.</description>
 			<fileset dir="CoyoteMT\src\resources\demo" targetdir="$INSTALL_PATH/demo" override="true"/>
 		</pack>
-		<pack name="CoyoteSV" required="no" preselected="yes" >
-			<description>Installs the Coyote Secrets Vault tools for managing secrets.</description>
-			<fileset dir="CoyoteSV\build\install\CoyoteSV\doc" targetdir="$INSTALL_PATH/doc" override="true"/>
-			<fileset dir="CoyoteSV\src\dist\bin" targetdir="$INSTALL_PATH/bin" override="true"/>
-			<fileset dir="CoyoteSV\src\resources\licenses" targetdir="$INSTALL_PATH/doc/licenses" override="true"/>
-			<fileset dir="CoyoteSV\build\install\CoyoteSV\lib" targetdir="$INSTALL_PATH/lib" includes="CoyoteSV*.jar" override="true"/>
-			<fileset dir="CoyoteSV\build\install\CoyoteSV\lib" targetdir="$INSTALL_PATH/lib" includes="CoyoteVault*.jar" override="true"/>
-		</pack>
-		<pack name="CoyoteSV Source" required="no" preselected="no" >
-			<description>The source code and javadoc files for the Coyote Secrets Vault tools.</description>
-			<fileset dir="CoyoteSV\build\libs" targetdir="$INSTALL_PATH/doc/CoyoteSV" includes="*-javadoc.jar" override="true"/>
-			<fileset dir="CoyoteSV\build\libs" targetdir="$INSTALL_PATH/doc/CoyoteSV" includes="*-sources.jar" override="true"/>
-		</pack>
-		<pack name="CoyoteSV Demo" required="no" preselected="no" >
-			<description>A collection of configuration files demonstrating how to use the secrets vault tools.</description>
-			<fileset dir="CoyoteSV\src\resources\demo" targetdir="$INSTALL_PATH/demo" override="true"/>
-		</pack>
-
 	</packs>
 	
 </izpack:installation>
