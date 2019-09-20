@@ -7,6 +7,7 @@
  */
 package coyote.dx.vault;
 
+
 /**
  * The Vault proxy wraps different Vault implementations and makes them uniformly accessible.
  *
@@ -14,6 +15,8 @@ package coyote.dx.vault;
  * underlying Vault implementations.</p>
  */
 public class VaultProxy {
+  private static final String EMPTY_VALUE = "";
+  private static final String PASSWORD = "password";
   private final Vault vault;
 
   public VaultProxy(Vault vault) {
@@ -34,7 +37,7 @@ public class VaultProxy {
    * @return the identified element value or an empty string if not found or if the element is empty. This will never return null.
    */
   public String get(String entryId) {
-    return "";
+    return get(entryId, PASSWORD);
   }
 
   /**
@@ -45,7 +48,14 @@ public class VaultProxy {
    * @return the identified element value or an empty string if not found or if the element is empty. This will never return null.
    */
   public String get(String entryId, String entryElement) {
-    return "";
+    String retval = EMPTY_VALUE;
+    if (vault != null) {
+      VaultEntry entry = vault.getEntry(entryId);
+      if (entry != null) {
+        retval = entry.get(entryElement);
+      }
+    }
+    return retval;
   }
 
 }

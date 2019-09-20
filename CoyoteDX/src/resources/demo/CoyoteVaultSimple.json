@@ -25,7 +25,10 @@
       "class": "ConsoleWriter",
       "format": "json",
       "indent": false,
-      "message": "Record [#$CurrentFrame#] received."
+      "messageX": "Bob's username is -->[#Vault.get(Bob,username)#]<--",
+      "messageY": "Bob's password is -->[#Vault.get(Bob,password)#]<--",
+      "messageZ": "Bob's notes are -->[#Vault.get(Bob,notes)#]<--",
+      "message": "Bob's password is -->[#Vault.get(Bob)#]<--"
     }
   }
 }
