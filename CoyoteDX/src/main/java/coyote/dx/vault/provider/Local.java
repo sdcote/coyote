@@ -15,6 +15,7 @@ import coyote.dx.vault.Provider;
 import coyote.dx.vault.Vault;
 import coyote.dx.vault.VaultException;
 import coyote.loader.Loader;
+import coyote.loader.log.Log;
 
 import java.util.Map;
 
@@ -52,6 +53,7 @@ public class Local implements Provider {
   public Vault createVault(String method, String source, Map<String, String> properties) throws ConfigurationException, VaultException {
     LocalVault retval = new LocalVault();
     if (StringUtil.isNotEmpty(source)) {
+
       retval.setFilename(source);
     } else {
       throw new ConfigurationException("Local provider requires a source configuration element");
@@ -64,9 +66,14 @@ public class Local implements Provider {
       }
     }
     if (StringUtil.isBlank(password)) {
-      password = System.getProperty(VAULT_SECRET, DEFAULT_SECRET);
+      password = System.getProperty(VAULT_SECRET);
+      if (StringUtil.isNotBlank(password)) {
+        Log.notice("Vault is using provided vault secret from system property");
+      } else {
+        Log.notice("Vault could not find vault secret from system property");
+        password = DEFAULT_SECRET;
+      }
     }
-
     if (StringUtil.isNotEmpty(password)) {
       retval.setPassword(password);
     } else {
