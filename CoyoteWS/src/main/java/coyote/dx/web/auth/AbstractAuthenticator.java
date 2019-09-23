@@ -12,6 +12,8 @@
 package coyote.dx.web.auth;
 
 import coyote.commons.CipherUtil;
+import coyote.commons.template.SymbolTable;
+import coyote.commons.template.Template;
 import coyote.dataframe.DataField;
 import coyote.dataframe.DataFrame;
 import coyote.dataframe.DataFrameException;
@@ -89,9 +91,9 @@ public abstract class AbstractAuthenticator implements Authenticator {
     if ( configuration != null ) {
       for ( DataField field : configuration.getFields() ) {
         if ( ConfigTag.USERNAME.equalsIgnoreCase( field.getName() ) ) {
-          setUsername( field.getStringValue() );
+          setUsername( Template.resolve( field.getStringValue(),new SymbolTable()) );
         } else if ( ConfigTag.PASSWORD.equalsIgnoreCase( field.getName() ) ) {
-          setPassword( field.getStringValue() );
+          setPassword( Template.resolve(field.getStringValue(),new SymbolTable()) );
         } else if ( (Loader.ENCRYPT_PREFIX+ConfigTag.USERNAME).equalsIgnoreCase( field.getName() ) ) {
           setUsername( CipherUtil.decryptString( field.getStringValue() ) );
         } else if ( (Loader.ENCRYPT_PREFIX+ConfigTag.PASSWORD).equalsIgnoreCase( field.getName() ) ) {

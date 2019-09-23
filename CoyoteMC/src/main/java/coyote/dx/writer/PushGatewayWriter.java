@@ -3,6 +3,7 @@ package coyote.dx.writer;
 import coyote.commons.CipherUtil;
 import coyote.commons.ExceptionUtil;
 import coyote.commons.StringUtil;
+import coyote.commons.template.Template;
 import coyote.dataframe.DataField;
 import coyote.dataframe.DataFrame;
 import coyote.dx.CDX;
@@ -151,11 +152,15 @@ public class PushGatewayWriter extends AbstractFrameWriter implements FrameWrite
       String encryptedUsername = getConfiguration().getString(Loader.ENCRYPT_PREFIX + ConfigTag.USERNAME);
       if (encryptedUsername != null) username = CipherUtil.decryptString(encryptedUsername);
     }
+    username = Template.resolve(username, getContext().getSymbols());
+
     String password = getConfiguration().getString(ConfigTag.PASSWORD);
     if (password == null) {
       String encryptedPassword = getConfiguration().getString(Loader.ENCRYPT_PREFIX + ConfigTag.PASSWORD);
       if (encryptedPassword != null) password = CipherUtil.decryptString(encryptedPassword);
     }
+    password = Template.resolve(password, getContext().getSymbols());
+
     if (StringUtil.isNotEmpty(username)) {
       connectionFactory = new BasicAuthHttpConnectionFactory(connectionFactory, username, password);
     }

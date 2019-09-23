@@ -7,7 +7,7 @@ ext {
 	provider = 'Coyote Systems'
 	junitVersion = '4.12'
 	loaderVersion = '0.7.20'
-	vaultVersion = '0.0.2'
+	vaultVersion = '0.0.3'
 }
 dependencies {
 	compile "coyote:Loader:$loaderVersion"

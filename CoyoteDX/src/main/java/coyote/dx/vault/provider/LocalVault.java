@@ -69,12 +69,13 @@ public class LocalVault implements Vault {
           if (key.equals(entry.getName())) {
             retval = new VaultEntry();
             retval.set(coyote.vault.Vault.NAME_TAG, entry.getName());
-            retval.set(coyote.vault.Vault.USER_TAG, entry.getUser());
+            retval.set(coyote.vault.Vault.USER_TAG, entry.getUsername());
             retval.set(coyote.vault.Vault.URL_TAG, entry.getUrl());
             retval.set(coyote.vault.Vault.NOTES_TAG, entry.getNotes());
             retval.set(coyote.vault.Vault.PUBLIC_KEY_TAG, entry.getPublicKey());
             retval.set(coyote.vault.Vault.PRIVATE_KEY_TAG, entry.getPrivateKey());
             retval.set(coyote.vault.Vault.PASSWORD_TAG, entry.getPassword());
+            break;
           }
         }
       }
