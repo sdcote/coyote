@@ -10,7 +10,7 @@
       "This uses the local secrets vault and requires the -Dvault.secret=SomePassword to be set to retrieve secrets. "
     ],
 
-    "Vault": { "source": "aep.vault" },
+    "Vault": { "source": "demo.vault" },
 
     "Preprocess": {
       "ReadIntoContext": { "source": "../SnowSprintPropertyWriter/sprint.properties" }

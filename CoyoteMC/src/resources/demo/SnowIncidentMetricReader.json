@@ -3,6 +3,8 @@
 
   "Job": {
 
+    "Vault": { "source": "demo.vault" },
+
     "Reader" : {
       "class" : "SnowIncidentMetricReader",
       "source" : "https://servicenow.aepsc.com/",
@@ -11,8 +13,8 @@
       "instance": "iforgot",
       "authenticator": {
         "class" : "BasicAuthentication",
-        "ENC:username" : "zPzKAGYBWbVRCDqmV4DXvYrFrtQn/QXi",
-        "ENC:password" : "KBSfnRv5kh0UO/dcwkHYck/0zSb2fqnl",
+        "username" : "[#Vault.get(SnowUser,username)#]",
+        "password" : "[#Vault.get(SnowUser,password)#]",
         "preemptive" : true
       }
     },
@@ -21,8 +23,8 @@
       "enabled": false,
       "class": "PushGatewayWriter",
       "target": "http://p4002384:9091",
-      "ENC:username": "Emfh2SXtctlGrtCbYrfAaCpZEOK6recq",
-      "ENC:password": "zCRMZyN7G/YpdV8TyhQTEcthIXKGwTNz"
+      "username" : "[#Vault.get(PushGateway,username)#]",
+      "password" : "[#Vault.get(PushGateway,password)#]"
     },
     "Writer" : {
       "class" : "ConsoleWriter",

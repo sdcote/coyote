@@ -3,6 +3,8 @@
 
   "Job": {
 
+    "Vault": { "source": "demo.vault" },
+
     "Reader" : {
       "class" : "SnowSprintReader",
       "source" : "https://servicenow.aepsc.com/",
@@ -11,8 +13,8 @@
       "instance": "EAF",
       "authenticator": {
         "class" : "BasicAuthentication",
-        "ENC:username" : "zPzKAGYBWbVRCDqmV4DXvYrFrtQn/QXi",
-        "ENC:password" : "KBSfnRv5kh0UO/dcwkHYck/0zSb2fqnl",
+        "username" : "[#Vault.get(SnowUser,username)#]",
+        "password" : "[#Vault.get(SnowUser,password)#]",
         "preemptive" : true
       }
     },

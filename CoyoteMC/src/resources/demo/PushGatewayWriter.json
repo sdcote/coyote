@@ -8,7 +8,8 @@
 		"normally open push gateway service and the other monitoring components."
 	],
 	"Job" : {
-		"Name" : "StaticReader",
+
+		"Vault": { "source": "demo.vault" },
 
 		"Reader" : {
 			"class" : "StaticReader",
@@ -23,8 +24,8 @@
 		"Writer": {
 			"class": "PushGatewayWriter",
 			"target": "http://localhost:9091",
-			"username": "metrics",
-			"password": "monitor"
+			"username" : "[#Vault.get(PushGateway,username)#]",
+			"password" : "[#Vault.get(PushGateway,password)#]"
 		}
 	},
 

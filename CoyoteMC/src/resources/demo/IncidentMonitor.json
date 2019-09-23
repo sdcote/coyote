@@ -2,7 +2,8 @@
   "Class": "coyote.dx.Job",
 
   "Job": {
-    "Name": "IncidentMetricReader",
+
+    "Vault": { "source": "demo.vault" },
 
     "Reader" : {
       "class" : "SnowIncidentMetricReader",
@@ -11,8 +12,8 @@
       "instance": "iforgot",
       "authenticator": {
         "class" : "BasicAuthentication",
-        "ENC:username": "bYrfmfhAaCpZEOK6recqE2SXtctlGrtC",
-        "ENC:password": "V8TyhQTEcZyhIXKGwTNzN7zCRMpdG/Yt",
+        "username" : "[#Vault.get(SnowUser,username)#]",
+        "password" : "[#Vault.get(SnowUser,password)#]",
         "preemptive" : true
       }
     },
