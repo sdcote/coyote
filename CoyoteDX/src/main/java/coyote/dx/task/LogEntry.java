@@ -1,8 +1,8 @@
 /*
  * Copyright (c) 2015 Stephan D. Cote' - All rights reserved.
- * 
- * This program and the accompanying materials are made available under the 
- * terms of the MIT License which accompanies this distribution, and is 
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the MIT License which accompanies this distribution, and is
  * available at http://creativecommons.org/licenses/MIT/
  */
 package coyote.dx.task;
@@ -16,6 +16,8 @@ import coyote.loader.log.Log;
 
 /**
  * A task which generates a log entry.
+ *
+ * <p>Since this uses the Templating facility. This is a good way to debug the symbol table and confirm vault entries.</p>
  */
 public class LogEntry extends AbstractTransformTask {
 
@@ -27,16 +29,12 @@ public class LogEntry extends AbstractTransformTask {
   }
 
 
-
-
   public String getCategory() {
     if (configuration.containsIgnoreCase(ConfigTag.CATEGORY)) {
       return configuration.getString(ConfigTag.CATEGORY);
     }
     return null;
   }
-
-
 
 
   /**
