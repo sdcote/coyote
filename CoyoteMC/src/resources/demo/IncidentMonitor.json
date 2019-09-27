@@ -1,33 +1,27 @@
 {
   "Class": "coyote.dx.Job",
-
   "Job": {
-
     "Vault": { "source": "demo.vault" },
-
-    "Reader" : {
-      "class" : "SnowIncidentMetricReader",
-      "source" : "https://servicenow.aepsc.com/",
+    "Reader": {
+      "class": "SnowIncidentMetricReader",
+      "source": "https://servicenow.aepsc.com/",
       "ConfigurationItem": "https://iforgot.aep.com",
       "instance": "iforgot",
       "authenticator": {
-        "class" : "BasicAuthentication",
-        "username" : "[#Vault.get(SnowUser,username)#]",
-        "password" : "[#Vault.get(SnowUser,password)#]",
-        "preemptive" : true
+        "class": "BasicAuthentication",
+        "username": "[#Vault.get(SnowUser,username)#]",
+        "password": "[#Vault.get(SnowUser,password)#]",
+        "preemptive": true
       }
     },
-
-    "Writer" : {
-      "class" : "ConsoleWriter",
-      "format" : "json",
-      "indent" : true
+    "Writer": {
+      "class": "ConsoleWriter",
+      "format": "json",
+      "indent": true
     }
   },
-
   "Logging": {
-    "StandardError": {"categories": "error, fatal, warn" },
+    "StandardError": { "categories": "error, fatal, warn" },
     "StandardOutput": { "categories": "info, notice" }
   }
-
 }

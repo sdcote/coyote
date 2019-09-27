@@ -1,35 +1,29 @@
 {
   "Class": "coyote.dx.Job",
-
   "Job": {
-
     "Vault": { "source": "demo.vault" },
-
-    "Reader" : {
-      "class" : "SnowSprintReader",
-      "source" : "https://servicenow.aepsc.com/",
+    "Reader": {
+      "class": "SnowSprintReader",
+      "source": "https://servicenow.aepsc.com/",
       "releaseXXX": "RLSE0010497",
       "product": "EAF - Enterprise Authentication Framework",
       "instance": "EAF",
       "authenticator": {
-        "class" : "BasicAuthentication",
-        "username" : "[#Vault.get(SnowUser,username)#]",
-        "password" : "[#Vault.get(SnowUser,password)#]",
-        "preemptive" : true
+        "class": "BasicAuthentication",
+        "username": "[#Vault.get(SnowUser,username)#]",
+        "password": "[#Vault.get(SnowUser,password)#]",
+        "preemptive": true
       }
     },
-
-    "Writer" : {
-      "class" : "ConsoleWriter",
-      "format" : "json",
-      "indent" : false,
-      "message" : "Record [#$CurrentFrame#] received."
+    "Writer": {
+      "class": "ConsoleWriter",
+      "format": "json",
+      "indent": false,
+      "message": "Record [#$CurrentFrame#] received."
     }
   },
-
   "Logging": {
-    "StandardError": {"categories": "error, fatal, warn" },
-    "StandardOutput": { "categories": "info, notice, debug" }
+    "StandardError": { "categories": "error, fatal, warn" },
+    "StandardOutput": { "categories": "info, notice" }
   }
-
 }

@@ -1,28 +1,21 @@
 {
   "Class": "coyote.dx.Job",
-
   "Job": {
     "Name": "WebPageMetricReader",
-
-
-    "Reader" : {
-      "class" : "WebPageMetricReader",
-      "source" : "http://google.com",
-      "header" : true
+    "Reader": {
+      "class": "WebPageMetricReader",
+      "source": "http://google.com",
+      "header": true
     },
-
-    "Writer" : {
-      "class" : "ConsoleWriter",
-      "format" : "json",
-      "indent" : false,
-      "message" : "Record [#$CurrentFrame#] received."
+    "Writer": {
+      "class": "ConsoleWriter",
+      "format": "json",
+      "indent": false,
+      "message": "Record [#$CurrentFrame#] received."
     }
   },
-
-
   "Logging": {
-    "StandardError": {"categories": "error, fatal, warn" },
+    "StandardError": { "categories": "error, fatal, warn" },
     "StandardOutput": { "categories": "info, notice, debug" }
   }
-
 }

@@ -1,6 +1,5 @@
 {
   "Class": "coyote.dx.Job",
-
   "Job": {
     "description": [
       "This reads in all the sprints for a product and sends then through the transformation engine for processing.",
@@ -10,38 +9,34 @@
       "The expectation is other components will read this file into it context to control the threshold value for 'new' items.",
       "A job like this should only need be run once a day; sprint dates should not change more often than that."
     ],
-
     "Vault": { "source": "demo.vault" },
-
-    "Reader" : {
-      "class" : "SnowSprintReader",
-      "source" : "https://servicenow.aepsc.com/",
+    "Reader": {
+      "class": "SnowSprintReader",
+      "source": "https://servicenow.aepsc.com/",
       "product": "EAF - Enterprise Authentication Framework",
       "instance": "EAF",
       "authenticator": {
-        "class" : "BasicAuthentication",
-        "username" : "[#Vault.get(SnowUser,username)#]",
-        "password" : "[#Vault.get(SnowUser,password)#]",
-        "preemptive" : true
+        "class": "BasicAuthentication",
+        "username": "[#Vault.get(SnowUser,username)#]",
+        "password": "[#Vault.get(SnowUser,password)#]",
+        "preemptive": true
       }
     },
     "Filter": {
       "Accept": { "condition": "regex(Source.state , ^2 )" },
-      "Reject": { "note": "Empty reject rejects everything by default"}
+      "Reject": { "note": "Empty reject rejects everything by default" }
     },
     "Transform": {
       "Set": { "field": "name", "value": "new.threshold" },
       "Copy": { "field": "value", "source": "schedule_start_date" }
     },
-    "Writer" : {
-      "class" : "PropertyWriter",
-      "target" : "sprint.properties"
+    "Writer": {
+      "class": "PropertyWriter",
+      "target": "sprint.properties"
     }
   },
-
   "Logging": {
-    "StandardError": {"categories": "error, fatal, warn" },
+    "StandardError": { "categories": "error, fatal, warn" },
     "StandardOutput": { "categories": "info, notice, debug" }
   }
-
 }

@@ -1,33 +1,27 @@
 {
   "Class": "coyote.dx.Job",
-
   "Job": {
-
     "Vault": { "source": "demo.vault" },
-
-    "Reader" : {
-      "class" : "SnowBacklogMetricReader",
-      "source" : "https://servicenow.aepsc.com/",
+    "Reader": {
+      "class": "SnowBacklogMetricReader",
+      "source": "https://servicenow.aepsc.com/",
       "product": "EAF - Enterprise Authentication Framework",
       "authenticator": {
-        "class" : "BasicAuthentication",
-        "username" : "[#Vault.get(SnowUser,username)#]",
-        "password" : "[#Vault.get(SnowUser,password)#]",
-        "preemptive" : true
+        "class": "BasicAuthentication",
+        "username": "[#Vault.get(SnowUser,username)#]",
+        "password": "[#Vault.get(SnowUser,password)#]",
+        "preemptive": true
       }
     },
-
-    "Writer" : {
-      "class" : "ConsoleWriter",
-      "format" : "json",
-      "indent" : false,
-      "message" : "Record [#$CurrentFrame#] received."
+    "Writer": {
+      "class": "ConsoleWriter",
+      "format": "json",
+      "indent": false,
+      "message": "Record [#$CurrentFrame#] received."
     }
   },
-
   "Logging": {
-    "StandardError": {"categories": "error, fatal, warn" },
+    "StandardError": { "categories": "error, fatal, warn" },
     "StandardOutput": { "categories": "info, notice, debug" }
   }
-
 }

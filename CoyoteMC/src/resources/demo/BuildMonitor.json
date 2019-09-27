@@ -1,6 +1,5 @@
 {
   "Class": "coyote.dx.Job",
-
   "Job": {
     "Description": [
       "This is a reader which connects to a Jenkins server and queries the build details for a particular job.",
@@ -9,46 +8,41 @@
       "their build failed over the last sprint. This interval count can give that to them.",
       "This uses the local secrets vault and requires the -Dvault.secret=SomePassword to be set to retrieve secrets. "
     ],
-
     "Vault": { "source": "demo.vault" },
-
     "Preprocess": {
-      "ReadIntoContext": { "source": "../SnowSprintPropertyWriter/sprint.properties" }
+      "ReadIntoContext": {
+        "source": "../SnowSprintPropertyWriter/sprint.properties"
+      }
     },
-
-    "Reader" : {
-      "class" : "JenkinsMetricReader",
-      "source" : "http://ecdp3:8080",
+    "Reader": {
+      "class": "JenkinsMetricReader",
+      "source": "http://ecdp3:8080",
       "job": "/job/EAF-multibranch-pipeline/job/develop",
       "instance": "develop",
       "authenticator": {
-        "class" : "BasicAuthentication",
-        "username" : "[#Vault.get(JenkinsUser,username)#]",
-        "password" : "[#Vault.get(JenkinsUser,password)#]",
-        "preemptive" : true
+        "class": "BasicAuthentication",
+        "username": "[#Vault.get(JenkinsUser,username)#]",
+        "password": "[#Vault.get(JenkinsUser,password)#]",
+        "preemptive": true
       }
     },
-
     "Writer": {
       "enabled": true,
       "class": "PushGatewayWriter",
       "target": "http://p4002384:9091",
-      "username" : "[#Vault.get(PushGateway,username)#]",
-      "password" : "[#Vault.get(PushGateway,password)#]"
+      "username": "[#Vault.get(PushGateway,username)#]",
+      "password": "[#Vault.get(PushGateway,password)#]"
     },
-    "Writer" : {
+    "Writer": {
       "enabled": false,
-      "class" : "ConsoleWriter",
-      "format" : "json",
-      "indent" : false,
-      "message" : "Record [#$CurrentFrame#] received."
+      "class": "ConsoleWriter",
+      "format": "json",
+      "indent": false,
+      "message": "Record [#$CurrentFrame#] received."
     }
   },
-
-
   "Logging": {
-    "StandardError": {"categories": "error, fatal, warn" },
+    "StandardError": { "categories": "error, fatal, warn" },
     "StandardOutput": { "categories": "info, notice, debug" }
   }
-
 }
