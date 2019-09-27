@@ -41,8 +41,8 @@ import java.util.List;
  *   "instance": "develop",
  *   "authenticator": {
  *     "class" : "BasicAuthentication",
- *     "ENC:username" : "zPz4DXvYrFrKAGYBWbVRCDqmVtQn/QXi",
- *     "ENC:password" : "KcwkH5kh0UO/dzSb2Yck/0BSfnRvfqnl",
+ *     "username": "[#Vault.get(JenkinsUser,username)#]",
+ *     "password": "[#Vault.get(JenkinsUser,password)#]",
  *     "preemptive" : true
  *   }
  * },

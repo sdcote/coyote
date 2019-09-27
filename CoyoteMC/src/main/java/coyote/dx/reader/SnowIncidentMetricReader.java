@@ -40,8 +40,8 @@ import static coyote.mc.snow.Predicate.LIKE;
  *   "instance": "widgets",
  *   "authenticator": {
  *     "class" : "BasicAuthentication",
- *     "ENC:username" : "DAGYBWbVRCN0pE0zSb2fqQXizPzKqmV4",
- *     "ENC:password" : "v5nN0Peh0UO/dcwkKXvYrFrtQn/BSfnl",
+ *     "username": "[#Vault.get(SnowUser,username)#]",
+ *     "password": "[#Vault.get(SnowUser,password)#]",
  *     "preemptive" : true
  *   }
  * },

@@ -45,8 +45,8 @@ import static coyote.mc.snow.Predicate.IS;
  *    "instance": "EAF",
  *    "authenticator": {
  *      "class" : "BasicAuthentication",
- *      "ENC:username" : "qmV4DbVRCDasdcAGYBWXvYrFrtQn/QXi",
- *      "ENC:password" : "/0zSb2K123nkHYckRv5kh0UO/dcwfqnl",
+ *      "username": "[#Vault.get(SnowUser,username)#]",
+ *      "password": "[#Vault.get(SnowUser,password)#]",
  *      "preemptive" : true
  *    }
  *  },

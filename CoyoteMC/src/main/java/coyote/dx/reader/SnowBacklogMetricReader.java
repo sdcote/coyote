@@ -53,8 +53,8 @@ import static coyote.mc.snow.Predicate.LIKE;
  *   "product": "My Project Name",
  *   "authenticator": {
  *     "class" : "BasicAuthentication",
- *     "ENC:username" : "DXvYrFrtzPzKAGYBWbVRCDqmV4Qn/QXi",
- *     "ENC:password" : "UO/dcwkHYck/0zSKBSfnRv5kh0b2fqnl",
+ *     "username" : "jsmith",
+ *     "password" : "passwd",
  *     "preemptive" : true
  *   }
  * },
