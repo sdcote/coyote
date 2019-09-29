@@ -19,7 +19,7 @@ import coyote.dx.context.TransformContext;
  * both the context and the symbol table for other components to use.
  * 
  * <p>Calculations are performed after the mapping operation, so the field 
- * name is expeceted to represent the final mapped name In the target frame 
+ * name is expected to represent the final mapped name In the target frame
  * the writers use to generate records. 
  * 
  * <p>The name of the field is used as the base of the context and symbol 

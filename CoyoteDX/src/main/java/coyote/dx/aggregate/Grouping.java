@@ -32,7 +32,7 @@ import coyote.loader.log.Log;
  * for all data to be read in before processing begins. For example, if 
  * processing the prices of a product over the last week, it would be easier 
  * if each products price would appear together as a group so when a new 
- * product is observed, the processing of the pervious product can be 
+ * product is observed, the processing of the previous product can be
  * concluded and resources returned for subsequent processing and not left 
  * open for the duration of the transfer job.
  * 
@@ -60,7 +60,7 @@ import coyote.loader.log.Log;
  * {@code limit} number of samples for each device all grouped by device key
  * for simple break processing.
  * 
- * <p>A sample configurate is as follows:<pre>
+ * <p>A sample configuration is as follows:<pre>
  * "Aggregator": { "class": "Grouping", "key":"Symbol", "limit": 288, "sort":"ascend" }</pre>
  * The above configuration groups all 
  */

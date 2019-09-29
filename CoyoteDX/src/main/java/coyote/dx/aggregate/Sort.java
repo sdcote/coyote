@@ -31,9 +31,9 @@ import coyote.loader.log.Log;
  * completion, will create a duplicate list in sorted order. This is not 
  * optimal and a more memory efficient approach should be developed. 
  * 
- * <p>A sample configurate is as follows:<pre>
+ * <p>A sample configuration is as follows:<pre>
  * "Aggregator": { "class": "Sort", "field":"Price", "sort":"decend" }</pre>
- * The above configuration sort all the frames in decending order by price. 
+ * The above configuration sort all the frames in descending order by price.
  */
 public class Sort extends AbstractFrameAggregator implements FrameAggregator {
 
