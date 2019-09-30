@@ -42,6 +42,7 @@
     }
   },
   "Logging": {
+    "FileAppender": { "target": "BuildMonitor.log", "append": false, "categories": "error, fatal, warn, notice, info", "enabled": false },
     "StandardError": { "categories": "error, fatal, warn" },
     "StandardOutput": { "categories": "info, notice, debug" }
   }

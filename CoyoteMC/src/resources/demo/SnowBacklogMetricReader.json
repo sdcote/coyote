@@ -21,6 +21,7 @@
     }
   },
   "Logging": {
+    "FileAppender": { "target": "SnowBacklogMetricReader.log", "append": false, "categories": "error, fatal, warn, notice, info" },
     "StandardError": { "categories": "error, fatal, warn" },
     "StandardOutput": { "categories": "info, notice, debug" }
   }
