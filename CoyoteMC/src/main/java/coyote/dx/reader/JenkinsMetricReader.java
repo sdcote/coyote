@@ -183,6 +183,7 @@ public class JenkinsMetricReader extends WebServiceReader implements FrameReader
 
       // replace the dataframes with our metrics
       dataframes = generateMetrics(builds);
+      context.setLastFrame(false);
     }
     return super.read(context); // start returning all the replaced dataframes
   }

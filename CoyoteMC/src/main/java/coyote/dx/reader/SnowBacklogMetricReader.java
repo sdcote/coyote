@@ -147,6 +147,7 @@ public class SnowBacklogMetricReader extends SnowMetricReader implements FrameRe
 
       // replace the dataframes with our metrics
       dataframes = generateMetrics(stories);
+      context.setLastFrame(false);
     }
     return super.read(context); // return all the replaced dataframes
   }

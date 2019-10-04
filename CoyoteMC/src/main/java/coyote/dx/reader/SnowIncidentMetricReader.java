@@ -138,6 +138,7 @@ public class SnowIncidentMetricReader extends SnowMetricReader implements FrameR
 
       // replace the dataframes with our metrics
       dataframes = generateMetrics(incidents);
+      context.setLastFrame(false);
     }
     return super.read(context); // start returning all the replaced dataframes
   }
