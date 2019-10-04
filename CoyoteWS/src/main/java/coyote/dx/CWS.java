@@ -39,7 +39,7 @@ import coyote.loader.log.LogMsg.BundleBaseName;
  * 
  */
 public class CWS {
-  public static final Version VERSION = new Version(0, 1, 0, Version.DEVELOPMENT);
+  public static final Version VERSION = new Version(0, 2, 0, Version.DEVELOPMENT);
   public static final String NAME = "CoyoteWS";
 
   /** Constant to assist in determining the full class name of authenticators */
