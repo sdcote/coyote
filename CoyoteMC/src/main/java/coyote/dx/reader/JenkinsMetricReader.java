@@ -10,6 +10,7 @@ package coyote.dx.reader;
 
 import coyote.commons.DateUtil;
 import coyote.commons.StringUtil;
+import coyote.commons.network.http.Method;
 import coyote.dataframe.DataFrame;
 import coyote.dataframe.DataFrameException;
 import coyote.dx.CMC;
@@ -164,6 +165,8 @@ public class JenkinsMetricReader extends WebServiceReader implements FrameReader
       window = getContext().getStartTime() - DEFAULT_INTERVAL;
       Log.debug("Using default interval for for new build threshold: " + new Date(window).toString() + " - " + window);
     }
+
+    getResource().getDefaultParameters().setMethod(Method.GET);
   }
 
   /**
