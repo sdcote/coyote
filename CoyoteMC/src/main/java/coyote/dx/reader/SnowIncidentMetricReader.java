@@ -48,7 +48,7 @@ import static coyote.mc.snow.Predicate.LIKE;
  * </pre>
  * <p>In the above the optional {@code product} configuration element is used to query the releases and sprint tables
  * for that product to determine the current sprint. The start date-time is used in determining what is considered a
- * "new" incident. If no product is specified, then the default sliding window of two weeks is used. If the product,
+ * "new" incident. If no product is specified, then the default sliding window of 24 hours is used. If the product,
  * its releases, or any otherwise active sprint is found, all incidents will appear new and the new count will equal
  * the total count.</p>
  *
@@ -57,9 +57,10 @@ import static coyote.mc.snow.Predicate.LIKE;
  * <p>The {@code instance} element is used to specify the instance name grouping key for the metrics.</p>
  */
 public class SnowIncidentMetricReader extends SnowMetricReader implements FrameReader {
-  private static final long TWO_WEEKS = 1000 * 60 * 60 * 24 * 14; // in milliseconds
+  private static final long TWO_WEEKS = 1000 * 60 * 60 * 24; // in milliseconds
   private static final String NEW_ACTIVE_INCIDENT_COUNT = "incident_active_new_count";
   private static final String ACTIVE_INCIDENT_COUNT = "incident_active_count";
+  private static final String ACTIVE_INCIDENT_AGE_AVG = "incident_active_age_avg";
   SnowDateTime sprintStart = null;
   private List<SnowIncident> incidents = null;
   private String instanceName = null;
@@ -82,14 +83,23 @@ public class SnowIncidentMetricReader extends SnowMetricReader implements FrameR
     if (context.isNotInError()) {
       if (filter == null) {
         String configurationItem = getConfiguration().getString(CONFIG_ITEM);
-        if (StringUtil.isBlank(configurationItem)) {
-          context.setError("The " + getClass().getSimpleName() + " configuration did not contain the '" + CONFIG_ITEM + "' or '" + ConfigTag.FILTER + "' element");
+        String assignmentGroup = getConfiguration().getString(ASSIGN_GROUP);
+
+        if (StringUtil.isBlank(configurationItem) && StringUtil.isBlank(assignmentGroup)) {
+          context.setError("The " + getClass().getSimpleName() + " configuration did not contain the '" + CONFIG_ITEM + "' or '" + ASSIGN_GROUP + "' or '" + ConfigTag.FILTER + "' element");
           context.setState("Configuration Error");
           return;
-        }
-        filter = new SnowFilter("cmdb_ci", LIKE, configurationItem).and("active", IS, "true");
-      }
+        } else {
+          filter = new SnowFilter("active", IS, "true");
 
+          if (StringUtil.isNotBlank(configurationItem)) {
+            filter.and("cmdb_ci", LIKE, configurationItem);
+          }
+          if (StringUtil.isNotBlank(assignmentGroup)) {
+            filter.and("assignment_group", LIKE, assignmentGroup);
+          }
+        }
+      }
       getResource().getDefaultParameters().setMethod(Method.GET);
     } // context not in error
   }
@@ -120,7 +130,7 @@ public class SnowIncidentMetricReader extends SnowMetricReader implements FrameR
       if (sprintStart == null) sprintStart = new SnowDateTime(new Date(getContext().getStartTime() - TWO_WEEKS));
 
       try {
-        getResource().setPath("incident_list.do?JSONv2&sysparm_query=" + filter.toEncodedString());
+        getResource().setPath("incident.do?JSONv2&sysparm_query=" + filter.toEncodedString());
       } catch (URISyntaxException e) {
         e.printStackTrace();
       }
@@ -153,26 +163,47 @@ public class SnowIncidentMetricReader extends SnowMetricReader implements FrameR
   private List<DataFrame> generateIncidentTypeCounts(List<SnowIncident> incidents) {
     List<DataFrame> metrics = new ArrayList<>();
     Map<String, Integer> counts = new HashMap<>();
+    Map<String, Integer> ageSums = new HashMap<>();
+
     for (int i = 1; i <= 5; i++) {
       counts.put(ServiceNow.getPriorityValue(Integer.toString(i)).toLowerCase(), 0);
+      ageSums.put(ServiceNow.getPriorityValue(Integer.toString(i)).toLowerCase(), 0);
     }
     int total = 0;
+    int sumOfAges = 0;
     for (SnowIncident incident : incidents) {
       if (incident.isActive()) {
         total++;
+        int age = incident.getAgeInMinutes();
+        sumOfAges += age;
         String priority = ServiceNow.getPriorityValue(incident.getPriority()).toLowerCase();
         if (counts.get(priority) != null) {
           counts.put(priority, counts.get(priority) + 1);
+          ageSums.put(priority, ageSums.get(priority) + age);
         } else {
           counts.put(priority, 1);
+          ageSums.put(priority, age);
         }
       }
     }
     for (Map.Entry<String, Integer> entry : counts.entrySet()) {
+      int ageSum = ageSums.get(entry.getKey());
+      int count = entry.getValue();
       DataFrame metric = new DataFrame();
       metric.set(ConfigTag.NAME, "incident_" + entry.getKey() + "_count");
-      metric.set(ConfigTag.VALUE, entry.getValue());
+      metric.set(ConfigTag.VALUE, count);
       metric.set(ConfigTag.HELP, "The number of active incidents items with the priority of '" + entry.getKey() + "'");
+      metric.set(ConfigTag.TYPE, CMC.GAUGE);
+      metric.set(INSTANCE, instanceName);
+      metrics.add(metric);
+      metric = new DataFrame();
+      metric.set(ConfigTag.NAME, "incident_" + entry.getKey() + "_age_avg");
+      if( count>0) {
+        metric.set(ConfigTag.VALUE, ageSum / count);
+      } else {
+        metric.set(ConfigTag.VALUE, 0);
+      }
+      metric.set(ConfigTag.HELP, "The average age in minutes of active incidents items with the priority of '" + entry.getKey() + "'");
       metric.set(ConfigTag.TYPE, CMC.GAUGE);
       metric.set(INSTANCE, instanceName);
       metrics.add(metric);
@@ -184,9 +215,16 @@ public class SnowIncidentMetricReader extends SnowMetricReader implements FrameR
     metric.set(ConfigTag.TYPE, CMC.GAUGE);
     metric.set(INSTANCE, instanceName);
     metrics.add(metric);
-
+    metric = new DataFrame();
+    metric.set(ConfigTag.NAME, ACTIVE_INCIDENT_AGE_AVG);
+    metric.set(ConfigTag.VALUE, sumOfAges/total);
+    metric.set(ConfigTag.HELP, "The average age in minutes of all active incidents");
+    metric.set(ConfigTag.TYPE, CMC.GAUGE);
+    metric.set(INSTANCE, instanceName);
+    metrics.add(metric);
     return metrics;
   }
+
 
   private List<DataFrame> generateNewIncidentCounts(List<SnowIncident> incidents) {
     List<DataFrame> metrics = new ArrayList<>();

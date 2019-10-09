@@ -12,12 +12,14 @@ import coyote.dataframe.DataFrame;
 import coyote.dataframe.marshal.JSONMarshaler;
 
 import java.text.ParseException;
+import java.util.Date;
 
 
 /**
  * Represents a single record/row from a table
  */
 public class SnowRecord extends DataFrame {
+  private static final int MINUTE = 1000 * 60;
   protected SnowKey key;
   protected SnowDateTime updatedTimestamp;
   protected SnowDateTime createdTimestamp;
@@ -255,6 +257,18 @@ public class SnowRecord extends DataFrame {
    */
   public String getShortDescription() {
     return getAsString(ServiceNowFields.SHORT_DESCRIPTION);
+  }
+
+  /**
+   * @return the age of this incident in minutes
+   */
+  public int getAgeInMinutes() {
+    int retval = 0;
+    if (createdTimestamp != null) {
+      long elapsed = new Date().getTime() - createdTimestamp.toDate().getTime();
+      retval = (int) elapsed / MINUTE;
+    }
+    return retval;
   }
 
 }
