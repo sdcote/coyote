@@ -57,7 +57,7 @@ import static coyote.mc.snow.Predicate.LIKE;
  * <p>The {@code instance} element is used to specify the instance name grouping key for the metrics.</p>
  */
 public class SnowIncidentMetricReader extends SnowMetricReader implements FrameReader {
-  private static final long TWO_WEEKS = 1000 * 60 * 60 * 24; // in milliseconds
+  private static final long ONE_DAY = 1000 * 60 * 60 * 24; // in milliseconds
   private static final String NEW_ACTIVE_INCIDENT_COUNT = "incident_active_new_count";
   private static final String ACTIVE_INCIDENT_COUNT = "incident_active_count";
   private static final String ACTIVE_INCIDENT_AGE_AVG = "incident_active_age_avg";
@@ -71,8 +71,6 @@ public class SnowIncidentMetricReader extends SnowMetricReader implements FrameR
   @Override
   public void open(TransformContext context) {
     super.open(context);
-
-    // the instance name is important grouping key for other metrics of this type
     instanceName = getConfiguration().getString(INSTANCE);
     if (StringUtil.isBlank(instanceName)) {
       context.setError("The " + getClass().getSimpleName() + " configuration did not contain the '" + INSTANCE + "' element");
@@ -91,7 +89,6 @@ public class SnowIncidentMetricReader extends SnowMetricReader implements FrameR
           return;
         } else {
           filter = new SnowFilter("active", IS, "true");
-
           if (StringUtil.isNotBlank(configurationItem)) {
             filter.and("cmdb_ci", LIKE, configurationItem);
           }
@@ -127,7 +124,7 @@ public class SnowIncidentMetricReader extends SnowMetricReader implements FrameR
         Log.notice("No product was specified, using the default interval for 'new' incidents.");
       }
 
-      if (sprintStart == null) sprintStart = new SnowDateTime(new Date(getContext().getStartTime() - TWO_WEEKS));
+      if (sprintStart == null) sprintStart = new SnowDateTime(new Date(getContext().getStartTime() - ONE_DAY));
 
       try {
         getResource().setPath("incident.do?JSONv2&sysparm_query=" + filter.toEncodedString());
