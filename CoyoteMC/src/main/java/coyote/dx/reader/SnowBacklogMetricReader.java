@@ -70,6 +70,8 @@ public class SnowBacklogMetricReader extends SnowMetricReader implements FrameRe
   private static final long TWO_WEEKS = 1000 * 60 * 60 * 24 * 14; // in milliseconds
   private static final String NEW_DEFECT_COUNT = "backlog_defect_new_count";
   private static final String ACTIVE_COUNT = "backlog_active_count";
+  private static final String READY_COUNT = "backlog_ready_count";
+  private static final String TOTAL_POINTS = "backlog_point_total";
   private static final String NEW_FEATURE_COUNT = "backlog_feature_new_count";
   private static final String NEW_ACTIVE_COUNT = "backlog_active_new_count";
 
@@ -162,8 +164,41 @@ public class SnowBacklogMetricReader extends SnowMetricReader implements FrameRe
     List<DataFrame> metrics = new ArrayList<>();
     metrics.addAll(generateActiveItemCount(stories));
     metrics.addAll(generateNewItemCounts(stories));
-    metrics.addAll(generateClassificationCounts(stories));
+    metrics.addAll(generateStoryTypeCounts(stories));
+    metrics.addAll(generatePointMetrics(stories));
     return metrics;
+  }
+
+  private List<DataFrame> generatePointMetrics(List<SnowStory> stories) {
+    List<DataFrame> metrics = new ArrayList<>();
+    int readyCount = 0;
+    int totalPoints = 0;
+    for (SnowStory story : stories) {
+      int points = story.getPoints();
+      if (points > 0) {
+        readyCount++;
+        totalPoints += points;
+      }
+    }
+
+    DataFrame metric = new DataFrame();
+    metric.set(ConfigTag.NAME, READY_COUNT);
+    metric.set(ConfigTag.VALUE, readyCount);
+    metric.set(ConfigTag.HELP, "The number of ready (pointed) active backlog items");
+    metric.set(ConfigTag.TYPE, CMC.GAUGE);
+    metric.set(INSTANCE, instanceName);
+    metrics.add(metric);
+    metric = new DataFrame();
+    metric.set(ConfigTag.NAME, TOTAL_POINTS);
+    metric.set(ConfigTag.VALUE, totalPoints);
+    metric.set(ConfigTag.HELP, "The total number of points in active backlog items");
+    metric.set(ConfigTag.TYPE, CMC.GAUGE);
+    metric.set(INSTANCE, instanceName);
+    metrics.add(metric);
+
+
+    return metrics;
+
   }
 
   private List<DataFrame> generateActiveItemCount(List<SnowStory> stories) {
@@ -203,7 +238,7 @@ public class SnowBacklogMetricReader extends SnowMetricReader implements FrameRe
 
     DataFrame metric = new DataFrame();
     metric.set(ConfigTag.NAME, NEW_DEFECT_COUNT);
-    metric.set(ConfigTag.VALUE, newFeatureCount);
+    metric.set(ConfigTag.VALUE, newDefectCount);
     metric.set(ConfigTag.HELP, "The number of new active defect backlog items");
     metric.set(ConfigTag.TYPE, CMC.GAUGE);
     metric.set(INSTANCE, instanceName);
@@ -211,7 +246,7 @@ public class SnowBacklogMetricReader extends SnowMetricReader implements FrameRe
 
     metric = new DataFrame();
     metric.set(ConfigTag.NAME, NEW_FEATURE_COUNT);
-    metric.set(ConfigTag.VALUE, newDefectCount);
+    metric.set(ConfigTag.VALUE, newFeatureCount);
     metric.set(ConfigTag.HELP, "The number of new active feature backlog items");
     metric.set(ConfigTag.TYPE, CMC.GAUGE);
     metric.set(INSTANCE, instanceName);
@@ -234,16 +269,19 @@ public class SnowBacklogMetricReader extends SnowMetricReader implements FrameRe
    * @param stories the SnowStories representing the backlog to analyze
    * @return a set of metrics relating to the classification of active stories
    */
-  private List<DataFrame> generateClassificationCounts(List<SnowStory> stories) {
+  private List<DataFrame> generateStoryTypeCounts(List<SnowStory> stories) {
     List<DataFrame> metrics = new ArrayList<>();
     Map<String, Integer> counts = new HashMap<>();
     for (SnowStory story : stories) {
       if (story.isActive()) {
-        String classification = story.getClassification().toLowerCase();
-        if (counts.get(classification) != null) {
-          counts.put(classification, counts.get(classification) + 1);
-        } else {
-          counts.put(classification, 1);
+        String storyType = story.getType().toLowerCase();
+        if (StringUtil.isNotBlank(storyType)) {
+          storyType = storyType.replace(' ', '_');
+          if (counts.get(storyType) != null) {
+            counts.put(storyType, counts.get(storyType) + 1);
+          } else {
+            counts.put(storyType, 1);
+          }
         }
       }
     }

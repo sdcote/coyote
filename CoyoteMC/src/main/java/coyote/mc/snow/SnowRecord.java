@@ -10,6 +10,7 @@ package coyote.mc.snow;
 import coyote.dataframe.DataField;
 import coyote.dataframe.DataFrame;
 import coyote.dataframe.marshal.JSONMarshaler;
+import coyote.mc.MetricUtil;
 
 import java.text.ParseException;
 import java.util.Date;
@@ -260,7 +261,7 @@ public class SnowRecord extends DataFrame {
   }
 
   /**
-   * @return the age of this incident in minutes
+   * @return the age of this record in minutes
    */
   public int getAgeInMinutes() {
     int retval = 0;
@@ -268,6 +269,17 @@ public class SnowRecord extends DataFrame {
       long elapsed = new Date().getTime() - createdTimestamp.toDate().getTime();
       retval = (int) elapsed / MINUTE;
     }
+    return retval;
+  }
+
+
+  /**
+   * @return the age of this record in hours
+   */
+  public float getAgeInHours() {
+    float retval = 0;
+    int minutes = getAgeInMinutes();
+    if (minutes > 0) retval = MetricUtil.round(minutes / 60, 2);
     return retval;
   }
 

@@ -36,6 +36,7 @@ public abstract class SnowReader extends WebServiceReader implements FrameReader
 
   public static final String PRODUCT = "product";
   public static final String INSTANCE = "instance";
+  public static final String ITEM = "item";
   public static final String CONFIG_ITEM = "ConfigurationItem";
   public static final String ASSIGN_GROUP = "AssignmentGroup";
 

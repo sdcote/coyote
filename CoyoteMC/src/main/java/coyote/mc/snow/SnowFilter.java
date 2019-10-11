@@ -28,8 +28,8 @@ import java.util.List;
  * SnowFilter filter = new SnowFilter("category", Predicate.IS, "printer").and("active", Predicate.IS, "true");
  * </pre>
  * <p>
- * TODO: The encoded query provides support for order by. To sort responses
- * <p>based on certain fields, use the ORDERBY and ORDERBYDESC clauses in sysparm_query. For example,</p>
+ * <p>This supports the ORDERBY and ORDERBYDESC. Based on certain fields, use the ORDERBY and ORDERBYDESC clauses in
+ * sysparm_query. For example,</p>
  * <pre>sysparm_query=active=true^ORDERBYnumber^ORDERBYDESCcategory</pre>
  * <p>filters all active records and orders the results in ascending order by number first, and then in descending
  * order by category.</p>
@@ -232,9 +232,14 @@ public class SnowFilter {
           }
         }
 
-        b.append(clause.field);
-        b.append(clause.pred.toString());
-        b.append(clause.value);
+        if( clause.pred == Predicate.ORDER_BY || clause.pred == Predicate.ORDER_BY_DESC ){
+          b.append(clause.pred.toString());
+          b.append(clause.field);
+        } else {
+          b.append(clause.field);
+          b.append(clause.pred.toString());
+          b.append(clause.value);
+        }
       }
     }
 

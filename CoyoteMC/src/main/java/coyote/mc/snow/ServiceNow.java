@@ -31,6 +31,7 @@ public class ServiceNow {
    */
   public static final String VIEW_TABLE = "sys_db_view_table";
 
+  private static final String UNKNOWN = "Unknown";
   private static final String CRITICAL = "Critical";
   private static final String HIGH = "High";
   private static final String MODERATE = "Moderate";
@@ -40,27 +41,33 @@ public class ServiceNow {
 
 
   /**
-   * @param number the value of 1,2,3,4 or 5. All other values will be returned as "Planning"
+   * @param number the value of 1,2,3,4 or 5. All other values will be returned as "Unknown"
    * @return the string value for the priority level number
    */
   public static String getPriorityValue(String number) {
     String retval;
-    String str = "two";
-    switch (number) {
-      case "1":
-        retval = CRITICAL;
-        break;
-      case "2":
-        retval = HIGH;
-        break;
-      case "3":
-        retval = MODERATE;
-        break;
-      case "4":
-        retval = LOW;
-        break;
-      default:
-        retval = PLANNING;
+    if (number != null) {
+      switch (number) {
+        case "1":
+          retval = CRITICAL;
+          break;
+        case "2":
+          retval = HIGH;
+          break;
+        case "3":
+          retval = MODERATE;
+          break;
+        case "4":
+          retval = LOW;
+          break;
+        case "5":
+          retval = PLANNING;
+          break;
+        default:
+          retval = UNKNOWN;
+      }
+    } else {
+      retval = UNKNOWN;
     }
     return retval;
   }

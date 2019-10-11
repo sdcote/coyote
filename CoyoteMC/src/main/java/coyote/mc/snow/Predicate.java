@@ -32,7 +32,9 @@ public enum Predicate {
   NOT_IN("NOT IN", 1),
   NOT_LIKE("NOT LIKE", 1),
   SAME_AS("SAMEAS", 1),
-  STARTS_WITH("STARTSWITH", 1);
+  STARTS_WITH("STARTSWITH", 1),
+  ORDER_BY("ORDERBY",0),
+  ORDER_BY_DESC("ORDERBYDESC",0);
 
   private final String value;
   private final int argumentCount;

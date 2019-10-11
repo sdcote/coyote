@@ -8,19 +8,9 @@
 
 package coyote.dx.reader;
 
-import coyote.commons.StringParseException;
-import coyote.commons.StringUtil;
-import coyote.dx.CDX;
-import coyote.dx.CWS;
+import coyote.dataframe.DataFrame;
 import coyote.dx.ConfigTag;
 import coyote.dx.FrameReader;
-import coyote.dx.context.TransformContext;
-import coyote.dx.web.ExchangeType;
-import coyote.loader.cfg.Config;
-import coyote.loader.log.Log;
-import coyote.loader.log.LogMsg;
-import coyote.mc.snow.FilterParser;
-import coyote.mc.snow.SnowFilter;
 
 /**
  * This is a reader which connects to a ServiceNow instance and queries data via URL export and generates metrics based
@@ -28,5 +18,34 @@ import coyote.mc.snow.SnowFilter;
  */
 public abstract class SnowMetricReader extends SnowReader implements FrameReader {
 
+  /**
+   * Build a metric frame from the given data
+   *
+   * @param metricName   the name of the metric
+   * @param value        the value of the meric
+   * @param helpText     the help text
+   * @param type         the type of metric
+   * @param instanceName the name of the instance
+   * @return a dataframe with the fields populated
+   */
+  protected DataFrame buildMetric(String metricName, long value, String helpText, String type, String instanceName) {
+    DataFrame metric = new DataFrame();
+    metric.set(ConfigTag.NAME, metricName);
+    metric.set(ConfigTag.VALUE, value);
+    metric.set(ConfigTag.HELP, helpText);
+    metric.set(ConfigTag.TYPE, type);
+    metric.set(INSTANCE, instanceName);
+    return metric;
+  }
+
+  protected DataFrame buildMetric(String metricName, float value, String helpText, String type, String instanceName) {
+    DataFrame metric = new DataFrame();
+    metric.set(ConfigTag.NAME, metricName);
+    metric.set(ConfigTag.VALUE, value);
+    metric.set(ConfigTag.HELP, helpText);
+    metric.set(ConfigTag.TYPE, type);
+    metric.set(INSTANCE, instanceName);
+    return metric;
+  }
 
 }
