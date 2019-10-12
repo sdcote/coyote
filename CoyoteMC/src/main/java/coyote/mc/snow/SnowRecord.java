@@ -10,6 +10,7 @@ package coyote.mc.snow;
 import coyote.dataframe.DataField;
 import coyote.dataframe.DataFrame;
 import coyote.dataframe.marshal.JSONMarshaler;
+import coyote.loader.log.Log;
 import coyote.mc.MetricUtil;
 
 import java.text.ParseException;
@@ -283,4 +284,23 @@ public class SnowRecord extends DataFrame {
     return retval;
   }
 
+  public int getMttrInMinutes() {
+    int retval = 0;
+    final String closedOn = getAsString(ServiceNowFields.CLOSED_DATE);
+    if (closedOn != null && createdTimestamp != null) {
+      try {
+        SnowDateTime closedTimestamp = new SnowDateTime(closedOn);
+        long elapsed = closedTimestamp.toDate().getTime() - createdTimestamp.toDate().getTime();
+        retval = (int) elapsed / MINUTE;
+      } catch (final ParseException e) {
+        Log.error("Invalid closed_date=" + closedOn);
+      }
+    }
+    return retval;
+  }
+
+  public boolean isClosed() {
+    System.out.println("Finish me!");
+    return false;
+  }
 }

@@ -22,6 +22,7 @@ import coyote.mc.snow.*;
 
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
@@ -45,6 +46,8 @@ public class SnowRequestMetricReader extends SnowMetricReader implements FrameRe
   private static final String NEW_ACTIVE_REQUEST_COUNTS_HELP = "The number of new active requests";
   private static final String ACTIVE_REQUEST_AGE_AVG_HELP = "The average age in days of all active requests";
   private static final String ACTIVE_REQUEST_COUNT_HELP = "The number of active requests";
+  private static final String REQUEST_MTTR_AVG = "request_mttr_avg";
+  private static final String REQUEST_MTTR_AVG_HELP = "The average MTTR in minutes for requests over the past week";
   private SnowDateTime sprintStart = null;
   private List<SnowRequestItem> requestItems = null;
   private String instanceName = null;
@@ -128,11 +131,35 @@ public class SnowRequestMetricReader extends SnowMetricReader implements FrameRe
   private List<DataFrame> generateMetrics(List<SnowRequestItem> requests) {
     List<DataFrame> metrics = new ArrayList<>();
     metrics.addAll(generateNewRequestCounts(requests));
-    metrics.addAll(generateIncidentTypeCounts(requests));
+    metrics.addAll(generateActiveRequestCounts(requests));
+    metrics.addAll(generateMttrCounts(requests));
     return metrics;
   }
 
-  private List<DataFrame> generateIncidentTypeCounts(List<SnowRequestItem> requests) {
+  private List<DataFrame> generateMttrCounts(List<SnowRequestItem> requests) {
+    List<DataFrame> metrics = new ArrayList<>();
+    SnowDateTime lastWeek = new SnowDateTime(new Date(getContext().getStartTime() - (ONE_DAY * 7)));
+    int closedCount = 0;
+    int sumOfDurations = 0;
+    for (SnowRequestItem request : requests) {
+      if (request.getCreatedTimestamp().compareTo(lastWeek) >= 0) {
+        if (request.isClosed()) {
+          int age = request.getMttrInMinutes();
+          if (age > 0) {
+            closedCount++;
+            sumOfDurations += age;
+          }
+        }
+      } else{
+        break;
+      }
+    }
+    float avg = MetricUtil.round(sumOfDurations / closedCount, 2);
+    metrics.add(buildMetric(REQUEST_MTTR_AVG, avg, REQUEST_MTTR_AVG_HELP, CMC.GAUGE, instanceName));
+    return metrics;
+  }
+
+  private List<DataFrame> generateActiveRequestCounts(List<SnowRequestItem> requests) {
     List<DataFrame> metrics = new ArrayList<>();
     int total = 0;
     int sumOfAges = 0;
@@ -145,13 +172,11 @@ public class SnowRequestMetricReader extends SnowMetricReader implements FrameRe
     }
 
     // get the average minutes per request then divide it by a day's worth of minutes (1440)
-    float avg = MetricUtil.round((sumOfAges / total)/1440,2);
-
+    float avg = MetricUtil.round((sumOfAges / total) / 1440, 2);
     metrics.add(buildMetric(ACTIVE_REQUEST_COUNT, total, ACTIVE_REQUEST_COUNT_HELP, CMC.GAUGE, instanceName));
     metrics.add(buildMetric(ACTIVE_REQUEST_AGE_AVG, avg, ACTIVE_REQUEST_AGE_AVG_HELP, CMC.GAUGE, instanceName));
     return metrics;
   }
-
 
   private List<DataFrame> generateNewRequestCounts(List<SnowRequestItem> requests) {
     List<DataFrame> metrics = new ArrayList<>();
@@ -162,7 +187,6 @@ public class SnowRequestMetricReader extends SnowMetricReader implements FrameRe
     metrics.add(buildMetric(NEW_ACTIVE_REQUEST_COUNT, activeCount, NEW_ACTIVE_REQUEST_COUNTS_HELP, CMC.GAUGE, instanceName));
     return metrics;
   }
-
 
 }
   
