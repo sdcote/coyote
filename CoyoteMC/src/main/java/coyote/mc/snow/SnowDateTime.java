@@ -108,6 +108,14 @@ public class SnowDateTime implements Comparable<SnowDateTime> {
 
 
   /**
+   * @return The date represented in the HH:mm:ss format
+   */
+  public String toTimeFormat() {
+    return timeFormat.format(date);
+  }
+
+
+  /**
    * @return The date represented in the yyyy-MM-dd HH:mm:ss format
    * @see Object#toString()
    */
@@ -118,10 +126,10 @@ public class SnowDateTime implements Comparable<SnowDateTime> {
 
 
   /**
-   * @return  javascript:gs.dateGenerate('2015-10-05','00:00:00')
+   * @return a string ServiceNow can use to limit queries - Note the time is not included
    */
   public String toQueryFormat() {
-    return "javascript:gs.dateGenerate('" + dateFormat.format(date) + "','" + timeFormat.format(date) + "')";
+    return "javascript:gs.dateGenerate('" + dateFormat.format(date) + "','00:00:00')";
   }
 
 }

@@ -19,4 +19,12 @@ public class SnowDateTimeTest {
     assertTrue(queryFormat.contains(":"));
     assertTrue(queryFormat.contains("-"));
   }
+
+  @Test
+  public void toTimeFormat() {
+    String queryFormat = new SnowDateTime(new Date()).toTimeFormat();
+    assertNotNull(queryFormat);
+    assertTrue(queryFormat.contains(":"));
+  }
+
 }

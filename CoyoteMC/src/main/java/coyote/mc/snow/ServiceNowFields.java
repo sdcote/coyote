@@ -5,7 +5,7 @@ public class ServiceNowFields {
   public static final String NUMBER = "number";
   public static final String RELEASE = "release";
   public static final String STATE = "state";
-  static final String CLOSED_DATE = "closed_date";
+  static final String CLOSED_AT = "closed_at";
   static final String SYS_UPDATED_ON = "sys_updated_on";
   static final String SYS_CREATED_ON = "sys_created_on";
   static final String SYS_CREATED_BY = "sys_created_by";

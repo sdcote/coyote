@@ -16,6 +16,7 @@ import coyote.dx.ConfigTag;
 import coyote.dx.FrameReader;
 import coyote.dx.context.TransactionContext;
 import coyote.dx.context.TransformContext;
+import coyote.i13n.SimpleMetric;
 import coyote.loader.log.Log;
 import coyote.mc.MetricUtil;
 import coyote.mc.snow.*;
@@ -32,6 +33,22 @@ import static coyote.mc.snow.Predicate.LIKE;
  * This is a reader which connects to a ServiceNow instance and queries data via URL export and generates metrics based
  * on the service requests in the "sc_req_item" table.
  *
+ * <p>Here is a sample configuration:</p>
+ * <pre>
+ * "Reader": {
+ *   "class": "SnowRequestMetricReader",
+ *   "source": "https://someserver.service-now.com/",
+ *   "item": "Middleware Assistance",
+ *   "instance": "middleware",
+ *   "authenticator": {
+ *     "class": "BasicAuthentication",
+ *     "username": "[#Vault.get(SnowUser,username)#]",
+ *     "password": "[#Vault.get(SnowUser,password)#]",
+ *     "preemptive": true
+ *   }
+ * },
+ * </pre>
+ *
  *
  * <p>The {@code item} element is used to query the requested item.</p>
  *
@@ -42,11 +59,11 @@ public class SnowRequestMetricReader extends SnowMetricReader implements FrameRe
   private static final String NEW_ACTIVE_REQUEST_COUNT = "request_active_new_count";
   private static final String ACTIVE_REQUEST_COUNT = "request_active_count";
   private static final String ACTIVE_REQUEST_AGE_AVG = "request_active_age_avg";
-  private static final String NEW_ACTIVE_REQUEST_COUNTS_HELP = "The number of new active requests";
+  private static final String NEW_ACTIVE_REQUEST_COUNTS_HELP = "The number of active requests created in the past 24 hours";
   private static final String ACTIVE_REQUEST_AGE_AVG_HELP = "The average age in days of all active requests";
-  private static final String ACTIVE_REQUEST_COUNT_HELP = "The number of active requests";
+  private static final String ACTIVE_REQUEST_COUNT_HELP = "The current total of active requests";
   private static final String REQUEST_MTTR_AVG = "request_mttr_avg";
-  private static final String REQUEST_MTTR_AVG_HELP = "The average MTTR in minutes for requests over the past week";
+  private static final String REQUEST_MTTR_AVG_HELP = "The average MTTR in hours for requests over the past week";
   private static final String CLOSED_AT = "closed_at";
   private SnowDateTime window = null;
   private List<SnowRequestItem> requestItems = null;
@@ -72,8 +89,9 @@ public class SnowRequestMetricReader extends SnowMetricReader implements FrameRe
           context.setState("Configuration Error");
           return;
         } else {
-          filter = new SnowFilter("active", IS, "true");
-          // setup this way so we can start ANDing more clauses
+          filter = new SnowFilter("active", IS, "true").and(CLOSED_AT, Predicate.IS_EMPTY);
+
+          // setup this way so we can start ANDing more clauses from the configuration
           if (StringUtil.isNotBlank(item)) {
             filter.and("cat_item.name", LIKE, item);
           }
@@ -113,7 +131,7 @@ public class SnowRequestMetricReader extends SnowMetricReader implements FrameRe
       }
       Log.debug("...read in " + requestItems.size() + " requests.");
 
-      // replace the dataframes with our metrics
+      // replace the data frames with our metrics
       dataframes = generateMetrics(requestItems);
       dataframes.addAll(generateMttrCounts(closedItems));
       context.setLastFrame(false);
@@ -121,11 +139,17 @@ public class SnowRequestMetricReader extends SnowMetricReader implements FrameRe
     return super.read(context); // start returning all the replaced dataframes
   }
 
-  // https://dev67296.service-now.com/sc_req_item_list.do?sysparm_query=closed_at%3E%3Djavascript:gs.dateGenerate(%272019-10-05%27%2C%2700:00:00%27)
-  // https://dev67296.service-now.com/sc_req_item_list.do?sysparm_query=closed_at>=javascript:gs.dateGenerate('2019-10-05','00:00:00')
+  /**
+   * Get all the Request items closed since the given date to the current moment.
+   *
+   * @param window the date starting the window of the query.
+   * @return a list of Service Requests closed between the given date and now. May be empty but never null;
+   */
   private List<SnowRequestItem> getClosedItems(SnowDateTime window) {
     List<SnowRequestItem> retval = new ArrayList<>();
-    SnowFilter query = new SnowFilter(CLOSED_AT, Predicate.GREATER_THAN_EQUALS, new SnowDateTime(new Date()).toQueryFormat());
+    String item = getConfiguration().getString(ITEM);
+
+    SnowFilter query = new SnowFilter("cat_item.name", LIKE, item).and(CLOSED_AT, Predicate.GREATER_THAN_EQUALS, new SnowDateTime(new Date()).toQueryFormat());
     try {
       getResource().setPath("sc_req_item.do?JSONv2&sysparm_query=" + query.toEncodedString());
     } catch (URISyntaxException e) {
@@ -139,7 +163,6 @@ public class SnowRequestMetricReader extends SnowMetricReader implements FrameRe
     } catch (SnowException e) {
       Log.error("Received invalid data retrieving closed requests at record #" + (requestItems.size() + 1) + ": " + e.getMessage(), e);
     }
-
     return retval;
   }
 
@@ -151,44 +174,36 @@ public class SnowRequestMetricReader extends SnowMetricReader implements FrameRe
     return metrics;
   }
 
-  private List<DataFrame> generateMttrCounts(List<SnowRequestItem> requests) {
+  private List<DataFrame> generateMttrCounts(List<SnowRequestItem> closedRequests) {
     List<DataFrame> metrics = new ArrayList<>();
-    SnowDateTime lastWeek = new SnowDateTime(new Date(getContext().getStartTime() - (ONE_WEEK * 7)));
-    int closedCount = 0;
-    int sumOfDurations = 0;
-    for (SnowRequestItem request : requests) {
-      if (request.getCreatedTimestamp().compareTo(lastWeek) >= 0) {
-        if (request.isClosed()) {
-          int age = request.getMttrInMinutes();
-          if (age > 0) {
-            closedCount++;
-            sumOfDurations += age;
-          }
-        }
-      } else {
-        break;
-      }
+    float sumOfDurations = 0;
+    for (SnowRequestItem request : closedRequests) {
+      float age = request.getMttrInHours();
+      sumOfDurations += age;
     }
-    float avg = MetricUtil.round(sumOfDurations / closedCount, 2);
+    float avg;
+    if (closedRequests.size() > 0) {
+      avg = MetricUtil.round(sumOfDurations / closedRequests.size(), 2);
+    } else {
+      avg = 0.0F;
+    }
     metrics.add(buildMetric(REQUEST_MTTR_AVG, avg, REQUEST_MTTR_AVG_HELP, CMC.GAUGE, instanceName));
     return metrics;
   }
 
-  private List<DataFrame> generateActiveRequestCounts(List<SnowRequestItem> requests) {
+  private List<DataFrame> generateActiveRequestCounts(List<SnowRequestItem> activeRequests) {
     List<DataFrame> metrics = new ArrayList<>();
-    int total = 0;
+    metrics.add(buildMetric(ACTIVE_REQUEST_COUNT, activeRequests.size(), ACTIVE_REQUEST_COUNT_HELP, CMC.GAUGE, instanceName));
+
+    SimpleMetric metric = new SimpleMetric(ACTIVE_REQUEST_AGE_AVG, "minutes");
+
     int sumOfAges = 0;
-    for (SnowRequestItem request : requests) {
-      if (request.isActive()) {
-        total++;
-        int age = request.getAgeInMinutes();
-        sumOfAges += age;
-      }
+    for (SnowRequestItem request : activeRequests) {
+      long age = request.getAgeInMinutes();
+      metric.sample(age);
     }
 
-    // get the average minutes per request then divide it by a day's worth of minutes (1440)
-    float avg = MetricUtil.round((sumOfAges / total) / 1440, 2);
-    metrics.add(buildMetric(ACTIVE_REQUEST_COUNT, total, ACTIVE_REQUEST_COUNT_HELP, CMC.GAUGE, instanceName));
+    float avg = MetricUtil.round(metric.getAvgValue() / 1440F, 2);
     metrics.add(buildMetric(ACTIVE_REQUEST_AGE_AVG, avg, ACTIVE_REQUEST_AGE_AVG_HELP, CMC.GAUGE, instanceName));
     return metrics;
   }

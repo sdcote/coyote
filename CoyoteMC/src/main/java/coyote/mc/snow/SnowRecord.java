@@ -7,6 +7,7 @@
  */
 package coyote.mc.snow;
 
+import coyote.commons.StringUtil;
 import coyote.dataframe.DataField;
 import coyote.dataframe.DataFrame;
 import coyote.dataframe.marshal.JSONMarshaler;
@@ -264,11 +265,15 @@ public class SnowRecord extends DataFrame {
   /**
    * @return the age of this record in minutes
    */
-  public int getAgeInMinutes() {
-    int retval = 0;
+  public long getAgeInMinutes() {
+    long retval = 0;
     if (createdTimestamp != null) {
       long elapsed = new Date().getTime() - createdTimestamp.toDate().getTime();
-      retval = (int) elapsed / MINUTE;
+      if (elapsed > 0) {
+        retval = elapsed / MINUTE;
+      } else {
+        Log.error("Created in the future?");
+      }
     }
     return retval;
   }
@@ -279,14 +284,14 @@ public class SnowRecord extends DataFrame {
    */
   public float getAgeInHours() {
     float retval = 0;
-    int minutes = getAgeInMinutes();
+    long minutes = getAgeInMinutes();
     if (minutes > 0) retval = MetricUtil.round(minutes / 60, 2);
     return retval;
   }
 
-  public int getMttrInMinutes() {
+  public long getMttrInMinutes() {
     int retval = 0;
-    final String closedOn = getAsString(ServiceNowFields.CLOSED_DATE);
+    final String closedOn = getAsString(ServiceNowFields.CLOSED_AT);
     if (closedOn != null && createdTimestamp != null) {
       try {
         SnowDateTime closedTimestamp = new SnowDateTime(closedOn);
@@ -299,8 +304,28 @@ public class SnowRecord extends DataFrame {
     return retval;
   }
 
-  public boolean isClosed() {
-    System.out.println("Finish me!");
-    return false;
+  public float getMttrInHours() {
+    float retval = 0;
+    long minutes = getMttrInMinutes();
+    if (minutes > 0) retval = MetricUtil.round(minutes / 60, 2);
+    return retval;
   }
+
+  public SnowDateTime getClosedDate() {
+    SnowDateTime retval = null;
+    final String closedDate = getAsString(ServiceNowFields.CLOSED_AT);
+    if (closedDate != null) {
+      try {
+        updatedTimestamp = new SnowDateTime(closedDate);
+      } catch (final ParseException e) {
+        Log.error("Invalid closed date: '" + closedDate + "' - " + toString());
+      }
+    }
+    return retval;
+  }
+
+  public boolean isClosed() {
+    return StringUtil.isNotEmpty(getAsString(ServiceNowFields.CLOSED_AT));
+  }
+
 }

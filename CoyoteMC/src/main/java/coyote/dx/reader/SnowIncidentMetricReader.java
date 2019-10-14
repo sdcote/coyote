@@ -160,18 +160,18 @@ public class SnowIncidentMetricReader extends SnowMetricReader implements FrameR
   private List<DataFrame> generateIncidentTypeCounts(List<SnowIncident> incidents) {
     List<DataFrame> metrics = new ArrayList<>();
     Map<String, Integer> counts = new HashMap<>();
-    Map<String, Integer> ageSums = new HashMap<>();
+    Map<String, Long> ageSums = new HashMap<>();
 
     for (int i = 1; i <= 5; i++) {
       counts.put(ServiceNow.getPriorityValue(Integer.toString(i)).toLowerCase(), 0);
-      ageSums.put(ServiceNow.getPriorityValue(Integer.toString(i)).toLowerCase(), 0);
+      ageSums.put(ServiceNow.getPriorityValue(Integer.toString(i)).toLowerCase(), 0L);
     }
     int total = 0;
-    int sumOfAges = 0;
+    long sumOfAges = 0;
     for (SnowIncident incident : incidents) {
       if (incident.isActive()) {
         total++;
-        int age = incident.getAgeInMinutes();
+        long age = incident.getAgeInMinutes();
         sumOfAges += age;
         String priority = ServiceNow.getPriorityValue(incident.getPriority()).toLowerCase();
         if (counts.get(priority) != null) {
@@ -184,7 +184,7 @@ public class SnowIncidentMetricReader extends SnowMetricReader implements FrameR
       }
     }
     for (Map.Entry<String, Integer> entry : counts.entrySet()) {
-      int ageSum = ageSums.get(entry.getKey());
+      long ageSum = ageSums.get(entry.getKey());
       int count = entry.getValue();
       DataFrame metric = new DataFrame();
       metric.set(ConfigTag.NAME, "incident_" + entry.getKey() + "_count");
