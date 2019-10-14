@@ -28,13 +28,13 @@ import coyote.loader.log.LogMsg;
 
 
 /**
- * Writes dataframes to a RFC 4180 formatted file.
+ * Writes data frames to a RFC 4180 formatted file.
  * 
  * <p>This is a basic CSV writer which takes dataframes as input and writes 
  * them to a file suitable for import into other systems. It's easy to 
  * configure:<pre>
  * "Writer":{
- *   "class" : "CSVWriter",
+ *   "class" : "CsvWriter",
  *   "target" : "workfile.csv"
  * }</pre>
  * 
