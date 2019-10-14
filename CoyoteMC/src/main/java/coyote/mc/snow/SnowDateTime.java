@@ -24,6 +24,9 @@ public class SnowDateTime implements Comparable<SnowDateTime> {
   private static final TimeZone gmt = TimeZone.getTimeZone("GMT");
   private static DateFormat datetimeFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
   private static DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+  private static DateFormat timeFormat = new SimpleDateFormat("HH:mm:ss");
+
+
   private final Date date;
 
   {
@@ -111,6 +114,14 @@ public class SnowDateTime implements Comparable<SnowDateTime> {
   @Override
   public String toString() {
     return toDateTimeFormat();
+  }
+
+
+  /**
+   * @return  javascript:gs.dateGenerate('2015-10-05','00:00:00')
+   */
+  public String toQueryFormat() {
+    return "javascript:gs.dateGenerate('" + dateFormat.format(date) + "','" + timeFormat.format(date) + "')";
   }
 
 }

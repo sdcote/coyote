@@ -22,7 +22,6 @@ import coyote.mc.snow.*;
 
 import java.net.URISyntaxException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
@@ -48,6 +47,7 @@ public class SnowRequestMetricReader extends SnowMetricReader implements FrameRe
   private static final String ACTIVE_REQUEST_COUNT_HELP = "The number of active requests";
   private static final String REQUEST_MTTR_AVG = "request_mttr_avg";
   private static final String REQUEST_MTTR_AVG_HELP = "The average MTTR in minutes for requests over the past week";
+  private static final String CLOSED_AT = "closed_at";
   private SnowDateTime sprintStart = null;
   private List<SnowRequestItem> requestItems = null;
   private String instanceName = null;
@@ -100,6 +100,8 @@ public class SnowRequestMetricReader extends SnowMetricReader implements FrameRe
   public DataFrame read(TransactionContext context) {
     if (requestItems == null) {
 
+      List<SnowRequestItem> closedItems = getClosedItems(new SnowDateTime(new Date(getContext().getStartTime() - ONE_DAY * 7)));
+
       if (sprintStart == null) sprintStart = new SnowDateTime(new Date(getContext().getStartTime() - ONE_DAY));
 
       filter.and("sys_created_on", Predicate.ORDER_BY_DESC);
@@ -128,6 +130,25 @@ public class SnowRequestMetricReader extends SnowMetricReader implements FrameRe
     return super.read(context); // start returning all the replaced dataframes
   }
 
+  private List<SnowRequestItem> getClosedItems(SnowDateTime window) {
+    List<SnowRequestItem> retval = new ArrayList<>();
+    // https://dev67296.service-now.com/sc_req_item_list.do?sysparm_query=closed_at%3E%3Djavascript:gs.dateGenerate(%272019-10-05%27%2C%2700:00:00%27)
+    // https://dev67296.service-now.com/sc_req_item_list.do?sysparm_query=closed_at>=javascript:gs.dateGenerate('2019-10-05','00:00:00')
+    SnowFilter query = new SnowFilter(CLOSED_AT, Predicate.GREATER_THAN_EQUALS, new SnowDateTime(new Date()).toQueryFormat());
+
+    try {
+      getResource().setPath("sc_req_item.do?JSONv2&sysparm_record_count=" + limit + "&sysparm_query=" + query.toEncodedString());
+      List<DataFrame> closedItems = retrieveData();
+      for (DataFrame frame : closedItems) {
+        retval.add(new SnowRequestItem(frame));
+      }
+    } catch (URISyntaxException | SnowException e) {
+      e.printStackTrace();
+    }
+    return retval;
+  }
+
+
   private List<DataFrame> generateMetrics(List<SnowRequestItem> requests) {
     List<DataFrame> metrics = new ArrayList<>();
     metrics.addAll(generateNewRequestCounts(requests));
@@ -150,7 +171,7 @@ public class SnowRequestMetricReader extends SnowMetricReader implements FrameRe
             sumOfDurations += age;
           }
         }
-      } else{
+      } else {
         break;
       }
     }

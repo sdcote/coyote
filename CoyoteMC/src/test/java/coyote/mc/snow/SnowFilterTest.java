@@ -9,6 +9,7 @@ package coyote.mc.snow;
 
 //import static org.junit.Assert.*;
 
+import coyote.dx.transform.Date;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
@@ -49,5 +50,6 @@ public class SnowFilterTest {
     System.out.println( filter.toEncodedString() );
 
   }
+
 
 }
