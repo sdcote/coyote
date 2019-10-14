@@ -63,7 +63,7 @@ public class SnowRequestMetricReader extends SnowMetricReader implements FrameRe
   private static final String ACTIVE_REQUEST_AGE_AVG_HELP = "The average age in days of all active requests";
   private static final String ACTIVE_REQUEST_COUNT_HELP = "The current total of active requests";
   private static final String REQUEST_MTTR_AVG = "request_mttr_avg";
-  private static final String REQUEST_MTTR_AVG_HELP = "The average MTTR in hours for requests over the past week";
+  private static final String REQUEST_MTTR_AVG_HELP = "The average MTTR in hours for requests closed over the past 7 days";
   private static final String CLOSED_AT = "closed_at";
   private SnowDateTime window = null;
   private List<SnowRequestItem> requestItems = null;
