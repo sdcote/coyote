@@ -16,6 +16,7 @@ import static org.junit.Assert.fail;
 import java.io.IOException;
 
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import coyote.dx.ConfigTag;
@@ -43,7 +44,8 @@ public class ProcessTest {
 
 
 
-  @Test
+  //@Test
+  @Ignore("This has been known to block indefinitely on some Windows configurations")
   public void execute() throws IOException, ConfigurationException, TaskException {
     final TransformContext context = new TransformContext();
     final String cmd = "arp -a";
@@ -99,7 +101,8 @@ public class ProcessTest {
 
 
 
-  @Test
+  //@Test
+  @Ignore("This has been known to block indefinitely on some Windows configurations")
   public void executeNamed() throws IOException, ConfigurationException, TaskException {
     final TransformContext context = new TransformContext();
 
