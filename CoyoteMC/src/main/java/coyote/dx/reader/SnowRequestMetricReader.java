@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import static coyote.mc.snow.Predicate.IS;
 import static coyote.mc.snow.Predicate.LIKE;
 
 /**
@@ -37,8 +38,7 @@ import static coyote.mc.snow.Predicate.LIKE;
  * <p>The {@code instance} element is used to specify the instance name grouping key for the metrics.</p>
  */
 public class SnowRequestMetricReader extends SnowMetricReader implements FrameReader {
-  private static final long ONE_DAY = 1000 * 60 * 60 * 24; // in milliseconds
-  private static final int DEFAULT_LIMIT = 1000;
+  private static final long ONE_WEEK = 1000 * 60 * 60 * 24 * 7; // in milliseconds
   private static final String NEW_ACTIVE_REQUEST_COUNT = "request_active_new_count";
   private static final String ACTIVE_REQUEST_COUNT = "request_active_count";
   private static final String ACTIVE_REQUEST_AGE_AVG = "request_active_age_avg";
@@ -48,10 +48,9 @@ public class SnowRequestMetricReader extends SnowMetricReader implements FrameRe
   private static final String REQUEST_MTTR_AVG = "request_mttr_avg";
   private static final String REQUEST_MTTR_AVG_HELP = "The average MTTR in minutes for requests over the past week";
   private static final String CLOSED_AT = "closed_at";
-  private SnowDateTime sprintStart = null;
+  private SnowDateTime window = null;
   private List<SnowRequestItem> requestItems = null;
   private String instanceName = null;
-  private int limit = DEFAULT_LIMIT;
 
   /**
    * @param context The transformation context in which this component should operate
@@ -65,16 +64,6 @@ public class SnowRequestMetricReader extends SnowMetricReader implements FrameRe
       context.setState("Configuration Error");
     }
 
-    try {
-      limit = getConfiguration().getInt(ConfigTag.LIMIT);
-      if (limit < 10) {
-        Log.notice("Limit set too low (<10) using default of " + DEFAULT_LIMIT);
-        limit = DEFAULT_LIMIT;
-      }
-    } catch (NumberFormatException e) {
-      limit = DEFAULT_LIMIT;
-    }
-
     if (context.isNotInError()) {
       if (filter == null) {
         String item = getConfiguration().getString(ITEM);
@@ -83,7 +72,11 @@ public class SnowRequestMetricReader extends SnowMetricReader implements FrameRe
           context.setState("Configuration Error");
           return;
         } else {
-          filter = new SnowFilter("cat_item.name", LIKE, item);
+          filter = new SnowFilter("active", IS, "true");
+          // setup this way so we can start ANDing more clauses
+          if (StringUtil.isNotBlank(item)) {
+            filter.and("cat_item.name", LIKE, item);
+          }
         }
       }
       getResource().getDefaultParameters().setMethod(Method.GET);
@@ -99,16 +92,13 @@ public class SnowRequestMetricReader extends SnowMetricReader implements FrameRe
   @Override
   public DataFrame read(TransactionContext context) {
     if (requestItems == null) {
-
-      List<SnowRequestItem> closedItems = getClosedItems(new SnowDateTime(new Date(getContext().getStartTime() - ONE_DAY * 7)));
-
-      if (sprintStart == null) sprintStart = new SnowDateTime(new Date(getContext().getStartTime() - ONE_DAY));
-
-      filter.and("sys_created_on", Predicate.ORDER_BY_DESC);
+      if (window == null) window = new SnowDateTime(new Date(getContext().getStartTime() - ONE_WEEK));
+      List<SnowRequestItem> closedItems = getClosedItems(window);
 
       try {
-        // getResource().setPath("sc_req_item.do?JSONv2&sysparm_record_count=" + limit + "&displayvalue=all&sysparm_query=" + filter.toEncodedString()); // DisplayValue=all causes loads more processing on the server
-        getResource().setPath("sc_req_item.do?JSONv2&sysparm_record_count=" + limit + "&sysparm_query=" + filter.toEncodedString());
+        // not strictly necessary, but aids in debugging
+        filter.and("sys_created_on", Predicate.ORDER_BY_DESC);
+        getResource().setPath("sc_req_item.do?JSONv2&sysparm_query=" + filter.toEncodedString());
       } catch (URISyntaxException e) {
         e.printStackTrace();
       }
@@ -125,26 +115,31 @@ public class SnowRequestMetricReader extends SnowMetricReader implements FrameRe
 
       // replace the dataframes with our metrics
       dataframes = generateMetrics(requestItems);
+      dataframes.addAll(generateMttrCounts(closedItems));
       context.setLastFrame(false);
     }
     return super.read(context); // start returning all the replaced dataframes
   }
 
+  // https://dev67296.service-now.com/sc_req_item_list.do?sysparm_query=closed_at%3E%3Djavascript:gs.dateGenerate(%272019-10-05%27%2C%2700:00:00%27)
+  // https://dev67296.service-now.com/sc_req_item_list.do?sysparm_query=closed_at>=javascript:gs.dateGenerate('2019-10-05','00:00:00')
   private List<SnowRequestItem> getClosedItems(SnowDateTime window) {
     List<SnowRequestItem> retval = new ArrayList<>();
-    // https://dev67296.service-now.com/sc_req_item_list.do?sysparm_query=closed_at%3E%3Djavascript:gs.dateGenerate(%272019-10-05%27%2C%2700:00:00%27)
-    // https://dev67296.service-now.com/sc_req_item_list.do?sysparm_query=closed_at>=javascript:gs.dateGenerate('2019-10-05','00:00:00')
     SnowFilter query = new SnowFilter(CLOSED_AT, Predicate.GREATER_THAN_EQUALS, new SnowDateTime(new Date()).toQueryFormat());
-
     try {
-      getResource().setPath("sc_req_item.do?JSONv2&sysparm_record_count=" + limit + "&sysparm_query=" + query.toEncodedString());
-      List<DataFrame> closedItems = retrieveData();
+      getResource().setPath("sc_req_item.do?JSONv2&sysparm_query=" + query.toEncodedString());
+    } catch (URISyntaxException e) {
+      e.printStackTrace();
+    }
+    List<DataFrame> closedItems = retrieveData();
+    try {
       for (DataFrame frame : closedItems) {
         retval.add(new SnowRequestItem(frame));
       }
-    } catch (URISyntaxException | SnowException e) {
-      e.printStackTrace();
+    } catch (SnowException e) {
+      Log.error("Received invalid data retrieving closed requests at record #" + (requestItems.size() + 1) + ": " + e.getMessage(), e);
     }
+
     return retval;
   }
 
@@ -153,13 +148,12 @@ public class SnowRequestMetricReader extends SnowMetricReader implements FrameRe
     List<DataFrame> metrics = new ArrayList<>();
     metrics.addAll(generateNewRequestCounts(requests));
     metrics.addAll(generateActiveRequestCounts(requests));
-    metrics.addAll(generateMttrCounts(requests));
     return metrics;
   }
 
   private List<DataFrame> generateMttrCounts(List<SnowRequestItem> requests) {
     List<DataFrame> metrics = new ArrayList<>();
-    SnowDateTime lastWeek = new SnowDateTime(new Date(getContext().getStartTime() - (ONE_DAY * 7)));
+    SnowDateTime lastWeek = new SnowDateTime(new Date(getContext().getStartTime() - (ONE_WEEK * 7)));
     int closedCount = 0;
     int sumOfDurations = 0;
     for (SnowRequestItem request : requests) {
@@ -203,7 +197,7 @@ public class SnowRequestMetricReader extends SnowMetricReader implements FrameRe
     List<DataFrame> metrics = new ArrayList<>();
     int activeCount = 0;
     for (SnowRequestItem request : requests) {
-      if (request.isActive() && request.getCreatedTimestamp().compareTo(sprintStart) > 0) activeCount++;
+      if (request.isActive() && request.getCreatedTimestamp().compareTo(window) > 0) activeCount++;
     }
     metrics.add(buildMetric(NEW_ACTIVE_REQUEST_COUNT, activeCount, NEW_ACTIVE_REQUEST_COUNTS_HELP, CMC.GAUGE, instanceName));
     return metrics;
