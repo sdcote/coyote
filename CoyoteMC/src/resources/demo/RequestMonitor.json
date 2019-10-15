@@ -1,0 +1,34 @@
+{
+  "Class": "coyote.dx.Job",
+  "Job": {
+    "Vault": { "source": "demo.vault" },
+    "Reader": {
+      "class": "SnowRequestMetricReader",
+      "source": "https://servicenow.aepsc.com/",
+      "item": "Middleware Assistance",
+      "instance": "middleware",
+      "authenticator": {
+        "class": "BasicAuthentication",
+        "username": "[#Vault.get(SnowUser,username)#]",
+        "password": "[#Vault.get(SnowUser,password)#]",
+        "preemptive": true
+      }
+    },
+    "Writer": { "class": "ConsoleWriter", "format": "json", "indent": true },
+    "Writer": {
+      "class": "CsvWriter",
+      "target": "MiddlewareRequestMetrics.csv",
+      "header": true,
+      "fields": {
+        "name": { "trim": true },
+        "value": {},
+        "help": {}
+      }
+    }
+  },
+  "Logging": {
+    "FileAppender": { "target": "RequestMonitor.log", "append": false, "categories": "error, fatal, warn, notice, info" },
+    "StandardError": { "categories": "error, fatal, warn" },
+    "StandardOutput": { "categories": "info, notice, debug" }
+  }
+}

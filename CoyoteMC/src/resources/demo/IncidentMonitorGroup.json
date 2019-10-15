@@ -1,0 +1,28 @@
+{
+  "Class": "coyote.dx.Job",
+  "Job": {
+    "Vault": { "source": "demo.vault" },
+    "Reader": {
+      "class": "SnowIncidentMetricReader",
+      "source": "https://servicenow.aepsc.com/",
+      "AssignmentGroup": "Complex Middleware - Access Management",
+      "instance": "middleware-am",
+      "authenticator": {
+        "class": "BasicAuthentication",
+        "username": "[#Vault.get(SnowUser,username)#]",
+        "password": "[#Vault.get(SnowUser,password)#]",
+        "preemptive": true
+      }
+    },
+    "Writer": {
+      "class": "ConsoleWriter",
+      "format": "json",
+      "indent": true
+    }
+  },
+  "Logging": {
+    "FileAppender": { "target": "IncidentMonitorGroup.log", "append": false, "categories": "error, fatal, warn, notice, info" },
+    "StandardError": { "categories": "error, fatal, warn" },
+    "StandardOutput": { "categories": "info, notice, debug" }
+  }
+}
