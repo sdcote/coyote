@@ -51,6 +51,7 @@ import static coyote.mc.snow.Predicate.LIKE;
  *   "class" : "SnowBacklogMetricReader",
  *   "source" : "https://myinstance.service-now.com/",
  *   "product": "My Project Name",
+ *   "group": "AgileTeam6",
  *   "authenticator": {
  *     "class" : "BasicAuthentication",
  *     "username" : "jsmith",

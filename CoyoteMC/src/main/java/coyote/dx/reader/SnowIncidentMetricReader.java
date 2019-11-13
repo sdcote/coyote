@@ -36,6 +36,7 @@ import static coyote.mc.snow.Predicate.LIKE;
  *   "class" : "SnowIncidentMetricReader",
  *   "source" : "https://myinstance.service-now.com/",
  *   "product": "Enterprise Widget Framework",
+ *   "group": "AgileTeam6",
  *   "ConfigurationItem": "thingy",
  *   "instance": "widgets",
  *   "authenticator": {
@@ -111,8 +112,8 @@ public class SnowIncidentMetricReader extends SnowMetricReader implements FrameR
   public DataFrame read(TransactionContext context) {
     if (incidents == null) {
 
-      if (StringUtil.isNotBlank(getConfiguration().getString(PRODUCT))) {
-        List<SnowSprint> sprints = getSprintsByProduct(getConfiguration().getString(PRODUCT));
+      if (StringUtil.isNotBlank(getConfiguration().getString(GROUP))) {
+        List<SnowSprint> sprints = getSprintsByGroup(getConfiguration().getString(GROUP));
         for (SnowSprint sprint : sprints) {
           if (sprint.isCurrent()) {
             Log.notice("Current sprint " + sprint.getShortDescription() + " (" + sprint.getScheduledStartDate() + " - " + sprint.getScheduledEndDate() + ")");
@@ -121,7 +122,7 @@ public class SnowIncidentMetricReader extends SnowMetricReader implements FrameR
           }
         }
       } else {
-        Log.notice("No product was specified, using the default interval for 'new' incidents.");
+        Log.notice("No group (team) was specified, using the default interval for 'new' incidents.");
       }
 
       if (sprintStart == null) sprintStart = new SnowDateTime(new Date(getContext().getStartTime() - ONE_DAY));
@@ -195,7 +196,7 @@ public class SnowIncidentMetricReader extends SnowMetricReader implements FrameR
       metrics.add(metric);
       metric = new DataFrame();
       metric.set(ConfigTag.NAME, "incident_" + entry.getKey() + "_age_avg");
-      if( count>0) {
+      if (count > 0) {
         metric.set(ConfigTag.VALUE, ageSum / count);
       } else {
         metric.set(ConfigTag.VALUE, 0);
@@ -214,7 +215,11 @@ public class SnowIncidentMetricReader extends SnowMetricReader implements FrameR
     metrics.add(metric);
     metric = new DataFrame();
     metric.set(ConfigTag.NAME, ACTIVE_INCIDENT_AGE_AVG);
-    metric.set(ConfigTag.VALUE, sumOfAges/total);
+    if (total == 0) {
+      metric.set(ConfigTag.VALUE, 0);
+    } else {
+      metric.set(ConfigTag.VALUE, sumOfAges / total);
+    }
     metric.set(ConfigTag.HELP, "The average age in minutes of all active incidents");
     metric.set(ConfigTag.TYPE, CMC.GAUGE);
     metric.set(INSTANCE, instanceName);
