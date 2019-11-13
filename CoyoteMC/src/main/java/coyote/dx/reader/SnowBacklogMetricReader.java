@@ -118,7 +118,7 @@ public class SnowBacklogMetricReader extends SnowMetricReader implements FrameRe
   @Override
   public DataFrame read(TransactionContext context) {
     if (stories == null) {
-      List<SnowSprint> sprints = getSprints(getConfiguration().getString(PRODUCT));
+      List<SnowSprint> sprints = getSprintsByProduct(getConfiguration().getString(PRODUCT));
       for (SnowSprint sprint : sprints) {
         if (sprint.isCurrent()) {
           Log.debug(sprint);

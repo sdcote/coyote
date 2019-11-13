@@ -15,15 +15,14 @@ import coyote.dx.FrameReader;
 import coyote.dx.context.TransactionContext;
 import coyote.dx.context.TransformContext;
 import coyote.loader.log.Log;
+import coyote.mc.snow.ServiceNowFields;
 import coyote.mc.snow.SnowException;
 import coyote.mc.snow.SnowFilter;
 import coyote.mc.snow.SnowSprint;
 
 import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.List;
 
-import static coyote.mc.snow.Predicate.IS;
+import static coyote.mc.snow.Predicate.LIKE;
 
 /**
  * This is a reader which connects to a ServiceNow instance and queries data via URL export to retrieve sprints for a
@@ -41,8 +40,8 @@ import static coyote.mc.snow.Predicate.IS;
  * "Reader" : {
  *    "class" : "SnowSprintReader",
  *    "source" : "https://servicenow.aepsc.com/",
- *    "release": "RLSE0010497",
- *    "instance": "EAF",
+ *    "group": "AgileTeam6",
+ *    "instance": "Otters",
  *    "authenticator": {
  *      "class" : "BasicAuthentication",
  *      "username": "[#Vault.get(SnowUser,username)#]",
@@ -51,16 +50,9 @@ import static coyote.mc.snow.Predicate.IS;
  *    }
  *  },
  * </pre>
- *
- * <p>The {@code release} configuration element is used to more efficiently find the sprints. A more complete way is to
- * replace the {@code release} element with the {@code product} element. This will scan for all releases related to the
- * product and then scan for all the sprints for all those releases. Note you cannot have both and at lease one of them
- * must be specified.</p>
  */
 public class SnowSprintReader extends SnowReader implements FrameReader {
 
-
-  private static final String RELEASE = "release";
 
   /**
    * @param context The transformation context in which this component should operate
@@ -70,30 +62,22 @@ public class SnowSprintReader extends SnowReader implements FrameReader {
     super.open(context);
     getResource().getDefaultParameters().setMethod(Method.GET);
 
-    String product = getConfiguration().getString(PRODUCT);
-    String release = getConfiguration().getString(RELEASE);
+    String team = getConfiguration().getString(GROUP);
 
-    if (StringUtil.isBlank(release) && StringUtil.isBlank(product)) {
-      context.setError("The " + getClass().getSimpleName() + " configuration did not contain the '" + PRODUCT + "' nor '" + RELEASE + "' element.");
-      context.setState("Configuration Error");
-      return;
-    }
-    if (StringUtil.isNotBlank(release) && StringUtil.isNotBlank(product)) {
-      context.setError("The " + getClass().getSimpleName() + " configuration cannot contain both '" + PRODUCT + "' and '" + RELEASE + "' elements.");
+    if (StringUtil.isBlank(team)) {
+      context.setError("The " + getClass().getSimpleName() + " configuration must contain the '" + GROUP + "' element.");
       context.setState("Configuration Error");
       return;
     }
 
-
-    if (StringUtil.isNotBlank(release)) {
-      SnowFilter filter = new SnowFilter("release.number", IS, release);
+    if (StringUtil.isNotBlank(team)) {
+      SnowFilter filter = new SnowFilter(ServiceNowFields.ASSIGNMENT_GROUP, LIKE, team);
       try {
         getResource().setPath("rm_sprint.do?JSONv2&sysparm_query=" + filter.toEncodedString());
       } catch (URISyntaxException e) {
         e.printStackTrace();
       }
     }
-
   }
 
 
@@ -101,7 +85,7 @@ public class SnowSprintReader extends SnowReader implements FrameReader {
   public DataFrame read(TransactionContext context) {
 // if this is the first time through and we are supposed to search by product...
     if (dataframes == null && StringUtil.isNotBlank(getConfiguration().getString(PRODUCT))) {
-      dataframes = getData(); // fill the dataframes with sprints
+      super.read(context); // fill the data frames with sprints
     }
 
 
@@ -118,13 +102,5 @@ public class SnowSprintReader extends SnowReader implements FrameReader {
     return retval;
   }
 
-  private List<DataFrame> getData() {
-    List<DataFrame> retval = new ArrayList<>();
-    List<SnowSprint> sprints = getSprints(getConfiguration().getString(PRODUCT));
-    for (SnowSprint sprint : sprints) {
-      retval.add(sprint);
-    }
-    return retval;
-  }
 
 }

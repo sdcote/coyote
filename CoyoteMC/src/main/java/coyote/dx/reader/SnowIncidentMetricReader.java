@@ -112,7 +112,7 @@ public class SnowIncidentMetricReader extends SnowMetricReader implements FrameR
     if (incidents == null) {
 
       if (StringUtil.isNotBlank(getConfiguration().getString(PRODUCT))) {
-        List<SnowSprint> sprints = getSprints(getConfiguration().getString(PRODUCT));
+        List<SnowSprint> sprints = getSprintsByProduct(getConfiguration().getString(PRODUCT));
         for (SnowSprint sprint : sprints) {
           if (sprint.isCurrent()) {
             Log.notice("Current sprint " + sprint.getShortDescription() + " (" + sprint.getScheduledStartDate() + " - " + sprint.getScheduledEndDate() + ")");

@@ -34,6 +34,7 @@ import static coyote.mc.snow.Predicate.LIKE;
  */
 public abstract class SnowReader extends WebServiceReader implements FrameReader {
 
+  public static final String GROUP = "group";
   public static final String PRODUCT = "product";
   public static final String INSTANCE = "instance";
   public static final String ITEM = "item";
@@ -76,10 +77,12 @@ public abstract class SnowReader extends WebServiceReader implements FrameReader
   /**
    * Return all the sprints for a named product.
    *
+   * <p><strong>NOTE:</strong>This only supports version1 of the ServiceNow Agile module.</p>
+   *
    * @param product the name of the product to lookup
    * @return all the sprints for that product
    */
-  protected List<SnowSprint> getSprints(String product) {
+  protected List<SnowSprint> getSprintsByProduct(String product) {
     List<SnowSprint> retval = new ArrayList<>();
 
     // get all the releases for the product
@@ -97,11 +100,13 @@ public abstract class SnowReader extends WebServiceReader implements FrameReader
         getResource().setPath("/rm_release_scrum.do?JSONv2&sysparm_query=" + query.toEncodedString());
         List<DataFrame> releases = retrieveData();
         for (DataFrame frame : releases) {
+          Log.notice("Release: "+frame.getAsString(ServiceNowFields.SHORT_DESCRIPTION));
           SnowFilter sprintQuery = new SnowFilter(ServiceNowFields.RELEASE + "." + ServiceNowFields.SYS_ID, IS, frame.getAsString(ServiceNowFields.SYS_ID));
           getResource().setPath("/rm_sprint.do?JSONv2&sysparm_query=" + sprintQuery.toEncodedString());
           List<DataFrame> sprints = retrieveData();
           if (sprints.size() > 0) {
             for (DataFrame sprintFrame : sprints) {
+              Log.notice("Sprint: "+sprintFrame.getAsString(ServiceNowFields.SHORT_DESCRIPTION));
               try {
                 retval.add(new SnowSprint(sprintFrame));
               } catch (SnowException e) {
