@@ -78,6 +78,7 @@ public class SnowBacklogMetricReader extends SnowMetricReader implements FrameRe
   SnowDateTime sprintStart = null;
   private List<SnowStory> stories = null;
   private String instanceName = null;
+  private String teamGroup = null;
 
   /**
    * @param context The transformation context in which this component should operate
@@ -118,7 +119,7 @@ public class SnowBacklogMetricReader extends SnowMetricReader implements FrameRe
   @Override
   public DataFrame read(TransactionContext context) {
     if (stories == null) {
-      List<SnowSprint> sprints = getSprintsByProduct(getConfiguration().getString(PRODUCT));
+      List<SnowSprint> sprints = getSprintsByGroup(getConfiguration().getString(GROUP));
       for (SnowSprint sprint : sprints) {
         if (sprint.isCurrent()) {
           Log.debug(sprint);
@@ -153,6 +154,7 @@ public class SnowBacklogMetricReader extends SnowMetricReader implements FrameRe
     }
     return super.read(context); // return all the replaced dataframes
   }
+
 
   /**
    * Generate metrics from the given stories

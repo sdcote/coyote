@@ -77,7 +77,7 @@ public abstract class SnowReader extends WebServiceReader implements FrameReader
   /**
    * Return all the sprints for a named product.
    *
-   * <p><strong>NOTE:</strong>This only supports version1 of the ServiceNow Agile module.</p>
+   * <p><strong>NOTE:</strong>This only supports version 1 of the ServiceNow Agile module.</p>
    *
    * @param product the name of the product to lookup
    * @return all the sprints for that product
@@ -100,13 +100,13 @@ public abstract class SnowReader extends WebServiceReader implements FrameReader
         getResource().setPath("/rm_release_scrum.do?JSONv2&sysparm_query=" + query.toEncodedString());
         List<DataFrame> releases = retrieveData();
         for (DataFrame frame : releases) {
-          Log.notice("Release: "+frame.getAsString(ServiceNowFields.SHORT_DESCRIPTION));
+          Log.notice("Release: " + frame.getAsString(ServiceNowFields.SHORT_DESCRIPTION));
           SnowFilter sprintQuery = new SnowFilter(ServiceNowFields.RELEASE + "." + ServiceNowFields.SYS_ID, IS, frame.getAsString(ServiceNowFields.SYS_ID));
           getResource().setPath("/rm_sprint.do?JSONv2&sysparm_query=" + sprintQuery.toEncodedString());
           List<DataFrame> sprints = retrieveData();
           if (sprints.size() > 0) {
             for (DataFrame sprintFrame : sprints) {
-              Log.notice("Sprint: "+sprintFrame.getAsString(ServiceNowFields.SHORT_DESCRIPTION));
+              Log.notice("Sprint: " + sprintFrame.getAsString(ServiceNowFields.SHORT_DESCRIPTION));
               try {
                 retval.add(new SnowSprint(sprintFrame));
               } catch (SnowException e) {
@@ -120,6 +120,41 @@ public abstract class SnowReader extends WebServiceReader implements FrameReader
       } // xref>0
     } catch (URISyntaxException e) {
       e.printStackTrace();
+    }
+    return retval;
+  }
+
+
+  /**
+   * Retrieve the sprints for a named agile team.
+   *
+   * <p><strong>NOTE:</strong>This only supports version 2 of the ServiceNow Agile module.</p>
+   *
+   * @param team the name of the assigned team (group) for the sprints
+   * @return all the sprints for the given team
+   */
+  protected List<SnowSprint> getSprintsByGroup(String team) {
+    List<SnowSprint> retval = new ArrayList<>();
+    if (StringUtil.isNotBlank(team)) {
+      SnowFilter filter = new SnowFilter(ServiceNowFields.ASSIGNMENT_GROUP, LIKE, team);
+      try {
+        getResource().setPath("rm_sprint.do?JSONv2&sysparm_query=" + filter.toEncodedString());
+        List<DataFrame> sprints = retrieveData();
+        if (sprints.size() > 0) {
+          for (DataFrame sprintFrame : sprints) {
+            Log.debug("Sprint: " + sprintFrame.getAsString(ServiceNowFields.SHORT_DESCRIPTION));
+            try {
+              retval.add(new SnowSprint(sprintFrame));
+            } catch (SnowException e) {
+              e.printStackTrace();
+            }
+          }
+        } else {
+          Log.warn("Could not find any sprints for team '" + team + "'");
+        }
+      } catch (URISyntaxException e) {
+        e.printStackTrace();
+      }
     }
     return retval;
   }
