@@ -134,7 +134,7 @@ public class SnowBacklogMetricReader extends SnowMetricReader implements FrameRe
 
       // We need to set the request path to that of the rm_story table
       try {
-        getResource().setPath("rm_story.do?JSONv2&displayvalue=all&&sysparam_limit=2000&sysparm_query=" + filter.toEncodedString());
+        getResource().setPath("rm_story.do?JSONv2&sysparam_limit=2000&sysparm_query=" + filter.toEncodedString());
       } catch (URISyntaxException e) {
         e.printStackTrace();
       }
