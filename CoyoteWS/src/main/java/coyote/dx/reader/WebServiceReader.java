@@ -11,11 +11,6 @@
  */
 package coyote.dx.reader;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.List;
-
 import coyote.commons.DataFrameUtil;
 import coyote.commons.StringUtil;
 import coyote.commons.template.SymbolTable;
@@ -23,25 +18,21 @@ import coyote.commons.template.Template;
 import coyote.dataframe.DataField;
 import coyote.dataframe.DataFrame;
 import coyote.dataframe.selector.FrameSelector;
-import coyote.dx.CDX;
-import coyote.dx.CWS;
-import coyote.dx.ConfigTag;
-import coyote.dx.ConfigurableComponent;
-import coyote.dx.FrameReader;
-import coyote.dx.Pagination;
+import coyote.dx.*;
 import coyote.dx.context.TransactionContext;
 import coyote.dx.context.TransformContext;
-import coyote.dx.web.InvocationException;
-import coyote.dx.web.Parameters;
-import coyote.dx.web.Proxy;
-import coyote.dx.web.Resource;
-import coyote.dx.web.Response;
+import coyote.dx.web.*;
 import coyote.dx.web.auth.AuthenticationException;
 import coyote.dx.web.auth.Authenticator;
 import coyote.dx.web.auth.NullAuthenticator;
 import coyote.loader.cfg.ConfigurationException;
 import coyote.loader.log.Log;
 import coyote.loader.log.LogMsg;
+
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -260,7 +251,14 @@ public class WebServiceReader extends AbstractFrameReader implements FrameReader
   }
 
 
-
+  /**
+   * @see java.io.Closeable#close()
+   */
+  @Override
+  public void close() throws IOException {
+    dataframes = null;
+    super.close();
+  }
 
   /**
    * Read data from the web service call and populate a list of data frames 
