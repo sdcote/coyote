@@ -12,6 +12,8 @@ import coyote.commons.StringParser;
 
 import java.io.IOException;
 
+import static coyote.mc.snow.Predicate.*;
+
 /**
  * <p>This is a very forgiving parser and supports more than just the query string syntax. It will accept a variety of
  * commonly worded filter queries. For example, it will accept  the '=' (equals) and the text 'is' to mean the same
@@ -65,43 +67,43 @@ public class FilterParser extends StringParser {
 
         switch (next) {
           case '=':
-            predicate = Predicate.IS;
+            predicate = IS;
             parser.read();
             break;
           case '>':
             next = (char) parser.readAndPeek();
             if ('=' == next) {
-              predicate = Predicate.GREATER_THAN_EQUALS;
+              predicate = GREATER_THAN_EQUALS;
               parser.read();
             } else {
-              predicate = Predicate.GREATER_THAN;
+              predicate = GREATER_THAN;
             }
             break;
           case '<':
             next = (char) parser.readAndPeek();
             if ('=' == next) {
-              predicate = Predicate.LESS_THAN_EQUALS;
+              predicate = LESS_THAN_EQUALS;
               parser.read();
             } else {
-              predicate = Predicate.LESS_THAN;
+              predicate = LESS_THAN;
             }
             break;
           case '!':
             parser.read();
             next = (char) parser.peek();
             if ('=' == next) {
-              predicate = Predicate.IS_NOT;
+              predicate = IS_NOT;
               parser.read();
               break;
             } else {
               //Maybe !empty, !like, !sameas
               token = parser.readToken();
               if (token.equalsIgnoreCase("empty")) {
-                predicate = Predicate.IS_NOT_EMPTY;
+                predicate = IS_NOT_EMPTY;
               } else if (token.equalsIgnoreCase("like")) {
-                predicate = Predicate.DOES_NOT_CONTAIN;
+                predicate = DOES_NOT_CONTAIN;
               } else if (token.equalsIgnoreCase("sameas")) {
-                predicate = Predicate.DIFFERENT_FROM;
+                predicate = DIFFERENT_FROM;
               } else {
                 throw new StringParseException("Negation predicate not recognized at " + parser.getPosition());
               }
@@ -109,47 +111,47 @@ public class FilterParser extends StringParser {
           default:
             token = parser.readToken();
             if ("LIKE".equalsIgnoreCase(token)) {
-              predicate = Predicate.LIKE;
+              predicate = LIKE;
             } else if ("IS".equalsIgnoreCase(token)) {
-              predicate = Predicate.IS;
+              predicate = IS;
             } else if ("CONTAINS".equalsIgnoreCase(token)) {
-              predicate = Predicate.CONTAINS;
+              predicate = CONTAINS;
             } else if ("NSAMEAS".equalsIgnoreCase(token)) {
-              predicate = Predicate.DIFFERENT_FROM;
+              predicate = DIFFERENT_FROM;
             } else if ("NOT%20LIKE".equalsIgnoreCase(token)) {
-              predicate = Predicate.DOES_NOT_CONTAIN;
+              predicate = DOES_NOT_CONTAIN;
             } else if ("NOTLIKE".equalsIgnoreCase(token)) {
-              predicate = Predicate.NOT_LIKE;
+              predicate = NOT_LIKE;
             } else if ("NOT".equalsIgnoreCase(token)) {
               token = parser.readAndPeekToken();
               if ("LIKE".equalsIgnoreCase(token)) {
-                predicate = Predicate.NOT_LIKE;
+                predicate = NOT_LIKE;
               } else if ("EMPTY".equalsIgnoreCase(token)) {
-                predicate = Predicate.IS_NOT_EMPTY;
+                predicate = IS_NOT_EMPTY;
               }
-              predicate = Predicate.DOES_NOT_CONTAIN;
+              predicate = DOES_NOT_CONTAIN;
               parser.readToken();
               break;
             } else if ("ENDSWITH".equalsIgnoreCase(token)) {
-              predicate = Predicate.ENDS_WITH;
+              predicate = ENDS_WITH;
             } else if ("IN".equalsIgnoreCase(token)) {
-              predicate = Predicate.IN;
+              predicate = IN;
             } else if ("ANYTHING".equalsIgnoreCase(token)) {
-              predicate = Predicate.IS_ANYTHING;
+              predicate = IS_ANYTHING;
             } else if ("ISEMPTY".equalsIgnoreCase(token)) {
-              predicate = Predicate.IS_EMPTY;
+              predicate = IS_EMPTY;
             } else if ("EMPTYSTRING".equalsIgnoreCase(token)) {
-              predicate = Predicate.IS_EMPTY_STRING;
+              predicate = IS_EMPTY_STRING;
             } else if ("ISNOTEMPTY".equalsIgnoreCase(token)) {
-              predicate = Predicate.IS_NOT_EMPTY;
+              predicate = IS_NOT_EMPTY;
             } else if ("NOTEMPTY".equalsIgnoreCase(token)) {
-              predicate = Predicate.IS_NOT_EMPTY;
+              predicate = IS_NOT_EMPTY;
             } else if ("123TEXTQUERY321".equalsIgnoreCase(token)) {
-              predicate = Predicate.KEYWORDS;
+              predicate = KEYWORDS;
             } else if ("SAMEAS".equalsIgnoreCase(token)) {
-              predicate = Predicate.SAME_AS;
+              predicate = SAME_AS;
             } else if ("STARTSWITH".equalsIgnoreCase(token)) {
-              predicate = Predicate.STARTS_WITH;
+              predicate = STARTS_WITH;
             }
             break;
         }
