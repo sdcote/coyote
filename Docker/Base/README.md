@@ -2,9 +2,11 @@
 
 This is the base container image for Coyote. Nearly all other images start from this base.
 
+This contains all the Coyote modules so it can be used for all your jobs. If image size is an issue, you can use this project as a template for your custom images.
+
 ## Building
 
-Change into the `base` directory and run a build:
+Change into the `Base` directory and run a build:
 
     docker build -t coyote .
 
