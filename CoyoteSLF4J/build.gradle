@@ -5,8 +5,8 @@ ext {
 	title = 'Coyote Logging SLF4J Binding'
 	provider = 'Coyote Systems'
 	junitVersion = '4.12'
-	slf4jVersion = '1.7.7'
-	loaderVersion = '0.7.20'
+	slf4jVersion = '1.7.21'
+	loaderVersion = '0.7.21'
 }
 
 jar {
