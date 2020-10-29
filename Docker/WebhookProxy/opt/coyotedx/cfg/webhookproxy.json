@@ -1,0 +1,30 @@
+{
+	"Class": "coyote.dx.Service",
+	"Description":[
+		"This demonstrates how to have multiple service endpoints listening on the same HTTP server port.",
+		"This is the most common integration use case as each endpoint usually goes to a different location (writer)",
+		"Note that each endpoint is running in its own thread which processes requests in parallel to the other endpoints."
+	],
+
+
+	"Job": {
+		"Reader": { "class": "HttpReader", "port": 80, "timeout": 5000, "endpoint": "/coyote" },
+		"Validate": {
+			"NotEmpty": { "field" : "Message", "desc": "All records must contain a 'Message' field"  }
+		},
+		"Transform": {
+			"Counter": { "field": "RecNum" },
+			"Guid": { "field": "ID" },
+			"Timestamp": { "field": "Received" }
+		},
+		"Writer": { "class": "ConsoleWriter", "format": "json", "indent": false, "message": "Record [#$CurrentFrame#] received." }
+	},
+
+
+
+
+	"Logging": {
+		"StandardOutput": { "categories": "schedulerX, threadX, debugX, traceX, infoX, notice, warn, error, fatal" }
+	}
+
+}
