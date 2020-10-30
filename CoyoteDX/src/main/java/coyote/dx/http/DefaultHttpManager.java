@@ -20,6 +20,7 @@ import coyote.dx.ConfigTag;
 import coyote.dx.Service;
 import coyote.dx.http.responder.CommandResponder;
 import coyote.dx.http.responder.HealthCheckResponder;
+import coyote.dx.http.responder.OpenMetricsResponder;
 import coyote.dx.http.responder.PingResponder;
 import coyote.loader.cfg.Config;
 import coyote.loader.log.Log;
@@ -78,6 +79,7 @@ public class DefaultHttpManager extends HTTPDRouter implements HttpManager {
     addRoute("/api/cmd/:command", CommandResponder.class, service);
     addRoute("/api/ping/:id", PingResponder.class, service);
     addRoute("/api/health", HealthCheckResponder.class, service);
+    addRoute("/metrics", OpenMetricsResponder.class, service);
   }
 
 }
