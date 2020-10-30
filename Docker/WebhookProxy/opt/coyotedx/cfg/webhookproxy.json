@@ -1,14 +1,32 @@
 {
 	"Class": "coyote.dx.Service",
 	"Description":[
-		"This demonstrates how to have multiple service endpoints listening on the same HTTP server port.",
-		"This is the most common integration use case as each endpoint usually goes to a different location (writer)",
-		"Note that each endpoint is running in its own thread which processes requests in parallel to the other endpoints."
+		"This maps RTW jobs to endpoints enabling different RTW processing for each endpoint.",
+		"WebEx converts webhook calls into a format suitable for publishing messages to WebEx teams."
 	],
+
+	"Manager" : {
+		"Port": 55290,
+		"Auth": {
+			"Users":[
+				{ "Name" : "admin", "Password" : "secret", "Groups" : "sysop,devop" },
+				{ "Name" : "sysop", "Password" : "secret", "Groups" : "sysop" },
+				{ "Name" : "devop", "Password" : "secret", "Groups" : "devop" },
+				{ "Name" : "user", "Password" : "secret" }
+			]
+		},
+		"IPACL" : {
+			"default" : "deny",
+			"127.0.0.1" : "allow",
+			"172/8" : "allow",
+			"192.168/16" : "allow",
+			"10/8" : "deny"
+		}
+	},
 
 
 	"Job": {
-		"Reader": { "class": "HttpReader", "port": 80, "timeout": 5000, "endpoint": "/coyote" },
+		"Reader": { "class": "HttpReader", "port": 80, "timeout": 5000, "IPACL" : { "default" : "allow"	},"endpoint": "/webex" },
 		"Validate": {
 			"NotEmpty": { "field" : "Message", "desc": "All records must contain a 'Message' field"  }
 		},
@@ -21,10 +39,8 @@
 	},
 
 
-
-
 	"Logging": {
-		"StandardOutput": { "categories": "schedulerX, threadX, debugX, traceX, infoX, notice, warn, error, fatal" }
+		"StandardOutput": { "categories": "schedulerX, threadX, debugX, traceX, infoX, HTTPD, notice, warn, error, fatal" }
 	}
 
 }
