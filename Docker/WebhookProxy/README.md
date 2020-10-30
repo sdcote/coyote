@@ -21,7 +21,7 @@ You will have an image from which you can build multiple webhook proxy container
 
 Just call the container
 
-    docker run -d -p80:80 --name whproxy webhookproxy
+    docker run -d -p80:80 -p55290:55290 --name whproxy webhookproxy
 
  This will start a webhook proxy listening on port 80.
  

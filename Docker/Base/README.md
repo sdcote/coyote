@@ -6,13 +6,14 @@ This contains all the Coyote modules so it can be used for all your jobs. If ima
 
 ## Building
 
-Make sure you have built the entire project firt. , Just go to the base of the project directory and run the `gradle` command.
-Go to the base of this project and execute:
+Make sure you have built the entire project first. Just go to the base of the project directory and run the `gradle` command.
+
+Next, from the base of the project, run `docker build`:
 
     docker build -f Docker/Base/Dockerfile -t coyote .
 
-All the other images will use a `FROM coyote` so keep the name consistent, otherwise you will need to change the 
-`Dockerfile` in the other projects.
+All the other images will use a `FROM coyote` so keep the name consistent, otherwise you will need to change the `FROM` 
+directive in the `Dockerfile` in the other projects.
 
 ## Extending
 
