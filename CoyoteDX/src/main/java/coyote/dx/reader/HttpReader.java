@@ -7,13 +7,9 @@
  */
 package coyote.dx.reader;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.ConcurrentLinkedQueue;
-
 import coyote.commons.NetUtil;
 import coyote.commons.StringUtil;
+import coyote.commons.network.IpAcl;
 import coyote.commons.network.MimeType;
 import coyote.commons.network.http.HTTP;
 import coyote.commons.network.http.HTTPD;
@@ -42,6 +38,11 @@ import coyote.loader.Context;
 import coyote.loader.cfg.Config;
 import coyote.loader.cfg.ConfigurationException;
 import coyote.loader.log.Log;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 
 /**
@@ -115,8 +116,6 @@ public class HttpReader extends AbstractFrameReader implements FrameReader {
   protected static final int DEFAULT_TIMEOUT = 10000;
   private ConcurrentLinkedQueue<HttpFuture> queue = new ConcurrentLinkedQueue<HttpFuture>();
   private HttpListener listener = null;
-
-
 
 
   /**
@@ -426,7 +425,14 @@ public class HttpReader extends AbstractFrameReader implements FrameReader {
             setAuthProvider(new GenericAuthProvider(new Config((DataFrame)field.getObjectValue())));
           }
         }
-        configIpACL(cfg.getSection(ConfigTag.IPACL));
+
+        // For ease of configuration, if there is no ACL, assume default=Allow
+        Config aclSection = cfg.getSection(ConfigTag.IPACL);
+        if (aclSection != null)
+          configIpACL(aclSection);
+        else
+          setDefaultAllow(true);
+
         configDosTables(cfg.getSection(ConfigTag.FREQUENCY));
       }
       addDefaultRoutes();
