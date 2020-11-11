@@ -27,20 +27,20 @@
 
 	"Job": {
 		"Reader": { "class": "HttpReader", "port": 80, "timeout": 5000, "IPACL" : { "default" : "allow"	},"endpoint": "/webex" },
-		"Validate": {
-			"NotEmpty": { "field" : "Message", "desc": "All records must contain a 'Message' field"  }
-		},
-		"Transform": {
-			"Counter": { "field": "RecNum" },
-			"Guid": { "field": "ID" },
-			"Timestamp": { "field": "Received" }
-		},
-		"Writer": { "class": "ConsoleWriter", "format": "json", "indent": false, "message": "Record [#$CurrentFrame#] received." }
+		"Transform": { "AlertManager2Markdown": { }	},
+		"Writer": { "class": "ConsoleWriter", "Enabled": true, "format": "json", "indent": true, "message": "Record [#$CurrentFrame#] received." },
+		"Writer": {
+			"Enabled": true,
+			"Class": "WebServiceWriter",
+			"Target": "https://webexapis.com/v1/webhooks/incoming/Y2lzY29zcGFyazovL3VzL1dFQkhPT0svYTBjOGQ3ZmQtYmRlOS00MjFlLWFiMTMtN2UxNWMxYjdlYmRh",
+			"Protocol": { "ExchangeType": "JSON_HTTP", "Method": "POST" },
+			"ResponseWriter": { "Class": "JsonWriter", "target": "WebexResponses.json" }
+		}
 	},
 
 
 	"Logging": {
-		"StandardOutput": { "categories": "schedulerX, threadX, debugX, traceX, infoX, HTTPD, notice, warn, error, fatal" }
+		"StandardOutput": { "categories": "schedulerX, thread, debug, trace, info, HTTPD, notice, warn, error, fatal" }
 	}
 
 }

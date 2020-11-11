@@ -140,6 +140,8 @@ public class AlertManager2Markdown extends AbstractFieldTransform implements Fra
         retval.append(alert.getSummary());
         retval.append("  \n**Severity:** ");
         retval.append(alert.getSeverity());
+        retval.append("  \n**Status:** ");
+        retval.append(alert.getStatus());
         retval.append("  \n**Instance:** ");
         retval.append(alert.getInstance());
         retval.append("  \n**Timestamp:** ");
@@ -245,6 +247,12 @@ public class AlertManager2Markdown extends AbstractFieldTransform implements Fra
 
         public String getGeneratorUrl() {
             String retval = source.getAsString(GENERATOR_FIELD);
+            if (StringUtil.isBlank(retval)) retval = UNKNOWN;
+            return retval;
+        }
+
+        public String getStatus() {
+            String retval = source.getAsString(STATUS_FIELD);
             if (StringUtil.isBlank(retval)) retval = UNKNOWN;
             return retval;
         }
