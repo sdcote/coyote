@@ -34,6 +34,7 @@ public class HttpFuture {
   private String resource = null;
   private DataFrame errorFrame = null;
   private volatile boolean processedFlag = false;
+  private volatile boolean timedOut = false;
 
 
 
@@ -95,6 +96,7 @@ public class HttpFuture {
           // don't care, simply time-out
         }
       }
+      if(response == null) timedOut= true;
       return response;
     }
 
@@ -306,6 +308,21 @@ public class HttpFuture {
    */
   public void setProcessed(boolean processed) {
     this.processedFlag = processed;
+  }
+
+
+
+
+  /**
+   * This is a flag indicating the {@link #getResponse(long)} method was called
+   * and no response was returned within the given time out period.
+   *
+   * @return true if {@link #getResponse(long)} returned nothing after the
+   *         expiration period, fales if {@link #getResponse(long)} was never
+   *         called, or called and returned a response within the wait time.
+   */
+  public boolean isTimedOut() {
+    return timedOut;
   }
 
 }

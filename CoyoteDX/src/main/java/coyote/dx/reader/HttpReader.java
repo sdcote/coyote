@@ -111,6 +111,7 @@ public class HttpReader extends AbstractFrameReader implements FrameReader {
   private static final String HTTP_REQUEST_URI = "HttpRequestURI";
   public static final String STATUS = "Status";
   public static final String ERROR = "Error";
+  public static final String PROCESSED = "Processed";
   public static final String MESSAGE = "Message";
   private static final int DEFAULT_PORT = 80;
   protected static final int DEFAULT_TIMEOUT = 10000;
@@ -577,10 +578,7 @@ public class HttpReader extends AbstractFrameReader implements FrameReader {
         String method = future.getMethod();
         method = (StringUtil.isNotBlank(method)) ? method.toUpperCase() : "";
         switch (method) {
-          case HTTP.METHOD_POST: {
-            future.setProcessed(true);
-            break;
-          }
+          case HTTP.METHOD_POST:
           case HTTP.METHOD_PUT: {
             future.setProcessed(true);
             break;

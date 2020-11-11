@@ -2,7 +2,7 @@
 
 This is the base container image for Coyote. Nearly all other images start from this base.
 
-This contains all the Coyote modules so it can be used for all your jobs. If image size is an issue, you can use this project as a template for your custom images.
+This contains all the Coyote modules, so it can be used for all your jobs. If image size is an issue, you can use this project as a template for your custom images.
 
 ## Building
 
@@ -25,16 +25,27 @@ This image runs an empty Coyote instance listening on port 55290.
 
 ## Examples
 
-Assuming the image name of "coyote" 
+This is the base image of the Coyote toolset. It contains no useful configurations, and is designed to be mounted to a volume:
 
-Generate/encode an encrypted string
-    $ docker run coyote encrypt "my secret text"
+    docker run -v c:/jobs/:/opt/coyotedx/cfg coyote somejob
 
-Generate/encode an encrypted string using a specific key and encryption
-    $ docker run -e cipher.key='5up3rS3cret' -e cipher.name='xtea' coyote encrypt "my secret text"
+The above mounts the `c:/jobs/` directory on your local host to the configuration directory for Coyote (`/opt/coyotedx/cfg`) and then runs the `somejob` job configuration found in that directory.
 
-Run a job configuration using a specific encryption key
-    $ docker run -e cipher.key='5up3rS3cret' coyote http://someplace.com/cfg/myjob.json
+### Other Tasks
+
+Generate/encode an encrypted string for use in your configurations:
+
+    docker run coyote encrypt "my secret text"
+
+**Note:** the above should be considered obfuscated and _not_ encrypted since the default, easily accessible key is used.    
+
+This is an example that uses a provided secret key and named encryption algorithm:
+
+    docker run -e cipher.key=5up3rS3cret! -e cipher.name=XTEA coyote encrypt "my secret text"
+
+Run a job configuration retrieved from the network and using a specific encryption key:
+
+    docker run -e cipher.key=5up3rS3cret! coyote http://someplace.com/cfg/myjob.json
 
 
 # Debugging Containers

@@ -219,8 +219,13 @@ public class HttpReaderHandler extends AbstractCoyoteResponder implements Respon
         retval = future.getResponse(millis);
 
         if (retval == null) {
-          setResults(new DataFrame().set(HttpReader.STATUS, HttpReader.ERROR).set(HttpReader.MESSAGE, "Transform did not return a result within the time-out period"));
-          retval = Response.createFixedLengthResponse(Status.UNAVAILABLE, getMimeType(), getText());
+          if( future.isTimedOut()){
+            setResults(new DataFrame().set(HttpReader.STATUS, HttpReader.ERROR).set(HttpReader.MESSAGE, "Transform did not return a result within the time-out period"));
+            retval = Response.createFixedLengthResponse(Status.UNAVAILABLE, getMimeType(), getText());
+          } else {
+            setResults(new DataFrame().set(HttpReader.STATUS, HttpReader.PROCESSED));
+            retval = Response.createFixedLengthResponse(Status.NO_CONTENT, getMimeType(), getText());
+          }
         }
       } else {
         setResults(new DataFrame().set(HttpReader.STATUS, HttpReader.ERROR).set(HttpReader.MESSAGE, "No data to process"));
@@ -233,15 +238,10 @@ public class HttpReaderHandler extends AbstractCoyoteResponder implements Respon
 
 
 
-  /**
-   * @param entryUri
-   * @param requestUri
-   * @return
-   */
   private static String determineEndpoint(String entryUri) {
     String retval = entryUri;
 
-    // if the entry URI contains a ':', drop everything after the first occurence ,  including the ':' and the previous '/'
+    // if the entry URI contains a ':', drop everything after the first occurrence ,  including the ':' and the previous '/'
     if (retval.indexOf(':') > 0) {
       retval = retval.substring(0, retval.indexOf(':') - 1);
     }

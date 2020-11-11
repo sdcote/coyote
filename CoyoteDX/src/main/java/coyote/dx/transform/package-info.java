@@ -12,10 +12,10 @@
  * 
  * <p>Another use of transformers is the summarization and aggregation of 
  * records.  It is possible to define a frame transform which will summarize 
- * data characteristics of a  the frames observed, giving totals of values, 
- * frame counts and possible data profiling (e.g. nulls in fieldX). The results 
- * of such summarization can be accessed in the TransformContext by post 
- * processing tasks or context listeners.</p> 
+ * data characteristics of the frames observed, giving totals of values, frame
+ * counts and possible data profiling (e.g. nulls in fieldX). The results of
+ * such summarization can be accessed in the TransformContext by post
+ * processing tasks or context listeners.</p>
  * 
  * <p>This package is a tool kit for data transformation on a field level 
  * within the context of a data frame.</p>
