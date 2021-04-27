@@ -99,6 +99,8 @@ public abstract class MarshalingFrameReader extends AbstractFrameReader implemen
   @Override
   public void open(TransformContext context) {
     setContext(context);
+    buffer.clear();
+    currentFrame = 0;
 
     if(getConfiguration().containsIgnoreCase(ConfigTag.FLATTEN)){
       flatten = getBoolean(ConfigTag.FLATTEN);
@@ -132,7 +134,7 @@ public abstract class MarshalingFrameReader extends AbstractFrameReader implemen
       } else {
         Log.error("Using a source file of NULL_REF");
       }
-      // if not absolute, use the CDX fixture to attemt to resolve the relative file
+      // if not absolute, use the CDX fixture to attempt to resolve the relative file
       if (!sourceFile.isAbsolute()) {
         sourceFile = CDX.resolveFile(sourceFile, getContext());
       }

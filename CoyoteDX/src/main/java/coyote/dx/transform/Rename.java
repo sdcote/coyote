@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Stephan D. Cote' - All rights reserved.
+ * Copyright (c) 2021 Stephan D. Cote' - All rights reserved.
  * 
  * This program and the accompanying materials are made available under the 
  * terms of the MIT License which accompanies this distribution, and is 
@@ -19,14 +19,14 @@ import coyote.dx.TransformException;
  * Copy one field to another.
  * 
  * <p>This can be configured thusly:<pre>
- * "Copy": { "source": "oldField", "field":"newField"}
- * "Copy": { "source": "oldField", "target":"newField"}
+ * "Rename": { "source": "oldField", "field":"newField"}
+ * "Rename": { "source": "oldField", "target":"newField"}
  * </pre>
  */
-public class Copy extends AbstractFieldTransform implements FrameTransform {
+public class Rename extends Copy implements FrameTransform {
 
   /**
-   * @see coyote.dx.transform.AbstractFieldTransform#performTransform(coyote.dataframe.DataFrame)
+   * @see AbstractFieldTransform#performTransform(DataFrame)
    */
   @Override
   protected DataFrame performTransform(DataFrame frame) throws TransformException {
@@ -36,30 +36,10 @@ public class Copy extends AbstractFieldTransform implements FrameTransform {
     if (StringUtil.isNotBlank(sourceFieldName) && StringUtil.isNotBlank(targetFieldName)) {
       DataField field = frame.getField(sourceFieldName);
       if (field != null) {
-        DataField newField = (DataField)field.clone();
-        newField.setName(targetFieldName);
-        retval.add(newField);
+        field.setName(targetFieldName);
       }
     }
     return retval;
-  }
-
-
-
-
-  protected String getTarget() {
-    String retval = getFieldName();
-    if (StringUtil.isBlank(retval)) {
-      retval = getConfiguration().getString(ConfigTag.TARGET);
-    }
-    return retval;
-  }
-
-
-
-
-  protected String getSource() {
-    return getConfiguration().getString(ConfigTag.SOURCE);
   }
 
 }

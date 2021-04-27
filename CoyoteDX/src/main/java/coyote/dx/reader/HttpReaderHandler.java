@@ -266,7 +266,7 @@ public class HttpReaderHandler extends AbstractCoyoteResponder implements Respon
     Body body = null;
     try {
       body = session.parseBody();
-      if (Log.isLogging(Log.DEBUG)) Log.debug("Received body of " + body.size() + " characters:\r\n" + body);
+      if (Log.isLogging(Log.DEBUG)) Log.debug("Received body of " + body.size() + " key-value mappings");
     } catch (IOException | ResponseException e1) {
       throw new IllegalArgumentException("Problems parsing request body: " + e1.getMessage());
     }
@@ -365,6 +365,8 @@ public class HttpReaderHandler extends AbstractCoyoteResponder implements Respon
       }
 
       if (data != null && StringUtil.isNotEmpty(data)) {
+        if (Log.isLogging(Log.DEBUG)) Log.debug("Parsing " + data.length() + " characters into a frame:\r\n" + data);
+
         List<DataFrame> frames = null;
         String contentType = session.getRequestHeaders().get(HTTP.HDR_CONTENT_TYPE.toLowerCase());
         if (StringUtil.isNotEmpty(contentType) && contentType.contains(MimeType.XML.getType())) {
