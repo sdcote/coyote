@@ -19,11 +19,11 @@ directive in the `Dockerfile` in the other projects.
 
 Tag the newly created image with host, path, and version tags:
 
-    docker tag coyote docker.io/coyotesys/coyote:0.8.5
+    docker tag coyote docker.io/coyotesys/coyote:0.8.6
 
 Then push:
 
-    docker push docker.io/coyotesys/coyote:0.8.5
+    docker push docker.io/coyotesys/coyote:0.8.6
 
 
 ## Extending
