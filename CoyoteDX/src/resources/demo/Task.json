@@ -1,0 +1,15 @@
+{
+	"Class": "coyote.dx.Job",
+	"Job": {
+		"Name": "Task",
+		"Task": {
+			"LogEntry": { "message": "This is a log entry" },
+			"Touch": { "filename": "README.md" },
+			"Backup": { "filename": "README.md", "limit": 5 }
+		}
+	},
+
+	"Logging": { 
+		"ConsoleAppender": { "categories": "info, notice, warn, error, fatal" }
+	}
+}

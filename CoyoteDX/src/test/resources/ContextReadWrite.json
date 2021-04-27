@@ -1,0 +1,12 @@
+{
+	"Name": "ContextReadWrite",
+	"Description": "Show how to configure a context reader and writer as a source and target for data frames",
+	"Reader": {
+		"class": "ContextReader",
+		"source": "ContextInput"
+	},
+	"Writer": {
+		"class": "ContextWriter",
+		"target": "ContextOutput"
+	}
+}

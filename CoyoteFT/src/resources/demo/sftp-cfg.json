@@ -1,0 +1,22 @@
+{
+
+	"Context": {
+		"filename": "DAILY_DATA_[#$MM#][#$DD#][#$YYYY#].csv",
+		"workfile": "[#$wrkdir#][#$FS#][#$filename#]"
+	},
+
+	"PreProcess": {
+		"Retrieve" : {
+			"source": "sftp://username:password@ftp.host.com:22/prod/outbound/[#$filename#]",
+			"target": "workfile"
+		}
+	},
+
+	"PostProcess": {
+		"Publish" : {
+			"source": "workfile",
+			"target": "sftp://username:password@host.com:22/pub/results/[#$filename#]"
+		}
+	}
+
+}

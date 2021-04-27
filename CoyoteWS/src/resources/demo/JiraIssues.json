@@ -1,0 +1,57 @@
+{
+	"Class": "coyote.dx.Job",
+	"Job": {
+		"Name": "OSBA_Issues",
+		"Description": "Retrieve JIRA issues and place them in a CSV file.",
+		"Reader": {
+			"Class": "WebServiceReader",
+			"Source": "https://somecompany.atlassian.net/rest/api/2/search?project=WRPO&startAt=[#$page.start#]&maxResults=[#$page.size#]",
+			"Selector": "issues.*",
+			"Pagination": { "start": 0, "step": 100 },
+			"Protocol": { "ExchangeType": "JSON_REST", "Method": "GET" },
+			"Decorator": {
+				"BasicAuth": { "username": "YourUserName", "password": "YourPassword" }
+			}
+		},
+		"Transform": {
+			"Split": { "field": "fields.created", "delimiter": "T" },
+			"Split": { "field": "fields.created.1", "delimiter": "-" }
+		},
+		"Mapper": {
+			"Fields": {
+				"id": "ID",
+				"fields.issuetype.name": "Type",
+				"fields.issuetype.subtask": "SubTask",
+				"key": "Number",
+				"fields.summary": "Summary",
+				"fields.description": "Description",
+				"fields.resolution.name": "Resolution",
+				"fields.progress.percent": "PercentComplete",
+				"fields.resolutiondate": "ResolutionDate",
+				"fields.created": "Created",
+				"fields.created.0": "CreatedDate",
+				"fields.created.1.0": "CreatedTime",
+				"fields.priority.name": "PriorityDesc",
+				"fields.priority.id": "Priority",
+				"fields.timeestimate": "TimeEstimate",
+				"fields.aggregatetimeoriginalestimate": "AggregateEstimate",
+				"fields.assignee.name": "Assignee",
+				"fields.status.description": "StatusDescription",
+				"fields.status.name": "Status",
+				"fields.timeoriginalestimate": "OriginalEstimate",
+				"fields.creator.name": "Creator",
+				"fields.reporter.name": "Reporter"
+			}
+		},
+		"Writer": {
+			"class": "CsvWriter",
+			"header": true,
+			"dateformat": "yyyy/MM/dd",
+			"target": "jira-issues.csv"
+		}
+	},
+	"Logging": {
+		"StandardOutput": { "categories": "info, notice" },
+		"StandardError": { "categories": "warn, error, fatal" }
+	}
+}

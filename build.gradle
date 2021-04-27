@@ -1,0 +1,72 @@
+allprojects {
+	defaultTasks 'clean', 'build', 'publish', 'installDist'
+	group = 'coyote'
+	version = '0.8.5'
+}
+
+
+
+
+subprojects {
+	apply plugin: 'java'
+	apply plugin: 'jacoco'
+	apply plugin: 'maven-publish'
+	apply plugin: 'application'
+	apply plugin: 'eclipse'
+	apply plugin: 'idea'
+
+	repositories {
+		maven { url "https://dl.bintray.com/sdcote/maven" }
+		mavenLocal()
+		mavenCentral()
+	}
+
+
+	// custom tasks for creating source/javadoc jars
+	task sourcesJar(type: Jar, dependsOn: classes) {
+		classifier = 'sources'
+		from sourceSets.main.allSource
+	}
+
+
+	task javadocJar(type: Jar, dependsOn: javadoc) {
+		classifier = 'javadoc'
+		from javadoc.destinationDir
+	}
+
+
+	// add javadoc/source jar tasks as artifacts
+	artifacts {
+		archives sourcesJar, javadocJar
+	}
+
+
+	publishing {
+		publications {
+			mavenJava(MavenPublication) {
+				from components.java
+
+				artifact sourcesJar {
+					classifier "sources"
+				}
+
+				artifact javadocJar {
+					classifier "javadoc"
+				}
+			}
+		}
+	
+		repositories {
+			mavenLocal()
+		}
+	}
+
+	jacocoTestReport {
+    	reports {
+        	xml.enabled = true
+	        html.enabled = true
+    	}
+	}
+	check.dependsOn jacocoTestReport
+
+}

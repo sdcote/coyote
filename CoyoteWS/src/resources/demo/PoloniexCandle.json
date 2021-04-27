@@ -1,0 +1,23 @@
+{
+	"Class": "coyote.dx.Job",
+	"Job": {
+		"Name": "Candle",
+		"Description": "Returns candlestick chart data. Required GET parameters are 'currencyPair', 'period' (candlestick period in seconds; valid values are 300, 900, 1800, 7200, 14400, and 86400), 'start', and 'end'. 'Start' and 'end' are given in UNIX timestamp format and used to specify the date range for the data returned.",
+		"Task":{
+			"SetSymbol":{"symbol":"pair", "value":"BTC_XMR"},		
+			"SetSymbol":{"symbol":"start", "evaluate":"[#$CurrentRunEpochSeconds#] - (60 * 60 * 2)"},		
+			"SetSymbol":{"symbol":"end", "value":"[#$CurrentRunEpochSeconds#]"},		
+			"SetSymbol":{"symbol":"period", "value":"300"}		
+		},
+		"Reader": {
+			"Class": "WebServiceReader",
+			"Source": "https://poloniex.com/public?command=returnChartData&currencyPair=[#$pair#]&start=[#$start#]&end=[#$end#]&period=[#$period#]",
+			"Selector": "*",
+			"Protocol": { "ExchangeType": "JSON_HTTP", "Method": "GET" }
+		},
+		"Writer": { "class": "ConsoleWriter", "format": "json", "indent": true }
+	},
+	"Logging": {
+		"StandardOutput": { "categories": "trace, debug, info, notice, warn, error, fatal" }
+	}
+}

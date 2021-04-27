@@ -1,0 +1,24 @@
+{
+	"Class": "coyote.dx.Job",
+	"Job": {
+		"Name": "QueueListener",
+		"Description" : "Listens on a message queue, consumes any messages and displays them on the console",
+
+		"Reader": {
+			"class": "RabbitReader",
+            "source": "amqp://runrabbitrun/myexchange",
+            "username": "jdoe",
+            "password": "Ik2mYsjBm",
+			"use_ssl": true,
+			"listen": true,
+			"queue": "rtw/job"
+		},
+
+		"Writer" : {
+			"class" : "ConsoleWriter",
+			"format" : "json",
+			"indent" : false,
+			"message" : "Record [#$CurrentFrame#] received."
+		}
+	}
+}

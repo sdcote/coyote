@@ -1,0 +1,37 @@
+{
+
+	"Context": {
+		"filename": "[#$MM#][#$DD#][#$YYYY#].csv",
+		"tempdir": "[#$jobdir#][#$FS#]tmp",
+		"workfile": "[#$jobdir#][#$FS#][#$filename#]",
+		"CSV-regex": "([\\s]+(\\.(?i)(csv))$)"		
+	},
+
+	"PreProcess": {
+		"Retrieve": {
+			"source": "sftp://username:password@ftp.host.com:22/prod/outbound/[#$filename#]",
+			"target": "workfile"
+		},
+		"Retrieve": {
+			"source": "sftp://sftp.host.com/TopDir/DataDir",
+			"target": "tempdir",
+			"pattern": "CSV-regex",
+			"recurse": false,
+			"delete": true,
+			"encrypted_username": "LOeoct7aF1WmnPGFdw3mCOTD8jw/6uv5",
+			"encrypted_password": "/tku7iWZHRdPfkOcLlOjTW29elQlMVe9"
+		}
+	},
+
+	"PostProcess": {
+		"Publish" : {
+			"source": "workfile",
+			"target": "sftp://username:password@host.com:22/pub/results/[#$filename#]"
+		}
+	},
+
+	"Listeners": [
+		{ "class": "ContextLogger", "target": "file://ContextLogger.out" }
+	]
+
+}

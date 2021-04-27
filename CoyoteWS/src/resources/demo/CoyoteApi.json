@@ -1,0 +1,34 @@
+{
+	"Class": "coyote.dx.Job",
+
+	"Job": {
+		"Name": "Stats",
+
+		"Reader": {
+			"Class": "WebServiceReader",
+			"Source": "https://coyote.systems/api/stat",
+			"Protocol" : {
+				"ExchangeType" : "JSON_REST",
+				"Method" : "GET"
+			},
+			"Decorator" : {
+				"BasicAuth": { 
+					"ENC:username" : "vByrLcBa7Tth2u35/7iI4joYLUE4U6iH", 
+					"ENC:password" : "Z56oYp54GpUyh75cRgqlNzgAdPz/K2mz", 
+					"header" : "Authorization" 
+				}
+			}			
+		},
+
+		"Writer" : {
+			"class" : "CSVWriter",
+			"header" : true,
+			"target" : "web_stats.csv"
+		}
+
+	},
+
+	"Logging": {
+		"ConsoleAppender": { "name": "default", "target": "STDOUT", "categories": "trace, debug, info, notice, warn, error, fatal" }
+	}
+}

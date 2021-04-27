@@ -1,0 +1,67 @@
+# Directory Artifacts #
+#######################
+build/
+bin/
+.gradle/
+**/archives/**
+work/
+
+# Other Projects #
+##################
+csharp/
+
+
+# Miscellaneous Documentation #
+###############################
+/misc-docs/
+/cfg/
+/archives/
+
+
+# Compiled Artifacts #
+######################
+*.class
+*.dll
+#*.exe
+
+
+# Eclipse IDE Artifacts #
+#########################
+.classpath
+.project
+.settings/
+
+# Other IDE Artifacts #
+/.nb-gradle/profiles/private/
+*/out/*
+.idea/
+*.iml
+
+
+# Testing Artifacts #
+#####################
+*.log
+logback.xml
+wrk/
+/log
+*.db
+test.zip
+
+# Package Files #
+#################
+# it's better to unpack these files and commit the raw source
+# git has its own built in compression methods
+*.7z
+*.gz
+*.tgz
+*.iso
+#*.jar # Support demoJARs
+*.war
+*.ear
+!gradle/wrapper/gradle-wrapper.jar
+!**/dist/bin
+
+CoyoteInstaller.jar
+
+CoyoteDX/hprof/
+CoyoteUI/src/html/

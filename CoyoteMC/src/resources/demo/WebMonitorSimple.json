@@ -1,0 +1,24 @@
+{
+  "Class": "coyote.dx.Service",
+  "Manager": {
+    "Port": 80
+  },
+  "Job": {
+    "Name": "SimpleWebMonitor",
+    "Schedule": {
+      "Minutes": "*/2"
+    },
+    "Reader": {
+      "class": "WebPageMetricReader",
+      "source": "http://coyote.systems/",
+      "header": true
+    },
+    "Writer": {
+      "class": "ConsoleWriter",
+      "format": "json",
+      "indent": false,
+      "message": "Record [#$CurrentFrame#] received."
+    }
+  }
+}
+

@@ -1,0 +1,28 @@
+{
+	"Class": "coyote.dx.Job",
+
+	"Job": {
+		"Name": "DatabaseWriter",
+		"Reader": {
+			"class": "CSVReader",
+			"source": "[#$app.home#]/demo/users.csv",
+			"header": true
+		},
+
+		"Writer": {
+			"class": "JdbcWriter",
+			"target": "jdbc:h2:[#$jobdir#]/demodb;MODE=Oracle",
+			"table": "user",
+			"autocreate": true,
+			"driver": "org.h2.Driver",
+			"library": "jar:file:[#$app.home#]/lib/h2-1.4.196.jar!/",
+			"username": "sa",
+			"password": "",
+			"batch": 100
+		},
+
+		"Listeners": {
+			"ContextLogger": { "target": "file://ContextLogger.log" }
+		}
+	}
+}

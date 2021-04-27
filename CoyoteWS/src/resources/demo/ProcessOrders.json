@@ -1,0 +1,57 @@
+{
+	"Class": "coyote.dx.Job",
+	"Job": {
+		"Description" : "Read from an orders file and place the orders found there.",
+
+		"Context": {
+			"ApiKey": "3DCG289P-VRTP64YW-82QFHDQ3-1AJWJ58D",
+			"PrivateKey": "3BI2Qn4zy81Sq4jE5eZi5BSGU3ZfydeXgboQW3Tn3ZCvi/U/bkeNGszykxAAAA5kFLIRXz7o3DjU3WucQdYd+ofMPeF0kehe18KnWZVcGbOYlZ+nB1EKq5AV+3wBjlivFZLLVLX60K8w4lJ3RDD8Ua035cDbresWWYE3S2cdt4AMMHVBqal+jg2qbzrUOYH/ZLJjncn7i6nfIvA+XuAJtB/6/8RRh8ybLuhjH6YE2zB2XrrbD4OAb7PAHU18WOQha1xDRXtDEA3RuwP0bFJBvhW/CzVpbRDEKkA3he+Id+Olk/p9+Tl7LshOp+fAXxgu9NgGueLOfvJwx8S4r/yNprPcrgec1wuV",
+			"signals": "[#$wrkdir#][#$FS#]TradeRipple[#$FS#]signals.csv",
+			"audit": "[#$jobdir#][#$FS#]audit.csv"
+		},
+
+		"Reader": { "class": "CsvReader", "source": "signals", "header": true },
+		
+		"Transform": {
+			"Copy": { "source": "Base", "target":"currencyPair" },
+			"Append": { "field": "currencyPair", "Value":"_"},
+			"Append": { "field": "currencyPair", "Value":"Working.Instrument"},
+			"Format": { "field": "Type", "Format":"LowerCase"},
+			"Set": { "field": "immediateOrCancel", "value": 1 },
+			"Set": { "field": "Nonce", "value":"[#$currentMilliseconds#]" }
+		},
+
+		"Mapper": {
+			"fields" : {
+				"Type": "command",
+				"currencyPair": "currencyPair",
+				"Amount": "amount",
+				"Price": "rate",
+				"immediateOrCancel": "immediateOrCancel",
+				"Nonce": "nonce",
+			},
+		},
+
+		"Writer": {
+			"class": "CsvWriter",
+			"target": "audit",
+			"header": true,
+			"append": true,
+		},
+
+		"Writer": {
+			"Enabled": true,
+			"Class": "WebServiceWriter",
+			"Target": "https://poloniex.com/tradingApi",
+			"Protocol": { "ExchangeType": "JSON_HTTP", "Method": "POST" },
+			"ResponseWriter": { "Class": "JsonWriter", "target": "OrderResponses.json" },
+			"Decorator": {
+				"StaticValue": { "header": "Key", "value": "ApiKey" },
+				"HmacSha512": { "header": "Sign", "ENC:secret": "PrivateKey" }
+			}
+
+		}
+
+	}
+
+}

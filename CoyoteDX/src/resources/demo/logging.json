@@ -1,0 +1,24 @@
+{
+	"Class": "coyote.dx.Job",
+
+	"Job": {
+
+		"Reader": {
+			"class": "CSVReader",
+			"source" : "[#$app.home#]/demo/users.csv",
+			"header": true
+		},
+
+		"Listeners": {
+			"DataProfiler": { "target": "users-csv.txt" }
+		}
+
+	},
+
+	"Logging": {
+		"StandardError": { "name": "error", "target": "STDERR", "categories": "error, fatal, warn" },
+		"StandardOutput": { "name": "default",  "target": "STDOUT", "categories": "info" },
+		"FileAppender": {  "name": "file", "enabled": false, "target": "debug.log", "categories": "debug, trace" }
+	}
+
+}

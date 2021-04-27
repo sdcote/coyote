@@ -1,0 +1,65 @@
+{
+	"Class": "coyote.dx.Job",
+	"Job": {
+		"Name": "HttpReader",
+		"Description": "Shows how to listen to HTTP events and process them according to ReST practices. Listeners process all data frames.",
+
+		"Reader": {
+			"class": "HttpReader",
+			"port": "[#$cmd.arg.1#]",
+			"timeout": "[#$cmd.arg.2#]",
+			"endpoint": "/coyote/:sysid"
+		},
+
+		"Listener": {
+			"CreateRecord": {
+				"Condition": "match( Context.HttpMethod, POST)",
+				"library": "jar:file:[#$app.home#]/lib/h2-1.4.196.jar!/",
+				"driver": "org.h2.Driver",
+				"target": "jdbc:h2:[#$user.dir#]/demodb;MODE=Oracle",
+				"autocreate": true,
+				"username": "sa",
+				"password": "",
+				"table": "endpoint"
+			},
+			"ReadRecord": {
+				"Condition": "match( Context.HttpMethod, GET)",
+				"library": "jar:file:[#$app.home#]/lib/h2-1.4.196.jar!/",
+				"driver": "org.h2.Driver",
+				"target": "jdbc:h2:[#$user.dir#]/demodb;MODE=Oracle",
+				"autocreate": true,
+				"username": "sa",
+				"password": "",
+				"table": "endpoint",
+				"key": "sysid"
+			},
+			"UpdateRecord": {
+				"Condition": "match( Context.HttpMethod, PUT)",
+				"library": "jar:file:[#$app.home#]/lib/h2-1.4.196.jar!/",
+				"driver": "org.h2.Driver",
+				"target": "jdbc:h2:[#$user.dir#]/demodb;MODE=Oracle",
+				"autocreate": true,
+				"username": "sa",
+				"password": "",
+				"table": "endpoint",
+				"key": "sysid"
+			},
+			"DeleteRecord": {
+				"Condition": "match( Context.HttpMethod, DELETE)",
+				"library": "jar:file:[#$app.home#]/lib/h2-1.4.196.jar!/",
+				"driver": "org.h2.Driver",
+				"target": "jdbc:h2:[#$user.dir#]/demodb;MODE=Oracle",
+				"autocreate": true,
+				"username": "sa",
+				"password": "",
+				"table": "endpoint",
+				"key": "sysid"
+			}
+		}
+	},
+
+	"Logging": { 
+		"StandardError": { "categories": "warn, error, fatal" },
+		"StandardOutput": { "categories": "debug, info, notice" }
+	}
+}

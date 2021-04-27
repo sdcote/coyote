@@ -1,0 +1,36 @@
+{
+  "Class": "coyote.dx.Job",
+  "Job": {
+    "Vault": { "source": "demo.vault" },
+    "Reader": {
+      "class": "SnowIncidentMetricReader",
+      "source": "https://servicenow.aepsc.com/",
+      "product": "EAF - Enterprise Authentication Framework",
+      "ConfigurationItem": "https://iforgot.aep.com",
+      "instance": "iforgot",
+      "authenticator": {
+        "class": "BasicAuthentication",
+        "username": "[#Vault.get(SnowUser,username)#]",
+        "password": "[#Vault.get(SnowUser,password)#]",
+        "preemptive": true
+      }
+    },
+    "Writer": {
+      "enabled": false,
+      "class": "PushGatewayWriter",
+      "target": "http://p4002384:9091",
+      "username": "[#Vault.get(PushGateway,username)#]",
+      "password": "[#Vault.get(PushGateway,password)#]"
+    },
+    "Writer": {
+      "class": "ConsoleWriter",
+      "format": "json",
+      "indent": false,
+      "message": "Record [#$CurrentFrame#] received."
+    }
+  },
+  "Logging": {
+    "StandardError": { "categories": "error, fatal, warn" },
+    "StandardOutput": { "categories": "info, notice, debug" }
+  }
+}

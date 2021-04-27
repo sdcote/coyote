@@ -1,0 +1,36 @@
+{
+	"Class" : "coyote.dx.Job",
+	"Job" : {
+		"Name" : "Context",
+		"Description": "Shows how to define a context",
+
+		"Context" : {
+			"appname":"CDX",
+			"apptype":"Example"
+		},
+
+		"Reader" : {
+			"class" : "CSVReader",
+			"source" : "[#$app.home#]/demo/users.csv",
+			"header" : true
+		},
+
+		"Transform" : { 
+			"Set" : { "Name" : "Application", "Value" : "apptype"	}
+		},
+
+		"Writer" : {
+			"class" : "FlatFileWriter",
+			"target" : "[#$user.dir#][#$file.separator#]user-list.txt",
+			"fields" : {
+				"Role" : { "start" : 0, "length" : 6 },
+				"FirstName" : { "start" : 7, "length" : 11 },
+				"LastName" : { "start" : 19, "length" : 16 },
+				"MiddleInitial" : { "start" : 36, "length" : 1 },
+				"Application" : { "start" : 38, "length" : 10 }
+			}    
+		}
+
+	}
+
+}

@@ -1,0 +1,26 @@
+defaultTasks 'clean', 'build', 'publish'
+mainClassName = 'coyote.loader.BootStrap'
+
+ext {
+	title = 'Coyote Logging SLF4J Binding'
+	provider = 'Coyote Systems'
+	junitVersion = '4.12'
+	slf4jVersion = '1.7.21'
+	loaderVersion = '0.7.22'
+}
+
+jar {
+	manifest {
+		attributes  'Implementation-Title' : "$title",
+		'Provider' : "$provider",
+		'Implementation-Version' : "$version"
+	}
+}
+
+dependencies {
+	compile "coyote:Loader:$loaderVersion"
+	compile "org.slf4j:slf4j-api:$slf4jVersion"
+	testCompile "junit:junit:$junitVersion"	
+}
+
+

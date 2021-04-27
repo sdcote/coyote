@@ -1,0 +1,29 @@
+{
+	"Class": "coyote.dx.Job",
+
+	"Job": {
+		"Name": "RunJob",
+		"Description": "Shows how to run jobs conditionally",
+		"Task": {
+			"RunJob": { "filename": "BitcoinPrice", "name": "Price" },
+			"LogContext": { "category": "debug" },
+			"RunJob": {
+				"condition": "jobSuccess(Price) && checkField(Price.ContextOutput.Last, GT, 2790)",
+				"filename": "SellBitcoin",
+				"parameters": {
+					"Coins": 0.35,
+					"Cost": 1.51,
+					"Price": "Price.ContextOutput.Last",
+					"Account": "12345",
+					"Password": "53crEt"
+				}
+			},
+			"RunJob": { "condition": "jobFailure(Price)", "filename": "BitcoinCleanup" }
+		}
+	},
+	"Logging": {
+		"ConsoleAppender": {
+			"categories": "notice, error, fatal, warn"
+		}
+	}
+}

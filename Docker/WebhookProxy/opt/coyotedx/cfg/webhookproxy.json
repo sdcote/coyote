@@ -1,0 +1,46 @@
+{
+	"Class": "coyote.dx.Service",
+	"Description":[
+		"This maps RTW jobs to endpoints enabling different RTW processing for each endpoint.",
+		"WebEx converts webhook calls into a format suitable for publishing messages to WebEx teams."
+	],
+
+	"Manager" : {
+		"Port": 55290,
+		"Auth": {
+			"Users":[
+				{ "Name" : "admin", "Password" : "secret", "Groups" : "sysop,devop" },
+				{ "Name" : "sysop", "Password" : "secret", "Groups" : "sysop" },
+				{ "Name" : "devop", "Password" : "secret", "Groups" : "devop" },
+				{ "Name" : "user", "Password" : "secret" }
+			]
+		},
+		"IPACL" : {
+			"default" : "deny",
+			"127.0.0.1" : "allow",
+			"172/8" : "allow",
+			"192.168/16" : "allow",
+			"10/8" : "deny"
+		}
+	},
+
+
+	"Job": {
+		"Reader": { "class": "HttpReader", "port": 80, "timeout": 5000, "IPACL" : { "default" : "allow"	},"endpoint": "/webex" },
+		"Transform": { "AlertManager2Markdown": { }	},
+		"Writer": { "class": "ConsoleWriter", "Enabled": true, "format": "json", "indent": true, "message": "Record [#$CurrentFrame#] received." },
+		"Writer": {
+			"Enabled": true,
+			"Class": "WebServiceWriter",
+			"Target": "https://webexapis.com/v1/webhooks/incoming/Y2lzY29zcGFyazovL3VzL1dFQkhPT0svYTBjOGQ3ZmQtYmRlOS00MjFlLWFiMTMtN2UxNWMxYjdlYmRh",
+			"Protocol": { "ExchangeType": "JSON_HTTP", "Method": "POST" },
+			"ResponseWriter": { "Class": "JsonWriter", "target": "WebexResponses.json" }
+		}
+	},
+
+
+	"Logging": {
+		"StandardOutput": { "categories": "schedulerX, thread, debug, trace, info, HTTPD, notice, warn, error, fatal" }
+	}
+
+}

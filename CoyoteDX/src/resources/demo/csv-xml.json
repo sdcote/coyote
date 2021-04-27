@@ -1,0 +1,25 @@
+{
+	"Class" : "coyote.dx.Job",
+	"Job" : {
+		"Name" : "CSV-XML",
+		
+		"Reader" : {
+			"class" : "CSVReader",
+			"source" : "[#$app.home#]/demo/users.csv",
+			"header" : true
+		},
+
+		"Writer" : {
+			"class" : "XMLWriter",
+			"target" : "users.xml",
+			"header" : "",
+			"rootElement" : "DataSet",
+			"rootAttributes" : "version=\"1.0\" exporter=\"CoyoteBatch\"",
+			"rowElement" : "DataRow",
+			"rowAttributes" : "seq=[#$currentRow#]",
+			"fieldFormat" : "<Column name=\"{0}\" value=\"{4}\"/>"
+		}
+
+	}
+
+}

@@ -1,0 +1,23 @@
+{
+	"Class": "coyote.dx.Job",
+	"Job": {
+		"Name": "PublishSingle",
+
+		"Reader": {
+			"class": "StaticReader",
+			"fields": {
+				"JobId": "EB00C166-9972-4147-9453-735E7EB15C60"
+			}
+		},
+
+		"Writer": {
+			"class": "RabbitWriter",
+            "target": "amqp://runrabbitrun/myexchange",
+            "username": "jdoe",
+            "password": "Ik2mYsjBm",
+			"use_ssl": true,
+			"queue": "rtw/job",
+			"format": "binary"
+		}
+	}
+}

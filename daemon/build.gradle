@@ -1,0 +1,21 @@
+defaultTasks 'clean', 'build', 'publish', 'installDist'
+mainClassName = 'coyote.loader.BootStrap'
+jar.baseName = 'ServiceDemo'
+jar {
+    manifest {
+		attributes  'Implementation-Title' : 'Coyote DX Service Demo',
+		'Provider' : 'Coyote Systems',
+		'Implementation-Version' : version
+	}
+}
+
+ext {
+	junitVersion = '4.12'
+}
+dependencies {
+
+	compile project(':CoyoteDX')
+	compile "coyote:CoyoteDX:$version"
+
+	testCompile "junit:junit:$junitVersion"
+}

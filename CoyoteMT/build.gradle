@@ -1,0 +1,24 @@
+defaultTasks 'clean', 'build', 'publish', 'installDist'
+mainClassName = "coyote.loader.BootStrap"
+
+jar {
+    manifest {
+		attributes  'Implementation-Title' : 'Coyote Message Transfer Toolkit',
+		'Provider' : 'Coyote Systems',
+		'Main-Class' : "$mainClassName",
+		'Implementation-Version' : version
+	}
+}
+
+ext {
+	junitVersion = '4.12'
+	activationVersion = '1.1.1'
+	mailVersion = '1.5.5'
+}
+dependencies {
+	compile project(':CoyoteDX')
+	compile "coyote:CoyoteDX:$version"
+	compile "javax.activation:activation:$activationVersion"
+	compile "com.sun.mail:javax.mail:$mailVersion"
+	testCompile "junit:junit:$junitVersion"	
+}

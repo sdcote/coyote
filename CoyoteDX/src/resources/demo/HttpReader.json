@@ -1,0 +1,31 @@
+{
+	"Class": "coyote.dx.Job",
+
+	"Job": {
+		"Description": [
+			"Shows how to listen to HTTP events"
+		],
+
+		"Reader": {
+			"class": "HttpReader",
+			"port": 80,
+			"timeout": 5000,
+			"endpoint": "/coyote"
+		},
+
+		"Transform": {
+			"Counter": { "field": "RecNum" },
+			"Guid": { "field": "ID" },
+			"Timestamp": { "field": "Received" }
+		},
+
+		"Writer": {
+			"class": "ConsoleWriter",
+			"format": "json",
+			"indent": false,
+			"message": "Record [#$CurrentFrame#] received."
+		}
+
+	}
+
+}

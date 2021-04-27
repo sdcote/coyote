@@ -1,0 +1,16 @@
+{
+	"Class": "coyote.dx.Job",
+	"Job": {
+		"Name": "PoloniexTicker",
+		"Description": "Returns the ticker for all markets.",
+		"Reader": {
+			"Class": "WebServiceReader",
+			"Source": "https://poloniex.com/public?command=returnTicker",
+			"Protocol": { "ExchangeType": "JSON_HTTP", "Method": "GET" }
+		},
+		"Writer": { "class": "ConsoleWriter", "format": "json", "indent": true }
+	},
+	"Logging": {
+		"StandardOutput": { "categories": "info, notice, warn, error, fatal" }
+	}
+}

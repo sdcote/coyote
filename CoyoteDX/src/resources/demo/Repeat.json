@@ -1,0 +1,18 @@
+{
+	"Class" : "coyote.dx.Job",
+	"Repeat": true,
+	
+	"Job" : {
+		"Name" : "Repeating Job",
+
+		"Task": { "Sleep": {"seconds": 5} },
+
+		"Reader" : { "class" : "StaticReader", "fields" : { "Empty": "" } },
+
+		"Writer" : { "class" : "ConsoleWriter", "format" : "none", "message" : "Ran [#$RunCount#] times." }
+		
+	},
+
+	"Logging": { "ConsoleAppender": { "categories": "info, notice, warn, error, fatal" } }
+
+}

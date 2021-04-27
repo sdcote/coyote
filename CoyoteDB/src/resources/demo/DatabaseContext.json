@@ -1,0 +1,44 @@
+{
+	"Class" : "coyote.dx.Job",
+	"Job" : {
+		"Name" : "DatabaseContext",
+		"Description": "Shows how to define a persistent context backed by a database",
+		
+
+		"Context" : {
+			"class" : "DatabaseContext",
+			"target" : "jdbc:h2:[#$jobdir#]/test;MODE=Oracle;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE",
+			"autocreate" : true,
+			"driver" : "org.h2.Driver",
+			"username" : "sa",
+			"password" : "",
+			"fields" : {
+				"SomeKey":"SomeValue",
+				"AnotherKey":"AnotherValue"
+			}
+		},
+	
+		"Reader" : {
+			"class" : "CSVReader",
+			"source" : "[#$app.home#]/demo/users.csv",
+			"header" : true
+		},
+
+		"Writer" : {
+			"class" : "FlatFileWriter",
+			"target" : "ts-[#$RunCount|00000000000000#].txt",
+			"fields" : {
+				"Role" : { "start" : 0, "length" : 6 },
+				"FirstName" : { "start" : 7, "length" : 11 },
+				"LastName" : { "start" : 19, "length" : 16 },
+				"MiddleInitial" : { "start" : 36, "length" : 1 }
+			}    
+		},
+
+		"Listeners": {
+			"DataProfiler": { "target": "users-csv_profile.txt" }
+		}
+
+	}
+
+}

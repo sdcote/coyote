@@ -1,0 +1,39 @@
+defaultTasks 'clean', 'build', 'publish', 'installDist'
+mainClassName = 'coyote.loader.BootStrap'
+
+jar {
+    manifest {
+		attributes  'Implementation-Title' : 'Coyote Web Service Toolkit',
+		'Provider' : 'Coyote Systems',
+		'Implementation-Version' : version
+	}
+}
+
+ext {
+	junitVersion = '4.12'
+	slf4jVersion = '1.7.21'
+	jsoupVersion = '1.10.2'
+	httpclientVersion = '4.5.9'
+}
+dependencies {
+
+	compile project(':CoyoteDX')
+	compile "coyote:CoyoteDX:$version"
+	compile project(':CoyoteMT')
+	compile "coyote:CoyoteMT:$version"
+
+	compile project(':CoyoteSLF4J')
+	compile "coyote:CoyoteSLF4J:$version"
+
+	// HTML parser
+	compile "org.jsoup:jsoup:$jsoupVersion"
+
+	// For web services
+	compile "org.apache.httpcomponents:httpclient:$httpclientVersion"
+
+	// Logging
+	compile "org.slf4j:jcl-over-slf4j:$slf4jVersion"
+
+	// UnitTesting
+	testCompile "junit:junit:$junitVersion"
+}

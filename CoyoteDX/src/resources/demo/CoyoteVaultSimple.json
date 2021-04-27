@@ -1,0 +1,34 @@
+{
+  "Class": "coyote.dx.Job",
+  "Job": {
+    "Description": [
+      "This illustrates the simplest configuration for a local vault. It requires a source configuration element which",
+      "describes where the file is. It is relative to the current working directory but can be mate absolute. The ",
+      "master password to open the vault is specified in the 'vault.secret' system property. This should be specified ",
+      "on the command line thusly: '-Dvault.secret=MySecretPassword'. If the secret is not found in the system property,",
+      "a default password of 'changeme' will be used. This is useful only in development scenarios and secrets should",
+      "only be considered obfuscated if the default password/secret is used. The simple vault has a master secret of",
+      "'iforgot'."
+    ],
+    "Vault": {
+      "source": "CoyoteDX/src/resources/demo/simple.vault"
+    },
+    "Reader": {
+      "class": "StaticReader",
+      "fields": {
+        "JobId": "EB00C166-9972-4147-9453-735E7EB15C60",
+        "Delay": 1000,
+        "Log": true
+      }
+    },
+    "Writer": {
+      "class": "ConsoleWriter",
+      "format": "json",
+      "indent": false,
+      "messageX": "Bob's username is -->[#Vault.get(Bob,username)#]<--",
+      "messageY": "Bob's password is -->[#Vault.get(Bob,password)#]<--",
+      "messageZ": "Bob's notes are -->[#Vault.get(Bob,notes)#]<--",
+      "message": "Bob's password is -->[#Vault.get(Bob)#]<--"
+    }
+  }
+}

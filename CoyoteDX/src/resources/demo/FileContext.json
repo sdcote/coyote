@@ -1,0 +1,29 @@
+{
+	"Class" : "coyote.dx.Job",
+	"Job" : {
+		"Name" : "FileContext",
+		"Description": "Shows how to define a persistent context",
+		
+
+		"Context" : {
+			"class" : "FileContext",
+			"fields" : {
+				"SomeKey":"SomeValue",
+				"AnotherKey":"AnotherValue"
+			}
+		},
+	
+		"Reader" : {
+			"class" : "StaticReader",
+			"fields" : {
+				"JobId": "EB00C166-9972-4147-9453-735E7EB15C60"
+			}    
+		},
+
+		"Writer" : {
+			"class" : "ConsoleWriter",
+			"message" : "Record [#$CurrentFrame#] received."
+		}
+	}
+
+}

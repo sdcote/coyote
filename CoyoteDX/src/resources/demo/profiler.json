@@ -1,0 +1,18 @@
+{
+	"Class" : "coyote.dx.Job",
+	"Job" : {
+		"Name" : "Profiler",
+
+		"Reader" : {
+			"class" : "CSVReader",
+			"source" : "[#$app.home#]/demo/users.csv",
+			"header" : true
+		},
+
+		"Listener": {
+			"DataProfiler": { "target": "[#$user.dir#][#$file.separator#]users-profile.txt" }
+		}
+
+	}
+
+}

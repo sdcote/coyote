@@ -1,0 +1,38 @@
+{
+	"Class": "coyote.dx.Job",
+	"Job": {
+		"Name": "SellBitCoin",
+		"Description": "Simple job run by RunJob.json to illustrate conditional job runs.",
+
+		"PreProcess": {
+			"LogEntry": {
+				"message": "SELLING BITCOINS at [#$DateTime#]",
+				"category": "notice"
+			}
+		},
+
+		"Reader": {
+			"Class": "StaticReader",
+			"fields": {
+				"Coins": "[#$Coins#]",
+				"Cost": "[#$Cost#]",
+				"Price": "[#$Price#]",
+				"Account": "[#$Account#]"
+			}
+		},
+
+		"Transform": {
+			"Multiply": { "field": "TotalCost", "source": "Coins", "factor": "Cost", "setsymbol": false },
+			"Multiply": { "field": "TotalIncome", "source": "Coins", "factor": "Price", "setsymbol": false },
+			"Subtract": { "field": "Profit", "minuend": "TotalIncome", "subtrahend": "TotalCost", "setsymbol": true }
+		},
+
+		"Writer": {
+			"class": "ConsoleWriter",
+			"format": "none",
+			"indent": false,
+			"message": "Sold [#$Coins#] coins for $[#$Profit|0.00#] profit."
+		}
+
+	}
+}

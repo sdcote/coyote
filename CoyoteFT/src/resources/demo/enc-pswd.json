@@ -1,0 +1,10 @@
+{
+
+	"PreProcess": {
+		"RemoteListing" : {
+			"source": "sftp://billing@keep.coyote.org/",
+			"encrypted_password": "/tku7iWZHRdPfkOcLlOjTW29elQlMVe9"
+		}
+	}
+
+}
