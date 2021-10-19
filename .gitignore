@@ -4,6 +4,8 @@ build/
 .gradle/
 **/archives/**
 work/
+**/bin/
+!**/coyotedx/bin
 
 
 # Other Projects #
