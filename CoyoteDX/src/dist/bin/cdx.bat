@@ -23,9 +23,6 @@ if "%USERPROFILE%"=="%HOME%" goto alpha
 if "%USERPROFILE%"=="%HOMEDRIVE%%HOMEPATH%" goto alpha
 if exist "%USERPROFILE%\cdx_pre.bat" call "%USERPROFILE%\cdx_pre.bat"
 
-
-
-
 @rem - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 :alpha
 
@@ -56,9 +53,6 @@ echo location of your Java installation.
 
 goto fail
 
-
-
-
 @rem - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 :findJavaFromJavaHome
 @rem   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -
@@ -74,10 +68,6 @@ echo Please set the JAVA_HOME variable in your environment to match the
 echo location of your Java installation.
 
 goto fail
-
-
-
-
 
 @rem - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 :init
@@ -106,9 +96,6 @@ goto execute
 @rem   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -
 set CMD_LINE_ARGS=%$
 
-
-
-
 @rem - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 :execute
 @rem Setup the command line
@@ -132,7 +119,6 @@ if "%APP_WORK%"=="" set APP_WORK=%APP_HOME%\wrk
 @rem   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -
 if "%ERRORLEVEL%"=="0" goto mainEnd
 
-
 @rem - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 :fail
 @rem Set variable CDX_EXIT_CONSOLE if you need the _script_ return code 
@@ -140,9 +126,6 @@ if "%ERRORLEVEL%"=="0" goto mainEnd
 @rem   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -
 if  not "" == "%CDX_EXIT_CONSOLE%" exit 1
 exit /b 1
-
-
-
 
 @rem - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 :mainEnd
@@ -166,9 +149,6 @@ if "%USERPROFILE%"=="" goto omega
 if "%USERPROFILE%"=="%HOME%" goto omega
 if "%USERPROFILE%"=="%HOMEDRIVE%%HOMEPATH%" goto omega
 if exist "%USERPROFILE%\cdx_post.bat" call "%USERPROFILE%\cdx_post.bat"
-
-
-
 
 @rem - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 :omega
