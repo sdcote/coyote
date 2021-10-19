@@ -21,6 +21,8 @@ import coyote.loader.log.LogMsg;
  * from the frame. 
  * 
  * <p>This only removes the first occurrence of the named field.</p>
+ * 
+ * <p>Processing continues after this filter is processed.</p>
  */
 public class Remove extends AbstractFieldTransform implements FrameTransform {
 

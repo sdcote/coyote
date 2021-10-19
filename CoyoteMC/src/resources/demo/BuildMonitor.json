@@ -10,14 +10,13 @@
     ],
     "Vault": { "source": "demo.vault" },
     "Preprocess": {
-      "ReadIntoContext": {
-        "source": "../SnowSprintPropertyWriter/sprint.properties"
-      }
+      "LogSymbols": { "category": "debug", "enabled": false },
+      "ReadIntoContext": { "source": "../SnowSprintPropertyWriter/sprint.properties" }
     },
     "Reader": {
       "class": "JenkinsMetricReader",
-      "source": "http://ecdp3:8080",
-      "job": "/job/EAF-multibranch-pipeline/job/develop",
+      "source": "http://jenkins:8080",
+      "job": "/job/MY-multibranch-pipeline/job/develop",
       "instance": "develop",
       "authenticator": {
         "class": "BasicAuthentication",
@@ -29,7 +28,7 @@
     "Writer": {
       "enabled": true,
       "class": "PushGatewayWriter",
-      "target": "http://p4002384:9091",
+      "target": "http://prom:9091",
       "username": "[#Vault.get(PushGateway,username)#]",
       "password": "[#Vault.get(PushGateway,password)#]"
     },

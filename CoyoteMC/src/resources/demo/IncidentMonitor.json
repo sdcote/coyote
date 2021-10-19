@@ -4,8 +4,9 @@
     "Vault": { "source": "demo.vault" },
     "Reader": {
       "class": "SnowIncidentMetricReader",
-      "source": "https://servicenow.aepsc.com/",
-      "ConfigurationItem": "https://iforgot.aep.com",
+      "source": "https://my.servicenow.com/",
+      "ConfigurationItem": "TrivetPolisher",
+      "AssignmentGroup": "TrivertWizards",
       "instance": "iforgot",
       "authenticator": {
         "class": "BasicAuthentication",
@@ -21,6 +22,7 @@
     }
   },
   "Logging": {
+    "FileAppender": { "target": "IncidentMonitor.log", "append": false, "categories": "error, fatal, warn, notice, info" },
     "StandardError": { "categories": "error, fatal, warn" },
     "StandardOutput": { "categories": "info, notice" }
   }

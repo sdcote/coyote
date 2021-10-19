@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Stephan D. Cote' - All rights reserved.
+ * Copyright (c) 2020 Stephan D. Cote' - All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the MIT License which accompanies this distribution, and is
@@ -28,7 +28,7 @@ import java.util.List;
  * to Cisco WebEx Teams.
  *
  * <p>Using this transform as a template, you can craft simple jobs that perform
- * complex transformations on dat read from a variety of sources.</p>
+ * complex transformations on data read from a variety of sources.</p>
  */
 public class AlertManager2Markdown extends AbstractFieldTransform implements FrameTransform {
 
@@ -100,7 +100,7 @@ public class AlertManager2Markdown extends AbstractFieldTransform implements Fra
     private DataFrame generateMessageFrom(DataFrame frame) {
         DataFrame retval = new DataFrame();
 
-        // Take data from the frame an generate the message
+        // Take data from the frame and generate the message
         DataFrame commonAnnotations = getCommonAnnotations(frame);
         DataFrame commonLabels = getCommonLabels(frame);
         List<Alert> alerts = getAlerts(frame);
@@ -126,7 +126,15 @@ public class AlertManager2Markdown extends AbstractFieldTransform implements Fra
         return retval;
     }
 
-    private String render(Alert alert) {
+    /**
+     * This renders the Alert into a MarkDow formatted string.
+     *
+     * <p>Override this method to change the formatting.</p>
+     *
+     * @param alert the alert to render.
+     * @return MarkDown text representing the given alert.
+     */
+    protected String render(Alert alert) {
         StringBuffer retval = new StringBuffer("**");
         retval.append(alert.getName());
         retval.append("**");

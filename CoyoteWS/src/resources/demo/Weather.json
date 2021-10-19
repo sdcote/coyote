@@ -6,8 +6,8 @@
 
 		"Context": {
 			"cityid": "4509177",
-			"ENC:apikey": "AV+v+KRIESiT67E0MCKOAsxhohnMmyzWUhGivTOfdjHANLJn2AsByad4DYZ/WMH5mKWERpxZSV4IKQsiFGKtn+2rY8dGVQya",
-			"EmailReceiver": "sdcote@gmail.com",
+			"ENC:apikey": "AV+v+KRIESiT67E0MCKOAsx12345myzWUhGivTOfdjHANLJn2AsByad4DYZ/WMH5mKWERpxZSV4IKQsiFGKtn+2rY8dGVQya",
+			"EmailReceiver": "coyote@aol.com",
 			"CoyoteTeam": "The Coyote DX Team",
 			"EmailSubject": "DX Results for '[#$JobName#]",
 			"EmailAttachment": "[#$jobdir#].zip",
@@ -37,9 +37,9 @@
 				"hostname": "smtp.gmail.com",
 				"port": 587,
 				"protocol": "GmailTLS",
-				"ENC:username": "q3YEnVqgPxdNauVIKi/0CNOIA0xDP7rvBNyXksa6eYCrKc9OGmZ2yWl+Yrrw9RNW3QpXrX0Aluw=",
-				"ENC:password": "nrasR4FXrf+ZyM1cigtHktGWc+UeZ5EPoNj/Lack6tXPgx58hFwwXq7BiYmN5SfA",
-				"ENC:sender": "q3YEnVqgPxdNauVIKi/0CNOIA0xDP7rvBNyXksa6eYCrKc9OGmZ2yWl+Yrrw9RNW3QpXrX0Aluw=",
+				"ENC:username": "12345VqgPxdNauVIKi/0CNOIA0xDP7rvBNyXksa6eYCrKc9OGmZ2yWl+Yrrw9RNW3QpXrX0Aluw=",
+				"ENC:password": "nrasR12345+ZyM1cigtHktGWc+UeZ5EPoNj/Lack6tXPgx58hFwwXq7BiYmN5SfA",
+				"ENC:sender": "q3YEnVqgPxdN12345i/0CNOIA0xDP7rvBNyXksa6eYCrKc9OGmZ2yWl+Yrrw9RNW3QpXrX0Aluw=",
 				"receiver": "EmailReceiver",
 				"subject": "EmailSubject",
 				"attach": "EmailAttachment",

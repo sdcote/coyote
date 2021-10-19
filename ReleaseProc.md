@@ -2,7 +2,7 @@
 
 Versioning is currently managed by modules. Each module has its own versioning.
 
-When Coyote DX is released, it will contains a group of modules of with their own separate versions.
+When Coyote DX is released, it will contain a group of modules of with their own separate versions.
 
 Change the versions in the following files as appropriate:
 

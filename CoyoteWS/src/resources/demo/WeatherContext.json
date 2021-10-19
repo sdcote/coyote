@@ -5,15 +5,15 @@
 
 		"Context": {
 			"cityid": "4509177",
-			"ENC:apikey": "AV+v+KRIESiT67E0MCKOAsxhohnMmyzWUhGivTOfdjHANLJn2AsByad4DYZ/WMH5mKWERpxZSV4IKQsiFGKtn+2rY8dGVQya",
+			"ENC:apikey": "AV+v+KRIESiT67E012345sxhohnMmyzWUhGivTOfdjHANLJn2AsByad4DYZ/WMH5mKWERpxZSV4IKQsiFGKtn+2rY8dGVQya",
 			"EmailSubject": "DX Results for '[#$JobName#]",
 			"EmailAttachment": "[#$jobdir#].zip",
 			"coyote": "The Coyote DX Team",
 			"EmailBody": "Find attached the results of the requested job run.\n\nRegards,\n[#$coyote#]",
-			"mailuser": "q3YEnVqgPxdNauVIKi/0CNOIA0xDP7rvBNyXksa6eYCrKc9OGmZ2yWl+Yrrw9RNW3QpXrX0Aluw=",
-			"mailpass": "nrasR4FXrf+ZyM1cigtHktGWc+UeZ5EPoNj/Lack6tXPgx58hFwwXq7BiYmN5SfA",
-			"mailsender": "q3YEnVqgPxdNauVIKi/0CNOIA0xDP7rvBNyXksa6eYCrKc9OGmZ2yWl+Yrrw9RNW3QpXrX0Aluw=",
-			"mailreceiver": "Za1c7XyXOAxh2u35/7iI4l6UEbOUxmRvXHpf9eGrUQfwZRQzKybKgQ=="
+			"mailuser": "12345VqgPxdNauVIKi/0CNOIA0xDP7rvBNyXksa6eYCrKc9OGmZ2yWl+Yrrw9RNW3QpXrX0Aluw=",
+			"mailpass": "nrasR12345+ZyM1cigtHktGWc+UeZ5EPoNj/Lack6tXPgx58hFwwXq7BiYmN5SfA",
+			"mailsender": "q3YEnVqg12345uVIKi/0CNOIA0xDP7rvBNyXksa6eYCrKc9OGmZ2yWl+Yrrw9RNW3QpXrX0Aluw=",
+			"mailreceiver": "Za1c7XyXOAx12345/7iI4l6UEbOUxmRvXHpf9eGrUQfwZRQzKybKgQ=="
 		},
 
 		"Reader": {

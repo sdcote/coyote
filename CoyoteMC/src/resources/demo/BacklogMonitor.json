@@ -4,8 +4,9 @@
     "Vault": { "source": "demo.vault" },
     "Reader": {
       "class": "SnowBacklogMetricReader",
-      "source": "https://servicenow.aepsc.com/",
-      "product": "EAF - Enterprise Authentication Framework",
+      "source": "https://my.servicenow.com/",
+      "product": "TrivetPolisher",
+      "group": "TeamWidget",
       "authenticator": {
         "class": "BasicAuthentication",
         "username": "[#Vault.get(SnowUser,username)#]",
@@ -17,7 +18,8 @@
       "class": "PushGatewayWriter",
       "target": "http://p4002384:9091",
       "username": "[#Vault.get(PushGateway,username)#]",
-      "password": "[#Vault.get(PushGateway,password)#]"
+      "password": "[#Vault.get(PushGateway,password)#]",
+      "enabled": true
     },
     "Writer": {
       "class": "ConsoleWriter",

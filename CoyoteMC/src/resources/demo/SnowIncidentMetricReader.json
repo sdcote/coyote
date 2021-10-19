@@ -4,10 +4,11 @@
     "Vault": { "source": "demo.vault" },
     "Reader": {
       "class": "SnowIncidentMetricReader",
-      "source": "https://servicenow.aepsc.com/",
-      "product": "EAF - Enterprise Authentication Framework",
-      "ConfigurationItem": "https://iforgot.aep.com",
-      "instance": "iforgot",
+      "source": "https://my.servicenow.com/",
+      "product": "TrivetPolisher",
+      "group": "TrivetWizards",
+      "ConfigurationItem": "TrivetPolisher",
+      "instance": "trivet",
       "authenticator": {
         "class": "BasicAuthentication",
         "username": "[#Vault.get(SnowUser,username)#]",
@@ -18,7 +19,7 @@
     "Writer": {
       "enabled": false,
       "class": "PushGatewayWriter",
-      "target": "http://p4002384:9091",
+      "target": "http://prom:9091",
       "username": "[#Vault.get(PushGateway,username)#]",
       "password": "[#Vault.get(PushGateway,password)#]"
     },

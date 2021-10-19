@@ -20,7 +20,7 @@ import coyote.dx.FrameReader;
  *
  * <p> The reader can be configured thusly:
  * <pre>"Reader": { "class": "JsonReader", "source": "requestmetric.json" },</pre>
- * <p>Ths reader support the ability to flatten hierarchical records (complex objects) into a single flat (single level)
+ * <p>This reader support the ability to flatten hierarchical records (complex objects) into a single flat (single level)
  * record format. This is turned on by default. This capability is provided by the MarshalingFrameReader super class.
  */
 public class JsonReader extends MarshalingFrameReader implements FrameReader, ConfigurableComponent {

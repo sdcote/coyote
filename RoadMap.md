@@ -22,10 +22,10 @@ The Machine Learning (ML) sub-project contributes tools to assist with processin
 It is expected that several coyote jobs will be involved in machine learning experiments, each transforming the data into intermediate data sets which then feed other data transfer jobs. The expectation is that these jobs will be productionalized and run regularly to make assertions. 
 
 #### Features
-* Bring the best of many different external libraries into one data flow by plugging in transforms and listeners which encapsulate the third-party library.
+* Bring the best of different external libraries into one data flow by plugging in transforms and listeners which encapsulate the third-party library.
 * Existing CoyoteDX data flows can be configured to use machine learning algorithms with no programming, just configuration files.
 * Simple, clear path to productionalizing experiments.
-* One framework to incorporate many different tools.
+* One framework to incorporate different tools.
 * Support for registering components with the web server enabling the monitoring and results of machine learning jobs via ReST calls. 
 * ARFF and XRFF file format support, readers and writers both supporting compression.
 
@@ -49,10 +49,8 @@ Maybe you just want to prototype an idea and test the waters before setting up a
 * ability to include other libraries
 * load scripts from network or file system 
 
-
 ## CoyoteGS - Groovy Scripting
 If JavaScript is not for you, it is possible to implement your custom business logic in Groovy. While you can create compiled components in Groovy, you may want to prototype functionality in in scripts first and move to compiled bytecode later.
-
 
 ## CoyoteWQ - Worker Queues
 A set of application components which enable setting up horizontally scalable solutions that execute jobs in the cloud or your data center. Set up any number of workers to read job requests from a queue and perform data transfer jobs remotely.
@@ -62,10 +60,8 @@ Not just for massive integrations, Worker Queues can implement nearly any proces
 #### Features
 * Implement your own IFTTT servers
 
-
 ## CoyoteSF Salesforce
 Just like the ServiceNow support (CoyoteSN) this set of components allows a variety of integration capabilities through the Coyote Toolkit. Maybe you want to combine Salesforce data into some of your Transfer Jobs; this provides the ability to efficiently access any and all your Salesforce data.
-
 
 # Coyote IoT
 This is a project for the Single Board Computer (SBC) platform which provides access to Serial communications and GPIO (General Purpose IO) pins. It abstracts the native libraries of some popular project (RxTx, Pi4J, et. al.) into an API which will make your data transfer jobs more portable.
@@ -81,14 +77,11 @@ The architecture involves a Data Transfer Service (in contrast to a Job) which l
 * All sub-projects can be used in the Coyote Data Transfer toolkit (CoyoteDX) and those modules used with CIOT. Modules are interchangeable.
 * Proprietary modules can be written for the platform and not distributed via Open Source. 
 
-
 ## CoyoteMQTT MQ Telemetry Transfer
 This module is a simple, lightweight MQTT client with readers and writers for the MQTT protocol. This allows you to prototype IoT solutions using simple SBCs running minimal operating systems and potentially no file system access. Because it uses the same API as all the other Coyote components, this can be used in all other Coyote Jobs.
 
-
 ## CoyoteSNMP SNMP Support
 While SNMP is a bit long in the tooth, it is still being used as a network management protocol. This allows the creation of agents and managers running on the SBC platform. Again, this can be used in any Coyote Job as it uses the same API as all other Coyote components.
-
 
 ## CoyoteNMEA NMEA 0183 
 Listen on serial ports for NMEA sentences from GPS, compass, transponder, sonar and nearly any other device which supports National Marine Electronics Association (NMEA) sentences. 

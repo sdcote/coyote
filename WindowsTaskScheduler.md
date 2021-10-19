@@ -7,7 +7,7 @@ Scheduled job fails with the below error message.
 "Task Scheduler failed to start "\<task.name>" task for user "<domain\username>". Additional Data: Error Value: 2147943785."
 
 ### Solution
-This problem may occur if the task account doesn’t have "logon as a batch job" privilege. 
+This problem may occur if the task account does not have "logon as a batch job" privilege. 
 
 * Click Start, type "gpedit.msc", 
 * try to configure the following policy:
@@ -24,4 +24,4 @@ This error might occur when the security policy settings prevent the user from l
  
 * Retry the task.
 
-If you find you can't change the security options locally then there might be a group policy that is setting this at the domain or ou level.
+If you find you can't change the security options locally then there might be a group policy that is setting this at the domain or `ou` level.

@@ -6,6 +6,7 @@ bin/
 **/archives/**
 work/
 
+
 # Other Projects #
 ##################
 csharp/
@@ -31,6 +32,7 @@ csharp/
 .project
 .settings/
 
+
 # Other IDE Artifacts #
 /.nb-gradle/profiles/private/
 */out/*
@@ -46,6 +48,7 @@ wrk/
 /log
 *.db
 test.zip
+
 
 # Package Files #
 #################

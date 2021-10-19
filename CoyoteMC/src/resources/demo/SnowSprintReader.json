@@ -4,10 +4,10 @@
     "Vault": { "source": "demo.vault" },
     "Reader": {
       "class": "SnowSprintReader",
-      "source": "https://servicenow.aepsc.com/",
-      "releaseXXX": "RLSE0010497",
-      "product": "EAF - Enterprise Authentication Framework",
-      "instance": "EAF",
+      "source": "https://my.servicenow.com/",
+      "releaseXXX": "RELS0010497",
+      "product": "TrivetPolisher",
+      "instance": "Trivets",
       "authenticator": {
         "class": "BasicAuthentication",
         "username": "[#Vault.get(SnowUser,username)#]",

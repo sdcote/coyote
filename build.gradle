@@ -5,8 +5,6 @@ allprojects {
 }
 
 
-
-
 subprojects {
 	apply plugin: 'java'
 	apply plugin: 'jacoco'
@@ -16,11 +14,9 @@ subprojects {
 	apply plugin: 'idea'
 
 	repositories {
-		maven { url "https://dl.bintray.com/sdcote/maven" }
 		mavenLocal()
 		mavenCentral()
 	}
-
 
 	// custom tasks for creating source/javadoc jars
 	task sourcesJar(type: Jar, dependsOn: classes) {
@@ -28,18 +24,15 @@ subprojects {
 		from sourceSets.main.allSource
 	}
 
-
 	task javadocJar(type: Jar, dependsOn: javadoc) {
 		classifier = 'javadoc'
 		from javadoc.destinationDir
 	}
 
-
 	// add javadoc/source jar tasks as artifacts
 	artifacts {
 		archives sourcesJar, javadocJar
 	}
-
 
 	publishing {
 		publications {
@@ -67,6 +60,7 @@ subprojects {
 	        html.enabled = true
     	}
 	}
+
 	check.dependsOn jacocoTestReport
 
 }

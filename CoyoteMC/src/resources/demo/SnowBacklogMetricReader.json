@@ -4,8 +4,8 @@
     "Vault": { "source": "demo.vault" },
     "Reader": {
       "class": "SnowBacklogMetricReader",
-      "source": "https://servicenow.aepsc.com/",
-      "product": "EAF - Enterprise Authentication Framework",
+      "source": "https://my.servicenow.com/",
+      "product": "TrivetPolisher",
       "authenticator": {
         "class": "BasicAuthentication",
         "username": "[#Vault.get(SnowUser,username)#]",
@@ -18,7 +18,8 @@
       "format": "json",
       "indent": false,
       "message": "Record [#$CurrentFrame#] received."
-    }
+    },
+    "Writer": { "Class": "JsonWriter", "target": "Metrics.json", "append": false }
   },
   "Logging": {
     "FileAppender": { "target": "SnowBacklogMetricReader.log", "append": false, "categories": "error, fatal, warn, notice, info" },

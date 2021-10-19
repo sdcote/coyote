@@ -4,9 +4,9 @@
     "Vault": { "source": "demo.vault" },
     "Reader": {
       "class": "SnowIncidentMetricReader",
-      "source": "https://servicenow.aepsc.com/",
-      "AssignmentGroup": "Complex Middleware - Access Management",
-      "instance": "middleware-am",
+      "source": "https://my.servicenow.com/",
+      "AssignmentGroup": "TrivetWizards",
+      "instance": "trivets",
       "authenticator": {
         "class": "BasicAuthentication",
         "username": "[#Vault.get(SnowUser,username)#]",
