@@ -6,6 +6,7 @@ build/
 work/
 **/bin/
 !**/coyotedx/bin
+!**/src/dist/bin
 
 
 # Other Projects #
