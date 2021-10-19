@@ -1,7 +1,6 @@
 # Directory Artifacts #
 #######################
 build/
-bin/
 .gradle/
 **/archives/**
 work/
@@ -68,4 +67,3 @@ CoyoteInstaller.jar
 CoyoteDX/hprof/
 CoyoteUI/src/html/
 
-!Docker/Base/opt/bin

@@ -1,0 +1,34 @@
+#!/usr/bin/env sh
+
+APP_NAME="CoyoteDX"
+APP_BASE_NAME=`basename "$0"`
+MAX_FD="maximum"
+APP_HOME="/opt/coyotedx"
+APP_WORK="$APP_HOME/wrk"
+
+CLASSPATH=
+for i in `ls /opt/coyotedx/lib/*.jar`
+do
+  CLASSPATH=${CLASSPATH}:${i}
+done
+
+warn ( ) {
+    echo "$*"
+}
+
+# Increase the maximum file descriptors if we can.
+MAX_FD_LIMIT=`ulimit -H -n`
+if [ $? -eq 0 ] ; then
+    if [ "$MAX_FD" = "maximum" -o "$MAX_FD" = "max" ] ; then
+        MAX_FD="$MAX_FD_LIMIT"
+    fi
+    ulimit -n $MAX_FD
+    if [ $? -ne 0 ] ; then
+        warn "Could not set maximum file descriptor limit: $MAX_FD"
+    fi
+else
+    warn "Could not query maximum file descriptor limit: $MAX_FD_LIMIT"
+fi
+
+exec /usr/bin/java -classpath "$CLASSPATH" -Dapp.home="$APP_HOME" -Dapp.work="$APP_WORK" coyote.loader.BootStrap "$@"
+
