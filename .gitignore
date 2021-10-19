@@ -65,6 +65,7 @@ test.zip
 !**/dist/bin
 
 CoyoteInstaller.jar
-
 CoyoteDX/hprof/
 CoyoteUI/src/html/
+
+!Docker/Base/opt/bin
