@@ -3,10 +3,6 @@ FROM openjdk:8-jre-alpine
 # Add the files from the build context
 COPY Docker/Base/opt opt
 
-ENV MY_NAME="John Doe"
-
-#RUN mkdir -p /opt/coyotedx/lib
-
 # The core module
 COPY CoyoteDX/build/install/CoyoteDX/lib /opt/coyotedx/lib
 
@@ -21,5 +17,3 @@ COPY CoyoteWS/build/install/CoyoteWS/lib /opt/coyotedx/lib
 
 # Run coyote data exchange
 ENTRYPOINT ["/opt/coyotedx/bin/cdx"]
-
-# EOF
