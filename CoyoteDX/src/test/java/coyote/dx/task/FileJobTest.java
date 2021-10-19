@@ -17,6 +17,7 @@ import java.util.Map;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import coyote.commons.FileUtil;
@@ -60,7 +61,7 @@ public class FileJobTest {
 
 
 
-  @Test
+  @Ignore
   public void base() throws ConfigurationException, TaskException, IOException {
     final TransformContext context = new TransformContext();
 
