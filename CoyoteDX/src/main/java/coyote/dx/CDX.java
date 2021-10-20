@@ -7,12 +7,6 @@
  */
 package coyote.dx;
 
-import java.io.File;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-import java.net.URI;
-import java.net.URISyntaxException;
-
 import coyote.commons.StringUtil;
 import coyote.commons.UriUtil;
 import coyote.commons.Version;
@@ -24,13 +18,19 @@ import coyote.loader.log.Log;
 import coyote.loader.log.LogMsg;
 import coyote.loader.log.LogMsg.BundleBaseName;
 
+import java.io.File;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.net.URI;
+import java.net.URISyntaxException;
+
 
 /**
  * 
  */
 public class CDX {
 
-  public static final Version VERSION = new Version(0, 8, 3, Version.DEVELOPMENT);
+  public static final Version VERSION = new Version(0, 8, 6, Version.DEVELOPMENT);
   public static final String NAME = "CDX";
   public static final String DEFAULT_DATETIME_FORMAT = "yyyy-MM-dd HH:mm:ss.SSSX";
   public static final String DEFAULT_DATE_FORMAT = "yyyy-MM-dd";
@@ -222,11 +222,15 @@ public class CDX {
     } else {
       Log.error("Using a source file of NULL_REF");
     }
-    // if not absolute, use the CDX fixture to attemt to resolve the relative file
-    if (!retval.isAbsolute()) {
-      retval = CDX.resolveFile(retval, context);
-    }
+    // if not absolute, use the CDX fixture to attempt to resolve the relative file
+    try{
+      if (retval != null && !retval.isAbsolute()) {
+        retval = CDX.resolveFile(retval, context);
+      }
     Log.debug("Using an absolute source file of " + retval.getAbsolutePath());
+    } catch (NullPointerException npe) {
+      Log.notice("Could not get absolute path for source file of " + retval);
+    }
     return retval;
   }
 
