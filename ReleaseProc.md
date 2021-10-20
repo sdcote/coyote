@@ -4,14 +4,20 @@ Versioning is currently managed by modules. Each module has its own versioning.
 
 When Coyote DX is released, it will contain a group of modules of with their own separate versions.
 
-Change the versions in the following files as appropriate:
+1. Change the versions in the following files as appropriate:
+   * installer/install.xml - The same version as the base DX package.
+   * CoyoteFT/src/main/java/coyote/dx/CDB
+   * CoyoteDX/src/main/java/coyote/dx/CDX - The same version as the installer.
+   * CoyoteMQ/src/main/java/coyote/dx/CFT
+   * CoyoteMQ/src/main/java/coyote/dx/CMC
+   * CoyoteMQ/src/main/java/coyote/dx/CMQ
+   * CoyoteFT/src/main/java/coyote/dx/CMT
+   * CoyoteFT/src/main/java/coyote/dx/CUI
+   * CoyoteWS/src/main/java/coyote/dx/CWS
+2. Update the [Release Notes](ReleaseNotes.md).
+   * Add the version number of the DX base module (and installer)
+   * Follow the guidelines in [Keep A Change Log](https://keepachangelog.com/en/1.0.0/).
 
-* installer/install.xml
-* CoyoteDX/src/main/java/coyote/dx/CDX 
-* CoyoteMQ/src/main/java/coyote/mq/CMQ
-* CoyoteFT/src/main/java/coyote/ft/CFT
-* CoyoteWS/src/main/java/coyote/ws/CWS
-* Loader/src/main/java/coyote/loader/Loader
 
 # Installer
 
