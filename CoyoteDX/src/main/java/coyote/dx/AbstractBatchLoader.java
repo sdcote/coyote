@@ -66,7 +66,12 @@ public abstract class AbstractBatchLoader extends AbstractLoader {
         // If that file exists, then use that files parent directory as our work
         // directory
         if (cfgFile.exists()) {
-          System.setProperty(Job.APP_HOME, cfgFile.getParentFile().getAbsolutePath());
+          if(cfgFile.getParentFile() != null) {
+            System.setProperty(Job.APP_HOME, cfgFile.getParentFile().getAbsolutePath());
+          } else {
+            // This is an odd case, but it is a possibility we need to accommodate
+            System.setProperty(Job.APP_HOME, DEFAULT_HOME);
+          }
         } else {
           // we could not determine the path to the configuration file, use the 
           // current working directory
