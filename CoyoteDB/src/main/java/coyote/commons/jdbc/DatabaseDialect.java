@@ -430,7 +430,7 @@ public class DatabaseDialect {
 
           // resolve the variables in the command string
           final Template tmplt = new Template(cmdstr, symbols);
-          return tmplt.toString();
+          return tmplt.convertToString();
 
         } else {
 

@@ -281,7 +281,7 @@ public class TransformEngineFactory {
 
     try {
       Vault vault = builder.build();
-      Template.put(Vault.LOOKUP_TAG, new VaultProxy(vault));
+      Template.putStatic(Vault.LOOKUP_TAG, new VaultProxy(vault));
     } catch (ConfigurationException e) {
       e.printStackTrace();
     } catch (VaultException e) {

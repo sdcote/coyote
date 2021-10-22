@@ -94,11 +94,14 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
   /** the loader which loaded this engine */
   private Loader loader = null;
 
+  static final String FORMAT_SYMBOL_LOOKUP_TAG = "FormatSymbol";
+
 
 
 
   public AbstractTransformEngine() {
     symbols.readSystemProperties();
+    Template.putStatic(FORMAT_SYMBOL_LOOKUP_TAG,new FormatSymbol(symbols));
   }
 
 
@@ -224,7 +227,7 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
           // Create a component to place in the Templates to give them access to
           // all the data in the contexts and advanced functions
           TemplateAccess access = new TemplateAccess(getContext());
-          Template.put("Context", access);
+          Template.putStatic("Context", access);
 
           // Start the clock and fire event listeners for the beginning of the
           // transaction

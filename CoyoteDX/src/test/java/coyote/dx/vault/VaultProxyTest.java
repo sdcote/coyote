@@ -30,7 +30,7 @@ public class VaultProxyTest {
    */
   @Test
   public void simpleProxy() {
-    Template.put("Vault", new VaultProxy(new TestVault()));
+    Template.putStatic("Vault", new VaultProxy(new TestVault()));
 
     String text = ">[#Vault.get(\"EntryID\",\"username\")#]<-username";
     String formattedText = Template.resolve(text, symbols);
