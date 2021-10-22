@@ -39,72 +39,77 @@ public class Job extends AbstractBatchLoader implements Loader {
    */
   @Override
   public void configure(Config cfg) throws ConfigurationException {
-    super.configure(cfg);
-
-    // Support the concept of an ever-repeating job
     try {
-      repeat = configuration.getBoolean(ConfigTag.REPEAT);
-    } catch (NumberFormatException ignore) {
-      // probably does not exist
-    }
+      super.configure(cfg);
 
-    // calculate and normalize the appropriate value for "app.home"
-    determineHomeDirectory();
+      // Support the concept of an ever-repeating job
+      try {
+        repeat = configuration.getBoolean(ConfigTag.REPEAT);
+      } catch (NumberFormatException ignore) {
+        // probably does not exist
+      }
 
-    determineWorkDirectory();
+      // calculate and normalize the appropriate value for "app.home"
+      determineHomeDirectory();
 
-    List<Config> jobs = cfg.getSections(coyote.dx.ConfigTag.JOB);
+      determineWorkDirectory();
 
-    if (jobs.size() > 0) {
+      List<Config> jobs = cfg.getSections(coyote.dx.ConfigTag.JOB);
 
-      Config job = jobs.get(0);
+      if (jobs.size() > 0) {
 
-      // If the job has no name... 
-      if (StringUtil.isBlank(job.getName())) {
-        if (StringUtil.isNotBlank(cfg.getName())) {
-          //...set it to the name of the parent...
-          job.setName(cfg.getName());
-        } else {
-          //...or the base of the configuration URI
-          String cfguri = System.getProperty(ConfigTag.CONFIG_URI);
-          if (StringUtil.isNotBlank(cfguri)) {
-            try {
-              job.setName(UriUtil.getBase(new URI(cfguri)));
-            } catch (URISyntaxException ignore) {
-              // well, we tried, it will probably get assigned a UUID later
+        Config job = jobs.get(0);
+
+        // If the job has no name...
+        if (StringUtil.isBlank(job.getName())) {
+          if (StringUtil.isNotBlank(cfg.getName())) {
+            //...set it to the name of the parent...
+            job.setName(cfg.getName());
+          } else {
+            //...or the base of the configuration URI
+            String cfguri = System.getProperty(ConfigTag.CONFIG_URI);
+            if (StringUtil.isNotBlank(cfguri)) {
+              try {
+                job.setName(UriUtil.getBase(new URI(cfguri)));
+              } catch (URISyntaxException ignore) {
+                // well, we tried, it will probably get assigned a UUID later
+              }
             }
           }
         }
-      }
 
-      // have the Engine Factory create a transformation engine based on the
-      // configuration 
-      engine = TransformEngineFactory.getInstance(job);
+        // have the Engine Factory create a transformation engine based on the
+        // configuration
+        engine = TransformEngineFactory.getInstance(job);
 
-      if (getLoader() != null) {
-        engine.setLoader(getLoader()); 
+        if (getLoader() != null) {
+          engine.setLoader(getLoader());
+        } else {
+          engine.setLoader(this);
+        }
+
+        // store the command line arguments in the symbol table of the engine
+        for (int x = 0; x < commandLineArguments.length; x++) {
+          engine.getSymbolTable().put(Symbols.COMMAND_LINE_ARG_PREFIX + x, commandLineArguments[x]);
+        }
+
+        // store environment variables in the symbol table
+        Map<String, String> env = System.getenv();
+        for (String envName : env.keySet()) {
+          engine.getSymbolTable().put(Symbols.ENVIRONMENT_VAR_PREFIX + envName, env.get(envName));
+        }
+
+        if (StringUtil.isBlank(engine.getName())) {
+          Log.trace(LogMsg.createMsg(CDX.MSG, "Job.unnamed_engine_configured"));
+        } else {
+          Log.trace(LogMsg.createMsg(CDX.MSG, "Job.engine_configured", engine.getName()));
+        }
       } else {
-        engine.setLoader(this);
+        Log.fatal(LogMsg.createMsg(CDX.MSG, "Job.no_job_section"));
       }
-
-      // store the command line arguments in the symbol table of the engine
-      for (int x = 0; x < commandLineArguments.length; x++) {
-        engine.getSymbolTable().put(Symbols.COMMAND_LINE_ARG_PREFIX + x, commandLineArguments[x]);
-      }
-
-      // store environment variables in the symbol table
-      Map<String, String> env = System.getenv();
-      for (String envName : env.keySet()) {
-        engine.getSymbolTable().put(Symbols.ENVIRONMENT_VAR_PREFIX + envName, env.get(envName));
-      }
-
-      if (StringUtil.isBlank(engine.getName())) {
-        Log.trace(LogMsg.createMsg(CDX.MSG, "Job.unnamed_engine_configured"));
-      } else {
-        Log.trace(LogMsg.createMsg(CDX.MSG, "Job.engine_configured", engine.getName()));
-      }
-    } else {
-      Log.fatal(LogMsg.createMsg(CDX.MSG, "Job.no_job_section"));
+    } catch(Throwable e){
+      System.err.println(ExceptionUtil.stackTrace(e));
+      throw e;
     }
   }
 
