@@ -27,13 +27,16 @@ import coyote.dx.TransformException;
  * <p>The primary use case is to take epoch time in milliseconds (Java) or 
  * seconds (Unix) and convert it to a Date object. Another use case is to 
  * parse String representations of dates onto date references.
- * 
+ *
+ * <pre>
+ *     "Date": { "field": "Date", "format": "milliseconds" }
+ * </pre>
  * <p>The {@code format} configuration attribute describes the format currently existing in the field. Expected values include:<ul>
  * <li>{@code seconds} - Set the date with the current value representing number of seconds in the epoch, a.k.a. Unix time
  * <li>{@code unix} - same as {@code seconds}
  * <li>{@code milliseconds} - Set the date with the current value representing number of milliseconds in the epoch, a.k.a. Java time
  * <li>{@code java} - same as {@code milliseconds}
- * <li>{@code FormatString} - Set the date from the string in this field using a Java date format 
+ * <li>{@code FormatString} - Set the date from the string in this field using a Java date format to parse that data
  * <li>{@code now} - Set the date to the current epoch time
  * </ul>
  */
