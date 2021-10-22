@@ -105,6 +105,7 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
 
   protected PreparedStatement ps = null;
 
+  protected volatile boolean closed = false;
 
 
 
@@ -211,57 +212,56 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
   }
 
 
-
-
   /**
    * @see java.io.Closeable#close()
    */
   @Override
   public void close() throws IOException {
-
-    if (frameset.size() > 0) {
-      Log.debug(LogMsg.createMsg(CDX.MSG, "Writer.completing_batch", getClass().getSimpleName(), frameset.size()));
-      writeBatch();
-      frameset.clearAll();
-    }
-
-    if (connection != null) {
-      try {
-        commit();
-      } catch (final SQLException e) {
-        Log.warn(LogMsg.createMsg(CDX.MSG, "Writer.could_not_commit_prior_to_close", e.getMessage()));
+    if (!closed) {
+      closed = true;
+      if (frameset.size() > 0) {
+        Log.debug(LogMsg.createMsg(CDX.MSG, "Writer.completing_batch", getClass().getSimpleName(), frameset.size()));
+        writeBatch();
+        frameset.clearAll();
       }
-    }
 
-    if (ps != null) {
-      try {
-        ps.close();
-        ps = null;
-      } catch (final SQLException e) {
-        Log.error(LogMsg.createMsg(CDX.MSG, "Writer.Could not close prepared statememt: {%s}", e.getMessage()));
-      }
-    }
-
-    if (connection != null) {
-      // if it looks like we created the connection ourselves (e.g. we have a
-      // configured target) close the connection
-      if (StringUtil.isNotBlank(getTarget())) {
-        Log.debug(LogMsg.createMsg(CDX.MSG, "Writer.closing_connection", getClass().getSimpleName(), getTarget()));
-
+      if (connection != null) {
         try {
-          connection.close();
-          connection = null;
+          commit();
         } catch (final SQLException e) {
-          Log.error(LogMsg.createMsg(CDX.MSG, "Writer.Could not close connection cleanly: {%s}", e.getMessage()));
+          Log.warn(LogMsg.createMsg(CDX.MSG, "Writer.could_not_commit_prior_to_close", e.getMessage()));
         }
       }
+
+      if (ps != null) {
+        try {
+          ps.close();
+          ps = null;
+        } catch (final SQLException e) {
+          Log.error(LogMsg.createMsg(CDX.MSG, "Writer.Could not close prepared statememt: {%s}", e.getMessage()));
+        }
+      }
+
+      if (connection != null) {
+        // if it looks like we created the connection ourselves (e.g. we have a
+        // configured target) close the connection
+        if (StringUtil.isNotBlank(getTarget())) {
+          Log.debug(LogMsg.createMsg(CDX.MSG, "Writer.closing_connection", getClass().getSimpleName(), getTarget()));
+
+          try {
+            connection.close();
+            connection = null;
+          } catch (final SQLException e) {
+            Log.error(LogMsg.createMsg(CDX.MSG, "Writer.Could not close connection cleanly: {%s}", e.getMessage()));
+          }
+        }
+      }
+
+      schema.clear();
+      super.close();
     }
 
-    schema.clear();
-    super.close();
   }
-
-
 
 
   public void commit() throws SQLException {
@@ -593,19 +593,19 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
         final Config cfg = new Config();
 
         if (StringUtil.isNotBlank(getString(ConfigTag.TARGET))) {
-          cfg.put(ConfigTag.TARGET, getString(ConfigTag.TARGET));
+          cfg.put(ConfigTag.TARGET, Template.resolve(getString(ConfigTag.TARGET),getContext().getSymbols()));
         }
 
         if (StringUtil.isNotBlank(getString(ConfigTag.DRIVER))) {
-          cfg.put(ConfigTag.DRIVER, getString(ConfigTag.DRIVER));
+          cfg.put(ConfigTag.DRIVER, Template.resolve(getString(ConfigTag.DRIVER),getContext().getSymbols()));
         }
 
         if (StringUtil.isNotBlank(getString(ConfigTag.LIBRARY))) {
-          cfg.put(ConfigTag.LIBRARY, getString(ConfigTag.LIBRARY));
+          cfg.put(ConfigTag.LIBRARY, Template.resolve(getString(ConfigTag.LIBRARY),getContext().getSymbols()));
         }
 
         if (StringUtil.isNotBlank(getString(ConfigTag.USERNAME))) {
-          cfg.put(ConfigTag.USERNAME, getString(ConfigTag.USERNAME));
+          cfg.put(ConfigTag.USERNAME, Template.resolve(getString(ConfigTag.USERNAME),getContext().getSymbols()));
         }
 
         if (StringUtil.isNotBlank(getString(Loader.ENCRYPT_PREFIX + ConfigTag.USERNAME))) {
@@ -622,9 +622,11 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
 
         setConnector(database);
 
+        Log.notice("Database configuration:\r\n"+cfg.toFormattedString());
         try {
           database.setConfiguration(cfg);
           if (Log.isLogging(Log.DEBUG_EVENTS)) {
+            Log.debug(cfg.toFormattedString());
             Log.debug(LogMsg.createMsg(CDX.MSG, "Component.using_target", getClass().getSimpleName(), database.getTarget()));
             Log.debug(LogMsg.createMsg(CDX.MSG, "Component.using_driver", getClass().getSimpleName(), database.getDriver()));
             Log.debug(LogMsg.createMsg(CDX.MSG, "Component.using_library", getClass().getSimpleName(), database.getLibrary()));
@@ -814,7 +816,7 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
           if (field.isNull()) {
             pstmt.setNull(indx, BIGINT);
           } else {
-            pstmt.setLong(indx, (Integer)field.getObjectValue());
+            pstmt.setLong(indx, (Long)field.getObjectValue());
           }
           break;
         case DataField.FLOAT:
