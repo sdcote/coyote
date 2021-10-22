@@ -1,0 +1,32 @@
+{
+  "Class": "coyote.dx.Job",
+  "Job": {
+    "Name": "Simple",
+    "Reader": {
+      "class": "StaticReader",
+      "fields": {
+        "name": "defect_count",
+        "value": 6,
+        "instance": "My Backlog",
+        "help": "The number of active backlog items with the classification of 'defect'",
+        "type": "gauge"
+      }
+    },
+    "Writer": { "enabled": false, "class": "ConsoleWriter", "format": "json", "indent": true },
+    "Writer": {
+      "class": "JdbcWriter",
+      "target": "jdbc:h2:[#$jobdir#]/demodb;MODE=Oracle",
+      "table": "user",
+      "autocreate": true,
+      "driver": "org.h2.Driver",
+      "library": "jar:[#FormatSymbol.toFileURI(user.home)#]/Tools/h2/bin/h2-1.4.200.jar!/",
+      "username": "sa",
+      "password": "",
+      "batch": 5
+    }
+  },
+  "Logging": {
+    "StandardError": { "name": "error", "target": "STDERR", "categories": "error, fatal, warn" },
+    "StandardOutput": { "name": "default", "target": "STDOUT", "categories": "info, notice,debug,trace" }
+  }
+}
