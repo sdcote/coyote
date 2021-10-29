@@ -54,7 +54,7 @@ public class DatabaseDialect {
   public static final String NOT_NULL = "not_null";
   public static final String NULLABLE = "nullable";
   // Database Technologies supported
-  public static final String ORACLE = "Oracle";
+  public static final String ORACLE = "ORACLE";
   public static final String PRIMARY_KEY = "primary_key";
   public static final String SYS_ID_SYM = "sysid";
   // The symbols we expect to find in the symbol table
@@ -438,6 +438,8 @@ public class DatabaseDialect {
           return cmdstr;
         }
       }
+    } else {
+      Log.error("There is no database dialect support for '"+database+"' database connections");
     }
     return null;
   }

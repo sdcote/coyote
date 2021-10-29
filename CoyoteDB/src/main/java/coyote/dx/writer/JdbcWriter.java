@@ -110,31 +110,40 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
 
 
   /**
+   * Ensures the required schema exists and creates it if necessary.
    *
+   * <p>This check is not performed on oracle databases since the CREATE SCHEMA is used to create multiple tables and
+   * views and perform multiple grants in a schema in a single transaction. A schema is automatically created by Oracle
+   * when a user is created.</p>
    */
   private void checkSchema() {
-    Log.debug("Looking for schema '" + getSchema() + "'");
-    if (!DatabaseUtil.schemaExists(getSchema(), getConnection())) {
-      if (isAutoCreate()) {
-        final String username = getConnector().getUserName();
-        final String sql = DatabaseDialect.getCreateSchema(database, getSchema(), username);
-        Log.debug("Schema '" + getSchema() + "' not found in database, creating it with:\n" + sql);
-        try (Statement stmt = connection.createStatement()) {
-          stmt.executeUpdate(sql);
-          Log.debug("Schema created.");
+    Connection conn = getConnection();
 
-          if (DatabaseUtil.schemaExists(getSchema(), getConnection())) {
-            Log.debug("Schema creation verified");
-          } else {
-            Log.error("Could not verify the creation of schema '" + getSchema() + "'");
+    if (DatabaseDialect.ORACLE.equalsIgnoreCase(database)) {
+      Log.debug(LogMsg.createMsg(CDX.MSG, "Database.skipping_oracle_schema_check"));
+    } else {
+      Log.debug(LogMsg.createMsg(CDX.MSG, "Database.looking_for_schema", getSchema()));
+      if (!DatabaseUtil.schemaExists(getSchema(), conn)) {
+        if (isAutoCreate()) {
+          final String username = getConnector().getUserName();
+          final String sql = DatabaseDialect.getCreateSchema(database, getSchema(), username);
+          Log.debug("Schema '" + getSchema() + "' not found in database, creating it with:\n" + sql);
+          try (Statement stmt = connection.createStatement()) {
+            stmt.executeUpdate(sql);
+            Log.debug("Schema created.");
+
+            if (DatabaseUtil.schemaExists(getSchema(), conn)) {
+              Log.debug("Schema creation verified");
+            } else {
+              Log.error("Could not verify the creation of schema '" + getSchema() + "'");
+            }
+          } catch (final SQLException e) {
+            Log.error("Schema creation failed!");
+            e.printStackTrace();
           }
-
-        } catch (final SQLException e) {
-          Log.error("Schema creation failed!");
-          e.printStackTrace();
+        } else {
+          Log.warn("The schema '" + getSchema() + "' does not exist in the database and autocreate is set to '" + isAutoCreate() + "', expect subsequent database operations to fail.");
         }
-      } else {
-        Log.warn("The schema '" + getSchema() + "' does not exist in the database and autocreate is set to '" + isAutoCreate() + "', expect subsequent database operations to fail.");
       }
     }
   }
@@ -325,8 +334,21 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
 
         if (connection != null) {
           Log.debug(LogMsg.createMsg(CDX.MSG, "Writer.connected_to", getClass().getSimpleName(), getTarget()));
+
+          String product;
           final DatabaseMetaData meta = connection.getMetaData();
-          final String product = meta.getDatabaseProductName();
+
+          if( meta != null) {
+            product = meta.getDatabaseProductName();
+            if (StringUtil.isBlank(product)) {
+                product = DatabaseDialect.ORACLE;
+              Log.debug(LogMsg.createMsg(CDB.MSG, "Database.no_product_name", meta.toString(), product));
+            }
+          } else {
+            product = DatabaseDialect.ORACLE;
+            Log.debug(LogMsg.createMsg(CDB.MSG, "Database.no_metadata", product));
+          }
+
           database = product.toUpperCase();
 
           // update the symbols with database information
@@ -622,7 +644,6 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
 
         setConnector(database);
 
-        Log.notice("Database configuration:\r\n"+cfg.toFormattedString());
         try {
           database.setConfiguration(cfg);
           if (Log.isLogging(Log.DEBUG_EVENTS)) {

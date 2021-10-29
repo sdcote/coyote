@@ -456,7 +456,7 @@ public class DatabaseUtil {
       try {
         DatabaseMetaData meta = conn.getMetaData();
 
-        // get all the tables so we can perform a case insensitive search
+        // get all the tables so we can perform a case-insensitive search
         rs = meta.getTables(null, null, "%", null);
         while (rs.next()) {
           if (StringUtil.equalsIgnoreCase(table, rs.getString("TABLE_NAME")) && (StringUtil.isEmpty(schema) || (StringUtil.isNotEmpty(schema) && StringUtil.equalsIgnoreCase(schema, rs.getString("TABLE_SCHEM"))))) {
@@ -465,20 +465,12 @@ public class DatabaseUtil {
               b.append(rs.getString("TABLE_SCHEM"));
               b.append('.');
               b.append(rs.getString("TABLE_NAME"));
-              if (StringUtil.isNotEmpty(rs.getString("TYPE_CAT"))) {
-                b.append(" in catalog ");
-                b.append(rs.getString("TYPE_CAT"));
-              }
-              b.append(" of type '");
-              b.append(rs.getString("TABLE_TYPE"));
-              b.append('\'');
               Log.debug(b.toString());
             }
             retval = true;
           }
         }
         return retval;
-
       } catch (SQLException e) {
         e.printStackTrace();
       } finally {
