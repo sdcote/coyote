@@ -69,7 +69,7 @@ case $1 in
 			sleep 5
 		fi
 		nohup java "$JAVA_OPTS" -cp "$CLASSPATH" -Dapp.home="$APP_HOME" -Dapp.work="$APP_WORK" coyote.loader.BootStrap "$APP_CFG" 2>> "$CONSOLE_LOG" >> "$CONSOLE_LOG" &
-		# nohup java "$JAVA_OPTS" -cp "$CLASSPATH" -Dapp.home="$APP_HOME" -Dapp.work="$APP_WORK" -Dcipher.name="$CIPHER_NAME" -Dcipher.key="$CIPHER_KEY" coyote.loader.BootStrap "$APP_CFG" 2>> /dev/null >> /dev/null &
+		# nohup java "$JAVA_OPTS" -cp "$CLASSPATH" -Dapp.home="$APP_HOME" -Dapp.work="$APP_WORK" -Dcipher.name="$CIPHER_NAME" -Dcipher.key="$CIPHER_KEY" coyote.loader.BootStrap "$APP_CFG" 2>> "$CONSOLE_LOG" >> "$CONSOLE_LOG" &
 		echo $! > /opt/coyotedx/pid
 		log_success_msg "CoyoteDX started in $!"
 	;;
