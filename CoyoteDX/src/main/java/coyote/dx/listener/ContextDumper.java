@@ -19,7 +19,7 @@ import coyote.dx.context.TransformContext;
  * <p>This is primarily a development and debugging tool to assist in the use 
  * of template strings.</p> 
  */
-public class ContextDumper extends FileRecorder {
+public class ContextDumper extends AbstractFileRecorder {
 
   /**
    * @see coyote.dx.listener.AbstractListener#onStart(coyote.dx.context.OperationalContext)

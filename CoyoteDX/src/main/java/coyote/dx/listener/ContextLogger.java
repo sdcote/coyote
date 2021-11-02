@@ -24,7 +24,7 @@ import coyote.i13n.SimpleMetric;
  * 
  * This file requires a file target to  use for storing its data
  */
-public class ContextLogger extends FileRecorder {
+public class ContextLogger extends AbstractFileRecorder {
   DecimalFormat DECIMAL = new DecimalFormat("#,###,##0.000");
   DecimalFormat NUMBER = new DecimalFormat("#,###,##0");
 

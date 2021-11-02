@@ -28,7 +28,7 @@ import coyote.dx.context.TransformContext;
  * This listener keeps track of the data read in to and out of the engine and 
  * reports on the characteristics of the data observed.
  */
-public class DataProfiler extends FileRecorder implements ContextListener {
+public class DataProfiler extends AbstractFileRecorder implements ContextListener {
   protected DataSetMetrics inputSchema = new DataSetMetrics();
   protected DataSetMetrics outputSchema = new DataSetMetrics();
   protected static final SymbolTable symbols = new SymbolTable();
@@ -60,7 +60,7 @@ public class DataProfiler extends FileRecorder implements ContextListener {
 
 
   /**
-   * @see coyote.dx.listener.FileRecorder#open(coyote.dx.context.TransformContext)
+   * @see AbstractFileRecorder#open(coyote.dx.context.TransformContext)
    */
   @Override
   public void open(TransformContext context) {

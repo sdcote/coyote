@@ -34,7 +34,7 @@ import coyote.i13n.SimpleMetric;
  * aggregates the collected data and generates a performance report when the 
  * transform context completes.</p> 
  */
-public class WebMetrics extends FileRecorder implements ContextListener {
+public class WebMetrics extends AbstractFileRecorder implements ContextListener {
 
   Date start = null;
   Date end = null;

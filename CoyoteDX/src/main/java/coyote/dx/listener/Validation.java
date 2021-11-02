@@ -21,7 +21,7 @@ import coyote.loader.cfg.ConfigurationException;
 /**
  * This writes the record with all the errors for later processing.
  */
-public class Validation extends FileRecorder {
+public class Validation extends AbstractFileRecorder {
 
   List<String> validationErrors = new ArrayList<String>();
 
