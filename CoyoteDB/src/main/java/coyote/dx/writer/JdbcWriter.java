@@ -809,7 +809,12 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
           if (field.isNull()) {
             pstmt.setNull(indx, TINYINT);
           } else {
-            pstmt.setByte(indx, (byte)field.getObjectValue());
+            final Object obj = field.getObjectValue();
+            if (obj != null) {
+              pstmt.setByte(indx, (byte)obj);
+            } else {
+              Log.error("Null object value from field " + field);
+            }
           }
           break;
         case DataField.U8:
@@ -818,7 +823,12 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
           if (field.isNull()) {
             pstmt.setNull(indx, SMALLINT);
           } else {
-            pstmt.setShort(indx, (Short)field.getObjectValue());
+            final Object obj = field.getObjectValue();
+            if (obj != null) {
+              pstmt.setShort(indx, (Short)obj);
+            } else {
+              Log.error("Null object value from field " + field);
+            }
           }
           break;
         case DataField.U16:
@@ -827,7 +837,12 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
           if (field.isNull()) {
             pstmt.setNull(indx, INTEGER);
           } else {
-            pstmt.setInt(indx, (Integer)field.getObjectValue());
+            final Object obj = field.getObjectValue();
+            if (obj != null) {
+              pstmt.setInt(indx, (Integer)obj);
+            } else {
+              Log.error("Null object value from field " + field);
+            }
           }
           break;
         case DataField.U32:
@@ -837,7 +852,12 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
           if (field.isNull()) {
             pstmt.setNull(indx, BIGINT);
           } else {
-            pstmt.setLong(indx, (Long)field.getObjectValue());
+            final Object obj = field.getObjectValue();
+            if (obj != null) {
+              pstmt.setLong(indx, (Long) obj);
+            } else {
+              Log.error("Null object value from field " + field);
+            }
           }
           break;
         case DataField.FLOAT:
@@ -845,7 +865,12 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
           if (field.isNull()) {
             pstmt.setNull(indx, FLOAT);
           } else {
-            pstmt.setFloat(indx, (Float)field.getObjectValue());
+            final Object obj = field.getObjectValue();
+            if (obj != null) {
+              pstmt.setFloat(indx, (Float)obj);
+            } else {
+              Log.error("Null object value from field " + field);
+            }
           }
           break;
         case DataField.DOUBLE:
@@ -853,7 +878,12 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
           if (field.isNull()) {
             pstmt.setNull(indx, DOUBLE);
           } else {
-            pstmt.setDouble(indx, (Double)field.getObjectValue());
+            final Object obj = field.getObjectValue();
+            if (obj != null) {
+              pstmt.setDouble(indx, (Double)obj);
+            } else {
+              Log.error("Null object value from field " + field);
+            }
           }
           break;
         case DataField.BOOLEANTYPE:
@@ -861,7 +891,12 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
           if (field.isNull()) {
             pstmt.setNull(indx, BOOLEAN);
           } else {
-            pstmt.setBoolean(indx, (Boolean)field.getObjectValue());
+            final Object obj = field.getObjectValue();
+            if (obj != null) {
+              pstmt.setBoolean(indx, (Boolean)obj);
+            } else {
+              Log.error("Null object value from field " + field);
+            }
           }
           break;
         case DataField.DATE:
@@ -870,7 +905,11 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
             pstmt.setNull(indx, TIMESTAMP);
           } else {
             final Object obj = field.getObjectValue();
-            pstmt.setTimestamp(indx, DatabaseUtil.getTimeStamp((Date)obj));
+            if (obj != null) {
+              pstmt.setTimestamp(indx, DatabaseUtil.getTimeStamp((Date)obj));
+            } else {
+              Log.error("Null object value from field " + field);
+            }
           }
           break;
         case DataField.URI:
@@ -886,7 +925,11 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
           break;
       }
     } catch (final SQLException e) {
+      Log.error("Problems setting data into prepared statement");
+      Log.error(e);
       e.printStackTrace();
+      if(pstmt==null)Log.error("prepared statement passed was NULL");
+
     }
 
   }
