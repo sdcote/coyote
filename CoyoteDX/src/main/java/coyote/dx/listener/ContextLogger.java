@@ -23,6 +23,12 @@ import coyote.i13n.SimpleMetric;
  * This logs events to a file for the batch.
  * 
  * This file requires a file target to  use for storing its data
+ *
+ * <pre>
+ *     "Listener" : {
+ * 			"ContextLogger": { "target": "outfile.txt", "read": true, "write": false },
+ *     }
+ * </pre>
  */
 public class ContextLogger extends AbstractFileRecorder {
   DecimalFormat DECIMAL = new DecimalFormat("#,###,##0.000");
