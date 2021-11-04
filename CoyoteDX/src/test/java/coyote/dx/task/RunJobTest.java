@@ -61,7 +61,7 @@ public class RunJobTest {
 
 
 
-  @Ignore
+  @Test
   public void execute() throws ConfigurationException, TaskException, IOException {
     final TransformContext context = new TransformContext();
 

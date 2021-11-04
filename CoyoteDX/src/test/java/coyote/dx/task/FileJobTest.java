@@ -61,7 +61,7 @@ public class FileJobTest {
 
 
 
-  @Ignore
+  @Test
   public void base() throws ConfigurationException, TaskException, IOException {
     final TransformContext context = new TransformContext();
 
