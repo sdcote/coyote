@@ -52,6 +52,7 @@ public class ConfigTag {
   public static final String LIMIT = "limit";
   public static final String LINEMAP = "linemap";
   public static final String LISTEN = "Listen";
+  public static final String LOGGING = "Logging";
   public static final String MESSAGE = "Message";
   public static final String MODE = "mode";
   public static final String NAME = "name";

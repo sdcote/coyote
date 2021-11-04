@@ -173,12 +173,16 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
   @SuppressWarnings("unchecked")
   @Override
   public void run() {
-    Log.info("Engine '" + getName() + "' (" + getInstanceId() + ") running...");
-    int transactionErrors = 0;
-
     // Initialize the context
     contextInit();
 
+    // Open the log manager with the current transform context
+    if (logManager != null) {
+      logManager.open(getContext());
+    }
+
+    Log.info("Engine '" + getName() + "' (" + getInstanceId() + ") running...");
+    int transactionErrors = 0;
     Log.trace("Engine '" + getName() + "' starting transform");
 
     // fire the transformation start event
@@ -337,6 +341,14 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
       Log.info("Engine '" + getName() + "' (" + getInstanceId() + ") completed successfully");
     }
 
+    // Close the loggers associated with this job
+    if( logManager != null) {
+      try {
+        logManager.close();
+      } catch (Throwable t) {
+        System.err.println("Problems closing job logger(s): " + t.getMessage());
+      }
+    }
   }
 
 
@@ -479,11 +491,6 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
 
     // Set the run date in the context after it was opened (possibly loaded)
     getContext().set(Symbols.DATETIME, rundate);
-
-    // Open the log manager with the current transform context
-    if (logManager != null) {
-      logManager.open(getContext());
-    }
 
     return getContext();
   }
@@ -1535,6 +1542,17 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
   @Override
   public void setLogManager(LogManager logmgr) {
     logManager = logmgr;
+  }
+
+
+
+
+  /**
+   * @see coyote.dx.TransformEngine#getLogManager()
+   */
+  @Override
+  public LogManager getLogManager(){
+    return logManager;
   }
 
 

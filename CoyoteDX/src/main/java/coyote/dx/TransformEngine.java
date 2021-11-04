@@ -17,7 +17,7 @@ import coyote.loader.Loader;
 
 
 /**
- *  
+ *  This is the interface all transform engines implement.
  */
 public interface TransformEngine extends RunnableComponent {
 
@@ -243,6 +243,13 @@ public interface TransformEngine extends RunnableComponent {
    */
   public void setLogManager(LogManager logmgr);
 
+
+  /**
+   * Access the LogManager for this engine.
+   *
+   * @return THe log manager for this engine or null if no manager exists.
+   */
+  public LogManager getLogManager();
 
 
 
