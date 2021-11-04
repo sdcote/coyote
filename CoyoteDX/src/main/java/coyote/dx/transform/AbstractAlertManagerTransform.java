@@ -111,8 +111,6 @@ public abstract class AbstractAlertManagerTransform extends AbstractFieldTransfo
     }
 
 
-
-
     /**
      * @see AbstractFieldTransform#open(TransformContext)
      */
@@ -122,12 +120,10 @@ public abstract class AbstractAlertManagerTransform extends AbstractFieldTransfo
         // TODO our stuff
 
         final String targetField = getString(ConfigTag.TARGET);
-        if( StringUtil.isNotEmpty(targetField)){
+        if (StringUtil.isNotEmpty(targetField)) {
             setTargetFieldName(targetField);
         }
     }
-
-
 
 
     /**
@@ -151,8 +147,6 @@ public abstract class AbstractAlertManagerTransform extends AbstractFieldTransfo
     }
 
 
-
-
     /**
      * Generate a formatted message from the given AlertManager dataframe.
      *
@@ -160,8 +154,6 @@ public abstract class AbstractAlertManagerTransform extends AbstractFieldTransfo
      * @return a dataframe for sending to a webhook.
      */
     abstract DataFrame generateMessageFrom(DataFrame frame);
-
-
 
 
     /**
@@ -191,20 +183,14 @@ public abstract class AbstractAlertManagerTransform extends AbstractFieldTransfo
     }
 
 
-
-
     protected DataFrame getCommonLabels(DataFrame frame) {
         return getFrame(COMMON_LABELS, frame);
     }
 
 
-
-
     protected DataFrame getCommonAnnotations(DataFrame frame) {
         return getFrame(COMMON_ANNOTATIONS, frame);
     }
-
-
 
 
     protected DataFrame getFrame(String name, DataFrame frame) {
@@ -216,8 +202,6 @@ public abstract class AbstractAlertManagerTransform extends AbstractFieldTransfo
         }
         return retval;
     }
-
-
 
 
     /**
