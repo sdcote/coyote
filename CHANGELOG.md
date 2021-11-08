@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 * **JdbcWriter NPE** - Fixed the issue with the prepared statement not being (re)created when the Job is closed and later re-opened as is the case with `Jon` instances running in a `Service`.
+* **JdbcWriter ALTER** - Updated the Database dialect to support ALTER statements.
 
 ## [0.0.1] - 15/08/2019
 This release contained initial functionality to enable development of external providers.

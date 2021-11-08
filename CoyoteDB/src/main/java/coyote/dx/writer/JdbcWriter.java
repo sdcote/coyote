@@ -918,19 +918,16 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
             }
         }
 
-
         if (getContext().isNotInError()) {
-
             if (isAutoAdjust()) {
                 for (final String name : frameset.getColumns()) {
                     if (schema.getMetric(name).getMaximumStringLength() > tableschema.findColumn(name).getLength()) {
-                        // if auto adjust, check the size of the string and issue an
-                        // "alter table" command to adjust the size of the column if the
-                        // string is too large to fit
+                        // if auto adjust, check the size of the string and issue an "alter table" command to adjust
+                        // the size of the column if the string is too large to fit
                         Log.debug("The " + database + " table '" + tableschema.getName() + "' must be altered to fit the '" + name + "' value; table allows a size of " + tableschema.findColumn(name).getLength() + " but data requires " + schema.getMetric(name).getMaximumStringLength());
-
                         PreparedStatement aps = null;
-                        final String alterSql = "ALTER TABLE " + getSchema() + "." + getTable() + " ALTER COLUMN " + name + " VARCHAR2(" + schema.getMetric(name).getMaximumStringLength() + ")";
+                        final String alterSql = DatabaseDialect.alterTextColumn(database, getSchema(), getTable(), name, schema.getMetric(name).getMaximumStringLength());
+                        Log.debug("SQL: " + alterSql);
                         try {
                             aps = connection.prepareStatement(alterSql);
                             aps.execute();

@@ -40,6 +40,8 @@ public class DatabaseDialect {
   public static final String DRIVER_MAJOR_SYM = "dvrMajorVersion";
   public static final String DRIVER_MINOR_SYM = "dvrMinorVersion";
   public static final String DB_SCHEMA_SYM = "schemaName";
+  public static final String COLUMN_NAME_SYM = "columnName";
+  public static final String COLUMN_TYPE_SYM = "columnType";
   public static final String DELETE = "delete";
   public static final String FIELD_DEF_SYM = "fielddefinitions";
   public static final String FIELD_MAP_SYM = "fieldmap";
@@ -96,7 +98,7 @@ public class DatabaseDialect {
     map.put(UPDATE, "UPDATE [#$" + DB_SCHEMA_SYM + "#].[#$" + TABLE_NAME_SYM + "#] SET [#$" + FIELD_MAP_SYM + "#] WHERE \"sysid\" = [#$" + SYS_ID_SYM + "#]");
     map.put(DELETE, "DELETE FROM [#$" + DB_SCHEMA_SYM + "#].[#$" + TABLE_NAME_SYM + "#] WHERE \"sysid\" = [#$" + SYS_ID_SYM + "#]");
     map.put(TRUNCATE, "TRUNCATE TABLE [#$" + DB_SCHEMA_SYM + "#].[#$" + TABLE_NAME_SYM + "#]");
-    map.put(ALTER_COLUMN, "ALTER TABLE [#$" + DB_SCHEMA_SYM + "#].[#$" + TABLE_NAME_SYM + "#] MODIFY [#$columnName#] [#$columnType#]");
+    map.put(ALTER_COLUMN, "ALTER TABLE [#$" + DB_SCHEMA_SYM + "#].[#$" + TABLE_NAME_SYM + "#] MODIFY [#$"+COLUMN_NAME_SYM+"#] [#$"+COLUMN_TYPE_SYM+"#]");
     map.put(UNIQUE, "IDENTITY");
     map.put(PRIMARY_KEY, "PRIMARY KEY");
     map.put(NULLABLE, "NULL");
@@ -119,7 +121,7 @@ public class DatabaseDialect {
     map.put("DBL", "NUMBER");
     map.put("DAT", "TIMESTAMP");
     map.put("FLT", "NUMBER");
-    map.put(DEFAULT, "VARCHAR2(#)");
+    map.put(DEFAULT, "VARCHAR2(# CHAR)");
     map = new HashMap<String, String>();
     SYNTAX.put(ORACLE, map);
     map.put(CREATE, "CREATE TABLE [#$" + DB_SCHEMA_SYM + "#].[#$" + TABLE_NAME_SYM + "#] ( [#$" + FIELD_DEF_SYM + "#] )");
@@ -128,7 +130,7 @@ public class DatabaseDialect {
     map.put(UPDATE, "UPDATE [#$" + DB_SCHEMA_SYM + "#].[#$" + TABLE_NAME_SYM + "#] SET [#$" + FIELD_MAP_SYM + "#] WHERE SYSID='[#$" + SYS_ID_SYM + "#]'");
     map.put(DELETE, "DELETE FROM [#$" + DB_SCHEMA_SYM + "#].[#$" + TABLE_NAME_SYM + "#] WHERE SYSID='[#$" + SYS_ID_SYM + "#]'");
     map.put(TRUNCATE, "TRUNCATE TABLE [#$" + DB_SCHEMA_SYM + "#].[#$" + TABLE_NAME_SYM + "#]");
-    map.put(ALTER_COLUMN, "ALTER TABLE [#$" + DB_SCHEMA_SYM + "#].[#$" + TABLE_NAME_SYM + "#] MODIFY [#$columnName#] [#$columnType#]");
+    map.put(ALTER_COLUMN, "ALTER TABLE [#$" + DB_SCHEMA_SYM + "#].[#$" + TABLE_NAME_SYM + "#] MODIFY [#$"+COLUMN_NAME_SYM+"#] [#$"+COLUMN_TYPE_SYM+"#]");
     map.put(UNIQUE, "IDENTITY");
     map.put(PRIMARY_KEY, "PRIMARY KEY");
     map.put(NULLABLE, "NULL");
@@ -160,7 +162,7 @@ public class DatabaseDialect {
     map.put(UPDATE, "UPDATE [#$" + DB_SCHEMA_SYM + "#].[#$" + TABLE_NAME_SYM + "#] SET [#$" + FIELD_MAP_SYM + "#] WHERE SYSID='[#$" + SYS_ID_SYM + "#]'");
     map.put(DELETE, "DELETE FROM [#$" + DB_SCHEMA_SYM + "#].[#$" + TABLE_NAME_SYM + "#] WHERE SYSID='[#$" + SYS_ID_SYM + "#]'");
     map.put(TRUNCATE, "TRUNCATE TABLE [#$" + DB_SCHEMA_SYM + "#].[#$" + TABLE_NAME_SYM + "#]");
-    map.put(ALTER_COLUMN, "ALTER TABLE [#$" + DB_SCHEMA_SYM + "#].[#$" + TABLE_NAME_SYM + "#] ALTER COLUMN [#$columnName#] [#$columnType#]");
+    map.put(ALTER_COLUMN, "ALTER TABLE [#$" + DB_SCHEMA_SYM + "#].[#$" + TABLE_NAME_SYM + "#] ALTER COLUMN [#$"+COLUMN_NAME_SYM+"#] [#$"+COLUMN_TYPE_SYM+"#]");
     map.put(UNIQUE, "IDENTITY");
     map.put(PRIMARY_KEY, "PRIMARY KEY");
     map.put(NULLABLE, "NULL");
@@ -192,7 +194,7 @@ public class DatabaseDialect {
     map.put(UPDATE, "UPDATE [#$" + DB_SCHEMA_SYM + "#].[#$" + TABLE_NAME_SYM + "#] SET [#$" + FIELD_MAP_SYM + "#] WHERE SYSID='[#$" + SYS_ID_SYM + "#]'");
     map.put(DELETE, "DELETE FROM [#$" + DB_SCHEMA_SYM + "#].[#$" + TABLE_NAME_SYM + "#] WHERE SYSID='[#$" + SYS_ID_SYM + "#]'");
     map.put(TRUNCATE, "TRUNCATE TABLE [#$" + DB_SCHEMA_SYM + "#].[#$" + TABLE_NAME_SYM + "#]");
-    map.put(ALTER_COLUMN, "ALTER TABLE [#$" + DB_SCHEMA_SYM + "#].[#$" + TABLE_NAME_SYM + "#] ALTER COLUMN [#$columnName#] [#$columnType#]");
+    map.put(ALTER_COLUMN, "ALTER TABLE [#$" + DB_SCHEMA_SYM + "#].[#$" + TABLE_NAME_SYM + "#] ALTER COLUMN [#$"+COLUMN_NAME_SYM+"#] [#$"+COLUMN_TYPE_SYM+"#]");
     map.put(UNIQUE, "IDENTITY");
     map.put(PRIMARY_KEY, "PRIMARY KEY");
     map.put(NULLABLE, "NULL");
@@ -522,6 +524,37 @@ public class DatabaseDialect {
     }
 
     return retval;
+  }
+
+
+  /**
+   * Get the SQL for the ALTER command for the named string column
+   *
+   * @param database The database dialect to use
+   * @param schemaName the name of the schema
+   * @param tableName the name of the table
+   * @param columnName the name of the column to alter
+   * @param stringLength the new length of the column
+   *
+   * @return the proper ALTER SQL for the given database technology.
+   */
+  public static String alterTextColumn(String database, String schemaName, String tableName, String columnName, long stringLength) {
+    final SymbolTable symbols = new SymbolTable();
+    symbols.put(DB_SCHEMA_SYM, schemaName);
+    symbols.put(TABLE_NAME_SYM, tableName);
+    symbols.put(COLUMN_NAME_SYM, columnName);
+
+    final Map<String, String> map = TYPES.get(database);
+    if (map != null) {
+      String columnType = map.get(DEFAULT);
+      if (StringUtil.isNotBlank(columnType)) {
+        columnType = columnType.replace("#", Long.toString(stringLength));
+        symbols.put(COLUMN_TYPE_SYM, columnType);
+      }
+    } else {
+      Log.error("There is no database dialect support for '" + database + "' database connections");
+    }
+    return getSQL(database, ALTER_COLUMN, symbols);
   }
 
 }
