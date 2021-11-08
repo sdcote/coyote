@@ -18,7 +18,7 @@ import coyote.loader.log.LogMsg.BundleBaseName;
  * multiple classes in the project. 
  */
 public class CDB {
-  public static final Version VERSION = new Version(0, 1, 1, Version.EXPERIMENTAL);
+  public static final Version VERSION = new Version(0, 1, 23, Version.DEVELOPMENT);
   public static final String NAME = "CDB";
 
   public static final BundleBaseName MSG;

@@ -134,6 +134,7 @@ public class TransformEngineFactory {
    * @return an engine ready to run the transformation
    */
   public static TransformEngine getInstance(DataFrame frame) {
+    if (Log.isLogging(Log.DEBUG_EVENTS)) Log.debug("Engine Factory " + CDX.VERSION + " creating engine instance.");
     TransformEngine retval = null;
 
     if (frame != null) {
@@ -220,6 +221,8 @@ public class TransformEngineFactory {
           } else {
             Log.error("Invalid logging configuration section");
           }
+        } else if (StringUtil.equalsIgnoreCase(ConfigTag.CLASS, field.getName())) {
+          // ignore the CLASS field...it is used by the Loader, but not by us.
         } else if (StringUtil.equalsIgnoreCase(ConfigTag.LISTENER, field.getName())) {
           if (field.isFrame()) {
             DataFrame cfgFrame = (DataFrame) field.getObjectValue();
