@@ -10,13 +10,16 @@ package coyote.dx;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
+import java.util.Iterator;
 
 import coyote.commons.FileUtil;
 import coyote.commons.StringUtil;
 import coyote.commons.UriUtil;
 import coyote.loader.AbstractLoader;
+import coyote.loader.component.ManagedComponent;
 import coyote.loader.log.Log;
 import coyote.loader.log.LogMsg;
+import coyote.loader.thread.ThreadJob;
 
 
 /**
@@ -193,6 +196,31 @@ public abstract class AbstractBatchLoader extends AbstractLoader {
         File workingDir = new File(cfgFile.getParent());
         if (workingDir.exists() && workingDir.isDirectory() && workingDir.canWrite()) {
           retval = workingDir.getAbsolutePath();
+        }
+      }
+    }
+    return retval;
+  }
+
+  /**
+   * @return the number of components currently loaded
+   */
+  public long getComponentCount(){
+    return components.size();
+  }
+
+
+  /**
+   * @return the number of jobs currently loaded
+   */
+  public long getJobCount(){
+    long retval = 0;
+    synchronized (components) {
+      for (final Iterator<Object> it = components.keySet().iterator(); it.hasNext(); ) {
+        final Object cmpnt = it.next();
+        if (cmpnt instanceof ScheduledBatchJob) {
+          // ScheduledBatchJob wraps Jobs
+          retval++;
         }
       }
     }

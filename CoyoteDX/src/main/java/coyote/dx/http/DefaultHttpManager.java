@@ -79,6 +79,8 @@ public class DefaultHttpManager extends HTTPDRouter implements HttpManager {
     addRoute("/api/cmd/:command", CommandResponder.class, service);
     addRoute("/api/ping/:id", PingResponder.class, service);
     addRoute("/api/health", HealthCheckResponder.class, service);
+
+    // Support for Prometheus monitoring
     addRoute("/metrics", OpenMetricsResponder.class, service);
   }
 
