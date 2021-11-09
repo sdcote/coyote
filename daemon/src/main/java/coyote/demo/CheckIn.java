@@ -43,9 +43,9 @@ import coyote.loader.log.Log;
  * 
  * <p>Consider running CoyoteDX on an embedded device which gets its address 
  * via DHCP. The address may change regularly and this component will publish 
- * its address and port to to a central server so it can be found.
+ * its address and port to a central server, so it can be found.
  * 
- * <p>This is how this component can be configure to run every 5 minutes:<pre>
+ * <p>This is how this component can be configured to run every 5 minutes:<pre>
  * {"Class":"coyote.demo.CheckIn","target":"https://coyote.systems/api/checkin","Schedule":{"Pattern":"/5 * * * *"}}</pre>
  */
 public class CheckIn extends AbstractScheduledComponent {

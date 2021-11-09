@@ -921,6 +921,7 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
         if (getContext().isNotInError()) {
             if (isAutoAdjust()) {
                 for (final String name : frameset.getColumns()) {
+                    // TODO: This should only work on test fields for now, then support other types with a correct size comparison.
                     if (schema.getMetric(name).getMaximumStringLength() > tableschema.findColumn(name).getLength()) {
                         // if auto adjust, check the size of the string and issue an "alter table" command to adjust
                         // the size of the column if the string is too large to fit
