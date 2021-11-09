@@ -72,6 +72,7 @@ fi
 
 # Build the class path dynamically from all the jars in the lib directory
 CLASSPATH=$(JARS=("$APP_HOME"/lib/*.jar); IFS=:; echo "${JARS[*]}")
+CLASSPATH=$APP_HOME/cfg:$CLASSPATH
 CLASSPATH=$APP_HOME/fix:$CLASSPATH
 
 # Determine the Java command to use to start the JVM.
