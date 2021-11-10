@@ -199,7 +199,7 @@
             <description>A collection of configuration files demonstrating how to use the web service toolkit. </description>
             <fileset dir="CoyoteWS\src\resources\demo" targetdir="$INSTALL_PATH/demo" override="true"/>
         </pack>
-        <pack name="CoyoteSLF4J" required="no" preselected="no">
+        <pack name="CoyoteSLF4J" required="no" preselected="yes">
             <description>SLF4J logger binding for the Coyote category logger.</description>
             <fileset dir="CoyoteSLF4J\build\install\CoyoteSLF4J\lib" targetdir="$INSTALL_PATH/lib" includes="CoyoteSLF4J*.jar" override="true"/>
             <fileset dir="CoyoteSLF4J\build\install\CoyoteSLF4J\lib" targetdir="$INSTALL_PATH/lib" includes="slf4j*.jar" override="true"/>
