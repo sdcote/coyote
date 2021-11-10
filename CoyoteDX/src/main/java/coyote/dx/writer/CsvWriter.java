@@ -193,7 +193,7 @@ public class CsvWriter extends AbstractFrameFileWriter implements FrameWriter, C
         try {
           final DataFrame fielddef = (DataFrame)field.getObjectValue();
 
-          // if the field definition is empty "{}" the it will be null
+          // if the field definition is empty "{}" then it will be null
           if (fielddef != null) {
 
             // determine if values should be trimmed for this field

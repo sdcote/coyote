@@ -128,7 +128,7 @@ public abstract class AbstractFrameFileWriter extends AbstractFrameWriter implem
               Log.warn(LogMsg.createMsg(CDX.MSG, "Writer.The target '{%s}' does not represent a file", target));
             }
           } else {
-            // if all we have is a filename, there is not scheme to check...
+            // if all we have is a filename, there is no scheme to check...
             // check that there is a scheme, if not then assume a filename!
             if (uri.getScheme() == null) {
               targetFile = new File(target);

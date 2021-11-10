@@ -960,9 +960,9 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
    * Determines the proper work directory for this job.
    * 
    * <p>This is normally the {@code wrk} directory under APP_HOME, but can be 
-   * located in the same directory as the configuration file particulary if 
-   * the file is located outside of the  {@code cfg} directory, also under 
-   * APP_HOME. 
+   * located in the same directory as the configuration file particularly if
+   * the file is located outside the {@code cfg} directory, also under
+   * APP_HOME.
    */
   private void determineWorkDirectory() {
     File workDir;

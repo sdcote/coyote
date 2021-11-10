@@ -24,7 +24,7 @@ public interface ContextListener extends ConfigurableComponent {
    * 
    * <p>The listener should use reflection (instanceof) to check if the 
    * context is a transaction or the transform. If the context is an instance 
-   * of TransformContext, the the engine is about to terminate.
+   * of TransformContext, the engine is about to terminate.
    * 
    * @param context the context which is ending
    */
@@ -122,7 +122,7 @@ public interface ContextListener extends ConfigurableComponent {
 
 
   /**
-   * Called just after a successfull mapping of the working frame to the 
+   * Called just after a successful mapping of the working frame to the
    * target frame.
    * 
    * <p>Note: this will not be called if the mapping failed for any reason.

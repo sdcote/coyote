@@ -75,7 +75,7 @@ public abstract class AbstractListener extends AbstractConfigurableComponent imp
    */
   @Override
   public void onError(OperationalContext context) {
-    // listeners should override this method to recieve error notifications
+    // listeners should override this method to receive error notifications
   }
 
 

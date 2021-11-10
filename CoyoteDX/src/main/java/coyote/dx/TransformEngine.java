@@ -170,7 +170,7 @@ public interface TransformEngine extends RunnableComponent {
 
   /**
    * The Job Directory is a location on the local file system in which we can 
-   * write and read files this this engine and its components can use.
+   * write and read files this engine and its components can use.
    * 
    * <p>This is a place where data can be persisted between multiple runs of 
    * the same job. The output of a job can be read in later. For example, the 
