@@ -29,7 +29,7 @@ public class Validation extends AbstractFileRecorder {
 
 
   /**
-   * @see coyote.dx.listener.ContextRecorder#setConfiguration(coyote.loader.cfg.Config)
+   * @see AbstractContextRecorder#setConfiguration(coyote.loader.cfg.Config)
    */
   @Override
   public void setConfiguration(Config cfg) throws ConfigurationException {

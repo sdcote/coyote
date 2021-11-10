@@ -31,7 +31,7 @@ import coyote.loader.log.LogMsg;
  * 
  * <p>Note: this is not logging, but a way to write strings to a file.</p>
  */
-public abstract class AbstractFileRecorder extends ContextRecorder {
+public abstract class AbstractFileRecorder extends AbstractContextRecorder {
 
   private static final String STDOUT = "stdout";
 

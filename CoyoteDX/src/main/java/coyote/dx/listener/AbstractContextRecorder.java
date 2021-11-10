@@ -20,7 +20,7 @@ import coyote.loader.log.LogMsg;
 /**
  * Base class for context listeners sending output to some target
  */
-public abstract class ContextRecorder extends AbstractListener implements ContextListener {
+public abstract class AbstractContextRecorder extends AbstractListener implements ContextListener {
 
   protected boolean onRead = false;
   protected boolean onWrite = false;
@@ -39,7 +39,7 @@ public abstract class ContextRecorder extends AbstractListener implements Contex
 
 
   /**
-   * Set the URI to where the write will write its data.
+   * Set the URI to where the writer will write its data.
    * 
    * @param value the URI to where the writer should write its data
    */
