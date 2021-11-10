@@ -67,10 +67,10 @@ public class RunJob extends AbstractListener implements ContextListener {
 
                 // copy the target frame fields to the context symbol table so templates will resolve the target fields
                 DataFrame target = getContext().getTransaction().getTargetFrame();
-                if(target != null){
-                    for(DataField field: target.getFields()){
-                        if( StringUtil.isNotBlank(field.getName())){
-                            getContext().getSymbols().put(field.getName(),field.getObjectValue());
+                if (target != null) {
+                    for (DataField field : target.getFields()) {
+                        if (StringUtil.isNotBlank(field.getName())) {
+                            getContext().getSymbols().put(field.getName(), field.getObjectValue());
                         }
                     }
                 } else {
@@ -88,7 +88,9 @@ public class RunJob extends AbstractListener implements ContextListener {
                     errMsg = errMsg.concat(ExceptionUtil.stackTrace(npe));
                     Log.error(errMsg);
                 } catch (final Throwable t) {
-                    Log.error("Processing exception running Job: " + t.getMessage());
+                    String errMsg = "Processing exception running Job: " + t.getMessage();
+                    errMsg = errMsg.concat(ExceptionUtil.stackTrace(t));
+                    Log.error(errMsg);
                 } finally {
                     try {
                         engine.close();
