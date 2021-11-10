@@ -36,6 +36,7 @@ public class CDX {
   public static final String DEFAULT_DATE_FORMAT = "yyyy-MM-dd";
   public static final String DEFAULT_TIME_FORMAT = "HH:mm:ss";
   public static final String DEFAULT_FRAMEPATH_NAME = "framePath";
+  public static final String JSON_EXT = ".json";
 
   public static final BundleBaseName MSG;
   static {

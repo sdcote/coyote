@@ -33,7 +33,7 @@ import coyote.loader.log.LogMsg;
 
 
 /**
- * This task runs a a data transfer job using the current context.
+ * This task runs a data transfer job using the current context.
  * 
  * <p>Using this task, it is possible to run several jobs as one, each with a 
  * set of conditions determining if it should run. This give allow for more 
@@ -50,7 +50,6 @@ import coyote.loader.log.LogMsg;
  * specified in the configuration file or the default values.
  */
 public class RunJob extends AbstractTransformTask implements TransformTask {
-  private static final String JSON_EXT = ".json";
 
 
 
@@ -130,7 +129,7 @@ public class RunJob extends AbstractTransformTask implements TransformTask {
       if (configDir.exists()) {
         if (configDir.isDirectory()) {
           final File cfgFile = new File(configDir, cfgLoc);
-          final File alternativeFile = new File(configDir, cfgLoc + JSON_EXT);
+          final File alternativeFile = new File(configDir, cfgLoc + CDX.JSON_EXT);
 
           if (cfgFile.exists()) {
             retval = FileUtil.getFileURI(cfgFile);
@@ -163,7 +162,7 @@ public class RunJob extends AbstractTransformTask implements TransformTask {
         if (wrkDir.exists()) {
           if (wrkDir.isDirectory()) {
             final File cfgFile = new File(wrkDir, cfgLoc);
-            final File alternativeFile = new File(wrkDir, cfgLoc + JSON_EXT);
+            final File alternativeFile = new File(wrkDir, cfgLoc + CDX.JSON_EXT);
 
             if (cfgFile.exists() && !cfgFile.isDirectory()) {
               retval = FileUtil.getFileURI(cfgFile);
@@ -197,7 +196,7 @@ public class RunJob extends AbstractTransformTask implements TransformTask {
   private URI checkCurrentDirectory(String cfgLoc, StringBuffer errMsg) throws TaskException {
     URI retval = null;
     File localfile = new File(cfgLoc);
-    File alternativeFile = new File(cfgLoc + JSON_EXT);
+    File alternativeFile = new File(cfgLoc + CDX.JSON_EXT);
 
     if (localfile.exists() && !localfile.isDirectory()) {
       retval = FileUtil.getFileURI(localfile);
