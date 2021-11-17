@@ -91,7 +91,7 @@ public class SetSymbol extends AbstractTransformTask implements TransformTask {
 
 
   /**
-   * @return
+   * @return the name of the symbol to set.
    */
   private Object getSymbolName() {
     String retval = null;

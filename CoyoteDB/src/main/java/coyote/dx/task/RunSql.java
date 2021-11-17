@@ -77,7 +77,7 @@ public class RunSql extends AbstractTransformTask implements TransformTask {
   /**
    * Close the given statement and consume any thrown exceptions.
    *
-   * @param statement the resource to close.
+   * @param reader the resource to close.
    */
   private void closeQuietly(final Reader reader) {
     if (reader != null) {

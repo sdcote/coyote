@@ -130,7 +130,7 @@ public abstract class AbstractTransformTask extends AbstractConfigurableComponen
 
   /**
    * Subclasses should probably override {@link #performTask()} instead of 
-   * this method so as to enable this class to handle conditional checks.
+   * this method enabling this class to handle conditional checks.
    * 
    * @see coyote.dx.TransformTask#execute()
    */
