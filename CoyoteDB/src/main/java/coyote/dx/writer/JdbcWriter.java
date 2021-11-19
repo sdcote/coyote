@@ -125,7 +125,7 @@ public class JdbcWriter extends AbstractFrameWriter implements FrameWriter, Conf
         Connection conn = getConnection();
 
         if (DatabaseDialect.ORACLE.equalsIgnoreCase(database)) {
-            Log.debug(LogMsg.createMsg(CDX.MSG, "Database.skipping_oracle_schema_check"));
+            Log.debug(LogMsg.createMsg(CDB.MSG, "Database.skipping_oracle_schema_check"));
         } else {
             Log.debug(LogMsg.createMsg(CDX.MSG, "Database.looking_for_schema", getSchema()));
             if (!DatabaseUtil.schemaExists(getSchema(), conn)) {
