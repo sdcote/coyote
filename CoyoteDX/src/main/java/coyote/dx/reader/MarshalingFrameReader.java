@@ -126,19 +126,20 @@ public abstract class MarshalingFrameReader extends AbstractFrameReader implemen
           }
         }
       } else {
-        Log.debug("Source could not be parsed into a URI, assuming a filename");
         sourceFile = new File(source);
+        Log.debug("Source could not be parsed into a URI, assuming a filename: "+ sourceFile.getPath());
       }
       if (sourceFile != null) {
-        Log.debug("Using a source file of " + sourceFile.getAbsolutePath());
+        Log.debug("Using a source file of " + sourceFile.getPath());
       } else {
         Log.error("Using a source file of NULL_REF");
       }
       // if not absolute, use the CDX fixture to attempt to resolve the relative file
       if (!sourceFile.isAbsolute()) {
+        Log.debug("Source file " + sourceFile.getPath()+" is not absolute, resolving...");
         sourceFile = CDX.resolveFile(sourceFile, getContext());
       }
-      Log.debug("Using an absolute source file of " + sourceFile.getAbsolutePath());
+      Log.debug("Using an absolute source file of " + sourceFile.getPath()+" - ("+sourceFile.getAbsolutePath()+")");
 
       // Basic checks
       if (sourceFile.exists() && sourceFile.canRead()) {

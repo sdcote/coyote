@@ -57,13 +57,17 @@ public class RunJob extends AbstractListener implements ContextListener {
                 final Config engineConfig = jobConfig.getSection(ConfigTag.JOB);
                 final TransformEngine engine = TransformEngineFactory.getInstance(engineConfig.toString());
 
-                // If there was no name in the jobConfig or our (RunJob) config, set the name to the basename of the config file
+                // If there was no name in the jobConfig, set the name to the basename of the config file
                 if (StringUtil.isBlank(engine.getName())) {
                     engine.setName(FileUtil.getBase(cfgUri.toString()));
+                    Log.debug("Unnamed job named after its configuration base name: \"" + engine.getName()+"\" from "+cfgUri.toString());
                 }
 
                 // Set the engine's work directory to this listeners job directory parent...they are peers not children
                 engine.setWorkDirectory(getJobDirectory().getParentFile());
+                Log.debug("Set the working directory of the job as a peer to this job: "+engine.getWorkDirectory().getAbsolutePath());
+                Log.debug("Our job directory: "+getJobDirectory().getAbsolutePath());
+                Log.debug("Our job directory parent: "+getJobDirectory().getParentFile().getAbsolutePath());
 
                 // copy the target frame fields to the context symbol table so templates will resolve the target fields
                 DataFrame target = getContext().getTransaction().getTargetFrame();
