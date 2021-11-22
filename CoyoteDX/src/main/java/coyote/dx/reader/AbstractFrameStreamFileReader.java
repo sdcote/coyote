@@ -29,8 +29,13 @@ import java.util.Scanner;
  *
  */
 public abstract class AbstractFrameStreamFileReader extends AbstractFrameReader implements FrameReader, ConfigurableComponent {
-protected Reader reader = null;
+protected BufferedReader reader = null;
 
+
+    /**
+     *
+     * @param context The transformation context in which this component should be opened.
+     */
     @Override
     public void open(TransformContext context) {
         super.open(context);
@@ -68,7 +73,6 @@ protected Reader reader = null;
             }
 
             if (sourceFile.exists() && sourceFile.canRead()) {
-
                 try {
                     reader = new BufferedReader(new InputStreamReader(new FileInputStream(sourceFile), "UTF8"));
                 } catch (UnsupportedEncodingException e) {
@@ -87,45 +91,6 @@ protected Reader reader = null;
             context.setError(msg);
         }
 
-        // Now setup our field definitions
-        DataFrame fieldcfg = getFrame(ConfigTag.FIELDS);
-        if (fieldcfg != null) {
-
-            // flag to trim values
-            boolean trim = true;
-
-            List<FieldDefinition> fields = new ArrayList<FieldDefinition>();
-
-            for (DataField field : fieldcfg.getFields()) {
-                try {
-                    DataFrame fielddef = (DataFrame) field.getObjectValue();
-
-                    // determine if values should be trimmed = defaults to true
-                    trim = true;
-                    if (fielddef.containsIgnoreCase(ConfigTag.TRIM)) {
-                        try {
-                            trim = fielddef.getAsBoolean(ConfigTag.TRIM);
-                        } catch (Exception e) {
-                            trim = true;
-                        }
-                    }
-
-                    fields.add(new FieldDefinition(field.getName(), fielddef.getAsInt(ConfigTag.START), fielddef.getAsInt(ConfigTag.LENGTH), fielddef.getAsString(ConfigTag.TYPE), fielddef.getAsString(ConfigTag.FORMAT), trim));
-                } catch (Exception e) {
-                    context.setError("Problems loading field definition '" + field.getName() + "' - " + e.getClass().getSimpleName() + " : " + e.getMessage());
-                    return;
-                }
-            }
-            Log.debug(LogMsg.createMsg(CDX.MSG, "Reader.configured_field_definitions", fields.size()));
-        } else {
-            DataFrame selectorcfg = getFrame(ConfigTag.LINEMAP);
-            if (selectorcfg != null) {
-                Log.debug(LogMsg.createMsg(CDX.MSG, "Reader.line_map_configured"));
-            } else {
-                context.setError("There are no fields or line map configured in the reader");
-                return;
-            }
-        }
     }
 
 
@@ -148,17 +113,30 @@ protected Reader reader = null;
     }
 
 
-    protected void thing(){
-        Scanner scan = null;
-        try {
-            scan = new Scanner(new File("filename.txt"));
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
 
-        while(scan.hasNextLine()){
-            String line = scan.nextLine();
 
-        }
+
+
+
+    /**
+     * @return the URI representing the source from which data is to be read
+     */
+    public String getSource() {
+        return configuration.getAsString(ConfigTag.SOURCE);
     }
+
+
+
+
+    /**
+     * Set the URI representing the source from which data is to be read.
+     *
+     * @param value The URI from which data is to be read.
+     */
+    public void setSource(String value) {
+        configuration.put(ConfigTag.SOURCE, value);
+    }
+
+
+
 }

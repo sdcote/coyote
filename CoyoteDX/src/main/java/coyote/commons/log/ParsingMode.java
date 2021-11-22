@@ -42,8 +42,8 @@ public enum ParsingMode {
      * @param name name of the mode to return
      * @return the parsing mode with the given mane or null if not found.
      */
-    public static ParsingMode getColumnTypeByName(final String name) {
-        ParsingMode retval = null;
+    public static ParsingMode getModeByName(final String name) {
+        ParsingMode retval = FREE_FORM;
         if (name != null) {
             for (final ParsingMode type : ParsingMode.values()) {
                 if (StringUtil.equalsIgnoreCase(name, type.toString())) {
