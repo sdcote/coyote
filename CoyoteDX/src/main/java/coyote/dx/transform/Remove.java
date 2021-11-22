@@ -33,7 +33,6 @@ public class Remove extends AbstractFieldTransform implements FrameTransform {
   public DataFrame process(final DataFrame frame) throws TransformException {
     // If there is a conditional expression
     if (getCondition() != null) {
-
       try {
         // if the condition evaluates to true
         if (evaluator.evaluateBoolean(getCondition())) {
@@ -46,6 +45,10 @@ public class Remove extends AbstractFieldTransform implements FrameTransform {
         }
       } catch (final IllegalArgumentException e) {
         Log.warn(LogMsg.createMsg(CDX.MSG, "Transform.remove_boolean_evaluation_error", e.getMessage()));
+      }
+    } else{
+      if (frame != null) {
+        frame.remove(getFieldName());
       }
     }
     return frame;
