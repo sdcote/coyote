@@ -93,6 +93,8 @@ public class ConfigTag {
   public static final String FLATTEN = "flatten";
   public static final String PROVIDER = "provider";
   public static final String METHOD = "method";
+  public static final String TIMESTAMP = "timestamp";
+  public static final String TRACK = "track";
 
   // Networking proxy tags used by several components
 
@@ -127,6 +129,7 @@ public class ConfigTag {
   public static final String CATEGORY = "category";
   public static final String ENABLED = "enabled";
   public static final String VAULT = "vault";
+
   // Tasks
 
   public static final String TODIR = "todir";
