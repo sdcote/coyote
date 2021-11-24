@@ -155,7 +155,7 @@ public class TextTable {
     // Append the headers of the table.
     appendRow(output, headers, true);
 
-    // Check if the data is empty, in which case, we will only write the empty message into the table contents.
+    // If the data is empty, we will only write the empty message into the table contents.
     if (data.length == 0) {
       // Horizontal divider below the headers
       appendHorizontalDivider(output, tableFormat.getLeftEdgeBorderDivider(true),
