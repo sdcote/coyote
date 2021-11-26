@@ -11,6 +11,7 @@ import java.util.regex.Pattern;
 
 public class EventTracker {
   private final Map<Integer, Long> eventCountsByHour = new HashMap<>();
+  private final Map<Integer, Long> eventCountsByDayOfMonth = new HashMap<>();
   private final Map<String, Long> stringOccurrences = new HashMap<>();
   private final List<Pattern> includePatterns = new ArrayList<>();
   private final List<Pattern> excludePatterns = new ArrayList<>();
@@ -26,6 +27,7 @@ public class EventTracker {
   public EventTracker(String name) {
     this.name = name;
     for (int i = 0; i < 24; eventCountsByHour.put(i++, 0L)) ;
+    for (int i = 0; i < 31; eventCountsByDayOfMonth.put(i++, 0L)) ;
   }
 
 
@@ -119,6 +121,10 @@ public class EventTracker {
       int hour = datetime.getHour();
       long count = eventCountsByHour.get(hour);
       eventCountsByHour.put(hour, ++count);
+
+      int dom = datetime.getDayOfMonth();
+      count = eventCountsByDayOfMonth.get(dom);
+      eventCountsByDayOfMonth.put(dom, ++count);
     }
   }
 
@@ -131,6 +137,9 @@ public class EventTracker {
   @Override
   public String toString() {
     StringBuffer b = new StringBuffer();
+    b.append("Total Events by Day Of Month:\n");
+    plotEventsByDayOfMonth(b);
+    b.append("\n");
     b.append("Total Events by Hour:\n");
     plotEventsByHour(b);
     if (occurrenceLimit > 0) {
@@ -139,6 +148,17 @@ public class EventTracker {
       showOccurrences(b, occurrenceLimit);
     }
     return b.toString();
+  }
+
+
+  private void plotEventsByDayOfMonth(StringBuffer buffer) {
+    double[] series = new double[31];
+    String[] labels = new String[31];
+    for (int i = 0; i < 31; i++) {
+      series[i] = (double) eventCountsByDayOfMonth.get(i);
+      labels[i] = String.format("%02d", i+1);
+    }
+    buffer.append(TextGraph.fromSeries(series).withNumRows(20).withLabels(labels).plot());
   }
 
 
