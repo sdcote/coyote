@@ -138,8 +138,6 @@ public class EventProfiler extends AbstractFileRecorder implements ContextListen
       Log.error(e.getMessage());
     }
 
-
-    // if (frame != null) {      write(JSONMarshaler.toFormattedString(frame) + "\n");    } // !null
   }
 
 

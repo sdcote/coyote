@@ -12,6 +12,8 @@ import java.util.regex.Pattern;
 public class EventTracker {
   private final Map<Integer, Long> eventCountsByHour = new HashMap<>();
   private final Map<Integer, Long> eventCountsByDayOfMonth = new HashMap<>();
+  private final Map<Integer, Long> filteredCountsByHour = new HashMap<>();
+  private final Map<Integer, Long> filteredCountsByDayOfMonth = new HashMap<>();
   private final Map<String, Long> stringOccurrences = new HashMap<>();
   private final List<Pattern> includePatterns = new ArrayList<>();
   private final List<Pattern> excludePatterns = new ArrayList<>();
@@ -28,6 +30,8 @@ public class EventTracker {
     this.name = name;
     for (int i = 0; i < 24; eventCountsByHour.put(i++, 0L)) ;
     for (int i = 0; i < 31; eventCountsByDayOfMonth.put(i++, 0L)) ;
+    for (int i = 0; i < 24; filteredCountsByHour.put(i++, 0L)) ;
+    for (int i = 0; i < 31; filteredCountsByDayOfMonth.put(i++, 0L)) ;
   }
 
 
@@ -48,8 +52,8 @@ public class EventTracker {
    * @param value the string value to sample
    */
   public void sample(Date date, String value) {
-    sampleDate(date);
-    if (occurrenceLimit > 0) sampleOccurrence(value);
+    sampleDate(date, eventCountsByHour, eventCountsByDayOfMonth);
+    if (occurrenceLimit > 0) sampleOccurrence(date, value);
   }
 
 
@@ -58,9 +62,11 @@ public class EventTracker {
    *
    * @param value the value to sample
    */
-  private void sampleOccurrence(String value) {
+  private void sampleOccurrence(Date date, String value) {
     String text = filterValue(value);
     if (text != null) {
+      sampleDate(date, filteredCountsByHour, filteredCountsByDayOfMonth);
+
       if (stringOccurrences.containsKey(text)) {
         long count = stringOccurrences.get(text);
         count++;
@@ -104,8 +110,6 @@ public class EventTracker {
       }
       if (exclude) retval = null;
     }
-
-
     return retval;
   }
 
@@ -113,18 +117,20 @@ public class EventTracker {
   /**
    * Add the date to the tracked data.
    *
-   * @param date the date to sample
+   * @param date    the date to sample
+   * @param dayMap  the map of values to record the hour of day for the occurrence
+   * @param hourMap the map of values to record the day or month for the occurrence
    */
-  private void sampleDate(Date date) {
+  private void sampleDate(Date date, Map<Integer, Long> hourMap, Map<Integer, Long> dayMap) {
     if (date != null) {
       LocalDateTime datetime = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
       int hour = datetime.getHour();
-      long count = eventCountsByHour.get(hour);
-      eventCountsByHour.put(hour, ++count);
+      long count = hourMap.get(hour);
+      hourMap.put(hour, ++count);
 
       int dom = datetime.getDayOfMonth();
-      count = eventCountsByDayOfMonth.get(dom);
-      eventCountsByDayOfMonth.put(dom, ++count);
+      count = dayMap.get(dom);
+      dayMap.put(dom, ++count);
     }
   }
 
@@ -144,26 +150,53 @@ public class EventTracker {
     plotEventsByHour(b);
     if (occurrenceLimit > 0) {
       b.append("\n");
-      b.append("Top "+occurrenceLimit+" Unique Values Ranked by Occurrence:\n");
+      b.append("Filtered Events by Day Of Month:\n");
+      plotFilteredByDayOfMonth(b);
+      b.append("\n");
+      b.append("Filtered Events by Hour:\n");
+      plotFilteredByHour(b);
+      b.append("\n");
+      b.append("Top " + occurrenceLimit + " Unique Values Ranked by Occurrence:\n");
       showOccurrences(b, occurrenceLimit);
     }
     return b.toString();
   }
 
 
+  /**
+   * Show the number of events by each day of the month.
+   *
+   * @param buffer the buffer to fill
+   */
   private void plotEventsByDayOfMonth(StringBuffer buffer) {
     double[] series = new double[31];
     String[] labels = new String[31];
     for (int i = 0; i < 31; i++) {
       series[i] = (double) eventCountsByDayOfMonth.get(i);
-      labels[i] = String.format("%02d", i+1);
+      labels[i] = String.format("%02d", i + 1);
     }
     buffer.append(TextGraph.fromSeries(series).withNumRows(20).withLabels(labels).plot());
   }
 
 
   /**
-   * Shows the number of occurrences of each value sorted by number of occurrences, decending.
+   * Show the number of filtered events by each day of the month.
+   *
+   * @param buffer the buffer to fill
+   */
+  private void plotFilteredByDayOfMonth(StringBuffer buffer) {
+    double[] series = new double[31];
+    String[] labels = new String[31];
+    for (int i = 0; i < 31; i++) {
+      series[i] = (double) filteredCountsByDayOfMonth.get(i);
+      labels[i] = String.format("%02d", i + 1);
+    }
+    buffer.append(TextGraph.fromSeries(series).withNumRows(20).withLabels(labels).plot());
+  }
+
+
+  /**
+   * Shows the number of occurrences of each value sorted by number of occurrences, descending.
    *
    * @param buffer the buffer to fill
    * @param limit  the maximum number of rows to show
@@ -206,6 +239,22 @@ public class EventTracker {
     String[] labels = new String[24];
     for (int i = 0; i < 24; i++) {
       series[i] = (double) eventCountsByHour.get(i);
+      labels[i] = String.format("%02d", i);
+    }
+    buffer.append(TextGraph.fromSeries(series).withNumRows(20).withLabels(labels).plot());
+  }
+
+
+  /**
+   * Show the number of filtered events by each hour.
+   *
+   * @param buffer the buffer to fill
+   */
+  private void plotFilteredByHour(StringBuffer buffer) {
+    double[] series = new double[24];
+    String[] labels = new String[24];
+    for (int i = 0; i < 24; i++) {
+      series[i] = (double) filteredCountsByHour.get(i);
       labels[i] = String.format("%02d", i);
     }
     buffer.append(TextGraph.fromSeries(series).withNumRows(20).withLabels(labels).plot());
