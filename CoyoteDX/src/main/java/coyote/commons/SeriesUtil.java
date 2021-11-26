@@ -25,5 +25,20 @@ public class SeriesUtil {
     return retval;
   }
 
+
+  /**
+   * Determine the maximum length of the strings in the given array.
+   *
+   * @param series the series of strings to check
+   * @return the length of the longest string in the series.
+   */
+  public static int getMaxLength(String[] series) {
+    int retval = 0;
+    for (int row = 0; row < series.length; row++) {
+      if (series[row].length() > retval) retval = series[row].length();
+    }
+    return retval;
+  }
+
 }
 

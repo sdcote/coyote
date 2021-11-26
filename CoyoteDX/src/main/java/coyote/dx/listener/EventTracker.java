@@ -133,11 +133,16 @@ public class EventTracker {
    * @param buffer the buffer to fill
    */
   private void plotEventsByHour(StringBuffer buffer) {
-    final double[] series = new double[24];
-    for (int i = 0; i < 24; series[i] = (double) eventCountsByHour.get(i++)) ;
-    buffer.append(TextGraph.fromSeries(series).withNumRows(20).plot());
-    buffer.append("\n");
+    double[] series = new double[24];
+    String[] labels = new String[24];
+    for (int i = 0; i < 24; i++){
+      series[i] = (double) eventCountsByHour.get(i);
+      labels[i]= String.format("%02d", i);
+    }
+    buffer.append(TextGraph.fromSeries(series).withNumRows(20).withLabels(labels).plot());
   }
+
+
 
 
 }

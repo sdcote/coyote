@@ -1,11 +1,11 @@
 package coyote.commons.text.graph;
 
 import coyote.commons.SeriesUtil;
+import coyote.commons.StringUtil;
 
 import java.text.DecimalFormat;
 
 /**
- *
  * Inspiration: https://github.com/kroitor/asciichart
  */
 public class TextGraph {
@@ -17,11 +17,17 @@ public class TextGraph {
   private static final char RIGHT_UP = (char) 9583; // '╯'
   private static final char DOWN_RIGHT = (char) 9584; // '╰'
   private static final char UP_RIGHT = (char) 9581; // '╭';
+  private static final int CENTER = 1;
 
   /**
    * The data series, with index being the x-axis and value being the y-axis.
    */
-  private final double[] series;
+  private double[] series;
+
+  /**
+   * The labels for the y-axis.
+   */
+  private String[] labels = null;
 
   /**
    * The minimum value in the series.
@@ -61,10 +67,10 @@ public class TextGraph {
   /**
    * The index at which the axis starts.
    */
-  private int axisIndex;
+  private int axisColumnIndex;
 
   /**
-   * Ths index at which the line starts.
+   * This is the index at which the line starts.
    */
   private int lineIndex;
 
@@ -94,19 +100,34 @@ public class TextGraph {
    * Calculates the instance fields used for plotting.
    */
   private void calculateFields() {
+
+    // If we are using labels, then shrink the graph araa
+    if (this.isUsingLabels() && numRows > 2) numRows -= 2;
+
     // Get minimum and maximum from series.
     double[] minMax = SeriesUtil.getMinAndMaxValues(this.series);
     this.min = minMax[0];
     this.max = minMax[1];
     this.range = max - min;
 
-    axisIndex = tickWidth + 1;
-    lineIndex = axisIndex + 1;
+    axisColumnIndex = tickWidth + 1;
+    lineIndex = axisColumnIndex + 1;
 
     // Since the graph is made of ASCII characters, it needs whole-number counts of rows and columns.
     this.numRows = numRows == 0 ? (int) Math.round(max - min) + 1 : numRows;
+
     // For columns, add the width of the tick marks, the width of the axis, and the length of the series.
-    this.numCols = tickWidth + (axisIndex - tickWidth) + series.length;
+    this.numCols = tickWidth + (axisColumnIndex - tickWidth) + series.length;
+  }
+
+
+  /**
+   * Check to see if there is any data to be used as labels.
+   *
+   * @return true if there are labels, false if no labels are to be placed on the graph.
+   */
+  private boolean isUsingLabels() {
+    return labels != null && labels.length > 0;
   }
 
 
@@ -156,6 +177,10 @@ public class TextGraph {
    * @return The string representation of the graph, using new lines.
    */
   public String plot() {
+    // Possibly stutter the data to make room for the labels
+    validateSeries();
+
+    // Determine the size of the graph area and key points on the "canvas"
     calculateFields();
 
     // The graph is initially stored in a 2D array, later turned into Strings.
@@ -171,11 +196,42 @@ public class TextGraph {
     // Draw the ticks and graph.
     drawTicksAndAxis(graph);
 
+    // Place the labels on the graph if defined
+    placeLabels(graph);
+
     // Draw the line.
     drawLine(graph);
 
     // Convert the 2D char array graph to a String using newlines.
     return convertGraphToString(graph);
+  }
+
+
+  /**
+   * We have to adjust the data series if we are using labels.
+   *
+   * <p>We must grow the size of the data set so it plots appropriately to fit the labels that will be placed
+   * underneath the main chart.</p>
+   */
+  private void validateSeries() {
+    if (this.isUsingLabels()) {
+     int length = SeriesUtil.getMaxLength(labels);
+      if (length > 1) {
+        series = stutterDataPoints(series, length+1);
+      }
+    }
+  }
+
+
+  /**
+   * Place the labels on the graph
+   *
+   * @param graph The 2D array of characters acting as our canvas
+   */
+  private void placeLabels(char[][] graph) {
+    if (this.isUsingLabels()) {
+      // the last row is where we place our labels
+    }
   }
 
 
@@ -197,7 +253,7 @@ public class TextGraph {
       System.arraycopy(tick, 0, graph[row], 0, tick.length);
 
       // Insert Axis line. '┼' is used at the origin.
-      graph[row][axisIndex] = (y == 0) ? CROSS : LEFT_INTERSECT;
+      graph[row][axisColumnIndex] = (y == 0) ? CROSS : LEFT_INTERSECT;
     }
   }
 
@@ -211,7 +267,7 @@ public class TextGraph {
     // The row closest to y when x = 0.
     int initialRow = determineRowAtYValue(series[0]);
     // Modify the axis to show the start.
-    graph[initialRow][axisIndex] = CROSS;
+    graph[initialRow][axisColumnIndex] = CROSS;
 
     for (int x = 0; x < series.length - 1; x++) {
       // The start and end locations of the line.
@@ -302,7 +358,74 @@ public class TextGraph {
       retval.append(row).append('\n');
     }
 
+    if (this.isUsingLabels()) appendLabels(retval);
+
     return retval.toString();
+  }
+
+
+  /**
+   * Append labels across the y-axis.
+   *
+   * @param builder The StringBuilder to which we append the axis
+   */
+  private void appendLabels(StringBuilder builder) {
+    builder.append(createString(' ',tickWidth+2));
+    int width = SeriesUtil.getMaxLength(labels)+1;
+    for(int x=0;x< labels.length;x++){
+      builder.append( StringUtil.fixedLength(labels[x], width, CENTER, ' '));
+    }
+    builder.append('\n');
+  }
+
+
+  /**
+   * Create a string of repeating characters the given length in size.
+   *
+   * @param c the character to use
+   * @param size the number of characters to be placed in the string
+   * @return the string of the given size
+   */
+  private String createString(char c, int size) {
+    StringBuffer retval = new StringBuffer();
+    for(int x=0;x<size;x++){
+      retval.append(c);
+    }
+    return retval.toString();
+  }
+
+
+  /**
+   * Instruct the TextGraph to use the given labels.
+   *
+   * <p>This will result in the expansion for the data set by the factor of the longest string in the array. It is
+   * therefore recommended to keep the labels short as possible.</p>
+   *
+   * @param labels the labels for the y-axis.
+   * @return This instance.
+   */
+  public TextGraph withLabels(String[] labels) {
+    this.labels = labels;
+    return this;
+  }
+
+
+  /**
+   * Make copies of data points in the given array to spread each point across the x-axis.
+   *
+   * @param series the series of data to replicate
+   * @param factor the factor to increase the size of the data
+   * @return a new array with replicated data.
+   */
+  private double[] stutterDataPoints(double[] series, int factor) {
+    final double[] retval = new double[series.length * factor];
+    int index = 0;
+    for (int x = 0; x < series.length; x++) {
+      for (int y = 0; y < factor; y++) {
+        retval[index++] = series[x];
+      }
+    }
+    return retval;
   }
 
 }
