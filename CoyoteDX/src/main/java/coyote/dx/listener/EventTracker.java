@@ -1,20 +1,25 @@
 package coyote.dx.listener;
 
+import coyote.commons.StringUtil;
 import coyote.commons.text.graph.TextGraph;
 import coyote.commons.text.table.TextTable;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.*;
+import java.util.regex.Pattern;
 
 public class EventTracker {
   private final Map<Integer, Long> eventCountsByHour = new HashMap<>();
   private final Map<String, Long> stringOccurrences = new HashMap<>();
+  private final List<Pattern> includePatterns = new ArrayList<>();
+  private final List<Pattern> excludePatterns = new ArrayList<>();
   private String name = null;
+  private int occurrenceLimit = 0;
 
 
   /**
-   * Constrict an EventTracker with the given name.
+   * Construct an EventTracker with the given name.
    *
    * @param name The name of this tracker
    */
@@ -42,7 +47,7 @@ public class EventTracker {
    */
   public void sample(Date date, String value) {
     sampleDate(date);
-    sampleOccurrence(value);
+    if (occurrenceLimit > 0) sampleOccurrence(value);
   }
 
 
@@ -52,13 +57,54 @@ public class EventTracker {
    * @param value the value to sample
    */
   private void sampleOccurrence(String value) {
-    if (stringOccurrences.containsKey(value)) {
-      long count = stringOccurrences.get(value);
-      count++;
-      stringOccurrences.put(value, count);
-    } else {
-      stringOccurrences.put(value, 1L);
+    String text = filterValue(value);
+    if (text != null) {
+      if (stringOccurrences.containsKey(text)) {
+        long count = stringOccurrences.get(text);
+        count++;
+        stringOccurrences.put(text, count);
+      } else {
+        stringOccurrences.put(text, 1L);
+      }
     }
+  }
+
+
+  /**
+   * Filter out unwanted values based on the set of include and exclude regex patterns.
+   *
+   * @param value the value to be sampled
+   * @return the value if it passed the filter, or null if it was filtered out.
+   */
+  private String filterValue(String value) {
+    String retval = null;
+
+    if (includePatterns.size() > 0) {
+      for (Pattern pattern : includePatterns) {
+        if (pattern.matcher(value).find()) {
+          retval = value;
+          break;
+        }
+      }
+    } else {
+      retval = value;
+    }
+
+    if (retval != null) {
+      boolean exclude = false;
+      if (excludePatterns.size() > 0) {
+        for (Pattern pattern : excludePatterns) {
+          if (pattern.matcher(retval).find()) {
+            exclude = true;
+            break;
+          }
+        }
+      }
+      if (exclude) retval = null;
+    }
+
+
+    return retval;
   }
 
 
@@ -85,8 +131,13 @@ public class EventTracker {
   @Override
   public String toString() {
     StringBuffer b = new StringBuffer();
+    b.append("Total Events by Hour:\n");
     plotEventsByHour(b);
-    showOccurrences(b, 25);
+    if (occurrenceLimit > 0) {
+      b.append("\n");
+      b.append("Top "+occurrenceLimit+" Unique Values Ranked by Occurrence:\n");
+      showOccurrences(b, occurrenceLimit);
+    }
     return b.toString();
   }
 
@@ -120,10 +171,8 @@ public class EventTracker {
       data[recordCount][1] = me.getKey().toString();
       recordCount++;
     }
-
     buffer.append(TextTable.fromData(headers, data));
     buffer.append("\n");
-
   }
 
 
@@ -135,14 +184,41 @@ public class EventTracker {
   private void plotEventsByHour(StringBuffer buffer) {
     double[] series = new double[24];
     String[] labels = new String[24];
-    for (int i = 0; i < 24; i++){
+    for (int i = 0; i < 24; i++) {
       series[i] = (double) eventCountsByHour.get(i);
-      labels[i]= String.format("%02d", i);
+      labels[i] = String.format("%02d", i);
     }
     buffer.append(TextGraph.fromSeries(series).withNumRows(20).withLabels(labels).plot());
   }
 
 
+  /**
+   * Set the limit of occurrence tracking.
+   *
+   * @param limit the number of unique occurrences to report. 0 (default) means do not track or report.
+   */
+  public void setLimit(int limit) {
+    this.occurrenceLimit = limit;
+  }
 
+
+  /**
+   * Add the given regular expression to the list of patterns used to control what values are tracked.
+   *
+   * @param regexPattern A java regular expression
+   */
+  public void addIncludePattern(String regexPattern) {
+    if (StringUtil.isNotEmpty(regexPattern)) includePatterns.add(Pattern.compile(regexPattern));
+  }
+
+
+  /**
+   * Add the given regular expression to the list of patterns used to exclude values to be tracked.
+   *
+   * @param regexPattern A java regular expression
+   */
+  public void addExcludePattern(String regexPattern) {
+    if (StringUtil.isNotEmpty(regexPattern)) excludePatterns.add(Pattern.compile(regexPattern));
+  }
 
 }

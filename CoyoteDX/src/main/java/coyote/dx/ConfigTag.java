@@ -95,6 +95,8 @@ public class ConfigTag {
   public static final String METHOD = "method";
   public static final String TIMESTAMP = "timestamp";
   public static final String TRACK = "track";
+  public static final String INCLUDE = "include";
+  public static final String EXCLUDE = "exclude";
 
   // Networking proxy tags used by several components
 

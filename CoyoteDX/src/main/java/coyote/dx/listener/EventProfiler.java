@@ -11,9 +11,7 @@ import coyote.commons.StringUtil;
 import coyote.dataframe.DataField;
 import coyote.dataframe.DataFrame;
 import coyote.dataframe.DataFrameException;
-import coyote.dataframe.marshal.JSONMarshaler;
 import coyote.dx.ConfigTag;
-import coyote.dx.FrameReader;
 import coyote.dx.context.ContextListener;
 import coyote.dx.context.OperationalContext;
 import coyote.dx.context.TransactionContext;
@@ -41,6 +39,7 @@ import java.util.Date;
  * Target will support "stdout" and 'stderr' as valid location. The result will be the reports will be sent to the console.
  */
 public class EventProfiler extends AbstractFileRecorder implements ContextListener {
+  private static final int DEFAULT_LIMIT = 25;
 
   private String timestampFieldName = null;
   private String trackedFieldName = null;
@@ -63,6 +62,10 @@ public class EventProfiler extends AbstractFileRecorder implements ContextListen
       throw new ConfigurationException("Null, empty or blank argument for " + ConfigTag.TRACK + " configuration parameter");
     }
 
+    if (!cfg.contains(ConfigTag.LIMIT)) {
+      cfg.set(ConfigTag.LIMIT, DEFAULT_LIMIT);
+    }
+
   }
 
 
@@ -73,6 +76,23 @@ public class EventProfiler extends AbstractFileRecorder implements ContextListen
   public void open(TransformContext context) {
     super.open(context);
     tracker = new EventTracker(trackedFieldName);
+    tracker.setLimit(getInteger(ConfigTag.LIMIT));
+
+    // We are expecting an array of strings
+    Config section = getConfiguration().getSection(ConfigTag.INCLUDE);
+    if (section != null) {
+      for (int x = 0; x < section.getFieldCount(); x++) {
+        tracker.addIncludePattern(section.getField(x).getStringValue());
+      }
+    }
+
+    section = getConfiguration().getSection(ConfigTag.EXCLUDE);
+    if (section != null) {
+      for (int x = 0; x < section.getFieldCount(); x++) {
+        tracker.addExcludePattern(section.getField(x).getStringValue());
+      }
+    }
+
 
     try {
       write("opening\n");
@@ -83,7 +103,6 @@ public class EventProfiler extends AbstractFileRecorder implements ContextListen
       return;
     }
   }
-
 
 
   /**
