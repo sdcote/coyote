@@ -16,7 +16,7 @@ import coyote.dx.TransformException;
 
 
 /**
- * Copy one field to another.
+ * Rename a field.
  * 
  * <p>This can be configured thusly:<pre>
  * "Rename": { "source": "oldField", "field":"newField"}

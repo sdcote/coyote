@@ -19,10 +19,11 @@ import coyote.loader.log.Log;
 
 
 /**
- * Split a fild into multiple fields
+ * Split a field into multiple fields
  * 
  * <p>This is useful when data such as a timestamp needs to be split into a 
  * date and a time field.
+ *
  * <p>Consider the datetime string of {@code 2017-11-02T10:21:32.076-0400}, 
  * where we want two fields one with and the other with {@code 2017-11-02} and 
  * the other with {@code 10:21:32.076}. We would first split on the 'T' then 
@@ -42,7 +43,7 @@ public class Split extends AbstractFieldTransform implements FrameTransform {
     super.setConfiguration(cfg);
 
     delimiter = getConfiguration().getString(ConfigTag.DELIMITER);
-    if (StringUtil.isBlank(delimiter)) {
+    if (StringUtil.isEmpty(delimiter)) {
       throw new ConfigurationException("Missing required '" + ConfigTag.DELIMITER + "' configuration parameter");
     }
 
@@ -60,7 +61,7 @@ public class Split extends AbstractFieldTransform implements FrameTransform {
 
     DataField field = retval.getField(getFieldName());
     if (field == null) {
-      Log.warn("Could not retrive the field '" + getFieldName() + "'");
+      Log.warn("Could not retrieve the field '" + getFieldName() + "'");
     } else {
       String data = field.getStringValue();
       if (data != null) {

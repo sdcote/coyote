@@ -184,6 +184,10 @@ public class Service extends AbstractBatchLoader implements Loader {
             // make sure the Job configuration has the appropriate wrapper class
             section.setClassName(ScheduledBatchJob.class.getName());
 
+            if( StringUtil.isBlank(section.getName())){
+                Log.warn("Loaded unnamed job");
+            }
+
             // create a component from the section
             loadComponent(section);
         }

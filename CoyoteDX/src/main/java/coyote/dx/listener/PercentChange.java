@@ -44,7 +44,7 @@ import coyote.loader.log.Log;
  * This field must always contain a numeric value.
  * 
  * <p>This listener supports grouping in that separate lists of samples will 
- * be tracked mased on the value of a spacific field. By specifyinf a field 
+ * be tracked based on the value of a specific field. By specifying a field
  * name in the {@code Group} configuration attribute, the listener will track
  * data in a group named by that fields value. For example, if a data transfer 
  * job is streaming in metrics from a device, and the identifier of that 
