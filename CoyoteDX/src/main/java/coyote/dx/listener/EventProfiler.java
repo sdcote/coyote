@@ -93,15 +93,6 @@ public class EventProfiler extends AbstractFileRecorder implements ContextListen
       }
     }
 
-
-    try {
-      write("opening\n");
-      write("Using a timestamp field of " + timestampFieldName + "\n");
-      write("Tracking " + trackedFieldName + "\n");
-    } catch (final Exception e) {
-      context.setError("Problems during initialization - " + e.getClass().getSimpleName() + " : " + e.getMessage());
-      return;
-    }
   }
 
 
@@ -135,7 +126,7 @@ public class EventProfiler extends AbstractFileRecorder implements ContextListen
     } catch (DataFrameException e) {
       Log.error("invalid data received: " + timestampFieldName + " returned " + frame.get(timestampFieldName));
     } catch (Exception e) {
-      Log.error(e.getMessage());
+      Log.error("Exception onMap:"+e.getMessage());
     }
 
   }
