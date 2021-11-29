@@ -24,7 +24,7 @@ import java.io.IOException;
 
 
 /**
- * Character Separated Value Reader
+ * Text reader that parses each line into tokens and maps those tokens to fields based on the format and parsing mode.
  */
 public class LogFileReader extends AbstractFrameStreamFileReader implements FrameReader, ConfigurableComponent {
   private LogEntryMapper mapper = null;
