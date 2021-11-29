@@ -12,7 +12,7 @@ jar {
 
 ext {
 	junitVersion = '4.12'
-	jcraftVersion = '0.1.54'
+	jcraftVersion = '0.1.55'
 	commonsNetVersion = '3.6'}
 dependencies {
 	compile project(':CoyoteDX')
