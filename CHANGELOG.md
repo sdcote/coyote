@@ -18,6 +18,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * **Prometheus Monitoring** - Added an OpenMetrics endpoint `/metrics` that Prometheus can use to collect `Service` operation and health metrics.
 * **RunJob Listener** - This listener will kick off jobs after during the `onMap()` event passing target frame fields in the symbol table of the called jobs.
 * **CheckSymbolNotNull** - This task halts the job if the configures symbol in the transform context symbol table is null, empty ("") or blank.
+* **LogFileReader** - Reader that reads text log files and creates data frames. Currently, Apache log formats are supported.
+* **EventProfiler** - A listener that tracks events (anything with a timestamp field) and plots metrics. Can be a simple log analyzer.
 
 ### Fixed
 * **JdbcWriter NPE** - Fixed the issue with the prepared statement not being (re)created when the `Job` is closed and later re-opened as is the case with `Job` instances running in a `Service`.
