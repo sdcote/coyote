@@ -28,11 +28,33 @@ Then push:
 
 ## Extending
 
-Other images can be built from this base image and contribute only the (configuration) files necessary.
+Other images can be built from this base image and contribute only the (configuration) files necessary. Here is an example `Dockerfile` that 
+
+```Dockerfile
+FROM cdx
+COPY myjob.json /opt/cdx/cfg
+CMD ["myjob"]
+```
+The above starts with the base CDX image and copies the job configuration file to the base configuration directory. Finally, it calls the entrypoint with the name of the job configuration file. Running this container will just call the CDX job included in the image.
+
+### Custom Classes
+
+Just like the full project, you can add custom classes to the toolkit by copying their JAR or class files to the `lib` directory:
+
+```Dockerfile
+FROM cdx
+COPY myjob.json /opt/cdx/cfg
+COPY custom.jar /opt/cdx/lib
+CMD ["myjob"]
+```
+
+The above will allow all the classes and resources in the `custom.jar` file to be included in the runtime classpath. You can write your own tasks, transforms, and any other framework component and call it from within your jobs. 
 
 ## Configuration
 
-This image runs an empty Coyote instance listening on port 55290. 
+There is a `base.json` configuration included with the base image that runs an empty CDX service instance listening on port 55290:
+
+    docker run cdx base
 
 ## Examples
 
@@ -41,6 +63,29 @@ This is the base image of the Coyote toolset. It contains no useful configuratio
     docker run -v c:/jobs/:/opt/cdx/cfg cdx somejob
 
 The above mounts the `c:/jobs/` directory on your local host to the configuration directory for CDX (`/opt/cdx/cfg`) and then runs the `somejob` job configuration found in that directory.
+
+The working directory of the container can be mounted in a similar manner. This allows for the results of processing to be accessed locally:
+
+    docker run -v c:/work/:/opt/cdx/wrk -v c:/jobs/:/opt/cdx/cfg cdx somejob
+
+The same is true for the log directory:
+
+    docker run -v c:/logs/:/opt/cdx/log -v c:/work/:/opt/cdx/wrk -v c:/jobs/:/opt/cdx/cfg cdx somejob
+
+If you are on a unix system, you can set an alias to keep everything tight:
+
+    alias cdx='docker run -v ~/cdx/logs/:/opt/cdx/log -v ~/cdx/work/:/opt/cdx/wrk -v ~/cdx/jobs/:/opt/cdx/cfg cdx'
+
+The above allows you to run Dockerized CDX like it was installed on your system:
+
+    docker run -v ~/cdx/logs/:/opt/cdx/log -v ~/cdx/work/:/opt/cdx/wrk -v ~/cdx/jobs/:/opt/cdx/cfg cdx
+
+If you are on Windows, you can simply write a script/batch file (e.g. `cdx.ps1`, `cdx.bat`, or `cdx.cmd`) and place it in your path.  Something like the following:
+
+    CMD_LINE_ARGS=%$
+    docker run -v ~/cdx/logs/:/opt/cdx/log -v ~/cdx/work/:/opt/cdx/wrk -v ~/cdx/jobs/:/opt/cdx/cfg cdx %CMD_LINE_ARGS%
+
+The syntax will differ depending on the scripting approach used and the version of the operating system.
 
 ### Other Tasks
 

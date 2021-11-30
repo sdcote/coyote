@@ -14,12 +14,10 @@
 	"Component": [
 		{ "Class": "coyote.loader.Wedge", "Notes": "This just keeps the the service open. Replace with your components or Jobs." }
 	],
-	
 
 	"Logging": {
-		"StandardOutput": { "categories": "info, notice, httpd" },
-		"StandardError": { "categories": "warn, error, fatal" },
-		"CyclingFileAppender": { "target": "debug.log", "categories": "trace, debug, error, fatal, warn", "generations": 5, "maxsize": "2MB", "enabled": false }
+		"StandardOutput": { "categories": "trace, debug, scheduler, info, notice, httpd" },
+		"StandardError": { "categories": "warn, error, fatal" }
 	}
 
 }
