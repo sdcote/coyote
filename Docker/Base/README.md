@@ -52,9 +52,7 @@ The above will allow all the classes and resources in the `custom.jar` file to b
 
 ## Configuration
 
-There is a `base.json` configuration included with the base image that runs an empty CDX service instance listening on port 55290:
-
-    docker run cdx base
+There is no configuration included with the base image. You must extend the base image to include configurations or use volumes to mount a configuration directory as described below.
 
 ## Examples
 
@@ -103,7 +101,6 @@ Run a job configuration retrieved from the network and using a specific encrypti
 
     docker run -e cipher.key=5up3rS3cret! cdx http://someplace.com/cfg/myjob.json
 
-
 # Debugging Containers
 
 Here are a few tricks to help with debugging your containers.
@@ -113,7 +110,6 @@ Here are a few tricks to help with debugging your containers.
 Run a container and get a command shell by overriding the entry point:
 
     docker run -it --rm --entrypoint sh cdx
-
 
 ## Running Stopped Containers
 
