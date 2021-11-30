@@ -1,0 +1,10 @@
+{
+
+	"PreProcess": {
+		"Retrieve": {
+			"source": "scp://username:password@ecdt1.aepsc.com:22/var/log/httpd/access_log",
+			"target": "access.log"
+		}
+	}
+
+}
