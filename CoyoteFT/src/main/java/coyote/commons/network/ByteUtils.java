@@ -1,4 +1,4 @@
-package coyote.dx.ftp;
+package coyote.commons.network;
 
 import java.net.Socket;
 

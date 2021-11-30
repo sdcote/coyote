@@ -1,4 +1,4 @@
-package coyote.dx.ftp;
+package coyote.commons.network.ftp;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -29,6 +29,7 @@ import coyote.commons.Assert;
 import coyote.commons.CollectionUtil;
 import coyote.commons.FileUtil;
 import coyote.commons.StringUtil;
+import coyote.commons.network.*;
 import coyote.dx.CFT;
 import coyote.loader.log.Log;
 import coyote.loader.log.LogMsg;
@@ -230,7 +231,7 @@ public class SFTPUtil {
    * @throws FileTransferException if the SFTP connection threw an exception 
    * during processing
    */
-  public static List<RemoteFile> listFiles( RemoteSite site, final String directory ) throws FileTransferException {
+  public static List<RemoteFile> listFiles(RemoteSite site, final String directory ) throws FileTransferException {
     Assert.notNull( site, "SFTP remote site cannot be null" );
     Assert.notNull( directory, "SFTP directory cannot be null" );
 
@@ -406,7 +407,7 @@ public class SFTPUtil {
    * @param remoteDir the path to the remote directory to retrieve
    * @param localDir path to the local directory
    * @param pattern RegEx to be used in selecting files (null results in everything)
-   * @param recurse flag indicating sub directories are to be included
+   * @param recurse flag indicating subdirectories are to be included
    * @param preserve flag indicating the hierarchy of the recursed directories should be preserved
    * @param delete flag indicating successfully retrieved files should be deleted from the server
    * 
@@ -560,10 +561,10 @@ public class SFTPUtil {
       fileOutputStream = new FileOutputStream( targetFile );
       channelSftp.get( sourceFile, fileOutputStream );
     } catch ( final SftpException sftpException ) {
-      final String message = ( "Error transfering files from ftp to local [sourceFile=" + sourceFile + ", destinationPath=" + targetFile + "]" );
+      final String message = ( "Error transferring files from ftp to local [sourceFile=" + sourceFile + ", destinationPath=" + targetFile + "]" );
       throw new FileTransferException( message, sftpException );
     } catch ( final FileNotFoundException fileNotFoundException ) {
-      final String message = ( "Error transfering files from ftp to local [sourceFile=" + sourceFile + ", destinationPath=" + targetFile + "]" );
+      final String message = ( "Error transferring files from ftp to local [sourceFile=" + sourceFile + ", destinationPath=" + targetFile + "]" );
       throw new FileTransferException( message, fileNotFoundException );
     }
     finally {

@@ -5,7 +5,9 @@
  * terms of the MIT License which accompanies this distribution, and is 
  * available at http://creativecommons.org/licenses/MIT/
  */
-package coyote.dx.ftp;
+package coyote.commons.network.ftp;
+
+import coyote.commons.network.RemoteFile;
 
 /**
  * Contract for classes responsible for determining if a Remote File matches a 

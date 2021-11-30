@@ -1,9 +1,10 @@
-package coyote.dx.ftp;
+package coyote.commons.network.ftp;
 
 import java.util.List;
 
 import coyote.commons.CollectionUtil;
 import coyote.commons.StringUtil;
+import coyote.commons.network.RemoteFile;
 
 
 /**

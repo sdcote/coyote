@@ -5,7 +5,7 @@
  * terms of the MIT License which accompanies this distribution, and is 
  * available at http://creativecommons.org/licenses/MIT/
  */
-package coyote.dx.ftp;
+package coyote.commons.network;
 
 import java.net.URI;
 import java.util.ArrayList;
@@ -16,6 +16,7 @@ import coyote.commons.UriUtil;
 import coyote.dataframe.DataFrame;
 import coyote.dataframe.DataFrameException;
 import coyote.dataframe.marshal.JSONMarshaler;
+import coyote.commons.network.ftp.*;
 
 
 /**
@@ -43,6 +44,7 @@ public class RemoteSite extends DataFrame {
 
   public static String FTP = "ftp";
   public static String SFTP = "sftp";
+  public static String SCP = "scp";
 
   public static final String HOST_FIELD = "hostname";
   public static final String PASS_FIELD = "password";
@@ -73,7 +75,7 @@ public class RemoteSite extends DataFrame {
    * characters. This has implications for passwords which contain special 
    * characters. If a password with special characters (:, #, &#38;, $, et. al.) 
    * is represented in the URI, it should be encoded to ensure proper 
-   * representation. THis method assumes the username and password portion may 
+   * representation. This method assumes the username and password portion may
    * be encoded and will attempt to perform a URL decode.</p>
    * 
    * @param uri The URI to parse to configure this RemoteSite instance
@@ -85,7 +87,7 @@ public class RemoteSite extends DataFrame {
     setHost(UriUtil.getHost(uri));
     setPort(UriUtil.getPort(uri));
 
-    // User names may contain special characters and might be URL encoded
+    // Usernames may contain special characters and might be URL encoded
     String username = UriUtil.getUser(uri);
     if (username != null) {
       setUsername(UriUtil.decodeString(username));
@@ -405,6 +407,8 @@ public class RemoteSite extends DataFrame {
       return FTPUtil.retrieveFile(this, remote, local);
     } else if (SFTP.equalsIgnoreCase(getProtocol())) {
       return SFTPUtil.retrieveFile(this, remote, local);
+    } else if (SCP.equalsIgnoreCase(getProtocol())) {
+      return SSHUtil.retrieveFile(this, remote, local);
     }
     return false;
   }
@@ -427,6 +431,8 @@ public class RemoteSite extends DataFrame {
       return FTPUtil.publishFile(this, local, remote);
     } else if (SFTP.equalsIgnoreCase(getProtocol())) {
       return SFTPUtil.publishFile(this, local, remote);
+    } else if (SCP.equalsIgnoreCase(getProtocol())) {
+      return SSHUtil.publishFile(this, local, remote);
     }
     return false;
   }
@@ -447,6 +453,8 @@ public class RemoteSite extends DataFrame {
       FTPUtil.close(this);
     } else if (SFTP.equalsIgnoreCase(getProtocol())) {
       SFTPUtil.close(this);
+    } else if (SCP.equalsIgnoreCase(getProtocol())) {
+      SSHUtil.close(this);
     }
   }
 

@@ -14,7 +14,7 @@ import coyote.commons.Assert;
 import coyote.commons.CipherUtil;
 import coyote.commons.UriUtil;
 import coyote.dx.ConfigTag;
-import coyote.dx.ftp.RemoteSite;
+import coyote.commons.network.RemoteSite;
 import coyote.loader.Loader;
 import coyote.loader.cfg.ConfigurationException;
 

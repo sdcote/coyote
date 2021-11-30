@@ -1,4 +1,4 @@
-package coyote.dx.ftp;
+package coyote.commons.network;
 
 import java.util.Date;
 
@@ -69,7 +69,7 @@ public class FileAttributes {
    * 
    * @return the file attributes represented by the data in the buffer
    */
-  protected static FileAttributes getAttributes(final Buffer buf) {
+  public static FileAttributes getAttributes(final Buffer buf) {
     final FileAttributes attr = new FileAttributes();
     attr.flags = buf.getInt();
     if ((attr.flags & FILE_ATTR_SIZE) != 0) {
@@ -107,7 +107,7 @@ public class FileAttributes {
   /**
    * 
    */
-  FileAttributes() {}
+  public FileAttributes() {}
 
 
 
@@ -116,7 +116,7 @@ public class FileAttributes {
    * Dump the data in this attributes object to a buffer suitable for generating a deep copy.
    * @param buf
    */
-  protected void dump(final Buffer buf) {
+  public void dump(final Buffer buf) {
     buf.putInt(flags);
     if ((flags & FILE_ATTR_SIZE) != 0) {
       buf.putLong(size);
@@ -403,7 +403,7 @@ public class FileAttributes {
 
 
 
-  protected int length() {
+  public int length() {
     int len = 4;
 
     if ((flags & FILE_ATTR_SIZE) != 0) {
@@ -444,7 +444,7 @@ public class FileAttributes {
 
 
 
-  protected void setFLAGS(final int flags) {
+  public void setFLAGS(final int flags) {
     this.flags = flags;
   }
 

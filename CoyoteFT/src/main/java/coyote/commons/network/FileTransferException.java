@@ -1,4 +1,4 @@
-package coyote.dx.ftp;
+package coyote.commons.network;
 
 public class FileTransferException extends Exception {
 

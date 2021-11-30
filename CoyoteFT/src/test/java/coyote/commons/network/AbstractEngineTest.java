@@ -5,7 +5,7 @@
  * terms of the MIT License which accompanies this distribution, and is 
  * available at http://creativecommons.org/licenses/MIT/
  */
-package coyote.dx.ftp;
+package coyote.commons.network;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;

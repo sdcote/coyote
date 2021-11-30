@@ -5,7 +5,7 @@
  * terms of the MIT License which accompanies this distribution, and is 
  * available at http://creativecommons.org/licenses/MIT/
  */
-package coyote.dx.ftp;
+package coyote.commons.network.ftp;
 
 //import static org.junit.Assert.*;
 import static org.junit.Assert.assertEquals;
@@ -14,6 +14,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import coyote.commons.network.RemoteFile;
 import org.junit.Test;
 
 
@@ -23,7 +24,7 @@ import org.junit.Test;
 public class RemoteFileTest {
 
   /**
-   * Test method for {@link coyote.dx.ftp.RemoteFile#getName()}.
+   * Test method for {@link RemoteFile#getName()}.
    */
   @Test
   public void testGetName() {
@@ -42,7 +43,7 @@ public class RemoteFileTest {
 
 
   /**
-   * Test method for {@link coyote.dx.ftp.RemoteFile#getParent()}.
+   * Test method for {@link RemoteFile#getParent()}.
    */
   @Test
   public void testGetParent() {
@@ -79,7 +80,7 @@ public class RemoteFileTest {
 
 
   /**
-   * Test method for {@link coyote.dx.ftp.RemoteFile#getAbsolutePath()}.
+   * Test method for {@link RemoteFile#getAbsolutePath()}.
    */
   @Test
   public void testGetAbsolutePath() {

@@ -1,4 +1,4 @@
-package coyote.dx.ftp;
+package coyote.commons.network;
 
 public class Buffer {
   protected final byte[] tmp = new byte[4];

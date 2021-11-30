@@ -1,4 +1,4 @@
-package coyote.dx.ftp;
+package coyote.commons.network.ftp;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -8,6 +8,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import coyote.commons.network.FileAttributes;
+import coyote.commons.network.FileTransferException;
+import coyote.commons.network.RemoteFile;
+import coyote.commons.network.RemoteSite;
 import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
@@ -127,7 +131,7 @@ public class FTPUtil {
 
 
 
-  public static List<RemoteFile> listFiles( RemoteSite cfg, String dir ) {
+  public static List<RemoteFile> listFiles(RemoteSite cfg, String dir ) {
 
     FTPClient ftp;
     final List<RemoteFile> fileListings = new ArrayList<RemoteFile>();

@@ -5,7 +5,9 @@
  * terms of the MIT License which accompanies this distribution, and is 
  * available at http://creativecommons.org/licenses/MIT/
  */
-package coyote.dx.ftp;
+package coyote.commons.network.ftp;
+
+import coyote.commons.network.RemoteFile;
 
 import java.util.ArrayList;
 import java.util.Stack;
@@ -176,7 +178,7 @@ public class WildcardFileFilter implements FileFilter {
 
 
   /**
-   * @see coyote.dx.ftp.FileFilter#accept(coyote.dx.ftp.RemoteFile)
+   * @see coyote.commons.network.ftp.FileFilter#accept(RemoteFile)
    */
   @Override
   public boolean accept(final RemoteFile file) {

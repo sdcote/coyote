@@ -5,41 +5,40 @@
  * terms of the MIT License which accompanies this distribution, and is 
  * available at http://creativecommons.org/licenses/MIT/
  */
-package coyote.dx.ftp;
+package coyote.commons.network.ftp;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.List;
 
 import coyote.commons.SystemPropertyUtil;
+import coyote.commons.network.FileTransferException;
+import coyote.commons.network.RemoteFile;
+import coyote.commons.network.RemoteSite;
 
 
 /**
  * 
  */
-public class FileTransferDemo {
+public class SftpListFilesDemo {
 
   /**
    * @param args
-   * @throws UnknownHostException 
    */
-  public static void main(String[] args) throws UnknownHostException {
-
+  public static void main(String[] args) {
     // Load properties to set system properties telling SNAPI to use a
     // proxy and what authentication to use
     SystemPropertyUtil.load("snowstorm");
 
-    String host = "coast.cs.purdue.edu";
-    int port = 21;
-    String user = "anonymous";
-    String pass = "adent@" + InetAddress.getLocalHost().getHostName();;
-    String protocol = RemoteSite.FTP;
-    String directory = "/pub/doc";
+    String host = "server.domain.org";
+    // int port = 22;
+    String user = "jdoe";
+    String pass = "secret";
+    String protocol = RemoteSite.SFTP;
+    String directory = "/home/jdoe";
 
     // Create a remote site object
     RemoteSite site = new RemoteSite();
     site.setHost(host);
-    site.setPort(port);
+    //site.setPort( port );
     site.setUsername(user);
     site.setPassword(pass);
     site.setProtocol(protocol);
@@ -52,6 +51,9 @@ public class FileTransferDemo {
         System.out.println(file.getName() + " - " + file.getModifiedTime());
       }
 
+      // we are done with the connection, so close it.
+      site.close();
+
     } catch (FileTransferException e) {
       e.printStackTrace();
     }
@@ -60,4 +62,5 @@ public class FileTransferDemo {
       site.close();
     }
   }
+
 }

@@ -18,7 +18,7 @@ import coyote.dx.ConfigTag;
 import coyote.dx.TaskException;
 import coyote.dx.TransformTask;
 import coyote.dx.context.TransformContext;
-import coyote.dx.ftp.RemoteSite;
+import coyote.commons.network.RemoteSite;
 import coyote.loader.cfg.ConfigurationException;
 import coyote.loader.log.Log;
 import coyote.loader.log.LogMsg;
