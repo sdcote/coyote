@@ -4,16 +4,16 @@ FROM openjdk:8-jre-alpine
 COPY Docker/Base/opt opt
 
 # The core module
-COPY CoyoteDX/build/install/CoyoteDX/lib /opt/coyotedx/lib
+COPY CoyoteDX/build/install/CoyoteDX/lib /opt/cdx/lib
 
 # Include the optional modules. Comment out those not required
-COPY CoyoteDB/build/install/CoyoteDB/lib /opt/coyotedx/lib
-COPY CoyoteFT/build/install/CoyoteFT/lib /opt/coyotedx/lib
-COPY CoyoteMC/build/install/CoyoteMC/lib /opt/coyotedx/lib
-COPY CoyoteMQ/build/install/CoyoteMQ/lib /opt/coyotedx/lib
-COPY CoyoteMT/build/install/CoyoteMT/lib /opt/coyotedx/lib
-COPY CoyoteSLF4J/build/install/CoyoteSLF4J/lib /opt/coyotedx/lib
-COPY CoyoteWS/build/install/CoyoteWS/lib /opt/coyotedx/lib
+COPY CoyoteDB/build/install/CoyoteDB/lib /opt/cdx/lib
+COPY CoyoteFT/build/install/CoyoteFT/lib /opt/cdx/lib
+COPY CoyoteMC/build/install/CoyoteMC/lib /opt/cdx/lib
+COPY CoyoteMQ/build/install/CoyoteMQ/lib /opt/cdx/lib
+COPY CoyoteMT/build/install/CoyoteMT/lib /opt/cdx/lib
+COPY CoyoteSLF4J/build/install/CoyoteSLF4J/lib /opt/cdx/lib
+COPY CoyoteWS/build/install/CoyoteWS/lib /opt/cdx/lib
 
 # Run coyote data exchange
-ENTRYPOINT ["/opt/coyotedx/bin/cdx"]
+ENTRYPOINT ["/opt/cdx/bin/cdx"]

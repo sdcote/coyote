@@ -32,7 +32,7 @@
 		"Writer": {
 			"Enabled": true,
 			"Class": "WebServiceWriter",
-			"Target": "https://webexapis.com/v1/webhooks/incoming/Y2lzY29zcGFyazovL3VzL1dFQkhPT0svYTBjOGQ3ZmQtYmRlOS00MjFlLWFiMTMtN2UxNWMxYjdlYmRh",
+			"Target": "https://webexapis.com/v1/webhooks/incoming/Y2lzYscGFyazovL3VzL1dFQkhPT0OS00MjFlLWFiMTMtN2UxNWMxYjvYTBjOGQ3ZmQtYmRl29zdlYmRh",
 			"Protocol": { "ExchangeType": "JSON_HTTP", "Method": "POST" },
 			"ResponseWriter": { "Class": "JsonWriter", "target": "WebexResponses.json" }
 		}
@@ -40,7 +40,7 @@
 
 
 	"Logging": {
-		"StandardOutput": { "categories": "schedulerX, thread, debug, trace, info, HTTPD, notice, warn, error, fatal" }
+		"StandardOutput": { "categories": "scheduler, thread, debug, trace, info, httpd, notice, warn, error, fatal" }
 	}
 
 }

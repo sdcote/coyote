@@ -1,4 +1,4 @@
-FROM coyote
+FROM cdx
 MAINTAINER Steve Cote <sdcote@gmail.com> 
 
 # Add the files from the build context
