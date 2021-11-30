@@ -15,11 +15,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.8.7] - Unreleased
 ### Added
 * **Job-level loggers** - These loggers are added to and removed from the logging sub-system for the duration of the job only. Relative targets default to the job directory and not the `[app.home]/log` directory.
-* **Prometheus Monitoring** - Added an OpenMetrics endpoint `/metrics` that Prometheus can use to collect `Service` operation and health metrics.
-* **RunJob Listener** - This listener will kick off jobs after during the `onMap()` event passing target frame fields in the symbol table of the called jobs.
-* **CheckSymbolNotNull** - This task halts the job if the configures symbol in the transform context symbol table is null, empty ("") or blank.
-* **LogFileReader** - Reader that reads text log files and creates data frames. Currently, Apache log formats are supported.
-* **EventProfiler** - A listener that tracks events (anything with a timestamp field) and plots metrics. Can be a simple log analyzer.
+* **Prometheus Monitoring** - Added an [OpenMetrics](https://openmetrics.io/) endpoint (`/metrics`) that Prometheus can use to collect `Service` operational and health metrics.
+* **RunJob Listener** - This listener will kick off jobs after during the `onMap()` event passing target frame fields in the symbol table of the called jobs. This allows a reader to read records from a source, place the fields of the record in the transform context, and execute a set of jobs for each record, each using data in the context to configure its operation.
+* **CheckSymbolNotNull** - This task halts the job if the configured symbol in the transform context symbol table is null, empty ("") or blank.
+* **LogFileReader** - Reader that reads text log files and creates data frames. Currently, Apache log formats are supported but the ability to specify a `freeform` format is under development.
+* **EventProfiler** - A listener that tracks events (anything with a timestamp field) and plots metrics. Can be used as a simple log analyzer.
+* **Secure Copy (SCP) Support** - The `Retrieve` task now supports SCP file transfer.
 
 ### Fixed
 * **JdbcWriter NPE** - Fixed the issue with the prepared statement not being (re)created when the `Job` is closed and later re-opened as is the case with `Job` instances running in a `Service`.
