@@ -7,6 +7,7 @@
  */
 package coyote.dx.listener;
 
+import coyote.commons.ExceptionUtil;
 import coyote.commons.StringUtil;
 import coyote.dataframe.DataField;
 import coyote.dataframe.DataFrame;
@@ -104,31 +105,36 @@ public class EventProfiler extends AbstractFileRecorder implements ContextListen
   @Override
   public void onMap(TransactionContext txnContext) {
     DataFrame frame = txnContext.getTargetFrame();
-    Date date = null;
+    if( frame != null) {
+      Date date = null;
 
-    try {
-      date = frame.getAsDate(timestampFieldName);
-    } catch (DataFrameException e) {
-      Log.error("invalid data received: " + timestampFieldName + " returned " + frame.getField(timestampFieldName).toString());
-    }
+      try {
+        date = frame.getAsDate(timestampFieldName);
+      } catch (DataFrameException e) {
+        Log.error("invalid data received: " + timestampFieldName + " returned " + frame.getField(timestampFieldName).toString());
+      }
 
-    try {
-      DataField field = frame.getField(trackedFieldName);
-      if (field != null) {
-        if (field.isNumeric()) {
-          tracker.sample(date, frame.getAsDouble(trackedFieldName));
-        } else {
-          tracker.sample(date, frame.getAsString(trackedFieldName));
+      if (date != null) {
+        try {
+          DataField field = frame.getField(trackedFieldName);
+          if (field != null) {
+            if (field.isNumeric()) {
+              tracker.sample(date, frame.getAsDouble(trackedFieldName));
+            } else {
+              tracker.sample(date, frame.getAsString(trackedFieldName));
+            }
+          } else {
+            Log.warn(frame.toString());
+          }
+        } catch (Throwable e) {
+          Log.error("Exception onMap:" + e.getMessage() + "\n" + ExceptionUtil.stackTrace(e));
         }
       } else {
-        Log.warn(frame.toString());
+        Log.debug("onMap: No date in '"+timestampFieldName+"' "+ frame.toString());
       }
-    } catch (DataFrameException e) {
-      Log.error("invalid data received: " + timestampFieldName + " returned " + frame.get(timestampFieldName));
-    } catch (Exception e) {
-      Log.error("Exception onMap:"+e.getMessage());
+    } else{
+      Log.debug("onMap: No target frame");
     }
-
   }
 
 
