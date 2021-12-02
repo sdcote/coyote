@@ -21,6 +21,7 @@ import coyote.loader.cfg.Config;
 import coyote.loader.cfg.ConfigurationException;
 import coyote.loader.log.Log;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 
 
@@ -67,6 +68,8 @@ public class EventProfiler extends AbstractFileRecorder implements ContextListen
       cfg.set(ConfigTag.LIMIT, DEFAULT_LIMIT);
     }
 
+    // We need UTF-8 encoding.
+    super.setCharacterSet(StandardCharsets.UTF_8);
   }
 
 
@@ -128,7 +131,7 @@ public class EventProfiler extends AbstractFileRecorder implements ContextListen
           Log.error("Exception onMap:" + e.getMessage() + "\n" + ExceptionUtil.stackTrace(e));
         }
       } else {
-        Log.debug("onMap: No date in '"+timestampFieldName+"' "+ frame.toString());
+        Log.debug("onMap: No date in '"+timestampFieldName+"' "+ frame);
       }
     } else{
       Log.debug("onMap: No target frame");
