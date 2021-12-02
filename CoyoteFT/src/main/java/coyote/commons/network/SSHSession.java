@@ -1,6 +1,7 @@
 package coyote.commons.network;
 
 import com.jcraft.jsch.*;
+import coyote.loader.log.Log;
 
 import java.io.*;
 
@@ -97,10 +98,10 @@ public class SSHSession {
             }
             while (c != '\n');
             if (b == 1) { // error
-                System.out.print(sb);
+                Log.error("SSH NAK - error "+sb);
             }
             if (b == 2) { // fatal error
-                System.out.print(sb);
+                Log.error("SSH NAK - fatal "+sb);
             }
         }
         return b;
@@ -169,7 +170,7 @@ public class SSHSession {
                 }
             }
 
-            System.out.println("file-size=" + filesize + ", file=" + file);
+            Log.info("file-size=" + filesize + ", file=" + file);
 
             // send '\0'
             buf[0] = 0;
@@ -193,7 +194,7 @@ public class SSHSession {
             }
 
             if (checkAck(in) != 0) {
-                System.exit(0);
+                throw new IOException("Error (NAK) during transfer");
             }
 
             // send '\0'
@@ -237,7 +238,7 @@ public class SSHSession {
         channel.connect();
 
         if (checkAck(in) != 0) {
-            System.exit(0);
+            throw new IOException("Error (NAK) during transfer");
         }
 
         File _lfile = new File(localFileName);
@@ -248,7 +249,7 @@ public class SSHSession {
             out.write(command.getBytes());
             out.flush();
             if (checkAck(in) != 0) {
-                System.exit(0);
+                throw new IOException("Error (NAK) during transfer");
             }
         }
 
@@ -266,7 +267,7 @@ public class SSHSession {
         out.flush();
 
         if (checkAck(in) != 0) {
-            System.exit(0);
+            throw new IOException("Error (NAK) during transfer");
         }
 
         // send a content of lfile
@@ -284,7 +285,7 @@ public class SSHSession {
         out.flush();
 
         if (checkAck(in) != 0) {
-            System.exit(0);
+            throw new IOException("Error (NAK) during transfer");
         }
         out.close();
 
