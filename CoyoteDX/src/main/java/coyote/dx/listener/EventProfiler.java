@@ -123,8 +123,6 @@ public class EventProfiler extends AbstractFileRecorder implements ContextListen
             } else {
               tracker.sample(date, frame.getAsString(trackedFieldName));
             }
-          } else {
-            Log.warn(frame.toString());
           }
         } catch (Throwable e) {
           Log.error("Exception onMap:" + e.getMessage() + "\n" + ExceptionUtil.stackTrace(e));
@@ -143,8 +141,6 @@ public class EventProfiler extends AbstractFileRecorder implements ContextListen
    */
   @Override
   public void onEnd(OperationalContext opContext) {
-
-    // generate report at the end of the Transform
     if (opContext instanceof TransformContext) {
       write(tracker.toString());
     }

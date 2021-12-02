@@ -128,7 +128,7 @@ public class EventTracker {
       long count = hourMap.get(hour);
       hourMap.put(hour, ++count);
 
-      int dom = datetime.getDayOfMonth();
+      int dom = datetime.getDayOfMonth()-1;
       count = dayMap.get(dom);
       dayMap.put(dom, ++count);
     }
