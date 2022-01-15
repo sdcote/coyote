@@ -37,7 +37,7 @@ Of course, you will probably be a bit more specific with your ports and run it i
  
 ## Configuration
 
-This image will include a static configuration file found in the `./opt/coyotedx/cfg` directory
+This image will include a static configuration file found in the `./opt/cdx/cfg` directory
 
 The configuration file can support multiple `Job` definitions, each listing on a separate endpoint. This allows one 
 Coyote instance to support multiple endpoints. One endpoint can be set to `/webex` and integrate WebEx Teams, another 
@@ -48,7 +48,7 @@ can be set to `/teams` and integrate Microsoft Teams while a third can be set to
 
 You can test this with `curl`:
 
-    curl -X POST -H "Content-Type: application/json" -d '{"markdown" : "This is a sample message."}' "http://P2026071.aepsc.com"
+    curl -X POST -H "Content-Type: application/json" -d '{"markdown" : "This is a sample message."}' "http://somehost.example.com"
 
 ### Alert Manager
 Alert Manager Webhook outgoing specification: https://prometheus.io/docs/alerting/latest/configuration/#webhook_config
@@ -88,14 +88,14 @@ Primary Example:
 			"status": "resolved",
 			"labels": {
 				"alertname": "JenkinsTooSlowHealthCheck",
-				"instance": "ecdp3:8088",
+				"instance": "hostp3:8088",
 				"job": "jenkins",
 				"monitor": "ECD",
 				"quantile": "0.999",
 				"severity": "notify"
 			},
 			"annotations": {
-				"description": " ecdp3:8088 is responding too slow to the regular internal health check",
+				"description": " hostp3:8088 is responding too slow to the regular internal health check",
 				"summary": "Jenkins responding too slow to internal health check"
 			},
 			"startsAt": "2020-11-11T00:09:03.509022477Z",
@@ -107,14 +107,14 @@ Primary Example:
 			"status": "firing",
 			"labels": {
 				"alertname": "JenkinsTooSlowHealthCheck",
-				"instance": "ecdt3:8088",
+				"instance": "hostt3:8088",
 				"job": "jenkins",
 				"monitor": "ECD",
 				"quantile": "0.999",
 				"severity": "notify"
 			},
 			"annotations": {
-				"description": " ecdt3:8088 is responding too slow to the regular internal health check",
+				"description": " hostt3:8088 is responding too slow to the regular internal health check",
 				"summary": "Jenkins responding too slow to internal health check"
 			},
 			"startsAt": "2020-11-11T00:18:53.509022477Z",
@@ -156,4 +156,4 @@ Markdown example:
 ```
 
 An example:
-https://webexapis.com/v1/webhooks/incoming/Y2lzY29zcGFyazovL3VzL1dFQkhPT0svYTBjOGQ3ZmQtYmRlOS00MjFlLWFiMTMtN2UxNWMxYjdlYmRh
+https://webexapis.com/v1/webhooks/incoming/YmQtYmRlOS00MjFlLWFiMTMtzY29zcGFyazovL3Vz2lvYTBjOGQ3ZL1dFQkhPT0sN2UxNWMxYjdlYmRh

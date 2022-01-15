@@ -38,7 +38,7 @@ public interface ContextListener extends ConfigurableComponent {
    * 
    * <p>The listener should use reflection (instanceof) to check if the 
    * context is a transaction or the transform. If the context is an instance 
-   * of TransformContext, the the engine is about to start reading.
+   * of TransformContext, the engine is about to start reading.
    * 
    * @param context the context which is starting
    */

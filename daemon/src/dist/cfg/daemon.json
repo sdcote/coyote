@@ -2,7 +2,7 @@
 	"Class": "coyote.dx.Service",
 	
 	"Manager" : {
-		"Port": 55290,
+		"Port": 55289,
 		"IPACL" : {
 			"default" : "deny",
 			"172.16/12" : "allow",
@@ -12,16 +12,16 @@
 	},
 
 	"Component": [
-		{ "Class": "coyote.loader.Wedge", "Notes": "This just keeps the the service open. Replace with your components or Jobs." }
+		{ "Class": "coyote.loader.Wedge", "Notes": "This just keeps the the service open. Replace with your components and Jobs." }
 	],
 	
 
 	"Logging": {
-		"CyclingFileAppender": { "target": "coyotedx.log", "categories": "info, notice", "generations": 10, "maxsize": "2MB", "enabled": true },
-		"CyclingFileAppender": { "target": "error.log", "categories": "notice, warn, error, fatal", "generations": 10, "maxsize": "2MB", "enabled": true },
-		"CyclingFileAppender": { "target": "debug.log", "categories": "trace, debug, error, fatal, warn", "generations": 10, "maxsize": "2MB", "enabled": true },
-		"CyclingFileAppender": { "target": "scheduler.log", "categories": "scheduler, thread", "generations": 10, "maxsize": "2MB", "enabled": false },
-		"CyclingFileAppender": { "target": "httpd.log", "categories": "httpd", "generations": 7, "interval": "1d", "cycletime": "00:03", "maxsize": "10MB", "enabled": true }
+		"CyclingFileAppender": { "target": "cdxd.log", "categories": "info, notice", "generations": 10, "maxsize": "2MB", "enabled": true },
+		"CyclingFileAppender": { "target": "cdxd.error.log", "categories": "notice, warn, error, fatal", "generations": 10, "maxsize": "2MB", "enabled": true },
+		"CyclingFileAppender": { "target": "cdxd.debug.log", "categories": "trace, debug, error, fatal, warn", "generations": 10, "maxsize": "2MB", "enabled": true },
+		"CyclingFileAppender": { "target": "cdxd.scheduler.log", "categories": "scheduler, thread", "generations": 10, "maxsize": "2MB", "enabled": true },
+		"CyclingFileAppender": { "target": "cdxd.httpd.log", "categories": "httpd", "generations": 7, "interval": "1d", "cycletime": "00:03", "maxsize": "10MB", "enabled": true }
 	}
 
 }

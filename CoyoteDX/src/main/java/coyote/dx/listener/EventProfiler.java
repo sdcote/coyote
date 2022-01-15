@@ -7,6 +7,7 @@
  */
 package coyote.dx.listener;
 
+import coyote.commons.ExceptionUtil;
 import coyote.commons.StringUtil;
 import coyote.dataframe.DataField;
 import coyote.dataframe.DataFrame;
@@ -20,6 +21,7 @@ import coyote.loader.cfg.Config;
 import coyote.loader.cfg.ConfigurationException;
 import coyote.loader.log.Log;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 
 
@@ -66,6 +68,8 @@ public class EventProfiler extends AbstractFileRecorder implements ContextListen
       cfg.set(ConfigTag.LIMIT, DEFAULT_LIMIT);
     }
 
+    // We need UTF-8 encoding.
+    super.setCharacterSet(StandardCharsets.UTF_8);
   }
 
 
@@ -93,15 +97,6 @@ public class EventProfiler extends AbstractFileRecorder implements ContextListen
       }
     }
 
-
-    try {
-      write("opening\n");
-      write("Using a timestamp field of " + timestampFieldName + "\n");
-      write("Tracking " + trackedFieldName + "\n");
-    } catch (final Exception e) {
-      context.setError("Problems during initialization - " + e.getClass().getSimpleName() + " : " + e.getMessage());
-      return;
-    }
   }
 
 
@@ -113,31 +108,34 @@ public class EventProfiler extends AbstractFileRecorder implements ContextListen
   @Override
   public void onMap(TransactionContext txnContext) {
     DataFrame frame = txnContext.getTargetFrame();
-    Date date = null;
+    if( frame != null) {
+      Date date = null;
 
-    try {
-      date = frame.getAsDate(timestampFieldName);
-    } catch (DataFrameException e) {
-      Log.error("invalid data received: " + timestampFieldName + " returned " + frame.getField(timestampFieldName).toString());
-    }
+      try {
+        date = frame.getAsDate(timestampFieldName);
+      } catch (DataFrameException e) {
+        Log.error("invalid data received: " + timestampFieldName + " returned " + frame.getField(timestampFieldName).toString());
+      }
 
-    try {
-      DataField field = frame.getField(trackedFieldName);
-      if (field != null) {
-        if (field.isNumeric()) {
-          tracker.sample(date, frame.getAsDouble(trackedFieldName));
-        } else {
-          tracker.sample(date, frame.getAsString(trackedFieldName));
+      if (date != null) {
+        try {
+          DataField field = frame.getField(trackedFieldName);
+          if (field != null) {
+            if (field.isNumeric()) {
+              tracker.sample(date, frame.getAsDouble(trackedFieldName));
+            } else {
+              tracker.sample(date, frame.getAsString(trackedFieldName));
+            }
+          }
+        } catch (Throwable e) {
+          Log.error("Exception onMap:" + e.getMessage() + "\n" + ExceptionUtil.stackTrace(e));
         }
       } else {
-        Log.warn(frame.toString());
+        Log.debug("onMap: No date in '"+timestampFieldName+"' "+ frame);
       }
-    } catch (DataFrameException e) {
-      Log.error("invalid data received: " + timestampFieldName + " returned " + frame.get(timestampFieldName));
-    } catch (Exception e) {
-      Log.error(e.getMessage());
+    } else{
+      Log.debug("onMap: No target frame");
     }
-
   }
 
 
@@ -146,8 +144,6 @@ public class EventProfiler extends AbstractFileRecorder implements ContextListen
    */
   @Override
   public void onEnd(OperationalContext opContext) {
-
-    // generate report at the end of the Transform
     if (opContext instanceof TransformContext) {
       write(tracker.toString());
     }

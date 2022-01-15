@@ -14,7 +14,7 @@ import coyote.commons.Assert;
 import coyote.commons.CipherUtil;
 import coyote.commons.UriUtil;
 import coyote.dx.ConfigTag;
-import coyote.dx.ftp.RemoteSite;
+import coyote.commons.network.RemoteSite;
 import coyote.loader.Loader;
 import coyote.loader.cfg.ConfigurationException;
 
@@ -82,13 +82,15 @@ public abstract class AbstractFileTransferTask extends AbstractFileTask {
 
   /**
    * Calculate the absolute file name of the file represented by the given URL.
+   *
+   * <p>As with all components, this will place relative files in the JobDirectory.</p>
    * 
    * @param text the URI text to parse and calculate the full file path
    *  
    * @return an absolute path to the file represented by the given URI or null 
    *         if the URI does not represent a file.
    * 
-   * @throws ConfigurationException it there are problems parsing the URI text 
+   * @throws ConfigurationException if there are problems parsing the URI text
    */
   public String getLocalFile(String text) throws ConfigurationException {
     String retval = null;
@@ -111,6 +113,13 @@ public abstract class AbstractFileTransferTask extends AbstractFileTask {
       }
     } catch (Exception e) {
       throw new ConfigurationException("Could not determine local file for '" + text + "'", e);
+    }
+
+    // if the return value is a relative path, use the current job directory as it's parent
+    File localFile = new File(retval);
+    if (!localFile.isAbsolute()) {
+      localFile = new File(getJobDirectory(), localFile.getPath());
+      retval = localFile.getAbsolutePath();
     }
 
     return retval;

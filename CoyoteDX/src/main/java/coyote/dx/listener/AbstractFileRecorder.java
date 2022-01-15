@@ -16,6 +16,8 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 import coyote.commons.StringUtil;
 import coyote.commons.UriUtil;
@@ -41,7 +43,23 @@ public abstract class AbstractFileRecorder extends AbstractContextRecorder {
 
   protected File targetFile = null;
 
+  protected Charset characterSet = StandardCharsets.ISO_8859_1;
 
+
+  /**
+   * @return the encoding we use when writing to the file.
+   */
+  public Charset getCharacterSet() {
+    return characterSet;
+  }
+
+
+  /**
+   * @param characterSet the encoding to use when writing to the file.
+   */
+  public void setCharacterSet(Charset characterSet) {
+    this.characterSet = characterSet;
+  }
 
 
   /**
@@ -60,9 +78,9 @@ public abstract class AbstractFileRecorder extends AbstractContextRecorder {
       target = getTarget().trim();
 
       if (STDOUT.equalsIgnoreCase(target)) {
-        log_writer = new BufferedWriter(new OutputStreamWriter(System.out));
+        log_writer = new BufferedWriter(new OutputStreamWriter(System.out, getCharacterSet()));
       } else if (STDERR.equalsIgnoreCase(target)) {
-        log_writer = new BufferedWriter(new OutputStreamWriter(System.err));
+        log_writer = new BufferedWriter(new OutputStreamWriter(System.err, getCharacterSet()));
       } else {
         // Try to parse the target as a URI, failures result in a null
         if (UriUtil.parse(target) == null) {
@@ -119,7 +137,7 @@ public abstract class AbstractFileRecorder extends AbstractContextRecorder {
   protected void write(String text) {
     if (targetFile != null && !targetFile.exists()) {
       try {
-        log_writer = new OutputStreamWriter(new FileOutputStream(targetFile.toString(), false));
+        log_writer = new OutputStreamWriter(new FileOutputStream(targetFile.toString(), false), getCharacterSet());
       } catch (final Exception ex) {
         System.err.println("Could not recreate " + targetFile.getAbsolutePath() + " - " + ex.getMessage());
         if (log_writer != null) {
@@ -139,7 +157,7 @@ public abstract class AbstractFileRecorder extends AbstractContextRecorder {
     try {
       log_writer.write(text);
       log_writer.flush();
-    } catch (final IOException ioe) {} catch (final Exception e) {
+    } catch (final Exception e) {
       context.setError(this.getClass().getName() + " context logging error: " + e + ":" + e.getMessage());
     }
   }

@@ -5,7 +5,7 @@ build/
 **/archives/**
 work/
 **/bin/
-!**/coyotedx/bin
+!**/cdx/bin
 !**/src/dist/bin
 
 
@@ -70,3 +70,4 @@ CoyoteInstaller.jar
 CoyoteDX/hprof/
 CoyoteUI/src/html/
 
+CDXInstaller.jar
