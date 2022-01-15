@@ -131,7 +131,7 @@ public class EventProfiler extends AbstractFileRecorder implements ContextListen
           Log.error("Exception onMap:" + e.getMessage() + "\n" + ExceptionUtil.stackTrace(e));
         }
       } else {
-        Log.debug("onMap: No date in '"+timestampFieldName+"' "+ frame);
+        Log.warn("Could not find tracked field'"+trackedFieldName+"' in "+frame.toString());
       }
     } else{
       Log.debug("onMap: No target frame");
