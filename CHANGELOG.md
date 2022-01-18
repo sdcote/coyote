@@ -21,12 +21,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * **LogFileReader** - Reader that reads text log files and creates data frames. Currently, Apache log formats are supported but the ability to specify a `freeform` format is under development.
 * **EventProfiler** - A listener that tracks events (anything with a timestamp field) and plots metrics. Can be used as a simple log analyzer.
 * **Secure Copy (SCP) Support** - The `Retrieve` task now supports SCP file transfer.
+* **FileWriter Listener encoding** - Listeners that use `AbstractFileRecorder` have the ability to specify their encoding.
 
 ### Fixed
 * **JdbcWriter NPE** - Fixed the issue with the prepared statement not being (re)created when the `Job` is closed and later re-opened as is the case with `Job` instances running in a `Service`.
 * **JdbcWriter ALTER** - Updated the Database dialect to support ALTER statements.
 * **EventProfiler NPE** - Fixed the NPE encountered for some records.
-* **Retrieve Task Relative Files** - All relative local files now go into the job directory as is standards for components.
+* **Retrieve Task Relative Files** - All relative local files now go into the job directory as is standard for components.
+* **Event Profiler Encoding** - `EventProfiler` now specifies UTF-8 encoding to ensure graphs represent properly on Unix systems.
 
 ## [0.0.1] - 15/08/2019
 This release contained initial functionality to enable development of external providers.
