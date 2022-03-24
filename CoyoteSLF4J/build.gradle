@@ -6,7 +6,7 @@ ext {
 	provider = 'Coyote Systems'
 	junitVersion = '4.12'
 	slf4jVersion = '1.7.21'
-	loaderVersion = '0.7.22'
+	loaderVersion = '0.7.23'
 }
 
 jar {
