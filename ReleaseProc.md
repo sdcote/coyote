@@ -8,9 +8,9 @@ The project uses [IZPack](http://izpack.org/) for cross-platform installations. 
 
 To build a new installer for Coyote run the following:
 
-    <pathTo>\IzPack\bin\compile.bat installer\install.xml -b . -o CoyoteInstaller.jar -k standard
+    <pathTo>\IzPack\bin\compile.bat installer\install.xml -b . -o CDXInstaller.jar -k standard
 
-The self-executing JAR (`CoyoteInstaller.jar`) Will be in the root of the project.
+The self-executing JAR (`CDXInstaller.jar`) Will be in the root of the project.
 
 BTW, Use the `compile` if you are running on a *nix machine.
 
@@ -19,27 +19,27 @@ BTW, Use the `compile` if you are running on a *nix machine.
 From the base directory after everything has compiled, create the base Docker image:
 
 ```shell
-docker build -f Docker/Base/Dockerfile -t coyote .
+docker build -f Docker/Base/Dockerfile -t cdx .
 ```
 
 Then tag it:
 
 ```shell
-docker tag coyote coyotesys/coyote:0.8.7
+docker tag cdx coyotesys/cdx:0.8.7
 
 ```
 
 Then push it:
 
 ```shell
-docker push coyotesys/coyote:0.8.7
+docker push coyotesys/cdx:0.8.7
 ```
 
 ## Version Numbers
 
 Versioning is currently managed by modules. Each module has its own versioning.
 
-When Coyote DX is released, it will contain a group of modules of with their own separate versions.
+When CDX is released, it will contain a group of modules of with their own separate versions.
 
 1. Confirm the versions in the following files as appropriate:
    * installer/install.xml - The same version as the base DX package.
