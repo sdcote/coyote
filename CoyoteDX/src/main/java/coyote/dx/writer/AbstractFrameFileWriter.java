@@ -99,71 +99,69 @@ public abstract class AbstractFrameFileWriter extends AbstractFrameWriter implem
    */
   @Override
   public void open(final TransformContext context) {
-    super.open(context);
+      super.open(context);
 
-    // if we don't already have a printwriter, set one up based on the configuration
-    if (printwriter == null) {
-      // check for a target in our configuration
-      final String target = getString(ConfigTag.TARGET);
-      Log.debug(LogMsg.createMsg(CDX.MSG, "Writer.using_target", getClass().getSimpleName(), target));
+      // if we don't already have a printwriter, set one up based on the configuration
+      if (printwriter == null) {
+          // check for a target in our configuration
+          String target = getString(ConfigTag.TARGET);
+          Log.debug(LogMsg.createMsg(CDX.MSG, "Writer.using_target", getClass().getSimpleName(), target));
 
-      // Make sure we have a target
-      if (StringUtil.isNotBlank(target)) {
-
-        // Try to parse the target as a URI, failures result in a null
-        final URI uri = UriUtil.parse(target);
-
-        File targetFile = null;
-
-        // Check to see if it is STDOUT or STDERR
-        if (StringUtil.equalsIgnoreCase(STDOUT, target)) {
-          printwriter = new PrintWriter(System.out);
-        } else if (StringUtil.equalsIgnoreCase(STDERR, target)) {
-          printwriter = new PrintWriter(System.err);
-        } else if (uri != null) {
-          if (UriUtil.isFile(uri)) {
-            targetFile = UriUtil.getFile(uri);
-
-            if (targetFile == null) {
-              Log.warn(LogMsg.createMsg(CDX.MSG, "Writer.The target '{%s}' does not represent a file", target));
-            }
-          } else {
-            // if all we have is a filename, there is no scheme to check...
-            // check that there is a scheme, if not then assume a filename!
-            if (uri.getScheme() == null) {
-              targetFile = new File(target);
-            }
+          // Make sure we have a target
+          if (StringUtil.isBlank(target)) {
+              Log.info("No target specified - defaulting to STDOUT");
+              target = STDOUT;
           }
-        } else {
-          targetFile = new File(target);
-        }
 
-        // if not absolute, use the current job directory
-        if (!targetFile.isAbsolute()) {
-          targetFile = new File(getJobDirectory(), targetFile.getPath());
-        }
-        Log.debug(LogMsg.createMsg(CDX.MSG, "Writer.using_target_file", getClass().getSimpleName(), targetFile.getAbsolutePath()));
+          // Try to parse the target as a URI, failures result in a null
+          final URI uri = UriUtil.parse(target);
 
-        // Determine the size of the file if it exists
-        if (!targetFile.exists() || targetFile.length() <= 0) {
-          setTargetSize(0);
-        } else {
-          setTargetSize(targetFile.length());
-        }
+          File targetFile = null;
 
-        try {
-          final Writer fwriter = new FileWriter(targetFile, isAppending());
-          printwriter = new PrintWriter(fwriter, isAppending());
-        } catch (final Exception e) {
-          Log.error("Could not create writer: " + e.getMessage());
-          context.setError(e.getMessage());
-        }
+          // Check to see if it is STDOUT or STDERR
+          if (StringUtil.equalsIgnoreCase(STDOUT, target)) {
+              printwriter = new PrintWriter(System.out);
+          } else if (StringUtil.equalsIgnoreCase(STDERR, target)) {
+              printwriter = new PrintWriter(System.err);
+          } else if (uri != null) {
+              if (UriUtil.isFile(uri)) {
+                  targetFile = UriUtil.getFile(uri);
 
-      } else {
-        Log.error("No target specified");
-        context.setError(getClass().getName() + " could not determine target");
+                  if (targetFile == null) {
+                      Log.warn(LogMsg.createMsg(CDX.MSG, "Writer.The target '{%s}' does not represent a file", target));
+                  }
+              } else {
+                  // if all we have is a filename, there is no scheme to check...
+                  // check that there is a scheme, if not then assume a filename!
+                  if (uri.getScheme() == null) {
+                      targetFile = new File(target);
+                  }
+              }
+              targetFile = new File(target);
+
+              // if not absolute, use the current job directory
+              if (!targetFile.isAbsolute()) {
+                  targetFile = new File(getJobDirectory(), targetFile.getPath());
+              }
+              Log.debug(LogMsg.createMsg(CDX.MSG, "Writer.using_target_file", getClass().getSimpleName(), targetFile.getAbsolutePath()));
+
+              // Determine the size of the file if it exists
+              if (!targetFile.exists() || targetFile.length() <= 0) {
+                  setTargetSize(0);
+              } else {
+                  setTargetSize(targetFile.length());
+              }
+
+              try {
+                  final Writer fwriter = new FileWriter(targetFile, isAppending());
+                  printwriter = new PrintWriter(fwriter, isAppending());
+              } catch (final Exception e) {
+                  Log.error("Could not create writer: " + e.getMessage());
+                  context.setError(e.getMessage());
+              }
+          }
+
       }
-    }
 
   }
 
