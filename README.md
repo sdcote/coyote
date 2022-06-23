@@ -33,7 +33,7 @@ Feel free to copy whatever you find useful and please consider contributing so o
 
 This project has a simple goal: make executing data exchange jobs quick and simple.
 
- * Configuration file based, for easy operation of many different tasks (i.e "exchange" file),
+ * Configuration file based, for easy operation of many tasks (i.e "exchange" file),
  * Support command-line operations with no coding (just an "exchange" file),
  * Do not require complicated frameworks or facilities (e.g. containers)
  * Enable integrations prototyping, and development operations

@@ -25,14 +25,14 @@ docker build -f Docker/Base/Dockerfile -t cdx .
 Then tag it:
 
 ```shell
-docker tag cdx coyotesys/cdx:0.8.7
+docker tag cdx coyotesys/cdx:0.9.0
 
 ```
 
 Then push it:
 
 ```shell
-docker push coyotesys/cdx:0.8.7
+docker push coyotesys/cdx:0.9.0
 ```
 
 ## Version Numbers
