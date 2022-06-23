@@ -54,7 +54,8 @@ import java.util.Properties;
  *
  * <p>The name attribute is the name of the context or object to locate. </p>
  *
- * <p>The filter attribute is used to return only matching classes of entries.</p>
+ * <p>The filter attribute is used to return only matching classes of entries. if omitted, a default filter of
+ * "(objectClass=*)" will be used.</p>
  *
  * <p>The files section list all the attribute names to include from the retrieved entry. These will be the fields in
  * the data frame that is passed through the transformation engine.</p>
@@ -64,8 +65,10 @@ import java.util.Properties;
  */
 public class LdapReader extends AbstractFrameReader {
 
-    private static final String RDN_TAG = "RDN";
-    private static final String VALUE_TAG = "Value";
+    private static final String NAME_FIELD = "Name";
+
+    private static final String FULLNAME_FIELD = "FullName";
+
     private static final String DEFAULT_FILTER = "(objectClass=*)";
 
     // List of attributes to include in the dataframe
@@ -171,8 +174,8 @@ public class LdapReader extends AbstractFrameReader {
                     SearchResult entry = results.next();
                     if (entry != null) {
                         DataFrame frame = new DataFrame();
-                        frame.add("Name", entry.getName());
-                        frame.add("FullName", entry.getNameInNamespace());
+                        frame.add(NAME_FIELD, entry.getName());
+                        frame.add(FULLNAME_FIELD, entry.getNameInNamespace());
                         Attributes attr = entry.getAttributes();
                         for (String attrName : attributeNames) {
                             Attribute at = attr.get(attrName);
