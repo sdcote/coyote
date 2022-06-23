@@ -14,7 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.9.0] - Unreleased
 ### Added
-* **JLdapReader** - Query an LDAP service for entries.
+* **LdapReader** - Query an LDAP service for entries.
 
 ## [0.8.7] - Unreleased
 ### Added
