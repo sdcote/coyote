@@ -60,7 +60,7 @@ import java.util.Properties;
  * <p>The files section list all the attribute names to include from the retrieved entry. These will be the fields in
  * the data frame that is passed through the transformation engine.</p>
  *
- * <p>Ever entry (data frame) will have at least a Name and FullName field regardless of the attribute names are in the
+ * <p>Every entry (data frame) will have at least a Name and FullName field regardless of the attribute names are in the
  * field section. This aides in development and debugging.</p>
  */
 public class LdapReader extends AbstractFrameReader {
