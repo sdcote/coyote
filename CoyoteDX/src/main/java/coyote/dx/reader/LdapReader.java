@@ -71,12 +71,22 @@ public class LdapReader extends AbstractFrameReader {
     // List of attributes to include in the dataframe
     private final List<String> attributeNames = new ArrayList<>();
 
-    private final int pageSize = 100;
+    // page size for retrieving batches of entries
+    private final int pageSize = 500;
+
+    // The preloaded data frames to pass through the engine
     private final List<DataFrame> frames = new ArrayList<>();
-    String providerUrl = null;
-    NamingEnumeration results = null;
+
+    // The connection URL for the directory service
+    private String providerUrl = null;
+
+    // The LDAP context used for lookups
     private LdapContext connection;
+
+    // The filter for the search
     private String searchFilter = null;
+
+    // The pointer into the pre-loaded array of data frames
     private int index = 0;
 
 
@@ -149,7 +159,7 @@ public class LdapReader extends AbstractFrameReader {
 
         byte[] cookie = null;
         try {
-            results = connection.search(name, searchFilter, searchControls);
+            NamingEnumeration<SearchResult> results = connection.search(name, searchFilter, searchControls);
 
             do {
                 // Perform the search
@@ -158,7 +168,7 @@ public class LdapReader extends AbstractFrameReader {
                 // Iterate over a batch of search results
                 while (results != null && results.hasMore()) {
                     // Display an entry
-                    SearchResult entry = (SearchResult) results.next();
+                    SearchResult entry = results.next();
                     if (entry != null) {
                         DataFrame frame = new DataFrame();
                         frame.add("Name", entry.getName());
