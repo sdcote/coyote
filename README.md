@@ -1,6 +1,6 @@
 
 # Coyote DX
-[![Build Status](https://travis-ci.org/sdcote/coyote.svg?branch=develop)](https://travis-ci.org/sdcote/coyote) [![Codacy Badge](https://api.codacy.com/project/badge/Grade/84d8056af4734f3eae452f110e476d1d)](https://www.codacy.com/app/sdcote/coyote?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=sdcote/coyote&amp;utm_campaign=Badge_Grade) [![codecov](https://codecov.io/gh/sdcote/coyote/branch/develop/graph/badge.svg)](https://codecov.io/gh/sdcote/coyote) [![Code Climate](https://codeclimate.com/github/sdcote/coyote/badges/gpa.svg)](https://codeclimate.com/github/sdcote/coyote)
+[![Build Status](https://travis-ci.org/sdcote/coyote.svg?branch=develop)](https://travis-ci.org/sdcote/coyote) [![codecov](https://codecov.io/gh/sdcote/coyote/branch/develop/graph/badge.svg)](https://codecov.io/gh/sdcote/coyote) [![Code Climate](https://codeclimate.com/github/sdcote/coyote/badges/gpa.svg)](https://codeclimate.com/github/sdcote/coyote)
 
 
 This is a lightweight toolkit for performing basic data exchange (integration) tasks.
@@ -33,7 +33,7 @@ Feel free to copy whatever you find useful and please consider contributing so o
 
 This project has a simple goal: make executing data exchange jobs quick and simple.
 
- * Configuration file based, for easy operation of many different tasks (i.e "exchange" file),
+ * Configuration file based, for easy operation of many tasks (i.e "exchange" file),
  * Support command-line operations with no coding (just an "exchange" file),
  * Do not require complicated frameworks or facilities (e.g. containers)
  * Enable integrations prototyping, and development operations

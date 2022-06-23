@@ -32,14 +32,14 @@ public class OpenMetricsResponder extends AbstractCoyoteResponder implements Res
     private static final String GAUGE_TYPE = "gauge";
     private static final String COUNTER_TYPE = "counter";
 
-    private static final String VM_AVAIL_MEM = "available_memory";
-    private static final String VM_CURR_HEAP = "current_heap";
-    private static final String VM_FREE_HEAP = "free_heap";
-    private static final String VM_FREE_MEM = "free_memory";
-    private static final String VM_HEAP_PCT = "heap_percentage";
-    private static final String VM_MAX_HEAP = "max_heap_size";
-    private static final String CMPNT_COUNT = "component_count";
-    private static final String JOB_COUNT = "job_count";
+    private static final String VM_AVAIL_MEM = "cdx_available_memory";
+    private static final String VM_CURR_HEAP = "cdx_current_heap";
+    private static final String VM_FREE_HEAP = "cdx_free_heap";
+    private static final String VM_FREE_MEM = "cdx_free_memory";
+    private static final String VM_HEAP_PCT = "cdx_heap_percentage";
+    private static final String VM_MAX_HEAP = "cdx_max_heap_size";
+    private static final String CMPNT_COUNT = "cdx_component_count";
+    private static final String JOB_COUNT = "cdx_job_count";
 
     private static void writeEscapedHelp(Writer writer, String s) throws IOException {
         for (int i = 0; i < s.length(); i++) {
@@ -85,7 +85,7 @@ public class OpenMetricsResponder extends AbstractCoyoteResponder implements Res
         try {
             writeGauge(writer, VM_AVAIL_MEM, statboard.getAvailableMemory(), "memory available to the VM less the total memory currently allocated for the heap", "bytes", labels);
             writeGauge(writer, VM_CURR_HEAP, statboard.getCurrentHeapSize(), "memory currently in use by the heap", "bytes", labels);
-            writeGauge(writer, VM_FREE_HEAP, statboard.getFreeHeapSize(), "n approximation of the total amount of memory currently available on the heap for newly allocated objects", "bytes", labels);
+            writeGauge(writer, VM_FREE_HEAP, statboard.getFreeHeapSize(), "an approximation of the total amount of memory currently available on the heap for newly allocated objects", "bytes", labels);
             writeGauge(writer, VM_FREE_MEM, statboard.getFreeMemory(), "amount of memory that can be allocated prior to running out of memory in the VM", "bytes", labels);
             writeGauge(writer, VM_MAX_HEAP, statboard.getMaxHeapSize(), "amount of memory that the virtual machine will attempt to use", "bytes", labels);
             writeGauge(writer, VM_HEAP_PCT, statboard.getHeapPercentage(), "percentage of the maximum memory the currently allocated heap occupies", "percent", labels);
