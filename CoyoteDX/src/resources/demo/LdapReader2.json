@@ -1,0 +1,40 @@
+{
+	"Class": "coyote.dx.Job",
+	"Job": {
+		"Name": "LdapReader2",
+		"Description": [
+			"This reads in all the users in the directory. The object is 'person' and ",
+			"the node is 'OU=LOB Users,DC=corp,DC=example,DC=com'"
+		],
+		"Reader": {
+			"class": "LdapReader",
+			"source": "corp.example.com",
+			"username": "juser@corp",
+			"password": "5up3RseC4et",
+			"name": "OU=LOB Users,DC=corp,DC=example,DC=com",
+			"filter": "(objectClass=person)",
+			"fields": [
+				"cn",
+				"displayName",
+				"title",
+				"department",
+				"mail",
+				"ipPhone",
+				"manager",
+				"memberOf",
+				"description",
+				"workLocationID",
+				"name"
+			]
+		},
+		"Writer": {
+			"class": "CsvWriter",
+			"target": "ldap_reader.csv",
+			"header": true
+		},
+		"Logging": {
+			"StandardError": { "name": "error", "target": "STDERR", "categories": "error, fatal, warn" },
+			"StandardOutput": { "name": "default", "target": "STDOUT", "categories": "trace, debug, info" }
+		}
+	}
+}
