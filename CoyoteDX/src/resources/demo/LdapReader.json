@@ -1,0 +1,35 @@
+{
+	"Class": "coyote.dx.Job",
+	"Job": {
+		"Name": "LdapReader",
+		"Description": [
+			"This reads in all the security groups in the directory. The object is 'group' and ",
+			"the node is 'OU=Security Groups,DC=corp,DC=example,DC=com'"
+		],
+		"Reader": {
+			"class": "LdapReader",
+			"source": "corp.example.com",
+			"username": "juser@corp",
+			"password": "5up3RseC4et",
+			"name": "OU=Security Groups,DC=corp,DC=example,DC=com",
+			"filterX": "(objectClass=group)",
+			"fields": [
+				"cn",
+				"description",
+				"displayName",
+				"info",
+				"name"
+			]
+		},
+		"Writer": {
+			"class": "CsvWriter",
+			"target": "ldap_reader.csv",
+			"header": true
+		},
+		
+		"Logging": {
+			"StandardError": { "name": "error", "target": "STDERR", "categories": "error, fatal, warn" },
+			"StandardOutput": { "name": "default", "target": "STDOUT", "categories": "trace, debug, info" }
+		}
+	}
+}
