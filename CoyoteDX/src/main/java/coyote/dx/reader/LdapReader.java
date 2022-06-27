@@ -130,6 +130,9 @@ public class LdapReader extends AbstractFrameReader {
         Properties env = new Properties();
         env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
         env.put(Context.PROVIDER_URL, providerUrl);
+        //env.put(Context.REFERRAL, "ignore"); // make this configurable
+        env.put(Context.REFERRAL, "follow");
+
         env.put(Context.SECURITY_PRINCIPAL, getString(ConfigTag.USERNAME));
         env.put(Context.SECURITY_CREDENTIALS, getString(ConfigTag.PASSWORD));
 
@@ -203,8 +206,10 @@ public class LdapReader extends AbstractFrameReader {
                 connection.setRequestControls(new Control[]{new PagedResultsControl(pageSize, cookie, Control.CRITICAL)});
             } while (cookie != null);
             Log.debug("Found " + frames.size() + " directory entries");
-        } catch (NamingException | IOException e) {
-            context.setError(LogMsg.createMsg(CDX.MSG, "Reader.could_not_read_from_source", getClass().getName(), e.getClass().toString() + ": " + e.getMessage()).toString());
+        } catch (Exception e) {
+            String errorMessage = LogMsg.createMsg(CDX.MSG, "Reader.could_not_read_from_source", getClass().getName(), e.getClass().getName() + ": " + e.getMessage()).toString();
+            Log.error(errorMessage);
+            context.setError(errorMessage);
         }
     }
 
