@@ -1,3 +1,10 @@
+/*
+ * Copyright (c) 2022 Stephan D. Cote' - All rights reserved.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the MIT License which accompanies this distribution, and is
+ * available at http://creativecommons.org/licenses/MIT/
+ */
 package coyote.dx.reader;
 
 import coyote.commons.StringUtil;
@@ -29,8 +36,8 @@ import java.util.Properties;
 /**
  * Reads entries from an LDAP service.
  *
- * <p>This is initially used in finding groups and configuration elements in  directory services. It has also been used
- * to discover the latest official printers and copiers in some environments. THere are more use cases, but these are
+ * <p>This is initially used in finding groups and configuration elements in directory services. It has also been used
+ * to discover the latest official printers and copiers in some environments. There are more use cases, but these are
  * what drove the initial design decisions for this reader.</p>
  *
  * <p>A sample configuration follows:
@@ -52,23 +59,26 @@ import java.util.Properties;
  *     },
  * </pre></p>
  *
+ * <p>The source attribute is the name[and port] of the LDAP service to connect. THis string will ultimately be
+ * prepended with "ldap://" and used as the connection URL.</p>
+ *
+ * <p>The optional username and attributes are the credentials to authenticate once the connection is made.</p>
+ *
  * <p>The name attribute is the name of the context or object to locate. </p>
  *
  * <p>The filter attribute is used to return only matching classes of entries. if omitted, a default filter of
  * "(objectClass=*)" will be used.</p>
  *
- * <p>The files section list all the attribute names to include from the retrieved entry. These will be the fields in
+ * <p>The fields section list all the attribute names to include from the retrieved entry. These will be the fields in
  * the data frame that is passed through the transformation engine.</p>
  *
- * <p>Every entry (data frame) will have at least a Name and FullName field regardless of the attribute names are in the
+ * <p>Every entry (data frame) will have at least a Name and FullName field regardless of the attribute names in the
  * field section. This aides in development and debugging.</p>
  */
 public class LdapReader extends AbstractFrameReader {
 
     private static final String NAME_FIELD = "Name";
-
     private static final String FULLNAME_FIELD = "FullName";
-
     private static final String DEFAULT_FILTER = "(objectClass=*)";
 
     // List of attributes to include in the dataframe
@@ -130,11 +140,14 @@ public class LdapReader extends AbstractFrameReader {
         Properties env = new Properties();
         env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
         env.put(Context.PROVIDER_URL, providerUrl);
-        //env.put(Context.REFERRAL, "ignore"); // make this configurable
+        //env.put(Context.REFERRAL, "ignore"); // make this configurable?
         env.put(Context.REFERRAL, "follow");
 
-        env.put(Context.SECURITY_PRINCIPAL, getString(ConfigTag.USERNAME));
-        env.put(Context.SECURITY_CREDENTIALS, getString(ConfigTag.PASSWORD));
+        if (StringUtil.isNotBlank(getString(ConfigTag.USERNAME)))
+            env.put(Context.SECURITY_PRINCIPAL, getString(ConfigTag.USERNAME));
+
+        if (StringUtil.isNotBlank(getString(ConfigTag.PASSWORD)))
+            env.put(Context.SECURITY_CREDENTIALS, getString(ConfigTag.PASSWORD));
 
         try {
             connection = new InitialLdapContext(env, null);
@@ -173,7 +186,6 @@ public class LdapReader extends AbstractFrameReader {
 
                 // Iterate over a batch of search results
                 while (results != null && results.hasMore()) {
-                    // Display an entry
                     SearchResult entry = results.next();
                     if (entry != null) {
                         DataFrame frame = new DataFrame();
@@ -210,11 +222,22 @@ public class LdapReader extends AbstractFrameReader {
             String errorMessage = LogMsg.createMsg(CDX.MSG, "Reader.could_not_read_from_source", getClass().getName(), e.getClass().getName() + ": " + e.getMessage()).toString();
             Log.error(errorMessage);
             context.setError(errorMessage);
+        } finally {
+            if (connection != null) {
+                try {
+                    connection.close();
+                } catch (NamingException ignore) {
+                    // Nothing to do here
+                }
+                connection = null;
+            }
         }
     }
 
 
     /**
+     * Read one of the frames from the preloaded search results.
+     *
      * @param context the context containing data related to the current transaction.
      * @return the next frame read or null if there are no more frames to process.
      */
@@ -232,6 +255,8 @@ public class LdapReader extends AbstractFrameReader {
 
 
     /**
+     * Flag to indicate end of data
+     *
      * @return true if there are no more frames to read, false otherwise
      */
     @Override
@@ -241,6 +266,8 @@ public class LdapReader extends AbstractFrameReader {
 
 
     /**
+     * Close the connection
+     *
      * @see java.io.Closeable#close()
      */
     @Override
