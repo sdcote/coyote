@@ -57,7 +57,7 @@ import java.util.Properties;
  * 				"name"
  * 			]
  *     },
- * </pre></p>
+ * </pre>
  *
  * <p>The source attribute is the name[and port] of the LDAP service to connect. THis string will ultimately be
  * prepended with "ldap://" and used as the connection URL.</p>
