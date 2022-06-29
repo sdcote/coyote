@@ -30,7 +30,7 @@ import java.net.URISyntaxException;
  */
 public class CDX {
 
-  public static final Version VERSION = new Version(0, 8, 7, Version.DEVELOPMENT);
+  public static final Version VERSION = new Version(0, 9, 0, Version.DEVELOPMENT);
   public static final String NAME = "CDX";
   public static final String DEFAULT_DATETIME_FORMAT = "yyyy-MM-dd HH:mm:ss.SSSX";
   public static final String DEFAULT_DATE_FORMAT = "yyyy-MM-dd";
