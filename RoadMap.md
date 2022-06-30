@@ -14,7 +14,14 @@ Web Services, particularly microservices, are insanely popular at the moment and
 
 The goal is to run scalable CRUD operations on relational data via ReST patterns using HTTP. This will enable teams to stand up web services to collect and manage data with a simple configuration file (data transfer job) and allow for the creation of PoC projects with a minimum of back-office development. Just run the services locally, and point your web application to use those services. This might be something along the lines of `cdx backoffice.json` which would stand up the web service endpoints.
 
-This involves the CoyoteDX and CoyoteDB modules with some adjustments expected in the Loader which contains the core HTTP and threading components. 
+This involves the CoyoteDX and CoyoteDB modules with some adjustments expected in the Loader which contains the core HTTP and threading components.
+
+## Prometheus Proxy
+Include a variety of Custom transforms to turn API calls into OpenMetrics.
+
+The Prometheus monitoring solution involves polling a service for metrics. That service (a.k.a exporter) generates these metrics by polling the local environment or an external API. By combining the HttpReader or a WebserviceReader it should be possible to retrieve metrics through an API call and make them available for Prometheus to retrieve.
+
+This will probably be implemented in the CoyoteMC module where a variety of APIs form a variety of products (ServiceNow, JIRA, etc.) can be supported. There will be a set of custom transforms provided and a component that registers with the internal `HttpManager` to support OpenMetric requests. With this module (CoyoteMC) it should be possible to monitor any number of products through Prometheus. 
 
 ## CoyoteML
 The Machine Learning (ML) sub-project contributes tools to assist with processing data sets and performing machine learning processing. Much of what is specific to machine learning is encapsulated in this project, but the actual algorithms are contributed by well-established external libraries. CoyoteML provides a simple way to plug these third-party algorithms into Coyote data flows.
