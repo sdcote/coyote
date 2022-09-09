@@ -7,6 +7,7 @@
  */
 package coyote.dx.http.responder;
 
+import java.util.List;
 import java.util.Map;
 
 import coyote.commons.StringUtil;
@@ -16,7 +17,9 @@ import coyote.commons.network.http.SessionProfile;
 import coyote.commons.network.http.SessionProfileManager;
 import coyote.commons.network.http.responder.Resource;
 import coyote.commons.network.http.responder.Responder;
+import coyote.dx.ScheduledBatchJob;
 import coyote.dx.Service;
+import coyote.loader.component.ManagedComponent;
 import coyote.loader.log.Log;
 
 
@@ -24,6 +27,9 @@ import coyote.loader.log.Log;
  * 
  */
 public class Dashboard extends ViewResponder implements Responder {
+
+  private static final String COMPONENT_COUNT = "ComponentCount";
+  private static final String JOB_COUNT = "JobCount";
 
   @Override
   public Response get(Resource resource, Map<String, String> urlParams, HTTPSession session) {
@@ -41,11 +47,20 @@ public class Dashboard extends ViewResponder implements Responder {
     // The first init parameter should be the service in which everything is running
     Service service = resource.initParameter(0, Service.class);
 
-    // leave unresolved tokens in templates. 
+    // Leave unresolved tokens in templates, so we can debug typos in the templates.
     setPreProcessing(true);
 
-    // populate our symbols with those of the service
-    mergeSymbols(service.getContext().getSymbols());
+    // populate our symbols
+    mergeSymbols(service.getContext().getSymbols()); // operational context shared between components
+    mergeSymbols(service.getSymbols()); // loader symbols
+    List<ManagedComponent> components = service.getComponents();
+    getSymbols().put(COMPONENT_COUNT, components.size());
+
+    int jobCount = 0;
+    for(ManagedComponent component:components){
+      if( component instanceof ScheduledBatchJob ) jobCount++;
+    }
+    getSymbols().put(JOB_COUNT,jobCount);
 
     // load the template matching this class
     loadTemplate(this.getClass().getSimpleName());
@@ -53,7 +68,7 @@ public class Dashboard extends ViewResponder implements Responder {
     //
 
     // Add more symbols to our table, like other page fragments:
-    getSymbols().put("Menu", loadFragment("fragments/menu2.html"));
+    //getSymbols().put("Menu", loadFragment("fragments/menu2.html"));
 
     // modify the template as we see fit
 

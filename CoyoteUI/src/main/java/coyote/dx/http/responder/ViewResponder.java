@@ -55,8 +55,11 @@ public abstract class ViewResponder extends DefaultResponder implements Responde
   }
 
 
-
-
+  /**
+   * Resolve the template with our current symbol table.
+   *
+   * @return the resolved template.
+   */
   @Override
   public String getText() {
     return resolve(template);
@@ -155,6 +158,9 @@ public abstract class ViewResponder extends DefaultResponder implements Responde
    * Load a template from the {@code templates} namespace/directory of the 
    * classpath.
    *
+   * <p>This loads the HTML template with the given name from the class path. Standard practice is to use same name as
+   * the responder class bu a single responder may load different templates based on its state.</p>
+   *
    * @param name the name of the template to load.
    */
   protected void loadTemplate(final String name) {
@@ -184,6 +190,7 @@ public abstract class ViewResponder extends DefaultResponder implements Responde
 
   /**
    * Merge the given symbol table into our table.
+   *
    * @param symbols the table to merge into our table
    */
   protected void mergeSymbols(final SymbolTable symbols) {

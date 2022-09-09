@@ -53,7 +53,6 @@
 		}
 	},
 
-	
 	"Logging": {
 		"StandardOutput": { "categories": "info,notice,httpd" },
 		"StandardError": { "categories": "error, fatal, warn" },

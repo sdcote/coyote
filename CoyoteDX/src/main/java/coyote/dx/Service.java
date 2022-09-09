@@ -10,7 +10,9 @@ package coyote.dx;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import coyote.commons.StringUtil;
 import coyote.commons.network.http.HTTPD;
@@ -21,6 +23,7 @@ import coyote.dx.http.ManagerFactoryBinder;
 import coyote.loader.Loader;
 import coyote.loader.cfg.Config;
 import coyote.loader.cfg.ConfigurationException;
+import coyote.loader.component.ManagedComponent;
 import coyote.loader.log.Log;
 import coyote.loader.log.LogMsg;
 
@@ -28,11 +31,11 @@ import coyote.loader.log.LogMsg;
 /**
  * This runs the Coyote DX as a background service.
  *
- * <p>A DX service is a long running process which runs one or more DX jobs
+ * <p>A DX service is a long-running process which runs one or more DX jobs
  * according to some schedule. Normally this schedule is intermittent, but a
  * DX job my run continually to affect a more real time exchange of data.
  *
- * <p>One of the functions of this loader is to locate and load a HTTP
+ * <p>One of the functions of this loader is to locate and load an HTTP
  * listener from the class path. This allows the deployment of a JAR which
  * contains a web application acting as a UI to the system.
  */
@@ -77,14 +80,14 @@ public class Service extends AbstractBatchLoader implements Loader {
     /**
      * Start the HTTP server to provide user management of the service.
      *
-     * <p>This searches the class path for a static binding for a HTTP server. If
+     * <p>This searches the class path for a static binding for an HTTP server. If
      * it is found, it is loaded and a HttpManager is created from it and is
      * started running to provide a UI and possibly even web services support.
      *
      * <p>Part of the creation process is the passing of the configuration frame
      * from which the HttpManager can extract its configuration.
      *
-     * @param config The configuration for the manager (may be null)
+     * @param config The configuration for the manager (maybe null)
      */
     private void startManager(Config config) {
         Config cfg;
@@ -159,6 +162,22 @@ public class Service extends AbstractBatchLoader implements Loader {
 
 
     /**
+     * @return  a list of components managed by this service.
+     */
+    public List<ManagedComponent> getComponents() {
+        List<ManagedComponent> retval = new ArrayList<>();
+        synchronized (components) {
+            for (final Iterator<Object> it = components.keySet().iterator(); it.hasNext(); ) {
+                final Object cmpnt = it.next();
+                if (cmpnt instanceof ManagedComponent) {
+                    retval.add((ManagedComponent) cmpnt);
+                }
+            }
+        }
+        return retval;
+    }
+
+    /**
      * This loads all the "Jobs" in the configuration.
      *
      * <p>One of the functions of this method is to ensure the configuration has
@@ -175,7 +194,7 @@ public class Service extends AbstractBatchLoader implements Loader {
         // load generic/general components
         super.initComponents();
 
-        // Wait for the schedule to start
+        // Wait for the scheduler to start
         getScheduler().waitForActive(500);
 
         // Now load "Jobs" sections representing individual transform engines
@@ -248,6 +267,9 @@ public class Service extends AbstractBatchLoader implements Loader {
         // very important to get park(millis) to operate
         current_thread = Thread.currentThread();
 
+        // Populate the symbol table
+        populateSymbolTable();
+
         // Parse through the configuration and initialize all the components
         initComponents();
 
@@ -279,6 +301,35 @@ public class Service extends AbstractBatchLoader implements Loader {
 
         // Rename the thread back to what it was called before we were being run
         Thread.currentThread().setName(oldName);
+
+    }
+
+    /**
+     * Updates the loader symbol table with current values for this service.
+     *
+     * <p>Note this symbol table is different from the context symbol table, the purpose of which is to allow
+     * components to share data. This symbol table is specific to the loader.</p>
+     */
+    private void populateSymbolTable() {
+        initSymbolTable();
+        symbols.put(Symbols.VERSION,CDX.VERSION.toString());
+        String name = getConfig().getName();
+        String id = getConfig().getId();
+        String nodeid;
+        if (StringUtil.isNotBlank(id)) {
+            if (StringUtil.isNotBlank(name)) {
+                nodeid = name + ":" + id;
+            } else {
+                nodeid = id;
+            }
+        } else {
+            if (StringUtil.isNotBlank(name)) {
+                nodeid = name;
+            } else {
+                nodeid = "";
+            }
+        }
+        symbols.put(Symbols.NODE_ID,nodeid);
 
     }
 

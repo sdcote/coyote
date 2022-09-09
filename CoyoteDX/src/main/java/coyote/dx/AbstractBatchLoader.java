@@ -15,6 +15,7 @@ import java.util.Iterator;
 import coyote.commons.FileUtil;
 import coyote.commons.StringUtil;
 import coyote.commons.UriUtil;
+import coyote.commons.template.SymbolTable;
 import coyote.loader.AbstractLoader;
 import coyote.loader.component.ManagedComponent;
 import coyote.loader.log.Log;
@@ -225,6 +226,14 @@ public abstract class AbstractBatchLoader extends AbstractLoader {
       }
     }
     return retval;
+  }
+
+
+  /**
+   * @return the symbolTable for this batch loader
+   */
+  public SymbolTable getSymbols(){
+    return symbols;
   }
 
 }

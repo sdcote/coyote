@@ -65,5 +65,7 @@ public class Symbols {
 
   public static final String CONTEXT_STATUS = "ContextStatus"; // status description of the context
   public static final String CONTEXT_ERROR = "ContextError"; // error message in the context
+  public static final String VERSION = "Version";
+  public static final String NODE_ID = "NodeID";
 
 }
