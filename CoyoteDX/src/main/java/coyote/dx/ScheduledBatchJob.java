@@ -38,7 +38,6 @@ public class ScheduledBatchJob extends ScheduledJob implements ManagedComponent 
   Context context = null;
   private Loader loader = null;
 
-private long lastStartTime = 0;
 
 
   /**
@@ -243,7 +242,12 @@ private long lastStartTime = 0;
   }
 
 
-
+  /**
+   * @return the number of times this instance has been run.
+   */
+  public long getInstanceRunCount() {
+    return engine.getInstanceRunCount();
+  }
 
   @Override
   public DataFrame getProfile() {
@@ -251,11 +255,12 @@ private long lastStartTime = 0;
   }
 
 
-
-
   @Override
   public long getStartTime() {
-    return lastStartTime;
+    if (engine.getContext() == null)
+      return -1;
+    else
+      return engine.getContext().getStartTime();
   }
 
 
@@ -300,13 +305,19 @@ private long lastStartTime = 0;
 
 
   @Override
-  public void setId(String id) {}
+  public void setId(String id) {
+    // Ignore since it is either configured, or the instance identifier of the engine is used.
+  }
+
+
 
 
   @Override
   public void setStartTime(long millis) {
-    lastStartTime = millis;
+    // ignore, since the start time is tracked in the engine context - See: engine.getContext().getStartTime()
   }
+
+
 
 
   @Override

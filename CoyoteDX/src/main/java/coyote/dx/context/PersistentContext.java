@@ -169,7 +169,7 @@ public abstract class PersistentContext extends TransformContext {
 
 
   /**
-   * Take all of the properties in this context and update the symbol table 
+   * Take all the properties in this context and update the symbol table
    * with them.
    */
   @SuppressWarnings("unchecked")

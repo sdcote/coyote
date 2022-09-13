@@ -376,7 +376,7 @@ public abstract class OperationalContext {
 
 
   /**
-   * Signal the tontext to end.
+   * Signal the context to end.
    * 
    * <p>This sets the 'end time' to now and fires the listeners the context 
    * has ended.

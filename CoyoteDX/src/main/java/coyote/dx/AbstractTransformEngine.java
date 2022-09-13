@@ -113,6 +113,10 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
      * the loader which loaded this engine
      */
     private Loader loader = null;
+    /**
+     * How many times the engine has been run.
+     */
+    private long runCount = 0;
 
 
     public AbstractTransformEngine() {
@@ -213,6 +217,7 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
     @SuppressWarnings("unchecked")
     @Override
     public void run() {
+        runCount++;
         // Initialize the context
         contextInit();
 
@@ -531,7 +536,7 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
             // Create a transformation context for components to share data
             setContext(new TransformContext());
         } else {
-            // reset the context in case is was used previously
+            // reset the context in case it was used previously
             getContext().reset();
 
             // place any existing context variables in the symbol table
@@ -1422,6 +1427,15 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
     @Override
     public void setLoader(Loader loader) {
         this.loader = loader;
+    }
+
+
+    /**
+     * @return the number of times this instance has been run.
+     */
+    @Override
+    public long getInstanceRunCount() {
+        return runCount;
     }
 
 }

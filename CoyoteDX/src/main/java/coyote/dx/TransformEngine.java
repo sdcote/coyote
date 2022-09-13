@@ -325,4 +325,8 @@ public interface TransformEngine extends RunnableComponent {
    */
   public void setLoader(Loader loader);
 
+  /**
+   * @return the number of times this engine has entered the run() method.
+   */
+  public long getInstanceRunCount();
 }

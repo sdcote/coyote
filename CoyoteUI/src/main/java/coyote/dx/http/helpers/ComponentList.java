@@ -63,6 +63,9 @@ public class ComponentList {
                 "                      <th style=\"width: 17%\">\n" +
                 "                          Schedule\n" +
                 "                      </th>\n" +
+                "                      <th style=\"width: 17%\">\n" +
+                "                          Run Count\n" +
+                "                      </th>\n" +
                 "                  </tr>\n" +
                 "              </thead>\n" +
                 "              <tbody>\n");
@@ -94,6 +97,11 @@ public class ComponentList {
             b.append("                  </td>\n");
             b.append("                  <td>\n");
             if( component instanceof ScheduledBatchJob) b.append(((ScheduledBatchJob)component).getCronEntry().toString());
+            else  b.append("N/A");
+            b.append("\n");
+            b.append("                  </td>\n");
+            b.append("                  <td>\n");
+            if( component instanceof ScheduledBatchJob) b.append(Long.toString(((ScheduledBatchJob)component).getInstanceRunCount()));
             else  b.append("N/A");
             b.append("\n");
             b.append("                  </td>\n");
