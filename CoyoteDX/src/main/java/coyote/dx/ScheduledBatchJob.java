@@ -38,7 +38,7 @@ public class ScheduledBatchJob extends ScheduledJob implements ManagedComponent 
   Context context = null;
   private Loader loader = null;
 
-
+private long lastStartTime = 0;
 
 
   /**
@@ -173,6 +173,7 @@ public class ScheduledBatchJob extends ScheduledJob implements ManagedComponent 
    */
   @Override
   public void doWork() {
+    setStartTime(System.currentTimeMillis());
 
     if (engine != null) {
       Log.trace(LogMsg.createMsg(CDX.MSG, "Job.running", getName(), engine.getName()));
@@ -236,7 +237,9 @@ public class ScheduledBatchJob extends ScheduledJob implements ManagedComponent 
 
   @Override
   public String getId() {
-    return null;
+    String retval = configuration.getId();
+    if(StringUtil.isBlank(retval)) retval = engine.getInstanceId();
+    return retval;
   }
 
 
@@ -252,7 +255,7 @@ public class ScheduledBatchJob extends ScheduledJob implements ManagedComponent 
 
   @Override
   public long getStartTime() {
-    return 0;
+    return lastStartTime;
   }
 
 
@@ -300,12 +303,10 @@ public class ScheduledBatchJob extends ScheduledJob implements ManagedComponent 
   public void setId(String id) {}
 
 
-
-
   @Override
-  public void setStartTime(long millis) {}
-
-
+  public void setStartTime(long millis) {
+    lastStartTime = millis;
+  }
 
 
   @Override

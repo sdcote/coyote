@@ -76,7 +76,7 @@ public abstract class ViewResponder extends DefaultResponder implements Responde
    * @param name the exact name of the resource to load including any path
    *        required to find the resource (i.e. fully qualified name).
    *
-   * @return a string representing the data found at the given loaction or
+   * @return a string representing the data found at the given location or
    *         null if the data could not be loaded.
    */
   private String loadResource(final String name) {
@@ -102,8 +102,6 @@ public abstract class ViewResponder extends DefaultResponder implements Responde
       } catch (final IOException e) {
         Log.warn("Could not load resource from " + resource, e);
       }
-    } else {
-      Log.warn("Could not find resource in " + resource);
     }
     return retval;
   }
@@ -182,6 +180,8 @@ public abstract class ViewResponder extends DefaultResponder implements Responde
 
     if (result != null) {
       template = result;
+    } else{
+      Log.warn("Could not find template");
     }
   }
 

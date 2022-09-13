@@ -77,7 +77,7 @@ public class ContentTest {
 
   @Test
   public void bootstrap() {
-    String target = "/js/bootstrap.min.js";
+    String target = "/plugins/bootstrap/js/bootstrap.js";
     String localPath = ROOT + target;
     URL rsc = cLoader.getResource(localPath);
     if (rsc == null) {

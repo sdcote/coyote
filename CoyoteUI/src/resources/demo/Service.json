@@ -1,5 +1,7 @@
 {
 	"Class": "coyote.dx.Service",
+	"Name": "Biff",
+	"ID": "1235813",
 
 	"Manager" : {
 		"Port": 80,
@@ -33,7 +35,7 @@
 
 	"Job" : {
 		"Name" : "Simple",
-		"Schedule": { "Minutes": "*/5" },
+		"Schedule": { "Minutes": "*/2" },
 		
 		"Reader" : {
 			"class" : "CsvReader",
@@ -52,6 +54,13 @@
 			}    
 		}
 	},
+
+	"Component": [
+		{
+			"Class": "coyote.loader.Wedge",
+			"Notes": "This just keeps the the service open."
+		}
+	],
 
 	"Logging": {
 		"StandardOutput": { "categories": "info,notice,httpd" },
