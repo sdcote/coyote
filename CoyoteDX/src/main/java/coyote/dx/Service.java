@@ -10,9 +10,7 @@ package coyote.dx;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 import coyote.commons.StringUtil;
 import coyote.commons.network.http.HTTPD;
@@ -230,7 +228,8 @@ public class Service extends AbstractBatchLoader implements Loader {
 
                         // Ensure that those jobs with no schedules (which run continually)
                         // have enough threads available in the pool to keep them running
-                        // and enough for a couple of other jobs if needed
+                        // and enough for a couple of other jobs if needed (every job gets
+                        // a thread worker)
                         if (((ScheduledBatchJob) cmpnt).getCronEntry() == null) {
                             getScheduler().getThreadpool().setMinWorkerCount(getScheduler().getThreadpool().getMinWorkerCount() + 1);
                         }

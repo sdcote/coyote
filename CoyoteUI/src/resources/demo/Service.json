@@ -35,6 +35,9 @@
 
 	"Job" : {
 		"Name" : "Simple",
+		"AppID" : "Demo",
+		"SysID" : "Integration",
+		"CmpID" : "Users",
 		"Schedule": { "Minutes": "*/2" },
 		
 		"Reader" : {

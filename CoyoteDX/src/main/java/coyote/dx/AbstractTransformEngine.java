@@ -20,6 +20,7 @@ import coyote.dx.context.TransformContext;
 import coyote.dx.mapper.DefaultFrameMapper;
 import coyote.dx.mapper.MappingException;
 import coyote.dx.validate.ValidationException;
+import coyote.i13n.AppEvent;
 import coyote.loader.Loader;
 import coyote.loader.log.Log;
 import coyote.loader.log.LogMsg;
@@ -217,7 +218,9 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
     @SuppressWarnings("unchecked")
     @Override
     public void run() {
+        // increment instance run count
         runCount++;
+
         // Initialize the context
         contextInit();
 
@@ -381,7 +384,11 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
         }
 
         if (getContext().isInError()) {
-            Log.info("Engine '" + getName() + "' (" + getInstanceId() + ") completed with errors: " + getContext().getErrorMessage());
+            String msg = "Engine '" + getName() + "' (" + getInstanceId() + ") completed with errors: " + getContext().getErrorMessage();
+            Log.info(msg);
+            if( getLoader() != null){
+                loader.getStats().createEvent(getSymbolTable().getString(Symbols.APPID),getSymbolTable().getString(Symbols.SYSID),getSymbolTable().getString(Symbols.CMPID),msg, AppEvent.WARNING,0,0,"Engine");
+            }
         } else {
             Log.info("Engine '" + getName() + "' (" + getInstanceId() + ") completed successfully");
         }
@@ -1025,16 +1032,14 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
             symbols.put(Symbols.PREV_DAY_PD, StringUtil.zeropad(cal.get(Calendar.DAY_OF_MONTH), 2));
             symbols.put(Symbols.PREV_YEAR_PYYY, StringUtil.zeropad(cal.get(Calendar.YEAR), 4));
 
-            // reset to todays date/time
+            // reset to today's date/time
             cal.setTime(rundate);
 
             // go back a month
             cal.add(Calendar.MONTH, -1);
             symbols.put(Symbols.PREV_MONTH_LM, StringUtil.zeropad(cal.get(Calendar.MONTH) + 1, 2));
             symbols.put(Symbols.PREV_YEAR_LMYY, StringUtil.zeropad(cal.get(Calendar.YEAR), 4));
-
         }
-
         return rundate;
     }
 

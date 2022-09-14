@@ -10,6 +10,7 @@ package coyote.dx;
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.List;
+import java.util.Map;
 
 import coyote.commons.CronEntry;
 import coyote.commons.ExceptionUtil;
@@ -57,6 +58,16 @@ public class ScheduledBatchJob extends ScheduledJob implements ManagedComponent 
       engine = TransformEngineFactory.getInstance(config);
 
       engine.setLoader(getLoader());
+
+      if(StringUtil.isNotBlank(config.getString(Symbols.CMPID))) engine.getSymbolTable().put(Symbols.CMPID, config.getString(Symbols.CMPID));
+      if(StringUtil.isNotBlank(config.getString(Symbols.SYSID))) engine.getSymbolTable().put(Symbols.SYSID, config.getString(Symbols.SYSID));
+      if(StringUtil.isNotBlank(config.getString(Symbols.APPID))) engine.getSymbolTable().put(Symbols.APPID, config.getString(Symbols.APPID));
+
+      // store environment variables in the symbol table
+      Map<String, String> env = System.getenv();
+      for (String envName : env.keySet()) {
+        engine.getSymbolTable().put(Symbols.ENVIRONMENT_VAR_PREFIX + envName, env.get(envName));
+      }
 
       if (StringUtil.isBlank(engine.getName())) {
         Log.trace(LogMsg.createMsg(CDX.MSG, "Job.unnamed_engine_configured"));
