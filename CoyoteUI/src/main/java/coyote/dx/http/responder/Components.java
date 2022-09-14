@@ -44,7 +44,7 @@ public class Components extends ViewResponder implements Responder {
     mergeSymbols(service.getSymbols()); // loader
 
     getSymbols().put("Footer", loadFragment("fragments/Footer.html"));
-    getSymbols().put("NavBar", new NavBar(session).Symbols(getSymbols()).CurrentPage(MainMenu.HOME).build());
+    getSymbols().put("NavBar", new NavBar(session).Service(service).Symbols(getSymbols()).CurrentPage(MainMenu.HOME).build());
     getSymbols().put("MainMenu", new MainMenu(session).Symbols(getSymbols()).CurrentPage(MainMenu.HOME).build());
 
     // Get the component name from the URL parameters, specified when we were registered with the router

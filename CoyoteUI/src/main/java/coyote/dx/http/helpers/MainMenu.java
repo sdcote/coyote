@@ -23,9 +23,17 @@ public class MainMenu {
         symbolTable = symbols;
         return this;
     }
+
+
+
+
     public MainMenu CurrentPage(String location){
         return this;
     }
+
+
+
+
 
     public String build(){
         StringBuffer b = new StringBuffer();

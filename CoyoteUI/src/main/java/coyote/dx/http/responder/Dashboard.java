@@ -74,7 +74,7 @@ public class Dashboard extends ViewResponder implements Responder {
 
 
     // Call helper classes that all pages can share. These create dynamic content that can be placed in the symbol table
-    getSymbols().put("NavBar", new NavBar(session).Symbols(getSymbols()).CurrentPage(MainMenu.HOME).build());
+    getSymbols().put("NavBar", new NavBar(session).Service(service).Symbols(getSymbols()).CurrentPage(MainMenu.HOME).build());
     getSymbols().put("MainMenu", new MainMenu(session).Symbols(getSymbols()).CurrentPage(MainMenu.HOME).build());
 
     // modify the template as we see fit
