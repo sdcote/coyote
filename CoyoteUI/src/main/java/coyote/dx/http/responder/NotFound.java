@@ -31,9 +31,13 @@ public class NotFound extends ViewResponder implements Responder {
 
   @Override
   public Response get(Resource resource, Map<String, String> urlParams, HTTPSession session) {
+    Service service = resource.initParameter(0, Service.class);
+    mergeSymbols(service.getContext().getSymbols()); // operational context shared between components
+    mergeSymbols(service.getSymbols()); // loader symbols
+
     loadTemplate(this.getClass().getSimpleName());
     setPreProcessing(true);
-    getSymbols().put("NavBar", new NavBar(session).Symbols(getSymbols()).CurrentPage(MainMenu.HOME).build());
+    getSymbols().put("NavBar", new NavBar(session).Service(service).Symbols(getSymbols()).CurrentPage(MainMenu.HOME).build());
     getSymbols().put("MainMenu", new MainMenu(session).Symbols(getSymbols()).CurrentPage(MainMenu.HOME).build());
     getSymbols().put("Footer", loadFragment("fragments/Footer.html"));
     return Response.createFixedLengthResponse(getStatus(), getMimeType(), getText());

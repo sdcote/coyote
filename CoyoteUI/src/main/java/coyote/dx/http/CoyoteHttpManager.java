@@ -100,7 +100,7 @@ public class CoyoteHttpManager extends HTTPDRouter implements HttpManager {
         addRoute("/(.)+", Integer.MAX_VALUE, ResourceResponder.class, this, cfg);
 
         // Set the responder for 404 errors
-        setNotFoundResponder(NotFound.class);
+        setNotFoundResponder(NotFound.class, service, cfg);
 
     }
 

@@ -36,7 +36,6 @@ public class Dashboard extends ViewResponder implements Responder {
 
   @Override
   public Response get(Resource resource, Map<String, String> urlParams, HTTPSession session) {
-
     SessionProfile profile = SessionProfileManager.retrieveOrCreateProfile(session);
     Log.info("Profile: " + profile);
 
