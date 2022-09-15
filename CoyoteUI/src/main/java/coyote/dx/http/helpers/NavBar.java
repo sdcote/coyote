@@ -15,7 +15,6 @@ import java.util.List;
  */
 public class NavBar {
     public static final String HOME = "Home";
-    private static final List<AppEvent> EMPTY_EVENTS = new ArrayList<>();
     private final HTTPSession session;
     private final String currentPage = HOME;
     SymbolTable symbolTable = null;
@@ -46,12 +45,18 @@ public class NavBar {
 
 
     public String build() {
+        long newEventCount = 0;
         List<AppEvent> events = null;
         if (service != null) {
             events = service.getStats().getEvents();
-        } else{
-            events = EMPTY_EVENTS;
+            for(AppEvent event:events){
+                if( !event.isCleared()){
+                    newEventCount++;
+                }
+            }
+
         }
+
 
         StringBuffer b = new StringBuffer();
         b.append(" <nav class=\"main-header navbar navbar-expand navbar-white navbar-light\">\n" +
@@ -72,15 +77,15 @@ public class NavBar {
                 "      <li class=\"nav-item dropdown\">\n" +
                 "        <a class=\"nav-link\" data-toggle=\"dropdown\" href=\"#\">\n" +
                 "          <i class=\"far fa-bell\"></i>\n");
-        if (events.size() > 0) {
+        if (newEventCount > 0) {
             b.append("          <span class=\"badge badge-warning navbar-badge\">");
-            b.append(events.size());
+            b.append(newEventCount);
             b.append("</span>\n");
             b.append("        </a>\n" +
                     "        <div class=\"dropdown-menu dropdown-menu-lg dropdown-menu-right\">\n" +
                     "          <span class=\"dropdown-item dropdown-header\">");
-            b.append(events.size());
-            if(events.size()==1) b.append(" Event</span>\n");
+            b.append(newEventCount);
+            if(newEventCount==1) b.append(" Event</span>\n");
             else b.append(" Events</span>\n");
             b.append("          <div class=\"dropdown-divider\"></div>\n" +
                     "          <a href=\"/events\" class=\"dropdown-item dropdown-footer\">See All Events</a>\n" +
