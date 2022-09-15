@@ -20,7 +20,7 @@ public class EventList {
     private static final List<AppEvent> EMPTY_EVENTS = new ArrayList<>();
     private final HTTPSession session;
     private final TimeZone tzUTC = TimeZone.getTimeZone("UTC");
-    private final DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'"); // Quoted "Z" to indicate UTC, no timezone offset
+    private final DateFormat df = new SimpleDateFormat("yyyy-MM-dd' 'HH:mm:ss'Z'"); // Quoted "Z" to indicate UTC, no timezone offset
     private final List<AppEvent> events = new ArrayList<>();
     private SymbolTable symbolTable = null;
     private Service service = null;
@@ -69,7 +69,6 @@ public class EventList {
                 "                    <th>Application</th>\n" +
                 "                    <th>System</th>\n" +
                 "                    <th>Component</th>\n" +
-                "                    <th>Component</th>\n" +
                 "                    <th>Severity</th>\n" +
                 "                    <th>Major</th>\n" +
                 "                    <th>Minor</th>\n" +
@@ -80,10 +79,6 @@ public class EventList {
 
         for (AppEvent event : events) {
             b.append("                  <tr>\n");
-
-            b.append("                    <td>");
-            b.append(event.getSequence());
-            b.append("</td>\n");
 
             b.append("                    <td>");
             b.append(event.getSequence());
@@ -133,7 +128,6 @@ public class EventList {
                 "                    <th>Timestamp</th>\n" +
                 "                    <th>Application</th>\n" +
                 "                    <th>System</th>\n" +
-                "                    <th>Component</th>\n" +
                 "                    <th>Component</th>\n" +
                 "                    <th>Severity</th>\n" +
                 "                    <th>Major</th>\n" +
