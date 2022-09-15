@@ -387,7 +387,7 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
             String msg = "Engine '" + getName() + "' (" + getInstanceId() + ") completed with errors: " + getContext().getErrorMessage();
             Log.info(msg);
             if( getLoader() != null){
-                loader.getStats().createEvent(getSymbolTable().getString(Symbols.APPID),getSymbolTable().getString(Symbols.SYSID),getSymbolTable().getString(Symbols.CMPID),msg, AppEvent.WARNING,0,0,"Engine");
+                loader.getStats().createEvent(getSymbolTable().getString(Symbols.APPID),getSymbolTable().getString(Symbols.SYSID),getSymbolTable().getString(Symbols.CMPID),msg, AppEvent.MAJOR,0,0,"Engine");
             }
         } else {
             Log.info("Engine '" + getName() + "' (" + getInstanceId() + ") completed successfully");

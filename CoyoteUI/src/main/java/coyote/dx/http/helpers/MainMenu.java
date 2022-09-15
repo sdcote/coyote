@@ -14,6 +14,8 @@ public class MainMenu {
     SymbolTable symbolTable = null;
 
     public static final String HOME = "Home";
+    public static final String COMPONENTS = "Components";
+    public static final String EVENTS = "Events";
 
     public MainMenu(HTTPSession session){
         this.session = session;
@@ -66,6 +68,12 @@ public class MainMenu {
                 "            <a href=\"/components\" class=\"nav-link\">\n" +
                 "              <i class=\"nav-icon fa fa-cog text-info\"></i>\n" +
                 "              <p>Components</p>\n" +
+                "            </a>\n" +
+                "          </li>\n" +
+                "          <li class=\"nav-item\">\n" +
+                "            <a href=\"/events\" class=\"nav-link\">\n" +
+                "              <i class=\"nav-icon far fa-bell text-info\"></i>\n" +
+                "              <p>Events</p>\n" +
                 "            </a>\n" +
                 "          </li>\n" +
                 "        </ul>\n" +

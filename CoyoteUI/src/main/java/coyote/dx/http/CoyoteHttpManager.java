@@ -88,6 +88,7 @@ public class CoyoteHttpManager extends HTTPDRouter implements HttpManager {
         addRoute("/", Dashboard.class, service, cfg);
         addRoute("/components", Components.class, service, cfg);
         addRoute("/components/:name", Components.class, service, cfg);
+        addRoute("/events", Events.class, service, cfg);
         addRoute("/login", Login.class, service, cfg);
         addRoute("/logout", Logout.class, service, cfg);
         addRoute("/logging", Logging.class, service, cfg);
