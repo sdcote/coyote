@@ -1443,4 +1443,68 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
         return runCount;
     }
 
+    /**
+     * @return the list of pre-processing tasks
+     */
+    @Override
+    public List<TransformTask> getPreprocessTasks() {
+        return preProcesses;
+    }
+
+    /**
+     * @return the list of post-processing tasks.
+     */
+    @Override
+    public List<TransformTask> getPostprocessTasks() {
+        return postProcesses;
+    }
+
+    /**
+     * @return the preloader used to prime the transform engine.
+     */
+    @Override
+    public FrameReader getPreloader() {
+        return preloader;
+    }
+
+    /**
+     * @return the filters used to limit frames processed.
+     */
+    @Override
+    public List<FrameFilter> getFilters() {
+        return filters;
+    }
+
+    /**
+     * @return the currently set list of validation rules.
+     */
+    @Override
+    public List<FrameValidator> getValidators() {
+        return validators;
+    }
+
+    /**
+     * @return the list of currently set frame transformers.
+     */
+    @Override
+    public List<FrameTransform> getTransformers() {
+        return transformers;
+    }
+
+    /**
+     * @return the aggregators used to alter the output.
+     */
+    @Override
+    public List<FrameAggregator> getAggregators() {
+        return aggregators;
+    }
+
+    /**
+     * @return the currently set listeners.
+     */
+    @Override
+    public List<ContextListener> getListeners() {
+        return listeners;
+    }
+
 }
