@@ -37,7 +37,8 @@
 		"Name" : "Simple",
 		"AppID" : "Demo",
 		"SysID" : "Integration",
-		"CmpID" : "Users",
+		"CmpID" : "UserLoad",
+		"CatID" : "BatchJob",
 		"Schedule": { "Minutes": "*/2" },
 		
 		"Reader" : {

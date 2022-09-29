@@ -1,3 +1,10 @@
+/*
+ * Copyright (c) 2022 Stephan D. Cote' - All rights reserved.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the MIT License which accompanies this distribution, and is
+ * available at http://creativecommons.org/licenses/MIT/
+ */
 package coyote.dx.http.helpers;
 
 import coyote.commons.CronEntry;
@@ -31,7 +38,7 @@ public class ComponentList {
         b.append("      <!-- Default box -->\n" +
                 "      <div class=\"card\">\n" +
                 "        <div class=\"card-header\">\n" +
-                "          <h3 class=\"card-title\">Projects</h3>\n" +
+                "          <h3 class=\"card-title\">Component Listing</h3>\n" +
                 "          <div class=\"card-tools\">\n" +
                 "            <button type=\"button\" class=\"btn btn-tool\" data-card-widget=\"collapse\" title=\"Collapse\">\n" +
                 "              <i class=\"fas fa-minus\"></i>\n" +
@@ -77,7 +84,11 @@ public class ComponentList {
             b.append("\n");
             b.append("                  </td>\n");
             b.append("                  <td>\n                    ");
+            b.append("<a href=\"\\components\\");
             b.append(component.getName());
+            b.append("\">");
+            b.append(component.getName());
+            b.append("</a>");
             b.append("\n");
             b.append("                  </td>\n");
             b.append("                  <td>\n                    ");
