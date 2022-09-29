@@ -378,4 +378,10 @@ public interface TransformEngine extends RunnableComponent {
    */
   List<ContextListener> getListeners();
 
+
+  /**
+   * @return a list of writers for this engine
+   */
+  List<FrameWriter> getWriters();
+
 }
