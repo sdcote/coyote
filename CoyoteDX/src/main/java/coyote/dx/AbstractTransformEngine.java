@@ -38,7 +38,6 @@ import java.util.List;
  *
  */
 public abstract class AbstractTransformEngine extends AbstractConfigurableComponent implements TransformEngine, ConfigurableComponent {
-
     static final String FORMAT_SYMBOL_LOOKUP_TAG = "FormatSymbol";
     /**
      * A symbol table to support basic template functions
@@ -1505,6 +1504,15 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
     @Override
     public List<ContextListener> getListeners() {
         return listeners;
+    }
+
+
+    /**
+     * @return a list of writers for this engine
+     */
+    @Override
+    public List<FrameWriter> getWriters() {
+        return writers;
     }
 
 }
