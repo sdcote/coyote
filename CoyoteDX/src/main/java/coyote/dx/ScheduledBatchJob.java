@@ -21,6 +21,7 @@ import coyote.dataframe.DataFrame;
 import coyote.loader.Context;
 import coyote.loader.Loader;
 import coyote.loader.cfg.Config;
+import coyote.loader.component.AbstractComponent;
 import coyote.loader.component.ManagedComponent;
 import coyote.loader.log.Log;
 import coyote.loader.log.LogMsg;
@@ -59,9 +60,10 @@ public class ScheduledBatchJob extends ScheduledJob implements ManagedComponent 
 
       engine.setLoader(getLoader());
 
-      if(StringUtil.isNotBlank(config.getString(Symbols.CMPID))) engine.getSymbolTable().put(Symbols.CMPID, config.getString(Symbols.CMPID));
-      if(StringUtil.isNotBlank(config.getString(Symbols.SYSID))) engine.getSymbolTable().put(Symbols.SYSID, config.getString(Symbols.SYSID));
-      if(StringUtil.isNotBlank(config.getString(Symbols.APPID))) engine.getSymbolTable().put(Symbols.APPID, config.getString(Symbols.APPID));
+      if(StringUtil.isNotBlank(config.getString(Symbols.CMPID))) engine.getSymbolTable().put(Symbols.CMPID, config.getString(Symbols.CMPID)); else engine.getSymbolTable().put(Symbols.CMPID, AbstractComponent.UNKNOWN);
+      if(StringUtil.isNotBlank(config.getString(Symbols.SYSID))) engine.getSymbolTable().put(Symbols.SYSID, config.getString(Symbols.SYSID)); else engine.getSymbolTable().put(Symbols.SYSID, AbstractComponent.UNKNOWN);
+      if(StringUtil.isNotBlank(config.getString(Symbols.APPID))) engine.getSymbolTable().put(Symbols.APPID, config.getString(Symbols.APPID)); else engine.getSymbolTable().put(Symbols.APPID, AbstractComponent.UNKNOWN);
+      if(StringUtil.isNotBlank(config.getString(Symbols.CATID))) engine.getSymbolTable().put(Symbols.CATID, config.getString(Symbols.CATID)); else engine.getSymbolTable().put(Symbols.CATID, AbstractComponent.UNKNOWN);
 
       // store environment variables in the symbol table
       Map<String, String> env = System.getenv();
@@ -231,7 +233,15 @@ public class ScheduledBatchJob extends ScheduledJob implements ManagedComponent 
 
   @Override
   public String getApplicationId() {
-    return null;
+    return engine.getSymbolTable().getString(Symbols.APPID);
+  }
+
+
+
+
+  @Override
+  public String getComponentId() {
+    return engine.getSymbolTable().getString(Symbols.CMPID);
   }
 
 
@@ -239,7 +249,7 @@ public class ScheduledBatchJob extends ScheduledJob implements ManagedComponent 
 
   @Override
   public String getCategory() {
-    return null;
+    return engine.getSymbolTable().getString(Symbols.CATID);
   }
 
 
@@ -269,7 +279,7 @@ public class ScheduledBatchJob extends ScheduledJob implements ManagedComponent 
   @Override
   public long getStartTime() {
     if (engine.getContext() == null)
-      return -1;
+      return 0;
     else
       return engine.getContext().getStartTime();
   }
@@ -287,7 +297,7 @@ public class ScheduledBatchJob extends ScheduledJob implements ManagedComponent 
 
   @Override
   public String getSystemId() {
-    return null;
+    return engine.getSymbolTable().getString(Symbols.SYSID);
   }
 
 
