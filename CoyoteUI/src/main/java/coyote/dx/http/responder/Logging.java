@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Stephan D. Cote' - All rights reserved.
+ * Copyright (c) 2022 Stephan D. Cote' - All rights reserved.
  * 
  * This program and the accompanying materials are made available under the 
  * terms of the MIT License which accompanies this distribution, and is 
