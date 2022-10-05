@@ -21,6 +21,10 @@ import coyote.dx.http.responder.*;
 import coyote.loader.cfg.Config;
 import coyote.loader.log.Log;
 
+import java.util.HashSet;
+import java.util.Set;
+import java.util.regex.Pattern;
+
 import static coyote.commons.network.http.responder.ResourceResponder.REDIRECT_TAG;
 
 
@@ -29,8 +33,14 @@ import static coyote.commons.network.http.responder.ResourceResponder.REDIRECT_T
  */
 public class CoyoteHttpManager extends HTTPDRouter implements HttpManager {
 
-    private final Service service;
+    /** set of symbols we should not expose through the UI **/
+    private static final Set<String> protectedSymbols = new HashSet<>();
 
+    static {
+        protectedSymbols.add("vault.secret");
+    }
+
+    private final Service service;
 
     /**
      * Create the server instance with all the defaults
@@ -61,6 +71,17 @@ public class CoyoteHttpManager extends HTTPDRouter implements HttpManager {
     }
 
 
+
+
+    public static boolean symbolIsProtected(String symbol) {
+        boolean retval = Pattern.compile(Pattern.quote("password"), Pattern.CASE_INSENSITIVE).matcher(symbol).find();
+        if (!retval) retval = protectedSymbols.contains(symbol);
+        return retval;
+    }
+
+
+
+
     /**
      * Set the configuration data in this manager
      *
@@ -76,7 +97,7 @@ public class CoyoteHttpManager extends HTTPDRouter implements HttpManager {
         setAuthProvider(new GenericAuthProvider(authConfig));
 
         // force the components not to redirect to an index file for safety's sake
-        cfg.put(REDIRECT_TAG,false);
+        cfg.put(REDIRECT_TAG, false);
 
         // It is suggested that responders from the Coyote package be used to
         // handle standard, expected functions for consistency across managers.
@@ -104,6 +125,8 @@ public class CoyoteHttpManager extends HTTPDRouter implements HttpManager {
         setNotFoundResponder(NotFound.class, service, cfg);
 
     }
+
+
 
 
     /**

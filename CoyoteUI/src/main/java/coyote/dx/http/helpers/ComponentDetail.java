@@ -7,16 +7,18 @@
  */
 package coyote.dx.http.helpers;
 
-import coyote.commons.DateUtil;
+import coyote.commons.StringUtil;
 import coyote.commons.template.SymbolTable;
 import coyote.commons.template.Template;
+import coyote.dataframe.marshal.JSONMarshaler;
 import coyote.dx.*;
 import coyote.dx.context.ContextListener;
+import coyote.dx.http.CoyoteHttpManager;
 import coyote.dx.vault.Vault;
 import coyote.dx.vault.VaultProxy;
 import coyote.loader.Context;
-import coyote.loader.Loader;
 import coyote.loader.component.ManagedComponent;
+import coyote.vault.util.JsonMarshaller;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -50,7 +52,7 @@ public class ComponentDetail {
 
     public String build() {
         StringBuffer b = new StringBuffer();
-        b.append("      <div class=\"container-fluid\">\n");
+        b.append("<div class=\"container-fluid\">\n");
 
         if (component != null) {
             showComponentDetails(b, component);
@@ -68,17 +70,41 @@ public class ComponentDetail {
 
     private void showComponentDetails(StringBuffer b, ManagedComponent component) {
         b.append("        <div class=\"card\">\n" +
-                "          <div class=\"card-header\">\n" +
-                "            <h3 class=\"card-title\"><i class=\"fa fa-info-circle\"></i> Summary</h3>\n" +
-                "            <div class=\"card-tools\">\n" +
-                "              <button type=\"button\" class=\"btn btn-tool\" data-card-widget=\"collapse\" title=\"Collapse\">\n" +
-                "                <i class=\"fas fa-minus\"></i>\n" +
-                "              </button>\n" +
-                "            </div>\n" +
+                "          <div class=\"card-header d-flex p-0\">\n" +
+                "            <h3 class=\"card-title p-3\"><i class=\"fa fa-cog\"></i> " + component.getName() + "</h3>\n" +
+                "            <ul class=\"nav nav-pills ml-auto p-2\">\n" +
+                "              <li class=\"nav-item\"><a class=\"nav-link active\" href=\"#info_tab\" data-toggle=\"tab\">Info</a></li>\n" +
+                "              <li class=\"nav-item\"><a class=\"nav-link\" href=\"#cntx_tab\" data-toggle=\"tab\">Context</a></li>\n" +
+                "              <li class=\"nav-item\"><a class=\"nav-link\" href=\"#symb_tab\" data-toggle=\"tab\">Symbols</a></li>\n" +
+                "              <li class=\"nav-item\"><a class=\"nav-link\" href=\"#conf_tab\" data-toggle=\"tab\">Config</a></li>\n" +
+                "              <li>\n" +
+                "                <div class=\"card-tools\">\n" +
+                "                  <button type=\"button\" class=\"btn btn-tool\" data-card-widget=\"collapse\" title=\"Collapse\"><i class=\"fas fa-minus\"></i></button>\n" +
+                "                </div>\n" +
+                "              </li>\n" +
+                "            </ul>\n" +
                 "          </div>\n" +
-                "          <div class=\"card-body p-0\">\n" +
-                "            <div class=\"p-3 mb3\">\n" +
-                "              <div class=\"row\">\n");
+                "          <div class=\"card-body p-3\">\n" +
+                "            <div class=\"tab-content\">\n");
+        b.append(infoTab(component));
+        b.append(contextTab(component));
+        b.append(symbolsTab(component));
+        b.append(configTab(component));
+
+        b.append("            </div><!-- /.tab-content -->\n" +
+                "          </div> <!-- /.card Body -->\n" +
+                "        </div> <!-- /.card --> \n");
+
+        // What about these?
+        component.getProfile(); // JSON String
+        component.getTemplate(); // JSON String
+
+    }
+
+    private String infoTab(ManagedComponent component) {
+        StringBuffer b = new StringBuffer();
+        b.append("              <div class=\"tab-pane active\" id=\"info_tab\">\n");
+        b.append("                <div class=\"row\">\n");
 
         b.append("                <div class=\"col-sm-4\">\n");
         b.append("                  <b>Name:</b> " + component.getName() + "<br>\n");
@@ -101,26 +127,125 @@ public class ComponentDetail {
 
         b.append("                  <b>Active:</b> " + component.isActive() + "<br>\n");
         b.append("                </div>\n");
+        b.append("                </div> <!-- ./row -->\n");
+        String description = component.getDescription();
+        if (StringUtil.isNotEmpty(description)) {
+            b.append("                <div class=\"row p-3 mb-2\">\n" +
+                    "                  Message: \n" +
+                    "                </div> <!-- ./row -->\n");
+        }
+        b.append("              </div><!-- /.tab-pane -->\n");
 
+        return b.toString();
+    }
 
-        component.getConfiguration();
+    private String contextTab(ManagedComponent component) {
+        StringBuffer b = new StringBuffer();
+        Context context = component.getContext();
 
-        component.getContext();
+        context.getMessage();
+
+        String startTime = (context.getStartTime() != 0) ? DATE_TIME_FORMAT.format(new Date(context.getStartTime())) : "Not Started";
+        String endTime = (context.getEndTime() != 0) ? DATE_TIME_FORMAT.format(new Date(context.getEndTime())) : "Not Ended";
+        String contextStatus = StringUtil.isNotEmpty(context.getStatus()) ? context.getStatus() : "Unknown";
+
+        context.getListeners();
+
+        b.append("              <div class=\"tab-pane\" id=\"cntx_tab\">\n" +
+                "                <div class=\"row mb-2\">\n" +
+                "                  <div class=\"col-sm-6\">\n" +
+                "                    <b>Status</b> " + contextStatus + "<br>\n" +
+                "                    <b>Errored</b>  " + context.isInError() + "\n" +
+                "                  </div>\n" +
+                "                  <div class=\"col-sm-6\">\n" +
+                "                    <b>Start Time</b> " + startTime + "<br>\n" +
+                "                    <b>End Time</b> " + endTime + "\n" +
+                "                  </div>\n" +
+                "                </div> <!-- row -->\n");
+        String contextMessage = context.getMessage();
+        if (StringUtil.isNotEmpty(contextMessage)) {
+            b.append("                <div class=\"row p-3 mb-2\">\n" +
+                    "                  Message: \n" + contextMessage +
+
+                    "                </div> <!-- row -->\n");
+        }
+        b.append("                <div class=\"card\">\n" +
+                "                  <div class=\"card-body table-responsive p-0\">\n" +
+                "                    <table class=\"table table-hover text-nowrap\">\n" +
+                "                      <thead>\n" +
+                "                        <tr>\n" +
+                "                          <th>Key</th>\n" +
+                "                          <th>Value</th>\n" +
+                "                        </tr>\n" +
+                "                      </thead>\n" +
+                "                      <tbody>\n");
+
+        for (String key : context.getKeys()) {
+            b.append("                        <tr>\n" +
+                    "                          <td>" + key + "</td>\n" +
+                    "                          <td>" + context.get(key) + "</td>\n" +
+                    "                        </tr>\n");
+        }
+
+        b.append("                      </tbody>\n" +
+                "                    </table>\n" +
+                "                  </div><!-- /.card-body -->\n" +
+                "                </div> <!-- card -->\n" +
+                "              </div><!-- /.tab-pane -->\n");
+        return b.toString();
+    }
+
+    private String symbolsTab(ManagedComponent component) {
+        StringBuffer b = new StringBuffer();
+
         SymbolTable symtab = component.getContext().getSymbols();
-        component.getContext().getStatus();
-        component.getProfile();
-        component.getTemplate();
 
-        ((ManagedComponent)component).getDescription();
+        b.append("              <div class=\"tab-pane\" id=\"symb_tab\">\n" +
+                "                <div class=\"card\">\n" +
+                "                  <div class=\"card-body table-responsive p-0\">\n" +
+                "                    <table class=\"table table-hover text-nowrap\">\n" +
+                "                      <thead>\n" +
+                "                        <tr>\n" +
+                "                          <th>Key</th>\n" +
+                "                          <th>Value</th>\n" +
+                "                        </tr>\n" +
+                "                      </thead>\n" +
+                "                      <tbody>\n");
 
+        for (Object key : symtab.keySet()) {
+            String symbol = key.toString();
+            if (CoyoteHttpManager.symbolIsProtected(symbol)) {
+                b.append("                        <tr>\n" +
+                        "                          <td>" + symbol + "</td>\n" +
+                        "                          <td>[PROTECTED]</td>\n" +
+                        "                        </tr>\n");
+            } else {
+                b.append("                        <tr>\n" +
+                        "                          <td>" + symbol + "</td>\n" +
+                        "                          <td>" + symtab.getString(symbol) + "</td>\n" +
+                        "                        </tr>\n");
+            }
+        }
+        b.append("                      </tbody>\n" +
+                "                    </table>\n" +
+                "                  </div><!-- /.card-body -->\n" +
+                "                </div> <!-- card -->\n" +
+                "              </div><!-- /.tab-pane -->\n");
+        return b.toString();
+    }
 
-        // Summary fa fa-info-circle
-        // Context fa fa-list / fa fa-list-alt / fa fa-th-list
-
-        b.append("              </div> <!-- Row -->\n" +
-                "            </div> <!-- Card Content padding-->\n" +
-                "          </div> <!-- Card Body -->\n" +
-                "        </div> <!-- Card -->\n");
+    private String configTab(ManagedComponent component) {
+        StringBuffer b = new StringBuffer();
+        b.append("              <div class=\"tab-pane\" id=\"conf_tab\">\n" +
+                "                <div class=\"card\">\n" +
+                "                  <div class=\"card-body table-responsive p-3\">\n" +
+                "                  <pre>\n");
+        b.append(JSONMarshaler.toFormattedString(component.getConfiguration()));
+        b.append("                  </pre>\n" +
+                "                  </div><!-- /.card-body -->\n" +
+                "                </div> <!-- card -->\n" +
+                "              </div><!-- /.tab-pane -->\n");
+        return b.toString();
     }
 
 
