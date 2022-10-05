@@ -1,7 +1,7 @@
 {
 	"Class": "coyote.dx.Service",
 	"Name": "Biff",
-	"ID": "1235813",
+	"IDx": "1235813",
 
 	"Manager" : {
 		"Port": 80,
@@ -39,6 +39,7 @@
 		"SysID" : "Integration",
 		"CmpID" : "UserLoad",
 		"CatID" : "BatchJob",
+		"Description" : "This is a sample job to illustrate a reoccurring job in a service.",
 		"Schedule": { "Minutes": "*/2" },
 		
 		"Reader" : {
