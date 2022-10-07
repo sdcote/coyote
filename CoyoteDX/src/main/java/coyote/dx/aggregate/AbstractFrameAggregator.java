@@ -12,10 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import coyote.dataframe.DataFrame;
-import coyote.dx.AbstractConfigurableComponent;
-import coyote.dx.CDX;
-import coyote.dx.ConfigTag;
-import coyote.dx.FrameAggregator;
+import coyote.dx.*;
 import coyote.dx.context.TransactionContext;
 import coyote.dx.context.TransformContext;
 import coyote.dx.eval.Evaluator;
@@ -26,8 +23,7 @@ import coyote.loader.log.LogMsg;
 /**
  * 
  */
-public abstract class AbstractFrameAggregator extends AbstractConfigurableComponent implements FrameAggregator {
-  protected Evaluator evaluator = new Evaluator();
+public abstract class AbstractFrameAggregator extends AbstractConditionalComponent implements FrameAggregator {
 
 
 
@@ -39,8 +35,8 @@ public abstract class AbstractFrameAggregator extends AbstractConfigurableCompon
   public void open(final TransformContext context) {
     super.context = context;
 
-    // set the transform context in the evaluator so it can resolve variables
-    evaluator.setContext(context);
+    // set the transform context in the evaluator, so it can resolve variables
+    setConditionalContext(context);
   }
 
 
@@ -58,22 +54,6 @@ public abstract class AbstractFrameAggregator extends AbstractConfigurableCompon
 
 
   /**
-   * Return the conditional expression from the configuration.
-   * 
-   * @return the condition which must evaluate to true before the aggregator 
-   *         is to execute.
-   */
-  public String getCondition() {
-    if (configuration.containsIgnoreCase(ConfigTag.CONDITION)) {
-      return configuration.getString(ConfigTag.CONDITION);
-    }
-    return null;
-  }
-
-
-
-
-  /**
    * @see coyote.dx.FrameAggregator#process(java.util.List, coyote.dx.context.TransactionContext)
    */
   @Override
@@ -82,7 +62,7 @@ public abstract class AbstractFrameAggregator extends AbstractConfigurableCompon
     if (isEnabled()) {
       if (getCondition() != null) {
         try {
-          if (evaluator.evaluateBoolean(getCondition())) {
+          if (conditionIsSatisfied()) {
             retval = aggregate(frames, txnContext);
           } else {
             if (Log.isLogging(Log.DEBUG_EVENTS)) {
@@ -98,8 +78,6 @@ public abstract class AbstractFrameAggregator extends AbstractConfigurableCompon
     }
     return retval;
   }
-
-
 
 
   /**
