@@ -56,7 +56,7 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
      */
     protected FrameReader reader = null;
     /**
-     * The component which will read (history) frames into components to provide them with pervious/historic values on which to base their calculations.
+     * The component which will read (history) frames into components to provide them with previous/historic values on which to base their calculations.
      */
     protected FrameReader preloader = null;
     /**

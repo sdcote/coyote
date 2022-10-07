@@ -253,46 +253,40 @@ public class ComponentDetail {
 
 
     private void showJobDetails(StringBuffer b, ScheduledBatchJob job) {
-        job.getInstanceRunCount();
         job.getCronEntry();
-        job.getCategory();
-        showVaultDetails(b);
+        job.getExecutionTime();
+        job.getExpirationTime();
+        job.getExecutionInterval();
+        job.getExecutionLimit();
+
+        job.getNextJob();
+        job.getPreviousJob();
+
+        job.isCancelled();
+        job.isRepeatable();
+        job.isRestart();
+        job.isEnabled();
+
+        job.isSuspended();
+        job.isLicensed();
+        job.isShutdown();
+        job.isActive();
+        job.isHyper();
+
         showEngineDetails(b, job.getEngine());
     }
 
 
-    private void showVaultDetails(StringBuffer b) {
-        Object obj = Template.get(Vault.LOOKUP_TAG, null);
-        if (obj != null && obj instanceof VaultProxy) {
-            VaultProxy vault = (VaultProxy) obj;
-            // Vault fa fa-lock
-        }
-    }
-
 
     private void showEngineDetails(StringBuffer b, TransformEngine engine) {
-        // Preprocessing fa fa-tasks
-        // Preloader fa fa-level-up
-        // Reader fa fa-upload
-        // Filter fa fa-filter
-        // Validator fa fa-check-square-o
-        // Transform fa fa-cogs
-        // Mapper fa fa-random
-        // Aggregator fa fa-object-group
-        // Writers fa fa-download
-        // Listeners fa fa-bolt
-        // Post Processing fa fa-tasks
-        engine.getSymbolTable();
         engine.getInstanceRunCount();
         engine.getName();
-        engine.getContext();
-        engine.getSymbolTable();
         engine.getInstanceId();
-        engine.getMapper();
         engine.getJobDirectory();
         engine.getWorkDirectory();
-        engine.getLoader();
-        engine.getLogManager();
+        engine.getContext();
+        engine.getSymbolTable();
+
         List<TransformTask> pretasks = engine.getPreprocessTasks();
         FrameReader preloader = engine.getPreloader();
         FrameReader reader = engine.getReader();
@@ -303,6 +297,7 @@ public class ComponentDetail {
         List<FrameValidator> validators = engine.getValidators();
         List<FrameTransform> transformers = engine.getTransformers();
         List<FrameAggregator> aggregators = engine.getAggregators();
+        FrameMapper mapper = engine.getMapper();
         List<FrameWriter> writers = engine.getWriters();
         List<ContextListener> listeners = engine.getListeners();
         List<TransformTask> postasks = engine.getPostprocessTasks();

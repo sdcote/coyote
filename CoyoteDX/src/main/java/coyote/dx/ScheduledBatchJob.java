@@ -250,9 +250,7 @@ public class ScheduledBatchJob extends ScheduledJob implements ManagedComponent 
 
 
   @Override
-  public String getCategory() {
-    return engine.getSymbolTable().getString(Symbols.CATID);
-  }
+  public String getCategory() { return engine.getSymbolTable().getString(Symbols.CATID); }
 
 
 
@@ -266,7 +264,7 @@ public class ScheduledBatchJob extends ScheduledJob implements ManagedComponent 
 
 
   /**
-   * @return the number of times this instance has been run.
+   * @return the number of times this (engine) instance has been run.
    */
   public long getInstanceRunCount() {
     return engine.getInstanceRunCount();
