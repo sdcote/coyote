@@ -17,6 +17,7 @@ import coyote.dx.http.CoyoteHttpManager;
 import coyote.dx.vault.Vault;
 import coyote.dx.vault.VaultProxy;
 import coyote.loader.Context;
+import coyote.loader.cfg.ConfigSanitizer;
 import coyote.loader.component.ManagedComponent;
 import coyote.vault.util.JsonMarshaller;
 
@@ -195,6 +196,7 @@ public class ComponentDetail {
         return b.toString();
     }
 
+
     private String symbolsTab(ManagedComponent component) {
         StringBuffer b = new StringBuffer();
 
@@ -234,13 +236,14 @@ public class ComponentDetail {
         return b.toString();
     }
 
+
     private String configTab(ManagedComponent component) {
         StringBuffer b = new StringBuffer();
         b.append("              <div class=\"tab-pane\" id=\"conf_tab\">\n" +
                 "                <div class=\"card\">\n" +
                 "                  <div class=\"card-body table-responsive p-3\">\n" +
                 "                  <pre>\n");
-        b.append(JSONMarshaler.toFormattedString(component.getConfiguration()));
+        b.append(JSONMarshaler.toFormattedString(ConfigSanitizer.sanitize(component.getConfiguration())));
         b.append("                  </pre>\n" +
                 "                  </div><!-- /.card-body -->\n" +
                 "                </div> <!-- card -->\n" +
@@ -255,8 +258,6 @@ public class ComponentDetail {
         job.getCategory();
         showVaultDetails(b);
         showEngineDetails(b, job.getEngine());
-        // Vault fa fa-lock
-
     }
 
 
@@ -264,9 +265,8 @@ public class ComponentDetail {
         Object obj = Template.get(Vault.LOOKUP_TAG, null);
         if (obj != null && obj instanceof VaultProxy) {
             VaultProxy vault = (VaultProxy) obj;
+            // Vault fa fa-lock
         }
-
-
     }
 
 
@@ -295,7 +295,10 @@ public class ComponentDetail {
         engine.getLogManager();
         List<TransformTask> pretasks = engine.getPreprocessTasks();
         FrameReader preloader = engine.getPreloader();
-        engine.getReader();
+        FrameReader reader = engine.getReader();
+        if (reader instanceof ConditionalComponent) {
+            String condition = ((ConditionalComponent) reader).getCondition();
+        }
         List<FrameFilter> filters = engine.getFilters();
         List<FrameValidator> validators = engine.getValidators();
         List<FrameTransform> transformers = engine.getTransformers();
