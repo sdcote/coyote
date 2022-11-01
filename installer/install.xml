@@ -54,7 +54,7 @@
     <!--The listeners section for CustomActions-->
     <listeners></listeners>
 
-    <!--The resources section. The ids must be these ones if you want to use the LicencePanel and/or the InfoPanel.-->
+    <!--The resources section. The ids must be these if you want to use the LicencePanel and/or the InfoPanel.-->
     <resources>
         <res id="HTMLLicencePanel.licensepanel" src="./installer/license.html"/>
         <res id="Installer.image.0" src="./installer/info-border.png"/>
@@ -77,10 +77,10 @@
         <native type="izpack" name="ShellLink_x64.dll"/>
         <native type="izpack" name="WinSetupAPI.dll"/>
         <native type="izpack" name="WinSetupAPI_x64.dll"/>
-        <native type="3rdparty" name="COIOSHelper.dll" stage="both">
+        <native type="3rdparty" name="COIOSHelper.dll">
             <os family="windows"/>
         </native>
-        <native type="3rdparty" name="COIOSHelper_x64.dll" stage="both">
+        <native type="3rdparty" name="COIOSHelper_x64.dll">
             <os family="windows"/>
         </native>
     </natives>
@@ -90,7 +90,7 @@
 
     </conditions>
 
-    <!-- This the the section which defines the packs.-->
+    <!-- This the section which defines the packs.-->
     <packs>
         <pack name="CDX Core" required="no" preselected="yes">
             <description>Installs the CDX Framework and Toolkit as a utility application in its own directory with
@@ -136,7 +136,7 @@
             <description>Installs the CDX Metric Collection Tools for monitoring.</description>
             <fileset dir="CoyoteMC\build\install\CoyoteMC\doc" targetdir="$INSTALL_PATH/doc" override="true"/>
             <fileset dir="CoyoteMC\src\resources\licenses" targetdir="$INSTALL_PATH/doc/licenses" override="true"/>
-            <fileset dir="CoyoteMC\build\install\CoyoteMC\lib" targetdir="$INSTALL_PATH/lib" includes="CoyoteMC*.jar" override="true"/>
+            <fileset dir="CoyoteMC\build\install\CoyoteMC\lib" targetdir="$INSTALL_PATH/lib" includes="cmc*.jar" override="true"/>
         </pack>
         <pack name="CMC Source" required="no" preselected="no">
             <description>The source code and javadoc files for the CDX Metric Collection Tools.</description>
@@ -151,7 +151,7 @@
             <description>Installs the CDX Database toolkit.</description>
             <fileset dir="CoyoteDB\build\install\CoyoteDB\doc" targetdir="$INSTALL_PATH/doc" override="true"/>
             <fileset dir="CoyoteDB\src\resources\licenses" targetdir="$INSTALL_PATH/doc/licenses" override="true"/>
-            <fileset dir="CoyoteDB\build\install\CoyoteDB\lib" targetdir="$INSTALL_PATH/lib" includes="CoyoteDB*.jar" override="true"/>
+            <fileset dir="CoyoteDB\build\install\CoyoteDB\lib" targetdir="$INSTALL_PATH/lib" includes="cdb*.jar" override="true"/>
         </pack>
         <pack name="CDB Source" required="no" preselected="no">
             <description>The source code and javadoc files for the CDX Database toolkit.</description>
@@ -166,7 +166,7 @@
             <description>Installs the CDX File Transfer toolkit.</description>
             <fileset dir="CoyoteFT\build\install\CoyoteFT\doc" targetdir="$INSTALL_PATH/doc" override="true"/>
             <fileset dir="CoyoteFT\src\resources\licenses" targetdir="$INSTALL_PATH/doc/licenses" override="true"/>
-            <fileset dir="CoyoteFT\build\install\CoyoteFT\lib" targetdir="$INSTALL_PATH/lib" includes="CoyoteFT*.jar" override="true"/>
+            <fileset dir="CoyoteFT\build\install\CoyoteFT\lib" targetdir="$INSTALL_PATH/lib" includes="cft*.jar" override="true"/>
             <fileset dir="CoyoteFT\build\install\CoyoteFT\lib" targetdir="$INSTALL_PATH/lib" includes="jsch-*.jar" override="true"/>
             <fileset dir="CoyoteFT\build\install\CoyoteFT\lib" targetdir="$INSTALL_PATH/lib" includes="commons-net-*.jar" override="true"/>
         </pack>
@@ -183,7 +183,7 @@
             <description>Installs the CDX Web Service toolkit.</description>
             <fileset dir="CoyoteWS\build\install\CoyoteWS\doc" targetdir="$INSTALL_PATH/doc" override="true"/>
             <fileset dir="CoyoteWS\src\resources\licenses" targetdir="$INSTALL_PATH/doc/licenses" override="true"/>
-            <fileset dir="CoyoteWS\build\install\CoyoteWS\lib" targetdir="$INSTALL_PATH/lib" includes="CoyoteWS*.jar" override="true"/>
+            <fileset dir="CoyoteWS\build\install\CoyoteWS\lib" targetdir="$INSTALL_PATH/lib" includes="cws*.jar" override="true"/>
             <fileset dir="CoyoteWS\build\install\CoyoteWS\lib" targetdir="$INSTALL_PATH/lib" includes="commons-net-*.jar" override="true"/>
             <fileset dir="CoyoteWS\build\install\CoyoteWS\lib" targetdir="$INSTALL_PATH/lib" includes="commons-codec-*.jar" override="true"/>
             <fileset dir="CoyoteWS\build\install\CoyoteWS\lib" targetdir="$INSTALL_PATH/lib" includes="http*.jar" override="true"/>
@@ -201,7 +201,7 @@
         </pack>
         <pack name="CSLF4J Logging Provider" required="no" preselected="yes">
             <description>SLF4J logger binding for the CDX category logger.</description>
-            <fileset dir="CoyoteSLF4J\build\install\CoyoteSLF4J\lib" targetdir="$INSTALL_PATH/lib" includes="CoyoteSLF4J*.jar" override="true"/>
+            <fileset dir="CoyoteSLF4J\build\install\CoyoteSLF4J\lib" targetdir="$INSTALL_PATH/lib" includes="cslf4j*.jar" override="true"/>
             <fileset dir="CoyoteSLF4J\build\install\CoyoteSLF4J\lib" targetdir="$INSTALL_PATH/lib" includes="slf4j*.jar" override="true"/>
             <fileset dir="CoyoteSLF4J\src\resources\licenses" targetdir="$INSTALL_PATH/doc/licenses" override="true"/>
         </pack>
@@ -209,7 +209,7 @@
             <description>Installs the CDX Message Queue toolkit for AMQP messaging.</description>
             <fileset dir="CoyoteMQ\build\install\CoyoteMQ\doc" targetdir="$INSTALL_PATH/doc" override="true"/>
             <fileset dir="CoyoteMQ\src\resources\licenses" targetdir="$INSTALL_PATH/doc/licenses" override="true"/>
-            <fileset dir="CoyoteMQ\build\install\CoyoteMQ\lib" targetdir="$INSTALL_PATH/lib" includes="CoyoteMQ*.jar" override="true"/>
+            <fileset dir="CoyoteMQ\build\install\CoyoteMQ\lib" targetdir="$INSTALL_PATH/lib" includes="cmq*.jar" override="true"/>
             <fileset dir="CoyoteMQ\build\install\CoyoteMQ\lib" targetdir="$INSTALL_PATH/lib" includes="amqp-client-*.jar" override="true"/>
         </pack>
         <pack name="CMQ Source" required="no" preselected="no">
@@ -226,7 +226,7 @@
             <description>Installs the CDX Messaging Tools for email and notifications.</description>
             <fileset dir="CoyoteMT\build\install\CoyoteMT\doc" targetdir="$INSTALL_PATH/doc" override="true"/>
             <fileset dir="CoyoteMT\src\resources\licenses" targetdir="$INSTALL_PATH/doc/licenses" override="true"/>
-            <fileset dir="CoyoteMT\build\install\CoyoteMT\lib" targetdir="$INSTALL_PATH/lib" includes="CoyoteMT*.jar" override="true"/>
+            <fileset dir="CoyoteMT\build\install\CoyoteMT\lib" targetdir="$INSTALL_PATH/lib" includes="cmt*.jar" override="true"/>
             <fileset dir="CoyoteMT\build\install\CoyoteMT\lib" targetdir="$INSTALL_PATH/lib" includes="javax.mail-*.jar" override="true"/>
             <fileset dir="CoyoteMT\build\install\CoyoteMT\lib" targetdir="$INSTALL_PATH/lib" includes="activation-*.jar" override="true"/>
         </pack>
