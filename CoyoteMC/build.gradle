@@ -1,5 +1,7 @@
 defaultTasks 'clean', 'build', 'publish', 'installDist'
 mainClassName = "coyote.loader.BootStrap"
+archivesBaseName = 'cmc'
+version = '0.0.2'
 
 jar {
     manifest {

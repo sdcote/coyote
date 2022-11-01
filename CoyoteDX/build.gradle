@@ -1,6 +1,8 @@
 defaultTasks 'clean', 'build', 'publish', 'installDist'
 group = 'coyote'
 mainClassName = 'coyote.loader.BootStrap'
+archivesBaseName = 'cdx'
+version = '0.9.0'
 
 ext {
 	title = 'Coyote Data eXchange Framework & Toolkit'
@@ -10,8 +12,8 @@ ext {
 	vaultVersion = '0.0.6'
 }
 dependencies {
-	compile "coyote:Loader:$loaderVersion"
-	compile "coyote:CoyoteVault:$vaultVersion"
+	compile "coyote:loader:$loaderVersion"
+	compile "coyote:coyotevault:$vaultVersion"
 	testCompile "junit:junit:$junitVersion"
 }
 

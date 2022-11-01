@@ -1,5 +1,7 @@
 defaultTasks 'clean', 'build', 'publish', 'installDist'
 mainClassName = "coyote.loader.BootStrap"
+archivesBaseName = 'cui'
+version = '0.0.1'
 
 jar {
     manifest {

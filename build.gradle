@@ -1,7 +1,6 @@
 allprojects {
 	defaultTasks 'clean', 'build', 'publish', 'installDist'
 	group = 'coyote'
-	version = '0.9.0'
 }
 
 
@@ -14,8 +13,16 @@ subprojects {
 	apply plugin: 'idea'
 
 	repositories {
-		mavenLocal()
+		//mavenLocal()
 		mavenCentral()
+		maven {
+			url = "https://maven.pkg.github.com/sdcote/packages"
+			credentials {
+				// get credentials from 'gradle.properties' if they exist or from the environment
+				username = project.findProperty("USERNAME") ?: System.getenv("secrets.ACTIONS_USER")
+				password = project.findProperty("TOKEN") ?: System.getenv("secrets.ACTIONS_TOKEN")
+			}
+		}
 	}
 
 	// custom tasks for creating source/javadoc jars
@@ -46,11 +53,21 @@ subprojects {
 				artifact javadocJar {
 					classifier "javadoc"
 				}
+				groupId = project.group
+				artifactId = project.archivesBaseName
+				version = project.version
 			}
 		}
 	
 		repositories {
 			mavenLocal()
+			maven {
+				url = "https://maven.pkg.github.com/sdcote/packages"
+				credentials {
+					username = project.findProperty("USERNAME") ?: System.getenv("secrets.ACTIONS_USER")
+					password = project.findProperty("TOKEN") ?: System.getenv("secrets.ACTIONS_TOKEN")
+				}
+			}
 		}
 	}
 

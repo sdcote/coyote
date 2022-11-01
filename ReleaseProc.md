@@ -43,14 +43,22 @@ When CDX is released, it will contain a group of modules of with their own separ
 
 1. Confirm the versions in the following files as appropriate:
    * installer/install.xml - The same version as the base DX package.
-   * CoyoteFT/src/main/java/coyote/dx/CDB
+   * CoyoteDB/src/main/java/coyote/dx/CDB.java
+   * CoyoteDB/build.gradle
    * CoyoteDX/src/main/java/coyote/dx/CDX - The same version as the installer.
-   * CoyoteMQ/src/main/java/coyote/dx/CFT
-   * CoyoteMQ/src/main/java/coyote/dx/CMC
+   * CoyoteDX/build.gradle
+   * CoyoteFT/src/main/java/coyote/dx/CFT
+   * CoyoteFT/build.gradle
+   * CoyoteMC/src/main/java/coyote/dx/CMC
+   * CoyoteMC/build.gradle
    * CoyoteMQ/src/main/java/coyote/dx/CMQ
-   * CoyoteFT/src/main/java/coyote/dx/CMT
-   * CoyoteFT/src/main/java/coyote/dx/CUI
+   * CoyoteMQ/build.gradle
+   * CoyoteMT/src/main/java/coyote/dx/CMT
+   * CoyoteMT/build.gradle
+   * CoyoteUI/src/main/java/coyote/dx/CUI
+   * CoyoteUI/build.gradle
    * CoyoteWS/src/main/java/coyote/dx/CWS
+   * CoyoteWS/build.gradle
 2. Update the [Release Notes](ReleaseNotes.md).
    * Add the version number of the DX base module (and installer)
    * Follow the guidelines in [Keep A Change Log](https://keepachangelog.com/en/1.0.0/).

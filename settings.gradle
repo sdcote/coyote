@@ -1,4 +1,4 @@
-rootProject.name = 'Coyote'
+rootProject.name = 'CDX'
 include 'CoyoteDX'
 include 'CoyoteMC'
 include 'CoyoteDB'
