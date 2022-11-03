@@ -19,6 +19,6 @@ ext {
 dependencies {
 	compile project(':CoyoteDX')
 	compile "coyote:CoyoteDX:$version"
-	compile "org.seleniumhq.selenium:selenium-java:$seleniumVersion"
+	testCompile "org.seleniumhq.selenium:selenium-java:$seleniumVersion"
 	testCompile "junit:junit:$junitVersion"	
 }

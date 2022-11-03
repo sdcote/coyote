@@ -1,8 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<izpack:installation version="5.0"
-                     xmlns:izpack="http://izpack.org/schema/installation"
-                     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-                     xsi:schemaLocation="http://izpack.org/schema/installation http://izpack.org/schema/5.0/izpack-installation-5.0.xsd">
+<installation version="5.0">
 
     <info>
         <appname>CDX Framework and Toolkit</appname>
@@ -52,7 +49,9 @@
     </panels>
 
     <!--The listeners section for CustomActions-->
-    <listeners></listeners>
+    <listeners>
+        <!-- Nothing here for now -->
+    </listeners>
 
     <!--The resources section. The ids must be these if you want to use the LicencePanel and/or the InfoPanel.-->
     <resources>
@@ -93,8 +92,7 @@
     <!-- This the section which defines the packs.-->
     <packs>
         <pack name="CDX Core" required="no" preselected="yes">
-            <description>Installs the CDX Framework and Toolkit as a utility application in its own directory with
-                scripts to enable adding custom components. Use this to install the tool kit as an application.
+            <description>Installs the CDX Framework and Toolkit as a utility application in its own directory with scripts to enable adding custom components. Use this to install the tool kit as an application.
             </description>
             <fileset dir="CoyoteDX\src\dist\bin" targetdir="$INSTALL_PATH/bin" override="true"/>
             <fileset dir="CoyoteDX\src\dist\cfg" targetdir="$INSTALL_PATH/cfg" override="false"/>
@@ -112,10 +110,25 @@
                      override="true"/>
         </pack>
         <pack name="CDX Demo" required="no" preselected="no">
-            <description>A collection of configuration files, demonstrating several components, configuration options
-                and integration scenarios.
+            <description>A collection of configuration files, demonstrating several components, configuration options and integration scenarios.
             </description>
             <fileset dir="CoyoteDX\src\resources\demo" targetdir="$INSTALL_PATH/demo" override="true"/>
+        </pack>
+        <pack name="CUI Browser Interface" required="no" preselected="yes">
+            <description>Installs the HTTP user interface to running service instances. This allows for connecting to a service instance with a standard browser to see the state of the service and perform basic operations.
+            </description>
+            <fileset dir="CoyoteUI\src\dist\doc" targetdir="$INSTALL_PATH/doc" override="true"/>
+            <fileset dir="CoyoteUI\build\install\CoyoteUI\lib" targetdir="$INSTALL_PATH/lib" override="true"/>
+        </pack>
+        <pack name="CUI Source" required="no" preselected="no">
+            <description>The source code and javadoc files for the CUI browser interface.</description>
+            <fileset dir="CoyoteUI\build\libs" targetdir="$INSTALL_PATH/doc/CoyoteUI" includes="*-javadoc.jar" override="true"/>
+            <fileset dir="CoyoteUI\build\libs" targetdir="$INSTALL_PATH/doc/CoyoteUI" includes="*-sources.jar" override="true"/>
+        </pack>
+        <pack name="CUI Demo" required="no" preselected="no">
+            <description>A collection of configuration files, demonstrating several configuration options.
+            </description>
+            <fileset dir="CoyoteUI\src\resources\demo" targetdir="$INSTALL_PATH/demo" includes="*.json" override="true"/>
         </pack>
         <pack name="Daemon Service" required="no" preselected="yes">
             <description>Ability to run CDX components in the background on *NIX systems.</description>
@@ -126,11 +139,6 @@
             <executable targetfile="$INSTALL_PATH/bin/cdxd" stage="never" failure="warn" keep="true">
                 <os family="unix"/>
             </executable>
-        </pack>
-        <pack name="Daemon Demo" required="no" preselected="no">
-            <description>Examples of running service components as background services.</description>
-            <fileset dir="daemon\build\install\daemon\lib" targetdir="$INSTALL_PATH/lib" includes="ServiceDemo*.jar" override="true"/>
-            <fileset dir="daemon\src\resources\demo" targetdir="$INSTALL_PATH/demo" override="true"/>
         </pack>
         <pack name="CMC Metrics Collector" required="no" preselected="yes">
             <description>Installs the CDX Metric Collection Tools for monitoring.</description>
@@ -205,7 +213,7 @@
             <fileset dir="CoyoteSLF4J\build\install\CoyoteSLF4J\lib" targetdir="$INSTALL_PATH/lib" includes="slf4j*.jar" override="true"/>
             <fileset dir="CoyoteSLF4J\src\resources\licenses" targetdir="$INSTALL_PATH/doc/licenses" override="true"/>
         </pack>
-        <pack name="CMQ Message Queue (under development)" required="no" preselected="yes">
+        <pack name="CMQ Message Queue (experimental)" required="no" preselected="yes">
             <description>Installs the CDX Message Queue toolkit for AMQP messaging.</description>
             <fileset dir="CoyoteMQ\build\install\CoyoteMQ\doc" targetdir="$INSTALL_PATH/doc" override="true"/>
             <fileset dir="CoyoteMQ\src\resources\licenses" targetdir="$INSTALL_PATH/doc/licenses" override="true"/>
@@ -241,4 +249,4 @@
         </pack>
     </packs>
 
-</izpack:installation>
+</installation>

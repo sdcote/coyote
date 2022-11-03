@@ -1,6 +1,6 @@
 {
 	"Class": "coyote.dx.Service",
-	"Name": "Biff",
+	"Name": "UIDemo",
 	"IDx": "1235813",
 
 	"Manager" : {
@@ -40,7 +40,7 @@
 		"CmpID" : "UserLoad",
 		"CatID" : "BatchJob",
 		"Description" : "This is a sample job to illustrate a reoccurring job in a service.",
-		"Password" : "This should not show up in the UI",
+		"Password" : "This password will not show up in the UI",
 		"PrivateKey" : "Neither should this",
 		"Schedule": { "Minutes": "*/2" },
 		
