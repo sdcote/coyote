@@ -16,6 +16,7 @@ import coyote.commons.network.http.auth.GenericAuthProvider;
 import coyote.commons.network.http.responder.Error404Responder;
 import coyote.commons.network.http.responder.HTTPDRouter;
 import coyote.commons.network.http.responder.ResourceResponder;
+import coyote.dx.ConfigTag;
 import coyote.dx.Service;
 import coyote.dx.http.responder.*;
 import coyote.loader.cfg.Config;
@@ -88,16 +89,23 @@ public class CoyoteHttpManager extends HTTPDRouter implements HttpManager {
      * @param cfg Config instance containing our configuration (may be null)
      */
     public void setConfiguration(Config cfg) {
-        Config authConfig = null;
         if (cfg != null) {
-            authConfig = cfg.getSection(GenericAuthProvider.AUTH_SECTION);
+            Config authConfig = cfg.getSection(GenericAuthProvider.AUTH_SECTION);
+
+            // Setup auth provider from configuration - No configuration results in deny-all operation
+            if( authConfig!= null) {
+                setAuthProvider(new GenericAuthProvider(authConfig));
+            }
+
+            // force the components not to redirect to an index file for safety's sake
+            cfg.put(REDIRECT_TAG, false);
+
+            // Configure the IP Access Control List
+            configIpACL(cfg.getSection(ConfigTag.IPACL));
+
+            // Configure Denial of Service frequency tables
+            configDosTables(cfg.getSection(ConfigTag.FREQUENCY));
         }
-
-        // Setup auth provider from configuration - No configuration results in deny-all operation
-        setAuthProvider(new GenericAuthProvider(authConfig));
-
-        // force the components not to redirect to an index file for safety's sake
-        cfg.put(REDIRECT_TAG, false);
 
         // It is suggested that responders from the Coyote package be used to
         // handle standard, expected functions for consistency across managers.

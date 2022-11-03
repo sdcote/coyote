@@ -4,7 +4,7 @@ This is more of an example of how to create your own custom CDX images than a wo
 
 ## Design
 
-The `Service` is configured with only a `Wedge` component to keep the service open. NNo other jobs are configured.
+The `Service` is configured with only a `Wedge` component to keep the service open. No other jobs are configured.
 
 # Building
 

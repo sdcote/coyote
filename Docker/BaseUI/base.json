@@ -1,0 +1,23 @@
+{
+	"Class": "coyote.dx.Service",
+	
+	"Manager" : {
+		"Port": 55290,
+		"IPACL" : {
+			"default" : "deny",
+			"172/8" : "allow",
+			"192.168/16" : "allow",
+			"10/8" : "allow"
+		}
+	},
+
+	"Component": [
+		{ "Class": "coyote.loader.Wedge", "Notes": "This just keeps the the service open. Replace with your components or Jobs." }
+	],
+
+	"Logging": {
+		"StandardOutput": { "categories": "trace, debug, scheduler, info, notice, httpd" },
+		"StandardError": { "categories": "warn, error, fatal" }
+	}
+
+}
