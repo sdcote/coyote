@@ -110,7 +110,7 @@ public class ComponentDetail {
         b.append("                <div class=\"col-sm-4\">\n");
         b.append("                  <b>Name:</b> " + component.getName() + "<br>\n");
         b.append("                  <b>Instance:</b> " + component.getId() + "<br>\n");
-        b.append("                  <b>Class:</b> " + component.getClass() + "<br>\n");
+        b.append("                  <b>Class:</b> " + CUI.trimClassName(component.getClass()) + "<br>\n");
         b.append("                </div>\n");
 
         b.append("                <div class=\"col-sm-4\">\n");
@@ -131,14 +131,31 @@ public class ComponentDetail {
         b.append("                </div> <!-- ./row -->\n");
         String description = component.getDescription();
         if (StringUtil.isNotEmpty(description)) {
-            b.append("                <div class=\"row p-3 mb-2\">\n" +
-                    "                  Message: \n" +
-                    "                </div> <!-- ./row -->\n");
+            b.append("                <div class=\"row p-3 mb-2\">\n                  ");
+            b.append(description);
+            b.append("\n                </div> <!-- ./row -->\n");
         }
+
+
+        b.append(engineCard(component));
+
+
         b.append("              </div><!-- /.tab-pane -->\n");
 
         return b.toString();
     }
+
+
+
+
+    private String engineCard(ManagedComponent component) {
+        StringBuffer b = new StringBuffer();
+
+        return b.toString();
+    }
+
+
+
 
     private String contextTab(ManagedComponent component) {
         StringBuffer b = new StringBuffer();
@@ -275,7 +292,6 @@ public class ComponentDetail {
 
         showEngineDetails(b, job.getEngine());
     }
-
 
 
     private void showEngineDetails(StringBuffer b, TransformEngine engine) {

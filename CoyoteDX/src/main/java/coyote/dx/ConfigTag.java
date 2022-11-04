@@ -152,7 +152,7 @@ public class ConfigTag {
   public static final String MATCH = "match";
   public static final String AVOID = "avoid";
   public static final String HALT_ON_FAIL = "halt";
-  public static final String DESCRIPTION = "desc";
+  public static final String DESCRIPTION = "description";
   public static final String VALUES = "values";
   public static final String IGNORE_CASE = "ignoreCase";
 

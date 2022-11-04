@@ -65,7 +65,12 @@ public class ScheduledBatchJob extends ScheduledJob implements ManagedComponent 
       if(StringUtil.isNotBlank(config.getString(Symbols.APPID))) engine.getSymbolTable().put(Symbols.APPID, config.getString(Symbols.APPID)); else engine.getSymbolTable().put(Symbols.APPID, AbstractComponent.UNKNOWN);
       if(StringUtil.isNotBlank(config.getString(Symbols.CATID))) engine.getSymbolTable().put(Symbols.CATID, config.getString(Symbols.CATID)); else engine.getSymbolTable().put(Symbols.CATID, AbstractComponent.UNKNOWN);
 
-      if(StringUtil.isNotBlank(config.getString(ConfigTag.DESCRIPTION))) engine.getSymbolTable().put(Symbols.CMPDESC, config.getString(ConfigTag.DESCRIPTION)); else engine.getSymbolTable().put(Symbols.CMPDESC, "");
+      if(StringUtil.isNotBlank(config.getString(ConfigTag.DESCRIPTION))) {
+        setDescription(config.getString(ConfigTag.DESCRIPTION));
+        engine.getSymbolTable().put(Symbols.CMPDESC, getDescription());
+      } else {
+        engine.getSymbolTable().put(Symbols.CMPDESC, "");
+      }
 
       // store environment variables in the symbol table
       Map<String, String> env = System.getenv();

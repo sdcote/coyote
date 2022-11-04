@@ -203,12 +203,17 @@ public abstract class AbstractBatchLoader extends AbstractLoader {
     return retval;
   }
 
+
+
+
   /**
    * @return the number of components currently loaded
    */
   public long getComponentCount(){
     return components.size();
   }
+
+
 
 
   /**

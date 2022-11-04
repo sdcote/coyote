@@ -54,12 +54,12 @@ public class Components extends ViewResponder implements Responder {
         populateBreadcrumb(name);
 
         if (StringUtil.isNotBlank(name)) {
-            ManagedComponent component = findComponent(name,service.getComponents());
-            if( component != null ) {
+            ManagedComponent component = findComponent(name, service.getComponents());
+            if (component != null) {
                 getSymbols().put("Contents", new ComponentDetail(component).Symbols(getSymbols()).name(name).build());
                 retval = Response.createFixedLengthResponse(getStatus(), getMimeType(), getText());
             } else {
-                retval = new NotFound().get(resource,urlParams,session);
+                retval = new NotFound().get(resource, urlParams, session);
             }
         } else {
             getSymbols().put("Contents", new ComponentList(service.getComponents()).Symbols(getSymbols()).build());
@@ -83,14 +83,14 @@ public class Components extends ViewResponder implements Responder {
 
 
     /**
-     * Find the component that matches the name set in this builder.
+     * Find the first component that matches the name set in this builder.
      */
-    private ManagedComponent findComponent(String name,   List<ManagedComponent> components ) {
+    private ManagedComponent findComponent(String name, List<ManagedComponent> components) {
         ManagedComponent retval = null;
         if (name != null && components != null && components.size() > 0) {
-            for (ManagedComponent cmpt : components) {
-                if (name.equals(cmpt.getName())) {
-                    retval = cmpt;
+            for (ManagedComponent component : components) {
+                if (name.equals(component.getName())) {
+                    retval = component;
                     break;
                 }
             }
