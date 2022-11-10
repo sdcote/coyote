@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Stephan D. Cote' - All rights reserved.
+ * Copyright (c) 2022 Stephan D. Cote' - All rights reserved.
  * 
  * This program and the accompanying materials are made available under the 
  * terms of the MIT License which accompanies this distribution, and is 
@@ -7,6 +7,7 @@
  */
 package coyote.dx.http.responder;
 
+import java.awt.*;
 import java.util.List;
 import java.util.Map;
 
@@ -19,6 +20,8 @@ import coyote.commons.network.http.responder.Resource;
 import coyote.commons.network.http.responder.Responder;
 import coyote.dx.ScheduledBatchJob;
 import coyote.dx.Service;
+import coyote.dx.http.helpers.MainMenu;
+import coyote.dx.http.helpers.NavBar;
 import coyote.loader.component.ManagedComponent;
 import coyote.loader.log.Log;
 
@@ -33,7 +36,6 @@ public class Dashboard extends ViewResponder implements Responder {
 
   @Override
   public Response get(Resource resource, Map<String, String> urlParams, HTTPSession session) {
-
     SessionProfile profile = SessionProfileManager.retrieveOrCreateProfile(session);
     Log.info("Profile: " + profile);
 
@@ -65,16 +67,20 @@ public class Dashboard extends ViewResponder implements Responder {
     // load the template matching this class
     loadTemplate(this.getClass().getSimpleName());
 
-    //
 
     // Add more symbols to our table, like other page fragments:
-    //getSymbols().put("Menu", loadFragment("fragments/menu2.html"));
+    getSymbols().put("Footer", loadFragment("fragments/Footer.html"));
+
+
+    // Call helper classes that all pages can share. These create dynamic content that can be placed in the symbol table
+    getSymbols().put("NavBar", new NavBar(session).Service(service).Symbols(getSymbols()).CurrentPage(MainMenu.HOME).build());
+    getSymbols().put("MainMenu", new MainMenu(session).Symbols(getSymbols()).CurrentPage(MainMenu.HOME).build());
 
     // modify the template as we see fit
 
     //
 
-    // all done, return the response
+    // all done, return the response. The superclass getText method does all the heavy lifting
     return Response.createFixedLengthResponse(getStatus(), getMimeType(), getText());
   }
 

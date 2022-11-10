@@ -71,3 +71,5 @@ CoyoteDX/hprof/
 CoyoteUI/src/html/
 
 CDXInstaller.jar
+.sessions
+install.jar

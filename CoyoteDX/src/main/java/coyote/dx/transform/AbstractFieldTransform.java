@@ -63,7 +63,7 @@ public abstract class AbstractFieldTransform extends AbstractFrameTransform impl
     }
 
     // Look for a conditional statement the transform may use to control if it
-    // processes or not
+    // processes the frame or not
     String token = getConfiguration().getString(ConfigTag.CONDITION);
     if (StringUtil.isNotBlank(token)) {
       expression = token.trim();

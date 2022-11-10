@@ -20,6 +20,7 @@ import coyote.dx.context.TransformContext;
 import coyote.dx.mapper.DefaultFrameMapper;
 import coyote.dx.mapper.MappingException;
 import coyote.dx.validate.ValidationException;
+import coyote.i13n.AppEvent;
 import coyote.loader.Loader;
 import coyote.loader.log.Log;
 import coyote.loader.log.LogMsg;
@@ -37,7 +38,6 @@ import java.util.List;
  *
  */
 public abstract class AbstractTransformEngine extends AbstractConfigurableComponent implements TransformEngine, ConfigurableComponent {
-
     static final String FORMAT_SYMBOL_LOOKUP_TAG = "FormatSymbol";
     /**
      * A symbol table to support basic template functions
@@ -56,7 +56,7 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
      */
     protected FrameReader reader = null;
     /**
-     * The component which will read (history) frames into components to provide them with pervious/historic values on which to base their calculations.
+     * The component which will read (history) frames into components to provide them with previous/historic values on which to base their calculations.
      */
     protected FrameReader preloader = null;
     /**
@@ -113,6 +113,10 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
      * the loader which loaded this engine
      */
     private Loader loader = null;
+    /**
+     * How many times the engine has been run.
+     */
+    private long runCount = 0;
 
 
     public AbstractTransformEngine() {
@@ -213,6 +217,9 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
     @SuppressWarnings("unchecked")
     @Override
     public void run() {
+        // increment instance run count
+        runCount++;
+
         // Initialize the context
         contextInit();
 
@@ -376,7 +383,11 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
         }
 
         if (getContext().isInError()) {
-            Log.info("Engine '" + getName() + "' (" + getInstanceId() + ") completed with errors: " + getContext().getErrorMessage());
+            String msg = "Engine '" + getName() + "' (" + getInstanceId() + ") completed with errors: " + getContext().getErrorMessage();
+            Log.info(msg);
+            if( getLoader() != null){
+                loader.getStats().createEvent(getSymbolTable().getString(Symbols.APPID),getSymbolTable().getString(Symbols.SYSID),getSymbolTable().getString(Symbols.CMPID),msg, AppEvent.MAJOR,0,0,"Engine");
+            }
         } else {
             Log.info("Engine '" + getName() + "' (" + getInstanceId() + ") completed successfully");
         }
@@ -531,7 +542,7 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
             // Create a transformation context for components to share data
             setContext(new TransformContext());
         } else {
-            // reset the context in case is was used previously
+            // reset the context in case it was used previously
             getContext().reset();
 
             // place any existing context variables in the symbol table
@@ -1020,16 +1031,14 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
             symbols.put(Symbols.PREV_DAY_PD, StringUtil.zeropad(cal.get(Calendar.DAY_OF_MONTH), 2));
             symbols.put(Symbols.PREV_YEAR_PYYY, StringUtil.zeropad(cal.get(Calendar.YEAR), 4));
 
-            // reset to todays date/time
+            // reset to today's date/time
             cal.setTime(rundate);
 
             // go back a month
             cal.add(Calendar.MONTH, -1);
             symbols.put(Symbols.PREV_MONTH_LM, StringUtil.zeropad(cal.get(Calendar.MONTH) + 1, 2));
             symbols.put(Symbols.PREV_YEAR_LMYY, StringUtil.zeropad(cal.get(Calendar.YEAR), 4));
-
         }
-
         return rundate;
     }
 
@@ -1422,6 +1431,88 @@ public abstract class AbstractTransformEngine extends AbstractConfigurableCompon
     @Override
     public void setLoader(Loader loader) {
         this.loader = loader;
+    }
+
+
+    /**
+     * @return the number of times this instance has been run.
+     */
+    @Override
+    public long getInstanceRunCount() {
+        return runCount;
+    }
+
+    /**
+     * @return the list of pre-processing tasks
+     */
+    @Override
+    public List<TransformTask> getPreprocessTasks() {
+        return preProcesses;
+    }
+
+    /**
+     * @return the list of post-processing tasks.
+     */
+    @Override
+    public List<TransformTask> getPostprocessTasks() {
+        return postProcesses;
+    }
+
+    /**
+     * @return the preloader used to prime the transform engine.
+     */
+    @Override
+    public FrameReader getPreloader() {
+        return preloader;
+    }
+
+    /**
+     * @return the filters used to limit frames processed.
+     */
+    @Override
+    public List<FrameFilter> getFilters() {
+        return filters;
+    }
+
+    /**
+     * @return the currently set list of validation rules.
+     */
+    @Override
+    public List<FrameValidator> getValidators() {
+        return validators;
+    }
+
+    /**
+     * @return the list of currently set frame transformers.
+     */
+    @Override
+    public List<FrameTransform> getTransformers() {
+        return transformers;
+    }
+
+    /**
+     * @return the aggregators used to alter the output.
+     */
+    @Override
+    public List<FrameAggregator> getAggregators() {
+        return aggregators;
+    }
+
+    /**
+     * @return the currently set listeners.
+     */
+    @Override
+    public List<ContextListener> getListeners() {
+        return listeners;
+    }
+
+
+    /**
+     * @return a list of writers for this engine
+     */
+    @Override
+    public List<FrameWriter> getWriters() {
+        return writers;
     }
 
 }

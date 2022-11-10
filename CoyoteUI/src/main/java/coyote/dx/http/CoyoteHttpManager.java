@@ -13,19 +13,20 @@ package coyote.dx.http;
 
 import coyote.commons.network.http.SessionProfileManager;
 import coyote.commons.network.http.auth.GenericAuthProvider;
+import coyote.commons.network.http.responder.Error404Responder;
 import coyote.commons.network.http.responder.HTTPDRouter;
 import coyote.commons.network.http.responder.ResourceResponder;
+import coyote.dx.ConfigTag;
 import coyote.dx.Service;
-import coyote.dx.http.responder.CommandResponder;
-import coyote.dx.http.responder.Commands;
-import coyote.dx.http.responder.Dashboard;
-import coyote.dx.http.responder.HealthCheckResponder;
-import coyote.dx.http.responder.Logging;
-import coyote.dx.http.responder.Login;
-import coyote.dx.http.responder.Logout;
-import coyote.dx.http.responder.PingResponder;
+import coyote.dx.http.responder.*;
 import coyote.loader.cfg.Config;
 import coyote.loader.log.Log;
+
+import java.util.HashSet;
+import java.util.Set;
+import java.util.regex.Pattern;
+
+import static coyote.commons.network.http.responder.ResourceResponder.REDIRECT_TAG;
 
 
 /**
@@ -33,8 +34,14 @@ import coyote.loader.log.Log;
  */
 public class CoyoteHttpManager extends HTTPDRouter implements HttpManager {
 
-    private final Service service;
+    /** set of symbols we should not expose through the UI **/
+    private static final Set<String> protectedSymbols = new HashSet<>();
 
+    static {
+        protectedSymbols.add("vault.secret");
+    }
+
+    private final Service service;
 
     /**
      * Create the server instance with all the defaults
@@ -65,20 +72,40 @@ public class CoyoteHttpManager extends HTTPDRouter implements HttpManager {
     }
 
 
+
+
+    public static boolean symbolIsProtected(String symbol) {
+        boolean retval = Pattern.compile(Pattern.quote("password"), Pattern.CASE_INSENSITIVE).matcher(symbol).find();
+        if (!retval) retval = protectedSymbols.contains(symbol);
+        return retval;
+    }
+
+
+
+
     /**
      * Set the configuration data in this manager
      *
      * @param cfg Config instance containing our configuration (may be null)
      */
     public void setConfiguration(Config cfg) {
-
-        Config authConfig = null;
         if (cfg != null) {
-            authConfig = cfg.getSection(GenericAuthProvider.AUTH_SECTION);
-        }
+            Config authConfig = cfg.getSection(GenericAuthProvider.AUTH_SECTION);
 
-        // Setup auth provider from configuration - No configuration results in deny-all operation
-        setAuthProvider(new GenericAuthProvider(authConfig));
+            // Setup auth provider from configuration - No configuration results in deny-all operation
+            if( authConfig!= null) {
+                setAuthProvider(new GenericAuthProvider(authConfig));
+            }
+
+            // force the components not to redirect to an index file for safety's sake
+            cfg.put(REDIRECT_TAG, false);
+
+            // Configure the IP Access Control List
+            configIpACL(cfg.getSection(ConfigTag.IPACL));
+
+            // Configure Denial of Service frequency tables
+            configDosTables(cfg.getSection(ConfigTag.FREQUENCY));
+        }
 
         // It is suggested that responders from the Coyote package be used to
         // handle standard, expected functions for consistency across managers.
@@ -88,6 +115,9 @@ public class CoyoteHttpManager extends HTTPDRouter implements HttpManager {
         addRoute("/api/health", HealthCheckResponder.class, service, cfg);
 
         addRoute("/", Dashboard.class, service, cfg);
+        addRoute("/components", Components.class, service, cfg);
+        addRoute("/components/:name", Components.class, service, cfg);
+        addRoute("/events", Events.class, service, cfg);
         addRoute("/login", Login.class, service, cfg);
         addRoute("/logout", Logout.class, service, cfg);
         addRoute("/logging", Logging.class, service, cfg);
@@ -99,7 +129,12 @@ public class CoyoteHttpManager extends HTTPDRouter implements HttpManager {
         // Note: internal responders expect initParam 0 to be the web server and initParam 1 to be the web server configuration
         addRoute("/(.)+", Integer.MAX_VALUE, ResourceResponder.class, this, cfg);
 
+        // Set the responder for 404 errors
+        setNotFoundResponder(NotFound.class, service, cfg);
+
     }
+
+
 
 
     /**

@@ -58,4 +58,12 @@ public class VaultProxy {
     return retval;
   }
 
+
+  /**
+   * @return the underlying vault instance this proxy wraps.
+   */
+  public Vault getVault(){
+    return vault;
+  }
+
 }

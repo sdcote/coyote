@@ -37,7 +37,7 @@ public abstract class AbstractFrameFileWriter extends AbstractFrameWriter implem
   protected int rowNumber = 0;
   protected PrintWriter printwriter = null;
 
-  //size of the target file when this componet was opened
+  //size of the target file when this component was opened
   private long targetSize = -1;
 
 

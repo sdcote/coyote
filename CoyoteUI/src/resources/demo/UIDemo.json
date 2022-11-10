@@ -1,0 +1,79 @@
+{
+	"Class": "coyote.dx.Service",
+	"Name": "UIDemo",
+	"IDx": "1235813",
+
+	"Manager" : {
+		"Port": 80,
+		"Auth": {
+			"Users":[ 
+				{ "Name" : "admin", 
+				  "Password" : "secret", 
+				  "Groups" : "sysop,devop"
+				},
+				{ "Name" : "sysop", 
+				  "Password" : "secret", 
+				  "Groups" : "sysop"
+				},
+				{ "Name" : "devop", 
+				  "Password" : "secret", 
+				  "Groups" : "devop"
+				},
+				{ "Name" : "user", 
+				  "Password" : "secret"
+				}
+			]
+		},
+		"IPACL" : {
+			"default" : "deny",
+			"127.0.0.1" : "allow",
+			"172.28.147.6/8" : "allow",
+			"192.168/16" : "allow",
+			"10/8" : "deny"
+		}
+	},
+
+	"Job" : {
+		"Name" : "Simple",
+		"AppID" : "Demo",
+		"SysID" : "Integration",
+		"CmpID" : "UserLoad",
+		"CatID" : "BatchJob",
+		"Description" : "This is a sample job to illustrate a reoccurring job in a service.",
+		"Password" : "This password will not show up in the UI",
+		"PrivateKey" : "Neither should this",
+		"Schedule": { "Minutes": "*/2" },
+		
+		"Reader" : {
+			"class" : "CsvReader",
+			"source" : "[#$app.home#]/demo/users.csv",
+			"header" : true
+		},
+
+		"Writer" : {
+			"class" : "FlatFileWriter",
+			"target" : "users.txt",
+			"fields" : {
+				"Role" : { "start" : 0, "length" : 6 },
+				"FirstName" : { "start" : 7, "length" : 11 },
+				"LastName" : { "start" : 19, "length" : 16 },
+				"MiddleInitial" : { "start" : 36, "length" : 1 }
+			}    
+		}
+	},
+
+	"Component": [
+		{
+			"Class": "coyote.loader.Wedge",
+			"Notes": "This just keeps the the service open."
+		}
+	],
+
+	"Logging": {
+		"StandardOutput": { "categories": "info,notice,httpd" },
+		"StandardError": { "categories": "error, fatal, warn" },
+		"FileAppender": { "target": "error.log", "categories": "error, fatal, warn" },
+		"FileAppender": { "target": "scheduler.log", "categories": "scheduler, thread" }
+	}
+
+}

@@ -9,11 +9,11 @@ COPY CoyoteDX/build/install/CoyoteDX/lib /opt/cdx/lib
 # Include the optional modules. Comment out those not required
 COPY CoyoteDB/build/install/CoyoteDB/lib /opt/cdx/lib
 COPY CoyoteFT/build/install/CoyoteFT/lib /opt/cdx/lib
-COPY CoyoteMC/build/install/CoyoteMC/lib /opt/cdx/lib
-COPY CoyoteMQ/build/install/CoyoteMQ/lib /opt/cdx/lib
-COPY CoyoteMT/build/install/CoyoteMT/lib /opt/cdx/lib
 COPY CoyoteSLF4J/build/install/CoyoteSLF4J/lib /opt/cdx/lib
 COPY CoyoteWS/build/install/CoyoteWS/lib /opt/cdx/lib
+# COPY CoyoteMC/build/install/CoyoteMC/lib /opt/cdx/lib
+# COPY CoyoteMQ/build/install/CoyoteMQ/lib /opt/cdx/lib
+# COPY CoyoteMT/build/install/CoyoteMT/lib /opt/cdx/lib
 
 # Run coyote data exchange
 ENTRYPOINT ["/opt/cdx/bin/cdx"]

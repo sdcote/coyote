@@ -5,7 +5,7 @@
       "This illustrates the simplest configuration for a local vault. It requires a source configuration element which",
       "describes where the file is. It is relative to the current working directory but can be mate absolute. The ",
       "master password to open the vault is specified in the 'vault.secret' system property. This should be specified ",
-      "on the command line thusly: '-Dvault.secret=MySecretPassword'. If the secret is not found in the system property,",
+      "on the command line thus: '-Dvault.secret=MySecretPassword'. If the secret is not found in the system property,",
       "a default password of 'changeme' will be used. This is useful only in development scenarios and secrets should",
       "only be considered obfuscated if the default password/secret is used. The simple vault has a master secret of",
       "'iforgot'."

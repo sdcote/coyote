@@ -8,6 +8,7 @@
 package coyote.dx;
 
 import java.io.File;
+import java.util.List;
 
 import coyote.commons.template.SymbolTable;
 import coyote.dataframe.DataFrame;
@@ -324,5 +325,63 @@ public interface TransformEngine extends RunnableComponent {
    * @param loader the loader which loaded this engine.
    */
   public void setLoader(Loader loader);
+
+  /**
+   * @return the number of times this engine has entered the run() method.
+   */
+  public long getInstanceRunCount();
+
+  /**
+   * @return the list of pre-processing tasks
+   */
+  List<TransformTask> getPreprocessTasks();
+
+
+  /**
+   * @return the list of post-processing tasks.
+   */
+  List<TransformTask> getPostprocessTasks();
+
+
+  /**
+   * @return the preloader used to prime the transform engine.
+   */
+  FrameReader getPreloader();
+
+
+  /**
+   * @return the filters used to limit frames processed.
+   */
+  List<FrameFilter> getFilters();
+
+
+  /**
+   * @return the currently set list of validation rules.
+   */
+  List<FrameValidator> getValidators();
+
+
+  /**
+   * @return the list of currently set frame transformers.
+   */
+  List<FrameTransform> getTransformers();
+
+
+  /**
+   * @return the aggregators used to alter the output.
+   */
+  List<FrameAggregator> getAggregators();
+
+
+  /**
+   * @return the currently set listeners.
+   */
+  List<ContextListener> getListeners();
+
+
+  /**
+   * @return a list of writers for this engine
+   */
+  List<FrameWriter> getWriters();
 
 }

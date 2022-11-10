@@ -563,4 +563,14 @@ public class TransformContext extends OperationalContext {
     return engine;
   }
 
+
+
+
+  /**
+   * @return the number of times the context was opened.
+   */
+  public long getOpenCount() {
+    return openCount;
+  }
+
 }

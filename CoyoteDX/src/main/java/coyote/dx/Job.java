@@ -99,6 +99,10 @@ public class Job extends AbstractBatchLoader implements Loader {
           engine.getSymbolTable().put(Symbols.ENVIRONMENT_VAR_PREFIX + envName, env.get(envName));
         }
 
+        if(StringUtil.isNotBlank(job.getString(Symbols.APPID))) engine.getSymbolTable().put(Symbols.APPID, job.getString(Symbols.APPID));
+        if(StringUtil.isNotBlank(job.getString(Symbols.SYSID))) engine.getSymbolTable().put(Symbols.SYSID, job.getString(Symbols.SYSID));
+        if(StringUtil.isNotBlank(job.getString(Symbols.CMPID))) engine.getSymbolTable().put(Symbols.CMPID, job.getString(Symbols.CMPID));
+
         if (StringUtil.isBlank(engine.getName())) {
           Log.trace(LogMsg.createMsg(CDX.MSG, "Job.unnamed_engine_configured"));
         } else {

@@ -68,4 +68,9 @@ public class Symbols {
   public static final String VERSION = "Version";
   public static final String NODE_ID = "NodeID";
 
+  public static final String APPID = "AppID"; // config option identifying the application
+  public static final String SYSID = "SysID"; // config option identifying the system within the application
+  public static final String CMPID = "CmpID"; // config option identifying the component within the system
+  public static final String CATID = "CatID"; // config option identifying the category to which the component belongs
+  public static final String CMPDESC = "ComponentDesc"; // Component Description
 }

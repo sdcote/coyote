@@ -78,6 +78,18 @@ public class NumericEvaluator extends DoubleEvaluator {
 
 
   /**
+   * Access the transform context this evaluator uses to resolve variables.
+   *
+    * @return The transformation context all components share
+   */
+  public TransformContext getContext(){
+    return transformContext;
+  }
+
+
+
+
+  /**
    * @see coyote.commons.eval.AbstractEvaluator#evaluate(coyote.commons.eval.Method, java.util.Iterator, java.lang.Object)
    */
   @Override

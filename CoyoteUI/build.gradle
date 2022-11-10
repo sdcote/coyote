@@ -1,5 +1,7 @@
 defaultTasks 'clean', 'build', 'publish', 'installDist'
 mainClassName = "coyote.loader.BootStrap"
+archivesBaseName = 'cui'
+version = '0.0.1'
 
 jar {
     manifest {
@@ -17,6 +19,6 @@ ext {
 dependencies {
 	compile project(':CoyoteDX')
 	compile "coyote:CoyoteDX:$version"
-	compile "org.seleniumhq.selenium:selenium-java:$seleniumVersion"
+	testCompile "org.seleniumhq.selenium:selenium-java:$seleniumVersion"
 	testCompile "junit:junit:$junitVersion"	
 }

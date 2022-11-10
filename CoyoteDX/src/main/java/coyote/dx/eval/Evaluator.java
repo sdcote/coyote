@@ -110,4 +110,7 @@ public class Evaluator {
     // TODO: seval.setContext( context );
   }
 
+  public TransformContext getContext(){
+    return beval.getContext();
+  }
 }

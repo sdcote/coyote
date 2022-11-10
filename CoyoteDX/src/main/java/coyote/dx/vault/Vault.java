@@ -19,7 +19,7 @@ package coyote.dx.vault;
  * {@code Provider} implementations acting as a mediator to vendor-specific models and API calls.</p>
  */
 public interface Vault {
-  static final String LOOKUP_TAG = "Vault";
+  String LOOKUP_TAG = "Vault";
 
 
   /**

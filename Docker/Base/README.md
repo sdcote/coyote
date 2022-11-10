@@ -15,6 +15,10 @@ Next, from the base of the project, run `docker build`:
 All the other images will use a `FROM cdx` so keep the name consistent, otherwise you will need to change the `FROM` 
 directive in the `Dockerfile` in the other projects.
 
+If you are using `containerd`, then the command is:
+
+    nerdctl build -f Docker/Base/Dockerfile -t cdx .
+
 ## Pushing
 
 Tag the newly created image with host, path, and version tags:

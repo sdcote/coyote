@@ -25,6 +25,16 @@ public class CUI {
 
 
 
+  public static String trimClassName(Class classref)  {
+    String retval = "";
+    String data = classref.toString();
+    if (data.startsWith("class ")){
+      data = data.substring(5);
+    }
+    retval = data;
+    return retval;
+  }
+
 
   /**
    * Called by other classes to get our version number.

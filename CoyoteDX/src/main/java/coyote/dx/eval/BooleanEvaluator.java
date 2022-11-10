@@ -158,8 +158,25 @@ public class BooleanEvaluator extends AbstractEvaluator<Boolean> {
 
 
 
-  public void setContext(final TransformContext context) {
+  /**
+   * Set the context in which methods will resolve their data.
+   *
+   * @param context The transformation context all components share
+   */
+  public void setContext( TransformContext context ) {
     transformContext = context;
+  }
+
+
+
+
+  /**
+   * Access the transform context this evaluator uses to resolve variables.
+   *
+   * @return The transformation context all components share
+   */
+  public TransformContext getContext(){
+    return transformContext;
   }
 
 

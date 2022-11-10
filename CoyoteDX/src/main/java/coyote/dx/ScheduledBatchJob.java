@@ -10,6 +10,7 @@ package coyote.dx;
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.List;
+import java.util.Map;
 
 import coyote.commons.CronEntry;
 import coyote.commons.ExceptionUtil;
@@ -20,6 +21,7 @@ import coyote.dataframe.DataFrame;
 import coyote.loader.Context;
 import coyote.loader.Loader;
 import coyote.loader.cfg.Config;
+import coyote.loader.component.AbstractComponent;
 import coyote.loader.component.ManagedComponent;
 import coyote.loader.log.Log;
 import coyote.loader.log.LogMsg;
@@ -40,7 +42,6 @@ public class ScheduledBatchJob extends ScheduledJob implements ManagedComponent 
 
 
 
-
   /**
    * Set the configuration of this component.
    * 
@@ -58,6 +59,24 @@ public class ScheduledBatchJob extends ScheduledJob implements ManagedComponent 
       engine = TransformEngineFactory.getInstance(config);
 
       engine.setLoader(getLoader());
+
+      if(StringUtil.isNotBlank(config.getString(Symbols.CMPID))) engine.getSymbolTable().put(Symbols.CMPID, config.getString(Symbols.CMPID)); else engine.getSymbolTable().put(Symbols.CMPID, AbstractComponent.UNKNOWN);
+      if(StringUtil.isNotBlank(config.getString(Symbols.SYSID))) engine.getSymbolTable().put(Symbols.SYSID, config.getString(Symbols.SYSID)); else engine.getSymbolTable().put(Symbols.SYSID, AbstractComponent.UNKNOWN);
+      if(StringUtil.isNotBlank(config.getString(Symbols.APPID))) engine.getSymbolTable().put(Symbols.APPID, config.getString(Symbols.APPID)); else engine.getSymbolTable().put(Symbols.APPID, AbstractComponent.UNKNOWN);
+      if(StringUtil.isNotBlank(config.getString(Symbols.CATID))) engine.getSymbolTable().put(Symbols.CATID, config.getString(Symbols.CATID)); else engine.getSymbolTable().put(Symbols.CATID, AbstractComponent.UNKNOWN);
+
+      if(StringUtil.isNotBlank(config.getString(ConfigTag.DESCRIPTION))) {
+        setDescription(config.getString(ConfigTag.DESCRIPTION));
+        engine.getSymbolTable().put(Symbols.CMPDESC, getDescription());
+      } else {
+        engine.getSymbolTable().put(Symbols.CMPDESC, "");
+      }
+
+      // store environment variables in the symbol table
+      Map<String, String> env = System.getenv();
+      for (String envName : env.keySet()) {
+        engine.getSymbolTable().put(Symbols.ENVIRONMENT_VAR_PREFIX + envName, env.get(envName));
+      }
 
       if (StringUtil.isBlank(engine.getName())) {
         Log.trace(LogMsg.createMsg(CDX.MSG, "Job.unnamed_engine_configured"));
@@ -173,6 +192,7 @@ public class ScheduledBatchJob extends ScheduledJob implements ManagedComponent 
    */
   @Override
   public void doWork() {
+    setStartTime(System.currentTimeMillis());
 
     if (engine != null) {
       Log.trace(LogMsg.createMsg(CDX.MSG, "Job.running", getName(), engine.getName()));
@@ -220,27 +240,40 @@ public class ScheduledBatchJob extends ScheduledJob implements ManagedComponent 
 
   @Override
   public String getApplicationId() {
-    return null;
+    return engine.getSymbolTable().getString(Symbols.APPID);
   }
 
 
 
 
   @Override
-  public String getCategory() {
-    return null;
+  public String getComponentId() {
+    return engine.getSymbolTable().getString(Symbols.CMPID);
   }
+
+
+
+
+  @Override
+  public String getCategory() { return engine.getSymbolTable().getString(Symbols.CATID); }
 
 
 
 
   @Override
   public String getId() {
-    return null;
+    String retval = configuration.getId();
+    if(StringUtil.isBlank(retval)) retval = engine.getInstanceId();
+    return retval;
   }
 
 
-
+  /**
+   * @return the number of times this (engine) instance has been run.
+   */
+  public long getInstanceRunCount() {
+    return engine.getInstanceRunCount();
+  }
 
   @Override
   public DataFrame getProfile() {
@@ -248,11 +281,12 @@ public class ScheduledBatchJob extends ScheduledJob implements ManagedComponent 
   }
 
 
-
-
   @Override
   public long getStartTime() {
-    return 0;
+    if (engine.getContext() == null)
+      return 0;
+    else
+      return engine.getContext().getStartTime();
   }
 
 
@@ -268,7 +302,7 @@ public class ScheduledBatchJob extends ScheduledJob implements ManagedComponent 
 
   @Override
   public String getSystemId() {
-    return null;
+    return engine.getSymbolTable().getString(Symbols.SYSID);
   }
 
 
@@ -297,13 +331,17 @@ public class ScheduledBatchJob extends ScheduledJob implements ManagedComponent 
 
 
   @Override
-  public void setId(String id) {}
+  public void setId(String id) {
+    // Ignore since it is either configured, or the instance identifier of the engine is used.
+  }
 
 
 
 
   @Override
-  public void setStartTime(long millis) {}
+  public void setStartTime(long millis) {
+    // ignore, since the start time is tracked in the engine context - See: engine.getContext().getStartTime()
+  }
 
 
 
