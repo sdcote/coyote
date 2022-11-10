@@ -445,7 +445,7 @@ public class ComponentDetail {
             String contextMessage = context.getErrorMessage();
             if (StringUtil.isNotEmpty(contextMessage)) {
                 b.append("                <div class=\"row p-3 mb-2\">\n" +
-                        "                  Error: \n" + contextMessage +
+                        "                  <b>Error:</b> \n" + contextMessage +
                         "                </div> <!-- row -->\n");
             }
             b.append("                <div class=\"card\">\n" +
