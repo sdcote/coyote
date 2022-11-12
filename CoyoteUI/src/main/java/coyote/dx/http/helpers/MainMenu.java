@@ -7,24 +7,29 @@
  */
 package coyote.dx.http.helpers;
 
+import coyote.commons.StringUtil;
 import coyote.commons.network.http.HTTPSession;
+import coyote.commons.network.http.SessionProfile;
+import coyote.commons.network.http.SessionProfileManager;
 import coyote.commons.template.SymbolTable;
 import coyote.commons.template.Template;
+import coyote.loader.log.Log;
+
+import java.util.List;
 
 
 /**
  * This is a helper class for generating the main menu consistently between responders.
  */
 public class MainMenu {
-    private final HTTPSession session;
-    private String currentPage = HOME;
-    SymbolTable symbolTable = null;
-
     public static final String HOME = "Home";
     public static final String COMPONENTS = "Components";
     public static final String EVENTS = "Events";
+    private final HTTPSession session;
+    private final String currentPage = HOME;
+    SymbolTable symbolTable = null;
 
-    public MainMenu(HTTPSession session){
+    public MainMenu(HTTPSession session) {
         this.session = session;
     }
 
@@ -34,18 +39,20 @@ public class MainMenu {
     }
 
 
-
-
-    public MainMenu CurrentPage(String location){
+    public MainMenu CurrentPage(String location) {
         return this;
     }
 
 
-
-
-
-    public String build(){
+    public String build() {
         StringBuffer b = new StringBuffer();
+        String username = session.getUserName();
+        List<String> usergroups = session.getUserGroups();
+
+        if (usergroups.size() == 0) {
+            Log.info("No groups");
+        }
+
         b.append(" <aside class=\"main-sidebar sidebar-dark-primary elevation-4\">\n" +
                 "    <!-- Brand Logo -->\n" +
                 "    <a href=\"/\" class=\"brand-link\">\n" +
@@ -60,9 +67,13 @@ public class MainMenu {
                 "        <div class=\"image\">\n" +
                 "          <img src=\"/dist/img/user.png\" class=\"img-circle elevation-2\" alt=\"User Image\">\n" +
                 "        </div>\n" +
-                "        <div class=\"info\">\n" +
-                "          <a href=\"#\" class=\"d-block\">Anonymous</a>\n" +
-                "        </div>\n" +
+                "        <div class=\"info\">\n");
+        if (StringUtil.isBlank(username)) {
+            b.append("          <a href=\"/login\" class=\"d-block\">Anonymous</a>\n");
+        } else {
+            b.append("          <a href=\"/logout\" class=\"d-block\">" + username + "</a>\n");
+        }
+        b.append("        </div>\n" +
                 "      </div>\n" +
                 "\n" +
                 "      <!-- Sidebar Menu -->\n" +
@@ -91,7 +102,7 @@ public class MainMenu {
                 "  </aside>");
 
         // Pre-process the text so unresolved tokens are easily identified and resolved.
-        return Template.preProcess(b.toString(),symbolTable);
+        return Template.preProcess(b.toString(), symbolTable);
     }
 
 }

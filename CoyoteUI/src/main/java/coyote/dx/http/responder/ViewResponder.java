@@ -27,7 +27,13 @@ import coyote.loader.log.Log;
 
 
 /**
+ * This resolves a template as a response.
  *
+ * <ol>
+ *     <li>Set your template</li>
+ *     <li>Update your symbols</li>
+ *     <li>Call <code>getText()</code> to get the resolved template.</li>
+ * </ol>
  */
 public abstract class ViewResponder extends DefaultResponder implements Responder {
   private static final String HTML_EXTENSION = ".html";

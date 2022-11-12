@@ -37,14 +37,13 @@ public class Dashboard extends ViewResponder implements Responder {
   @Override
   public Response get(Resource resource, Map<String, String> urlParams, HTTPSession session) {
     SessionProfile profile = SessionProfileManager.retrieveOrCreateProfile(session);
-    Log.info("Profile: " + profile);
+    Log.info(session.getUserName());
+    Log.info(session.getUserGroups());
 
-    if (StringUtil.isBlank(session.getUserName())) {
-      Log.info("No user");
-    }
-    if (session.getUserGroups().size() == 0) {
-      Log.info("No groups");
-    }
+    Log.info("Profile: " + profile);
+    Log.info(profile.get("UserName"));
+    Log.info(profile.get("UserGroups"));
+
 
     // The first init parameter should be the service in which everything is running
     Service service = resource.initParameter(0, Service.class);
